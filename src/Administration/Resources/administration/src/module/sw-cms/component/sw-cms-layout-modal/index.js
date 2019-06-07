@@ -1,9 +1,15 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-cms-layout-modal.html.twig';
 import './sw-cms-layout-modal.scss';
 
 Component.register('sw-cms-layout-modal', {
     template,
+
+    inject: [
+        'repositoryFactory',
+        'context'
+    ],
 
     mixins: [
         Mixin.getByName('listing')
@@ -13,41 +19,38 @@ Component.register('sw-cms-layout-modal', {
         return {
             selected: null,
             isLoading: false,
+            sortBy: 'createdAt',
+            sortDirection: 'DESC',
+            term: null,
             total: null,
             pages: []
         };
     },
 
     computed: {
-        pageStore() {
-            return State.getStore('cms_page');
+        pageRepository() {
+            return this.repositoryFactory.create('cms_page');
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.getList();
-        },
-
         getList() {
             this.isLoading = true;
-            const params = this.getListingParams();
-            params.term = this.term;
-            params.limit = 500;
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.addAssociation('previewMedia');
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            if (this.criteria) {
-                params.criteria = this.criteria;
+            if (this.term !== null) {
+                criteria.setTerm(this.term);
             }
 
-            return this.pageStore.getList(params).then((response) => {
-                this.total = response.total;
-                this.pages = response.items;
+            return this.pageRepository.search(criteria, this.context).then((searchResult) => {
+                this.total = searchResult.total;
+                this.pages = searchResult.items;
                 this.isLoading = false;
                 return this.pages;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 
@@ -61,7 +64,13 @@ Component.register('sw-cms-layout-modal', {
         },
 
         onSearch(value) {
-            this.term = value;
+            if (!value.length || value.length <= 0) {
+                this.term = null;
+            } else {
+                this.term = value;
+            }
+
+            this.page = 1;
             this.getList();
         },
 

@@ -164,6 +164,7 @@ Component.register('sw-category-detail', {
                 limit: 1,
                 criteria: CriteriaFactory.equals('cms_page.id', cmsPageId),
                 associations: {
+                    previewMedia: {},
                     blocks: {
                         sort: 'position',
                         associations: {

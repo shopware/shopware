@@ -1,10 +1,15 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 
 Component.register('sw-cms-list', {
     template,
+
+    inject: [
+        'repositoryFactory',
+        'context'
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -22,36 +27,41 @@ Component.register('sw-cms-list', {
             pages: [],
             isLoading: false,
             sortBy: 'createdAt',
-            sortDirection: 'dsc',
-            term: '',
-            disableRouteParams: true,
-            noMorePages: false,
-            criteria: null,
+            sortDirection: 'DESC',
+            limit: 9,
+            term: null,
+            currentPageType: null,
             showMediaModal: false,
             currentPage: null,
-            showDeleteModal: false
+            showDeleteModal: false,
+            defaultMediaFolderId: null,
+            listMode: 'grid'
         };
     },
 
     computed: {
-        pageStore() {
-            return State.getStore('cms_page');
+        pageRepository() {
+            return this.repositoryFactory.create('cms_page');
+        },
+
+        defaultFolderRepository() {
+            return this.repositoryFactory.create('media_default_folder');
         },
 
         languageStore() {
             return State.getStore('language');
         },
 
-        defaultFolderStore() {
-            return State.getStore('media_default_folder');
+        columnConfig() {
+            return this.getColumnConfig();
         },
 
         sortOptions() {
             return [
-                { value: 'createdAt:dsc', name: this.$tc('sw-cms.sorting.labelSortByCreatedDsc') },
-                { value: 'createdAt:asc', name: this.$tc('sw-cms.sorting.labelSortByCreatedAsc') },
-                { value: 'updatedAt:dsc', name: this.$tc('sw-cms.sorting.labelSortByUpdatedDsc') },
-                { value: 'updatedAt:asc', name: this.$tc('sw-cms.sorting.labelSortByUpdatedAsc') }
+                { value: 'createdAt:DESC', name: this.$tc('sw-cms.sorting.labelSortByCreatedDsc') },
+                { value: 'createdAt:ASC', name: this.$tc('sw-cms.sorting.labelSortByCreatedAsc') },
+                { value: 'updatedAt:DESC', name: this.$tc('sw-cms.sorting.labelSortByUpdatedDsc') },
+                { value: 'updatedAt:ASC', name: this.$tc('sw-cms.sorting.labelSortByUpdatedAsc') }
             ];
         },
 
@@ -63,6 +73,15 @@ Component.register('sw-cms-list', {
                 { value: 'product_list', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') },
                 { value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages'), disabled: true }
             ];
+        },
+
+        pageTypes() {
+            return {
+                page: this.$tc('sw-cms.sorting.labelSortByShopPages'),
+                landingpage: this.$tc('sw-cms.sorting.labelSortByLandingPages'),
+                product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages'),
+                product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages')
+            };
         },
 
         sortingConCat() {
@@ -81,29 +100,62 @@ Component.register('sw-cms-list', {
 
             // ToDo: Remove, when language handling is added to CMS
             this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            this.context.languageId = this.languageStore.systemLanguageId;
 
             this.setPageContext();
         },
 
         setPageContext() {
             this.getDefaultFolderId().then((folderId) => {
-                this.pageStore.defaultMediaFolderId = folderId;
+                this.defaultMediaFolderId = folderId;
             });
         },
 
-        getDefaultFolderId() {
-            return this.defaultFolderStore.getList({
-                limit: 1,
-                criteria: CriteriaFactory.equals('entity', this.pageStore._entityName),
-                associations: {
-                    folder: {}
-                }
-            }).then(({ items }) => {
-                if (items.length !== 1) {
-                    return null;
-                }
+        getList() {
+            this.isLoading = true;
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.addAssociation('previewMedia');
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-                const defaultFolder = items[0];
+            if (this.term !== null) {
+                criteria.setTerm(this.term);
+            }
+
+            if (this.currentPageType !== null) {
+                criteria.addFilter(Criteria.equals('cms_page.type', this.currentPageType));
+            }
+
+            return this.pageRepository.search(criteria, this.context).then((searchResult) => {
+                this.total = searchResult.total;
+                this.pages = searchResult.items;
+                this.isLoading = false;
+
+                return this.pages;
+            }).catch(() => {
+                this.isLoading = false;
+            });
+        },
+
+        resetList() {
+            this.page = 1;
+            this.pages = [];
+            this.updateRoute({
+                page: this.page,
+                limit: this.limit,
+                term: this.term,
+                sortBy: this.sortBy,
+                sortDirection: this.sortDirection
+            });
+            this.getList();
+        },
+
+        getDefaultFolderId() {
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('folder');
+            criteria.addFilter(Criteria.equals('entity', 'cms_page'));
+
+            return this.defaultFolderRepository.search(criteria, this.context).then((searchResult) => {
+                const defaultFolder = searchResult.first();
                 if (defaultFolder.folder.id) {
                     return defaultFolder.folder.id;
                 }
@@ -112,52 +164,9 @@ Component.register('sw-cms-list', {
             });
         },
 
-        handleScroll(event) {
-            const scrollTop = event.srcElement.scrollTop;
-            const scrollHeight = event.srcElement.scrollHeight;
-            const offsetHeight = event.srcElement.offsetHeight;
-            const bottomOfWindow = scrollTop === (scrollHeight - offsetHeight);
-
-            if (bottomOfWindow) {
-                this.getList(false);
-            }
-        },
-
-        getList(filtered = true) {
-            if (filtered) {
-                this.page = 1;
-                this.pages = [];
-                this.noMorePages = false;
-            }
-
-            if (this.isLoading || this.noMorePages) {
-                return false;
-            }
-
-            this.isLoading = true;
-            const params = this.getListingParams();
-
-            if (this.criteria) {
-                params.criteria = this.criteria;
-            }
-
-            return this.pageStore.getList(params).then((response) => {
-                if (response.items.length > 0) {
-                    this.page += 1;
-                } else {
-                    this.noMorePages = true;
-                }
-
-                this.total = response.total;
-                this.pages.push(...response.items);
-                this.isLoading = false;
-
-                return this.pages;
-            });
-        },
-
-        onChangeLanguage() {
-            this.getList(false);
+        onChangeLanguage(languageId) {
+            this.context.languageId = languageId;
+            this.resetList();
         },
 
         onListItemClick(page) {
@@ -166,27 +175,49 @@ Component.register('sw-cms-list', {
 
         onSortingChanged(value) {
             [this.sortBy, this.sortDirection] = value.split(':');
-            this.getList();
+            this.resetList();
         },
 
-        onSearch(value) {
-            this.term = value;
-            this.getList();
-        },
-
-        onSortPageType(value) {
-            if (!value) {
-                this.criteria = null;
-                this.getList();
-                return;
+        onSearch(value = null) {
+            if (!value.length || value.length <= 0) {
+                this.term = null;
+            } else {
+                this.term = value;
             }
 
-            this.criteria = CriteriaFactory.equals('cms_page.type', value);
+            this.resetList();
+        },
+
+        onSortPageType(value = null) {
+            if (!value.length || value.length <= 0) {
+                this.currentPageType = null;
+            } else {
+                this.currentPageType = value;
+            }
+
+            this.resetList();
+        },
+
+        onPageChange({ page, limit }) {
+            this.page = page;
+            this.limit = limit;
+
             this.getList();
+            this.updateRoute({
+                page: this.page,
+                limit: this.limit
+            });
         },
 
         onCreateNewLayout() {
             this.$router.push({ name: 'sw.cms.create' });
+        },
+
+        onListModeChange() {
+            this.listMode = (this.listMode === 'grid') ? 'list' : 'grid';
+            this.limit = (this.listMode === 'grid') ? 9 : 10;
+
+            this.resetList();
         },
 
         onPreviewChange(page) {
@@ -196,8 +227,8 @@ Component.register('sw-cms-list', {
 
         onPreviewImageRemove(page) {
             page.previewMediaId = null;
-            page.save();
             page.previewMedia = null;
+            this.saveCmsPage(page);
         },
 
         onModalClose() {
@@ -207,7 +238,7 @@ Component.register('sw-cms-list', {
 
         onPreviewImageChange([image]) {
             this.currentPage.previewMediaId = image.id;
-            this.currentPage.save();
+            this.saveCmsPage(this.currentPage);
             this.currentPage.previewMedia = image;
         },
 
@@ -228,19 +259,44 @@ Component.register('sw-cms-list', {
             this.showDeleteModal = false;
         },
 
+        saveCmsPage(page) {
+            this.isLoading = true;
+            return this.pageRepository.save(page, this.context).then(() => {
+                this.isLoading = false;
+            }).catch(() => {
+                this.isLoading = false;
+            });
+        },
+
         deleteCmsPage(page) {
             const titleDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorTitle');
             const messageDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorMessage');
 
-            this.currentPage.delete(true).then(() => {
-                const deletedPageIdx = this.pages.findIndex(i => i.id === page.id);
-                this.pages.splice(deletedPageIdx, 1);
+            this.isLoading = true;
+            return this.pageRepository.delete(page.id, this.context).then(() => {
+                this.resetList();
             }).catch(() => {
+                this.isLoading = false;
                 this.createNotificationError({
                     title: titleDeleteError,
                     message: messageDeleteError
                 });
             });
+        },
+
+        getColumnConfig() {
+            return [{
+                property: 'name',
+                label: this.$tc('sw-cms.list.gridHeaderName'),
+                inlineEdit: 'string',
+                primary: true
+            }, {
+                property: 'type',
+                label: this.$tc('sw-cms.list.gridHeaderType')
+            }, {
+                property: 'createdAt',
+                label: this.$tc('sw-cms.list.gridHeaderCreated')
+            }];
         }
     }
 });

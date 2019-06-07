@@ -15,7 +15,7 @@ shopware:
 
     api:
         max_limit: 500
-        allowed_limits: [1, 5, 10, 25, 50, 75, 100, 500]
+        allowed_limits: [1, 5, 9, 10, 25, 50, 75, 100, 500]
         api_browser:
             public: true
 

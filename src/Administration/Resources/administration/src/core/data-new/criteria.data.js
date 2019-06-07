@@ -438,7 +438,7 @@ export default class Criteria {
      * Sql representation: `{field} = {value}`
      *
      * @param {string} field
-     * @param {mixed} value
+     * @param {string|number} value
      *
      * @returns {Object}}
      */

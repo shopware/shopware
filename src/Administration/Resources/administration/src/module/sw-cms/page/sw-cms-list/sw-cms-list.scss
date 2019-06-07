@@ -2,50 +2,106 @@
 
 .sw-cms-list {
     .sw-cms-list__content {
-        padding: 80px 30px 30px 30px;
-        margin: 0 auto;
-        max-width: 1260px;
-        display: grid;
-        grid-template-columns: 240px auto;
-        grid-column-gap: 30px;
+        max-width: 800px;
+        position: relative;
+        margin: auto;
 
-        .sw-search-bar {
-            background: $color-iron;
-            z-index:9;
+        @media screen and (max-width: 1360px) {
+            padding: 15px;
         }
     }
 
     .sw-cms-list__sidebar {
-        h3 {
-            font-size: 32px;
-            font-weight: normal;
+        width: 240px;
+        padding-top: 64px;
+        position: absolute;
+        left: -240px;
+
+        @media screen and (max-width: 1400px) {
+            display: none;
         }
     }
 
     .sw-cms-list__actions {
         display: grid;
-        grid-template-columns: auto 380px;
-        grid-column-gap: 30px;
+        grid-template-columns: auto 380px 36px;
+        grid-column-gap: 20px;
         align-items: center;
         align-content: center;
-        margin-bottom: 30px;
+        margin-bottom: 28px;
 
-        .sw-simple-search-field {
-            margin-bottom: 0;
+        @media screen and (max-width: 700px) {
+            grid-template-columns: auto 36px;
+        }
+
+        h3 {
+            font-size: 28px;
+            font-weight: normal;
+            margin: 0;
         }
     }
 
     .sw-cms-list__actions-sorting {
         display: grid;
 
+        @media screen and (max-width: 700px) {
+            display: none;
+        }
+
         .sw-field.sw-field--select {
             margin-bottom: 0;
+
+            select {
+                padding: 6px 12px;
+            }
+
+            &.sw-field--select-aside {
+                grid-column-gap: 10px;
+            }
+
+            .sw-block-field__block {
+                .sw-field--select__options {
+                    top: calc(50% - 12px);
+                }
+            }
         }
     }
 
-    .sw-cms-list__list {
+    .sw-cms-list__actions-mode {
+        height: 36px;
+        line-height: 33px;
+        text-align: center;
+        color: $color-gutenberg;
+        border: 1px solid $color-steam-cloud;
+        border-radius: 4px;
+        background: $color-white;
+        cursor: pointer;
+
+        &:hover {
+            color: $color-shopware-blue;
+            border-color: $color-shopware-blue;
+        }
+    }
+
+    .sw-cms-list__list-grid-content {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         grid-gap: 30px;
+        align-content: start;
+    }
+
+    .sw-cms-list__list-data-grid {
+        border-radius: 4px;
+    }
+
+    .sw-cms-list__icon-lock {
+        margin-right: 10px;
+        color: $color-steam-cloud;
+    }
+
+    .sw-cms-list__list-pagination {
+        margin-top: 20px;
+        background: none;
+        border: none;
     }
 }

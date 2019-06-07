@@ -176,6 +176,8 @@
                         class="sw-sales-channel-detail__select-navigation-category-id"
                         id="navigationCategoryId"
                         :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
+                        :criteria="mainNavigationCriteria"
+                        :helpText="$tc('sw-sales-channel.detail.navigationCategoryHelpText')"
                         v-model="salesChannel.navigationCategoryId"
                         entity="category">
                     </sw-entity-single-select>

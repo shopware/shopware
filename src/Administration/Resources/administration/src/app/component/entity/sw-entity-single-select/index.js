@@ -28,6 +28,10 @@ export default {
             type: String,
             required: false,
             default: 'name'
+        },
+        criteria: {
+            type: Object,
+            required: false
         }
     },
 
@@ -96,7 +100,15 @@ export default {
         load() {
             this.isLoading = true;
 
-            const criteria = new Criteria(this.page, this.limit);
+            let criteria = this.criteria;
+
+            if (criteria) {
+                this.page = this.criteria.page;
+                this.limit = this.criteria.limit;
+            } else {
+                criteria = new Criteria(this.page, this.limit);
+            }
+
             criteria.setTotalCountMode(0);
             criteria.setTerm(this.searchTerm);
 

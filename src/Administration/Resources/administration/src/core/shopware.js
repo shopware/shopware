@@ -63,6 +63,12 @@ export const Locale = {
     extend: Shopware.Locale.extend
 };
 
+export const Shortcut = {
+    register: Shopware.Shortcut.register,
+    getPathByCombination: Shopware.Shortcut.getPathByCombination,
+    getShortcutRegistry: Shopware.Shortcut.getShortcutRegistry
+};
+
 export const Entity = {
     addDefinition: Shopware.Entity.addDefinition,
     getDefinition: Shopware.Entity.getDefinition,
@@ -99,6 +105,7 @@ export default {
     Filter,
     Directive,
     Locale,
+    Shortcut,
     ApiService,
     Defaults
 };

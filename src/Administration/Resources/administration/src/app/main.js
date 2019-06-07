@@ -15,6 +15,7 @@ import ProductStreamConditionService from 'src/app/service/product-stream-condit
 import StateStyleService from 'src/app/service/state-style.service';
 import CustomFieldService from 'src/app/service/custom-field.service';
 import SearchTypeService from 'src/app/service/search-type.service';
+import ShortcutService from 'src/app/service/shortcut.service';
 import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 import 'src/app/decorator';
@@ -70,4 +71,7 @@ Application
     })
     .addServiceProvider('entityMappingService', () => {
         return EntityMappingService;
+    })
+    .addServiceProvider('shortcutService', () => {
+        return ShortcutService(factoryContainer.shortcut);
     });

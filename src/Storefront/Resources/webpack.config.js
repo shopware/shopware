@@ -1,3 +1,5 @@
+const WebpackPluginInjector = require('../../Administration/Resources/common/webpack-plugin-injector');
+
 let file = 'dev';
 
 if (process.env.NODE_ENV === 'production') {
@@ -8,10 +10,13 @@ if (process.env.NODE_ENV === 'production') {
 
 const path = `./build/webpack.${file}.config.js`;
 
-const webpackConfig = require('webpack-merge')(
+let webpackConfig = require('webpack-merge')(
     require('./build/webpack.base.config'),
-    require(path)
+    require(path) // eslint-disable-line
 );
+
+const injector = new WebpackPluginInjector('var/plugins.json', webpackConfig, 'storefront');
+webpackConfig = injector.webpackConfig;
 
 console.log(`ℹ USING WEBPACK CONFIG FILE: ${path}`);
 console.log('');

@@ -1,18 +1,7 @@
 const path = require('path');
-const fs = require('fs');
 const utils = require('./utils');
 const config = require('../config');
 const vueLoaderConfig = require('./vue-loader.conf');
-
-const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json', true);
-
-const pluginSourceDirectories = pluginList.reduce((accumulator, plugin) => {
-    if (fs.existsSync(plugin.viewPath)) {
-        accumulator.push(plugin.viewPath);
-    }
-
-    return accumulator;
-}, []);
 
 function resolve(dir) {
     return path.join(__dirname, '..', dir);
@@ -20,7 +9,7 @@ function resolve(dir) {
 
 // Refactor the usage of eslint
 const eslintDisable = (process.env.ESLINT_DISABLE === 'true');
-const includeDirectories = [...[resolve('src'), resolve('test')], ...pluginSourceDirectories];
+const includeDirectories = [...[resolve('src'), resolve('test')]];
 
 module.exports = {
     performance: {

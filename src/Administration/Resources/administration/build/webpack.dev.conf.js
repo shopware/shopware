@@ -1,15 +1,12 @@
-const utils = require('./utils');
 const webpack = require('webpack');
-const config = require('../config');
 const merge = require('webpack-merge');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const WebpackPluginInjector = require('@shopware/webpack-plugin-injector');
+const config = require('../config');
+const utils = require('./utils');
 
-let baseWebpackConfig = require('./webpack.base.conf');
-
-const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json');
-baseWebpackConfig = utils.iteratePluginDefinitions(baseWebpackConfig, pluginList);
-baseWebpackConfig = utils.injectIncludePathsToLoader(baseWebpackConfig, utils.getIncludePaths());
+const baseWebpackConfig = require('./webpack.base.conf');
 
 let mergedWebpackConfig = merge(baseWebpackConfig, {
     mode: 'development',
@@ -44,6 +41,9 @@ let mergedWebpackConfig = merge(baseWebpackConfig, {
         new FriendlyErrorsPlugin()
     ]
 });
+
+const injector = new WebpackPluginInjector('var/plugins.json', mergedWebpackConfig, 'administration');
+mergedWebpackConfig = merge(injector.webpackConfig);
 
 if (config.dev.openInEditor) {
     mergedWebpackConfig = utils.injectSwDevModeLoader(mergedWebpackConfig);

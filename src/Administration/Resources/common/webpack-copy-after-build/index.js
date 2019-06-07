@@ -16,7 +16,6 @@ function WebpackCopyAfterBuild(config) {
 WebpackCopyAfterBuild.prototype.apply = function webpackCopyAfterBuild(compiler) {
     const files = this._filesMap;
     const opts = this._opts;
-
     compiler.hooks.done.tap('sw-copy-after-build', (stats) => {
         stats = stats.toJson();
         const chunks = stats.chunks;
@@ -47,7 +46,12 @@ WebpackCopyAfterBuild.prototype.apply = function webpackCopyAfterBuild(compiler)
              */
             chunk.files.forEach((file) => {
                 let from = `${outputPath}/${file}`;
-                const to = `${targetBasePath}/${file}`;
+                let to = `${targetBasePath}/${file}`;
+
+                if (typeof opts.transformer === 'function') {
+                    to = opts.transformer(to);
+                }
+
                 const targetPath = path.resolve(to, '../');
 
                 // Create the target sub directory for the specific file type recursively

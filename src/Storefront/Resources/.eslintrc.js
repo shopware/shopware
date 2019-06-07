@@ -14,16 +14,7 @@ module.exports = {
     'sourceType': 'module'
   },
   'rules': {
-    "no-restricted-imports": [
-      "error", {
-
-        // disallow relative imports
-        "patterns": [
-          "../*",
-          "./*"
-        ],
-      }
-    ],
+    'no-restricted-imports': 0,
     'no-console': 0,
     'no-debugger': (isDevMode ? 0 : 2),
     'prefer-const': 'warn',

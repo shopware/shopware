@@ -4,23 +4,17 @@
  *
  * Variables, Mixins, Functions
  * ---------------------------- */
-@import 'abstract/variables/bootstrap';
+@import 'variables';
 
 /*
  * Skin variables
  * ---------- */
-@import 'skin/shopware/abstract/variables';
 
 /*
  * Vendors
  * ------- */
 @import 'vendor/bootstrap';
 @import 'vendor/tiny-slider';
-
-/*
-* Custom variables
-* ---------------------------- */
-@import 'abstract/variables/custom';
 
 /*
  * Base stuff

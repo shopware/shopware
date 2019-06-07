@@ -1,5 +1,5 @@
 const webpack = require('webpack');
-const {resolve} = require('path');
+const { resolve, join } = require('path');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
 
@@ -29,7 +29,12 @@ const modules = {
                     loader: 'css-loader'
                 },
                 {
-                    loader: 'postcss-loader' //needs to be AFTER css/style-loader and BEFORE sass-loader
+                    loader: 'postcss-loader', // needs to be AFTER css/style-loader and BEFORE sass-loader
+                    options: {
+                        config: {
+                            path: join(__dirname, '..')
+                        }
+                    }
                 },
                 {
                     loader: 'sass-loader'

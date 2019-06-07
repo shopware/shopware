@@ -1,22 +1,23 @@
-if (!process.env.PROJECT_ROOT) {
-    process.env.PROJECT_ROOT = '../../../../..';
-}
-
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 const path = require('path');
-const buildDirectory = path.resolve(process.env.PROJECT_ROOT, 'public');
 const CopyPlugin = require('copy-webpack-plugin');
-const publicPath = `${process.env.APP_URL}${(process.env.MODE === 'hot') ? ':9999' : ''}/`;
 const babelrc = require('../.babelrc');
+
+if (!process.env.PROJECT_ROOT) {
+    process.env.PROJECT_ROOT = '../../../../..';
+}
+
+const publicPath = `${process.env.APP_URL}${(process.env.MODE === 'hot') ? ':9999' : ''}/`;
+const buildDirectory = path.resolve(process.env.PROJECT_ROOT, 'public');
 
 /**
  * helper function to get a path relative to the root folder
  *
- * @param dir
- * @return {string}
+ * @param {String} dir
+ * @returns {String}
  */
 function getPath(dir) {
     const basePath = path.join(__dirname, '..');
@@ -51,7 +52,7 @@ const context = getPath('src/script');
  * @type {{main: string}}
  */
 const entries = {
-    main: './base.js',
+    app: './base.js'
 };
 
 /**
@@ -61,8 +62,9 @@ const entries = {
  */
 const output = {
     path: buildDirectory,
-    filename: `${outPutFolder}/js/app.js`,
+    filename: `${outPutFolder}/js/[name].js`,
     publicPath: publicPath,
+    chunkFilename: `${outPutFolder}/js/[name].js`
 };
 
 /**
@@ -78,20 +80,21 @@ const modules = {
             use: [
                 {
                     loader: 'babel-loader',
-                    options: babelrc,
+                    options: babelrc
                 },
                 {
                     loader: 'eslint-loader',
                     options: {
-                        fix: true,
-                    },
-                },
-            ],
+                        configFile: getPath('.eslintrc.js'),
+                        fix: true
+                    }
+                }
+            ]
         },
         {
             test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
             include: [
-                getPath('assets/font'),
+                getPath('assets/font')
             ],
             use: [
                 {
@@ -99,15 +102,15 @@ const modules = {
                     options: {
                         name: '[name].[ext]',
                         outputPath: `${assetOutPutFolder}/font`,
-                        publicPath: '../assets/font',
-                    },
-                },
-            ],
+                        publicPath: '../assets/font'
+                    }
+                }
+            ]
         },
         {
             test: /\.(jp(e)g|png|gif|svg)(\?v=\d+\.\d+\.\d+)?$/,
             exclude: [
-                getPath('assets/font'),
+                getPath('assets/font')
             ],
             use: [
                 {
@@ -115,7 +118,7 @@ const modules = {
                     options: {
                         name: '[name].[ext]',
                         outputPath: `${assetOutPutFolder}/img`,
-                        publicPath: '../assets/img',
+                        publicPath: '../assets/img'
                     },
                 },
             ],
@@ -133,26 +136,26 @@ const plugins = [
     new webpack.ProvidePlugin({
         $: require.resolve('jquery/dist/jquery.slim'),
         jQuery: require.resolve('jquery/dist/jquery.slim'),
-        'window.jQuery': require.resolve('jquery/dist/jquery.slim'),
+        'window.jQuery': require.resolve('jquery/dist/jquery.slim')
     }),
     new WebpackBar({
-        name: 'Shopware 6 Storefront',
+        name: 'Shopware 6 Storefront'
     }),
     new StyleLintPlugin({
         context: getPath('src/style'),
         syntax: 'scss',
-        fix: true,
+        fix: true
     }),
     new CopyPlugin([
         {
             from: getPath('assets'),
-            to: assetOutPutFolder,
-        },
+            to: assetOutPutFolder
+        }
     ]),
     new MiniCssExtractPlugin({
-        filename: `${outPutFolder}/css/app.css`,
-        chunkFilename: `${outPutFolder}/css/app.css`,
-    }),
+        filename: `${outPutFolder}/css/[name].css`,
+        chunkFilename: `${outPutFolder}/css/[name].css`
+    })
 ];
 
 /**
@@ -175,14 +178,14 @@ const devServer = {};
  * @type {{}}}
  */
 const resolve = {
-    extensions: ['.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig'],
+    extensions: [ '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
     alias: {
         src: getPath('src'),
         assets: getPath('assets'),
         jquery: 'jquery/dist/jquery.slim',
-    },
+        scss: getPath('src/style')
+    }
 };
-
 
 /**
  * Export the webpack configuration
@@ -199,10 +202,10 @@ module.exports = {
     optimization: optimization,
     output: output,
     performance: {
-        hints: false,
+        hints: false
     },
     plugins: plugins,
     resolve: resolve,
     stats: 'minimal',
-    target: 'web',
+    target: 'web'
 };

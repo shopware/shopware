@@ -3,7 +3,7 @@ const fs = require('fs');
 const { addPath } = require('app-module-path');
 const merge = require('webpack-merge');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const WebpackCopyAfterBuildPlugin = require('../../administration/build/plugins/copy-after-build');
+const WebpackCopyAfterBuildPlugin = require('@shopware/webpack-copy-after-build');
 
 const projectRoot = process.env.PROJECT_ROOT || '';
 
@@ -37,6 +37,10 @@ function resolve(directory) {
     return join(__dirname, '..', directory);
 }
 
+function toKebabCase(val) {
+    return val.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
 /**
  * Contains a collection of functions which sanitizes the plugin list for the storefront and administration
  */
@@ -64,12 +68,17 @@ class WebpackPluginInjector {
 
         // Include paths for the webpack loaders
         this._includePaths = [
-            resolve('src'),
-            resolve('test')
+            resolve('../administration/src'),
+            resolve('../administration/test')
         ];
 
         const content = WebpackPluginInjector.getPluginDefinitionContent(this.filePath);
         const plugins = this.getPluginsBySection(content);
+
+        if (!plugins.length) {
+            return;
+        }
+
         this.registerPluginsToWebpackConfig(plugins);
 
         if (this.env === 'production') {
@@ -151,9 +160,9 @@ class WebpackPluginInjector {
      * webpack configuration which we have to merge.
      *
      * @static
-     * @param {String} pluginName - Name of
-     * @param pluginDefinition
-     * @param section
+     * @param {String} pluginName
+     * @param {Object} pluginDefinition
+     * @param {String} section
      * @return {Object}
      */
     static getPluginConfig(pluginName, pluginDefinition, section) {
@@ -166,7 +175,8 @@ class WebpackPluginInjector {
             basePath,
             hasCustomWebpackConfig,
             webpackConfigPath,
-            pluginName: pluginName,
+            pluginName,
+            technicalName: toKebabCase(pluginName),
             viewPath: pluginDefinition.views.map((path) => join(basePath, path)),
             entryFile: join(basePath, pluginDefinition[section].entryFilePath)
         };
@@ -193,17 +203,19 @@ class WebpackPluginInjector {
     registerPluginsToWebpackConfig(plugins) {
         plugins.forEach((plugin) => {
             const name = plugin.pluginName;
+            const technicalName = plugin.technicalName;
 
             // Params for the custom webpack config
             const params = {
                 env: process.env.NODE_ENV,
                 config: this.webpackConfig,
                 name,
+                technicalName,
                 plugin
             };
 
             // Add plugin as a new entry in the webpack config, respect NODE_ENV and insert the 'dev-client' if necessary
-            this.webpackConfig.entry[name] = (this.env === 'development')
+            this.webpackConfig.entry[technicalName] = (this.env === 'development' && this.section === 'administration')
                 ? ['./build/dev-client'].concat(plugin.entryFile)
                 : plugin.entryFile;
 
@@ -233,7 +245,7 @@ class WebpackPluginInjector {
             this.warn('Webpack Plugin Injector', `Plugin "${name}" injected with custom config`);
         });
 
-        return this.injectIncludePathsToLoaders(this.webpackConfig);
+        return this.injectIncludePathsToLoaders();
     }
 
     /**
@@ -261,13 +273,19 @@ class WebpackPluginInjector {
      */
     injectCopyPluginConfig(plugins) {
         plugins.forEach((plugin) => {
-            const pluginName = plugin.pluginName;
+            const pluginName = plugin.technicalName;
             const basePath = plugin.basePath;
-            const pluginPath = `${basePath}Resources/public/`;
-            const assetPaths = plugin.views.map((path) => join(basePath, path, 'static'));
+            const pluginPath = `${basePath}Resources/public/${this.section}`;
             const publicStaticPath = `${basePath}Resources/public/static/`;
+            const assetPaths = plugin.views && plugin.views.length > 0
+                ? plugin.views.map((path) => join(basePath, path, 'static'))
+                : [];
 
             // Copy plugin chunk after build
+            if (!this.webpackConfig.plugins) {
+                this.webpackConfig.plugins = [];
+            }
+
             this.webpackConfig.plugins.push(
                 new WebpackCopyAfterBuildPlugin({
                     files: [{
@@ -276,7 +294,10 @@ class WebpackPluginInjector {
                     }],
                     options: {
                         absolutePath: true,
-                        sourceMap: true
+                        sourceMap: true,
+                        transformer: (path) => {
+                            return path.replace('static/', '');
+                        }
                     }
                 })
             );

@@ -18,7 +18,7 @@ The Storefront is the least fancy of the components of Shopware 6. If you did so
    : Contrary to the core that can almost completely omit templating in favor JSON responses, the Storefront contains a rich set of `Twig` templates to display a fully functional shop.
 
 **Theming** ([styles](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/src/style))
-   : The Storefront not just contains static templates but also inhibits a theming engine to modify the rendered templates or chagnge the default layout programmatically.
+   : The Storefront not just contains static templates but also inhibits a theming engine to modify the rendered templates or change the default layout programmatically.
    
 These concerns are mapped to a *Web-MVC* structure:
 

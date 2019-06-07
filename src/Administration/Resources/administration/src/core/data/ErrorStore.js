@@ -33,16 +33,6 @@ class ErrorStore {
     }
 
     /**
-     * Registers the data binding of a field component to automatically match new errors.
-     *
-     * @param {String} expression
-     * @return {ShopwareError}
-     */
-    registerFormField(expression) {
-        return ErrorStore.createAtPath(expression, this.errors.api);
-    }
-
-    /**
      * Add a new error to the store.
      *
      * @param {string} expression
@@ -55,21 +45,11 @@ class ErrorStore {
     }
 
     /**
-     * Sets an error back to default state.
-     *
-     * @param {string} expression
-     * @param {string} type
-     * @return {boolean}
-     */
-    resetError(expression, type) {
-        return ErrorStore.createAtPath(expression, this.errors[type]);
-    }
-
-    /**
      * Remove an error from the store.
      *
      * @param {string} expression
      * @param {string} type
+     * @param {boolean} recursive
      * @return {boolean}
      */
     deleteError() {
@@ -123,7 +103,7 @@ class ErrorStore {
      * @returns {ShopwareError}
      * @protected
      */
-    static createAtPath(expression, store, setReactive = Object.defineProperty) {
+    static createAtPath(expression, store, setReactive = Object.defineProperty, error = new ShopwareError()) {
         const { path, errorName } = ErrorStore.getPathAndName(expression);
 
         const endpoint = path.reduce((currentPointer, nextPath) => {
@@ -134,7 +114,7 @@ class ErrorStore {
             return currentPointer[nextPath];
         }, store);
 
-        setReactive(endpoint, errorName, new ShopwareError());
+        setReactive(endpoint, errorName, error);
         return endpoint[errorName];
     }
 
@@ -143,9 +123,10 @@ class ErrorStore {
      * @param {string} expression
      * @param {Object} store
      * @param {function} deleteReactive
+     * @param {boolean} recursive
      * @protected
      */
-    static deleteAtPath(expression, store, deleteReactive = null) {
+    static deleteAtPath(expression, store, deleteReactive = null, recursive = true) {
         const { container, path, errorName } = ErrorStore.getErrorContainer(expression, store);
 
         // already deleted
@@ -159,7 +140,7 @@ class ErrorStore {
             delete container[errorName];
         }
 
-        if (Object.keys(container).length > 0) {
+        if (!recursive || Object.keys(container).length > 0) {
             return true;
         }
 
@@ -172,7 +153,7 @@ class ErrorStore {
      * @private
      */
     static isUdef(pointer) {
-        return pointer === null || pointer === undefined;
+        return pointer === null || typeof pointer === 'undefined';
     }
 
     /**

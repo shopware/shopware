@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Newsletter\SalesChannel;
+namespace Shopware\Core\Content\Newsletter;
 
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
@@ -40,14 +41,21 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
      */
     private $eventDispatcher;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         EntityRepositoryInterface $newsletterRecipientRepository,
         DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SystemConfigService $systemConfigService
     ) {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function subscribe(DataBag $dataBag, SalesChannelContext $context): void
@@ -68,12 +76,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
             return;
         }
 
-        $url = sprintf(
-            '%s/newsletter/subscribe?em=%s&hash=%s',
-            $data['baseUrl'],
-            hash('sha1', $data['email']),
-            $data['hash']
-        );
+        $url = $this->getSubscribeUrl($context, $data);
 
         $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event, NewsletterRegisterEvent::EVENT_NAME);
@@ -201,5 +204,30 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         }
 
         return $newsletterRecipient;
+    }
+
+    /**
+     * @return string|null
+     */
+    private function getSubscribeUrl(SalesChannelContext $context, array $data)
+    {
+        if ($this->systemConfigService->get('newsletter.subscribeDomain', $context->getSalesChannel()->getId(), true)) {
+            $url = $this->systemConfigService->get('newsletter.subscribeDomain');
+        } else {
+            $url = $context->getSalesChannel()->getDomains()->first()->getUrl();
+        }
+        $url .= str_replace(
+            [
+                '%%HASHEDEMAIL%%',
+                '%%SUBSCRIBEHASH%%',
+            ],
+            [
+                hash('sha1', $data['email']),
+                $data['hash'],
+            ],
+            '/newsletter/subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%'
+        );
+
+        return $url;
     }
 }

@@ -37,10 +37,6 @@
             <argument type="service" id="shopware.filesystem.public"/>
         </service>
 
-        <service id="Shopware\Core\Content\MailTemplate\Service\MailBuilder">
-            <argument type="service" id="sales_channel.repository"/>
-        </service>
-
         <!-- Controller -->
         <service id="Shopware\Core\Content\MailTemplate\Api\MailActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
@@ -71,7 +67,6 @@
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailService">
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
-            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailBuilder" />
             <argument type="service" id="Shopware\Core\Framework\Twig\StringTemplateRenderer" />
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MessageFactory" />
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailSender" />

@@ -56,7 +56,7 @@ class NewsletterConfirmEvent extends Event implements BusinessEventInterface, Ma
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('recipientEntity', new EntityType(NewsletterRecipientDefinition::class));
+            ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class));
     }
 
     public function getRecipientEntity(): NewsletterRecipientEntity

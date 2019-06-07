@@ -52,7 +52,7 @@ class NewsletterRegisterEvent extends Event implements BusinessEventInterface, M
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('recipientEntity', new EntityType(NewsletterRecipientDefinition::class));
+            ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class));
     }
 
     public function getName(): string

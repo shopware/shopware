@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionService;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Content\Newsletter\NewsletterSubscriptionService;
+use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class NewsletterRecipientServiceTest extends TestCase
 {
@@ -254,7 +255,8 @@ class NewsletterRecipientServiceTest extends TestCase
         return new NewsletterSubscriptionService(
             $this->getContainer()->get('newsletter_recipient.repository'),
             $this->getContainer()->get(DataValidator::class),
-            $this->getContainer()->get('event_dispatcher')
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(SystemConfigService::class)
         );
     }
 }

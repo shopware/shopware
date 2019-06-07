@@ -19,6 +19,11 @@
       "labelSortByProductPages": "Produktseiten",
       "labelSortByCategoryPages": "Kategorieseiten"
     },
+    "list": {
+      "gridHeaderName": "Name",
+      "gridHeaderType": "Typ",
+      "gridHeaderCreated": "Erstellt"
+    },
     "detail": {
       "labelButtonSave": "Speichern",
       "headlineEmptyState": "Raum für Kreativität",
@@ -133,6 +138,7 @@
       },
       "cmsListItem": {
         "emptyText": "Kein Layout zugewiesen",
+        "edit": "Bearbeiten",
         "delete": "Löschen",
         "duplicate": "Duplizieren",
         "addPreviewImage": "Vorschau hinzufügen",

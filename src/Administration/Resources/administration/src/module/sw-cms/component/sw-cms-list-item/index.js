@@ -24,8 +24,7 @@ Component.register('sw-cms-list-item', {
 
             if (this.page.locked === true) {
                 return {
-                    'background-image': this.defaultLayoutAsset,
-                    'background-size': 'cover'
+                    'background-image': this.defaultLayoutAsset
                 };
             }
 

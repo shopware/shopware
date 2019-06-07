@@ -1,25 +1,32 @@
 {% block sw_cms_list %}
-    <sw-page class="sw-cms-list" :showSearchBar="false" :showSmartBar="false" @scroll="handleScroll">
+    <sw-page class="sw-cms-list" xmlns="">
+        {% block sw_cms_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar initialSearchType="cms_page" :initialSearch="term" @search="onSearch"></sw-search-bar>
+            </template>
+        {% endblock %}
 
-        {% block sw_cms_list_container %}
-            <template slot="content">
-                {% block sw_cms_list_toolbar %}
-                    <sw-cms-toolbar>
-                        <h2 slot="title">{{ $tc('sw-cms.general.moduleTitle') }}</h2>
-                        <sw-language-switch slot="language-switch" @on-change="onChangeLanguage" :disabled="true"></sw-language-switch>
-                        <sw-button slot="actions" variant="primary" @click="onCreateNewLayout">{{ $tc('sw-cms.general.createNewLayout') }}</sw-button>
-                    </sw-cms-toolbar>
-                {% endblock %}
+        {% block sw_cms_list_toolbar %}
+            <template slot="smart-bar-header">
+                <h2>{{ $tc('sw-cms.general.moduleTitle') }}</h2>
+            </template>
+
+            <template slot="language-switch">
+                <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+
+            <template slot="smart-bar-actions">
+                <sw-button slot="actions" variant="primary" @click="onCreateNewLayout">{{ $tc('sw-cms.general.createNewLayout') }}</sw-button>
+            </template>
+        {% endblock %}
+
+        {% block sw_cms_list_card_view %}
+            <sw-card-view slot="content">
 
                 {% block sw_cms_list_content %}
                     <div class="sw-cms-list__content">
-
                         {% block sw_cms_list_sidebar %}
                             <div class="sw-cms-list__sidebar">
-                                {% block sw_cms_list_sidebar_headline %}
-                                    <h3>{{ $tc('sw-cms.general.greeting') }}</h3>
-                                {% endblock %}
-
                                 {% block sw_cms_list_sidebar_tabs %}
                                     <sw-tabs isVertical small class="sw-cms-list__type-nav">
                                         <sw-tabs-item
@@ -40,13 +47,8 @@
 
                                 {% block sw_cms_list_listing_actions %}
                                     <div class="sw-cms-list__actions">
-                                        {% block sw_cms_list_listing_actions_search %}
-                                            <sw-simple-search-field
-                                                variant="form"
-                                                :placeholder="$tc('sw-cms.general.placeholderSearchBar')"
-                                                           :searchType="$tc('sw-cms.general.mainMenuItemGeneral')"
-                                                           @search-term-change="onSearch">
-                                            </sw-simple-search-field>
+                                        {% block sw_cms_list_listing_title %}
+                                            <h3>{{ $tc('sw-cms.general.greeting') }}</h3>
                                         {% endblock %}
 
                                         {% block sw_cms_list_listing_actions_sorting %}
@@ -67,57 +69,158 @@
                                                 </sw-field>
                                             </div>
                                         {% endblock %}
+
+                                        {% block sw_cms_list_listing_actions_mode %}
+                                            <div class="sw-cms-list__actions-mode" @click="onListModeChange">
+                                                <sw-icon name="default-view-normal" size="16" v-if="listMode === 'grid'"></sw-icon>
+                                                <sw-icon name="default-view-grid" size="16" v-if="listMode === 'list'"></sw-icon>
+                                            </div>
+                                        {% endblock %}
                                     </div>
                                 {% endblock %}
 
                                 {% block sw_cms_list_listing_list %}
                                     <div class="sw-cms-list__list">
-                                        {% block sw_cms_list_listing_list_loader %}
-                                            <sw-loader v-if="isLoading && this.pages.length < 1"></sw-loader>
+
+                                        {% block sw_cms_list_listing_list_card %}
+                                            <sw-card class="sw-cms-list__list-card" v-if="listMode === 'list'">
+                                                <template slot="grid">
+                                                    {% block sw_cms_list_listing_list_data_grid %}
+                                                        <sw-data-grid
+                                                            class="sw-cms-list__list-data-grid"
+                                                            identifier="sw-cms-list"
+                                                            :isLoading="isLoading"
+                                                            :dataSource="pages"
+                                                            :columns="columnConfig"
+                                                            :skeletonItemAmount="limit"
+                                                            :sortBy="sortBy"
+                                                            :sortDirection="sortDirection"
+                                                            :allowInlineEdit="false"
+                                                            :allowColumnEdit="false"
+                                                            :showSettings="false"
+                                                            :showSelection="false"
+                                                            @column-sort="onSortColumn">
+
+                                                            {% block sw_cms_list_listing_list_data_grid_column_name %}
+                                                                <template #column-name="{ item }">
+                                                                    <sw-icon
+                                                                        name="default-lock-closed"
+                                                                        class="sw-cms-list__icon-lock"
+                                                                        v-if="item.locked"
+                                                                        size="14">
+                                                                    </sw-icon>
+                                                                    <router-link :to="{ name: 'sw.cms.detail', params: { id: item.id } }">
+                                                                        {{ item.translated.name }}
+                                                                    </router-link>
+                                                                </template>
+                                                            {% endblock %}
+
+                                                            {% block sw_cms_list_listing_list_data_grid_column_type %}
+                                                                <template #column-type="{ item }">
+                                                                    {{ pageTypes[item.type] }}
+                                                                </template>
+                                                            {% endblock %}
+
+                                                            {% block sw_cms_list_listing_list_data_grid_column_created %}
+                                                                <template #column-createdAt="{ item }">
+                                                                    {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                                                                </template>
+                                                            {% endblock %}
+
+                                                            {% block sw_cms_list_listing_list_data_grid_actions %}
+                                                                <template #actions="{ item }">
+                                                                    {% block sw_cms_list_listing_list_data_grid_actions_edit %}
+                                                                        <sw-context-menu-item :routerLink="{ name: 'sw.cms.detail', params: { id: item.id } }">
+                                                                            {{ $tc('sw-cms.components.cmsListItem.edit') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+
+                                                                    {% block sw_cms_list_listing_list_data_grid_actions_edit_delete %}
+                                                                        <sw-context-menu-item variant="danger" @click="onDeleteCmsPage(item)" v-if="!item.locked">
+                                                                            {{ $tc('sw-cms.components.cmsListItem.delete') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+                                                                </template>
+                                                            {% endblock %}
+
+                                                            {% block sw_cms_list_listing_list_data_grid_pagination %}
+                                                                <template #pagination>
+                                                                    <sw-pagination
+                                                                        :page="page"
+                                                                        :limit="limit"
+                                                                        :total="total"
+                                                                        :steps="[5, 10, 25, 50]"
+                                                                        @page-change="onPageChange">
+                                                                    </sw-pagination>
+                                                                </template>
+                                                            {% endblock %}
+                                                        </sw-data-grid>
+                                                    {% endblock %}
+                                                </template>
+                                            </sw-card>
                                         {% endblock %}
 
-                                        {% block sw_cms_list_listing_list_item %}
-                                            <sw-cms-list-item v-else
-                                                              v-for="cmsPage in pages"
-                                                              :page="cmsPage"
-                                                              :key="cmsPage.id"
-                                                              @preview-image-change="onPreviewChange"
-                                                              @cms-page-delete="onDeleteCmsPage"
-                                                              @item-click="onListItemClick">
+                                        {% block sw_cms_list_listing_list_grid %}
+                                            <div class="sw-cms-list__list-grid" v-if="listMode === 'grid'">
 
-                                                <sw-context-button slot="contextMenu"
-                                                                   class="sw-cms-list-item__options">
+                                                {% block sw_cms_list_listing_list_grid_content %}
+                                                    <div class="sw-cms-list__list-grid-content">
+                                                        {% block sw_cms_list_listing_list_item %}
+                                                            <sw-cms-list-item v-for="cmsPage in pages"
+                                                                              :page="cmsPage"
+                                                                              :key="cmsPage.id"
+                                                                              @preview-image-change="onPreviewChange"
+                                                                              @cms-page-delete="onDeleteCmsPage"
+                                                                              @item-click="onListItemClick">
 
-                                                    {% block sw_cms_list_listing_list_item_option_add_preview %}
-                                                        <sw-context-menu-item
-                                                                class="sw-cms-list-item__option-preview"
-                                                                @click="onPreviewChange(cmsPage)">
-                                                            {{ $tc('sw-cms.components.cmsListItem.addPreviewImage') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
+                                                                <sw-context-button slot="contextMenu"
+                                                                                   class="sw-cms-list-item__options">
 
-                                                    {% block sw_cms_list_listing_list_item_option_remove_preview %}
-                                                        <sw-context-menu-item
-                                                                class="sw-cms-list-item__option-preview"
-                                                                v-if="cmsPage.previewMediaId"
-                                                                variant="danger"
-                                                                @click="onPreviewImageRemove(cmsPage)">
-                                                            {{ $tc('sw-cms.components.cmsListItem.removePreviewImage') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
+                                                                    {% block sw_cms_list_listing_list_item_option_add_preview %}
+                                                                        <sw-context-menu-item
+                                                                                class="sw-cms-list-item__option-preview"
+                                                                                @click="onPreviewChange(cmsPage)">
+                                                                            {{ $tc('sw-cms.components.cmsListItem.addPreviewImage') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
 
-                                                    {% block sw_cms_list_listing_list_item_option_delete %}
-                                                        <sw-context-menu-item
-                                                                v-if="!cmsPage.locked"
-                                                                class="sw-cms-list-item__option-delete"
-                                                                variant="danger"
-                                                                @click="onDeleteCmsPage(cmsPage)">
-                                                            {{ $tc('sw-cms.components.cmsListItem.delete') }}
-                                                        </sw-context-menu-item>
-                                                    {% endblock %}
+                                                                    {% block sw_cms_list_listing_list_item_option_remove_preview %}
+                                                                        <sw-context-menu-item
+                                                                                class="sw-cms-list-item__option-preview"
+                                                                                v-if="cmsPage.previewMediaId"
+                                                                                variant="danger"
+                                                                                @click="onPreviewImageRemove(cmsPage)">
+                                                                            {{ $tc('sw-cms.components.cmsListItem.removePreviewImage') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
 
-                                                </sw-context-button>
-                                            </sw-cms-list-item>
+                                                                    {% block sw_cms_list_listing_list_item_option_delete %}
+                                                                        <sw-context-menu-item
+                                                                                v-if="!cmsPage.locked"
+                                                                                class="sw-cms-list-item__option-delete"
+                                                                                variant="danger"
+                                                                                @click="onDeleteCmsPage(cmsPage)">
+                                                                            {{ $tc('sw-cms.components.cmsListItem.delete') }}
+                                                                        </sw-context-menu-item>
+                                                                    {% endblock %}
+
+                                                                </sw-context-button>
+                                                            </sw-cms-list-item>
+                                                        {% endblock %}
+                                                    </div>
+                                                {% endblock %}
+
+                                                {% block sw_cms_list_listing_pagination %}
+                                                    <sw-pagination class="sw-cms-list__list-pagination"
+                                                                   v-if="!isLoading"
+                                                                   :page="page"
+                                                                   :limit="limit"
+                                                                   :total="total"
+                                                                   :steps="[9]"
+                                                                   @page-change="onPageChange">
+                                                    </sw-pagination>
+                                                {% endblock %}
+                                            </div>
                                         {% endblock %}
                                     </div>
                                 {% endblock %}
@@ -126,14 +229,18 @@
                     </div>
                 {% endblock %}
 
+                {% block sw_cms_list_listing_list_loader %}
+                    <sw-loader v-if="isLoading && listMode === 'grid'" id="sw-cms-list-grid-loader"></sw-loader>
+                {% endblock %}
+
                 {% block sw_cms_list_media_modal %}
                     <sw-media-modal
                             variant="regular"
                             v-if="showMediaModal"
                             :caption="$tc('sw-cms.components.cmsListItem.modal.captionMediaUpload')"
-                            :entityContext="pageStore._entityName"
+                            :entityContext="'cms_page'"
                             :allowMultiSelect="false"
-                            :initialFolderId="pageStore.defaultMediaFolderId"
+                            :initialFolderId="defaultMediaFolderId"
                             @media-modal-selection-change="onPreviewImageChange"
                             @modal-close="onModalClose">
                     </sw-media-modal>
@@ -173,7 +280,7 @@
                     </sw-modal>
                 {% endblock %}
 
-            </template>
+            </sw-card-view>
         {% endblock %}
     </sw-page>
 {% endblock %}

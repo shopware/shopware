@@ -28,7 +28,7 @@
                 {% endblock %}
 
                 {% block sw_cms_layout_modal_content %}
-                    <sw-container v-else columns="repeat(auto-fill, minmax(280px, 1fr))" gap="24px">
+                    <sw-container v-else columns="repeat(auto-fill, minmax(250px, 1fr))" gap="24px">
 
                         {% block sw_cms_layout_modal_content_listing %}
                             <div v-for="cmsPage in pages" class="sw-cms-layout-modal__content-item" :class="{ 'is--selected': cmsPage.id === selected }">

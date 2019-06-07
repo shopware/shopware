@@ -19,6 +19,11 @@
       "labelSortByProductPages": "Product pages",
       "labelSortByCategoryPages": "Category pages"
     },
+    "list": {
+      "gridHeaderName": "Name",
+      "gridHeaderType": "Type",
+      "gridHeaderCreated": "Created"
+    },
     "detail": {
       "labelButtonSave": "Save",
       "headlineEmptyState": "Space for creativity",
@@ -128,16 +133,17 @@
         "actionCancel": "Cancel",
         "actionConfirm": "Save",
         "modalTitle": "Select layout",
-        "headline": "Landing page / product listing"
+        "headline": "Landingpage / product listing"
       },
       "cmsListItem": {
         "emptyText": "No layout assigned",
+        "edit": "Edit",
         "delete": "Delete",
         "duplicate": "Duplicate",
         "addPreviewImage": "Add preview",
         "removePreviewImage": "Remove preview",
         "notificationDeleteErrorTitle": "Error",
-        "notificationDeleteErrorMessage": "The page you want to delete is still allocated to at least one category",
+        "notificationDeleteErrorMessage": "The layout you want to delete is still allocated to at least one category.",
         "modal": {
           "modalTitleDelete":  "Delete layout",
           "textDeleteConfirm": "Are you sure you really want to delete the layout \"{pageName}\"?",

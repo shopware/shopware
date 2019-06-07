@@ -8,10 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -60,7 +60,7 @@ class PluginDefinition extends EntityDefinition
             new DateField('installed_at', 'installedAt'),
             new DateField('upgraded_at', 'upgradedAt'),
             (new BlobField('icon', 'iconRaw'))->addFlags(new Internal()),
-            (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Deferred()),
+            (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime()),
 
             new TranslatedField('label'),
             new TranslatedField('description'),

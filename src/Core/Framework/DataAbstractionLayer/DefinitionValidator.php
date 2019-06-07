@@ -12,10 +12,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -329,7 +329,7 @@ class DefinitionValidator
                 $functionViolations[] = sprintf('No getter function for property %s in %s', $propertyName, $struct);
             }
 
-            if (!$field->is(Deferred::class) && !$reflection->hasMethod($setter)) {
+            if (!$field->is(Runtime::class) && !$reflection->hasMethod($setter)) {
                 $functionViolations[] = sprintf('No setter function for property %s in %s', $propertyName, $struct);
             }
         }
@@ -716,7 +716,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if ($field->getFlag(Deferred::class)) {
+            if ($field->getFlag(Runtime::class)) {
                 continue;
             }
 

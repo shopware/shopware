@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 /**
- * Defines that the data of the field will be loaded deferred by an event subscriber or other class.
+ * Defines that the data of the field will be loaded at runtime by an event subscriber or other class.
  * Used in entity extensions for plugins or not directly fetchable associations.
  */
-class Deferred extends Flag
+class Runtime extends Flag
 {
     public function parse(): \Generator
     {
-        yield 'deferred' => true;
+        yield 'runtime' => true;
     }
 }

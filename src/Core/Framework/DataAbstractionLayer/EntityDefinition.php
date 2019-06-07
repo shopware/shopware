@@ -6,9 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
@@ -117,7 +117,7 @@ abstract class EntityDefinition
             if ($field instanceof TranslationsAssociationField) {
                 $this->translationField = $field;
                 $fields->add(
-                    (new JsonField('translated', 'translated'))->addFlags(new Computed(), new Deferred())
+                    (new JsonField('translated', 'translated'))->addFlags(new Computed(), new Runtime())
                 );
                 break;
             }

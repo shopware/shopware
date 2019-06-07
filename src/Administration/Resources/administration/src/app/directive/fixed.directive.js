@@ -30,10 +30,10 @@ function updateElement(el) {
 }
 
 /**
- * Directive for dropdowns
+ * Directive for fixed
  *
  * Usage:
- * v-dropdown
+ * v-fixed
  */
 
 Directive.register('fixed', {

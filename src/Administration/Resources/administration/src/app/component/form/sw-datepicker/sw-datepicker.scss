@@ -64,6 +64,12 @@ $sw-datepicker-color-text-selected: $color-white;
 
         .flatpickr-prev-month, .flatpickr-next-month {
             top: 8px;
+
+            &:hover {
+                svg {
+                    fill: $color-shopware-brand-500;
+                }
+            }
         }
     }
 

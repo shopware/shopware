@@ -17,7 +17,7 @@
 
 <p align="center"><strong>Realize your ideas - fast and without friction.</strong></p>
 
-Shopware 6 is an open source ecommerce platform based on a quite modern technology stack that is powered by [Symfony](https://symfony.com) and [Vue.js](https://vuejs.org). It's the successor of the very successful ecommerce shopping cart [Shopware 5](https://github.com/shopware/shopware) which has over 800000 downloads. Shopware 6 is focused on an api-first approach, so it's quite easy to think in different sales channels and make ecommerce hapen whereever you want it.
+Shopware 6 is an open source ecommerce platform based on a quite modern technology stack that is powered by [Symfony](https://symfony.com) and [Vue.js](https://vuejs.org). It's the successor of the very successful ecommerce shopping cart [Shopware 5](https://github.com/shopware/shopware) which has over 800000 downloads. Shopware 6 is focused on an api-first approach, so it's quite easy to think in different sales channels and make ecommerce happen whereever you want it.
 
 If you like Shopware 6, give us a star on Github ★
 

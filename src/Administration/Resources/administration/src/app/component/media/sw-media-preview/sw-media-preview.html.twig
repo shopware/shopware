@@ -23,6 +23,7 @@
                                  :alt="alt"
                                  :srcset="sourceSet"
                                  :sizes="`${width}px`"
+                                 draggable="false"
                                  @error="showEvent">
                             <sw-icon v-else class="sw-media-preview__item" name="multicolor-file-thumbnail-broken" multicolor></sw-icon>
                             <sw-icon v-if="mediaIsPrivate" class="sw-media-preview__locked-icon sw-icon--small" name="default-lock-closed" multicolor></sw-icon>
@@ -67,7 +68,7 @@
                     </template>
 
                     <template v-else-if="isUrl && !urlPreviewFailed">
-                        <img :src="previewUrl" @error="removeUrlPreview" class="sw-media-preview__item">
+                        <img :src="previewUrl" @error="removeUrlPreview" class="sw-media-preview__item" draggable="false">
                     </template>
 
                     <template v-else>

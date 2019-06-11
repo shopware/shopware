@@ -43,7 +43,8 @@ module.exports = {
                     prefs: {
                         'intl.accept_languages': 'en_GB,en'
                     },
-                    args: chromeOptions
+                    args: chromeOptions,
+                    w3c: false
                 }
             }
         },

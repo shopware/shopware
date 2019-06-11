@@ -41,6 +41,15 @@ class IdSearchResult extends Struct
         $this->context = $context;
     }
 
+    public function firstId(): ?string
+    {
+        if (empty($this->ids)) {
+            return null;
+        }
+
+        return $this->ids[0];
+    }
+
     /**
      * @return string[]
      */

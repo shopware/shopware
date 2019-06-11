@@ -46,16 +46,23 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
      */
     private $systemConfigService;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $domainRepository;
+
     public function __construct(
         EntityRepositoryInterface $newsletterRecipientRepository,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        EntityRepositoryInterface $domainRepository
     ) {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
         $this->systemConfigService = $systemConfigService;
+        $this->domainRepository = $domainRepository;
     }
 
     public function subscribe(DataBag $dataBag, SalesChannelContext $context): void
@@ -184,11 +191,9 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         );
         $criteria->setLimit(1);
 
-        $ids = $this->newsletterRecipientRepository->searchIds($criteria, $context->getContext())->getIds();
-
-        return array_shift(
-            $ids
-        );
+        return $this->newsletterRecipientRepository
+            ->searchIds($criteria, $context->getContext())
+            ->firstId();
     }
 
     private function getNewsletterRecipient(string $identifier, string $value, Context $context): NewsletterRecipientEntity
@@ -206,16 +211,28 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         return $newsletterRecipient;
     }
 
-    /**
-     * @return string|null
-     */
-    private function getSubscribeUrl(SalesChannelContext $context, array $data)
+    private function getSubscribeUrl(SalesChannelContext $context, array $data): string
     {
-        if ($this->systemConfigService->get('newsletter.subscribeDomain', $context->getSalesChannel()->getId(), true)) {
-            $url = $this->systemConfigService->get('newsletter.subscribeDomain');
+        $domain = $this->systemConfigService->get('newsletter.subscribeDomain', $context->getSalesChannel()->getId());
+
+        if ($domain) {
+            $url = $domain;
         } else {
-            $url = $context->getSalesChannel()->getDomains()->first()->getUrl();
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()));
+            $criteria->setLimit(1);
+
+            $domain = $this->domainRepository
+                ->search($criteria, $context->getContext())
+                ->first();
+
+            if (!$domain) {
+                throw new \RuntimeException(sprintf('No domain found for sales channel %s', $context->getSalesChannel()->getTranslation('name')));
+            }
+
+            $url = $domain->getUrl();
         }
+
         $url .= str_replace(
             [
                 '%%HASHEDEMAIL%%',

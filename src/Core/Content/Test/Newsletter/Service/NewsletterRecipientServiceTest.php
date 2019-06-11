@@ -93,6 +93,34 @@ class NewsletterRecipientServiceTest extends TestCase
             'lastName' => '',
         ]);
 
+        $id = Uuid::randomHex();
+        $salesChannel = [
+            'id' => $id,
+            'name' => 'test',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'currencyId' => Defaults::CURRENCY,
+            'paymentMethodId' => $this->getRandomId('payment_method'),
+            'shippingMethodId' => $this->getRandomId('shipping_method'),
+            'countryId' => $this->getRandomId('country'),
+            'navigationCategoryId' => $this->getRandomId('category'),
+            'accessKey' => 'test',
+            'languages' => [
+                ['id' => Defaults::LANGUAGE_SYSTEM],
+            ],
+            'domains' => [
+                [
+                    'url' => 'http://test.de',
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $this->getRandomId('snippet_set'),
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('sales_channel.repository')
+            ->create([$salesChannel], Context::createDefaultContext());
+
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
         $this->getService()->subscribe($dataBag, $context);
@@ -238,6 +266,12 @@ class NewsletterRecipientServiceTest extends TestCase
         static::assertSame((new \DateTime())->format('y-m-d'), $result->getUpdatedAt()->format('y-m-d'));
     }
 
+    private function getRandomId(string $table)
+    {
+        return $this->getContainer()->get(Connection::class)
+            ->fetchColumn('SELECT LOWER(HEX(id)) FROM ' . $table);
+    }
+
     private function installTestData(): void
     {
         $this->getContainer()->get(Connection::class)->exec(file_get_contents(__DIR__ . '/../fixtures/salutation.sql'));
@@ -256,7 +290,8 @@ class NewsletterRecipientServiceTest extends TestCase
             $this->getContainer()->get('newsletter_recipient.repository'),
             $this->getContainer()->get(DataValidator::class),
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(SystemConfigService::class)
+            $this->getContainer()->get(SystemConfigService::class),
+            $this->getContainer()->get('sales_channel_domain.repository')
         );
     }
 }

@@ -6,6 +6,7 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
+use Shopware\Core\Content\Newsletter\Exception\SalesChannelDomainNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -227,7 +228,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
                 ->first();
 
             if (!$domain) {
-                throw new \RuntimeException(sprintf('No domain found for sales channel %s', $context->getSalesChannel()->getTranslation('name')));
+                throw new SalesChannelDomainNotFoundException($context->getSalesChannel());
             }
 
             $url = $domain->getUrl();

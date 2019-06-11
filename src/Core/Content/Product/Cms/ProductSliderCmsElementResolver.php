@@ -35,6 +35,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
         if ($products->isStatic() && $products->getValue()) {
             $criteria = new Criteria($products->getValue());
+            $criteria->addAssociation('cover');
             $collection->add(self::STATIC_SEARCH_KEY . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
         }
 
@@ -96,6 +97,9 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             return null;
         }
 
-        return $this->resolveCriteriaForLazyLoadedRelations($resolverContext, $config);
+        $criteria = $this->resolveCriteriaForLazyLoadedRelations($resolverContext, $config);
+        $criteria->addAssociation('cover');
+
+        return $criteria;
     }
 }

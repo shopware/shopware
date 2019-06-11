@@ -35,8 +35,20 @@
                                        :sortDirection="sortDirection"
                                        :isLoading="isLoading"
                                        :allowColumnEdit="true"
-                                       identifier="sw-log-list"
-                                       @column-sort="onSortColumn">
+                                       :repository="logEntryRepository"
+                                       identifier="sw-log-entry-list">
+
+                        <template slot="column-createdAt" slot-scope="{ item }">
+                            {% block sw_settings_logging_list_column_created_at %}
+                                {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                            {% endblock %}
+                        </template>
+
+                        <template slot="column-context" slot-scope="{ item }">
+                            {% block sw_settings_logging_list_column_context %}
+                                <a @click="showInfoModal(item)">{{ item.context }}</a>
+                            {% endblock %}
+                        </template>
 
                         <template slot="pagination">
                             {% block sw_settings_logging_list_content_listing_pagination %}

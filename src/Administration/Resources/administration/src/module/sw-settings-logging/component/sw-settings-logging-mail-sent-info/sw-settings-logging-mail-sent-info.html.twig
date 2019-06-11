@@ -1,0 +1,50 @@
+{% block sw_settings_logging_entry_info_tab_items %}
+
+    <sw-tabs-item :active="activeTab === 'html'" @click="activeTab = 'html'">
+        {{ $tc('sw-settings-logging.mailInfo.tabHTML') }}
+    </sw-tabs-item>
+
+    <sw-tabs-item :active="activeTab === 'plain'" @click="activeTab = 'plain'">
+        {{ $tc('sw-settings-logging.mailInfo.tabPlain') }}
+    </sw-tabs-item>
+
+    {% parent() %}
+{% endblock %}
+
+{% block sw_settings_logging_entry_info_content %}
+
+    {% parent() %}
+
+    <template v-if="activeTab === 'html' || activeTab === 'plain'">
+        {% block sw_settings_logging_mail_sent_content_recipients %}
+            <div class="sw-settings-logging-mail-sent-info__recipients">
+                {% block sw_settings_logging_mail_sent_content_recipients_title %}
+                    <span>{{ $tc('sw-settings-logging.mailInfo.recipientsTitle') }}: {{ recipientString }}</span>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_settings_logging_mail_sent_content_mailbody %}
+            <div>
+                {% block sw_settings_logging_mail_sent_content_mailbody_title %}
+                    <span>{{ $tc('sw-settings-logging.mailInfo.contentsTitle') }}:</span>
+                {% endblock %}
+
+                {% block sw_settings_logging_mail_sent_content_mailbody_html %}
+                    <div v-if="activeTab === 'html'"
+                         v-html="logEntry.context.additionalData.contents['text/html']"
+                         class="sw-settings-logging-mail-sent-info__mail-content">
+                    </div>
+                {% endblock %}
+
+                {% block sw_settings_logging_mail_sent_content_mailbody_plain %}
+                    <div v-if="activeTab === 'plain'"
+                        class="sw-settings-logging-mail-sent-info__mail-content">
+                        {{ logEntry.context.additionalData.contents['text/plain'] }}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </template>
+
+{% endblock %}

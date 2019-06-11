@@ -14,9 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class LogEntryDefinition extends EntityDefinition
 {
+    public const ENTITY_NAME = 'log_entry';
+
     public function getEntityName(): string
     {
-        return 'log_entry';
+        return self::ENTITY_NAME;
     }
 
     public function getEntityClass(): string

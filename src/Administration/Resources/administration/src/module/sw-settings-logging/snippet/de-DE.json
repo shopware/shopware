@@ -19,7 +19,9 @@
     },
     "mailInfo": {
       "tabHTML": "HTML",
-      "tabPlain": "Plain"
+      "tabPlain": "Plain",
+      "recipientsTitle": "Empfänger",
+      "contentsTitle": "Inhalt"
     }
   }
 }

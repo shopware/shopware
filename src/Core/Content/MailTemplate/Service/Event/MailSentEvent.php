@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
+use Monolog\Logger;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Logging\LogAwareBusinessEventInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-class MailDispatchedEvent extends Event implements BusinessEventInterface
+class MailSentEvent extends Event implements BusinessEventInterface, LogAwareBusinessEventInterface
 {
-    public const EVENT_NAME = 'mail.dispatched';
+    public const EVENT_NAME = 'mail.sent';
 
     /**
      * @var Context
@@ -44,8 +47,7 @@ class MailDispatchedEvent extends Event implements BusinessEventInterface
     {
         return (new EventDataCollection())
             ->add('subject', new ScalarValueType(ScalarValueType::TYPE_STRING))
-            // todo: type array?
-            ->add('recipients', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('recipients', new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)))
             ->add('contents', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
@@ -72,5 +74,19 @@ class MailDispatchedEvent extends Event implements BusinessEventInterface
     public function getRecipients(): array
     {
         return $this->recipients;
+    }
+
+    public function getLogData(): array
+    {
+        return [
+            'subject' => $this->subject,
+            'recipients' => $this->recipients,
+            'contents' => $this->contents,
+        ];
+    }
+
+    public function getLogLevel(): int
+    {
+        return Logger::INFO;
     }
 }

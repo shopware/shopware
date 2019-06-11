@@ -1,11 +1,11 @@
-import { State, Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-logging-list.html.twig';
-import './sw-settings-logging-list.scss';
 
 Component.register('sw-settings-logging-list', {
     template,
 
-    inject: ['loggingService'],
+    inject: ['repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('sw-settings-list'),
@@ -16,7 +16,7 @@ Component.register('sw-settings-logging-list', {
         return {
             entityName: 'log_entry',
             sortBy: 'log_entry.createdAt',
-            sortDirection: 'DSC',
+            sortDirection: 'DESC',
             isLoading: true,
             logs: [],
             displayedLog: null
@@ -30,16 +30,13 @@ Component.register('sw-settings-logging-list', {
     },
 
     computed: {
-        filters() {
-            return [];
+
+        logEntryRepository() {
+            return this.repositoryFactory.create('log_entry');
         },
 
         logColumns() {
             return this.getLogColumns();
-        },
-
-        logEntryStore() {
-            return State.getStore('log_entry');
         },
 
         logInfoModalComponent() {
@@ -54,20 +51,30 @@ Component.register('sw-settings-logging-list', {
     },
 
     methods: {
+        showInfoModal(entryContents) {
+            this.displayedLog = entryContents;
+        },
+
+        closeInfoModal() {
+            this.displayedLog = null;
+        },
+
         getList() {
             this.isLoading = true;
 
-            this.logs = [];
+            const criteria = new Criteria(this.page, this.limit);
 
-            const params = this.getListingParams();
-            console.log(params);
-            return this.logEntryStore.getList(params, true).then((response) => {
+            criteria.setTerm(this.term);
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
+            return this.logEntryRepository.search(criteria, this.context).then((response) => {
                 this.total = response.total;
                 this.logs = response.items;
-
                 this.isLoading = false;
 
-                return this.logs;
+                return response;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 
@@ -94,15 +101,6 @@ Component.register('sw-settings-logging-list', {
                 label: this.$tc('sw-settings-logging.list.columnContent'),
                 allowResize: true
             }];
-        },
-
-        showInfoModal(entryContents) {
-            this.displayedLog = entryContents;
-        },
-
-        closeInfoModal() {
-            this.displayedLog = null;
         }
-
     }
 });

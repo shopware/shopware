@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
-use Shopware\Core\Content\MailTemplate\Service\Event\MailDispatchedEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -129,8 +129,8 @@ class MailService
 
         $this->mailSender->send($message);
 
-        $mailDispatchedEvent = new MailDispatchedEvent($data['subject'], $recipients, $contents, $context);
-        $this->eventDispatcher->dispatch($mailDispatchedEvent, MailDispatchedEvent::EVENT_NAME);
+        $mailSentEvent = new MailSentEvent($data['subject'], $recipients, $contents, $context);
+        $this->eventDispatcher->dispatch($mailSentEvent, MailSentEvent::EVENT_NAME);
 
         return $message;
     }

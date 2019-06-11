@@ -17,6 +17,12 @@ Component.register('sw-settings-logging-entry-info', {
         };
     },
 
+    computed: {
+        displayString() {
+            return JSON.stringify(this.logEntry.context, null, 2);
+        }
+    },
+
     created() {
         this.createdComponent();
     },

@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\Logging;
 
-use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\BusinessEvents;
-use Shopware\Core\Framework\Logging\Filter\LogFilterRegistry;
-use Shopware\Core\Framework\Logging\Monolog\DALHandler;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class LoggingService implements EventSubscriberInterface
@@ -27,31 +24,27 @@ class LoggingService implements EventSubscriberInterface
      */
     protected $environment;
 
-    /**
-     * @var LogFilterRegistry
-     */
-    private $logFilterRegistry;
-
-    public function __construct(string $kernelEnv,
-                                LogFilterRegistry $filterRegistry,
-                                Logger $logger)
-    {
+    public function __construct(
+        string $kernelEnv,
+        Logger $logger
+    ) {
         $this->logger = $logger;
-//        $this->logger->pushHandler(new DALHandler($logEntryRepository, $connection));
         $this->environment = $kernelEnv;
-        $this->logFilterRegistry = $filterRegistry;
     }
 
     public function logBusinessEvent(BusinessEvent $event): void
     {
-        $additionalData = [];
+        $innerEvent = $event->getEvent();
 
-        $filter = $this->logFilterRegistry->getFilter($event->getEvent()->getName());
-        if ($filter) {
-            $additionalData = $filter->filterEventData($event->getEvent());
+        $additionalData = [];
+        $logLevel = Logger::DEBUG;
+
+        if ($innerEvent instanceof LogAwareBusinessEventInterface) {
+            $logLevel = $innerEvent->getLogLevel();
+            $additionalData = $innerEvent->getLogData();
         }
 
-        $this->logger->addDebug($event->getEvent()->getName(),
+        $this->logger->addRecord($logLevel, $innerEvent->getName(),
             [
                 'source' => 'core',
                 'environment' => $this->environment,
@@ -62,7 +55,6 @@ class LoggingService implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        // todo: crank up priority ?
-        return [BusinessEvents::GLOBAL_EVENT => ['logBusinessEvent']];
+        return [BusinessEvents::GLOBAL_EVENT => 'logBusinessEvent'];
     }
 }

@@ -19,7 +19,19 @@
     <monolog:config>
         <monolog:channel>business_events</monolog:channel>
 
-        <monolog:handler name="business_event_handler" type="service" id="Shopware\Core\Framework\Logging\Monolog\DALHandler">
+        <monolog:handler
+                name="business_event_handler_buffer"
+                type="buffer"
+                handler="business_event_handler">
+            <monolog:channels>
+                <monolog:channel>business_events</monolog:channel>
+            </monolog:channels>
+        </monolog:handler>
+
+        <monolog:handler
+            name="business_event_handler"
+            type="service"
+            id="Shopware\Core\Framework\Logging\Monolog\DoctrineSQLHandler">
             <monolog:channels>
                 <monolog:channel>business_events</monolog:channel>
             </monolog:channels>
@@ -262,35 +274,13 @@
         <service id="Shopware\Core\Framework\Logging\LoggingService">
             <argument>%kernel.environment%</argument>
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\Core\Framework\Logging\Filter\LogFilterRegistry"/>
             <argument type="service" id="monolog.logger.business_events"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Logging\Monolog\DALHandler">
-            <argument type="service" id="log_entry.repository"/>
+        <service id="Shopware\Core\Framework\Logging\Monolog\DoctrineSQLHandler">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Logging\LoggingController" public="true">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
-        <service id="Shopware\Core\Framework\Logging\Filter\LogFilterRegistry">
-            <argument type="tagged" tag="logging.filter"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Logging\Filter\NewsletterLogEntryFilter">
-            <tag name="logging.filter"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Logging\Filter\MailDispatchedLogEntryFilter">
-            <tag name="logging.filter"/>
-        </service>
-
-        <!-- todo move me somewhere-->
         <service id="Shopware\Core\Framework\Logging\LogEntryDefinition">
             <tag name="shopware.entity.definition" entity="log_entry"/>
         </service>

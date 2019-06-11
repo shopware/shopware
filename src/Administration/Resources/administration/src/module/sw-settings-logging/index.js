@@ -4,7 +4,7 @@ import './extension/sw-settings-index';
 import './page/sw-settings-logging-list';
 
 import './component/sw-settings-logging-entry-info';
-import './component/sw-settings-logging-mail-dispatched-info';
+import './component/sw-settings-logging-mail-sent-info';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';

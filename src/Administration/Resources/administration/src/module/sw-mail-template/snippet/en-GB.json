@@ -16,6 +16,7 @@
       "titleMailFooterList" : "Footer",
       "buttonAddMailTemplate": "Add email template",
       "buttonAdd": "Add",
+      "buttonMailArchive": "Email archive",
       "columnMailType": "Type",
       "columnDescription": "Description",
       "columnSalesChannels": "Sales Channels",

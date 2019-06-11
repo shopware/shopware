@@ -16,6 +16,7 @@
       "titleMailFooterList" : "Fußzeilen",
       "buttonAddMailTemplate": "E-Mail-Vorlage hinzufügen",
       "buttonAdd": "Erstellen",
+      "buttonMailArchive": "E-Mail Archiv",
       "columnMailType": "Typ",
       "columnDescription": "Beschreibung",
       "columnSalesChannels": "Verkaufskanal",

@@ -1,0 +1,61 @@
+{% block sw_settings_newsletter_config_index %}
+    <sw-page class="sw-settings-newsletter-config">
+
+        {% block sw_settings_newsletter_config_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar>
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_newsletter_config_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_settings_newsletter_config_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_settings_newsletter_config_smart_bar_header_title_text %}
+                                {{ $tc('sw-settings.index.title') }}
+                                <sw-icon name="small-arrow-medium-right" small>
+                                </sw-icon>
+                                {{ $tc('sw-settings-newsletter-config.general.textHeadline') }}
+                        {% endblock %}
+
+                        {% block sw_settings_newsletter_config_smart_bar_header_amount %}
+                            <span v-if="false" class="sw-page__smart-bar-amount">
+                                ({{ total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+            {% block sw_settings_newsletter_config_smart_bar_actions %}
+                <template slot="smart-bar-actions">
+                    {% block sw_settings_newsletter_config_actions_save %}
+                        <sw-button-process
+                                class="sw-settings-newsletter-config__save-action"
+                                :isLoading="isLoading"
+                                :processSuccess="isSaveSuccessful"
+                                :disabled="isLoading"
+                                variant="primary"
+                                @process-finish="saveFinish"
+                                @click="onSave">
+                            {{ $tc('sw-settings-newsletter-config.general.buttonSave') }}
+                        </sw-button-process>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+        {% block sw_settings_newsletter_config_content %}
+            <template slot="content">
+                <sw-card-view>
+                   <sw-system-config
+                            ref="systemConfig"
+                            salesChannelSwitchable
+                            domain="core.newsletter">
+                   </sw-system-config>
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

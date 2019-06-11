@@ -1,0 +1,13 @@
+{% block sw_settings_content_card_slot_shop %}
+    {% parent %}
+
+    {% block sw_settings_newsletter_config_item %}
+        <sw-settings-item
+                :label="$tc('sw-settings-newsletter-config.general.mainMenuItemGeneral')"
+                :to="{ name: 'sw.settings.newsletter.config.index' }">
+            <template slot="icon">
+                <sw-icon name="default-basic-stack-line"></sw-icon>
+            </template>
+        </sw-settings-item>
+    {% endblock %}
+{% endblock %}

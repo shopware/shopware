@@ -213,7 +213,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
 
     private function getSubscribeUrl(SalesChannelContext $context, array $data): string
     {
-        $domain = $this->systemConfigService->get('newsletter.subscribeDomain', $context->getSalesChannel()->getId());
+        $domain = $this->systemConfigService->get('core.newsletter.subscribeDomain', $context->getSalesChannel()->getId());
 
         if ($domain) {
             $url = $domain;

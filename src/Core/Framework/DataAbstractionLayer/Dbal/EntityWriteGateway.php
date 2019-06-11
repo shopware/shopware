@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStora
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldForeignKeyConstraintMissingException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -278,9 +279,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         foreach ($fields as $field) {
             if (!array_key_exists($field->getStorageName(), $primaryKey)) {
                 if (!array_key_exists($field->getPropertyName(), $primaryKey)) {
-                    throw new \RuntimeException(
-                        sprintf('Expected primary key field %s for definition %s not provided', $field->getPropertyName(), $definition->getClass())
-                    );
+                    throw new PrimaryKeyNotProvidedException($definition, $field);
                 }
 
                 $primaryKey[$field->getStorageName()] = $primaryKey[$field->getPropertyName()];

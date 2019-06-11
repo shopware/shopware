@@ -92,7 +92,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Update email address
 
-**PUT  /sales-channel-api/v1/customer/email**
+**PATCH  /sales-channel-api/v1/customer/email**
 
 **Parameter:**
 
@@ -107,7 +107,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Update password
 
-**PUT  /sales-channel-api/v1/customer/password**
+**PATCH  /sales-channel-api/v1/customer/password**
 
 **Parameter:**
 
@@ -121,8 +121,8 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Update profile information
 
-**PUT 
-/sales-channel-api/v1/customer/profile**
+**PATCH 
+/sales-channel-api/v1/customer**
 
 **Parameter:**
 
@@ -195,7 +195,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 ### Set default shipping address
 
-**POST  /sales-channel-api/v1/customer/default-shipping-address/{id}**
+**PATCH  /sales-channel-api/v1/customer/address/{id}/default-shipping**
 
 **Header:** sw-context-token is required
 
@@ -203,7 +203,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 ### Set default billing address
 
-**POST  /sales-channel-api/v1/customer/default-billing-address/{id}**
+**PATCH  /sales-channel-api/v1/customer/address/{id}/default-billing**
 
 **Header:** sw-context-token is required
 

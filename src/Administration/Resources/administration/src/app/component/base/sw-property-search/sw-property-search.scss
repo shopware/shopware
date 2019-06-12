@@ -10,7 +10,7 @@
 
         .sw-property-search__tree-selection__group_grid {
             padding-top: 10px;
-            border-radius: 0 0 0 8px;
+            border-radius: 0 0 0 $border-radius-default;
 
             .group_grid__column-name {
                 .sw-icon {
@@ -26,7 +26,7 @@
 
         .sw-grid-column.is-selected {
             .sw-grid__cell-content {
-                color: #189EFF;
+                color: $color-shopware-brand-500;
                 font-weight: 900;
             }
         }
@@ -81,7 +81,7 @@
     }
 
     .sw-property-search__search-selection__option_grid {
-        border-radius: 8px;
+        border-radius: $border-radius-default;
     }
 
     .sw-property-search__search-selection  {
@@ -95,10 +95,10 @@
     }
 
     &.overlay .sw-property-search__tree-selection,
-    &.overlay .sw-property-search__search-selection{
+    &.overlay .sw-property-search__search-selection {
         position: absolute;
         z-index: $z-index-flyout;
-        border-radius: 8px;
+        border-radius: $border-radius-default;
         background-color: $color-white;
         background-clip: padding-box;
         box-shadow: 0 1px 6px 0 lighten($color-gutenberg, 30%);
@@ -109,7 +109,7 @@
     }
 
     .sw-property-search__tree-selection .sw-property-search__tree-selection__group_grid {
-        border-right: 1px solid $color-steam-cloud;
+        border-right: 1px solid $color-gray-300;
     }
 
     .sw-property-search__toolbar {

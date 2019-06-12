@@ -10,8 +10,8 @@
     .sw-radio-panel__image {
         width: 80px;
         height: 80px;
-        background-color: lighten($color-shopware-blue, 40%);
-        color: #afdbf6;
+        background-color: $color-shopware-brand-50;
+        color: $color-shopware-brand-100;
         border-radius: 50%;
         margin: 0 auto 15px auto;
         display: flex;
@@ -24,7 +24,7 @@
         font-size: 18px;
         font-weight: normal;
         margin: 0 0 12px 0;
-        color: $color-kashmir;
+        color: $color-darkgray-200;
         transition: all 0.2s ease-in-out;
 
         &.is--truncate {
@@ -47,7 +47,7 @@
         display: block;
         padding: 30px;
         height: 100%;
-        border: 1px solid $color-steam-cloud;
+        border: 1px solid $color-gray-300;
         border-radius: $border-radius-default;
         text-align: center;
         cursor: pointer;
@@ -60,8 +60,8 @@
         right: 15px;
         width: 15px;
         height: 15px;
-        background-color: $color-light-gray;
-        border: 2px solid $color-steam-cloud;
+        background-color: $color-gray-100;
+        border: 2px solid $color-gray-300;
         border-radius: 50%;
         transition: all 0.2s ease-in-out;
     }
@@ -73,14 +73,14 @@
         visibility: hidden;
 
         &:checked + .sw-radio-panel__body {
-            border-color: $color-shopware-blue;
+            border-color: $color-shopware-brand-500;
 
             .sw-radio-panel__title {
-                color: $color-shopware-blue;
+                color: $color-shopware-brand-500;
             }
 
             .sw-radio-panel__radio {
-                border: 5px solid $color-shopware-blue;
+                border: 5px solid $color-shopware-brand-500;
                 background-color: $color-white;
             }
         }
@@ -88,11 +88,11 @@
 
     &:hover {
         .sw-radio-panel__title {
-            color: $color-shopware-blue;
+            color: $color-shopware-brand-500;
         }
 
         .sw-radio-panel__body {
-            border-color: $color-shopware-blue;
+            border-color: $color-shopware-brand-500;
         }
     }
 }

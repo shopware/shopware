@@ -1,7 +1,5 @@
 @import "~scss/variables";
 
-$sw-property-assignment-background-color-options-item: $color-light-gray;
-
 .sw-property-assignment {
     font-size: 14px;
 
@@ -37,7 +35,7 @@ $sw-property-assignment-background-color-options-item: $color-light-gray;
 
         .sw-label__dismiss {
             display: block;
-            color: $color-shopware-blue;
+            color: $color-shopware-brand-500;
         }
     }
 

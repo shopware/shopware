@@ -9,11 +9,10 @@ class UnsupportedCommandTypeException extends ShopwareHttpException
 {
     public function __construct(WriteCommandInterface $command)
     {
-        parent::__construct('Command of class {{ command }} is not supported by {{ definition }}',
-            [
-                'command' => \get_class($command),
-                'definition' => $command->getDefinition()->getClass(),
-            ]);
+        parent::__construct(
+            'Command of class {{ command }} is not supported by {{ definition }}',
+            ['command' => \get_class($command), 'definition' => $command->getDefinition()->getClass()]
+        );
     }
 
     public function getErrorCode(): string

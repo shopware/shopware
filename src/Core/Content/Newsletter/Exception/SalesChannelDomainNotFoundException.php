@@ -9,10 +9,9 @@ class SalesChannelDomainNotFoundException extends ShopwareHttpException
 {
     public function __construct(SalesChannelEntity $salesChannel)
     {
-        parent::__construct('No domain found for sales channel {{ salesChannel }}',
-            [
-                'salesChannel' => $salesChannel->getTranslation('name'),
-            ]
+        parent::__construct(
+            'No domain found for sales channel {{ salesChannel }}',
+            ['salesChannel' => $salesChannel->getTranslation('name')]
         );
     }
 

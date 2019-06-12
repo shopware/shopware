@@ -1,0 +1,90 @@
+{% block element_image_slider %}
+    {%  set sliderConfig = element.fieldConfig.elements %}
+    
+    <div class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == "standard" and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
+        {% block element_image_slider_alignment %}
+            <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+                <div class="base-slider image-slider{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigationDots.value == "outside" %} has-dots-outside{% endif %}"
+                     data-base-slider="true"
+                     data-base-slider-options='{
+                        "slider": {
+                            "navPosition": "bottom",
+                            "speed": 500,
+                            "nav": {% if sliderConfig.navigationDots.value %}true{% else %}false{% endif %},
+                            "controls": {% if sliderConfig.navigationArrows.value %}true{% else %}false{% endif %},
+                            "autoHeight": {% if sliderConfig.displayMode.value == "standard" %}true{% else %}false{% endif %},
+                            "responsive": {
+                                "xs": {
+                                    "items": 1
+                                },
+                                "sm": {
+                                    "items": 2
+                                },
+                                "md": {
+                                    "items": 2
+                                }
+                            }
+                        }
+                    }'>
+                    
+                    {% block element_image_slider_inner %}
+                        <div class="image-slider-container"
+                             data-base-slider-container="true">
+                            {% for image in element.data.sliderItems %}
+            
+                                {% set imageElement %}
+                                    <div class="image-slider-item is-{{ sliderConfig.displayMode.value }}"{% if sliderConfig.minHeight.value and  sliderConfig.displayMode.value == "cover" %} style="min-height: {{ sliderConfig.minHeight.value }}"{% endif %}>
+                                        <img src="{{ image.media.url }}"
+                                             class="img-fluid image-slider-image"
+                                            {% if element.config.displayMode.value == 'cover' %}
+                                                data-object-fit="cover"
+                                            {% endif %}
+                                             alt="{{ image.media.alt }}"/>
+                                    </div>
+                                {% endset %}
+            
+                                {% block element_image_slider_inner_item %}
+                                    <div class="image-slider-item-container">
+                                        {% if image.url %}
+                                            <a href="{{ image.url }}"
+                                               class="image-slider-link"
+                                               {% if image.newTab %}target="_blank"{% endif %}>
+                                                {{ imageElement }}
+                                            </a>
+                                        {% else %}
+                                            {{ imageElement }}
+                                        {% endif %}
+                                    </div>
+                                {% endblock %}
+                            {% endfor %}
+                        </div>
+                
+                        {% block element_image_slider_controls %}
+                            {% if sliderConfig.navigationArrows.value %}
+                                <div class="image-slider-controls-container">
+                                    <div class="base-slider-controls"
+                                        data-base-slider-controls="true">
+                                        {% block element_image_slider_controls_items %}
+                                            {% block element_image_slider_controls_items_arrows %}
+                                                <button class="base-slider-controls-prev image-slider-controls-prev{% if sliderConfig.navigationArrows.value == "outside" %} is-nav-prev-outside{% elseif sliderConfig.navigationArrows.value == "inside" %} is-nav-prev-inside{% endif %}">
+                                                    {% block element_image_slider_controls_items_prev_icon %}
+                                                        {% sw_icon 'arrow-head-left' %}
+                                                    {% endblock %}
+                                                </button>
+                                                <button class="base-slider-controls-next image-slider-controls-next{% if sliderConfig.navigationArrows.value == "outside" %} is-nav-next-outside{% elseif sliderConfig.navigationArrows.value == "inside" %} is-nav-next-inside{% endif %}">
+                                                    {% block element_image_slider_controls_items_next_icon %}
+                                                        {% sw_icon 'arrow-head-right' %}
+                                                    {% endblock %}
+                                                </button>
+                                            {% endblock %}
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                    {% endblock %}
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -2,102 +2,68 @@
 Image slider
 ==============================================
 Styling for image slider component.
-based on: https://github.com/ganlanyuan/tiny-slider
+Displays images in a reusable slider component.
+based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyuan/tiny-slider)
 */
 
-.image-slider-thumbnails {
-    list-style: none;
-    padding: 0;
-    text-align: center;
-}
-
-.image-slider-thumbnails-item {
-    cursor: pointer;
-    display: inline-block;
-    height: 80px;
-    padding: $spacer-xs;
+.image-slider-container {
     position: relative;
-    width: 80px;
-}
-
-.image-slider-thumbnails-item-inner {
-    border: 1px solid $border-color;
-    width: 100%;
     height: 100%;
-    padding: $spacer-xs;
-    display: flex;
-    align-items: center;
-    align-content: center;
-    justify-content: center;
-}
 
-.image-slider-thumbnails-item {
-    &.tns-nav-active {
-        .image-slider-thumbnails-item-inner {
-            border-color: $primary;
+    .image-slider-image {
+        display: block;
+        width: 100%;
+    }
+
+    .image-slider-item {
+        display: grid;
+        max-width: 100%;
+
+        &.is-cover {
+            height: 100%;
+
+            .image-slider-image {
+                object-fit: cover;
+                height: 100%;
+            }
         }
+    }
+
+    .image-slider-link {
+        display: block;
     }
 }
 
-.image-slider-thumbnails-image,
-.image-slider-image {
-    max-height: 100%;
-    max-width: 100%;
+.image-slider-controls-prev {
+    &.is-nav-prev-inside {
+        left: 0;
+    }
+
+    &.is-nav-prev-outside {
+        left: -15px;
+    }
 }
 
-.image-slider {
-    height: 200px;
-}
-
-.image-slider-item {
-    backface-visibility: hidden;
-    cursor: default;
-    display: inline-block;
-    height: 100%;
-    position: relative;
-    text-align: center;
-    width: 100%;
-}
-
-.image-slider-image {
-    flex-shrink: 0;
-    padding: 0;
-}
-
-.image-slider-controls {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.image-slider-controls-prev,
 .image-slider-controls-next {
-    cursor: pointer;
+    &.is-nav-next-inside {
+        right: 0;
+    }
 
-    &:hover {
-        color: $primary;
+    &.is-nav-next-outside {
+        right: -15px;
     }
 }
 
 @include media-breakpoint-up(md) {
-    .image-slider {
-        height: 400px;
-    }
-}
-
-@include media-breakpoint-up(lg) {
-    .image-slider-thumbnails {
-        text-align: left;
+    .image-slider-controls-prev {
+        &.is-nav-prev-outside {
+            left: -5px;
+        }
     }
 
-    .image-slider {
-        height: 430px;
-    }
-}
-
-@include media-breakpoint-up(xl) {
-    .image-slider-thumbnails-item {
-        display: block;
-        width: auto;
+    .image-slider-controls-next {
+        &.is-nav-next-outside {
+            right: -5px;
+        }
     }
 }

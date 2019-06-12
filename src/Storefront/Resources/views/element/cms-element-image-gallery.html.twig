@@ -1,0 +1,362 @@
+{% block element_image_gallery %}
+    {# cms element data and configs #}
+    {% if element.fieldConfig is defined and element.data is defined %}
+        {% set mediaItems = element.data.sliderItems %}
+        
+        {% set sliderConfig = element.fieldConfig.elements %}
+        
+        {% set zoom = sliderConfig.zoom.value %}
+        {% set magnifierOverGallery = true %}
+        {% set zoomModal = sliderConfig.fullScreen.value %}
+        {% set minHeight = sliderConfig.minHeight.value %}
+        {% set displayMode = sliderConfig.displayMode.value %}
+        {% set navigationArrows = sliderConfig.navigationArrows.value %}
+        {% set navigationDots = sliderConfig.navigationDots.value %}
+        {% set galleryPosition = sliderConfig.galleryPosition.value %}
+        {% set verticalAlign = sliderConfig.verticalAlign.value %}
+    {% endif %}
+    
+    {% set imageCount = mediaItems|length %}
+    
+    <div class="cms-element-{{ element.type }}{% if displayMode == "standard" and verticalAlign %} has-vertical-alignment{% endif %}">
+        {% block element_image_gallery_alignment %}
+            <div class="cms-element-alignment{% if verticalAlign == "center" %} align-self-center{% elseif verticalAlign == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+    
+                {% block element_image_gallery_inner %}
+                    <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% endif %} js-gallery-zoom-modal-container"
+                        {% if zoom %}
+                            data-magnifier="true"
+                            {% if magnifierOverGallery %}
+                                data-magnifier-options='{
+                                    "magnifierOverGallery": true,
+                                    "cursorType": "crosshair"
+                                }'
+                            {% endif %}
+                        {% endif %}
+                        {% if imageCount > 1 %}
+                            data-gallery-slider="true"
+                            data-gallery-slider-options='{
+                                "slider": {
+                                    "navPosition": "bottom",
+                                    "speed": 500,
+                                    "controls": {% if navigationArrows %}true{% else %}false{% endif %},
+                                    "autoHeight": {% if displayMode == "standard" %}true{% else %}false{% endif %}
+                                },
+                                "thumbnailSlider": {
+                                    {% if galleryPosition == "underneath" %}
+                                    "autoWidth": true,
+                                    "controls": false,
+                                    {% endif %}
+                                    "responsive": {
+                                        "xs": {
+                                            "enabled": false,
+                                            "controls": false
+                                        },
+                                        "sm": {
+                                            "enabled": false,
+                                            "controls": false
+                                        }{% if galleryPosition == "left" %},
+                                        "md": {
+                                            "axis": "vertical"
+                                        },
+                                        "lg": {
+                                            "axis": "vertical"
+                                        },
+                                        "xl": {
+                                            "axis": "vertical"
+                                        }{% endif %}
+                                    }
+                                }
+                            }'
+                        {% endif %}>
+            
+                        {% block element_image_gallery_inner_col %}
+                            <div class="gallery-slider-col{% if galleryPosition == "left" %} col order-1 order-md-2{% elseif galleryPosition == "underneath" %} col-12 order-1{% endif %}"
+                                 {% if zoomModal %}data-zoom-modal="true"{% endif %}>
+                                {# option "magnifierOverGallery" shows zoom container over gallery #}
+                                <div class="base-slider gallery-slider{% if navigationArrows == "outside" %} has-nav-outside{% endif %}{% if navigationDots == "outside" %} has-dots-outside{% endif %}{% if magnifierOverGallery %} js-magnifier-zoom-image-container{% endif %}">
+                                    {% block element_image_gallery_inner_wrapper %}
+                                        {% if imageCount > 1 %}
+                                            {% block element_image_gallery_inner_multiple_slides %}
+                                                {% block element_image_gallery_inner_container %}
+                                                    <div class="gallery-slider-container"
+                                                         data-gallery-slider-container="true">
+                                                        {% block element_image_gallery_inner_items %}
+                                                            {% for image in mediaItems %}
+                                                                {% block element_image_gallery_inner_item %}
+                                                                    <div class="gallery-slider-item-container">
+                                                                        <div class="gallery-slider-item is-{{ displayMode }} js-magnifier-container"{% if minHeight and  displayMode == "cover" %} style="min-height: {{ minHeight }}"{% endif %}>
+                                                                            <img src="{{ image.media.url }}"
+                                                                                 class="img-fluid gallery-slider-image magnifier-image js-magnifier-image"
+                                                                                 data-full-image="{{ image.media.url }}"
+                                                                                 {% if image.media.translated.title %}title="{{ image.media.translated.title }}"{% endif %}
+                                                                                 alt="{{ (image.media.translated.alt ?: image.media.fileName) }}"/>
+                                                                        </div>
+                                                                    </div>
+                                                                {% endblock %}
+                                                            {% endfor %}
+                                                        {% endblock %}
+                                                    </div>
+                                                {% endblock %}
+                                    
+                                                {% block element_image_gallery_inner_controls %}
+                                                    {% if navigationArrows %}
+                                                        <div class="gallery-slider-controls"
+                                                             data-gallery-slider-controls="{% if navigationArrows %}true{% else %}false{% endif %}">
+                                                            {% block element_image_gallery_inner_control_items %}
+                                                                {% block element_image_gallery_inner_control_prev %}
+                                                                    <button class="base-slider-controls-prev gallery-slider-controls-prev{% if navigationArrows == "outside" %} is-nav-prev-outside{% elseif navigationArrows == "inside" %} is-nav-prev-inside{% endif %}">
+                                                                        {% block element_image_gallery_inner_control_prev_icon %}
+                                                                            {% sw_icon 'arrow-head-left' %}
+                                                                        {% endblock %}
+                                                                    </button>
+                                                                {% endblock %}
+                                                    
+                                                                {% block element_image_gallery_inner_control_next %}
+                                                                    <button class="base-slider-controls-next gallery-slider-controls-next{% if navigationArrows == "outside" %} is-nav-next-outside{% elseif navigationArrows == "inside" %} is-nav-next-inside{% endif %}">
+                                                                        {% block element_image_gallery_inner_control_next_icon %}
+                                                                            {% sw_icon 'arrow-head-right' %}
+                                                                        {% endblock %}
+                                                                    </button>
+                                                                {% endblock %}
+                                                            {% endblock %}
+                                                        </div>
+                                                    {% endif %}
+                                                {% endblock %}
+                                            {% endblock %}
+                                        {% else %}
+                                            {% block element_image_gallery_inner_single %}
+                                                <div class="gallery-slider-single-image js-magnifier-container">
+                                                    {% if mediaItems %}
+                                                        <img src="{{ mediaItems|first.media.url }}"
+                                                             class="img-fluid gallery-slider-image magnifier-image js-magnifier-image"
+                                                             data-full-image="{{ mediaItems|first.media.url }}"
+                                                             {% if mediaItems|first.media.translated.title %}title="{{ mediaItems|first.media.translated.title }}"{% endif %}
+                                                             alt="{{ (mediaItems|first.media.translated.alt ?: mediaItems|first.media.fileName) }}"/>
+                                                    {% else %}
+                                                        {% sw_icon 'placeholder' style {
+                                                            'size': 'fluid'
+                                                        } %}
+                                                    {% endif %}
+                                                </div>
+                                            {% endblock %}
+                                        {% endif %}
+                                    {% endblock %}
+
+                                    {% block element_image_gallery_slider_dots %}
+                                        {% if imageCount > 1 and navigationDots %}
+                                            <div class="base-slider-dots">
+                                                {% block element_image_gallery_slider_dots_buttons %}
+                                                    {% for image in mediaItems %}
+                                                        {% block element_image_gallery_slider_dots_button %}
+                                                            <button class="base-slider-dot"
+                                                                    data-nav-dot="{{ loop.index }}"
+                                                                    tabindex="-1"></button>
+                                                        {% endblock %}
+                                                    {% endfor %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endif %}
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        {% endblock %}
+            
+                        {% block element_image_gallery_inner_thumbnails_col %}
+                            {% if imageCount > 1 %}
+                                <div class="gallery-slider-thumbnails-col{% if galleryPosition == "left" %} col-0 col-md-auto order-2 order-md-1 is-left{% elseif galleryPosition == "underneath" %} col-12 order-2 is-underneath{% endif %}">
+                                    <div class="gallery-slider-thumbnails-container">
+                                        {% block element_image_gallery_inner_thumbnails %}
+                                            <div class="gallery-slider-thumbnails{% if galleryPosition == "underneath" %} is-underneath{% endif %}"
+                                                 data-gallery-slider-thumbnails="true">
+                                                {% block element_image_gallery_inner_thumbnails_items %}
+                                                    {% for image in mediaItems %}
+                                                        {% block element_image_gallery_inner_thumbnails_item %}
+                                                            <div class="gallery-slider-thumbnails-item">
+                                                                {% block element_image_gallery_inner_thumbnails_item_inner %}
+                                                                    <div class="gallery-slider-thumbnails-item-inner">
+                                                                        <img src="{{ image.media.url }}"
+                                                                             class="gallery-slider-thumbnails-image"
+                                                                             {% if image.media.translated.title %}title="{{ image.media.translated.title }}"{% endif %}
+                                                                             alt="{{ (image.media.translated.alt ?: image.media.fileName) }}"/>
+                                                                    </div>
+                                                                {% endblock %}
+                                                            </div>
+                                                        {% endblock %}
+                                                    {% endfor %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                            
+                                        {% block element_image_gallery_inner_thumbnails_controls %}
+                                            {% if galleryPosition == "left" %}
+                                                <div data-thumbnail-slider-controls="true" class="gallery-slider-thumbnails-controls">
+                                                    <button class="base-slider-controls-prev gallery-slider-thumbnails-controls-prev">
+                                                        {% sw_icon 'arrow-head-up' %}
+                                                    </button>
+                                                    <button class="base-slider-controls-next gallery-slider-thumbnails-controls-next">
+                                                        {% sw_icon 'arrow-head-down' %}
+                                                    </button>
+                                                </div>
+                                            {% endif %}
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+            
+                        {% block element_image_gallery_inner_zoom_modal_wrapper %}
+                            {% if zoomModal %}
+                                <div class="zoom-modal-wrapper">
+                                    {% block element_image_gallery_inner_zoom_modal %}
+                                        <div class="modal is-fullscreen zoom-modal js-zoom-modal{% if imageCount is same as(1) %} no-thumbnails{% endif %}"
+                                             data-image-zoom-modal="true"
+                                             tabindex="-1"
+                                             role="dialog">
+                                            {% block element_image_gallery_inner_zoom_modal_dialog %}
+                                                <div class="modal-dialog"
+                                                     role="document">
+                                                    {% block element_image_gallery_inner_zoom_modal_content %}
+                                                        <div class="modal-content"{% if imageCount > 1 %} data-modal-gallery-slider="true"{% endif %}>
+                                                            {% block element_image_gallery_inner_zoom_modal_close_button %}
+                                                                <button type="button"
+                                                                        class="modal-close close"
+                                                                        data-dismiss="modal"
+                                                                        aria-label="Close">
+                                                                    {% block element_image_gallery_inner_zoom_modal_close_icon %}
+                                                                        <span aria-hidden="true">
+                                                                {% sw_icon 'x' style { 'size': 'sm' } %}
+                                                            </span>
+                                                                    {% endblock %}
+                                                                </button>
+                                                            {% endblock %}
+                                                
+                                                            {% block element_image_gallery_inner_zoom_modal_body %}
+                                                                <div class="modal-body">
+                                                        
+                                                                    {% block element_image_gallery_inner_zoom_modal_action_buttons %}
+                                                                        <div class="zoom-modal-actions btn-group"
+                                                                             role="group"
+                                                                             aria-label="zoom actions">
+                                                                
+                                                                            {% block element_image_gallery_inner_zoom_modal_action_zoom_out %}
+                                                                                <button class="btn btn-light image-zoom-btn js-image-zoom-out">
+                                                                                    {% block element_image_gallery_inner_zoom_modal_action_zoom_out_icon %}
+                                                                                        {% sw_icon 'minus-circle' %}
+                                                                                    {% endblock %}
+                                                                                </button>
+                                                                            {% endblock %}
+                                                                
+                                                                            {% block element_image_gallery_inner_zoom_modal_action_zoom_reset %}
+                                                                                <buton class="btn btn-light image-zoom-btn js-image-zoom-reset">
+                                                                                    {% block element_image_gallery_inner_zoom_modal_action_zoom_reset_icon %}
+                                                                                        {% sw_icon 'screen-minimize' %}
+                                                                                    {% endblock %}
+                                                                                </buton>
+                                                                            {% endblock %}
+                                                                
+                                                                            {% block element_image_gallery_inner_zoom_modal_action_zoom_in %}
+                                                                                <button class="btn btn-light image-zoom-btn js-image-zoom-in">
+                                                                                    {% block element_image_gallery_inner_zoom_modal_action_zoom_in_icon %}
+                                                                                        {% sw_icon 'plus-circle' %}
+                                                                                    {% endblock %}
+                                                                                </button>
+                                                                            {% endblock %}
+                                                                        </div>
+                                                                    {% endblock %}
+                                                        
+                                                                    {% block element_image_gallery_inner_zoom_modal_slider %}
+                                                                        <div class="gallery-slider"
+                                                                             data-gallery-slider-container=true>
+                                                                            {% block element_image_gallery_inner_zoom_modal_slider_items %}
+                                                                                {% for image in mediaItems %}
+                                                                                    {% block element_image_gallery_inner_zoom_modal_slider_item %}
+                                                                                        <div class="gallery-slider-item">
+                                                                                            {% block element_image_gallery_inner_zoom_modal_slider_item_zoom_container %}
+                                                                                                <div class="image-zoom-container"
+                                                                                                     data-image-zoom="true">
+                                                                                                    {% block element_image_gallery_inner_zoom_modal_slider_item_image %}
+                                                                                                        <img class="gallery-slider-image js-image-zoom-element"
+                                                                                                             data-max-width="{{ image.media.metaData.width }}"
+                                                                                                             data-max-height="{{ image.media.metaData.height }}"
+                                                                                                             src="{{ image.media.url }}"
+                                                                                                             {% if image.media.translated.title %}title="{{ image.media.translated.title }}"{% endif %}
+                                                                                                             alt="{{ (image.media.translated.alt ?: image.media.fileName) }}"/>
+                                                                                                    {% endblock %}
+                                                                                                </div>
+                                                                                            {% endblock %}
+                                                                                        </div>
+                                                                                    {% endblock %}
+                                                                                {% endfor %}
+                                                                            {% endblock %}
+                                                                        </div>
+                                                                    {% endblock %}
+                                                        
+                                                                    {% block element_image_gallery_inner_zoom_modal_slider_controls %}
+                                                                        {% if imageCount > 1 %}
+                                                                            <div class="gallery-slider-controls"
+                                                                                 data-gallery-slider-controls="true">
+                                                                                {% block element_image_gallery_inner_zoom_modal_slider_control_prev %}
+                                                                                    <button class="base-slider-controls-prev gallery-slider-controls-prev">
+                                                                                        {% block element_image_gallery_inner_zoom_modal_slider_control_prev_icon %}
+                                                                                            {% sw_icon 'arrow-head-left' %}
+                                                                                        {% endblock %}
+                                                                                    </button>
+                                                                                {% endblock %}
+                                                                    
+                                                                                {% block element_image_gallery_inner_zoom_modal_slider_control_next %}
+                                                                                    <button class="base-slider-controls-next gallery-slider-controls-next">
+                                                                                        {% block element_image_gallery_inner_zoom_modal_slider_control_next_icon %}
+                                                                                            {% sw_icon 'arrow-head-right' %}
+                                                                                        {% endblock %}
+                                                                                    </button>
+                                                                                {% endblock %}
+                                                                            </div>
+                                                                        {% endif %}
+                                                                    {% endblock %}
+                                                                </div>
+                                                            {% endblock %}
+                                                
+                                                            {% if imageCount > 1 %}
+                                                                {% block element_image_gallery_inner_zoom_modal_footer %}
+                                                                    <div class="modal-footer">
+                                                                        {% block element_image_gallery_inner_zoom_modal_thumbnails %}
+                                                                            <div class="gallery-slider-thumbnails"
+                                                                                 data-gallery-slider-thumbnails=true>
+                                                                                {% block element_image_gallery_inner_zoom_modal_thumbnails_items %}
+                                                                                    {% for image in mediaItems %}
+                                                                                        {% block element_image_gallery_inner_zoom_modal_thumbnails_item %}
+                                                                                            <div class="gallery-slider-thumbnails-item">
+                                                                                                {% block element_image_gallery_inner_zoom_modal_thumbnails_item_inner %}
+                                                                                                    <div class="gallery-slider-thumbnails-item-inner">
+                                                                                                        <img src="{{ image.media.url }}"
+                                                                                                             class="gallery-slider-thumbnails-image"
+                                                                                                             {% if image.media.translated.title %}title="{{ image.media.translated.title }}"{% endif %}
+                                                                                                             alt="{{ (image.media.translated.alt ?: image.media.fileName) }}"/>
+                                                                                                    </div>
+                                                                                                {% endblock %}
+                                                                                            </div>
+                                                                                        {% endblock %}
+                                                                                    {% endfor %}
+                                                                                {% endblock %}
+                                                                            </div>
+                                                                        {% endblock %}
+                                                                    </div>
+                                                                {% endblock %}
+                                                            {% endif %}
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                            {% endblock %}
+                                        </div>
+                                    {% endblock %}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+                
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

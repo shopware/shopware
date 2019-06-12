@@ -9,18 +9,18 @@
 
 					{% block component_product_box_image %}
 						<div class="product-image-wrapper">
+							{# fallback if display mode is not set #}
+							{% set displayMode = displayMode ?: 'standard' %}
+
+							{# set display mode 'cover' for box-image with standard display mode #}
+							{% if layout == 'image' and displayMode == 'standard' %}
+								{% set displayMode = 'cover' %}
+							{% endif %}
+
 							<a href="{{ productUrl(product) }}"
 							   title="{{ product.translated.name }}"
-							   class="product-image-link">
+							   class="product-image-link is-{{ displayMode }}">
 								{% if product.cover.media.url %}
-									{# fallback if display mode is not set #}
-									{% set displayMode = displayMode ?: 'cover' %}
-
-									{# set display mode 'cover' for box-image with standard display mode #}
-                                    {% if layout == 'image' and displayMode == 'standard' %}
-                                        {% set displayMode = 'cover' %}
-                                    {% endif %}
-
 									<img class="product-image is-{{ displayMode }}"
                                          {% if displayMode == 'cover' %}
 										 	data-object-fit="cover"

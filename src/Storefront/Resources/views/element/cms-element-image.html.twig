@@ -4,7 +4,8 @@
             {% set imageElement %}
                 {% block element_image_container %}
                     {% if element.data.media.url %}
-                        <div class="cms-image-container is-{{ element.translated.config.displayMode.value }}"{% if element.translated.config.minHeight.value %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
+                        <div class="cms-image-container is-{{ element.translated.config.displayMode.value }}"
+                            {% if element.translated.config.minHeight.value and element.translated.config.displayMode.value == "cover" %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
                             {% block element_image_media %}
                                 <img class="cms-image"
                                      {% if element.translated.config.displayMode.value == 'cover' %}

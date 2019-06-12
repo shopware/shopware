@@ -33,7 +33,7 @@ General styling for cms elements
             }
         }
     }
-    
+
     .cms-image-link {
         display: block;
     }
@@ -53,5 +53,35 @@ General styling for cms elements
     &.has-vertical-alignment {
         display: flex;
         height: 100%;
+    }
+}
+
+.cms-element-product-slider {
+    .cms-element-title {
+        font-size: $font-size-lg;
+        font-weight: bold;
+        color: $headings-color;
+    }
+
+    &.has-border {
+        .cms-element-title {
+            margin-top: $spacer-sm;
+        }
+    }
+}
+
+.cms-element-product-slider,
+.cms-element-image-slider,
+.cms-element-image-gallery {
+    &.has-vertical-alignment {
+        display: flex;
+        height: 100%;
+    }
+}
+
+.cms-element-image-gallery {
+    // hides magnifier overlay because zoom container is displayed over gallery
+    .magnifier-overlay {
+        display: none;
     }
 }

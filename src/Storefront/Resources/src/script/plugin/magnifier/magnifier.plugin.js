@@ -63,11 +63,29 @@ export default class MagnifierPlugin extends Plugin {
          */
         zoomImageClass: 'js-magnifier-zoom-image',
 
+        /**
+         * magnified image is over gallery
+         *
+         * @type boolean
+         */
+        magnifierOverGallery: false,
+
+        /**
+         * css cursor type when zoom is active
+         *
+         * @type string
+         */
+        cursorType: 'none',
     };
 
     init() {
         this._imageContainers = DomAccess.querySelectorAll(this.el, this.options.imageContainerSelector);
-        this._zoomImageContainer = DomAccess.querySelector(document, this.options.zoomImageContainerSelector);
+
+        if (this.options.magnifierOverGallery) {
+            this._zoomImageContainer = DomAccess.querySelector(this.el, this.options.zoomImageContainerSelector);
+        } else {
+            this._zoomImageContainer = DomAccess.querySelector(document, this.options.zoomImageContainerSelector);
+        }
 
         this._registerEvents();
     }
@@ -120,7 +138,7 @@ export default class MagnifierPlugin extends Plugin {
     _onMouseMove(event, imageContainer, image) {
 
         if (this._isActive()) {
-            this._setCursor(image, 'none');
+            this._setCursor(image, this.options.cursorType);
             this._createOverlay(imageContainer);
             this._createZoomImage();
             this._getImageUrl(image);

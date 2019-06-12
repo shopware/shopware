@@ -5,13 +5,6 @@ import Debouncer from 'src/script/helper/debouncer.helper';
  */
 const RESIZE_DEBOUNCE_TIME = 200;
 
-const EVENT_VIEWPORT_HAS_CHANGED = 'Viewport/hasChanged';
-const EVENT_VIEWPORT_IS_XS = 'Viewport/isXS';
-const EVENT_VIEWPORT_IS_SM = 'Viewport/isSM';
-const EVENT_VIEWPORT_IS_MD = 'Viewport/isMD';
-const EVENT_VIEWPORT_IS_LG = 'Viewport/isLG';
-const EVENT_VIEWPORT_IS_XL = 'Viewport/isXL';
-
 export default class ViewportDetection {
 
     /**
@@ -61,7 +54,7 @@ export default class ViewportDetection {
             this._dispatchEvents();
 
             // dispatch event that a viewport change has taken place
-            this._dispatchViewportEvent(EVENT_VIEWPORT_HAS_CHANGED);
+            this._dispatchViewportEvent('Viewport/hasChanged');
         }
     }
 
@@ -72,15 +65,15 @@ export default class ViewportDetection {
     _dispatchEvents() {
         // dispatch specific events for each single viewport
         if (ViewportDetection.isXS()) {
-            this._dispatchViewportEvent(EVENT_VIEWPORT_IS_XS);
+            this._dispatchViewportEvent('Viewport/isXS');
         } else if (ViewportDetection.isSM()) {
-            this._dispatchViewportEvent(EVENT_VIEWPORT_IS_SM);
+            this._dispatchViewportEvent('Viewport/isSM');
         } else if (ViewportDetection.isMD()) {
-            this._dispatchViewportEvent(EVENT_VIEWPORT_IS_MD);
+            this._dispatchViewportEvent('Viewport/isMD');
         } else if (ViewportDetection.isLG()) {
-            this._dispatchViewportEvent(EVENT_VIEWPORT_IS_LG);
+            this._dispatchViewportEvent('Viewport/isLG');
         } else if (ViewportDetection.isXL()) {
-            this._dispatchViewportEvent(EVENT_VIEWPORT_IS_XL);
+            this._dispatchViewportEvent('Viewport/isXL');
         }
     }
 
@@ -162,59 +155,5 @@ export default class ViewportDetection {
     static getCurrentViewport() {
         const viewport = window.getComputedStyle(document.documentElement, ':before').content;
         return viewport.replace(/['"]+/g, '').toUpperCase();
-    }
-
-    /**
-     * Returns the Viewport Has Changed Event constants value
-     * @returns {string}
-     * @constructor
-     */
-    static EVENT_VIEWPORT_HAS_CHANGED() {
-        return EVENT_VIEWPORT_HAS_CHANGED;
-    }
-
-    /**
-     * Returns the Viewport XS Event constants value
-     * @returns {string}
-     * @constructor
-     */
-    static EVENT_VIEWPORT_IS_XS() {
-        return EVENT_VIEWPORT_IS_XS;
-    }
-
-    /**
-     * Returns the Viewport SM Event constants value
-     * @returns {string}
-     * @constructor
-     */
-    static EVENT_VIEWPORT_IS_SM() {
-        return EVENT_VIEWPORT_IS_SM;
-    }
-
-    /**
-     * Returns the Viewport MD Event constants value
-     * @returns {string}
-     * @constructor
-     */
-    static EVENT_VIEWPORT_IS_MD() {
-        return EVENT_VIEWPORT_IS_MD;
-    }
-
-    /**
-     * Returns the Viewport LG Event constants value
-     * @returns {string}
-     * @constructor
-     */
-    static EVENT_VIEWPORT_IS_LG() {
-        return EVENT_VIEWPORT_IS_LG;
-    }
-
-    /**
-     * Returns the Viewport XL Event constants value
-     * @returns {string}
-     * @constructor
-     */
-    static EVENT_VIEWPORT_IS_XL() {
-        return EVENT_VIEWPORT_IS_XL;
     }
 }

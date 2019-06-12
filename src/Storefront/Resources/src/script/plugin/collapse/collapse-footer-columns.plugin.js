@@ -26,7 +26,7 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
         // register event listeners for the first time
         this._onViewportHasChanged();
 
-        document.addEventListener(ViewportDetection.EVENT_VIEWPORT_HAS_CHANGED(), this._onViewportHasChanged.bind(this));
+        document.addEventListener('Viewport/hasChanged', this._onViewportHasChanged.bind(this));
     }
 
     /**

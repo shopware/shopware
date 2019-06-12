@@ -23,7 +23,15 @@
                                 {% block page_product_detail_media %}
                                     <div class="col-lg-7 product-detail-media">
                                         {% if page.product.media %}
-                                            {% sw_include '@Storefront/page/product-detail/media.html.twig' %}
+                                            {% sw_include '@Storefront/element/cms-element-image-gallery.html.twig' with {
+                                                'mediaItems': page.product.media,
+                                                'zoom': true,
+                                                'zoomModal': true,
+                                                'displayMode': 'standard',
+                                                'navigationArrows': 'inside',
+                                                'navigationDots': 'inside',
+                                                'galleryPosition': 'left'
+                                            } %}
                                         {% endif %}
                                     </div>
                                 {% endblock %}
@@ -46,15 +54,6 @@
                     {% endif %}
                 {% endblock %}
             {% endblock %}
-
-            {% block page_product_detail_zoom_modal_wrapper %}
-                <div class="zoom-modal-wrapper">
-                    {% block page_product_detail_zoom_modal_include %}
-                        {% sw_include '@Storefront/page/product-detail/zoom-modal.html.twig' %}
-                    {% endblock %}
-                </div>
-            {% endblock %}
-
         </div>
     {% endblock %}
 {% endblock %}

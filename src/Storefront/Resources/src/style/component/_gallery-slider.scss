@@ -1,0 +1,168 @@
+/*
+Gallery slider
+==============================================
+Styling for gallery slider component.
+Displays images in a slider gallery with thumbnail navigation.
+based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyuan/tiny-slider)
+*/
+
+.gallery-slider-row {
+    margin-bottom: $spacer;
+
+    &.is-single-image {
+        justify-content: center;
+    }
+}
+
+.gallery-slider-single-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-slider-container {
+    position: relative;
+    height: 100%;
+
+    .gallery-slider-image {
+        display: block;
+        width: 100%;
+    }
+}
+
+.gallery-slider-item {
+    position: relative;
+    backface-visibility: hidden;
+    cursor: default;
+    display: grid;
+    height: 100%;
+    max-width: 100%;
+
+    &.is-cover {
+        height: 100%;
+
+        .gallery-slider-image {
+            object-fit: cover;
+            height: 100%;
+        }
+    }
+}
+
+.gallery-slider-controls-prev {
+    left: 0;
+
+    &.is-nav-prev-outside {
+        left: -10px;
+    }
+}
+
+.gallery-slider-controls-next {
+    right: 0;
+
+    &.is-nav-next-outside {
+        right: -10px;
+    }
+}
+
+// Thumbnails
+.gallery-slider-thumbnails-container {
+    position: relative;
+}
+
+.gallery-slider-thumbnails-col {
+    &.is-left {
+        padding-right: 0;
+
+        .gallery-slider-thumbnails-controls-prev {
+            top: -30px;
+        }
+
+        .gallery-slider-thumbnails-controls-next {
+            bottom: -20px;
+            top: auto;
+        }
+
+        .gallery-slider-thumbnails-controls-prev,
+        .gallery-slider-thumbnails-controls-next {
+            left: 50%;
+            transform: translateX(-50%);
+            border: 0;
+            background: none;
+            height: 30px;
+            width: 65px;
+            line-height: normal;
+        }
+    }
+}
+
+.gallery-slider-thumbnails {
+    &.is-underneath {
+        display: flex;
+        margin-top: $spacer;
+
+        .gallery-slider-thumbnails-item {
+            width: auto;
+        }
+    }
+}
+
+.gallery-slider-thumbnails-item {
+    cursor: pointer;
+    height: 75px;
+    width: 75px;
+
+    &.tns-nav-active {
+        .gallery-slider-thumbnails-item-inner {
+            border-color: $primary;
+        }
+    }
+}
+
+.gallery-slider-thumbnails-item-inner {
+    border: 1px solid $border-color;
+    width: 100%;
+    height: 100%;
+    padding: $spacer-xs;
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+}
+
+.gallery-slider-thumbnails-image,
+.gallery-slider-image {
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.gallery-slider-thumbnails-controls {
+    display: none;
+    margin: 0;
+}
+
+@include media-breakpoint-up(sm) {
+    .gallery-slider-single-image {
+        height: 430px;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .gallery-slider-row {
+        justify-content: center;
+    }
+
+    .gallery-slider-thumbnails-controls {
+        display: block;
+    }
+
+    .gallery-slider-thumbnails-col {
+        &.is-left {
+            .gallery-slider-thumbnails-item {
+                // fixes problem with margin of next button (arrow)
+                // thumbnail slider height calculation is not working with margin but it works with padding
+                margin-bottom: 0 !important;
+                padding-bottom: 10px;
+            }
+        }
+    }
+}

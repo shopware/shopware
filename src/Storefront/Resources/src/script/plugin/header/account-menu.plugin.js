@@ -42,7 +42,7 @@ export default class OffCanvasAccountMenu extends Plugin {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
         this.el.addEventListener(event, this._onClickAccountMenuTrigger.bind(this, this.el));
 
-        document.addEventListener(ViewportDetection.EVENT_VIEWPORT_HAS_CHANGED(), this._onViewportHasChanged.bind(this));
+        document.addEventListener('Viewport/hasChanged', this._onViewportHasChanged.bind(this));
     }
 
     /**

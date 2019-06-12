@@ -31,23 +31,23 @@ There's a good reason, why many IDEs try to prevent you from changing code in th
 
 The docker installation is the easiest way to get a running Shopware 6. This way you can setup Shopware 6 with just three easy commands: 
 
-Build and start the containers:
+1. Build and start the containers:
 
-```bash
-> ./psh.phar docker:start
-```
+    ```bash
+    > ./psh.phar docker:start
+    ```
 
-Access the application container:
+2. Access the application container:
 
-```bash
-> ./psh.phar docker:ssh
-```
+    ```bash
+    > ./psh.phar docker:ssh
+    ```
 
-Execute the installer:
+3. Execute the installer inside the docker container:
 
-```bash
-> ./psh.phar install 
-```
+    ```bash
+    > ./psh.phar install 
+    ```
 
 This may take a while since many caches need to be generated on first execution, but only on first execution.
 

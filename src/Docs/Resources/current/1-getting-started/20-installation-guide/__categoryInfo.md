@@ -29,6 +29,13 @@ There's a good reason, why many IDEs try to prevent you from changing code in th
 
 ## Docker installation (recommended)
 
+<p class="alert is--error">
+    Docker is <b>not</b> the recommended way to install Shopware 6 on a Mac, due to performance issues.
+    Instead take a closer look at our
+    <a href="https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/system-installation-guides/vagrant">vagrant guide</a>
+    or the <a href="https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/system-installation-guides/mac-os-x">MacOS installation guide</a>.
+</p>
+
 The docker installation is the easiest way to get a running Shopware 6. This way you can setup Shopware 6 with just three easy commands: 
 
 Build and start the containers:

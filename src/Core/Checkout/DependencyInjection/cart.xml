@@ -4,17 +4,12 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
-    <parameters>
-        <parameter key="price.rounding.precision">2</parameter>
-    </parameters>
-
     <services>
 
         <!-- price calculation -->
         <service id="Shopware\Core\Checkout\Cart\Price\AmountCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartPersister">
@@ -73,12 +68,6 @@
 
         <service id="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder">

@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculatorInterface;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -22,19 +21,12 @@ class AmountCalculator
      */
     private $rounding;
 
-    /**
-     * @var TaxAmountCalculatorInterface
-     */
-    private $taxAmountCalculator;
-
     public function __construct(
         TaxDetector $taxDetector,
-        PriceRoundingInterface $rounding,
-        TaxAmountCalculatorInterface $taxAmountCalculator
+        PriceRoundingInterface $rounding
     ) {
         $this->taxDetector = $taxDetector;
         $this->rounding = $rounding;
-        $this->taxAmountCalculator = $taxAmountCalculator;
     }
 
     public function calculate(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context): CartPrice
@@ -83,7 +75,11 @@ class AmountCalculator
 
         $positionPrice = $prices->sum();
 
-        $taxes = $this->taxAmountCalculator->calculate($allPrices, $context);
+        if ($this->taxDetector->isNetDelivery($context)) {
+            $taxes = new CalculatedTaxCollection([]);
+        } else {
+            $taxes = $allPrices->getCalculatedTaxes();
+        }
 
         $net = $total->getTotalPrice() - $taxes->getAmount();
         $net = $this->rounding->round($net, $context->getContext()->getCurrencyPrecision());
@@ -110,7 +106,11 @@ class AmountCalculator
 
         $total = $all->sum();
 
-        $taxes = $this->taxAmountCalculator->calculate($all, $context);
+        if ($this->taxDetector->isNetDelivery($context)) {
+            $taxes = new CalculatedTaxCollection([]);
+        } else {
+            $taxes = $all->getCalculatedTaxes();
+        }
 
         $gross = $total->getTotalPrice() + $taxes->getAmount();
         $gross = $this->rounding->round($gross, $context->getContext()->getCurrencyPrecision());

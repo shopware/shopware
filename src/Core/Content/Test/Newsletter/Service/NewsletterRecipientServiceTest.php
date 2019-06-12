@@ -122,7 +122,7 @@ class NewsletterRecipientServiceTest extends TestCase
             ->create([$salesChannel], Context::createDefaultContext());
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), $id);
         $this->getService()->subscribe($dataBag, $context);
 
         /** @var EntityRepositoryInterface $repository */

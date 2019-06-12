@@ -6,7 +6,7 @@
                     <sw-simple-search-field
                             size="small"
                             variant="form"
-                            @search-term-change="onTermChange"
+                            v-model="term"
                             :placeholder="placeholder"
                             :delay="delay"
                     ></sw-simple-search-field>

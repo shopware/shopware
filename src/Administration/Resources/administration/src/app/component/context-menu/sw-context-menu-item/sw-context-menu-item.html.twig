@@ -4,6 +4,7 @@
                      :to="routerLink"
                      class="sw-context-menu-item"
                      :class="contextMenuItemStyles"
+                     :disabled="disabled"
                      v-on="contextListeners">
             {% block sw_context_menu_item_icon %}
                 <slot name="icon">

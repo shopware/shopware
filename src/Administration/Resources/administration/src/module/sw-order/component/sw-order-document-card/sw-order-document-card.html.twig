@@ -53,7 +53,7 @@
         {% endblock %}
 
         {% block sw_order_document_card_grid %}
-            <sw-data-grid v-if="documents.length > 0"
+            <sw-data-grid v-if="!documentsEmpty"
                           :dataSource="documents"
                           :columns="getDocumentColumns()"
                           :fullPage="false"
@@ -92,7 +92,7 @@
                         {% endblock %}
 
                         {% block sw_order_document_card_grid_action_static_document %}
-                            <sw-context-menu-item v-else :disabled="true">
+                            <sw-context-menu-item :disabled="true">
                                 {% block sw_order_document_card_grid_action_static_document_label %}
                                     {{ $tc('sw-order.documentCard.labelDocumentStatic') }}
                                 {% endblock %}
@@ -119,8 +119,7 @@
         {% endblock %}
 
         {% block sw_order_document_card_empty_state %}
-            <sw-empty-state
-                    v-if="documentCardEmpty && !documentsLoading"
+            <sw-empty-state v-if="documentsEmpty"
                     :title="$tc('sw-order.documentCard.messageEmptyTitle')"
                     icon="default-documentation-file"
                     :subline="$tc('sw-order.documentCard.messageEmptySubline')">

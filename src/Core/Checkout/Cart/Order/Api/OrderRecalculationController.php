@@ -135,7 +135,7 @@ class OrderRecalculationController extends AbstractController
     public function addCustomLineItemToOrder(string $orderId, Request $request, Context $context): Response
     {
         $identifier = $request->request->get('identifier');
-        $type = $request->request->get('type', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $type = $request->request->get('type', LineItem::CUSTOM_LINE_ITEM_TYPE);
         $quantity = $request->request->getInt('quantity', 1);
 
         $lineItem = new LineItem($identifier, $type, null, $quantity);

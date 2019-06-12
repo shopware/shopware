@@ -1,28 +1,30 @@
-import { Component, Mixin, State } from 'src/core/shopware';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-order-state-history-card.html.twig';
 
 
 Component.register('sw-order-state-history-card', {
     template,
+
     mixins: [
         Mixin.getByName('notification')
     ],
-    inject: ['orderService', 'orderTransactionService'],
+
+    inject: [
+        'orderService',
+        'orderTransactionService',
+        'repositoryFactory',
+        'context'
+    ],
+
     props: {
         title: {
             type: String,
-            required: true,
-            default() {
-                return '';
-            }
+            required: true
         },
         order: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
         },
         isLoading: {
             type: Boolean,
@@ -40,17 +42,14 @@ Component.register('sw-order-state-history-card', {
         };
     },
     computed: {
-        stateMachineStateStore() {
-            return State.getStore('state_machine_state');
+        stateMachineStateRepository() {
+            return this.repositoryFactory.create('state_machine_state');
         },
-        stateMachineHistoryStore() {
-            return State.getStore('state_machine_history');
+
+        stateMachineHistoryRepository() {
+            return this.repositoryFactory.create('state_machine_history');
         }
-    },
-    watch: {
-        'isLoading'() {
-            if (!this.isLoading) this.createdComponent();
-        }
+
     },
     created() {
         this.createdComponent();
@@ -62,155 +61,186 @@ Component.register('sw-order-state-history-card', {
         loadHistory() {
             this.statesLoading = true;
 
-            // Order
-            const orderHistory = this.getStateHistoryEntries(this.order).then((entries) => {
-                this.orderHistory = entries;
-                return Promise.resolve();
-            });
-
-            const orderTransitions = this.orderService.getState(this.order.id, this.order.versionId).then((response) => {
-                return this.getStateTransitionOptions('order.state', response.data.transitions);
-            }).then((options) => {
-                this.orderOptions = options;
-                return Promise.resolve();
-            });
-
-            // Order Transaction
-            const transactionHistory = this.getStateHistoryEntries(this.order.transactions[0]).then((entries) => {
-                this.transactionHistory = entries;
-                return Promise.resolve();
-            });
-
-            const transactionTransitions = this.orderTransactionService.getState(
-                this.order.transactions[0].id,
-                this.order.versionId
-            ).then((response) => {
-                return this.getStateTransitionOptions('order_transaction.state', response.data.transitions);
-            }).then((options) => {
-                this.transactionOptions = options;
-                return Promise.resolve();
-            });
-
             Promise.all([
-                orderHistory,
-                orderTransitions,
-                transactionHistory,
-                transactionTransitions
+                this.getStateHistoryEntries(),
+                this.getTransitionOptions()
             ]).then(() => {
-                this.statesLoading = false;
                 this.$emit('options-change', 'order.states', this.orderOptions);
                 this.$emit('options-change', 'order_transaction.states', this.transactionOptions);
+            }).catch((error) => {
+                this.createNotificationError(error);
+            }).finally(() => {
+                this.statesLoading = false;
             });
         },
-        getStateHistoryEntries(entity) {
-            const criteria = CriteriaFactory.multi('AND',
-                CriteriaFactory.equals('state_machine_history.entityId.id', entity.id),
-                CriteriaFactory.contains('state_machine_history.entityName', entity.getEntityName()));
 
-            return this.stateMachineHistoryStore.getList({
-                limit: 50,
-                page: 1,
-                associations: {
-                    fromStateMachineState: {},
-                    toStateMachineState: {},
-                    user: {}
-                },
-                sortBy: 'state_machine_history.createdAt',
-                sortDirection: 'ASC',
-                versionId: this.order.versionId,
-                criteria: criteria
-            }).then((fetchedEntries) => {
-                // This order has no history entries
-                if (fetchedEntries.total === 0) {
-                    return [{
-                        state: entity.stateMachineState,
-                        createdAt: entity.createdAt,
-                        user: null
-                    }];
-                }
+        getStateHistoryEntries() {
+            return this.stateMachineHistoryRepository.search(
+                this.stateMachineHistoryCriteria(),
+                this.context
+            ).then((fetchedEntries) => {
+                this.orderHistory = this.buildStateHistory(this.order, fetchedEntries);
+                this.transactionHistory = this.buildStateHistory(this.order.transactions[0], fetchedEntries);
 
-                const entries = [];
-                // Prepend start state
-                entries.push({
-                    state: fetchedEntries.items[0].fromStateMachineState,
+                return Promise.resolve();
+            });
+        },
+
+        stateMachineHistoryCriteria() {
+            const criteria = new Criteria(1, 50);
+            criteria.addFilter(
+                Criteria.equalsAny(
+                    'state_machine_history.entityId.id',
+                    [this.order.id, this.order.transactions[0].id]
+                )
+            );
+            criteria.addFilter(
+                Criteria.equalsAny(
+                    'state_machine_history.entityName',
+                    ['order', 'order_transaction']
+                )
+            );
+            criteria.addAssociation('fromStateMachineState');
+            criteria.addAssociation('toStateMachineState');
+            criteria.addAssociation('user');
+            criteria.addSorting({ field: 'state_machine_history.createdAt', order: 'ASC' });
+
+            return criteria;
+        },
+
+        buildStateHistory(entity, allEntries) {
+            const fetchedEntries = allEntries.filter((entry) => {
+                return entry.entityId.id === entity.id;
+            });
+
+            // this entity has no state history
+            if (fetchedEntries.length === 0) {
+                return [{
+                    state: entity.stateMachineState,
                     createdAt: entity.createdAt,
                     user: null
-                });
-                fetchedEntries.items.forEach((entry) => {
-                    entries.push({
-                        state: entry.toStateMachineState,
-                        createdAt: entry.createdAt,
-                        user: entry.user
-                    });
-                });
+                }];
+            }
 
-                return entries;
+            const entries = [];
+            // Prepend start state
+            entries.push({
+                state: fetchedEntries[0].fromStateMachineState,
+                createdAt: entity.createdAt,
+                user: null
+            });
+
+            fetchedEntries.forEach((entry) => {
+                entries.push({
+                    state: entry.toStateMachineState,
+                    createdAt: entry.createdAt,
+                    user: entry.user
+                });
+            });
+
+            return entries;
+        },
+
+        getTransitionOptions() {
+            return Promise.all(
+                [
+                    this.getAllStates(),
+                    this.orderService.getState(this.order.id, this.order.versionId),
+                    this.orderTransactionService.getState(this.order.transactions[0].id, this.order.versionId)
+                ]
+            ).then((data) => {
+                const allStates = data[0];
+                const orderState = data[1];
+                const orderTransactionState = data[2];
+
+                this.orderOptions = this.buildTransitionOptions(
+                    'order.state',
+                    allStates,
+                    orderState.data.transitions
+                );
+                this.transactionOptions = this.buildTransitionOptions(
+                    'order_transaction.state',
+                    allStates,
+                    orderTransactionState.data.transitions
+                );
+
+                return Promise.resolve();
             });
         },
-        getStateTransitionOptions(stateMachineName, possibleTransitions) {
-            const criteriaState =
-                    CriteriaFactory.equals('state_machine_state.stateMachine.technicalName', stateMachineName);
 
-            const sortings = [{
-                field: 'name',
-                order: 'ASC',
-                naturalSorting: false
-            }];
+        getAllStates() {
+            return this.stateMachineStateRepository.search(this.stateMachineStateCriteria(), this.context);
+        },
 
-            return this.stateMachineStateStore.getList(
-                {
-                    criteria: criteriaState,
-                    sortings: sortings
+        stateMachineStateCriteria() {
+            const criteria = new Criteria();
+            criteria.addSorting({ field: 'name', order: 'ASC' });
+            criteria.addAssociation('stateMachine');
+            criteria.addFilter(
+                Criteria.equalsAny(
+                    'state_machine_state.stateMachine.technicalName',
+                    ['order.state', 'order_transaction.state']
+                )
+            );
+
+            return criteria;
+        },
+
+        buildTransitionOptions(stateMachineName, allTransitions, possibleTransitions) {
+            const entries = allTransitions.filter((entry) => {
+                return entry.stateMachine.technicalName === stateMachineName;
+            });
+
+            const options = entries.map((state) => {
+                return {
+                    stateName: state.technicalName,
+                    id: null,
+                    name: state.translated.name,
+                    disabled: true
+                };
+            });
+
+            options.forEach((option) => {
+                const transitionToState = possibleTransitions.filter((transition) => {
+                    return transition.toStateName === option.stateName;
+                });
+                if (transitionToState.length === 1) {
+                    option.disabled = false;
+                    option.id = transitionToState[0].actionName;
                 }
-            ).then((entries) => {
-                const options = [];
-                entries.items.forEach((state) => {
-                    options.push({
-                        stateName: state.technicalName,
-                        id: null,
-                        name: state.translated.name,
-                        disabled: true
-                    });
-                });
-
-                options.forEach((option) => {
-                    const transitionToState = possibleTransitions.filter((transition) => {
-                        return transition.toStateName === option.stateName;
-                    });
-                    if (transitionToState.length === 1) {
-                        option.disabled = false;
-                        option.id = transitionToState[0].actionName;
-                    }
-                });
-
-                return Promise.resolve(options);
             });
+
+            return options;
         },
+
         onOrderStateSelected(actionName) {
             if (!actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
-            this.orderService.transitionState(this.order.id, this.order.versionId, actionName).then(() => {
+            this.orderService.transitionState(this.order.id, actionName).then(() => {
                 this.$emit('order-state-change');
+                this.loadHistory();
             }).catch((error) => {
                 this.createStateChangeErrorNotification(error);
             });
         },
+
         onTransactionStateSelected(actionName) {
             if (!actionName) {
                 this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
-            this.orderTransactionService.transitionState(this.order.transactions[0].id,
-                this.order.versionId, actionName).then(() => {
+            this.orderTransactionService.transitionState(this.order.transactions[0].id, actionName).then(() => {
                 this.$emit('order-state-change');
+                this.loadHistory();
             }).catch((error) => {
                 this.createStateChangeErrorNotification(error);
             });
         },
+
         createStateChangeErrorNotification(errorMessage) {
             this.createNotificationError({
                 title: this.$tc('sw-order.stateCard.headlineErrorStateChange'),

@@ -160,6 +160,7 @@ Component.register('sw-tag-field-new', {
                         this.tagCollection.add(newTag);
                     }
                 });
+                this.$emit('tags-changed');
             });
 
             this.$emit('input', selected);

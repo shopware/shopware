@@ -1,8 +1,15 @@
-import { Component, State } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
 import template from './sw-order-product-select.html.twig';
+import './sw-order-product-select.scss';
 
 Component.register('sw-order-product-select', {
     template,
+
+    inject: [
+        'repositoryFactory',
+        'context'
+    ],
+
     props: {
         item: {
             type: Object,
@@ -20,18 +27,20 @@ Component.register('sw-order-product-select', {
         }
     },
     computed: {
-        productStore() {
-            return State.getStore('product');
+        productRepository() {
+            return this.repositoryFactory.create('product');
         }
     },
     methods: {
         onItemChanged(newProductId) {
-            this.productStore.getByIdAsync(newProductId).then((newProduct) => {
+            this.productRepository.get(newProductId, this.context).then((newProduct) => {
                 this.item.identifier = newProduct.id;
-                this.item.label = newProduct.translated.name;
-                this.item.priceDefinition.price = newProduct.price.gross;
-                this.item.unitPrice = newProduct.price.gross;
-                this.item.priceDefinition.taxRules[0].taxRate = newProduct.tax.taxRate;
+                this.item.label = newProduct.name;
+                this.item.priceDefinition.price = newProduct.price[0].gross;
+                this.item.priceDefinition.type = 'quantity';
+                this.item.unitPrice = newProduct.price[0].gross;
+                this.item.totalPrice = 0;
+                this.item.priceDefinition.taxRules.taxRate = newProduct.tax.taxRate;
             });
         }
     }

@@ -1,17 +1,26 @@
-import { Component, State } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
-import './sw-order-user-card.scss';
 import ApiService from 'src/core/service/api.service';
+import Criteria from 'src/core/data-new/criteria.data';
+import './sw-order-user-card.scss';
 import template from './sw-order-user-card.html.twig';
 
 
 Component.register('sw-order-user-card', {
     template,
 
-    inject: ['orderService'],
+    inject: [
+        'orderService',
+        'repositoryFactory',
+        'context'
+    ],
 
     props: {
         currentOrder: {
+            type: Object,
+            required: true
+        },
+        versionContext: {
             type: Object,
             required: true
         },
@@ -28,23 +37,28 @@ Component.register('sw-order-user-card', {
     data() {
         return {
             addressBeingEdited: null,
-            countries: null,
-            hasTags: false
+            countries: null
         };
     },
 
     computed: {
-        countryStore() {
-            return State.getStore('country');
+        countryRepository() {
+            return this.repositoryFactory.create('country');
         },
-        orderAddressStore() {
-            return State.getStore('order_address');
+
+        orderAddressRepository() {
+            return this.repositoryFactory.create('order_address');
         },
+
         billingAddress() {
             return this.currentOrder.addresses.find((address) => {
                 return address.id === this.currentOrder.billingAddressId;
             });
         },
+        delivery() {
+            return this.currentOrder.deliveries[0];
+        },
+
         orderDate() {
             if (this.currentOrder && !this.currentOrder.isLoading) {
                 return format.date(this.currentOrder.orderDateTime);
@@ -55,11 +69,11 @@ Component.register('sw-order-user-card', {
             return this.currentOrder.deliveries.length > 0;
         },
         hasDeliveryTrackingCode() {
-            return this.hasDeliveries && this.currentOrder.deliveries[0].trackingCode;
+            return this.hasDeliveries && this.delivery.trackingCode;
         },
         hasDifferentBillingAndShippingAddress() {
             return this.hasDeliveries &&
-                this.billingAddress.id !== this.currentOrder.deliveries[0].shippingOrderAddress.id;
+                this.billingAddress.id !== this.delivery.shippingOrderAddress.id;
         },
         lastChangedDate() {
             if (this.currentOrder) {
@@ -74,6 +88,10 @@ Component.register('sw-order-user-card', {
                 );
             }
             return '';
+        },
+
+        hasTags() {
+            return this.currentOrder.tags.length !== 0;
         }
     },
 
@@ -87,15 +105,16 @@ Component.register('sw-order-user-card', {
         },
 
         reload() {
-            this.hasTags = false;
-            this.currentOrder.getAssociation('tags').getList({ limit: 1 }).then((response) => {
-                if (response.total !== 0) {
-                    this.hasTags = true;
-                }
+            this.countryRepository.search(this.countryCriteria(), this.context).then((response) => {
+                this.countries = response;
             });
-            this.countryStore.getList({ page: 1, limit: 100, sortBy: 'name' }).then((response) => {
-                this.countries = response.items;
-            });
+        },
+
+        countryCriteria() {
+            const criteria = new Criteria(1, 100);
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
         },
 
         onEditBillingAddress() {
@@ -106,7 +125,7 @@ Component.register('sw-order-user-card', {
 
         onEditDeliveryAddress() {
             if (this.isEditing) {
-                this.addressBeingEdited = this.currentOrder.deliveries[0].shippingOrderAddress;
+                this.addressBeingEdited = this.delivery.shippingOrderAddress;
             }
         },
 
@@ -116,7 +135,9 @@ Component.register('sw-order-user-card', {
 
         onAddressModalSave() {
             this.addressBeingEdited = null;
-            this.emitChange();
+            this.$nextTick(() => {
+                this.emitChange();
+            });
         },
 
         onAddressModalAddressSelected(address) {
@@ -141,24 +162,15 @@ Component.register('sw-order-user-card', {
                 return;
             }
 
-            this.orderAddressStore.getByIdAsync(
-                this.currentOrder.deliveries[0].shippingOrderAddress.id,
-                '',
-                this.currentOrder.versionId
-            )
-                .then(() => {
-                    const orderAddress = this.orderAddressStore.duplicate(
-                        this.currentOrder.deliveries[0].shippingOrderAddress.id
-                    );
-                    this.currentOrder.deliveries[0].shippingOrderAddressId = orderAddress.id;
-                    return orderAddress.save();
-                })
-                .then(() => {
-                    this.emitChange();
-                })
-                .catch((error) => {
-                    this.$emit('error', error);
-                });
+            this.orderAddressRepository.clone(
+                this.delivery.shippingOrderAddress.id,
+                this.versionContext
+            ).then((response) => {
+                this.delivery.shippingOrderAddressId = response.id;
+                this.emitChange();
+            }).catch((error) => {
+                this.$emit('error', error);
+            });
         },
         emitChange() {
             this.$emit('order-change');

@@ -32,7 +32,11 @@
       "tabDeliveries": "Lieferungen",
       "textHeadline": "Bestellung",
       "textHeadlineNew": "Neue Bestellung",
-      "tabGeneral": "Allgemein"
+      "tabGeneral": "Allgemein",
+      "titleRecalculationError": "Fehler",
+      "messageRecalculationError": "Beim Berechnen des Preises ist ein Fehler aufgetreten: <br>",
+      "titleSaveError": "Fehler",
+      "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten"
     },
     "detailBase": {
       "cardTitleDetails": "Details",

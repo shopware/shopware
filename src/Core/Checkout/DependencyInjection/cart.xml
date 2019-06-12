@@ -10,6 +10,12 @@
             <tag name="shopware.cart.processor" priority="4000"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\CustomCartProcessor">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <tag name="shopware.cart.processor"/>
+        </service>
+
+
         <!-- price calculation -->
         <service id="Shopware\Core\Checkout\Cart\Price\AmountCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>

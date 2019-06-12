@@ -432,10 +432,16 @@ Component.register('sw-tag-multi-select', {
 
         emitAddSelection(tag) {
             this.$emit('add-selection', tag);
+            this.emitChange();
         },
 
         emitRemoveSelection(tag) {
             this.$emit('remove-selection', tag);
+            this.emitChange();
+        },
+
+        emitChange() {
+            this.$emit('change-selection', this.selectedTags);
         }
     }
 });

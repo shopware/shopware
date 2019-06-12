@@ -42,6 +42,23 @@ Component.register('sw-customer-address-form', {
     },
 
     computed: {
+        ...mapApiErrors('address', [
+            'company',
+            'department',
+            'salutationId',
+            'title',
+            'firstName',
+            'lastName',
+            'street',
+            'additionalAddressLine1',
+            'additionalAddressLine2',
+            'zipcode',
+            'city',
+            'countryId',
+            'phoneNumber',
+            'vatId'
+        ]),
+
         salutationRepository() {
             return this.repositoryFactory.create('salutation');
         },

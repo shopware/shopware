@@ -250,6 +250,20 @@ class RecalculationServiceTest extends TestCase
         $this->addProductToVersionedOrder($productName, $productPrice, $productTaxRate, $orderId, $versionId, $oldTotal);
     }
 
+    public function testAddCustomLineItemToOrder(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $order = $this->persistCart($cart);
+        $orderId = $order['orderId'];
+        $oldTotal = $order['total'];
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+
+        $this->addCustomLineItemToVersionedOrder($orderId, $versionId, $oldTotal);
+    }
+
     public function testAddCreditItemToOrder(): void
     {
         // create order
@@ -877,7 +891,7 @@ class RecalculationServiceTest extends TestCase
         $identifier = Uuid::randomHex();
         $data = [
             'identifier' => $identifier,
-            'type' => 'test',
+            'type' => LineItem::CUSTOM_LINE_ITEM_TYPE,
             'quantity' => 10,
             'label' => 'example label',
             'description' => 'example description',

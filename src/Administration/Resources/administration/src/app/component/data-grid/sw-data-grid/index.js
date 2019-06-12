@@ -210,6 +210,10 @@ export default {
 
         records() {
             this.selection = {};
+        },
+
+        compactMode() {
+            this.compact = this.compactMode;
         }
     },
 

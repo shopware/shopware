@@ -1,19 +1,18 @@
-import { Component, State, Mixin } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
+
 import template from './sw-order-line-items-grid.html.twig';
 import './sw-order-line-items-grid.scss';
 
 Component.register('sw-order-line-items-grid', {
     template,
 
-    inject: ['orderService'],
-
-    mixins: [
-        Mixin.getByName('listing')
+    inject: [
+        'orderService',
+        'repositoryFactory'
     ],
 
     data() {
         return {
-            orderLineItems: [],
             isLoading: false,
             selectedItems: {}
         };
@@ -21,10 +20,11 @@ Component.register('sw-order-line-items-grid', {
     props: {
         order: {
             type: Object,
-            required: true,
-            default() {
-                return {};
-            }
+            required: true
+        },
+        context: {
+            type: Object,
+            required: true
         },
         editable: {
             type: Boolean,
@@ -33,12 +33,9 @@ Component.register('sw-order-line-items-grid', {
         }
     },
     computed: {
-        lineItemsStore() {
-            return this.order.getAssociation('lineItems');
-        },
 
-        productStore() {
-            return State.getStore('product');
+        orderLineItemRepository() {
+            return this.repositoryFactory.create('order_line_item');
         },
 
         lineItemColumns() {
@@ -46,96 +43,75 @@ Component.register('sw-order-line-items-grid', {
         },
 
         lineItemActionsEnabled() {
-            return Object.keys(this.selectedItems).length !== 0;
+            return this.selectedItems.length !== 0;
+        },
+
+        orderLineItems() {
+            return this.order.lineItems;
         }
     },
     methods: {
-        getList() {
-            this.isLoading = true;
-            const params = this.getListingParams();
-            params.sortBy = 'createdAt';
-            params.sortDirection = 'DESC';
-            params.versionId = this.order.versionId;
-
-            this.orderLineItems = [];
-            if (this.$refs['order-line-items-grid']) {
-                this.$refs['order-line-items-grid'].selectAll(false);
-            }
-
-            return this.lineItemsStore.getList(params).then((response) => {
-                this.total = response.total;
-                this.orderLineItems = response.items;
-                this.isLoading = false;
-
-                return this.orderLineItems;
-            });
-        },
         onInlineEditSave(item) {
-            this.saveLineItem(item).then(() => {
-                this.$emit('item-edited');
+            return new Promise((resolve) => {
+                if (item.isNew()) {
+                    // The item is a custom item
+                    if (item.type === '') {
+                        // This item is based on a product
+                        resolve(this.orderService.addProductToOrder(this.order.id,
+                            this.order.versionId,
+                            item.identifier,
+                            item.quantity));
+                    } else if (item.type === 'credit') {
+                        resolve(this.orderService.addCreditItemToOrder(this.order.id, this.order.versionId, item));
+                    } else {
+                        // This item not based on an existing product (blank item)
+                        resolve(this.orderService.addCustomLineItemToOrder(this.order.id, this.order.versionId, item));
+                    }
+                } else {
+                    this.$emit('item-edited');
+                    resolve();
+                }
             });
         },
-        saveLineItem(item) {
-            let returnVal = false;
-            if (item.isLocal === true) {
-                // The item is a custom item
-                if (item.type === '') {
-                    // This item is based on a product
-                    returnVal = this.orderService.addProductToOrder(this.order.id,
-                        this.order.versionId,
-                        item.identifier,
-                        item.quantity);
-                } else if (item.type === 'credit') {
-                    returnVal = this.orderService.addCreditItemToOrder(this.order.id, this.order.versionId, item);
-                } else {
-                    // This item not based on an existing product (blank item)
-                    returnVal = this.orderService.addCustomLineItemToOrder(this.order.id, this.order.versionId, item);
-                }
-            } else {
-                // The item already existed in the order
-                returnVal = item.save();
-            }
-            return returnVal;
+
+        onInlineEditCancel() {
+            this.$emit('item-cancel');
         },
 
-        onInlineEditCancel(item) {
-            item.discardChanges();
+        createNewOrderLineItem() {
+            const item = this.orderLineItemRepository.create();
+            item.versionId = this.order.versionId;
+            item.priceDefinition = {
+                isCalculated: false,
+                taxRules: [{ taxRate: 0, percentage: 100 }]
+            };
+            item.price = {
+                taxRules: [{ taxRate: 0 }]
+            };
+            item.quantity = 1;
+            item.unitPrice = 0;
+            item.totalPrice = 0;
+            item.label = '';
+
+            return item;
         },
 
         onInsertBlankItem() {
-            const item = this.lineItemsStore.create();
-            item.versionId = this.order.versionId;
-            item.priceDefinition.taxRules = [];
-            item.priceDefinition.isCalculated = false;
-            item.priceDefinition.taxRules.push({ taxRate: 0, percentage: 100 });
-            item.price.taxRules = [];
-            item.price.taxRules.push({ taxRate: 0 });
+            const item = this.createNewOrderLineItem();
             item.description = 'custom line item';
-            item.quantity = 1;
             item.type = 'custom';
             this.orderLineItems.unshift(item);
         },
 
         onInsertExistingItem() {
-            const item = this.lineItemsStore.create();
-            item.versionId = this.order.versionId;
-            item.priceDefinition.taxRules = [];
-            item.priceDefinition.taxRules.push({ taxRate: 0 });
-            item.priceDefinition.price = 0;
-            item.price.taxRules = [];
-            item.price.taxRules.push({ taxRate: 0 });
-            item.quantity = 1;
+            const item = this.createNewOrderLineItem();
+            item.type = '';
             this.orderLineItems.unshift(item);
         },
 
         onInsertCreditItem() {
-            const item = this.lineItemsStore.create();
-            item.versionId = this.order.versionId;
-            item.price.taxRules = [];
-            item.price.taxRules.push({ taxRate: 0, percentage: 100 });
-            item.priceDefinition.isCalculated = false;
+            const item = this.createNewOrderLineItem();
             item.description = 'credit line item';
-            item.quantity = 1;
             item.type = 'credit';
             this.orderLineItems.unshift(item);
         },
@@ -147,8 +123,7 @@ Component.register('sw-order-line-items-grid', {
         onDeleteSelectedItems() {
             const deletionPromises = [];
             Object.keys(this.selectedItems).forEach((id) => {
-                const item = this.orderLineItems.find((elem) => { return elem.id === id; });
-                deletionPromises.push(item.delete(true));
+                deletionPromises.push(this.orderLineItemRepository.delete(id, this.context));
             });
 
             this.selectedItems = {};
@@ -160,7 +135,7 @@ Component.register('sw-order-line-items-grid', {
 
         itemCreatedFromProduct(id) {
             const item = this.orderLineItems.find((elem) => { return elem.id === id; });
-            return item.isLocal && item.type === '';
+            return item.isNew() && item.type === '';
         },
 
         itemIsCredit(id) {
@@ -189,7 +164,8 @@ Component.register('sw-order-line-items-grid', {
                 label: this.$tc('sw-order.detailBase.columnProductName'),
                 allowResize: false,
                 primary: true,
-                inlineEdit: true
+                inlineEdit: true,
+                width: '200px'
             }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
@@ -198,14 +174,16 @@ Component.register('sw-order-line-items-grid', {
                     this.$tc('sw-order.detailBase.columnPriceGross'),
                 allowResize: false,
                 align: 'right',
-                inlineEdit: true
+                inlineEdit: true,
+                width: '120px'
             }, {
                 property: 'quantity',
                 dataIndex: 'quantity',
                 label: this.$tc('sw-order.detailBase.columnQuantity'),
                 allowResize: false,
                 align: 'right',
-                inlineEdit: true
+                inlineEdit: true,
+                width: '80px'
             }, {
                 property: 'totalPrice',
                 dataIndex: 'totalPrice',
@@ -213,7 +191,8 @@ Component.register('sw-order-line-items-grid', {
                     this.$tc('sw-order.detailBase.columnTotalPriceNet') :
                     this.$tc('sw-order.detailBase.columnTotalPriceGross'),
                 allowResize: false,
-                align: 'right'
+                align: 'right',
+                width: '80px'
             }];
 
             if (this.order.price.taxStatus !== 'tax-free') {
@@ -223,7 +202,8 @@ Component.register('sw-order-line-items-grid', {
                         label: this.$tc('sw-order.detailBase.columnTax'),
                         allowResize: false,
                         align: 'right',
-                        inlineEdit: true
+                        inlineEdit: true,
+                        width: '100px'
                     }
                 );
             }

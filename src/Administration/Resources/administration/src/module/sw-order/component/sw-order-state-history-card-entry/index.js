@@ -4,38 +4,29 @@ import template from './sw-order-state-history-card-entry.html.twig';
 
 Component.register('sw-order-state-card-entry', {
     template,
+
     inject: ['stateStyleDataProviderService'],
+
     props: {
         history: {
             type: Array,
-            required: true,
-            default() {
-                return [];
-            }
+            required: true
         },
         transitionOptions: {
             type: Array,
-            required: true,
-            default() {
-                return [];
-            }
+            required: true
         },
         stateMachineName: {
             type: String,
-            required: true,
-            default: ''
+            required: true
         },
         title: {
             type: String,
-            required: false
+            required: false,
+            default: ''
         }
     },
-    created() {
-        this.createdComponent();
-    },
     methods: {
-        createdComponent() {
-        },
         userDisplayName(user) {
             let userString = '';
             if (user === null) {
@@ -46,12 +37,15 @@ Component.register('sw-order-state-card-entry', {
 
             return `${this.$tc('sw-order.stateCard.labelLastEditedBy')} ${userString}`;
         },
+
         getIconFromState(stateName) {
             return this.stateStyleDataProviderService.getStyle(this.stateMachineName, stateName).icon;
         },
+
         getIconColorFromState(stateName) {
             return this.stateStyleDataProviderService.getStyle(this.stateMachineName, stateName).iconStyle;
         },
+
         getBackgroundColorFromState(stateName) {
             return this.stateStyleDataProviderService.getStyle(this.stateMachineName, stateName).iconBackgroundStyle;
         }

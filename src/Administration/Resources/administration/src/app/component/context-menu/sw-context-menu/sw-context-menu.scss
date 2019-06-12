@@ -9,7 +9,6 @@ $sw-context-menu-z-index:                $z-index-context-menu;
 .sw-context-menu {
     position: absolute;
     z-index: $sw-context-menu-z-index;
-    cursor: pointer;
 
     &.is--top-align {
         .sw-context-menu__content {

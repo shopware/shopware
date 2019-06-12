@@ -19,6 +19,12 @@ Component.register('sw-card-filter', {
         }
     },
 
+    data() {
+        return {
+            term: ''
+        };
+    },
+
     computed: {
         hasFilter() {
             return !!this.$slots.filter;
@@ -34,9 +40,9 @@ Component.register('sw-card-filter', {
         }
     },
 
-    methods: {
-        onTermChange(term) {
-            this.$emit('sw-card-filter-term-change', term);
+    watch: {
+        term() {
+            this.$emit('sw-card-filter-term-change', this.term);
         }
     }
 });

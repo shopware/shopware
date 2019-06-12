@@ -4,12 +4,14 @@
             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
                 {% block sw_customer_address_form_company_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelCompany')"
+                              :error="addressCompanyError"
                               v-model="address.company">
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_customer_address_form_department_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelDepartment')"
+                              :error="addressDepartmentError"
                               v-model="address.department">
                     </sw-field>
                 {% endblock %}
@@ -20,6 +22,7 @@
                             <sw-field type="select"
                                       :label="$tc('sw-customer.addressForm.labelSalutation')"
                                       v-model="address.salutationId"
+                                      :error="addressSalutationIdError"
                                       required
                                       :error="addressSalutationIdError"
                                       validation="required">
@@ -31,6 +34,7 @@
 
                         {% block sw_customer_address_form_title_field %}
                             <sw-field :label="$tc('sw-customer.addressForm.labelTitle')"
+                                      :error="addressTitleError"
                                       v-model="address.title">
                             </sw-field>
                         {% endblock %}
@@ -66,12 +70,14 @@
 
                 {% block sw_customer_address_form_additional_address_line_1_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine1')"
+                              :error="addressAdditionalAddressLine1Error"
                               v-model="address.additionalAddressLine1">
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_customer_address_form_additional_address_line_2_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine2')"
+                              :error="addressAdditionalAddressLine2Error"
                               v-model="address.additionalAddressLine2">
                     </sw-field>
                 {% endblock %}
@@ -115,6 +121,7 @@
 
                 {% block sw_customer_address_form_phone_number_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelPhoneNumber')"
+                              :error="addressPhoneNumberError"
                               v-model="address.phoneNumber">
                     </sw-field>
                 {% endblock %}
@@ -122,6 +129,7 @@
                 {% block sw_customer_address_form_vat_id_field %}
                     <sw-field :label="$tc('sw-customer.addressForm.labelVatId')"
                               name="vatId"
+                              :error="addressVatIdError"
                               v-model="address.vatId">
                     </sw-field>
                 {% endblock %}

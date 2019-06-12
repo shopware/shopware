@@ -37,6 +37,7 @@ Component.register('sw-order-state-select', {
         selectStyle() {
             return `sw-order-state-select__field${this.roundedStyle ? '--rounded' : ''}`;
         },
+
         selectPlaceholder() {
             if (this.placeholder) {
                 return this.placeholder;

@@ -5,8 +5,7 @@ namespace Shopware\Core\System\Test\SystemConfig;
 use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\BundleNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -15,15 +14,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ConfigurationServiceTest extends TestCase
 {
+    use DatabaseTransactionBehaviour;
+
     /**
      * @var ContainerInterface
      */
     private $container;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $systemConfigRepository;
 
     /**
      * @var ConfigurationService
@@ -40,24 +36,7 @@ class ConfigurationServiceTest extends TestCase
         $kernel = new TestKernel('system_config_test', true, new ClassLoader());
         $kernel->boot();
         $this->container = $kernel->getContainer();
-        $this->systemConfigRepository = $this->container->get('system_config.repository');
-        $this->context = Context::createDefaultContext();
         $this->configurationService = $this->getConfigurationService();
-    }
-
-    protected function tearDown(): void
-    {
-        $ids = $this->systemConfigRepository->searchIds(new Criteria(), $this->context)->getIds();
-
-        if ($ids) {
-            $deleteData = [];
-
-            foreach ($ids as $id) {
-                $deleteData[] = ['id' => $id];
-            }
-
-            $this->systemConfigRepository->delete($deleteData, $this->context);
-        }
     }
 
     public function testThatWrongNamespaceThrowsException(): void

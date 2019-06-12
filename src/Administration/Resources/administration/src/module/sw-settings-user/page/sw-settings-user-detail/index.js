@@ -16,22 +16,24 @@ Component.register('sw-settings-user-detail', {
 
     data() {
         return {
-            currentUser: null,
+            isLoading: false,
             userId: '',
             user: null,
+            currentUser: null,
+            languages: [],
+            integrations: [],
+            currentIntegration: null,
             mediaItem: null,
             changePasswordModal: false,
             newPassword: '',
             isEmailUsed: false,
-            integrations: [],
+            isUsernameUsed: false,
             isIntegrationsLoading: false,
-            currentIntegration: null,
+            isSaveSuccessful: false,
             isModalLoading: false,
             showSecretAccessKey: false,
             showDeleteModal: null,
-            isUsernameUsed: false,
-            isSaveSuccessful: false,
-            isLoading: false
+            skeletonItemAmount: 3
         };
     },
 
@@ -43,26 +45,31 @@ Component.register('sw-settings-user-detail', {
 
     computed: {
         identifier() {
-            return this.salutation(this.user);
+            return this.fullName;
         },
 
-        username() {
+        fullName() {
             return this.salutation(this.user, this.$tc('sw-settings-user.user-detail.labelNewUser'));
+        },
+
+        userRepository() {
+            return this.repositoryFactory.create('user');
+        },
+
+        languageRepository() {
+            return this.repositoryFactory.create('language');
         },
 
         avatarMedia() {
             return this.mediaItem;
         },
 
-        isLoading() {
-            if (!this.user) {
-                return true;
-            }
-            return this.user.isLoading;
+        isError() {
+            return this.isEmailUsed || this.isUsernameUsed || !this.hasLanguage;
         },
 
-        isError() {
-            return this.isEmailUsed || this.isUsernameUsed;
+        hasLanguage() {
+            return this.user && this.user.localeId;
         },
 
         disableConfirm() {
@@ -92,6 +99,16 @@ Component.register('sw-settings-user-detail', {
 
         secretAccessKeyFieldType() {
             return this.showSecretAccessKey ? 'text' : 'password';
+        },
+
+        languageId() {
+            return this.$store.state.adminLocale.languageId;
+        }
+    },
+
+    watch: {
+        languageId() {
+            this.createdComponent();
         }
     },
 
@@ -101,15 +118,52 @@ Component.register('sw-settings-user-detail', {
 
     methods: {
         createdComponent() {
-            const searchCriteria = new Criteria();
-            searchCriteria.setIds([this.userId]);
-            searchCriteria.addAssociation('accessKeys');
+            this.isLoading = true;
+            if (!this.languageId) {
+                return;
+            }
 
-            this.repository = this.repositoryFactory.create('user');
+            const promises = [
+                this.loadLanguages(),
+                this.loadUser(),
+                this.loadCurrentUser()
+            ];
+
+            Promise.all(promises).then(() => {
+                this.isLoading = false;
+            });
+        },
+
+        loadLanguages() {
+            const languageCriteria = new Criteria();
+            languageCriteria.addAssociation('locale');
+            languageCriteria.addSorting(Criteria.sort('locale.name', 'ASC'));
+            languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
+            languageCriteria.limit = 500;
+
+            this.context.languageId = this.languageId;
+
+            return this.languageRepository.search(languageCriteria, this.context).then((result) => {
+                this.languages = [];
+                Object.values(result.items).forEach((lang) => {
+                    lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;
+                    this.languages.push(lang);
+                });
+
+                return this.languages;
+            });
+        },
+
+        loadUser() {
             this.userId = this.$route.params.id;
-            this.repository.search(searchCriteria, this.context).then((searchResult) => {
-                const user = searchResult.get(this.userId);
+
+            const criteria = new Criteria();
+            criteria.addAssociation('accessKeys');
+            criteria.addAssociation('locale');
+
+            return this.userRepository.get(this.userId, this.context, criteria).then((user) => {
                 this.user = user;
+
                 if (this.user.avatarId) {
                     this.mediaItem = this.user.avatarMedia;
                 }
@@ -117,14 +171,16 @@ Component.register('sw-settings-user-detail', {
                 this.keyRepository = this.repositoryFactory.create(user.accessKeys.entity, this.user.accessKeys.source);
                 this.loadKeys();
             });
+        },
 
-            this.userService.getUser().then((response) => {
+        loadCurrentUser() {
+            return this.userService.getUser().then((response) => {
                 this.currentUser = response.data;
             });
         },
 
         loadKeys() {
-            this.keyRepository.search(new Criteria(), this.context).then((accessKeys) => {
+            return this.keyRepository.search(new Criteria(), this.context).then((accessKeys) => {
                 this.integrations = accessKeys.items;
             });
         },
@@ -196,18 +252,23 @@ Component.register('sw-settings-user-detail', {
         },
 
         onSave() {
+            this.finishEmailCheck().then(() => {
+                this.createdComponent();
+            });
+        },
+
+        finishEmailCheck() {
             this.isSaveSuccessful = false;
 
-            this.checkEmail().then(() => {
+            return this.checkEmail().then(() => {
                 if (!this.isEmailUsed) {
-                    const userName = this.username;
+                    this.isLoading = true;
                     const titleSaveError = this.$tc('sw-settings-user.user-detail.notification.saveError.title');
                     const messageSaveError = this.$tc(
-                        'sw-settings-user.user-detail.notification.saveError.message', 0, { name: userName }
+                        'sw-settings-user.user-detail.notification.saveError.message', 0, { name: this.fullName }
                     );
-                    this.isLoading = true;
 
-                    return this.repository.save(this.user, this.context).then(() => {
+                    return this.userRepository.save(this.user, this.context).then(() => {
                         this.isLoading = false;
                         this.isSaveSuccessful = true;
                     }).catch((exception) => {

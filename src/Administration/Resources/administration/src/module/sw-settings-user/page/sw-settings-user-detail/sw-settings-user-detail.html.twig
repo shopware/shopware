@@ -1,13 +1,13 @@
 {% block sw_settings_user_detail %}
     <sw-page class="sw-settings-user-detail">
         {% block sw_settings_user_detail_header %}
-            <template v-slot:smart-bar-header>
-                <h2 >{{ username }}</h2>
+            <template #smart-bar-header>
+                <h2 v-if="!isLoading">{{ fullName }}</h2>
             </template>
         {% endblock %}
 
         {% block sw_settings_user_detail_actions %}
-            <template v-slot:smart-bar-actions>
+            <template #smart-bar-actions>
                 {% block sw_settings_user_detail_actions_cancel %}
                     <sw-button :routerLink="{ name: 'sw.settings.user.list' }">
                         {{ $tc('sw-settings-user.user-detail.labelButtonCancel') }}
@@ -30,74 +30,75 @@
         {% endblock %}
 
         {% block sw_settings_user_detail_content %}
-            <template v-slot:content>
+            <template #content>
                 <sw-card-view>
                     {% block sw_settings_user_detail_content %}
-                        <sw-card :title="$tc('sw-settings-user.user-detail.labelCard')">
+                        <sw-card :title="$tc('sw-settings-user.user-detail.labelCard')"
+                                 :isLoading="isLoading">
                             {% block sw_settings_user_detail_content_grid %}
-                                <div v-if="!isLoading" class="sw-settings-user-detail__grid">
+                                <div v-if="user" class="sw-settings-user-detail__grid">
                                     {% block sw_settings_user_detail_content_first_name %}
                                         <sw-text-field
-                                                class="sw-settings-user-detail__grid-firstName"
-                                                v-model="user.firstName"
-                                                :label="$tc('sw-settings-user.user-detail.labelFirstName')">
+                                            class="sw-settings-user-detail__grid-firstName"
+                                            v-model="user.firstName"
+                                            :label="$tc('sw-settings-user.user-detail.labelFirstName')">
                                         </sw-text-field>
                                     {% endblock %}
 
                                     {% block sw_settings_user_detail_content_last_name %}
                                         <sw-text-field
-                                                class="sw-settings-user-detail__grid-lastName"
-                                                v-model="user.lastName"
-                                                :label="$tc('sw-settings-user.user-detail.labelLastName')">
+                                            class="sw-settings-user-detail__grid-lastName"
+                                            v-model="user.lastName"
+                                            :label="$tc('sw-settings-user.user-detail.labelLastName')">
                                         </sw-text-field>
                                     {% endblock %}
 
                                     {% block sw_settings_user_detail_content_email %}
                                         <sw-text-field
-                                                class="sw-settings-user-detail__grid-eMail"
-                                                :errorMessage="isEmailUsed ? $tc('sw-settings-user.user-detail.errorEmailUsed') : ''"
-                                                v-model="user.email"
-                                                :label="$tc('sw-settings-user.user-detail.labelEmail')"
-                                                @change="checkEmail()">
+                                            class="sw-settings-user-detail__grid-eMail"
+                                            :errorMessage="isEmailUsed ? $tc('sw-settings-user.user-detail.errorEmailUsed') : ''"
+                                            v-model="user.email"
+                                            :label="$tc('sw-settings-user.user-detail.labelEmail')"
+                                            @change="checkEmail()">
                                         </sw-text-field>
                                     {% endblock %}
 
                                     {% block sw_settings_user_detail_content_username %}
                                         <sw-text-field
-                                                class="sw-settings-user-detail__grid-username"
-                                                :errorMessage="isUsernameUsed ? $tc('sw-settings-user.user-detail.errorUsernameUsed') : ''"
-                                                v-model="user.username"
-                                                :label="$tc('sw-settings-user.user-detail.labelUsername')"
-                                                @change="checkUsername()">
+                                            class="sw-settings-user-detail__grid-username"
+                                            :errorMessage="isUsernameUsed ? $tc('sw-settings-user.user-detail.errorUsernameUsed') : ''"
+                                            v-model="user.username"
+                                            :label="$tc('sw-settings-user.user-detail.labelUsername')"
+                                            @change="checkUsername">
                                         </sw-text-field>
                                     {% endblock %}
 
                                     {% block sw_settings_user_detail_content_media_upload %}
                                         <sw-upload-store-listener
-                                                :uploadTag="user.id"
-                                                autoUpload
-                                                @media-upload-finish="setMediaItem">
+                                            :uploadTag="user.id"
+                                            autoUpload
+                                            @media-upload-finish="setMediaItem">
                                         </sw-upload-store-listener>
                                         <sw-media-upload
-                                                class="sw-settings-user-detail__grid-profile-picture"
-                                                :source="avatarMedia"
-                                                :label="$tc('sw-settings-user.user-detail.labelProfilePicture')"
-                                                :uploadTag="user.id"
-                                                :allowMultiSelect="false"
-                                                variant="regular"
-                                                defaultFolder="user"
-                                                @media-upload-remove-image="onUnlinkLogo">
+                                            class="sw-settings-user-detail__grid-profile-picture"
+                                            :source="avatarMedia"
+                                            :label="$tc('sw-settings-user.user-detail.labelProfilePicture')"
+                                            :uploadTag="user.id"
+                                            :allowMultiSelect="false"
+                                            variant="regular"
+                                            defaultFolder="user"
+                                            @media-upload-remove-image="onUnlinkLogo">
                                         </sw-media-upload>
                                     {% endblock %}
 
                                     {% block sw_settings_user_detail_content_password %}
                                         <sw-password-field
-                                                class="sw-settings-user-detail__grid-password"
-                                                :value="user.password"
-                                                :label="$tc('sw-settings-user.user-detail.labelPassword')"
-                                                :passwordToggleAble="false"
-                                                :copyAble="false"
-                                                :disabled="true">
+                                            class="sw-settings-user-detail__grid-password"
+                                            :value="user.password"
+                                            :label="$tc('sw-settings-user.user-detail.labelPassword')"
+                                            :passwordToggleAble="false"
+                                            :copyAble="false"
+                                            :disabled="true">
                                         </sw-password-field>
                                     {% endblock %}
 
@@ -105,6 +106,20 @@
                                         <a v-if="!isCurrentUser" class="sw-settings-user-detail__grid-change-password" @click="onChangePassword">
                                             {{ $tc('sw-settings-user.user-detail.labelChangePassword') }}
                                         </a>
+                                    {% endblock %}
+
+
+                                    {% block sw_settings_user_detail_grid_content_language %}
+                                        <sw-select-field
+                                                class="sw-settings-user-detail__grid-language"
+                                                :label="$tc('sw-settings-user.user-detail.labelLanguage')"
+                                                v-model="user.localeId"
+                                                :placeholder="$tc('sw-settings-user.user-detail.labelLanguagePlaceholder')">
+                                            <option v-for="language in languages"
+                                                    :value="language.locale.id">
+                                                {{ language.customLabel }}
+                                            </option>
+                                        </sw-select-field>
                                     {% endblock %}
                                 </div>
                             {% endblock %}
@@ -115,18 +130,19 @@
                                           :title="$tc('sw-settings-user.user-detail.labelNewPassword')"
                                           variant="small">
                                     {{ $tc('sw-settings-user.user-detail.textChangePassword') }}
+
                                     {% block sw_settings_user_detail_content_password_modal_input %}
                                         <sw-password-field
-                                                class="sw-settings-user-detail__new-password"
-                                                v-model="newPassword"
-                                                :passwordToggleAble="true"
-                                                :copyAble="false"
-                                                :placeholder="$tc('sw-settings-user.user-detail.placeholderNewPassword')">
+                                            class="sw-settings-user-detail__new-password"
+                                            v-model="newPassword"
+                                            :passwordToggleAble="true"
+                                            :copyAble="false"
+                                            :placeholder="$tc('sw-settings-user.user-detail.placeholderNewPassword')">
                                         </sw-password-field>
                                     {% endblock %}
 
                                     {% block sw_settings_user_detail_password_modal_footer %}
-                                        <template v-slot:modal-footer>
+                                        <template #modal-footer>
                                             {% block sw_settings_user_detail_password_modal_actions_cancel %}
                                                 <sw-button @click="onClosePasswordModal"
                                                            size="small">
@@ -149,46 +165,56 @@
                         </sw-card>
 
                         <sw-card :title="$tc('sw-settings-user.user-detail.labelIntegrationsCard')">
-                            {% block sw_settings_user_detail_add_key %}
-                                <sw-button @click="addAccessKey"
-                                           variant="primary"
-                                           size="small">
-                                    {{ $tc('sw-settings-user.user-detail.addAccessKey') }}
-                                </sw-button>
+                            {% block sw_settings_user_detail_grid_toolbar %}
+                                <template #toolbar>
+                                    {% block sw_settings_user_detail_grid_add_key %}
+                                        <sw-button @click="addAccessKey"
+                                                   variant="primary"
+                                                   size="small"
+                                                   :disabled="!$route.params.id">
+                                            {{ $tc('sw-settings-user.user-detail.addAccessKey') }}
+                                        </sw-button>
+                                    {% endblock %}
+                                </template>
                             {% endblock %}
 
                             {% block sw_settings_user_detail_key_grid %}
-                                <sw-data-grid
-                                        :dataSource="integrations"
-                                        :columns="integrationColumns"
-                                        identifier="user-grid"
-                                        :showSettings="true"
-                                        :isLoading="isLoading"
-                                        @column-sort="onSortColumn">
+                                <template #grid>
+                                    {% block sw_settings_user_detail_key_grid_content %}
+                                        <sw-data-grid
+                                            :isLoading="isLoading"
+                                            :dataSource="integrations"
+                                            :columns="integrationColumns"
+                                            identifier="user-grid"
+                                            :showSettings="true"
+                                            :skeletonItemAmount="skeletonItemAmount"
+                                            @column-sort="onSortColumn">
 
-                                    {% block sw_settings_user_detail_key_grid_column_write_access %}
-                                        <template v-slot:column-writeAccess="{ item }">
-                                            <sw-label size="medium" ghost caps>{{ $tc('sw-settings-user.user-detail.readAccess') }}</sw-label>
-                                            <sw-label v-if="item.writeAccess" size="medium" ghost caps>{{ $tc('sw-settings-user.user-detail.writeAccess') }}</sw-label>
-                                        </template>
-                                    {% endblock %}
-
-                                    {% block sw_settings_user_detail_grid_columns_actions %}
-                                        <template v-slot:actions="{ item }">
-                                            {% block sw_settings_user_detail_grid_columns_actions_edit %}
-                                                <sw-context-menu-item class="sw-product-list__edit-action" @click="onShowDetailModal(item.id)">
-                                                    {{ $tc('sw-settings-user.user-detail.contextMenuEdit') }}
-                                                </sw-context-menu-item>
+                                            {% block sw_settings_user_detail_key_grid_column_write_access %}
+                                                <template #column-writeAccess="{ item }">
+                                                    <sw-label size="medium" ghost caps>{{ $tc('sw-settings-user.user-detail.readAccess') }}</sw-label>
+                                                    <sw-label v-if="item.writeAccess" size="medium" ghost caps>{{ $tc('sw-settings-user.user-detail.writeAccess') }}</sw-label>
+                                                </template>
                                             {% endblock %}
 
-                                            {% block sw_settings_user_detail_grid_columns_actions_delete %}
-                                                <sw-context-menu-item @click="showDeleteModal = item.id" variant="danger">
-                                                    {{ $tc('sw-settings-user.user-detail.contextMenuDelete') }}
-                                                </sw-context-menu-item>
+                                            {% block sw_settings_user_detail_grid_columns_actions %}
+                                                <template #actions="{ item }">
+                                                    {% block sw_settings_user_detail_grid_columns_actions_edit %}
+                                                        <sw-context-menu-item class="sw-product-list__edit-action" @click="onShowDetailModal(item.id)">
+                                                            {{ $tc('sw-settings-user.user-detail.contextMenuEdit') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_user_detail_grid_columns_actions_delete %}
+                                                        <sw-context-menu-item @click="showDeleteModal = item.id" variant="danger">
+                                                            {{ $tc('sw-settings-user.user-detail.contextMenuDelete') }}
+                                                        </sw-context-menu-item>
+                                                    {% endblock %}
+                                                </template>
                                             {% endblock %}
-                                        </template>
+                                        </sw-data-grid>
                                     {% endblock %}
-                                </sw-data-grid>
+                                </template>
                             {% endblock %}
                         </sw-card>
                     {% endblock %}
@@ -198,14 +224,14 @@
                     <sw-modal v-if="showDeleteModal"
                               :title="$tc('sw-settings-user.user-detail.modal.deleteModalTitle')"
                               @modal-close="onCloseDeleteModal">
-                        {% block sw_settings_user_detail_grid_inner_slot_delete_modal_confirmtext %}
+                        {% block sw_settings_user_detail_grid_inner_slot_delete_modal_confirm_text %}
                             <p>
                                 {{ $tc('sw-settings-user.user-detail.modal.confirmDelete') }}
                             </p>
                         {% endblock %}
 
                         {% block sw_settings_user_detail_grid_inner_slot_delete_modal_footer %}
-                            <template v-slot:modal-footer>
+                            <template #modal-footer>
                                 <sw-button size="small"
                                            @click="onCloseDeleteModal">
                                     {{ $tc('sw-settings-user.user-detail.modal.buttonCancel') }}
@@ -223,7 +249,7 @@
                 {% block sw_settings_user_detail_detail_modal %}
                     <sw-modal v-if="currentIntegration"
                               size="550px"
-                              class="sw_settings_user_detail__detail"
+                              class="sw-settings-user-detail__detail"
                               :isLoading="isModalLoading"
                               :title="showSecretAccessKey ? $tc('sw-settings-user.user-detail.modal.detailModalTitle') : $tc('sw-settings-user.user-detail.modal.detailModalTitleEdit')"
                               @modal-close="onCloseDetailModal">
@@ -233,7 +259,7 @@
                                 <label>{{ $tc('sw-settings-user.user-detail.modal.permissions') }}</label>
 
                                 <sw-container columns="repeat(auto-fit, minmax(200px, 1fr)">
-                                    {% block sw_settings_user_detail_detail_modal_inner_field_readaccess %}
+                                    {% block sw_settings_user_detail_detail_modal_inner_field_read_access %}
                                         <sw-field :label="$tc('sw-settings-user.user-detail.modal.readAccessFieldLabel')"
                                                   :value="true"
                                                   disabled="disabled"
@@ -241,7 +267,7 @@
                                         </sw-field>
                                     {% endblock %}
 
-                                    {% block sw_settings_user_detail_detail_modal_inner_field_writeaccess %}
+                                    {% block sw_settings_user_detail_detail_modal_inner_field_write_access %}
                                         <sw-field :label="$tc('sw-settings-user.user-detail.modal.writeAccessFieldLabel')"
                                                   type="checkbox"
                                                   v-model="currentIntegration.writeAccess">
@@ -250,7 +276,7 @@
                                 </sw-container>
                             </div>
 
-                            {% block sw_settings_user_detail_detail_modal_inner_field_accesskey %}
+                            {% block sw_settings_user_detail_detail_modal_inner_field_access_key %}
                                 <sw-field :label="$tc('sw-settings-user.user-detail.modal.idFieldLabel')"
                                           :disabled="true"
                                           v-model="currentIntegration.accessKey"
@@ -259,43 +285,48 @@
                                 </sw-field>
                             {% endblock %}
 
-                            {% block sw_settings_user_detail_detail_modal_inner_field_secretaccesskey %}
-                                <sw-field v-if="showSecretAccessKey"
-                                          :type="secretAccessKeyFieldType"
-                                          :label="$tc('sw-settings-user.user-detail.modal.secretFieldLabel')"
-                                          :disabled="true"
-                                          v-model="currentIntegration.secretAccessKey"
-                                          :passwordToggleAble="false"
-                                          :copyAble="showSecretAccessKey"
-                                          :copyAbleTooltip="true">
-                                </sw-field>
+                            {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key %}
+                                {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field %}
+                                    <sw-field v-if="showSecretAccessKey"
+                                              :type="secretAccessKeyFieldType"
+                                              :label="$tc('sw-settings-user.user-detail.modal.secretFieldLabel')"
+                                              :disabled="true"
+                                              v-model="currentIntegration.secretAccessKey"
+                                              :passwordToggleAble="false"
+                                              :copyAble="showSecretAccessKey"
+                                              :copyAbleTooltip="true">
+                                    </sw-field>
+                                {% endblock %}
 
-                                <sw-button v-if="!showSecretAccessKey"
-                                           @click="addAccessKey"
-                                           variant="danger"
-                                           :block="true">
-                                    {{ $tc('sw-settings-user.user-detail.modal.buttonCreateNewApiKeys') }}
-                                </sw-button>
+                                {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_button %}
+                                    <sw-button v-if="!showSecretAccessKey"
+                                               class="sw-settings-user-detail__secret-help-text-button sw-field"
+                                               @click="addAccessKey"
+                                               variant="danger"
+                                               :block="true">
+                                        {{ $tc('sw-settings-user.user-detail.modal.buttonCreateNewApiKeys') }}
+                                    </sw-button>
+                                {% endblock %}
 
-                                {% block sw_settings_user_detail_detail_modal_inner_field_helpText %}
-                                    <sw-field-helptext
-                                            v-if="!showSecretAccessKey"
-                                            :id="currentIntegration.id"
-                                            :helpText="$tc('sw-settings-user.user-detail.modal.hintCreateNewApiKeys')">
-                                    </sw-field-helptext>
+                                {% block sw_settings_user_detail_detail_modal_inner_field_help_text %}
+                                    <sw-alert v-if="!showSecretAccessKey"
+                                              variant="warning"
+                                              class="sw-settings-user-detail__secret-help-text-alert">
+                                        {{ $tc('sw-settings-user.user-detail.modal.hintCreateNewApiKeys') }}
+                                    </sw-alert>
                                 {% endblock %}
                             {% endblock %}
 
-                            {% block sw_settings_user_detail_detail_modal_inner_helptext %}
-                                <sw-alert v-if="showSecretAccessKey"
+                            {% block sw_settings_user_detail_detail_modal_inner_help_text %}
+                                <sw-alert v-else
                                           variant="warning"
-                                          class="sw_settings_user_detail__secret-help-text-alert">
+                                          class="sw-settings-user-detail__secret-help-text-alert">
                                     {{ $tc('sw-settings-user.user-detail.modal.secretHelpText') }}
                                 </sw-alert>
                             {% endblock %}
 
                             {% block sw_settings_user_detail_detail_modal_inner_footer %}
-                                <template v-slot:modal-footer>
+                                <template #modal-footer>
                                     {% block sw_settings_user_detail_detail_modal_inner_footer_cancel %}
                                         <sw-button size="small" @click="onCloseDetailModal" :disabled="isModalLoading">
                                             {{ $tc('sw-settings-user.user-detail.modal.buttonCancel') }}
@@ -304,7 +335,7 @@
 
                                     {% block sw_settings_user_detail_detail_modal_inner_footer_apply %}
                                         <sw-button size="small"
-                                                   class="sw_settings_user_detail__save-action"
+                                                   class="sw-settings-user-detail__save-action"
                                                    :disabled="isModalLoading && !!currentIntegration.label"
                                                    variant="primary"
                                                    @click="onSaveIntegration">

@@ -8,7 +8,8 @@ Component.register('sw-settings-user-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('salutation')
     ],
 
     data() {
@@ -66,14 +67,6 @@ Component.register('sw-settings-user-list', {
                 return false;
             }
             return this.itemToDelete.id === item.id;
-        },
-
-        getUsername(user) {
-            if (user) {
-                return `${user.firstName} ${user.lastName} `;
-            }
-
-            return '';
         },
 
         onSearch(value) {

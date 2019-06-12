@@ -44,6 +44,8 @@
       "labelUsername": "Username",
       "labelPassword": "Password",
       "labelProfilePicture": "Profile picture",
+      "labelLanguage": "User interface language",
+      "labelLanguagePlaceholder": "Choose language...",
       "labelChangePassword": "Change password",
       "labelNewPassword": "New password",
       "labelNewUser": "New user",
@@ -62,7 +64,7 @@
       "modal": {
         "deleteModalTitle": "Delete",
         "detailModalTitle": "Create integration",
-        "detailModalTitleEdit": "Edit:",
+        "detailModalTitleEdit": "Edit",
         "confirmDelete" : "Are you sure you want to delete this integration?",
         "buttonApply": "Save integration",
         "buttonApplyEdit": "Save changes",

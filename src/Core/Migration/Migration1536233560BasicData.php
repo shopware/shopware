@@ -871,7 +871,6 @@ class Migration1536233560BasicData extends MigrationStep
             'type_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API),
             'access_key' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'active' => 1,
-            'tax_calculation_type' => 'vertical',
             'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'payment_method_id' => $defaultPaymentMethod,

@@ -115,11 +115,6 @@ class SalesChannelEntity extends Entity
     protected $active;
 
     /**
-     * @var string
-     */
-    protected $taxCalculationType;
-
-    /**
      * @var SalesChannelTypeEntity|null
      */
     protected $type;
@@ -397,16 +392,6 @@ class SalesChannelEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
-    }
-
-    public function getTaxCalculationType(): string
-    {
-        return $this->taxCalculationType;
-    }
-
-    public function setTaxCalculationType(string $taxCalculationType): void
-    {
-        $this->taxCalculationType = $taxCalculationType;
     }
 
     public function getCurrency(): ?CurrencyEntity

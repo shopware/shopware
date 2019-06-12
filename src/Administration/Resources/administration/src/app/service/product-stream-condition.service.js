@@ -178,7 +178,6 @@ export default function conditionService() {
             'mailHeaderFooter',
             'mailTemplates',
             'language',
-            'taxCalculationType',
             'paymentMethod',
             'shippingMethod',
             'currency',

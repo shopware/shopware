@@ -67,4 +67,10 @@ $sw-product-image-placeholder-color: lighten($color-steam-cloud, 5%);
     .sw-product-image__placeholder-icon {
         color: $sw-product-image-placeholder-color;
     }
+
+    &:after {
+        content: "";
+        display: block;
+        padding-bottom: 100%;
+    }
 }

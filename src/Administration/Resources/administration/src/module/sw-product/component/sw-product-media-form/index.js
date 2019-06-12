@@ -52,6 +52,10 @@ Component.register('sw-product-media-form', {
             'localMode'
         ]),
 
+        ...mapState('swProductDetail', {
+            productFromStore: state => state.product
+        }),
+
         ...mapGetters('swProductDetail', {
             isStoreLoading: 'isLoading'
         }),
@@ -141,6 +145,10 @@ Component.register('sw-product-media-form', {
         },
 
         addMediaWithId(mediaId) {
+            if (this.product.media.find(media => media.mediaId === mediaId)) {
+                return Promise.resolve();
+            }
+
             return new Promise((resolve) => {
                 // get media
                 this.mediaStore.getByIdAsync(mediaId).then((res) => {
@@ -149,8 +157,14 @@ Component.register('sw-product-media-form', {
                     // set mediaId
                     responseMedia.setData({ mediaId: responseMedia.id });
 
+                    // set first item as cover
+                    if (this.product.media.length <= 0) {
+                        this.markMediaAsCover(responseMedia);
+                    }
+
                     // push it to existing product
                     this.product.media.push(responseMedia);
+
                     resolve();
                 });
             });
@@ -164,9 +178,8 @@ Component.register('sw-product-media-form', {
                 this.product = this.productStore.create();
 
                 // get existing media from vuex store
-                const productFromStore = this.$store.getters['swProductDetail/getProduct'];
-                const existingCoverId = productFromStore.coverId || '';
-                const mediaItemsFromStore = productFromStore.media.items;
+                const existingCoverId = this.productFromStore.coverId || '';
+                const mediaItemsFromStore = this.productFromStore.media.items;
 
                 // add cover to product
                 this.product.coverId = existingCoverId;
@@ -296,16 +309,7 @@ Component.register('sw-product-media-form', {
 
         successfulUpload({ targetId }) {
             this.mediaStore.getByIdAsync(targetId).then((mediaItem) => {
-                if (this.localMode) {
-                    this.$store.dispatch('swProductDetail/addMedia', mediaItem).then(() => {
-                        this.$forceUpdate();
-                    });
-
-                    return true;
-                }
-                this.product.save();
-                this.$forceUpdate();
-
+                this.$emit('media-drop', mediaItem);
                 return true;
             });
         },
@@ -335,18 +339,7 @@ Component.register('sw-product-media-form', {
                 }
             }
 
-            if (this.localMode) {
-                const mediaItemsFromStore = this.$store.getters['swProductDetail/getProduct'].media;
-                mediaItemsFromStore.remove(mediaItem.id);
-
-                return true;
-            }
-
-            item.delete();
-
-            this.product.save().then(() => {
-                this.$root.$emit('media-remove', mediaItem.id);
-            });
+            this.productFromStore.media.remove(mediaItem.id);
 
             return true;
         },
@@ -365,8 +358,7 @@ Component.register('sw-product-media-form', {
 
         markMediaAsCover(productMedia) {
             if (this.localMode) {
-                const productFromStore = this.$store.getters['swProductDetail/getProduct'];
-                productFromStore.coverId = productMedia.id;
+                this.productFromStore.coverId = productMedia.id;
             }
             this.product.coverId = productMedia.id;
         },

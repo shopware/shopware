@@ -181,7 +181,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 ['id' => $categories[array_rand($categories)]],
             ],
             'stock' => $faker->randomNumber(),
-            'prices' => $this->createPrices($rules),
+            'prices' => $this->createPrices($rules, $reverseTaxrate),
         ];
 
         return $product;
@@ -200,7 +200,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         return $output;
     }
 
-    private function createPrices(array $rules): array
+    private function createPrices(array $rules, float $reverseTaxRate): array
     {
         $prices = [];
         $rules = \array_slice(
@@ -217,7 +217,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 'ruleId' => $ruleId,
                 'quantityStart' => 1,
                 'quantityEnd' => 10,
-                'price' => ['gross' => $gross, 'net' => $gross / 1.19, 'linked' => true],
+                'price' => ['gross' => $gross, 'net' => $gross / $reverseTaxRate, 'linked' => true],
             ];
 
             $gross = random_int(1, 499);
@@ -226,7 +226,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 'currencyId' => Defaults::CURRENCY,
                 'ruleId' => $ruleId,
                 'quantityStart' => 11,
-                'price' => ['gross' => $gross, 'net' => $gross / 1.19, 'linked' => true],
+                'price' => ['gross' => $gross, 'net' => $gross / $reverseTaxRate, 'linked' => true],
             ];
         }
 

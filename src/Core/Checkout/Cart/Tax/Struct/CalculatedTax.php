@@ -53,4 +53,9 @@ class CalculatedTax extends Struct
         $this->tax += $calculatedTax->getTax();
         $this->price += $calculatedTax->getPrice();
     }
+
+    public function setPrice(float $price): void
+    {
+        $this->price = $price;
+    }
 }

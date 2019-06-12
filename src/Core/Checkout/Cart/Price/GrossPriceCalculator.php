@@ -41,17 +41,26 @@ class GrossPriceCalculator
     {
         $unitPrice = $this->getUnitPrice($definition);
 
+        $unitTaxes = $this->taxCalculator->calculateGrossTaxes(
+            $unitPrice,
+            $definition->getPrecision(),
+            $definition->getTaxRules()
+        );
+
+        foreach ($unitTaxes as $tax) {
+            $tax->setTax($tax->getTax() * $definition->getQuantity());
+            $tax->setPrice($tax->getPrice() * $definition->getQuantity());
+        }
+
         $price = $this->priceRounding->round(
             $unitPrice * $definition->getQuantity(),
             $definition->getPrecision()
         );
 
-        $calculatedTaxes = $this->taxCalculator->calculateGrossTaxes($price, $definition->getPrecision(), $definition->getTaxRules());
-
         return new CalculatedPrice(
             $unitPrice,
             $price,
-            $calculatedTaxes,
+            $unitTaxes,
             $definition->getTaxRules(),
             $definition->getQuantity()
         );

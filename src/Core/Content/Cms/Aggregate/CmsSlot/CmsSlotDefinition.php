@@ -6,9 +6,9 @@ use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlotTranslation\CmsSlotTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -53,7 +53,7 @@ class CmsSlotDefinition extends EntityDefinition
             new TranslatedField('config'),
             new TranslatedField('customFields'),
 
-            (new JsonField('data', 'data'))->addFlags(new Deferred(), new WriteProtected()),
+            (new JsonField('data', 'data'))->addFlags(new Runtime(), new WriteProtected()),
 
             (new FkField('cms_block_id', 'blockId', CmsBlockDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('block', 'cms_block_id', CmsBlockDefinition::class, 'id', false),

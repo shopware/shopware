@@ -7,9 +7,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -50,7 +50,7 @@ class MediaThumbnailDefinition extends EntityDefinition
 
             (new IntField('width', 'width'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new IntField('height', 'height'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new StringField('url', 'url'))->addFlags(new Deferred()),
+            (new StringField('url', 'url'))->addFlags(new Runtime()),
 
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             new CustomFields(),

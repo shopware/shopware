@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
@@ -475,9 +475,9 @@ class WriterTest extends TestCase
         static::assertNotEquals('2011-01-01 15:03:01', $newProduct['created_at']);
     }
 
-    public function testInsertIgnoresDeferredFields(): void
+    public function testInsertIgnoresRuntimeFields(): void
     {
-        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')->getFlag(Deferred::class));
+        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')->getFlag(Runtime::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $this->getWriter()->insert(
@@ -502,9 +502,9 @@ class WriterTest extends TestCase
         static::assertStringEndsWith('/testFile.jpg', $media->getUrl());
     }
 
-    public function testUpdateIgnoresDeferredFields(): void
+    public function testUpdateIgnoresRuntimeFields(): void
     {
-        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')->getFlag(Deferred::class));
+        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')->getFlag(Runtime::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $this->getWriter()->insert(

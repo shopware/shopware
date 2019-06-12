@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -53,13 +53,13 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         $fields = parent::defineFields();
 
         $fields->add(
-            (new JsonField('calculated_price', 'calculatedPrice'))->addFlags(new Deferred())
+            (new JsonField('calculated_price', 'calculatedPrice'))->addFlags(new Runtime())
         );
         $fields->add(
-            (new JsonField('calculated_listing_price', 'calculatedListingPrice'))->addFlags(new Deferred())
+            (new JsonField('calculated_listing_price', 'calculatedListingPrice'))->addFlags(new Runtime())
         );
         $fields->add(
-            (new ListField('calculated_prices', 'calculatedPrices'))->addFlags(new Deferred())
+            (new ListField('calculated_prices', 'calculatedPrices'))->addFlags(new Runtime())
         );
 
         return $fields;

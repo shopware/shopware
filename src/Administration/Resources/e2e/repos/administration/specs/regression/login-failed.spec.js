@@ -9,7 +9,7 @@ module.exports = {
             .waitForElementVisible('.sw-dashboard-index__content')
             .waitForElementNotPresent('.sw-admin-menu__user-actions-toggle .sw-loader')
             .openUserActionMenu();
-        page.logout('admin');
+        page.logout();
         browser.clearValue('input[name=sw-field--username]');
     },
     'view login screen': (browser) => {

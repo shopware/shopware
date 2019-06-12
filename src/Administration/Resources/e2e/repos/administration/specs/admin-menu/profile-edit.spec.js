@@ -13,14 +13,23 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile');
 
         browser
-            .fillField('input[name=sw-field--user-email]', 'test@test.de', true)
+            .fillField('input[name=sw-field--user-email]', 'test@test.de', true);
+
+        browser
+            .waitForElementVisible('.sw-profile__language')
+            .expect.element('select[name=sw-field--user-localeId]').to.have.text.that.contains('English (United Kingdom)');
+
+        browser
+            .fillSelectField('select[name=sw-field--user-localeId]', 'German (Germany)')
             .click(page.elements.primaryButton)
-            .waitForElementVisible('.icon--small-default-checkmark-line-medium');
+            .waitForElementVisible('.icon--small-default-checkmark-line-medium')
+            .waitForElementNotPresent(page.elements.loader)
+            .expect.element('select[name=sw-field--user-localeId]').to.have.text.that.contains('Englisch (Vereinigtes Königreich)');
     },
     'log out': (browser) => {
         const page = loginPage(browser);
         browser.openUserActionMenu();
-        page.logout();
+        page.logout('Melde Dich in Deinem Shopware Shop an.');
     },
     'log in user with updated credentials': (browser) => {
         const page = loginPage(browser);
@@ -33,7 +42,8 @@ module.exports = {
             .waitForElementVisible('.sw-dashboard-index__content')
             .openUserActionMenu()
             .click('.sw-admin-menu__profile-item')
-            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile');
+            .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Dein Profil');
+
         browser
             .expect.element('input[name=sw-field--user-email]').to.have.value.that.equals('test@test.de');
     }

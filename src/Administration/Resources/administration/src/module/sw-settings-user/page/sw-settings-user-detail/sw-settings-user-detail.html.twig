@@ -116,7 +116,8 @@
                                                 v-model="user.localeId"
                                                 :placeholder="$tc('sw-settings-user.user-detail.labelLanguagePlaceholder')">
                                             <option v-for="language in languages"
-                                                    :value="language.locale.id">
+                                                    :value="language.locale.id"
+                                                    :selected="language.locale.id === user.localeId">
                                                 {{ language.customLabel }}
                                             </option>
                                         </sw-select-field>

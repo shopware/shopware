@@ -1,7 +1,8 @@
 {
   "sw-login": {
     "general": {
-      "mainMenuItemIndex": "Login"
+      "mainMenuItemIndex": "Login",
+      "description": "Shopware-Login"
     },
     "index": {
       "headlineMain": "Hallo!",

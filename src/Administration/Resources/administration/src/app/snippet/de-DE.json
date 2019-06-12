@@ -29,7 +29,6 @@
       }
     },
     "sw-admin-menu": {
-      "linkChangeLanguage": "Sprache wechseln",
       "linkLogout": "Abmelden",
       "linkMinimizeMenu": "Menü minimieren",
       "textShopwareAdmin": "Shopware Administration",

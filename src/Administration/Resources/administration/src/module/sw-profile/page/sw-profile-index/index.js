@@ -1,5 +1,6 @@
-import { Component, State, Mixin } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import { email } from 'src/core/service/validation.service';
+import Criteria from 'src/core/data-new/criteria.data';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import types from 'src/core/service/utils/types.utils';
 import template from './sw-profile-index.html.twig';
@@ -7,7 +8,7 @@ import template from './sw-profile-index.html.twig';
 Component.register('sw-profile-index', {
     template,
 
-    inject: ['userService', 'loginService'],
+    inject: ['userService', 'loginService', 'repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -16,8 +17,8 @@ Component.register('sw-profile-index', {
     data() {
         return {
             userProfile: {},
-            user: null,
-            isUserLoading: true,
+            user: { username: '', email: '' },
+            languages: [],
             imageSize: 140,
             oldPassword: null,
             newPassword: null,
@@ -25,6 +26,7 @@ Component.register('sw-profile-index', {
             avatarMediaItem: null,
             uploadTag: 'sw-profile-upload-tag',
             isLoading: false,
+            isUserLoading: true,
             isSaveSuccessful: false
         };
     },
@@ -40,20 +42,33 @@ Component.register('sw-profile-index', {
             return true; // TODO use ACL here with NEXT-1653
         },
 
-        userStore() {
-            return State.getStore('user');
+        userRepository() {
+            return this.repositoryFactory.create('user');
         },
 
-        mediaStore() {
-            return State.getStore('media');
+        languageRepository() {
+            return this.repositoryFactory.create('language');
+        },
+
+        localeRepository() {
+            return this.repositoryFactory.create('locale');
+        },
+
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
 
         userMediaCriteria() {
             if (this.user.id) {
+                // ToDo: If SwSidebarMedia has the new data handling, change this too
                 return CriteriaFactory.equals('userId', this.user.id);
             }
 
             return null;
+        },
+
+        languageId() {
+            return this.$store.state.adminLocale.languageId;
         }
     },
 
@@ -62,6 +77,10 @@ Component.register('sw-profile-index', {
             if (this.user.avatarMedia.id) {
                 this.setMediaItem({ targetId: this.user.avatarMedia.id });
             }
+        },
+
+        languageId() {
+            this.createdComponent();
         }
     },
 
@@ -76,6 +95,12 @@ Component.register('sw-profile-index', {
     methods: {
         createdComponent() {
             this.isUserLoading = true;
+
+            const languagePromise = new Promise((resolve) => {
+                this.context.languageId = this.languageId;
+                resolve(this.languageId);
+            });
+
             if (this.$route.params.user) {
                 this.userPromise = this.setUserData(this.$route.params.user);
             } else {
@@ -83,18 +108,47 @@ Component.register('sw-profile-index', {
                     return this.setUserData(response.data);
                 });
             }
+            const promises = [
+                languagePromise,
+                this.userPromise
+            ];
+
+            Promise.all(promises).then(() => {
+                this.loadLanguages();
+            }).then(() => {
+                this.isUserLoading = false;
+            });
         },
 
         beforeMountComponent() {
             this.userPromise.then((user) => {
                 this.user = user;
-                this.isUserLoading = false;
+            });
+        },
+
+        loadLanguages() {
+            const languageCriteria = new Criteria();
+            languageCriteria.addAssociation('locale');
+            languageCriteria.addSorting(Criteria.sort('locale.name', 'ASC'));
+            languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
+            languageCriteria.limit = 500;
+
+            return this.languageRepository.search(languageCriteria, this.context).then((result) => {
+                this.languages = [];
+                Object.values(result.items).forEach((lang) => {
+                    lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;
+                    this.languages.push(lang);
+                });
+
+                return this.languages;
             });
         },
 
         setUserData(userProfile) {
             this.userProfile = userProfile;
-            return this.userStore.getByIdAsync(this.userProfile.id);
+            return new Promise((resolve) => {
+                resolve(this.userRepository.get(this.userProfile.id, this.context));
+            });
         },
 
         saveFinish() {
@@ -173,8 +227,12 @@ Component.register('sw-profile-index', {
         },
 
         saveUser() {
-            this.user.save().then(() => {
+            this.userRepository.save(this.user, this.context).then(() => {
                 this.$refs.mediaSidebarItem.getList();
+
+                this.localeRepository.get(this.user.localeId, this.context).then(({ code }) => {
+                    this.$store.dispatch('setAdminLocale', code);
+                });
 
                 this.oldPassword = '';
                 this.newPassword = '';
@@ -188,8 +246,8 @@ Component.register('sw-profile-index', {
         },
 
         setMediaItem({ targetId }) {
-            this.mediaStore.getByIdAsync(targetId).then((updatedMedia) => {
-                this.avatarMediaItem = updatedMedia;
+            this.mediaRepository.get(targetId, this.context).then((response) => {
+                this.avatarMediaItem = response;
             });
             this.user.avatarId = targetId;
         },

@@ -35,10 +35,10 @@ class LoginPageObject extends GeneralPageObject {
             .waitForElementNotPresent(this.elements.loader);
     }
 
-    logout() {
+    logout(text='Log in to your Shopware store') {
         this.browser
             .click('.sw-admin-menu__logout-action')
-            .expect.element(`${this.elements.loginForm}-headline`).text.that.equals('Log in to your Shopware store');
+            .expect.element(`${this.elements.loginForm}-headline`).text.that.equals(text);
     }
 
     verifyLogin() {

@@ -225,11 +225,6 @@ export default {
             this.flyoutEntries = [];
         },
 
-        onChangeLanguage() {
-            const newLocale = (this.currentLocale === 'de-DE' ? 'en-GB' : 'de-DE');
-            this.$store.dispatch('setAdminLocale', newLocale);
-        },
-
         onToggleSidebar() {
             this.isExpanded = !this.isExpanded;
 

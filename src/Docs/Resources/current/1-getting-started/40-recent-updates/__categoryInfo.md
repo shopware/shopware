@@ -9,6 +9,127 @@
 
 <h2>June 2019</h2>
 
+<h3>2019-06-06: Administration: Update design system color variables</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>The color variables in the administration have been aligned with the design system colors.
+The main color variables are now available in several gradations from light to dark.</p>
+<p>For example the gray color now has those gradations:</p>
+<pre><code>// platform/src/Administration/Resources/administration/src/app/assets/scss/variables.scss
+
+$color-gray-50: #F9FAFB; // Light
+$color-gray-100: #F0F2F5;
+$color-gray-200: #E0E6EB;
+$color-gray-300: #D1D9E0;
+$color-gray-400: #C2CCD6;
+$color-gray-500: #B3BFCC; // Medium
+$color-gray-600: #A3B3C2;
+$color-gray-700: #94A6B8;
+$color-gray-800: #8599AD;
+$color-gray-900: #758CA3; // Dark</code></pre>
+<p>This should make it a lot easier to work with the design system in general because every design system color has it's counterpart in the administration variables. </p>
+<p>This also means that you can use the original colors from the design system directly and you don't have to deal with custom <code>lighten()</code> or <code>darken()</code> functions in your SCSS. In the past we did not have enough variables to cover all cases.</p>
+<p>However there are deprecations to some variables. Those are inside a <code>@deprecated</code> category in the variables file. There are now less base colors in general - but with more gradations for each color. We have assigned the old variables with the new variables to be compatible with current modules or plugins. But we will migrate the old colors from now on.</p>
+<p>For example:</p>
+<pre><code>$color-steam-cloud: $color-gray-300; // Old color #D8DDE6</code></pre>
+<p>Some colors have been slightly updated to achieve better contrast ratios.</p>
+<p><strong>For new SCSS code please use the new gradation variables.</strong></p>
+<p>If you want to take a look at the design system visit <a href="https://shopware.design">shopware.design</a>.</p>
+<h3>2019-06-06: Removed cotext from page in all storefront templates</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>We removed the <code>context</code> object from the <code>page</code> object in all storefront templates.
+If you need to access the <code>context</code> object it is automatically available.</p>
+<h2>Example:</h2>
+<p>Previously:</p>
+<pre><code>{% set billingAddress = page.context.customer.defaultBillingAddress %}</code></pre>
+<p>Now:</p>
+<pre><code>{% set billingAddress = context.customer.defaultBillingAddress %}</code></pre>
+<h3>2019-06-05: Update to symfony 4.3</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>We've updated the symfony version to 4.3, therefore take a look into the <a href="https://github.com/symfony/symfony/blob/4.4/UPGRADE-4.3.md">changes</a>.  </p>
 <h3>2019-06-05: Refactored fillSwSelectComponent command</h3>
 
 <style type="text/css">

@@ -15,7 +15,7 @@ Component.register('sw-order-line-items-grid', {
         return {
             orderLineItems: [],
             isLoading: false,
-            lineItemActionsEnabled: false
+            selectedItems: {}
         };
     },
     props: {
@@ -39,6 +39,14 @@ Component.register('sw-order-line-items-grid', {
 
         productStore() {
             return State.getStore('product');
+        },
+
+        lineItemColumns() {
+            return this.getLineItemColumns();
+        },
+
+        lineItemActionsEnabled() {
+            return Object.keys(this.selectedItems).length !== 0;
         }
     },
     methods: {
@@ -89,28 +97,37 @@ Component.register('sw-order-line-items-grid', {
             }
             return returnVal;
         },
+
         onInlineEditCancel(item) {
             item.discardChanges();
         },
+
         onInsertBlankItem() {
             const item = this.lineItemsStore.create();
             item.versionId = this.order.versionId;
             item.priceDefinition.taxRules = [];
             item.priceDefinition.isCalculated = false;
             item.priceDefinition.taxRules.push({ taxRate: 0, percentage: 100 });
+            item.price.taxRules = [];
+            item.price.taxRules.push({ taxRate: 0 });
             item.description = 'custom line item';
             item.quantity = 1;
             item.type = 'custom';
             this.orderLineItems.unshift(item);
         },
+
         onInsertExistingItem() {
             const item = this.lineItemsStore.create();
             item.versionId = this.order.versionId;
             item.priceDefinition.taxRules = [];
             item.priceDefinition.taxRules.push({ taxRate: 0 });
+            item.priceDefinition.price = 0;
+            item.price.taxRules = [];
+            item.price.taxRules.push({ taxRate: 0 });
             item.quantity = 1;
             this.orderLineItems.unshift(item);
         },
+
         onInsertCreditItem() {
             const item = this.lineItemsStore.create();
             item.versionId = this.order.versionId;
@@ -122,40 +139,96 @@ Component.register('sw-order-line-items-grid', {
             item.type = 'credit';
             this.orderLineItems.unshift(item);
         },
-        onSelectionChanged() {
-            this.lineItemActionsEnabled = Object.keys(this.$refs['order-line-items-grid'].getSelection()).length !== 0;
+
+        onSelectionChanged(selection) {
+            this.selectedItems = selection;
         },
+
         onDeleteSelectedItems() {
-            const items = this.$refs['order-line-items-grid'].getSelection();
             const deletionPromises = [];
-            Object.keys(items).forEach((id) => {
+            Object.keys(this.selectedItems).forEach((id) => {
                 const item = this.orderLineItems.find((elem) => { return elem.id === id; });
                 deletionPromises.push(item.delete(true));
             });
+
+            this.selectedItems = {};
 
             Promise.all(deletionPromises).then(() => {
                 this.$emit('item-deleted');
             });
         },
+
         itemCreatedFromProduct(id) {
             const item = this.orderLineItems.find((elem) => { return elem.id === id; });
             return item.isLocal && item.type === '';
         },
+
         itemIsCredit(id) {
             const item = this.orderLineItems.find((elem) => { return elem.id === id; });
             return item.type === 'credit';
         },
+
         getMinItemPrice(id) {
             if (this.itemIsCredit(id)) {
                 return null;
             }
             return 0;
         },
+
         getMaxItemPrice(id) {
             if (!this.itemIsCredit(id)) {
                 return null;
             }
             return 0;
+        },
+
+        getLineItemColumns() {
+            const columnDefintions = [{
+                property: 'label',
+                dataIndex: 'label',
+                label: this.$tc('sw-order.detailBase.columnProductName'),
+                allowResize: false,
+                primary: true,
+                inlineEdit: true
+            }, {
+                property: 'unitPrice',
+                dataIndex: 'unitPrice',
+                label: this.order.taxStatus === 'net' ?
+                    this.$tc('sw-order.detailBase.columnPriceNet') :
+                    this.$tc('sw-order.detailBase.columnPriceGross'),
+                allowResize: false,
+                align: 'right',
+                inlineEdit: true
+            }, {
+                property: 'quantity',
+                dataIndex: 'quantity',
+                label: this.$tc('sw-order.detailBase.columnQuantity'),
+                allowResize: false,
+                align: 'right',
+                inlineEdit: true
+            }, {
+                property: 'totalPrice',
+                dataIndex: 'totalPrice',
+                label: this.order.taxStatus === 'net' ?
+                    this.$tc('sw-order.detailBase.columnTotalPriceNet') :
+                    this.$tc('sw-order.detailBase.columnTotalPriceGross'),
+                allowResize: false,
+                align: 'right'
+            }];
+
+            if (this.order.price.taxStatus !== 'tax-free') {
+                columnDefintions.push(
+                    {
+                        property: 'price.taxRules[0]',
+                        label: this.$tc('sw-order.detailBase.columnTax'),
+                        allowResize: false,
+                        align: 'right',
+                        inlineEdit: true
+                    }
+                );
+            }
+
+            return columnDefintions;
         }
     }
 });

@@ -46,7 +46,15 @@ Component.register('sw-order-address-modal', {
                 if (customer.isLocal) {
                     this.$emit('error', 'Invalid customer id');
                 } else {
-                    customer.getAssociation('addresses').getList({ page: 1, limit: 25 }).then(() => {
+                    customer.getAssociation('addresses').getList(
+                        {
+                            page: 1,
+                            limit: 25,
+                            associations: {
+                                country: {}
+                            }
+                        }
+                    ).then(() => {
                         this.availableAddresses = customer.addresses;
                     });
                 }

@@ -67,6 +67,7 @@
       "buttonAddCredit" :"Add credit item",
       "buttonEditAddress" : "Edit",
       "labelNoPhoneNumber" :"No phone number yet",
+      "labelNoEmail" : "No Email yet",
       "labelCustomerPhoneNumber":"Phone number",
       "labelLanguage" :"Order language",
       "labelPaymentMethod" : "Payment method",

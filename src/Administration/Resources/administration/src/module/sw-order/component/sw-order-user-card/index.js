@@ -28,7 +28,8 @@ Component.register('sw-order-user-card', {
     data() {
         return {
             addressBeingEdited: null,
-            countries: null
+            countries: null,
+            hasTags: false
         };
     },
 
@@ -82,6 +83,16 @@ Component.register('sw-order-user-card', {
 
     methods: {
         createdComponent() {
+            this.reload();
+        },
+
+        reload() {
+            this.hasTags = false;
+            this.currentOrder.getAssociation('tags').getList({ limit: 1 }).then((response) => {
+                if (response.total !== 0) {
+                    this.hasTags = true;
+                }
+            });
             this.countryStore.getList({ page: 1, limit: 100, sortBy: 'name' }).then((response) => {
                 this.countries = response.items;
             });

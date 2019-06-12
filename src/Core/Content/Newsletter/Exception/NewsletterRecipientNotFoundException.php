@@ -17,7 +17,7 @@ class NewsletterRecipientNotFoundException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__NEWSLETTER_RECIPIENT_NOT_FOUND';
+        return 'CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND';
     }
 
     public function getStatusCode(): int

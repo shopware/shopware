@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DisallowedLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
@@ -141,7 +142,7 @@ class RequestCriteriaBuilder
                 $field = $definition->getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationField) {
-                    throw new \RuntimeException(sprintf('Can not find association by name %s', $propertyName));
+                    throw new AssociationNotFoundException($propertyName);
                 }
 
                 $ref = $field->getReferenceDefinition();

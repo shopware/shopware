@@ -5,6 +5,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldForeignKeyConstraintMissingException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -99,7 +105,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     continue;
                 }
 
-                throw new \RuntimeException(sprintf('Command of class %s not supported', \get_class($command)));
+                throw new UnsupportedCommandTypeException($command);
             }
             // throws exception on violation and then aborts/rollbacks this transaction
             $this->commandQueueValidator->postValidate($commands, $context);
@@ -201,47 +207,20 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $parent = $definition->getFields()->get('parent');
 
         if (!$parent) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Can not find parent property %s field for definition %s',
-                    'parent',
-                    $definition->getClass()
-                )
-            );
+            throw new ParentFieldNotFoundException($definition);
         }
 
         if (!$parent instanceof ManyToOneAssociationField) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Parent property %s in definition %s expected to be an ManyToOneAssociationField got %s',
-                    'parent',
-                    $definition->getClass(),
-                    \get_class($parent)
-                )
-            );
+            throw new InvalidParentAssociationException($definition, $parent);
         }
 
         $fk = $definition->getFields()->getByStorageName($parent->getStorageName());
 
         if (!$fk) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Can not find FkField for parent property %s in definition %s',
-                    'parent',
-                    $definition->getClass()
-                )
-            );
+            throw new CanNotFindParentStorageFieldException($definition);
         }
         if (!$fk instanceof FkField) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Foreign key property %s of parent association %s in definition %s expected to be an FkField got %s',
-                    $fk->getPropertyName(),
-                    'parent',
-                    $definition->getClass(),
-                    \get_class($fk)
-                )
-            );
+            throw new ParentFieldForeignKeyConstraintMissingException($definition, $fk);
         }
 
         return $fk;
@@ -300,9 +279,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         foreach ($fields as $field) {
             if (!array_key_exists($field->getStorageName(), $primaryKey)) {
                 if (!array_key_exists($field->getPropertyName(), $primaryKey)) {
-                    throw new \RuntimeException(
-                        sprintf('Expected primary key field %s for definition %s not provided', $field->getPropertyName(), $definition->getClass())
-                    );
+                    throw new PrimaryKeyNotProvidedException($definition, $field);
                 }
 
                 $primaryKey[$field->getStorageName()] = $primaryKey[$field->getPropertyName()];

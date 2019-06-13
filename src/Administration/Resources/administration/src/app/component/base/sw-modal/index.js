@@ -1,3 +1,4 @@
+import { Application } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-modal.html.twig';
 import './sw-modal.scss';
@@ -83,6 +84,10 @@ export default {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     mounted() {
         this.mountedComponent();
     },
@@ -92,6 +97,12 @@ export default {
     },
 
     methods: {
+        createdComponent() {
+            const shortcutService = Application.getContainer('service').shortcutService;
+
+            shortcutService.stopEventListener();
+        },
+
         mountedComponent() {
             const targetEl = document.querySelector(this.selector);
             targetEl.appendChild(this.$el);
@@ -100,6 +111,9 @@ export default {
         },
 
         destroyedComponent() {
+            const shortcutService = Application.getContainer('service').shortcutService;
+
+            shortcutService.startEventListener();
             document.querySelector('.sw-modal__dialog').focus();
         },
 

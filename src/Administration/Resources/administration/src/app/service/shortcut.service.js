@@ -68,13 +68,13 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
     }
 
     function isRestrictedSource(event) {
-        const restrictedTags = /INPUT|TEXTAREA/;
+        const restrictedTags = /INPUT|TEXTAREA|SELECT/;
         const source = event.srcElement;
         const tagName = source.tagName;
 
         // editable DIVs are restricted
         if (tagName === 'DIV') {
-            return source.isContenEditable;
+            return source.isContentEditable;
         }
 
         return restrictedTags.test(tagName);

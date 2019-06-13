@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\Language\LanguageDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -23,18 +21,6 @@ class WriteContext
     private $context;
 
     /**
-     * @var array[]
-     *
-     * @example
-     * [
-     *      product
-     *          uuid-1 => null
-     *          uuid-2 => uuid-1
-     * ]
-     */
-    private $inheritance = [];
-
-    /**
      * @var array
      */
     private $languages;
@@ -47,18 +33,6 @@ class WriteContext
     private function __construct(Context $context)
     {
         $this->context = $context;
-    }
-
-    public function addInheritance(string $definition, array $inheritance): void
-    {
-        if (!isset($this->inheritance[$definition])) {
-            $this->inheritance[$definition] = [];
-        }
-
-        $this->inheritance[$definition] = array_replace_recursive(
-            $this->inheritance[$definition],
-            $inheritance
-        );
     }
 
     public function setLanguages($languages): void
@@ -115,32 +89,6 @@ class WriteContext
         $path = $this->buildPathName($className, $propertyName);
 
         return isset($this->paths[$path]);
-    }
-
-    public function isChild(EntityDefinition $definition, array $raw): bool
-    {
-        if (array_key_exists('parent', $raw)) {
-            return true;
-        }
-
-        /** @var ManyToOneAssociationField $parent */
-        $parent = $definition->getFields()->get('parent');
-
-        $fk = $definition->getFields()->getByStorageName(
-            $parent->getStorageName()
-        );
-
-        if (isset($raw[$fk->getPropertyName()])) {
-            return true;
-        }
-
-        if (!array_key_exists($definition->getClass(), $this->inheritance)) {
-            return false;
-        }
-
-        $inheritance = $this->inheritance[$definition->getClass()];
-
-        return isset($inheritance[$raw['id']]);
     }
 
     public function getContext(): Context

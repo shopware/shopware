@@ -70,7 +70,7 @@ trait FieldValidatorTrait
             return true;
         }
 
-        if ($field->is(Inherited::class) && $existence->isChild()) {
+        if ($existence->isChild() && $this->isInherited($field, $parameters)) {
             return false;
         }
 
@@ -81,5 +81,22 @@ trait FieldValidatorTrait
         }
 
         return $field->is(Required::class);
+    }
+
+    protected function isInherited(Field $field, WriteParameterBag $parameters): bool
+    {
+        if ($parameters->getDefinition()->isInheritanceAware()) {
+            return $field->is(Inherited::class);
+        }
+
+        if (!$parameters->getDefinition() instanceof EntityTranslationDefinition) {
+            return false;
+        }
+
+        $parent = $parameters->getDefinition()->getParentDefinition();
+
+        $field = $parent->getFields()->get($field->getPropertyName());
+
+        return $field->is(Inherited::class);
     }
 }

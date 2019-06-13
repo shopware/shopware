@@ -21,11 +21,6 @@ class EntityExistence
     private $exists;
 
     /**
-     * @var EntityDefinition
-     */
-    private $definition;
-
-    /**
      * @var bool
      */
     private $isChild;
@@ -39,6 +34,11 @@ class EntityExistence
      * @var array
      */
     private $state;
+
+    /**
+     * @var EntityDefinition
+     */
+    private $definition;
 
     public function __construct(
         ?EntityDefinition $definition = null, // @see a hack in \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer

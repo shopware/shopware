@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldForeignKeyConstraintMissingException;
@@ -54,7 +55,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $exists = !empty($state);
 
-        $isChild = $this->isChild($definition, $data, $state);
+        $isChild = $this->isChild($definition, $data, $state, $primaryKey, $commandQueue);
 
         $wasChild = $this->wasChild($definition, $state);
 
@@ -314,8 +315,12 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         return [];
     }
 
-    private function isChild(EntityDefinition $definition, array $data, array $state): bool
+    private function isChild(EntityDefinition $definition, array $data, array $state, array $primaryKey, WriteCommandQueue $commandQueue): bool
     {
+        if ($definition instanceof EntityTranslationDefinition) {
+            return $this->isTranslationChild($definition, $primaryKey, $commandQueue);
+        }
+
         if (!$definition->isInheritanceAware()) {
             return false;
         }
@@ -343,5 +348,30 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $fk = $this->getParentField($definition);
 
         return isset($state[$fk->getStorageName()]);
+    }
+
+    private function isTranslationChild(EntityTranslationDefinition $definition, array $primaryKey, WriteCommandQueue $commandQueue): bool
+    {
+        $parent = $definition->getParentDefinition();
+
+        if (!$parent->isInheritanceAware()) {
+            return false;
+        }
+
+        /** @var FkField $fkField */
+        $fkField = $definition->getFields()->getByStorageName(
+            $parent->getEntityName() . '_id'
+        );
+        $parentPrimaryKey = [
+            'id' => $primaryKey[$fkField->getStorageName()],
+        ];
+
+        if ($parent->isVersionAware()) {
+            $parentPrimaryKey['versionId'] = $primaryKey[$parent->getEntityName() . '_version_id'];
+        }
+
+        $existence = $this->getExistence($parent, $parentPrimaryKey, [], $commandQueue);
+
+        return $existence->isChild();
     }
 }

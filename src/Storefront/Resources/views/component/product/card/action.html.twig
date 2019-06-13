@@ -7,38 +7,40 @@
                           method="post"
                           class="buy-widget"
                           data-add-to-cart="true">
+                        {% block component_product_box_action_form %}
 
-                        {% block component_product_box_action_buy_redirect_input %}
-                            <input type="hidden"
-                                   name="redirectTo"
-                                   value="frontend.cart.offcanvas"/>
+                            {% block component_product_box_action_buy_redirect_input %}
+                                <input type="hidden"
+                                       name="redirectTo"
+                                       value="frontend.cart.offcanvas"/>
+                            {% endblock %}
+
+                            {% block page_product_detail_buy_product_buy_info %}
+                                <input type="hidden"
+                                       name="lineItems[{{ product.id }}][id]"
+                                       value="{{ product.id }}">
+                                <input type="hidden"
+                                       name="lineItems[{{ product.id }}][referencedId]"
+                                       value="{{ product.id }}">
+                                <input type="hidden"
+                                       name="lineItems[{{ product.id }}][type]"
+                                       value="product">
+                                <input type="hidden"
+                                       name="lineItems[{{ product.id }}][stackable]"
+                                       value="1">
+                                <input type="hidden"
+                                       name="lineItems[{{ product.id }}][removable]"
+                                       value="1">
+                                <input type="hidden"
+                                       name="lineItems[{{ product.id }}][quantity]"
+                                       value="1">
+                            {% endblock %}
+
+                            <button class="btn btn-block btn-buy"
+                                    title="{{ "listing.boxAddProduct"|trans }}">
+                                {{ "listing.boxAddProduct"|trans }}
+                            </button>
                         {% endblock %}
-
-                        {% block page_product_detail_buy_product_buy_info %}
-                            <input type="hidden"
-                                   name="lineItems[{{ product.id }}][id]"
-                                   value="{{ product.id }}">
-                            <input type="hidden"
-                                   name="lineItems[{{ product.id }}][referencedId]"
-                                   value="{{ product.id }}">
-                            <input type="hidden"
-                                   name="lineItems[{{ product.id }}][type]"
-                                   value="product">
-                            <input type="hidden"
-                                   name="lineItems[{{ product.id }}][stackable]"
-                                   value="1">
-                            <input type="hidden"
-                                   name="lineItems[{{ product.id }}][removable]"
-                                   value="1">
-                            <input type="hidden"
-                                   name="lineItems[{{ product.id }}][quantity]"
-                                   value="1">
-                        {% endblock %}
-
-                        <button class="btn btn-block btn-buy"
-                                title="{{ "listing.boxAddProduct"|trans }}">
-                            {{ "listing.boxAddProduct"|trans }}
-                        </button>
                     </form>
                 {% endblock %}
             {% else %}

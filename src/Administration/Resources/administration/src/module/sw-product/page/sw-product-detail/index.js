@@ -14,6 +14,10 @@ Component.register('sw-product-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave'
+    },
+
     props: {
         productId: {
             type: String,

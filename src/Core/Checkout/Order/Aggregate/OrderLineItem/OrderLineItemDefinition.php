@@ -77,7 +77,7 @@ class OrderLineItemDefinition extends EntityDefinition
             new BoolField('stackable', 'stackable'),
 
             (new CalculatedPriceField('price', 'price'))->setFlags(new Required()),
-            (new PriceDefinitionField('price_definition', 'priceDefinition'))->setFlags(new Required()),
+            new PriceDefinitionField('price_definition', 'priceDefinition'),
 
             (new FloatField('unit_price', 'unitPrice'))->addFlags(new Computed()),
             (new FloatField('total_price', 'totalPrice'))->addFlags(new Computed()),

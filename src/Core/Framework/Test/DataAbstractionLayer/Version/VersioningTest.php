@@ -136,6 +136,7 @@ class VersioningTest extends TestCase
             'name' => 'test',
             'manufacturer' => ['id' => $id, 'name' => 'test'],
             'tax' => ['id' => $id, 'name' => 'updated', 'taxRate' => 11000],
+            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
         ];
 
         $this->productRepository->upsert([$product], $context);
@@ -640,6 +641,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
+            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'prices' => [
                 [
                     'id' => $priceId1,
@@ -705,6 +707,7 @@ class VersioningTest extends TestCase
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
+            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'categories' => [
                 ['id' => $categoryId1, 'name' => 'cat1'],
                 ['id' => $categoryId2, 'name' => 'cat2'],
@@ -809,6 +812,7 @@ class VersioningTest extends TestCase
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
+            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'prices' => [
                 [
                     'id' => $priceId1,
@@ -1018,6 +1022,7 @@ class VersioningTest extends TestCase
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
+            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'categories' => [
                 ['id' => $categoryId1, 'name' => 'cat1'],
                 ['id' => $categoryId2, 'name' => 'cat2'],
@@ -1139,6 +1144,7 @@ class VersioningTest extends TestCase
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
+            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'prices' => [
                 [
                     'id' => $priceId1,
@@ -1241,6 +1247,7 @@ class VersioningTest extends TestCase
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
+            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'categories' => [
                 ['id' => $categoryId1, 'name' => 'cat1'],
                 ['id' => $categoryId2, 'name' => 'cat2'],
@@ -1413,6 +1420,7 @@ class VersioningTest extends TestCase
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
+            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'prices' => [
                 [
                     'id' => $priceId1,
@@ -1497,6 +1505,7 @@ class VersioningTest extends TestCase
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
+            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'categories' => [
                 ['id' => $categoryId1, 'name' => 'cat1'],
                 ['id' => $categoryId2, 'name' => 'cat2'],

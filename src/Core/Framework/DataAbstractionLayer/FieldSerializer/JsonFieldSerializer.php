@@ -128,6 +128,7 @@ class JsonFieldSerializer implements FieldSerializerInterface
     {
         return $this->constraintBuilder
             ->isArray()
+            ->isNotNull()
             ->getConstraints();
     }
 

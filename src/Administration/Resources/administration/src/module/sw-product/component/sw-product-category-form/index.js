@@ -23,6 +23,13 @@ Component.register('sw-product-category-form', {
 
         categoriesCollection() {
             return !this.loading.product ? this.product.categories : {};
+        },
+
+        hasVisibilitesSelected() {
+            if (this.product && this.product.visibilities) {
+                return Object.values(this.product.visibilities.items).length > 0;
+            }
+            return false;
         }
     },
 

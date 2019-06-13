@@ -16,6 +16,11 @@ Component.register('sw-customer-detail', {
         Mixin.getByName('discard-detail-page-changes')('customer')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onAbortButtonClick'
+    },
+
     beforeRouteLeave(to, from, next) {
         this.customerEditMode = false;
         next();

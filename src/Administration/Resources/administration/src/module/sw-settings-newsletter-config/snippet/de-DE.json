@@ -1,0 +1,13 @@
+{
+  "sw-settings-newsletter-config": {
+    "general": {
+      "mainMenuItemGeneral": "Newsletter-Konfiguration",
+      "description": "Hier können Einstellungen an der Newsletter-Konfiguration vorgenommen werden.",
+      "textHeadline": "Newsletter-Konfiguration",
+      "buttonSave": "Speichern",
+      "titleSaveSuccess": "Konfiguration gespeichert",
+      "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
+      "titleSaveError": "Fehler beim Speichern der Konfiguration"
+    }
+  }
+}

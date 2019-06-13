@@ -5,12 +5,6 @@
         <title>Privacy</title>
         <title lang="de-DE">Datenschutz</title>
 
-        <input-field type="bool">
-            <name>doiNewsletter</name>
-            <label>Newsletter double opt-in</label>
-            <label lang="de-DE">Newsletter Double-Opt-In</label>
-            <helpText>Enables double opt-in for newsletters</helpText>
-            <helpText lang="de-DE">Aktiviert Double-Opt-In für Newsletteranmeldungen</helpText>
-        </input-field>
+
     </card>
 </config>

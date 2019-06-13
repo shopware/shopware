@@ -1357,13 +1357,6 @@ class Migration1536233560BasicData extends MigrationStep
     {
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
-            'configuration_key' => 'core.privacy.doiNewsletter',
-            'configuration_value' => '{"_value": true}',
-            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
-        ]);
-
-        $connection->insert('system_config', [
-            'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.store.apiUri',
             'configuration_value' => '{"_value": "https://api.shopware.com"}',
             'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
@@ -1385,9 +1378,16 @@ class Migration1536233560BasicData extends MigrationStep
 
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
-            'configuration_key' => 'newsletter.subscribeDomain',
-            'configuration_value' => '{"_value": "shopware.local"}',
+            'configuration_key' => 'core.newsletter.subscribeDomain',
+            'configuration_value' => '{"_value": "http://localhost"}',
             'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+        ]);
+
+        $connection->insert('system_config', [
+            'id' => Uuid::randomBytes(),
+            'configuration_key' => 'core.newsletter.doubleOptIn',
+            'configuration_value' => '{"_value": true}',
             'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
         ]);
     }

@@ -10,7 +10,7 @@ class AdministrationRouteScope extends AbstractRouteScope
     /**
      * @var string[]
      */
-    protected $allowedPaths = ['admin'];
+    protected $allowedPaths = ['admin', 'api'];
 
     public function isAllowed(Request $request): bool
     {

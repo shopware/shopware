@@ -21,6 +21,12 @@ class InfoControllerTest extends TestCase
                 'transports' => $this->getContainer()->getParameter('shopware.admin_worker.transports'),
             ],
             'bundles' => [],
+            'administration' => [
+                'locales' => [
+                    'de-DE',
+                    'en-GB',
+                ],
+            ],
         ];
 
         $url = sprintf('/api/v%s/_info/config', PlatformRequest::API_VERSION);

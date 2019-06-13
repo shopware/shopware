@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
@@ -46,18 +47,25 @@ class InfoController extends AbstractController
      */
     private $kernel;
 
+    /**
+     * @var SnippetFinderInterface
+     */
+    private $snippetFinder;
+
     public function __construct(
         DefinitionService $definitionService,
         ParameterBagInterface $params,
         BusinessEventRegistry $actionEventRegistry,
         Kernel $kernel,
-        Packages $packages
+        Packages $packages,
+        SnippetFinderInterface $snippetFinder
     ) {
         $this->definitionService = $definitionService;
         $this->params = $params;
         $this->actionEventRegistry = $actionEventRegistry;
         $this->packages = $packages;
         $this->kernel = $kernel;
+        $this->snippetFinder = $snippetFinder;
     }
 
     /**
@@ -113,6 +121,9 @@ class InfoController extends AbstractController
                 'transports' => $this->params->get('shopware.admin_worker.transports'),
             ],
             'bundles' => $this->getBundles(),
+            'administration' => [
+                'locales' => $this->snippetFinder->getAvailableLocales(),
+            ],
         ]);
     }
 

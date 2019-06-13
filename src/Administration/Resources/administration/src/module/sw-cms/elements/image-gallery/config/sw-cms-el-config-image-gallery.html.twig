@@ -1,16 +1,16 @@
-{% block sw_cms_element_image_slider_config %}
-    <div class="sw-cms-el-config-image-slider">
-        {% block sw_cms_element_image_slider_config_tabs %}
-            <sw-tabs class="sw-cms-el-config-image-slider__tabs" defaultItem="content">
+{% block sw_cms_element_image_gallery_config %}
+    <div class="sw-cms-el-config-image-gallery">
+        {% block sw_cms_element_image_gallery_config_tabs %}
+            <sw-tabs class="sw-cms-el-config-image-gallery__tabs" defaultItem="content">
                 <template slot-scope="{ active }" >
-                    {% block sw_cms_element_image_slider_config_tab_content %}
+                    {% block sw_cms_element_image_gallery_config_tab_content %}
                         <sw-tabs-item :title="$tc('sw-cms.elements.imageSliderTabContent')"
                                       name="content"
                                       :activeTab="active">
                             {{ $tc('sw-cms.elements.tabImageSliderContent') }}
                         </sw-tabs-item>
                     {% endblock %}
-                    {% block sw_cms_element_image_slider_config_tab_options %}
+                    {% block sw_cms_element_image_gallery_config_tab_options %}
                         <sw-tabs-item :title="$tc('sw-cms.elements.imageSliderTabSettings')"
                                       name="settings"
                                       :activeTab="active">
@@ -20,52 +20,52 @@
                 </template>
 
                 <template slot="content" slot-scope="{ active }">
-                    {% block sw_cms_element_image_slider_config_content %}
-                        <sw-container v-if="active === 'content'" class="sw-cms-el-config-image-slider__tab-content">
-                            {% block sw_cms_element_image_slider_config_media_selection %}
+                    {% block sw_cms_element_image_gallery_config_content %}
+                        <sw-container v-if="active === 'content'" class="sw-cms-el-config-image-gallery__tab-content">
+                            {% block sw_cms_element_image_gallery_config_media_selection %}
                                 <sw-media-list-selection
-                                        :entityMediaItems="mediaItems"
-                                        :entity="entity"
-                                        :uploadTag="uploadTag"
-                                        :defaultFolderName="defaultFolderName"
-                                        @upload-finish="onImageUpload"
-                                        @item-remove="onItemRemove"
-                                        @open-sidebar="onOpenMediaModal">
+                                    :entityMediaItems="mediaItems"
+                                    :entity="enitiy"
+                                    :uploadTag="uploadTag"
+                                    :defaultFolder="defaultFolderName"
+                                    @upload-finish="onImageUpload"
+                                    @item-remove="onItemRemove"
+                                    @open-sidebar="onOpenMediaModal">
                                 </sw-media-list-selection>
                             {% endblock %}
 
-                            {% block sw_cms_element_image_slider_config_media_modal %}
+                            {% block sw_cms_element_image_gallery_config_media_modal %}
                                 <sw-media-modal
-                                        variant="regular"
-                                        v-if="mediaModalIsOpen"
-                                        :caption="$tc('sw-cms.elements.captionMediaUpload')"
-                                        :entityContext="cmsPageState.entityName"
-                                        :initialFolderId="cmsPageState.defaultMediaFolderId"
-                                        @media-upload-remove-image="onItemRemove"
-                                        @media-modal-selection-change="onMediaSelectionChange"
-                                        @modal-close="onCloseMediaModal">
+                                    variant="regular"
+                                    v-if="mediaModalIsOpen"
+                                    :caption="$tc('sw-cms.elements.captionMediaUpload')"
+                                    :entityContext="cmsPageState.entityName"
+                                    :initialFolderId="cmsPageState.defaultMediaFolderId"
+                                    @media-upload-remove-image="onItemRemove"
+                                    @media-modal-selection-change="onMediaSelectionChange"
+                                    @modal-close="onCloseMediaModal">
                                 </sw-media-modal>
                             {% endblock %}
                         </sw-container>
                     {% endblock %}
 
-                    {% block sw_cms_element_image_slider_config_settings %}
-                        <sw-container v-if="active === 'settings'" class="sw-cms-el-config-image-slider__tab-settings">
-                            <div class="sw-cms-el-config-image-slider__settings-options">
+                    {% block sw_cms_element_image_gallery_config_settings %}
+                        <sw-container v-if="active === 'settings'" class="sw-cms-el-config-image-gallery__tab-settings">
+                            <div class="sw-cms-el-config-image-gallery__settings-options">
 
                                 {% block sw_cms_element_image_gallery_config_settings_display_mode %}
-                                    <div class="sw-cms-el-config-image-slider__setting-option">
-    
+                                    <div class="sw-cms-el-config-image-gallery__setting-option">
+
                                         {% block sw_cms_element_image_gallery_config_settings_display_mode_select %}
                                             <sw-select-field :label="$tc('sw-cms.elements.labelMediaDisplayMode')"
                                                              v-model="element.config.displayMode.value"
                                                              @change="onChangeDisplayMode"
-                                                             class="sw-cms-el-config-image-slider__setting-display-mode">
+                                                             class="sw-cms-el-config-image-gallery__setting-display-mode">
                                                 <option value="standard">{{ $tc('sw-cms.elements.labelMediaDisplayModeStandard') }}</option>
                                                 <option value="cover">{{ $tc('sw-cms.elements.labelMediaDisplayModeCover') }}</option>
                                             </sw-select-field>
                                         {% endblock %}
-    
+
                                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
                                             <sw-text-field :label="$tc('sw-cms.elements.labelMediaMinHeight')"
                                                            :placeholder="$tc('sw-cms.elements.labelMediaMinHeight')"
@@ -74,7 +74,7 @@
                                                            @input="onChangeMinHeight">
                                             </sw-text-field>
                                         {% endblock %}
-    
+
                                         {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
                                             <sw-select-field :label="$tc('sw-cms.elements.labelMediaVerticalAlign')"
                                                              v-model="element.config.verticalAlign.value"
@@ -88,12 +88,11 @@
                                     </div>
                                 {% endblock %}
 
+                                {% block sw_cms_element_image_gallery_config_settings_navigation %}
+                                    <div class="sw-cms-el-config-image-gallery__setting-navigations sw-cms-el-config-image-gallery__setting-option">
+                                        <div class="sw-cms-el-config-image-gallery__settings-navigation">
 
-                                {% block sw_cms_element_image_slider_config_settings_navigation %}
-                                    <div class="sw-cms-el-config-image-slider__setting-navigations sw-cms-el-config-image-slider__setting-option">
-                                        <div class="sw-cms-el-config-image-slider__settings-navigation">
-
-                                            {% block sw_cms_element_image_slider_config_settings_navigation_arrow_position %}
+                                            {% block sw_cms_element_image_gallery_config_settings_navigation_arrow_position %}
                                                 <sw-field type="select"
                                                           v-model="element.config.navigationArrows.value"
                                                           @change="emitUpdateEl"
@@ -112,9 +111,9 @@
                                             {% endblock %}
                                         </div>
 
-                                        <div class="sw-cms-el-config-image-slider__settings-navigation">
+                                        <div class="sw-cms-el-config-image-gallery__settings-navigation">
 
-                                            {% block sw_cms_element_image_slider_config_settings_navigation_dots_position %}
+                                            {% block sw_cms_element_image_gallery_config_settings_navigation_dots_position %}
                                                 <sw-field type="select"
                                                           v-model="element.config.navigationDots.value"
                                                           @change="emitUpdateEl"
@@ -132,36 +131,21 @@
                                                 </sw-field>
                                             {% endblock %}
                                         </div>
-                                    </div>
-                                {% endblock %}
 
-                                {% block sw_cms_element_image_slider_config_settings_links %}
-                                    <div class="sw-cms-el-config-image-slider__settings-links sw-cms-el-config-image-slider__setting-option">
-                                        <div class="sw-cms-el-config-image-slider__settings-link"
-                                             v-for="sliderItem in items">
+                                        <div class="sw-cms-el-config-image-gallery__settings-navigation">
 
-                                            {% block sw_cms_element_image_slider_config_settings_link_url %}
-                                                <sw-field v-model="sliderItem.url"
-                                                          class="sw-cms-el-config-image-slider__settings-link-input"
-                                                          :key="sliderItem.mediaId"
-                                                          :name="sliderItem.mediaUrl"
-                                                          type="text"
-                                                          :label="$tc('sw-cms.elements.labelSettingsLinkTo')"
-                                                          :placeholder="$tc('sw-cms.elements.imageSliderTabSettingsEnterUrl')">
-                                                    <template #prefix>
-                                                        <img class="sw-cms-el-config-image-slider__settings-link-prefix"
-                                                             :src="sliderItem.mediaUrl"
-                                                             v-if="sliderItem.mediaUrl">
-                                                    </template>
-                                                </sw-field>
-                                            {% endblock %}
+                                            {% block sw_cms_element_image_gallery_config_settings_navigation_preview_position %}
+                                                <sw-field type="select"
+                                                          v-model="element.config.galleryPosition.value"
+                                                          @change="emitUpdateEl"
+                                                          :label="$tc('sw-cms.elements.imageSliderTabSettingsNavigationPreview')">
 
-                                            {% block sw_cms_element_image_slider_config_settings_link_target %}
-                                                <sw-field class="sw-cms-el-config-image-slider__settings-link-tab"
-                                                          v-model="sliderItem.newTab"
-                                                          type="switch"
-                                                          :name="sliderItem.mediaId"
-                                                          :label="$tc('sw-text-editor-toolbar.link.openInNewTab')">
+                                                    <option value="besides">
+                                                        {{ $tc('sw-cms.elements.imageSliderTabSettingsNavigationPreviewPositionBesides') }}
+                                                    </option>
+                                                    <option value="underneath">
+                                                        {{ $tc('sw-cms.elements.imageSliderTabSettingsNavigationPreviewPositionUnderneath') }}
+                                                    </option>
                                                 </sw-field>
                                             {% endblock %}
                                         </div>

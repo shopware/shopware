@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Promotion\Validator\PromotionValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
@@ -58,8 +59,9 @@ class PromotionValidatorTest extends TestCase
             $this->createMock(EntityExistence::class)
         );
 
+        $event = new PreWriteValidationEvent($this->context, $commands);
         $validator = new PromotionValidator();
-        $validator->preValidate($commands, $this->context);
+        $validator->preValidate($event);
     }
 
     /**
@@ -83,8 +85,9 @@ class PromotionValidatorTest extends TestCase
             $this->createMock(EntityExistence::class)
         );
 
+        $event = new PreWriteValidationEvent($this->context, $commands);
         $validator = new PromotionValidator();
-        $validator->preValidate($commands, $this->context);
+        $validator->preValidate($event);
     }
 
     /**
@@ -118,8 +121,9 @@ class PromotionValidatorTest extends TestCase
             $this->createMock(EntityExistence::class)
         );
 
+        $event = new PreWriteValidationEvent($this->context, $commands);
         $validator = new PromotionValidator();
-        $validator->preValidate($commands, $this->context);
+        $validator->preValidate($event);
     }
 
     /**
@@ -151,8 +155,9 @@ class PromotionValidatorTest extends TestCase
             $this->createMock(EntityExistence::class)
         );
 
+        $event = new PreWriteValidationEvent($this->context, $commands);
         $validator = new PromotionValidator();
-        $validator->preValidate($commands, $this->context);
+        $validator->preValidate($event);
 
         static::assertTrue(true);
     }

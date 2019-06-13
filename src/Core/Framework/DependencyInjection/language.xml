@@ -15,7 +15,7 @@
 
         <service id="Shopware\Core\Framework\Language\LanguageValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.validator"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\Language\LanguageLoader">
@@ -29,7 +29,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Language\TranslationValidator">
-            <tag name="shopware.validator"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

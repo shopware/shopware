@@ -27,12 +27,12 @@
 		</service>
 
 		<service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\ImportExportLogValidator">
-			<tag name="shopware.validator"/>
+			<tag name="kernel.event_subscriber"/>
 		</service>
 
 		<service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\SystemDefaultValidator">
 			<argument type="service" id="Doctrine\DBAL\Connection"/>
-			<tag name="shopware.validator"/>
+			<tag name="kernel.event_subscriber"/>
 		</service>
 
 		<service id="Shopware\Core\Content\ImportExport\Controller\ImportExportActionController" public="true">

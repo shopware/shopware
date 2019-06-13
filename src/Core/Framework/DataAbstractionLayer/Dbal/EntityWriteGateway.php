@@ -24,9 +24,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInter
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class EntityWriteGateway implements EntityWriteGatewayInterface
 {
@@ -36,14 +38,14 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     private $connection;
 
     /**
-     * @var WriteCommandValidatorInterface
+     * @var EventDispatcherInterface
      */
-    private $commandQueueValidator;
+    private $eventDispatcher;
 
-    public function __construct(Connection $connection, WriteCommandValidatorInterface $commandQueueValidator)
+    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher)
     {
         $this->connection = $connection;
-        $this->commandQueueValidator = $commandQueueValidator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -69,7 +71,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     {
         $this->connection->transactional(function () use ($commands, $context) {
             // throws exception on violation and then aborts/rollbacks this transaction
-            $this->commandQueueValidator->preValidate($commands, $context);
+            $event = new PreWriteValidationEvent($context, $commands);
+            $this->eventDispatcher->dispatch($event);
 
             /** @var WriteCommandInterface $command */
             foreach ($commands as $command) {
@@ -108,8 +111,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
                 throw new UnsupportedCommandTypeException($command);
             }
+
             // throws exception on violation and then aborts/rollbacks this transaction
-            $this->commandQueueValidator->postValidate($commands, $context);
+            $event = new PostWriteValidationEvent($context, $commands);
+            $this->eventDispatcher->dispatch($event);
         });
     }
 

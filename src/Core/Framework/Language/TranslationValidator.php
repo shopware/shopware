@@ -6,36 +6,35 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class TranslationValidator implements WriteCommandValidatorInterface
+class TranslationValidator implements EventSubscriberInterface
 {
     public const VIOLATION_DELETE_SYSTEM_TRANSLATION = 'delete-system-translation-violation';
 
-    public function preValidate(array $writeCommands, WriteContext $context): void
+    public static function getSubscribedEvents(): array
     {
-        if ($context->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
+        return [
+            PreWriteValidationEvent::class => 'preValidate',
+        ];
+    }
+
+    public function preValidate(PreWriteValidationEvent $event): void
+    {
+        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
         }
 
         $violations = new ConstraintViolationList();
-        $violations->addAll($this->getDeletedSystemTranslationViolations($writeCommands));
+        $violations->addAll($this->getDeletedSystemTranslationViolations($event->getCommands()));
 
         $this->tryToThrow($violations);
-    }
-
-    /**
-     * @param WriteCommandInterface[] $writeCommands *
-     */
-    public function postValidate(array $writeCommands, WriteContext $context): void
-    {
     }
 
     private function getDeletedSystemTranslationViolations(array $writeCommands): ConstraintViolationList

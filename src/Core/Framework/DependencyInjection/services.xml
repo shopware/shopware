@@ -238,10 +238,6 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Validation\CommandQueueValidator">
-            <argument type="tagged" tag="shopware.validator"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Api\Controller\SalesChannelProxyController" public="true">
             <argument type="service" id="kernel"/>
             <argument type="service" id="sales_channel.repository"/>

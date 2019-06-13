@@ -9,15 +9,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class LanguageValidator implements WriteCommandValidatorInterface
+class LanguageValidator implements EventSubscriberInterface
 {
     public const VIOLATION_PARENT_HAS_PARENT = 'parent_has_parent_violation';
 
@@ -37,8 +38,17 @@ class LanguageValidator implements WriteCommandValidatorInterface
         $this->connection = $connection;
     }
 
-    public function postValidate(array $commands, WriteContext $context): void
+    public static function getSubscribedEvents(): array
     {
+        return [
+            PreWriteValidationEvent::class => 'preValidate',
+            PostWriteValidationEvent::class => 'postValidate',
+        ];
+    }
+
+    public function postValidate(PostWriteValidationEvent $event): void
+    {
+        $commands = $event->getCommands();
         $affectedIds = $this->getAffectedIds($commands);
         if (\count($affectedIds) === 0) {
             return;
@@ -51,11 +61,9 @@ class LanguageValidator implements WriteCommandValidatorInterface
         $this->tryToThrow($violations);
     }
 
-    /**
-     * @param WriteCommandInterface[] $commands
-     */
-    public function preValidate(array $commands, WriteContext $context): void
+    public function preValidate(PreWriteValidationEvent $event): void
     {
+        $commands = $event->getCommands();
         $violations = new ConstraintViolationList();
 
         foreach ($commands as $command) {

@@ -30,5 +30,12 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="sales_channel_domain.repository"/>
         </service>
+
+        <service id="Shopware\Core\Content\Newsletter\SalesChannelNewsletterController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Newsletter\NewsletterSubscriptionService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>

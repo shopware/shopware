@@ -23,7 +23,7 @@ Component.register('sw-product-price-form', {
 
         defaultCurrency() {
             if (!this.currencies.items) {
-                return [];
+                return {};
             }
 
             return Object.values(this.currencies.items).find((currency) => {

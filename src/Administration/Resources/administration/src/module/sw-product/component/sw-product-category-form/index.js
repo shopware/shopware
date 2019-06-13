@@ -33,10 +33,6 @@ Component.register('sw-product-category-form', {
 
         closeAdvancedVisibility() {
             this.displayVisibilityDetail = false;
-        },
-
-        reloadVisibilites() {
-            this.$store.dispatch('swProductDetail/loadProduct');
         }
     }
 });

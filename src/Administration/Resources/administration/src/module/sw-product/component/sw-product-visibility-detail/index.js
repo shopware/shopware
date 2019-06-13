@@ -27,9 +27,7 @@ Component.register('sw-product-visibility-detail', {
 
     methods: {
         createdComponent() {
-            this.$store.dispatch('swProductDetail/loadProduct').then(() => {
-                this.onPageChange({ page: 1, limit: this.limit });
-            });
+            this.onPageChange({ page: this.page, limit: this.limit });
         },
 
         onPageChange(params) {
@@ -40,6 +38,10 @@ Component.register('sw-product-visibility-detail', {
             this.total = all.length;
 
             this.items = all.slice(offset, offset + params.limit);
+        },
+
+        changeVisibilityValue(event, item) {
+            item.visibility = Number(event);
         }
     }
 });

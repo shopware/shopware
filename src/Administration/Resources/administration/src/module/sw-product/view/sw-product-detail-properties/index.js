@@ -7,6 +7,8 @@ import './sw-product-detail-properties.scss';
 Component.register('sw-product-detail-properties', {
     template,
 
+    inject: ['repositoryFactory'],
+
     data() {
         return {
             propertiesAvailable: true
@@ -16,7 +18,6 @@ Component.register('sw-product-detail-properties', {
     computed: {
         ...mapState('swProductDetail', [
             'product',
-            'repositoryFactory',
             'context'
         ]),
 

@@ -47,12 +47,6 @@ module.exports = {
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
             .click('.sw-product-detail__save-action')
             .assert.urlContains('#/sw/product/detail');
-
-        browser
-            .checkNotification('You have not made any changes.');
-
-        browser
-            .assert.urlContains('#/sw/product/detail');
     },
     'upload product image ': (browser) => {
         const page = productPage(browser);

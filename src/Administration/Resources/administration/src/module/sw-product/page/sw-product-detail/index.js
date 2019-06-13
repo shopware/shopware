@@ -1,5 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { mapState, mapGetters } from 'vuex';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 
@@ -35,6 +36,20 @@ Component.register('sw-product-detail', {
     },
 
     computed: {
+        ...mapState('swProductDetail', [
+            'product',
+            'localMode'
+        ]),
+
+        ...mapState('swProductDetail', {
+            storeProductId: state => state.productId
+        }),
+
+        ...mapGetters('swProductDetail', [
+            'productRepository',
+            'isLoading'
+        ]),
+
         identifier() {
             return this.placeholder(this.product, 'name');
         },
@@ -43,24 +58,107 @@ Component.register('sw-product-detail', {
             return State.getStore('language');
         },
 
-        ...mapState('swProductDetail', [
-            'product',
-            'localMode'
-        ]),
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
 
-        ...mapGetters('swProductDetail', [
-            'productRepository',
-            'isLoading'
-        ])
+        currencyRepository() {
+            return this.repositoryFactory.create('currency');
+        },
+
+        taxRepository() {
+            return this.repositoryFactory.create('tax');
+        },
+
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        mediaRepository() {
+            if (this.product && this.product.media) {
+                return this.repositoryFactory.create(
+                    this.product.media.entity,
+                    this.product.media.source
+                );
+            }
+            return null;
+        },
+
+        defaultCriteria() {
+            return new Criteria(1, 500);
+        },
+
+        mediaCriteria() {
+            const criteria = new Criteria(1, 50);
+            criteria.addSorting(
+                Criteria.sort('position', 'ASC')
+            );
+            return criteria;
+        },
+
+        tagsCriteria() {
+            const criteria = new Criteria(1, 500);
+            criteria.addSorting(
+                Criteria.sort('name', 'ASC')
+            );
+            return criteria;
+        },
+
+        pricesCriteria() {
+            const criteria = new Criteria(1, 500);
+            criteria.addSorting(
+                Criteria.sort('quantityStart', 'ASC', true)
+            );
+            return criteria;
+        },
+
+        visibilitiesCriteria() {
+            const criteria = new Criteria(1, 500);
+            criteria.addAssociation('salesChannel', this.defaultCriteria);
+
+            return criteria;
+        },
+
+        propertyCriteria() {
+            const criteria = new Criteria(1, 500);
+            criteria.addSorting(
+                Criteria.sort('name', 'ASC')
+            );
+            return criteria;
+        },
+
+        productCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('media', this.mediaCriteria);
+            criteria.addAssociation('properties', this.propertyCriteria);
+            criteria.addAssociation('visibilities', this.visibilitiesCriteria);
+            criteria.addAssociation('prices', this.pricesCriteria);
+            criteria.addAssociation('tags', this.tagsCriteria);
+            criteria.addAssociation('categories', this.defaultCriteria);
+            return criteria;
+        },
+
+        customFieldCriteria() {
+            const criteria = new Criteria(1, 100);
+            criteria.addSorting(
+                Criteria.sort('config.customFieldPosition')
+            );
+            return criteria;
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria(1, 100);
+            criteria
+                .addFilter(
+                    Criteria.equals('relations.entityName', 'product')
+                )
+                .addAssociation('customFields', this.customFieldCriteria);
+            return criteria;
+        }
     },
 
     beforeCreate() {
-        const store = this.$store;
-
-        // register a new module only if doesn't exists
-        if (!(store && store.state && store.state.swProductDetail)) {
-            this.$store.registerModule('swProductDetail', swProductDetailState);
-        }
+        this.$store.registerModule('swProductDetail', swProductDetailState);
     },
 
     created() {
@@ -96,10 +194,10 @@ Component.register('sw-product-detail', {
 
             this.$root.$on('sidebar-toggle-open', this.openMediaSidebar);
             this.$root.$on('media-remove', (mediaId) => {
-                this.$store.commit('swProductDetail/removeMediaItem', mediaId);
+                this.removeMediaItem(mediaId);
             });
             this.$root.$on('product-reload', () => {
-                this.$store.dispatch('swProductDetail/loadAll');
+                this.loadAll();
             });
         },
 
@@ -110,26 +208,108 @@ Component.register('sw-product-detail', {
         },
 
         initState() {
+            this.$store.commit('swProductDetail/setContext', this.context);
+
             // when product exists
             if (this.productId) {
-                // Init state with the repositoryFactory
-                return this.$store.dispatch('swProductDetail/loadState', {
-                    productId: this.productId,
-                    repositoryFactory: this.repositoryFactory,
-                    context: this.context
-                });
+                return this.loadState();
             }
 
             // When no product id exists init state and new product with the repositoryFactory
-            return this.$store.dispatch('swProductDetail/createState', {
-                repositoryFactory: this.repositoryFactory,
-                context: this.context
-            }).then(() => {
+            return this.createState().then(() => {
                 // create new product number
                 this.numberRangeService.reserve('product', '', true).then((response) => {
                     this.productNumberPreview = response.number;
                     this.product.productNumber = response.number;
                 });
+            });
+        },
+
+        loadState() {
+            this.$store.commit('swProductDetail/setLocalMode', false);
+            this.$store.commit('swProductDetail/setProductId', this.productId);
+
+            return this.loadAll();
+        },
+
+        loadAll() {
+            return Promise.all([
+                this.loadProduct(),
+                this.loadCurrencies(),
+                this.loadTaxes(),
+                this.loadAttributeSet()
+            ]);
+        },
+
+        createState() {
+            // set local mode
+            this.$store.commit('swProductDetail/setLocalMode', true);
+
+            this.$store.commit('swProductDetail/setLoading', ['product', true]);
+
+            // create empty product
+            this.$store.commit('swProductDetail/setProduct', this.productRepository.create(this.context));
+            this.$store.commit('swProductDetail/setProductId', this.product.id);
+
+            // fill empty data
+            this.product.price = {
+                net: null,
+                linked: true,
+                gross: null,
+                extensions: []
+            };
+
+            this.product.active = true;
+            this.product.taxId = null;
+
+            this.product.metaTitle = '';
+            this.product.additionalText = '';
+
+            return Promise.all([
+                this.loadCurrencies(),
+                this.loadTaxes(),
+                this.loadAttributeSet()
+            ]).then(() => {
+                this.$store.commit('swProductDetail/setLoading', ['product', false]);
+            });
+        },
+
+        loadProduct() {
+            this.$store.commit('swProductDetail/setLoading', ['product', true]);
+
+            this.productRepository.get(this.storeProductId, this.context, this.productCriteria).then((res) => {
+                this.$store.commit('swProductDetail/setProduct', res);
+                this.$store.commit('swProductDetail/setLoading', ['product', false]);
+            });
+        },
+
+        loadCurrencies() {
+            this.$store.commit('swProductDetail/setLoading', ['currencies', true]);
+
+            return this.currencyRepository.search(this.defaultCriteria, this.context).then((res) => {
+                this.$store.commit('swProductDetail/setCurrencies', res);
+            }).then(() => {
+                this.$store.commit('swProductDetail/setLoading', ['currencies', false]);
+            });
+        },
+
+        loadTaxes() {
+            this.$store.commit('swProductDetail/setLoading', ['taxes', true]);
+
+            return this.taxRepository.search(this.defaultCriteria, this.context).then((res) => {
+                this.$store.commit('swProductDetail/setTaxes', res);
+            }).then(() => {
+                this.$store.commit('swProductDetail/setLoading', ['taxes', false]);
+            });
+        },
+
+        loadAttributeSet() {
+            this.$store.commit('swProductDetail/setLoading', ['customFieldSets', true]);
+
+            return this.customFieldSetRepository.search(this.customFieldSetCriteria, this.context).then((res) => {
+                this.$store.commit('swProductDetail/setAttributeSet', res);
+            }).then(() => {
+                this.$store.commit('swProductDetail/setLoading', ['customFieldSets', false]);
             });
         },
 
@@ -170,7 +350,7 @@ Component.register('sw-product-detail', {
 
             this.isSaveSuccessful = false;
 
-            return this.$store.dispatch('swProductDetail/saveProduct').then((res) => {
+            return this.saveProduct().then((res) => {
                 switch (res) {
                     case 'empty': {
                         const titleSaveWarning = this.$tc('sw-product.detail.titleSaveWarning');
@@ -206,6 +386,29 @@ Component.register('sw-product-detail', {
             });
         },
 
+        saveProduct() {
+            this.$store.commit('swProductDetail/setLoading', ['product', true]);
+
+            return new Promise((resolve) => {
+                // check if product exists
+                if (!this.productRepository.hasChanges(this.product)) {
+                    resolve('empty');
+                    return;
+                }
+
+                // save product
+                this.productRepository.save(this.product, this.context).then(() => {
+                    this.loadAll().then(() => {
+                        this.$store.commit('swProductDetail/setLoading', ['product', false]);
+                        resolve('success');
+                    });
+                }).catch((response) => {
+                    this.$store.commit('swProductDetail/setLoading', ['product', false]);
+                    resolve(response);
+                });
+            });
+        },
+
         onAddItemToProduct(mediaItem) {
             if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
                 this.createNotificationInfo({
@@ -214,7 +417,7 @@ Component.register('sw-product-detail', {
                 return false;
             }
 
-            this.$store.dispatch('swProductDetail/addMedia', mediaItem).then((mediaId) => {
+            this.addMedia(mediaItem).then((mediaId) => {
                 this.$root.$emit('media-added', mediaId);
                 return true;
             }).catch(() => {
@@ -226,6 +429,33 @@ Component.register('sw-product-detail', {
                 return false;
             });
             return true;
+        },
+
+        addMedia(mediaItem) {
+            this.$store.commit('swProductDetail/setLoading', ['media', true]);
+
+            // return error if media exists
+            if (this.product.media.has(mediaItem.id)) {
+                this.$store.commit('swProductDetail/setLoading', ['media', false]);
+                // eslint-disable-next-line prefer-promise-reject-errors
+                return Promise.reject('A media item with this id exists');
+            }
+
+            const newMedia = this.mediaRepository.create(this.context, mediaItem.id);
+            newMedia.mediaId = mediaItem.id;
+
+            return new Promise((resolve) => {
+                this.product.media.add(newMedia);
+
+                this.$store.commit('swProductDetail/setLoading', ['media', false]);
+
+                resolve(newMedia.mediaId);
+                return true;
+            });
+        },
+
+        removeMediaItem(state, mediaId) {
+            this.product.media.remove(mediaId);
         },
 
         _checkIfMediaIsAlreadyUsed(mediaId) {

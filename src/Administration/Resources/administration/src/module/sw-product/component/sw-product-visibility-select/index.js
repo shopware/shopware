@@ -71,23 +71,14 @@ Component.extend('sw-product-visibility-select', 'sw-multi-select', {
                 return Promise.resolve();
             }
 
-            return this.repository.search(this.collection.criteria, this.collection.context).then(this.displayAssigned);
+            this.displayAssigned(this.collection);
+
+            return Promise.resolve();
         },
 
         reloadVisibleItems() {
-            if (this.localMode) {
-                this.displayAssigned(Object.values(this.collection.items));
-
-                return Promise.resolve();
-            }
-
-            return this.repository.search(this.collection.criteria, this.collection.context).then(this.displayAssigned);
-        },
-
-        loadVisibleItems() {
-            this.collection.criteria.setPage(this.collection.criteria.page + 1);
-
-            return this.repository.search(this.collection.criteria, this.collection.context).then(this.displayAssigned);
+            this.displayAssigned(Object.values(this.collection.items));
+            return Promise.resolve();
         },
 
         search() {
@@ -134,10 +125,6 @@ Component.extend('sw-product-visibility-select', 'sw-multi-select', {
                 return Promise.resolve();
             }
 
-            if (this.localMode) {
-                return Promise.resolve();
-            }
-
             this.searchCriteria.setPage(this.searchCriteria.page + 1);
             return this.sendSearchRequest();
         },
@@ -152,12 +139,8 @@ Component.extend('sw-product-visibility-select', 'sw-multi-select', {
                 return id !== identifier;
             });
 
-            if (this.localMode) {
-                this.collection.remove(identifier);
-                return Promise.resolve();
-            }
-
-            return this.repository.delete(identifier, this.collection.context);
+            this.collection.remove(identifier);
+            return Promise.resolve();
         },
 
         addItem({ item }) {
@@ -176,17 +159,8 @@ Component.extend('sw-product-visibility-select', 'sw-multi-select', {
             newSalesChannelAssociation.visibility = 30;
             newSalesChannelAssociation.salesChannel = item;
 
-            if (this.localMode) {
-                this.collection.add(newSalesChannelAssociation);
-                this.reloadVisibleItems();
-
-                return Promise.resolve();
-            }
-
-            this.repository.save(newSalesChannelAssociation, this.collection.context).then(() => {
-                // Add new entity to visible items
-                this.reloadVisibleItems();
-            });
+            this.collection.add(newSalesChannelAssociation);
+            this.reloadVisibleItems();
 
             return Promise.resolve();
         },

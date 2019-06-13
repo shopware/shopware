@@ -61,4 +61,10 @@
     .sw-product-image__placeholder-icon {
         color: $color-gray-300;
     }
+
+    &:after {
+        content: "";
+        display: block;
+        padding-bottom: 100%;
+    }
 }

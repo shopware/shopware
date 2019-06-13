@@ -49,6 +49,12 @@ class FloatFieldSerializer implements FieldSerializerInterface
         }
 
         /* @var FloatField $field */
+        if ($value === null) {
+            yield $field->getStorageName() => null;
+
+            return;
+        }
+
         yield $field->getStorageName() => (float) $value;
     }
 

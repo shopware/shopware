@@ -86,8 +86,6 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
-        $e = null;
-
         try {
             $this->repository->create($products, $this->context);
 
@@ -95,9 +93,17 @@ class ProductRepositoryTest extends TestCase
 
             $this->repository->update([$update], $this->context);
         } catch (\Exception $e) {
+            static::fail('Can not reset variant name to null');
         }
 
-        static::assertNull($e);
+        /** @var ProductEntity $variant */
+        $variant = $this->repository
+            ->search(new Criteria([$variantId]), $this->context)
+            ->first();
+
+        static::assertInstanceOf(ProductEntity::class, $variant);
+
+        static::assertNull($variant->getName());
     }
 
     public function testNameIsRequiredForParent()

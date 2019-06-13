@@ -12,6 +12,9 @@
             <parameter>text/csv</parameter>
             <parameter>text/xml</parameter>
         </parameter>
+        <parameter key="import_export.read_buffer_size">100</parameter>
+        <parameter key="import_export.write_buffer_size">100</parameter>
+        <parameter key="import_export.http_batch_size">100</parameter>
     </parameters>
 	<services>
 		<service id="Shopware\Core\Content\ImportExport\ImportExportProfileDefinition">
@@ -42,6 +45,7 @@
 			<argument type="service" id="Shopware\Core\Content\ImportExport\Service\DownloadService"/>
             <argument type="service" id="import_export_profile.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
+            <argument>%import_export.http_batch_size%</argument>
 			<call method="setContainer">
 				<argument type="service" id="service_container"/>
 			</call>
@@ -65,6 +69,7 @@
 			<argument type="service" id="Shopware\Core\Content\ImportExport\Writer\WriterFactory"/>
 			<argument type="service" id="Shopware\Core\Content\ImportExport\Iterator\IteratorFactory"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\Mapping\MapperFactory"/>
+            <argument>%import_export.write_buffer_size%</argument>
 		</service>
 
 		<service id="Shopware\Core\Content\ImportExport\Service\DownloadService">
@@ -79,9 +84,11 @@
 		<service id="Shopware\Core\Content\ImportExport\Iterator\IteratorFactory">
 			<argument type="service" id="shopware.filesystem.private"/>
 			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument>%import_export.read_buffer_size%</argument>
 		</service>
 
 		<service id="Shopware\Core\Content\ImportExport\Mapping\MapperFactory">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
 		<service id="Shopware\Core\Content\ImportExport\Writer\WriterFactory">

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Iterator;
 
+use Shopware\Core\Content\ImportExport\Mapping\CriteriaBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -9,8 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class RepositoryIterator implements RecordIterator
 {
-    private const BUFFER_SIZE = 100;
-
     /**
      * @var EntityRepositoryInterface
      */
@@ -20,6 +19,11 @@ class RepositoryIterator implements RecordIterator
      * @var Context
      */
     private $context;
+
+    /**
+     * @var CriteriaBuilder
+     */
+    private $criteriaBuilder;
 
     /**
      * @var array|null
@@ -36,10 +40,17 @@ class RepositoryIterator implements RecordIterator
      */
     private $total;
 
-    public function __construct(EntityRepositoryInterface $repository, Context $context)
+    /**
+     * @var int
+     */
+    private $bufferSize;
+
+    public function __construct(EntityRepositoryInterface $repository, Context $context, CriteriaBuilder $criteriaBuilder, int $bufferSize)
     {
         $this->repository = $repository;
         $this->context = $context;
+        $this->criteriaBuilder = $criteriaBuilder;
+        $this->bufferSize = $bufferSize;
     }
 
     public function current(): ?array
@@ -74,7 +85,7 @@ class RepositoryIterator implements RecordIterator
 
     public function count(): int
     {
-        $criteria = $this->getCriteria();
+        $criteria = $this->criteriaBuilder->build();
         $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
@@ -83,20 +94,16 @@ class RepositoryIterator implements RecordIterator
 
     private function fetchData(): void
     {
-        $criteria = $this->getCriteria();
+        $criteria = $this->criteriaBuilder->build();
         $criteria->setOffset($this->index);
-        $criteria->setLimit(static::BUFFER_SIZE);
+        $criteria->setLimit($this->bufferSize);
         $key = $this->index;
         $this->buffer = [];
+
+        /* @var Entity $entity */
         foreach ($this->repository->search($criteria, $this->context)->getEntities() as $entity) {
-            /* @var Entity $entity */
             $this->buffer[$key] = json_decode(json_encode($entity), true);
             ++$key;
         }
-    }
-
-    private function getCriteria(): Criteria
-    {
-        return new Criteria();
     }
 }

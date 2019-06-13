@@ -35,16 +35,23 @@ class ProcessingService
      */
     private $mapperFactory;
 
+    /**
+     * @var int
+     */
+    private $writeBufferSize;
+
     public function __construct(
         EntityRepositoryInterface $logRepository,
         WriterFactory $writerFactory,
         IteratorFactory $iteratorFactory,
-        MapperFactory $mapperFactory
+        MapperFactory $mapperFactory,
+        int $writeBufferSize
     ) {
         $this->logRepository = $logRepository;
         $this->writerFactory = $writerFactory;
         $this->iteratorFactory = $iteratorFactory;
         $this->mapperFactory = $mapperFactory;
+        $this->writeBufferSize = $writeBufferSize;
     }
 
     public function findLog(Context $context, string $logId): ?ImportExportLogEntity
@@ -65,10 +72,10 @@ class ProcessingService
         $mapper = $this->mapperFactory->create($logEntity);
 
         $processed = 0;
-        $lastIndex = 0;
+        $lastIndex = -1;
         foreach ($iterator as $index => $record) {
-            $writer->append($mapper->map($record));
-            if ($index % 100 === 0) {
+            $writer->append($mapper->map($record), $index);
+            if ($index % $this->writeBufferSize === 0) {
                 $writer->flush();
             }
             ++$processed;
@@ -76,7 +83,8 @@ class ProcessingService
         }
         $writer->flush();
 
-        if ($lastIndex > 0 && ++$lastIndex >= $logEntity->getRecords()) {
+        if ($lastIndex >= 0 && ++$lastIndex >= $logEntity->getRecords()) {
+            $writer->finish();
             $this->updateState($context, $logEntity->getId(), ImportExportLogEntity::STATE_SUCCEEDED);
         }
 

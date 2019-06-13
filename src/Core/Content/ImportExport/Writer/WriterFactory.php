@@ -37,7 +37,10 @@ class WriterFactory
                         $logEntity->getProfile()->getEnclosure()
                     );
                 case 'text/xml':
-                    throw new \LogicException('XML writer not implemented yet');
+                    return new XmlFileWriter(
+                        $this->filesystem,
+                        $logEntity->getFile()->getPath()
+                    );
             }
 
             throw new \InvalidArgumentException('Unsupported file type: ' . $logEntity->getProfile()->getFileType());

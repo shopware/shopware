@@ -18,7 +18,8 @@
                                         dataIndex="mailTemplateType"
                                         truncate>
                             {% block sw_mail_template_list_grid_columns_mail_type_link %}
-                                <router-link v-if="item.mailTemplateType" :to="{ name: 'sw.mail.template.detail', params: { id: item.id } }">
+                                <router-link v-if="item.mailTemplateType"
+                                             :to="{ name: 'sw.mail.template.detail', params: { id: item.id } }">
                                     {% block sw_mail_template_list_grid_columns_mail_type_label %}
                                         {{ item.mailTemplateType.translated.name }}
                                     {% endblock %}
@@ -47,8 +48,7 @@
                             {% block sw_mail_template_list_columns_sales_channels %}
                                 {% block sw_mail_template_list_columns_sales_channels_label %}
                                     <span>
-                                        <span v-for="(salesChannel, index) in item.salesChannels.slice(0, 4)" :key="`salechannel-list-item--${index}`">{{ (index > 0) ?`, ${salesChannel.translated.name}`:`${salesChannel.translated.name}`}}</span>
-                                        <span v-if="item.salesChannels.length >= 5">, ...</span>
+                                        {{  getSalesChannelsString(item) }}
                                     </span>
                                 {% endblock %}
                             {% endblock %}
@@ -59,7 +59,8 @@
                         <sw-grid-column flex="100px" align="center">
                             <sw-context-button>
                                 {% block sw_mail_template_list_grid_columns_actions_edit %}
-                                    <sw-context-menu-item class="sw_mail_template_list__edit-action" :routerLink="{ name: 'sw.mail.template.detail', params: { id: item.id } }">
+                                    <sw-context-menu-item class="sw_mail_template_list__edit-action"
+                                                          :routerLink="{ name: 'sw.mail.template.detail', params: { id: item.id } }">
                                         {{ $tc('sw-mail-template.list.contextMenuEdit') }}
                                     </sw-context-menu-item>
                                 {% endblock %}

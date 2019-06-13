@@ -75,11 +75,16 @@
                 {% block sw_mail_header_footer_detail_content_header %}
                     <sw-card :title="$tc('sw-mail-header-footer.detail.header.titleCard')">
                         {% block sw_mail_header_footer_detail_content_header_plain_field %}
-                            <sw-field type="textarea"
-                                      :label="$tc('sw-mail-header-footer.detail.header.labelPlain')"
-                                      :placeholder="placeholder(mailHeaderFooter, 'headerPlain', $tc('sw-mail-header-footer.detail.header.placeholderPlain'))"
-                                      v-model="mailHeaderFooter.headerPlain">
-                            </sw-field>
+                            <sw-code-editor
+                                :label="$tc('sw-mail-header-footer.detail.header.labelPlain')"
+                                :placeholder="placeholder(mailHeaderFooter, 'headerPlain', $tc('sw-mail-header-footer.detail.header.placeholderPlain'))"
+                                name="header_plain"
+                                identifier="header_plain"
+                                :completerFunction="completerFunction"
+                                :editorConfig="editorConfig"
+                                completionMode="entity"
+                                v-model="mailHeaderFooter.headerPlain">
+                            </sw-code-editor>
                         {% endblock %}
 
                         {% block sw_mail_header_footer_detail_content_header_html_field %}
@@ -88,6 +93,9 @@
                                     :placeholder="placeholder(mailHeaderFooter, 'headerHtml', $tc('sw-mail-header-footer.detail.header.placeholderHtml'))"
                                     name="header_html"
                                     identifier="header_html"
+                                    :completerFunction="completerFunction"
+                                    :editorConfig="editorConfig"
+                                    completionMode="entity"
                                     v-model="mailHeaderFooter.headerHtml">
                             </sw-code-editor>
                         {% endblock %}
@@ -97,11 +105,16 @@
                 {% block sw_mail_header_footer_detail_content_footer %}
                     <sw-card :title="$tc('sw-mail-header-footer.detail.footer.titleCard')">
                         {% block sw_mail_header_footer_detail_content_footer_plain_field %}
-                            <sw-field type="textarea"
-                                      :label="$tc('sw-mail-header-footer.detail.footer.labelPlain')"
-                                      :placeholder="placeholder(mailHeaderFooter, 'footerPlain', $tc('sw-mail-header-footer.detail.footer.placeholderPlain'))"
-                                      v-model="mailHeaderFooter.footerPlain">
-                            </sw-field>
+                            <sw-code-editor
+                                :label="$tc('sw-mail-header-footer.detail.footer.labelPlain')"
+                                :placeholder="placeholder(mailHeaderFooter, 'footerPlain', $tc('sw-mail-header-footer.detail.footer.placeholderPlain'))"
+                                name="footer_plain"
+                                identifier="footer_plain"
+                                :completerFunction="completerFunction"
+                                :editorConfig="editorConfig"
+                                completionMode="entity"
+                                v-model="mailHeaderFooter.footerPlain">
+                            </sw-code-editor>
                         {% endblock %}
 
                         {% block sw_mail_header_footer_detail_content_footer_html_field %}
@@ -110,6 +123,9 @@
                                     :placeholder="placeholder(mailHeaderFooter, 'footerHtml', $tc('sw-mail-header-footer.detail.footer.placeholderHtml'))"
                                     name="footer_html"
                                     identifier="footer_html"
+                                    :completerFunction="completerFunction"
+                                    :editorConfig="editorConfig"
+                                    completionMode="entity"
                                     v-model="mailHeaderFooter.footerHtml">
                             </sw-code-editor>
                         {% endblock %}

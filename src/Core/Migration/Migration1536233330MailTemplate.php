@@ -78,12 +78,19 @@ class Migration1536233330MailTemplate extends MigrationStep
 
         $connection->executeQuery('
             CREATE TABLE `mail_template_sales_channel` (
-                `mail_template_id` BINARY(16) NOT NULL,
-                `sales_channel_id` BINARY(16) NOT NULL,
-                CONSTRAINT `fk.mail_template_sales_channel.mail_template_id` FOREIGN KEY (`mail_template_id`)
-                  REFERENCES `mail_template` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-                CONSTRAINT `fk.mail_template_sales_channel.sales_channel_id` FOREIGN KEY (`sales_channel_id`)
-                  REFERENCES `sales_channel` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+              `id` BINARY(16) NOT NULL,
+              `mail_template_id` BINARY(16) NOT NULL,
+              `mail_template_type_id` BINARY(16) NOT NULL,
+              `sales_channel_id` BINARY(16) NULL,
+              `created_at` DATETIME(3) NOT NULL,
+              `updated_at` DATETIME(3) NULL,
+              UNIQUE `uniq.mail_template_id__sales_channel_id` (`mail_template_id`, `sales_channel_id`),
+              CONSTRAINT `fk.mail_template_sales_channel.mail_template_id`
+              FOREIGN KEY (mail_template_id) REFERENCES `mail_template` (id) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.mail_template_sales_channel.mail_template_type_id`
+              FOREIGN KEY (mail_template_type_id) REFERENCES `mail_template_type` (id) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `fk.mail_template_sales_channel.sales_channel_id`
+              FOREIGN KEY (sales_channel_id) REFERENCES `sales_channel` (id) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

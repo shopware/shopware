@@ -42,6 +42,11 @@ class CurrencyFilter extends AbstractExtension
             throw new \RuntimeException('Error while processing Twig currency filter. No context or locale given.');
         }
 
+        if (isset($context['testMode']) && $context['testMode'] === true && !is_float($price)) {
+            $price = 99.99;
+            $currencyIsoCode = 'USD';
+        }
+
         /** @var Context $context */
         if ($context['context'] instanceof Context) {
             $context = $context['context'];

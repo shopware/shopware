@@ -312,10 +312,6 @@ Component.register('sw-settings-document-detail', {
 
         documentBaseConfigSalesChannelAssociationStore() {
             return this.documentConfig.getAssociation('salesChannels');
-        },
-
-        salesChannelAssociationStore() {
-            return State.getStore('document_base_config_sales_channel');
         }
     },
 

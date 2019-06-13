@@ -3,11 +3,11 @@
 namespace Shopware\Core\Content\MailTemplate;
 
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation\MailTemplateTranslationCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class MailTemplateEntity extends Entity
 {
@@ -54,9 +54,9 @@ class MailTemplateEntity extends Entity
     protected $contentPlain;
 
     /**
-     * @var SalesChannelCollection|null
+     * @var MailTemplateSalesChannelCollection|null
      */
-    protected $salesChannels;
+    protected $mailTemplateSalesChannels;
 
     /**
      * @var MailTemplateTranslationCollection|null
@@ -138,14 +138,14 @@ class MailTemplateEntity extends Entity
         $this->contentPlain = $contentPlain;
     }
 
-    public function getSalesChannels(): ?SalesChannelCollection
+    public function getMailTemplateSalesChannels(): ?MailTemplateSalesChannelCollection
     {
-        return $this->salesChannels;
+        return $this->mailTemplateSalesChannels;
     }
 
-    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    public function setMailTemplateSalesChannels(MailTemplateSalesChannelCollection $mailTemplateSalesChannels): void
     {
-        $this->salesChannels = $salesChannels;
+        $this->mailTemplateSalesChannels = $mailTemplateSalesChannels;
     }
 
     public function getTranslations(): ?MailTemplateTranslationCollection

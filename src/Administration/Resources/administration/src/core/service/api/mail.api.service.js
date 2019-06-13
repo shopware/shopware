@@ -25,12 +25,13 @@ class MailApiService extends ApiService {
             {
                 contentHtml: mailTemplate.contentHtml,
                 contentPlain: mailTemplate.contentPlain,
-                recipients: { [recipient]: 'test' },
+                recipients: { [recipient]: recipient },
                 salesChannelId: salesChannelId,
                 mediaIds: mediaIds,
                 subject: mailTemplate.subject,
                 senderMail: mailTemplate.senderMail,
-                senderName: mailTemplate.senderName
+                senderName: mailTemplate.senderName,
+                testMode: true
             },
             {
                 headers: this.getBasicHeaders()

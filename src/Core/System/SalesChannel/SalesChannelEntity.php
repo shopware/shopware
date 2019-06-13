@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
-use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -215,9 +215,9 @@ class SalesChannelEntity extends Entity
     protected $productVisibilities;
 
     /**
-     * @var MailTemplateCollection|null
+     * @var MailTemplateSalesChannelCollection|null
      */
-    protected $mailTemplates;
+    protected $mailTemplateSalesChannels;
 
     /**
      * @var string|null
@@ -599,14 +599,14 @@ class SalesChannelEntity extends Entity
         $this->productVisibilities = $productVisibilities;
     }
 
-    public function getMailTemplates(): ?MailTemplateCollection
+    public function getMailTemplateSalesChannels(): ?MailTemplateSalesChannelCollection
     {
-        return $this->mailTemplates;
+        return $this->mailTemplateSalesChannels;
     }
 
-    public function setMailTemplates(MailTemplateCollection $mailTemplates): void
+    public function setMailTemplateSalesChannels(MailTemplateSalesChannelCollection $mailTemplateSalesChannels): void
     {
-        $this->mailTemplates = $mailTemplates;
+        $this->mailTemplateSalesChannels = $mailTemplateSalesChannels;
     }
 
     public function getCustomerGroupId(): string

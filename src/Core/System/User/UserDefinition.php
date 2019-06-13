@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -60,6 +61,7 @@ class UserDefinition extends EntityDefinition
             new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', 'id'),
             new OneToManyAssociationField('accessKeys', UserAccessKeyDefinition::class, 'user_id', 'id'),
             new OneToManyAssociationField('stateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'user_id', 'id'),
+            new OneToManyAssociationField('importExportLogEntries', ImportExportLogDefinition::class, 'user_id', 'id'),
             new OneToOneAssociationField('recoveryUser', 'id', 'user_id', UserRecoveryDefinition::class, false),
             (new StringField('store_token', 'storeToken'))->addFlags(new Internal()),
         ]);

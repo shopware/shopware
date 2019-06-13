@@ -348,6 +348,12 @@ return [
                         'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/state-machine-history-entries',
                     ],
                 ],
+                'importExportLogEntries' => [
+                    'data' => [],
+                    'links' => [
+                        'related' => '/api/user/6f51622eb3814c75ae0263cece27ce72/import-export-log-entries',
+                    ],
+                ],
                 'recoveryUser' => [
                     'data' => null,
                     'links' => [

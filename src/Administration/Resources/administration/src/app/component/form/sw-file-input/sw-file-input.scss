@@ -1,0 +1,67 @@
+@import "~scss/variables";
+
+.sw-file-input {
+    .sw-file-input__file-input {
+        display: none;
+    }
+
+    .sw-file-input__header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        line-height: 16px;
+        min-height: 16px;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: $color-kashmir;
+        font-weight: normal;
+        user-select: none;
+    }
+
+    .sw-file-input__dropzone {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        padding: 24px;
+        min-height: 148px;
+        border: 2px dashed $color-steam-cloud;
+        border-radius: $border-radius-default;
+        background-color: $color-light-gray;
+    }
+
+    .sw-file-input__upload-caption {
+        font-size: $font-size-large;
+        margin: 12px auto;
+
+        .sw-icon {
+            margin-right: 8px;
+            color: $color-steam-cloud;
+        }
+    }
+
+    .sw-file-input__actions {
+        display: flex;
+        width: 100%;
+
+        .sw-file-input__file-info {
+            display: flex;
+            flex-grow: 1;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .sw-file-input__file-headline {
+            word-break: break-word;
+            padding-right: 16px;
+        }
+
+        .sw-file-input__remove-icon {
+            cursor: pointer;
+        }
+    }
+
+    .sw-file-input__button {
+        min-width: 144px;
+        margin: 0 auto
+    }
+}

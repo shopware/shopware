@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User;
 
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -81,6 +82,11 @@ class UserEntity extends Entity
     protected $stateMachineHistoryEntries;
 
     /**
+     * @var ImportExportLogCollection|null
+     */
+    protected $importExportLogEntries;
+
+    /**
      * @var UserRecoveryEntity|null
      */
     protected $recoveryUser;
@@ -103,6 +109,16 @@ class UserEntity extends Entity
     public function setStateMachineHistoryEntries(?StateMachineHistoryCollection $stateMachineHistoryEntries): void
     {
         $this->stateMachineHistoryEntries = $stateMachineHistoryEntries;
+    }
+
+    public function getImportExportLogEntries(): ?ImportExportLogCollection
+    {
+        return $this->importExportLogEntries;
+    }
+
+    public function setImportExportLogEntries(ImportExportLogCollection $importExportLogEntries): void
+    {
+        $this->importExportLogEntries = $importExportLogEntries;
     }
 
     public function getLocaleId(): string

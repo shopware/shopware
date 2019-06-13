@@ -1,0 +1,108 @@
+{% block sw_import_export_log_list %}
+    <sw-page class="sw-import-export-log-list">
+
+        {% block sw_import_export_log_list_smart_bar_header %}
+            <template #smart-bar-header>
+                {% block sw_import_export_log_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_import_export_log_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-import-export-log.list.header') }}
+                        {% endblock %}
+
+                        {% block sw_import_export_log_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ logItems.total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_import_export_log_list_content %}
+            <template #content>
+                {% block sw_import_export_log_list_content_card %}
+                    <div class="sw-import-export-log-list__content">
+                        {% block sw_import_export_log_list_grid %}
+                            <sw-entity-listing
+                                    v-if="logItems"
+                                    :items="logItems"
+                                    :repository="repository"
+                                    :columns="columns"
+                                    :isLoading="isLoading">
+
+                                {% block sw_import_export_log_list_grid_columns %}
+                                    {% block sw_import_export_log_list_grid_columns_activity %}
+                                        <template #column-activity="{ item }">
+                                            {{ translateFieldKey('activity', item.activity) }}
+                                        </template>
+                                    {% endblock %}
+
+                                    {% block sw_import_export_log_list_grid_columns_profile %}
+                                        <template #column-profile="{ item }">
+                                            <span>{{ item.profileName }}</span>
+                                        </template>
+                                    {% endblock %}
+
+                                    {% block sw_import_export_log_list_grid_columns_state %}
+                                        <template #column-state="{ item }">
+                                            {{ translateFieldKey('state', item.state) }}
+                                        </template>
+                                    {% endblock %}
+
+                                    {% block sw_import_export_log_list_grid_columns_updatedAt %}
+                                        <template #column-updatedAt="{ item }">
+                                            <span>{{ item.updatedAt|date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}</span>
+                                        </template>
+                                    {% endblock %}
+
+                                    {% block sw_import_export_log_list_grid_columns_createdAt %}
+                                        <template #column-createdAt="{ item }">
+                                            <span>{{ item.createdAt|date({year: '2-digit', hour:'2-digit', minute:'2-digit'}) }}</span>
+                                        </template>
+                                    {% endblock %}
+
+                                    {% block sw_import_export_log_list_grid_columns_user %}
+                                        <template #column-user="{ item }">
+                                            <span>{{ item.username }}</span>
+                                        </template>
+                                    {% endblock %}
+                                {% endblock %}
+
+                                {% block sw_import_export_log_list_grid_columns_actions %}
+                                    <template #actions="{ item }">
+                                        {% block sw_import_export_log_list_grid_columns_actions_detail %}
+                                            <sw-context-menu-item
+                                                    class="sw-import-export-log-list__edit-action"
+                                                    @click="selectedItem=item">
+                                                {{ $tc('sw-import-export-log.list.contextMenuDetails') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+                                        {% block sw_import_export_log_list_grid_columns_actions_download %}
+                                            <a class="sw-import-export-log-list__download-action" :href="getDownloadUrl(item.file)" target="_blank" download>
+                                                <sw-context-menu-item
+                                                        class="sw-import-export-log-list__download-action"
+                                                        @click="triggerReload">
+                                                    {{ $tc('sw-import-export-log.list.contextMenuDownload') }}
+                                                </sw-context-menu-item>
+                                            </a>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+
+                            </sw-entity-listing>
+                        {% endblock %}
+                    </div>
+
+                    {% block sw_import_export_log_list_empty_state %}
+                        <sw-empty-state v-if="!isLoading && !logItems.total" :title="$tc('sw-import-export-log.list.messageEmpty')"></sw-empty-state>
+                    {% endblock %}
+
+                    {% block sw_import_export_log_modal %}
+                        <sw-import-export-log-modal v-if="selectedItem" @modal-close="selectedItem=null" :item="selectedItem"></sw-import-export-log-modal>
+                    {% endblock %}
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

@@ -68,6 +68,20 @@
         "canCopy": "in Zwischenablage kopieren"
       }
     },
+    "sw-file-input": {
+      "buttonChoose": "Datei auswählen",
+      "notification": {
+        "invalidFileType": {
+          "title": "Nicht unterstützter Dateityp",
+          "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze nur die folgenden Formate: {supportedTypes}."
+        },
+        "invalidFileSize": {
+          "title": "Dateigröße überschreitet Upload-Limit",
+          "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
+        }
+      },
+      "caption": "Datei zum Hochladen"
+    },
     "sw-price-field": {
       "labelPriceGross": "Preis (Brutto)",
       "labelPriceNet": "Preis (Netto)"

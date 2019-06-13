@@ -1,0 +1,81 @@
+{% block sw_import_export_index %}
+    <sw-page class="sw-import-export-index">
+        {% block sw_import_export_index_content %}
+            <template #content>
+                <sw-card-view>
+                    {% block sw_import_export_index_content_card_import %}
+                        <sw-card :title="$tc('sw-import-export-index.cards.import.title')">
+                            {% block sw_import_export_index_content_card_import_field_profile %}
+                                <sw-entity-single-select
+                                    class="sw-import-export-index__profile-input"
+                                    required
+                                    entity="import_export_profile"
+                                    :label="$tc('sw-import-export-index.cards.import.selectProfileLabel')"
+                                    v-model="selectedImportProfile">
+                                </sw-entity-single-select>
+                            {% endblock %}
+
+                            {% block sw_import_export_index_content_card_import_field_file %}
+                                <sw-file-input
+                                    class="sw-import-export-index__file-input"
+                                    v-model="selectedImportFile"
+                                    :label="$tc('sw-import-export-index.cards.import.fileInputLabel')"
+                                    :allowedMimeTypes="features.fileTypes"
+                                    :maxFileSize="features.uploadFileSizeLimit">
+                                </sw-file-input>
+                            {% endblock %}
+
+                            {% block sw_import_export_index_content_card_import_field_expireDate %}
+                                <sw-datepicker
+                                    class="sw-import-export-index__expireDate-input"
+                                    validation="required"
+                                    dateType="datetime"
+                                    v-model="selectedImportExpireDate"
+                                    :label="$tc('sw-import-export-index.cards.import.expireDateLabel')">
+                                </sw-datepicker>
+                            {% endblock %}
+
+                            {% block sw_import_export_index_content_card_import_button_start %}
+                                <sw-button variant="primary" class="sw-import-export-index__start-action" @click="onStartImportClicked">
+                                    {{ $tc('sw-import-export-index.cards.import.action') }}
+                                </sw-button>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                    {% block sw_import_export_index_content_card_export %}
+                        <sw-card :title="$tc('sw-import-export-index.cards.export.title')">
+                            {% block sw_import_export_index_content_card_export_field_profile %}
+                                <sw-entity-single-select
+                                    class="sw-import-export-index__profile-input"
+                                    required
+                                    entity="import_export_profile"
+                                    :label="$tc('sw-import-export-index.cards.export.selectProfileLabel')"
+                                    v-model="selectedExportProfile">
+                                </sw-entity-single-select>
+                            {% endblock %}
+
+                            {% block sw_import_export_index_content_card_export_field_expireDate %}
+                                <sw-datepicker
+                                    class="sw-import-export-index__expireDate-input"
+                                    validation="required"
+                                    dateType="datetime"
+                                    v-model="selectedExportExpireDate"
+                                    :label="$tc('sw-import-export-index.cards.export.expireDateLabel')">
+                                </sw-datepicker>
+                            {% endblock %}
+
+                            {% block sw_import_export_index_content_card_export_button_start %}
+                                <sw-button variant="primary" class="sw-import-export-index__start-action" @click="onStartExportClicked">
+                                    {{ $tc('sw-import-export-index.cards.export.action') }}
+                                </sw-button>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                    {% block sw_import_export_progress %}
+                        <sw-import-export-progress v-if="processingLog" :log="processingLog" @modal-close="processingLog=null"></sw-import-export-progress>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

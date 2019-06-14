@@ -55,5 +55,7 @@ class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
         if ($deactivatedPluginCount !== 0) {
             $io->success(sprintf('Deactivated %d plugin(s).', $deactivatedPluginCount));
         }
+
+        $this->handleClearCacheOption($input, $io, 'deactivating');
     }
 }

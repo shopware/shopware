@@ -31,6 +31,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         $io = new ShopwareStyle($input, $output);
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
+        $activatePlugins = $input->getOption('activate');
 
         $installedPluginCount = 0;
         /** @var PluginEntity $plugin */
@@ -39,7 +40,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
                 $this->pluginLifecycleService->uninstallPlugin($plugin, $context);
             }
 
-            if ($input->getOption('activate') && $plugin->getInstalledAt() && $plugin->getActive() === false) {
+            if ($activatePlugins && $plugin->getInstalledAt() && $plugin->getActive() === false) {
                 $io->note(sprintf('Plugin "%s" is already installed. Activating.', $plugin->getName()));
                 $this->pluginLifecycleService->activatePlugin($plugin, $context);
 
@@ -58,7 +59,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
             $this->pluginLifecycleService->installPlugin($plugin, $context);
             ++$installedPluginCount;
 
-            if ($input->getOption('activate')) {
+            if ($activatePlugins) {
                 $this->pluginLifecycleService->activatePlugin($plugin, $context);
                 $activationSuffix = ' and activated';
             }
@@ -68,6 +69,10 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
 
         if ($installedPluginCount !== 0) {
             $io->success(sprintf('Installed %d plugin(s).', $installedPluginCount));
+        }
+
+        if ($activatePlugins) {
+            $this->handleClearCacheOption($input, $io, 'activating');
         }
     }
 }

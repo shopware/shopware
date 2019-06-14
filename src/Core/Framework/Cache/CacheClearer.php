@@ -44,9 +44,6 @@ class CacheClearer
     {
         $this->appCache->clear();
 
-        $oldCacheDir = substr($this->cacheDir, 0, -1) . (substr($this->cacheDir, -1) === '~' ? '+' : '~');
-        $this->filesystem->remove($oldCacheDir);
-
         if (!is_writable($this->cacheDir)) {
             throw new \RuntimeException(sprintf('Unable to write in the "%s" directory', $this->cacheDir));
         }

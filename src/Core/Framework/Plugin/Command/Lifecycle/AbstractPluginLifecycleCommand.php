@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
+use Shopware\Core\Framework\Cache\CacheClearer;
+use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,18 +28,25 @@ abstract class AbstractPluginLifecycleCommand extends Command
     protected $pluginLifecycleService;
 
     /**
+     * @var CacheClearer
+     */
+    protected $cacheClearer;
+
+    /**
      * @var EntityRepositoryInterface
      */
     private $pluginRepo;
 
     public function __construct(
         PluginLifecycleService $pluginLifecycleService,
-        EntityRepositoryInterface $pluginRepo
+        EntityRepositoryInterface $pluginRepo,
+        CacheClearer $cacheClearer
     ) {
         parent::__construct();
 
         $this->pluginLifecycleService = $pluginLifecycleService;
         $this->pluginRepo = $pluginRepo;
+        $this->cacheClearer = $cacheClearer;
     }
 
     protected function configureCommand(string $lifecycleMethod): void
@@ -55,6 +64,12 @@ abstract class AbstractPluginLifecycleCommand extends Command
                 'r',
                 InputOption::VALUE_NONE,
                 'Use this option to refresh the plugins before executing the command'
+            )
+            ->addOption(
+                'clearCache',
+                'c',
+                InputOption::VALUE_NONE,
+                'Use this option to clear the cache after executing the plugin command'
             );
     }
 
@@ -92,6 +107,29 @@ abstract class AbstractPluginLifecycleCommand extends Command
         /** @var Application $application */
         $application = $this->getApplication();
         $application->doRun($input, new NullOutput());
+    }
+
+    protected function handleClearCacheOption(InputInterface $input, ShopwareStyle $io, string $action): void
+    {
+        if ($input->getOption('clearCache')) {
+            $io->note('Clearing Cache');
+            try {
+                $this->cacheClearer->clear();
+            } catch (\Exception $e) {
+                $io->error('Error clearing cache');
+
+                return;
+            }
+            $io->success('Cache cleared');
+
+            return;
+        }
+
+        $io->note(sprintf(
+            'You may want to clear the cache after %s plugin(s).'
+            . 'To do so run either the cache:clear command or ./psh.phar cache',
+            $action)
+        );
     }
 
     private function parsePluginArgument(array $arguments, Context $context): PluginCollection

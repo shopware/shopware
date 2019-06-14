@@ -53,5 +53,7 @@ class PluginActivateCommand extends AbstractPluginLifecycleCommand
         if ($activatedPluginCount !== 0) {
             $io->success(sprintf('Activated %d plugin(s).', $activatedPluginCount));
         }
+
+        $this->handleClearCacheOption($input, $io, 'activating');
     }
 }

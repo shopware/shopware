@@ -12,7 +12,7 @@ Component.register('sw-plugin-list', {
         }
     },
 
-    inject: ['pluginService', 'systemConfigApiService', 'context'],
+    inject: ['pluginService', 'systemConfigApiService', 'context', 'cacheApiService'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -80,6 +80,7 @@ Component.register('sw-plugin-list', {
                         message: this.$tc('sw-plugin.list.messageDeactivateSuccess')
                     });
                     this.getList();
+                    this.cacheApiService.clear();
                 });
             } else {
                 this.pluginService.activate(plugin.name).then(() => {
@@ -88,6 +89,7 @@ Component.register('sw-plugin-list', {
                         message: this.$tc('sw-plugin.list.messageActivateSuccess')
                     });
                     this.getList();
+                    this.cacheApiService.clear();
                 });
             }
         },
@@ -111,6 +113,7 @@ Component.register('sw-plugin-list', {
                     message: this.$tc('sw-plugin.list.messageUninstallSuccess')
                 });
                 this.getList();
+                this.cacheApiService.clear();
             });
         },
 
@@ -122,6 +125,7 @@ Component.register('sw-plugin-list', {
                     message: this.$tc('sw-plugin.list.messageUpdateSuccess')
                 });
                 this.getList();
+                this.cacheApiService.clear();
             });
         },
 
@@ -134,6 +138,7 @@ Component.register('sw-plugin-list', {
                 });
                 this.getList();
                 this.$root.$emit('updates-refresh');
+                this.cacheApiService.clear();
             });
         },
 

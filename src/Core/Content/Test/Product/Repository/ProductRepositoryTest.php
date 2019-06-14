@@ -62,7 +62,51 @@ class ProductRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testNameIsRequired()
+    public function testVariantNameIsNullable()
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                // name should be required
+                'name' => 'parent',
+            ],
+            [
+                'id' => $variantId,
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'stock' => 15,
+            ],
+        ];
+
+        try {
+            $this->repository->create($products, $this->context);
+
+            $update = ['name' => null, 'id' => $variantId];
+
+            $this->repository->update([$update], $this->context);
+        } catch (\Exception $e) {
+            static::fail('Can not reset variant name to null');
+        }
+
+        /** @var ProductEntity $variant */
+        $variant = $this->repository
+            ->search(new Criteria([$variantId]), $this->context)
+            ->first();
+
+        static::assertInstanceOf(ProductEntity::class, $variant);
+
+        static::assertNull($variant->getName());
+    }
+
+    public function testNameIsRequiredForParent()
     {
         $id = Uuid::randomHex();
 

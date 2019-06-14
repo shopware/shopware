@@ -105,7 +105,7 @@ class NumberRangeValueGeneratorTest extends TestCase
 
         $patternRegMock = $this->createMock(ValueGeneratorPatternRegistry::class);
         $incrPattern = $this->createMock(ValueGeneratorPatternIncrement::class);
-        $incrPattern->expects(static::any())->method('resolve')->willReturn(5);
+        $incrPattern->expects(static::any())->method('resolve')->willReturn('5');
 
         $patternRegMock->expects(static::any())->method('getPatternResolver')->will(
             static::returnCallback(function ($arg) use ($incrPattern, $patternReg) {

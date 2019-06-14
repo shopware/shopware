@@ -13,35 +13,34 @@ class WikiApiService
      * @var string
      */
     private $sbpToken;
+
     /**
-     * @var string
-     */
-    private $serverAddress;
-    /**
-     * @var string
+     * @var int
      */
     private $rootCategoryId;
+
+    /**
+     * @var Client
+     */
+    private $client;
 
     public function __construct(string $sbpToken, string $serverAddress, int $rootCategoryId)
     {
         $this->sbpToken = $sbpToken;
-        $this->serverAddress = $serverAddress;
         $this->rootCategoryId = $rootCategoryId;
 
-        $this->client = new Client(['base_uri' => $this->serverAddress]);
-    }
-
-    public function getRootCategoryId()
-    {
-        return $this->rootCategoryId;
+        $this->client = new Client(['base_uri' => $serverAddress]);
     }
 
     public function syncFilesWithServer(DocumentTree $tree): void
     {
-        echo 'Syncing markdownfiles ...' . PHP_EOL;
-        [$globalCategoryList, $articleList] = $this->gatherCategoryChildrenAndArticles($this->rootCategoryId, $this->getAllCategories());
+        echo 'Syncing markdown files ...' . PHP_EOL;
+        [$globalCategoryList, $articleList] = $this->gatherCategoryChildrenAndArticles(
+            $this->rootCategoryId,
+            $this->getAllCategories()
+        );
 
-        echo 'Deleting ' . count($articleList) . ' old articles ...' . PHP_EOL;
+        echo 'Deleting ' . \count($articleList) . ' old articles ...' . PHP_EOL;
         foreach ($articleList as $article) {
             $this->disableArticle($article);
             $this->deleteArticle($article);
@@ -56,36 +55,42 @@ class WikiApiService
 
     private function insertGermanStubArticle(array $articleInfoDe, Document $document): void
     {
-        $this->updateArticleLocale($articleInfoDe,
+        $documentMetadata = $document->getMetadata();
+        $this->updateArticleLocale(
+            $articleInfoDe,
             [
-                'seoUrl' => $document->getMetadata()->getUrlDe(),
+                'seoUrl' => $documentMetadata->getUrlDe(),
                 'searchableInAllLanguages' => true,
             ]
         );
 
-        $this->updateArticleVersion($articleInfoDe,
+        $this->updateArticleVersion(
+            $articleInfoDe,
             [
-                'title' => $document->getMetadata()->getTitleDe(),
-                'navigationTitle' => $document->getMetadata()->getTitleDe(),
+                'title' => $documentMetadata->getTitleDe(),
+                'navigationTitle' => $documentMetadata->getTitleDe(),
                 'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
                 'searchableInAllLanguages' => true,
                 'fromProductVersion' => self::INITIAL_VERSION,
-                'active' => $document->getMetadata()->isActive(),
-                'metaTitle' => $document->getMetadata()->getMetaTitleDe(),
-                'metaDescription' => $document->getMetadata()->getMetaDescriptionDe(),
-            ]);
+                'active' => $documentMetadata->isActive(),
+                'metaTitle' => $documentMetadata->getMetaTitleDe(),
+                'metaDescription' => $documentMetadata->getMetaDescriptionDe(),
+            ]
+        );
 
         $this->updateArticlePriority($articleInfoDe, $document->getPriority());
     }
 
-    private function buildArticleVersionUrl(array $articleInfo)
+    private function buildArticleVersionUrl(array $articleInfo): string
     {
-        return vsprintf('/wiki/entries/%d/localizations/%d/versions/%d',
+        return vsprintf(
+            '/wiki/entries/%d/localizations/%d/versions/%d',
             [
                 $articleInfo['articleId'],
                 $articleInfo['localeId'],
                 $articleInfo['versionId'],
-            ]);
+            ]
+        );
     }
 
     private function getLocalizedVersionedArticle(array $articleInfo): array
@@ -124,7 +129,8 @@ class WikiApiService
     private function updateArticleLocale(array $articleInfo, array $payload): void
     {
         // create english lang
-        $articleLocalUrl = vsprintf('/wiki/entries/%d/localizations/%d',
+        $articleLocalUrl = vsprintf(
+            '/wiki/entries/%d/localizations/%d',
             [
                 $articleInfo['articleId'],
                 $articleInfo['localeId'],
@@ -132,7 +138,8 @@ class WikiApiService
         );
 
         $response = $this->client->get(
-            $articleLocalUrl, ['headers' => $this->getBasicHeaders()]
+            $articleLocalUrl,
+            ['headers' => $this->getBasicHeaders()]
         );
         $responseJson = $response->getBody()->getContents();
 
@@ -202,7 +209,8 @@ class WikiApiService
 
     private function getAllCategories(): array
     {
-        $response = $this->client->get('/wiki/categories',
+        $response = $this->client->get(
+            '/wiki/categories',
             ['headers' => $this->getBasicHeaders()]
         )->getBody()->getContents();
 
@@ -216,6 +224,7 @@ class WikiApiService
         Document $document,
         DocumentTree $tree
     ): void {
+        /** @var array $oldLocalizations */
         $oldLocalizations = $oldContents['localizations'];
         $oldContentDe = [];
         $oldContentEn = [];
@@ -229,35 +238,36 @@ class WikiApiService
 
         $images = $document->getHtml()->render($tree)->getImages();
         $imageMap = [];
-        if (count($images)) {
-            echo '=> Uploading ' . count($images) . ' mediafile(s) ...' . PHP_EOL;
+        if (\count($images)) {
+            echo '=> Uploading ' . \count($images) . ' mediafile(s) ...' . PHP_EOL;
             foreach ($images as $key => $mediaFile) {
                 $mediaLink = $this->uploadCategoryMedia($categoryId, $oldContentEn['id'], $mediaFile);
                 $imageMap[$key] = $mediaLink;
             }
         }
 
+        $documentMetadata = $document->getMetadata();
         $payloadGlobal = [
             'orderPriority' => $document->getPriority(),
-            'active' => $document->getMetadata()->isActive(),
+            'active' => $documentMetadata->isActive(),
         ];
 
         $payloadEn = [
-            'title' => $document->getMetadata()->getTitleEn(),
-            'navigationTitle' => $document->getMetadata()->getTitleEn(),
+            'title' => $documentMetadata->getTitleEn(),
+            'navigationTitle' => $documentMetadata->getTitleEn(),
             'content' => $document->getHtml()->render($tree)->getContents($imageMap),
             'searchableInAllLanguages' => true,
-            'seoUrl' => $document->getMetadata()->getUrlEn(),
-            'metaDescription' => $document->getMetadata()->getMetaDescriptionEn(),
+            'seoUrl' => $documentMetadata->getUrlEn(),
+            'metaDescription' => $documentMetadata->getMetaDescriptionEn(),
         ];
 
         $payloadDe = [
-            'title' => $document->getMetadata()->getTitleDe(),
-            'navigationTitle' => $document->getMetadata()->getTitleDe(),
+            'title' => $documentMetadata->getTitleDe(),
+            'navigationTitle' => $documentMetadata->getTitleDe(),
             'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
             'searchableInAllLanguages' => true,
-            'seoUrl' => $document->getMetadata()->getUrlDe(),
-            'metaDescription' => $document->getMetadata()->getMetaDescriptionDe(),
+            'seoUrl' => $documentMetadata->getUrlDe(),
+            'metaDescription' => $documentMetadata->getMetaDescriptionDe(),
         ];
 
         $payloadDe = array_merge($oldContentDe, $payloadDe);
@@ -308,7 +318,7 @@ class WikiApiService
     {
         $prevEntryId = $this->rootCategoryId;
 
-        $chain = array_filter($document->createParentChain(), function (Document $document): bool {
+        $chain = array_filter($document->createParentChain(), static function (Document $document): bool {
             return $document->isCategory();
         });
 
@@ -402,8 +412,16 @@ class WikiApiService
         $articleUrl = vsprintf('/wiki/entries/%d', [$articleId]);
         $articleLocalizationUrl = vsprintf('%s/localizations', [$articleUrl]);
 
-        [$localeIdEn, $versionIdEn, $articleUrlEn] = $this->createArticleLocale($seoEn, $articleLocalizationUrl, ['id' => 2, 'name' => 'en_GB']);
-        [$localeIdDe, $versionIdDe, $articleUrlDe] = $this->createArticleLocale($seoDe, $articleLocalizationUrl, ['name' => 'de_DE']);
+        [$localeIdEn, $versionIdEn, $articleUrlEn] = $this->createArticleLocale(
+            $seoEn,
+            $articleLocalizationUrl,
+            ['id' => 2, 'name' => 'en_GB']
+        );
+        [$localeIdDe, $versionIdDe, $articleUrlDe] = $this->createArticleLocale(
+            $seoDe,
+            $articleLocalizationUrl,
+            ['name' => 'de_DE']
+        );
 
         return [
             'en_GB' => [
@@ -464,7 +482,8 @@ class WikiApiService
 
         [$categoriesToDelete, $articlesToDelete] = $this->gatherCategoryChildrenAndArticles(
             $categoryId,
-            $categories);
+            $categories
+        );
 
         foreach ($articlesToDelete as $article) {
             $this->disableArticle($article);
@@ -476,7 +495,7 @@ class WikiApiService
         }
     }
 
-    private function gatherCategoryChildrenAndArticles($rootId, $categoryJson): array
+    private function gatherCategoryChildrenAndArticles(int $rootId, array $categoryJson): array
     {
         $articleList = [];
         $categoryList = [];
@@ -488,6 +507,7 @@ class WikiApiService
             foreach ($categoryJson as $category) {
                 $parent = $category['parent'];
                 if ($parent !== null && $parent['id'] === $parentId) {
+                    /** @var array $localizations */
                     $localizations = $category['localizations'];
 
                     $seo = '';
@@ -512,8 +532,7 @@ class WikiApiService
             $articleList[] = $categoryJson[$rootCategoryIndex]['entryIds'];
         }
 
-        $articleList = array_merge(...$articleList);
-        $articleList = array_unique($articleList);
+        $articleList = array_unique(array_merge(...$articleList));
 
         return [$categoryList, $articleList];
     }
@@ -532,23 +551,25 @@ class WikiApiService
             vsprintf('/wiki/entries/%s', [$articleId]),
             ['headers' => $this->getBasicHeaders()]
         )->getBody()->getContents();
-        $reponseJson = json_decode($response, true);
+        $responseJson = json_decode($response, true);
 
-        if (!array_key_exists('localizations', $reponseJson) && $reponseJson['localizations'] === null) {
+        if (!\array_key_exists('localizations', $responseJson) && $responseJson['localizations'] === null) {
             return;
         }
 
-        foreach ($reponseJson['localizations'] as $locale) {
+        foreach ($responseJson['localizations'] as $locale) {
             $localId = $locale['id'];
 
-            if (!array_key_exists('versions', $locale) && $locale['versions'] === null) {
+            if (!\array_key_exists('versions', $locale) && $locale['versions'] === null) {
                 continue;
             }
 
             foreach ($locale['versions'] as $version) {
                 $versionId = $version['id'];
-                $this->updateArticleVersion(['articleId' => $articleId, 'localeId' => $localId, 'versionId' => $versionId],
-                    ['active' => false]);
+                $this->updateArticleVersion(
+                    ['articleId' => $articleId, 'localeId' => $localId, 'versionId' => $versionId],
+                    ['active' => false]
+                );
             }
         }
     }
@@ -561,45 +582,50 @@ class WikiApiService
         );
     }
 
-    private function syncArticles(DocumentTree $tree)
+    private function syncArticles(DocumentTree $tree): void
     {
         $i = 0;
         /** @var Document $document */
         foreach ($tree->getArticles() as $document) {
             ++$i;
-            echo 'Syncing article (' . $i . '/' . count($tree->getArticles()) . ') ' . $document->getFile()->getRelativePathname() . ' with prio ' . $document->getPriority() . PHP_EOL;
+            echo 'Syncing article (' . $i . '/' . \count($tree->getArticles()) . ') ' . $document->getFile()->getRelativePathname() . ' with prio ' . $document->getPriority() . PHP_EOL;
 
-            $articleInfo = $this->createLocalizedVersionedArticle($document->getMetadata()->getUrlEn(), $document->getMetadata()->getUrlDe());
+            $documentMetadata = $document->getMetadata();
+            $articleInfo = $this->createLocalizedVersionedArticle(
+                $documentMetadata->getUrlEn(),
+                $documentMetadata->getUrlDe()
+            );
             $categoryId = $this->getOrCreateMissingCategoryTree($document);
             $this->addArticleToCategory($articleInfo['en_GB'], $categoryId);
 
             // handle media files for articles
             $images = $document->getHtml()->render($tree)->getImages();
             $imageMap = [];
-            if (count($images)) {
-                echo '=> Uploading ' . count($images) . ' mediafile(s) ...' . PHP_EOL;
+            if (\count($images)) {
+                echo '=> Uploading ' . \count($images) . ' mediafile(s) ...' . PHP_EOL;
                 foreach ($images as $key => $mediaFile) {
-                    $mediaLink = $this->uploadArticleMedia($articleInfo['en_GB'], $mediaFile);
-                    $imageMap[$key] = $mediaLink;
+                    $imageMap[$key] = $this->uploadArticleMedia($articleInfo['en_GB'], $mediaFile);
                 }
             }
 
-            $this->updateArticleLocale($articleInfo['en_GB'],
+            $this->updateArticleLocale(
+                $articleInfo['en_GB'],
                 [
-                    'seoUrl' => $document->getMetadata()->getUrlEn(),
+                    'seoUrl' => $documentMetadata->getUrlEn(),
                     'searchableInAllLanguages' => true,
                 ]
             );
-            $this->updateArticleVersion($articleInfo['en_GB'],
+            $this->updateArticleVersion(
+                $articleInfo['en_GB'],
                 [
                     'content' => $document->getHtml()->render($tree)->getContents($imageMap),
-                    'title' => $document->getMetadata()->getTitleEn(),
-                    'navigationTitle' => $document->getMetadata()->getTitleEn(),
+                    'title' => $documentMetadata->getTitleEn(),
+                    'navigationTitle' => $documentMetadata->getTitleEn(),
                     'searchableInAllLanguages' => true,
-                    'active' => $document->getMetadata()->isActive(),
+                    'active' => $documentMetadata->isActive(),
                     'fromProductVersion' => self::INITIAL_VERSION,
-                    'metaTitle' => $document->getMetadata()->getMetaTitleEn(),
-                    'metaDescription' => $document->getMetadata()->getMetaDescriptionEn(),
+                    'metaTitle' => $documentMetadata->getMetaTitleEn(),
+                    'metaDescription' => $documentMetadata->getMetaDescriptionEn(),
                 ]
             );
 
@@ -610,13 +636,13 @@ class WikiApiService
 
     private function syncCategories(DocumentTree $tree): void
     {
-        echo 'Syncing ' . count($tree->getCategories()) . ' categories ...' . PHP_EOL;
+        echo 'Syncing ' . \count($tree->getCategories()) . ' categories ...' . PHP_EOL;
 
         $this->addEmptyCategories($tree);
         $this->syncCategoryContents($tree);
     }
 
-    private function addEmptyCategories(DocumentTree $tree)
+    private function addEmptyCategories(DocumentTree $tree): void
     {
         foreach ($tree->getCategories() as $document) {
             if ($document->getCategoryId()) {
@@ -634,7 +660,7 @@ class WikiApiService
 
         /** @var Document $document */
         foreach ($tree->getCategories() as $document) {
-            echo 'Syncing category ' . $document->getFile()->getRelativePathname() . ' with prio ' . $document->getPriority() . ' ... ' . PHP_EOL;
+            echo 'Syncing category ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . ' ... ' . PHP_EOL;
             $parentId = $this->rootCategoryId;
             $categoryId = $document->getCategoryId();
 
@@ -668,7 +694,7 @@ class WikiApiService
         }
     }
 
-    private function syncRoot(DocumentTree $tree)
+    private function syncRoot(DocumentTree $tree): void
     {
         $root = $tree->getRoot();
 
@@ -676,6 +702,7 @@ class WikiApiService
         $categoryIds = array_column($oldCategories, 'id');
 
         $index = array_search($this->rootCategoryId, $categoryIds, true);
+        /** @var array[] $category */
         $category = $oldCategories[$index];
 
         $enIndex = -1;

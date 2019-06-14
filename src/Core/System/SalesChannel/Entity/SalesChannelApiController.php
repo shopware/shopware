@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -46,11 +47,10 @@ class SalesChannelApiController
 
         $repository = $this->registry->getSalesChannelRepository($entity);
 
-        /** @var SalesChannelDefinitionInterface $definition */
+        /** @var SalesChannelDefinitionInterface|EntityDefinition $definition */
         $definition = $this->registry->getByEntityName($entity);
 
-        $criteria = new Criteria();
-        $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context->getContext());
+        $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $definition, $context->getContext());
 
         $definition->processCriteria($criteria, $context);
 
@@ -62,19 +62,23 @@ class SalesChannelApiController
         ]);
     }
 
+    /**
+     * @throws InvalidUuidException
+     * @throws ResourceNotFoundException
+     */
     public function detail(Request $request, string $id, SalesChannelContext $context, string $entity): Response
     {
         $entity = $this->urlToSnakeCase($entity);
 
         $repository = $this->registry->getSalesChannelRepository($entity);
+        /** @var SalesChannelDefinitionInterface|EntityDefinition $definition */
         $definition = $this->registry->getByEntityName($entity);
 
         if (!Uuid::isValid($id)) {
             throw new InvalidUuidException($id);
         }
 
-        $criteria = new Criteria([$id]);
-        $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context->getContext());
+        $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria([$id]), $definition, $context->getContext());
 
         $definition->processCriteria($criteria, $context);
 
@@ -92,10 +96,10 @@ class SalesChannelApiController
         $entity = $this->urlToSnakeCase($entity);
 
         $repository = $this->registry->getSalesChannelRepository($entity);
+        /** @var SalesChannelDefinitionInterface|EntityDefinition $definition */
         $definition = $this->registry->getByEntityName($entity);
 
-        $criteria = new Criteria();
-        $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context->getContext());
+        $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $definition, $context->getContext());
 
         $definition->processCriteria($criteria, $context);
 

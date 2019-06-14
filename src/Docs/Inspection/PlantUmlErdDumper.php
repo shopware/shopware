@@ -2,7 +2,6 @@
 
 namespace Shopware\Docs\Inspection;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -75,12 +74,9 @@ EOD;
      */
     private $foreignTables = [];
 
-    /**
-     * @param EntityDefinition|string $definition
-     */
     public function addTable(string $definition, string $entityName, string $description, bool $isTranslation): void
     {
-        if (strlen($description) > 0) {
+        if ($description !== '') {
             $description = '(' . $description . ')';
         }
 
@@ -93,7 +89,7 @@ EOD;
         ];
     }
 
-    public function addField(string $definition, Field $field, string $type)
+    public function addField(string $definition, Field $field, string $type): void
     {
         $rendered = $field->getPropertyName();
 
@@ -130,8 +126,12 @@ EOD;
         );
     }
 
-    public function addAssociation(string $definition, string $name, string $referenceDefinition, string $referenceName)
-    {
+    public function addAssociation(
+        string $definition,
+        string $name,
+        string $referenceDefinition,
+        string $referenceName
+    ): void {
         $association = "$definition --> $referenceDefinition";
 
         $keys = [$definition, $referenceDefinition];

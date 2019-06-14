@@ -25,10 +25,10 @@ class ConvertMarkdownDocsCommand extends Command
     {
         $this->setName('docs:convert')
             ->addOption('input', 'i', InputOption::VALUE_REQUIRED, 'The path to parse for markdown files.', './platform/src/Docs/Resources/current/')
-            ->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The path in which the resulting hmtl files will be saved.')
+            ->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The path in which the resulting HTML files will be saved.')
             ->addOption('baseurl', 'u', InputOption::VALUE_REQUIRED, '', '/shopware-platform')
             ->addOption('sync', 's', InputOption::VALUE_NONE)
-            ->setDescription('Converts Markdown to Wikihtml');
+            ->setDescription('Converts Markdown to Wiki-HTML');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -46,7 +46,7 @@ class ConvertMarkdownDocsCommand extends Command
 
         $output->writeln('Scanning \"' . $inPath . '" for .md files ...');
         $tree = $this->loadDocuments($inPath, $baseUrl, $blacklist);
-        $output->writeln('Read ' . count($tree->getAll()) . ' markdown files');
+        $output->writeln('Read ' . \count($tree->getAll()) . ' markdown files');
 
         if ($outPath === null) {
             throw new \RuntimeException('No output path specified');
@@ -67,10 +67,10 @@ class ConvertMarkdownDocsCommand extends Command
         }
 
         if (!$isSync || !file_exists(self::CREDENTIAL_PATH)) {
-            return;
+            return null;
         }
 
-        $credentialsContents = (file_get_contents(self::CREDENTIAL_PATH));
+        $credentialsContents = file_get_contents(self::CREDENTIAL_PATH);
         $credentials = json_decode($credentialsContents, true);
         $token = $credentials['token'];
         $server = $credentials['url'];
@@ -127,7 +127,7 @@ class ConvertMarkdownDocsCommand extends Command
         /** @var Document $document */
         foreach ($documents as $path => $document) {
             if ($document->isCategory()) {
-                $parentPath = dirname($document->getFile()->getRelativePath()) . '/' . self::CATEGORY_SITE_FILENAME;
+                $parentPath = \dirname($document->getFile()->getRelativePath()) . '/' . self::CATEGORY_SITE_FILENAME;
             } else {
                 $parentPath = $document->getFile()->getRelativePath() . '/' . self::CATEGORY_SITE_FILENAME;
             }

@@ -2,12 +2,11 @@
 
 namespace Shopware\Docs\Inspection;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
 class MarkdownErdDumper implements ErdDumper
 {
-    const TEMPALE_HEAD = <<<EOD
+    private const TEMPLATE_HEAD = <<<EOD
 [titleEn]: <>(%s)
 
 [Back to modules](./../10-modules.md)
@@ -22,7 +21,7 @@ class MarkdownErdDumper implements ErdDumper
 
 EOD;
 
-    const TEMPLATE_TABLE = <<<EOD
+    private const TEMPLATE_TABLE = <<<EOD
 
 ### Table `%s`
 
@@ -57,9 +56,6 @@ EOD;
         $this->overviewImage = $overviewImage;
     }
 
-    /**
-     * @param EntityDefinition|string $definition
-     */
     public function addTable(string $definition, string $entityName, string $description, bool $isTranslation): void
     {
         if ($description === '') {
@@ -69,7 +65,7 @@ EOD;
         $this->tables[] = sprintf(self::TEMPLATE_TABLE, $entityName, $description);
     }
 
-    public function addField(string $definition, Field $field, string $type)
+    public function addField(string $definition, Field $field, string $type): void
     {
         // ignore
     }
@@ -77,7 +73,7 @@ EOD;
     public function dump(): string
     {
         return sprintf(
-            self::TEMPALE_HEAD,
+            self::TEMPLATE_HEAD,
             $this->title,
             $this->description,
             $this->title,
@@ -86,8 +82,12 @@ EOD;
         );
     }
 
-    public function addAssociation(string $definition, string $name, string $referenceDefinition, string $referenceName)
-    {
+    public function addAssociation(
+        string $definition,
+        string $name,
+        string $referenceDefinition,
+        string $referenceName
+    ): void {
         // ignore
     }
 }

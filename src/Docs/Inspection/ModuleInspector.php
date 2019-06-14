@@ -38,9 +38,6 @@ class ModuleInspector
         ];
     }
 
-    /**
-     * @return ModuleTag[]
-     */
     public function inspectModule(SplFileInfo $module): ModuleTagCollection
     {
         $inspectors = [
@@ -66,7 +63,7 @@ class ModuleInspector
             self::TAG_EXTENSION => function (ModuleTag $moduleTag, SplFileInfo $module): void {
                 $moduleTag
                     ->addMarkers('fields', $this->containsSubclassesOf($module, Field::class))
-                    ->addMarkers('structs', $this->containsReflection($module, function (\ReflectionClass $reflectionClass) {
+                    ->addMarkers('structs', $this->containsReflection($module, static function (\ReflectionClass $reflectionClass) {
                         return $reflectionClass->isSubclassOf(Struct::class)
                             && !$reflectionClass->isSubclassOf(Entity::class);
                     }));
@@ -99,10 +96,10 @@ class ModuleInspector
         $startIndex = array_search('Core', $parts, true);
 
         if ($startIndex === false) {
-            throw new \Exception('Unable to parse ' . $file->getRealPath());
+            throw new \RuntimeException('Unable to parse ' . $file->getRealPath());
         }
 
-        $namespaceRelevantParts = array_slice($parts, $startIndex, -1);
+        $namespaceRelevantParts = \array_slice($parts, $startIndex, -1);
         $namespaceRelevantParts[] = $file->getBasename('.php');
 
         $className = 'Shopware\\' . implode('\\', $namespaceRelevantParts);
@@ -110,7 +107,7 @@ class ModuleInspector
         try {
             class_exists($className);
         } catch (\Throwable $e) {
-            throw new \RuntimeException('No class in file');
+            throw new \RuntimeException('No class in file', 0, $e);
         }
 
         return $className;
@@ -150,7 +147,7 @@ class ModuleInspector
 
     private function containsSubclassesOf(SplFileInfo $in, string $searchedClass): Finder
     {
-        return $this->containsReflection($in, function (\ReflectionClass $reflectionClass) use ($searchedClass) {
+        return $this->containsReflection($in, static function (\ReflectionClass $reflectionClass) use ($searchedClass) {
             if ($reflectionClass->isAbstract()) {
                 return false;
             }

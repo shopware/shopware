@@ -6,15 +6,12 @@ use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -36,29 +33,22 @@ class Calculator
      */
     private $absolutePriceCalculator;
 
-    /**
-     * @var AmountCalculator
-     */
-    private $amountCalculator;
-
     public function __construct(
         QuantityPriceCalculator $quantityPriceCalculator,
         PercentagePriceCalculator $percentagePriceCalculator,
-        AbsolutePriceCalculator $absolutePriceCalculator,
-        AmountCalculator $amountCalculator
+        AbsolutePriceCalculator $absolutePriceCalculator
     ) {
         $this->quantityPriceCalculator = $quantityPriceCalculator;
         $this->percentagePriceCalculator = $percentagePriceCalculator;
         $this->absolutePriceCalculator = $absolutePriceCalculator;
-        $this->amountCalculator = $amountCalculator;
     }
 
-    public function calculate(Cart $cart, SalesChannelContext $context, CartBehavior $behavior): LineItemCollection
+    public function calculate(LineItemCollection $lineItems, SalesChannelContext $context, CartBehavior $behavior): LineItemCollection
     {
-        return $this->calculateLineItems($cart, $cart->getLineItems(), $context, $behavior);
+        return $this->calculateLineItems($lineItems, $context, $behavior);
     }
 
-    private function calculateLineItems(Cart $cart, LineItemCollection $lineItems, SalesChannelContext $context, CartBehavior $behavior): LineItemCollection
+    private function calculateLineItems(LineItemCollection $lineItems, SalesChannelContext $context, CartBehavior $behavior): LineItemCollection
     {
         $workingSet = clone $lineItems;
         $workingSet->sortByPriority();
@@ -68,18 +58,7 @@ class Calculator
         foreach ($workingSet as $original) {
             $lineItem = LineItem::createFromLineItem($original);
 
-            if (!$this->isValid($lineItem, $calculated, $context, $behavior)) {
-                $cart->getLineItems()->remove($lineItem->getId());
-                continue;
-            }
-
-            try {
-                $price = $this->calculatePrice($cart, $lineItem, $context, $calculated, $behavior);
-            } catch (\Exception $e) {
-                // todo line item silently removed if an error occurs
-                $cart->getLineItems()->remove($lineItem->getId());
-                continue;
-            }
+            $price = $this->calculatePrice($lineItem, $context, $calculated, $behavior);
 
             $lineItem->setPrice($price);
 
@@ -106,10 +85,10 @@ class Calculator
         );
     }
 
-    private function calculatePrice(Cart $cart, LineItem $lineItem, SalesChannelContext $context, LineItemCollection $calculated, CartBehavior $behavior): CalculatedPrice
+    private function calculatePrice(LineItem $lineItem, SalesChannelContext $context, LineItemCollection $calculated, CartBehavior $behavior): CalculatedPrice
     {
         if ($lineItem->hasChildren()) {
-            $children = $this->calculateLineItems($cart, $lineItem->getChildren(), $context, $behavior);
+            $children = $this->calculateLineItems($lineItem->getChildren(), $context, $behavior);
 
             $lineItem->setChildren($children);
 
@@ -141,27 +120,5 @@ class Calculator
         }
 
         throw new MissingLineItemPriceException($lineItem->getId());
-    }
-
-    private function isValid(LineItem $lineItem, LineItemCollection $calculated, SalesChannelContext $context, CartBehavior $behavior): bool
-    {
-        if (!$lineItem->getRequirement() || $behavior->isRecalculation()) {
-            return true;
-        }
-
-        $cart = new Cart('validate', 'validate');
-        $cart->setLineItems($calculated);
-
-        $cart->setPrice(
-            $this->amountCalculator->calculate(
-                $calculated->getPrices(),
-                new PriceCollection(),
-                $context
-            )
-        );
-
-        $scope = new CartRuleScope($cart, $context);
-
-        return $lineItem->getRequirement()->match($scope);
     }
 }

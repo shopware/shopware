@@ -55,7 +55,7 @@ class CalculatorTest extends TestCase
 
         $cart->add($lineItem);
 
-        $calculated = $this->calculator->calculate($cart, $this->context, new CartBehavior());
+        $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
 
         static::assertCount(1, $calculated);
         static::assertSame(100.0, $calculated->get('A')->getPrice()->getTotalPrice());
@@ -70,7 +70,7 @@ class CalculatorTest extends TestCase
 
         $cart->add($lineItem);
 
-        $calculated = $this->calculator->calculate($cart, $this->context, new CartBehavior());
+        $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
 
         static::assertCount(1, $calculated);
         static::assertSame(200.0, $calculated->get('A')->getPrice()->getTotalPrice());
@@ -90,7 +90,7 @@ class CalculatorTest extends TestCase
 
         $cart->add($lineItem);
 
-        $calculated = $this->calculator->calculate($cart, $this->context, new CartBehavior());
+        $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
 
         static::assertCount(2, $calculated);
         static::assertSame(200.0, $calculated->get('A')->getPrice()->getTotalPrice());
@@ -111,7 +111,7 @@ class CalculatorTest extends TestCase
 
         $cart->add($lineItem);
 
-        $calculated = $this->calculator->calculate($cart, $this->context, new CartBehavior());
+        $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
 
         static::assertCount(2, $calculated);
         static::assertSame(200.0, $calculated->get('A')->getPrice()->getTotalPrice());
@@ -132,7 +132,7 @@ class CalculatorTest extends TestCase
 
         $cart->add($lineItem);
 
-        $calculated = $this->calculator->calculate($cart, $this->context, new CartBehavior());
+        $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
 
         static::assertCount(2, $calculated);
         static::assertSame(200.0, $calculated->get('A')->getPrice()->getTotalPrice());
@@ -165,7 +165,7 @@ class CalculatorTest extends TestCase
 
         $cart->add($lineItem);
 
-        $calculated = $this->calculator->calculate($cart, $this->context, new CartBehavior());
+        $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
 
         static::assertCount(3, $calculated);
         static::assertSame(100.0, $calculated->get('A')->getPrice()->getTotalPrice());
@@ -199,7 +199,7 @@ class CalculatorTest extends TestCase
         );
         $cart->add($lineItem);
 
-        $calculated = $this->calculator->calculate($cart, $this->context, new CartBehavior());
+        $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
 
         static::assertCount(3, $calculated);
         static::assertSame(100.0, $calculated->get('A')->getPrice()->getTotalPrice());
@@ -224,7 +224,7 @@ class CalculatorTest extends TestCase
         $cart = new Cart('test', 'test');
         $cart->add($lineItem);
 
-        $calculated = $this->calculator->calculate($cart, $this->context, new CartBehavior());
+        $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
 
         static::assertCount(1, $calculated);
         static::assertSame(90.0, $calculated->get('A')->getPrice()->getTotalPrice());
@@ -278,7 +278,7 @@ class CalculatorTest extends TestCase
 
         $cart->add($nested);
 
-        $calculated = $this->calculator->calculate($cart, $this->context, new CartBehavior());
+        $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
 
         static::assertCount(1, $calculated);
 
@@ -329,7 +329,7 @@ class CalculatorTest extends TestCase
 
         $cart->add($nested);
 
-        $calculated = $this->calculator->calculate($cart, $this->context, new CartBehavior());
+        $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
 
         static::assertCount(1, $calculated);
 

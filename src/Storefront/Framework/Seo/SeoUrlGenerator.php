@@ -20,6 +20,7 @@ use Twig\Environment;
 use Twig\Error\Error;
 use Twig\Error\SyntaxError;
 use Twig\Extension\CoreExtension;
+use Twig\Extension\EscaperExtension;
 use Twig\Loader\ArrayLoader;
 
 class SeoUrlGenerator
@@ -88,12 +89,14 @@ class SeoUrlGenerator
         $this->twig->enableStrictVariables();
         $this->twig->addExtension(new SlugifyExtension($slugify));
 
-        /** @var CoreExtension $coreExtension */
-        $coreExtension = $this->twig->getExtension(CoreExtension::class);
-        $coreExtension->setEscaper(self::ESCAPE_SLUGIFY,
+        /** @var EscaperExtension $coreExtension */
+        $coreExtension = $this->twig->getExtension(EscaperExtension::class);
+        $coreExtension->setEscaper(
+            self::ESCAPE_SLUGIFY,
             static function ($twig, $string) use ($slugify) {
                 return rawurlencode($slugify->slugify($string));
-            });
+            }
+        );
     }
 
     private function generate(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, array $salesChannelIds, EntityCollection $entities): iterable

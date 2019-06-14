@@ -8,11 +8,10 @@
             "Shopware\\Administration\\": ""
         }
     },
-    "minimum-stability": "dev",
     "require": {
         "shopware/core": "dev-master",
-        "symfony/framework-bundle": "4.3.0",
-        "symfony/http-foundation": "4.3.0",
-        "symfony/routing": "4.3.0"
+        "symfony/framework-bundle": "4.3.1",
+        "symfony/http-foundation": "4.3.1",
+        "symfony/routing": "4.3.1"
     }
 }

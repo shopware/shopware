@@ -155,8 +155,8 @@
 
                                                 {% block sw_integration_list_grid_inner_slot_columns_writeAccess %}
                                                     <sw-grid-column flex="minmax(150px, 1fr)" class="sw-integration-list__column-integration-writeAccess" dataIndex="writeAccess" :label="$tc('sw-integration.list.permissions')">
-                                                        <sw-label :ghost="true" :small="true" :caps="true" :light="true">{{ $tc('sw-integration.list.readAccess') }}</sw-label>
-                                                        <sw-label v-if="item.writeAccess" :ghost="true" :small="true" :caps="true" :light="true">{{ $tc('sw-integration.list.writeAccess') }}</sw-label>
+                                                        <sw-label size="medium" ghost caps light>{{ $tc('sw-integration.list.readAccess') }}</sw-label>
+                                                        <sw-label v-if="item.writeAccess" size="medium" ghost caps light>{{ $tc('sw-integration.list.writeAccess') }}</sw-label>
                                                     </sw-grid-column>
                                                 {% endblock %}
 

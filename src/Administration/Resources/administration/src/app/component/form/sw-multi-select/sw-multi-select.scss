@@ -47,10 +47,6 @@ $sw-multi-select-transition-result-icon: all ease-in-out .15s;
         width: calc(100% - 30px);
     }
 
-    .sw-label--dismiss-able .sw-label__dismiss {
-        display: none;
-    }
-
     .sw-multi-select__load-more-list-item-button {
         padding: 2px 10px;
         line-height: 26px;
@@ -118,18 +114,6 @@ $sw-multi-select-transition-result-icon: all ease-in-out .15s;
 
         .sw-label {
             margin: 0;
-        }
-
-        &:hover .sw-label--dismiss-able {
-            .sw-multi-select__selection-item {
-                display: block;
-                width: calc(100% - 15px);
-            }
-
-            .sw-label__dismiss {
-                display: block;
-                color: $sw-multi-select-color-text-default-item;
-            }
         }
     }
 

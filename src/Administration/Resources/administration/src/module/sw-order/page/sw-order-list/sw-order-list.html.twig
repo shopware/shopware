@@ -87,7 +87,7 @@
 
                                     {% block sw_order_list_grid_columns_state %}
                                         <template slot="column-stateMachineState.name" slot-scope="{ item }">
-                                            <sw-label :variant="getVariantFromOrderState(item)">
+                                            <sw-label :variant="getVariantFromOrderState(item)" appearance="pill">
                                                 {{ item.stateMachineState.translated.name }}
                                             </sw-label>
                                         </template>
@@ -95,7 +95,7 @@
 
                                     {% block sw_order_list_grid_columns_transaction_state %}
                                         <template slot="column-transactions[0].stateMachineState.name" slot-scope="{ item }">
-                                            <sw-label :variant="getVariantFromPaymentState(item)">
+                                            <sw-label :variant="getVariantFromPaymentState(item)" appearance="pill">
                                                 {{ item.transactions[0].stateMachineState.name }}
                                             </sw-label>
                                         </template>

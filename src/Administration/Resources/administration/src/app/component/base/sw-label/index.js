@@ -27,27 +27,25 @@ export default {
                 return ['info', 'danger', 'success', 'warning', 'neutral'].includes(value);
             }
         },
-        dismissAble: {
-            type: Boolean,
+        size: {
+            type: String,
             required: false,
-            default: false
+            default: 'default',
+            validValues: ['small', 'medium', 'default'],
+            validator(value) {
+                return ['small', 'medium', 'default'].includes(value);
+            }
         },
-        pill: {
-            type: Boolean,
+        appearance: {
+            type: String,
             required: false,
-            default: false
+            default: 'default',
+            validValues: ['default', 'pill'],
+            validator(value) {
+                return ['default', 'pill'].includes(value);
+            }
         },
         ghost: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-        circle: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-        small: {
             type: Boolean,
             required: false,
             default: false
@@ -56,26 +54,25 @@ export default {
             type: Boolean,
             required: false,
             default: false
-        },
-        light: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
 
     computed: {
         labelClasses() {
-            return {
-                [`sw-label--${this.variant}`]: this.variant,
-                'sw-label--dismiss-able': this.dismissAble,
-                'sw-label--pill': this.pill,
-                'sw-label--ghost': this.ghost,
-                'sw-label--circle': this.circle,
-                'sw-label--small': this.small,
-                'sw-label--caps': this.caps,
-                'sw-label--light': this.light
-            };
+            return [
+                `sw-label--appearance-${this.appearance}`,
+                `sw-label--size-${this.size}`,
+                {
+                    [`sw-label--${this.variant}`]: this.variant,
+                    'sw-label--dismissable': this.showDismissable,
+                    'sw-label--ghost': this.ghost,
+                    'sw-label--caps': this.caps,
+                    'sw-label--light': this.light
+                }
+            ];
+        },
+        showDismissable() {
+            return !!this.$listeners.dismiss;
         }
     }
 };

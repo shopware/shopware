@@ -26,7 +26,7 @@
                     :data-id="selection.id">
 
                     {% block sw_multi_select_selection_item %}
-                        <sw-label dismissAble @selected="changeDefaultItemId(selection.id)" @dismiss="remove(selection[valueProperty])">
+                        <sw-label @dismiss="remove(selection[valueProperty])">
                             <template>
                                 {% block sw_multi_select_selection_item_text %}
                                     <span class="sw-multi-select__selection-item">

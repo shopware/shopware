@@ -9,6 +9,11 @@ Component.register('sw-property-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     data() {
         return {
             group: {},
@@ -94,6 +99,10 @@ Component.register('sw-property-detail', {
                 this.isLoading = false;
                 throw exception;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.property.index' });
         }
     }
 });

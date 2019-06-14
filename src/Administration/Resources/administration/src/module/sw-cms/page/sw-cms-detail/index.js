@@ -16,6 +16,10 @@ Component.register('sw-cms-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave'
+    },
+
     data() {
         return {
             pageId: null,

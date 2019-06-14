@@ -12,6 +12,11 @@ Component.register('sw-settings-salutation-detail', {
         Mixin.getByName('discard-detail-page-changes')('salutation')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     data() {
         return {
             entityName: 'salutation',

@@ -9,10 +9,16 @@ Component.register('sw-settings-number-range-detail', {
     template,
 
     inject: ['numberRangeService', 'repositoryFactory', 'context'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder')
     ],
+
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
 
     data() {
         return {
@@ -338,6 +344,10 @@ Component.register('sw-settings-number-range-detail', {
                 });
                 throw exception;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.number.range.index' });
         },
 
         noSalesChannelSelected() {

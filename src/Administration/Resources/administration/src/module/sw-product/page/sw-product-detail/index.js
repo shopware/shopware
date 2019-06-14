@@ -15,7 +15,8 @@ Component.register('sw-product-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave'
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
     },
 
     props: {
@@ -419,6 +420,10 @@ Component.register('sw-product-detail', {
                     break;
                 }
             }
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.product.index' });
         },
 
         saveProduct() {

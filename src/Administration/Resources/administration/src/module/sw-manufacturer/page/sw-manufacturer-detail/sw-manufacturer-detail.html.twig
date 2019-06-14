@@ -11,7 +11,7 @@
             <template slot="smart-bar-actions">
 
                 {% block sw_manufacturer_detail_actions_abort %}
-                    <sw-button :disabled="manufacturer.isLoading" :routerLink="{ name: 'sw.manufacturer.index' }">
+                    <sw-button :disabled="manufacturer.isLoading" @click="onCancel">
                         {{ $tc('sw-manufacturer.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}

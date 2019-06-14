@@ -17,6 +17,11 @@ Component.register('sw-category-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'cancelEdit'
+    },
+
     data() {
         return {
             category: null,

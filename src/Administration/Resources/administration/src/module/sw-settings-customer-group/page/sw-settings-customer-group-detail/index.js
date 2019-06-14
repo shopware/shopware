@@ -10,6 +10,11 @@ Component.register('sw-settings-customer-group-detail', {
         Mixin.getByName('discard-detail-page-changes')('customerGroup')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     data() {
         return {
             entityName: 'customer_group',

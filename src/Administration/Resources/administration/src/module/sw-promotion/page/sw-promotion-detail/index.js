@@ -11,6 +11,11 @@ Component.register('sw-promotion-detail', {
         Mixin.getByName('discard-detail-page-changes')('promotion')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     data() {
         return {
             promotion: {},
@@ -100,6 +105,10 @@ Component.register('sw-promotion-detail', {
                 this.isLoading = false;
                 throw exception;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.promotion.index' });
         }
     }
 });

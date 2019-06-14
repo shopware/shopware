@@ -15,6 +15,11 @@ Component.register('sw-settings-document-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     data() {
         return {
             documentConfig: {},
@@ -494,6 +499,10 @@ Component.register('sw-settings-document-detail', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.document.index' });
         }
     }
 });

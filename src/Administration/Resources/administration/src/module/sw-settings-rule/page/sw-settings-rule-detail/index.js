@@ -14,6 +14,11 @@ Component.register('sw-settings-rule-detail', {
         Mixin.getByName('discard-detail-page-changes')('rule')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     data() {
         return {
             rule: {},
@@ -171,6 +176,10 @@ Component.register('sw-settings-rule-detail', {
                 this.isLoading = false;
                 this.$refs.conditionTree.$emit('entity-save', false);
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.rule.index' });
         },
 
         removeOriginalConditionTypes(conditions) {

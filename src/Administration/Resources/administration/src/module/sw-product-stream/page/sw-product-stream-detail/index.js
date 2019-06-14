@@ -15,6 +15,11 @@ Component.register('sw-product-stream-detail', {
         Mixin.getByName('discard-detail-page-changes')('productStream')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     data() {
         return {
             nameRequired: this.isSystemLanguage(),
@@ -175,6 +180,12 @@ Component.register('sw-product-stream-detail', {
                 warn(this._name, exception.message, exception.response);
             });
         },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.product.stream.index' });
+        },
+
+
         openModalPreview() {
             this.showModalPreview = true;
         },

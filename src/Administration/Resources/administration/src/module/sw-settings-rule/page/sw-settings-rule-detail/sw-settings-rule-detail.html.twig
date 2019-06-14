@@ -11,7 +11,7 @@
             <template slot="smart-bar-actions">
 
                 {% block sw_settings_rule_detail_actions_cancel %}
-                    <sw-button :disabled="rule.isLoading" :routerLink="{ name: 'sw.settings.rule.index' }">
+                    <sw-button :disabled="rule.isLoading" @click="onCancel">
                         {{ $tc('sw-settings-rule.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}

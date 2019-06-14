@@ -10,6 +10,11 @@ Component.register('sw-settings-currency-detail', {
         Mixin.getByName('discard-detail-page-changes')('currency')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     data() {
         return {
             currency: {},
@@ -64,6 +69,10 @@ Component.register('sw-settings-currency-detail', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.currency.index' });
         },
 
         abortOnLanguageChange() {

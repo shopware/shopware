@@ -14,6 +14,11 @@ Component.register('sw-settings-user-detail', {
         Mixin.getByName('salutation')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     data() {
         return {
             isLoading: false,
@@ -293,6 +298,10 @@ Component.register('sw-settings-user-detail', {
                 }
                 return Promise.resolve();
             }));
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.user.list' });
         },
 
         onChangePassword() {

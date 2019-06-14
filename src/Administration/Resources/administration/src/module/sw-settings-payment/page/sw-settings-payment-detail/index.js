@@ -13,6 +13,11 @@ Component.register('sw-settings-payment-detail', {
         Mixin.getByName('discard-detail-page-changes')('paymentMethod')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     data() {
         return {
             paymentMethod: {},
@@ -125,6 +130,10 @@ Component.register('sw-settings-payment-detail', {
                 this.isLoading = false;
                 throw exception;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.payment.index' });
         },
 
         setMediaItem({ targetId }) {

@@ -16,6 +16,10 @@ Component.register('sw-sales-channel-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave'
+    },
+
     data() {
         return {
             salesChannel: null,

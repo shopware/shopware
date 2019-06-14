@@ -13,6 +13,11 @@ Component.register('sw-settings-language-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     props: {
         languageId: {
             type: String,
@@ -149,6 +154,10 @@ Component.register('sw-settings-language-detail', {
             }).then(() => {
                 this.loadEntityData();
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.language.index' });
         },
 
         onChangeLanguage() {

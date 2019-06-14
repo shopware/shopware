@@ -14,7 +14,7 @@
         {% block sw_property_detail_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_property_detail_smart_bar_actions_cancel %}
-                    <sw-button :disabled="group.isLoading" :routerLink="{ name: 'sw.property.index' }">
+                    <sw-button :disabled="group.isLoading" @click="onCancel">
                         {{ $tc('sw-property.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}

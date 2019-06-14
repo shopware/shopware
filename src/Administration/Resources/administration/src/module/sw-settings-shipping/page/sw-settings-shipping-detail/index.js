@@ -15,6 +15,11 @@ Component.register('sw-settings-shipping-detail', {
         Mixin.getByName('discard-detail-page-changes')('shippingMethod')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        BACKSPACE: 'onCancel'
+    },
+
     watch: {
         'shippingMethod.mediaId'() {
             if (this.shippingMethod.mediaId) {
@@ -134,6 +139,10 @@ Component.register('sw-settings-shipping-detail', {
                 this.isProcessLoading = false;
                 throw exception;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.shipping.index' });
         },
 
         setMediaItem({ targetId }) {

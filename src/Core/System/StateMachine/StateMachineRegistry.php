@@ -6,18 +6,21 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateException;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class StateMachineRegistry
@@ -26,6 +29,11 @@ class StateMachineRegistry
      * @var EntityRepositoryInterface
      */
     private $stateMachineRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $stateMachineStateRepository;
 
     /**
      * @var EntityRepositoryInterface
@@ -49,11 +57,13 @@ class StateMachineRegistry
 
     public function __construct(
         EntityRepositoryInterface $stateMachineRepository,
+        EntityRepositoryInterface $stateMachineStateRepository,
         EntityRepositoryInterface $stateMachineHistoryRepository,
         EventDispatcherInterface $eventDispatcher,
         DefinitionInstanceRegistry $definitionRegistry
     ) {
         $this->stateMachineRepository = $stateMachineRepository;
+        $this->stateMachineStateRepository = $stateMachineStateRepository;
         $this->stateMachineHistoryRepository = $stateMachineHistoryRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->definitionRegistry = $definitionRegistry;
@@ -114,36 +124,106 @@ class StateMachineRegistry
     }
 
     /**
+     * @throws DefinitionNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
+     * @throws StateMachineNotFoundException
+     */
+    public function getAvailableTransitions(
+        string $entityName,
+        string $entityId,
+        string $stateFieldName,
+        Context $context
+    ) {
+        $stateMachineName = $this->getStateField($stateFieldName, $entityName)->getStateMachineName();
+        $repository = $this->definitionRegistry->getRepository($entityName);
+        $fromPlace = $this->getFromPlace($entityName, $entityId, $stateFieldName, $context, $repository);
+
+        return $this->getAvailableTransitionsById($stateMachineName, $fromPlace->getId(), $context);
+    }
+
+    /**
+     * @throws IllegalTransitionException
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineNotFoundException
-     * @throws StateMachineStateNotFoundException
+     * @throws StateMachineInvalidStateFieldException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws DefinitionNotFoundException
      */
-    public function getStateByTechnicalName(string $stateMachineName, string $technicalName, Context $context): StateMachineStateEntity
+    public function transition(Transition $transition, Context $context): StateMachineStateEntity
     {
-        $stateMachine = $this->getStateMachine($stateMachineName, $context);
+        $stateField = $this->getStateField($transition->getStateFieldName(), $transition->getEntityName());
 
-        /** @var StateMachineStateEntity $state */
-        foreach ($stateMachine->getStates() as $state) {
-            if ($state->getTechnicalName() === $technicalName) {
-                return $state;
-            }
+        $stateMachine = $this->getStateMachine($stateField->getStateMachineName(), $context);
+        $repository = $this->definitionRegistry->getRepository($transition->getEntityName());
+
+        $fromPlace = $this->getFromPlace(
+            $transition->getEntityName(),
+            $transition->getEntityId(),
+            $transition->getStateFieldName(),
+            $context,
+            $repository
+        );
+
+        if (empty($transition->getTransitionName())) {
+            $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
+            $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
+                return $transition->getActionName();
+            }, $transitions);
+
+            throw new IllegalTransitionException($fromPlace->getId(), '', $transitionNames);
         }
 
-        throw new StateMachineStateNotFoundException($stateMachineName, $technicalName);
+        $toPlace = $this->getTransitionDestinationById(
+            $stateMachine->getTechnicalName(),
+            $fromPlace->getId(),
+            $transition->getTransitionName(),
+            $context
+        );
+
+        $this->stateMachineHistoryRepository->create([
+            [
+                'stateMachineId' => $toPlace->getStateMachineId(),
+                'entityName' => $transition->getEntityName(),
+                'entityId' => ['id' => $transition->getEntityId(), 'version_id' => $context->getVersionId()],
+                'fromStateId' => $fromPlace->getId(),
+                'toStateId' => $toPlace->getId(),
+                'transitionActionName' => $transition->getTransitionName(),
+                'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
+            ],
+        ], $context);
+
+        $data = [['id' => $transition->getEntityId(), $transition->getStateFieldName() => $toPlace->getId()]];
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($repository, $data) {
+            $repository->upsert($data, $context);
+        });
+
+        $this->eventDispatcher->dispatch(
+            new StateMachineTransitionEvent(
+                $transition->getEntityName(),
+                $transition->getEntityId(),
+                $fromPlace,
+                $toPlace,
+                $context
+            )
+        );
+
+        return $toPlace;
     }
 
     /**
      * @throws StateMachineNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
-    public function getAvailableTransitions(string $stateMachineName, string $fromStateName, Context $context): array
+    private function getAvailableTransitionsById(string $stateMachineName, string $fromStateId, Context $context): array
     {
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
         $transitions = [];
         /** @var StateMachineTransitionEntity $transition */
         foreach ($stateMachine->getTransitions() as $transition) {
-            if ($transition->getFromStateMachineState()->getTechnicalName() === $fromStateName) {
+            if ($transition->getFromStateMachineState()->getId() === $fromStateId) {
                 $transitions[] = $transition;
             }
         }
@@ -152,130 +232,79 @@ class StateMachineRegistry
     }
 
     /**
-     * @throws StateMachineNotFoundException
-     * @throws InconsistentCriteriaIdsException
-     */
-    public function buildAvailableTransitionsJsonResponse(string $stateMachineName, string $fromStateName, string $baseUrl, Context $context): JsonResponse
-    {
-        $stateMachine = $this->getStateMachine($stateMachineName, $context);
-
-        $currentStateJson = null;
-
-        foreach ($stateMachine->getStates() as $place) {
-            if ($place->getTechnicalName() === $fromStateName) {
-                $currentStateJson = [
-                    'name' => $place->getName(),
-                    'technicalName' => $place->getTechnicalName(),
-                ];
-                break;
-            }
-        }
-
-        $availableTransitions = $this->getAvailableTransitions($stateMachineName, $fromStateName, $context);
-        $transitionsJson = [];
-        /** @var StateMachineTransitionEntity $transition */
-        foreach ($availableTransitions as $transition) {
-            $transitionsJson[] = [
-                'name' => $transition->getToStateMachineState()->getName(),
-                'technicalName' => $transition->getToStateMachineState()->getTechnicalName(),
-                'actionName' => $transition->getActionName(),
-                'fromStateName' => $transition->getFromStateMachineState()->getTechnicalName(),
-                'toStateName' => $transition->getToStateMachineState()->getTechnicalName(),
-                'url' => $baseUrl . '/' . $transition->getActionName(),
-            ];
-        }
-
-        return new JsonResponse([
-            'currentState' => $currentStateJson,
-            'transitions' => $transitionsJson,
-        ]);
-    }
-
-    /**
      * @throws IllegalTransitionException
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineNotFoundException
      */
-    public function getTransitionDestination(string $stateMachineName, string $fromStateName, string $transitionName, Context $context): StateMachineStateEntity
+    private function getTransitionDestinationById(string $stateMachineName, string $fromStateId, string $transitionName, Context $context): StateMachineStateEntity
     {
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
         /** @var StateMachineTransitionEntity $transition */
         foreach ($stateMachine->getTransitions() as $transition) {
-            if ($transition->getActionName() === $transitionName && $transition->getFromStateMachineState()->getTechnicalName() === $fromStateName) {
+            if ($transition->getActionName() === $transitionName && $transition->getFromStateMachineState()->getId() === $fromStateId) {
                 return $transition->getToStateMachineState();
             }
         }
 
-        $transitions = $this->getAvailableTransitions($stateMachineName, $fromStateName, $context);
+        $transitions = $this->getAvailableTransitionsById($stateMachineName, $fromStateId, $context);
         $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
             return $transition->getActionName();
         }, $transitions);
 
         throw new IllegalTransitionException(
-            $fromStateName,
+            $fromStateId,
             $transitionName,
             $transitionNames
         );
     }
 
     /**
-     * @throws IllegalTransitionException
-     * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineInvalidStateFieldException
+     * @throws DefinitionNotFoundException
      */
-    public function transition(
-        StateMachineEntity $stateMachine,
-        StateMachineStateEntity $fromPlace,
-        string $entityName,
-        string $entityId,
-        Context $context,
-        ?string $transitionName = null
-    ): StateMachineStateEntity {
-        if (empty($transitionName)) {
-            $transitions = $this->getAvailableTransitions($stateMachine->getTechnicalName(), $fromPlace->getTechnicalName(), $context);
-            $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
-                return $transition->getActionName();
-            }, $transitions);
+    private function getStateField(string $stateFieldName, string $entityName): StateMachineStateField
+    {
+        $definition = $this->definitionRegistry->getByEntityName($entityName);
+        $stateField = $definition->getFields()->get($stateFieldName);
 
-            throw new IllegalTransitionException($fromPlace->getName(), '', $transitionNames);
+        if (!$stateField || !$stateField instanceof StateMachineStateField) {
+            throw new StateMachineInvalidStateFieldException($stateFieldName);
         }
 
-        $toPlace = $this->getTransitionDestination($stateMachine->getTechnicalName(), $fromPlace->getTechnicalName(), $transitionName, $context);
-
-        $this->writeStateHistory($entityName, $entityId, $transitionName, $fromPlace, $toPlace, $context);
-
-        return $toPlace;
+        return $stateField;
     }
 
-    private function writeStateHistory(
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
+     */
+    private function getFromPlace(
         string $entityName,
         string $entityId,
-        string $transitionName,
-        StateMachineStateEntity $fromPlace,
-        StateMachineStateEntity $toPlace,
-        Context $context): void
-    {
-        $this->stateMachineHistoryRepository->create([
-            [
-                'stateMachineId' => $toPlace->getStateMachineId(),
-                'entityName' => $entityName,
-                'entityId' => ['id' => $entityId, 'version_id' => $context->getVersionId()],
-                'fromStateId' => $fromPlace->getId(),
-                'toStateId' => $toPlace->getId(),
-                'transitionActionName' => $transitionName,
-                'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
-            ],
-        ], $context);
+        string $stateFieldName,
+        Context $context,
+        EntityRepositoryInterface $repository
+    ): StateMachineStateEntity {
+        $entity = $repository->search(new Criteria([$entityId]), $context)->get($entityId);
 
-        $repository = $this->definitionRegistry->getRepository($entityName);
+        if (!$entity) {
+            throw new StateMachineInvalidEntityIdException($entityName, $entityId);
+        }
 
-        $update = ['id' => $entityId, 'stateId' => $toPlace->getId()];
+        $fromPlaceId = $entity->get($stateFieldName);
 
-        $repository->update([$update], $context);
+        if (!$fromPlaceId || !Uuid::isValid($fromPlaceId)) {
+            throw new StateMachineInvalidStateFieldException($stateFieldName);
+        }
 
-        $this->eventDispatcher->dispatch(
-            new StateMachineTransitionEvent($entityName, $entityId, $fromPlace, $toPlace, $context)
-        );
+        $fromPlace = $this->stateMachineStateRepository->search(new Criteria([$fromPlaceId]), $context)->get($fromPlaceId);
+
+        if (!$fromPlace) {
+            throw new StateMachineInvalidStateFieldException($stateFieldName);
+        }
+
+        return $fromPlace;
     }
 }

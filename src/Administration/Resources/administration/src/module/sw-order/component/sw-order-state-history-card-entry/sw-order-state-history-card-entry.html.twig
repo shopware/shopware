@@ -30,7 +30,7 @@
                           showDelay: 300,
                           message:userDisplayName(entry.user)
                       }">
-                        {{ entry.createdAt| date() }}
+                        {{ entry.createdAt| date({hour: '2-digit', minute: '2-digit'}) }}
                     </span>
                 {% endblock %}
 

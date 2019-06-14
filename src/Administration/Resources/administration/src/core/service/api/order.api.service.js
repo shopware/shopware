@@ -86,25 +86,6 @@ class OrderApiService extends ApiService {
                 headers
             });
     }
-
-    getState(orderId, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_action/order/${orderId}/state`;
-        const headers = this.getBasicHeaders(additionalHeaders);
-
-        return this.httpClient
-            .get(route, {
-                additionalParams,
-                headers
-            });
-    }
-
-    transitionState(orderId, actionName, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_action/order/${orderId}/state/${actionName}`;
-        const headers = this.getBasicHeaders(additionalHeaders);
-
-        return this.httpClient
-            .post(route, {}, { additionalParams, headers });
-    }
 }
 
 export default OrderApiService;

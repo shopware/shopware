@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Order\Api;
+namespace Shopware\Core\System\Test\StateMachine\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -24,11 +24,10 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Response;
 
-class OrderActionControllerTest extends TestCase
+class StateMachineActionControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
     use IntegrationTestBehaviour;
@@ -80,34 +79,31 @@ class OrderActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/state-machine/order/' . $orderId . '/state');
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
-        static::assertNotNull($response['currentState']);
-        static::assertEquals(OrderStates::STATE_OPEN, $response['currentState']['technicalName']);
-
         static::assertCount(2, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
-        static::assertStringEndsWith('/_action/order/' . $orderId . '/state/cancel', $response['transitions'][0]['url']);
+        static::assertStringEndsWith('/_action/state-machine/order/' . $orderId . '/state/cancel', $response['transitions'][0]['url']);
     }
 
     public function testTransitionToAllowedState(): void
     {
+        // TODO
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/state-machine/order/' . $orderId . '/state');
 
         $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
         $actionUrl = $response['transitions'][0]['url'];
         $transitionTechnicalName = $response['transitions'][0]['technicalName'];
-        $startStateTechnicalName = $response['currentState']['technicalName'];
 
         $this->getBrowser()->request('POST', $actionUrl);
 
@@ -115,20 +111,11 @@ class OrderActionControllerTest extends TestCase
         $response = json_decode($response, true);
 
         static::assertEquals(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertEquals($orderId, $response['data']['id']);
 
-        $stateId = $response['data']['relationships']['stateMachineState']['data']['id'] ?? null;
-        static::assertNotNull($stateId);
+        $stateId = $response['data']['id'] ?? '';
+        static::assertTrue(Uuid::isValid($stateId));
 
-        $destinationStateTechnicalName = null;
-
-        foreach ($response['included'] as $relationship) {
-            if ($relationship['type'] === $this->getContainer()->get(StateMachineStateDefinition::class)->getEntityName()) {
-                $destinationStateTechnicalName = $relationship['attributes']['technicalName'];
-                break;
-            }
-        }
-
+        $destinationStateTechnicalName = $response['data']['attributes']['technicalName'];
         static::assertEquals($transitionTechnicalName, $destinationStateTechnicalName);
 
         // test whether the state history was written
@@ -142,7 +129,6 @@ class OrderActionControllerTest extends TestCase
         /** @var StateMachineHistoryEntity $historyEntry */
         $historyEntry = array_values($history->getElements())[0];
 
-        static::assertEquals($startStateTechnicalName, $historyEntry->getFromStateMachineState()->getTechnicalName());
         static::assertEquals($destinationStateTechnicalName, $historyEntry->getToStateMachineState()->getTechnicalName());
 
         static::assertEquals($this->getContainer()->get(OrderDefinition::class)->getEntityName(), $historyEntry->getEntityName());
@@ -156,22 +142,7 @@ class OrderActionControllerTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state/foo');
-
-        $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
-
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertArrayHasKey('errors', $response);
-    }
-
-    public function testTransitionToEmptyState(): void
-    {
-        $context = Context::createDefaultContext();
-        $customerId = $this->createCustomer($context);
-        $orderId = $this->createOrder($customerId, $context);
-
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/order/' . $orderId . '/state');
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/state-machine/order/' . $orderId . '/state/foo');
 
         $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);

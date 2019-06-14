@@ -5,7 +5,6 @@
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
     <import resource="../../Cart/**/*Controller.php" type="annotation" />
-    <import resource="../../Order/**/*Controller.php" type="annotation" />
     <import resource="../../Payment/**/*Controller.php" type="annotation" />
     <import resource="../../Cart/SalesChannel/**/*Controller.php" type="annotation" />
     <import resource="../../Customer/SalesChannel/**/*Controller.php" type="annotation" />

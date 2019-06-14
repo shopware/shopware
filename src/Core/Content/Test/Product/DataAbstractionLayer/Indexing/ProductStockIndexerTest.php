@@ -18,6 +18,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
 
 class ProductStockIndexerTest extends TestCase
 {
@@ -184,8 +185,8 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame(5, $product->getStock());
         static::assertSame(4, $product->getAvailableStock());
 
-        $this->transiteOrder($orderId, 'process');
-        $this->transiteOrder($orderId, 'complete');
+        $this->transitionOrder($orderId, 'process');
+        $this->transitionOrder($orderId, 'complete');
 
         /** @var ProductEntity $product */
         $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
@@ -214,8 +215,8 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame(5, $product->getStock());
         static::assertSame(0, $product->getAvailableStock());
 
-        $this->transiteOrder($orderId, 'process');
-        $this->transiteOrder($orderId, 'complete');
+        $this->transitionOrder($orderId, 'process');
+        $this->transitionOrder($orderId, 'complete');
 
         /** @var ProductEntity $product */
         $product = $this->repository->search(new Criteria([$id]), $context)->get($id);
@@ -307,25 +308,19 @@ class ProductStockIndexerTest extends TestCase
         return $this->cartService->order($cart, $this->context);
     }
 
-    private function transiteOrder(string $orderId, string $transition)
+    private function transitionOrder(string $orderId, string $transition)
     {
-        $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('stateMachineState.stateMachine');
-
-        $order = $this->getContainer()->get('order.repository')
-            ->search($criteria, Context::createDefaultContext())
-            ->first();
-
         $registry = $this->getContainer()->get(StateMachineRegistry::class);
 
         /* @var OrderEntity $order */
         $registry->transition(
-            $order->getStateMachineState()->getStateMachine(),
-            $order->getStateMachineState(),
-            'order',
-            $order->getId(),
-            Context::createDefaultContext(),
-            $transition
+            new Transition(
+                'order',
+                $orderId,
+                $transition,
+                'stateId'
+            ),
+            Context::createDefaultContext()
         );
     }
 }

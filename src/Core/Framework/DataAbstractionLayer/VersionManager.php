@@ -326,8 +326,12 @@ class VersionManager
         $data['id'] = $newId;
 
         $versionContext = $context->createWithVersionId($versionId);
+        $result = null;
+        $versionContext->scope(Context::SYSTEM_SCOPE, function (WriteContext $context) use ($definition, $data, &$result) {
+            $result = $this->entityWriter->insert($definition, [$data], $context);
+        });
 
-        return $this->entityWriter->insert($definition, [$data], $versionContext);
+        return $result;
     }
 
     private function filterPropertiesForClone(EntityDefinition $definition, array $data, bool $keepIds, string $cloneId, EntityDefinition $cloneDefinition, Context $context): array
@@ -341,7 +345,7 @@ class VersionManager
         foreach ($fields as $field) {
             /** @var WriteProtected|null $writeProtection */
             $writeProtection = $field->getFlag(WriteProtected::class);
-            if ($writeProtection && !$writeProtection->isAllowed($context->getScope())) {
+            if ($writeProtection && !$writeProtection->isAllowed(Context::SYSTEM_SCOPE)) {
                 continue;
             }
 

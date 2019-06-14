@@ -13,7 +13,7 @@
 
 
                 {% block sw_order_state_card_entry_icon %}
-                    <sw-label circle :class="getBackgroundColorFromState(entry.state.technicalName)">
+                    <sw-label appearance="circle" :class="getBackgroundColorFromState(entry.state.technicalName)">
                         <sw-icon :name="getIconFromState(entry.state.technicalName)"
                             :class="getIconColorFromState(entry.state.technicalName)"
                             size="16">

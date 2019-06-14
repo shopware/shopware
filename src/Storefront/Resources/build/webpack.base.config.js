@@ -2,34 +2,13 @@ const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
-const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const babelrc = require('../.babelrc');
+const utils = require('./utils');
 
-if (!process.env.PROJECT_ROOT) {
-    process.env.PROJECT_ROOT = '../../../../..';
-}
-
-const publicPath = `${process.env.APP_URL}${(process.env.MODE === 'hot') ? ':9999' : ''}/`;
-const buildDirectory = path.resolve(process.env.PROJECT_ROOT, 'public');
-
-/**
- * helper function to get a path relative to the root folder
- *
- * @param {String} dir
- * @returns {String}
- */
-function getPath(dir) {
-    const basePath = path.join(__dirname, '..');
-    if (dir) {
-        return path.join(basePath, dir);
-    }
-
-    return basePath;
-}
-
-const outPutFolder = '.';
-const assetOutPutFolder = `${outPutFolder}/assets`;
+const outputFolder = utils.getOutputPath();
+const buildDirectory = utils.getBuildPath();
+const assetOutPutFolder = `${outputFolder}/assets`;
 
 /**
  * -------------------------------------------------------
@@ -41,10 +20,10 @@ const assetOutPutFolder = `${outPutFolder}/assets`;
  * -------------------------------------------------------
  */
 
-const context = getPath('src/script');
+const context = utils.getPath('src/script');
 
 /**
- * Configuration of the applications entrypoints
+ * Configuration of the applications entry points
  * https://webpack.js.org/configuration/entry-context#entry
  *
  * relative to the webpack context
@@ -62,9 +41,9 @@ const entries = {
  */
 const output = {
     path: buildDirectory,
-    filename: `${outPutFolder}/js/[name].js`,
-    publicPath: publicPath,
-    chunkFilename: `${outPutFolder}/js/[name].js`
+    filename: `${outputFolder}/js/[name].js`,
+    publicPath: utils.getPublicPath(),
+    chunkFilename: `${outputFolder}/js/[name].js`
 };
 
 /**
@@ -85,7 +64,7 @@ const modules = {
                 {
                     loader: 'eslint-loader',
                     options: {
-                        configFile: getPath('.eslintrc.js'),
+                        configFile: utils.getPath('.eslintrc.js'),
                         fix: true
                     }
                 }
@@ -94,7 +73,7 @@ const modules = {
         {
             test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
             include: [
-                getPath('assets/font')
+                utils.getPath('assets/font')
             ],
             use: [
                 {
@@ -110,7 +89,7 @@ const modules = {
         {
             test: /\.(jp(e)g|png|gif|svg)(\?v=\d+\.\d+\.\d+)?$/,
             exclude: [
-                getPath('assets/font')
+                utils.getPath('assets/font')
             ],
             use: [
                 {
@@ -119,11 +98,11 @@ const modules = {
                         name: '[name].[ext]',
                         outputPath: `${assetOutPutFolder}/img`,
                         publicPath: '../assets/img'
-                    },
-                },
-            ],
-        },
-    ],
+                    }
+                }
+            ]
+        }
+    ]
 };
 
 /**
@@ -142,19 +121,19 @@ const plugins = [
         name: 'Shopware 6 Storefront'
     }),
     new StyleLintPlugin({
-        context: getPath('src/style'),
+        context: utils.getPath('src/style'),
         syntax: 'scss',
         fix: true
     }),
     new CopyPlugin([
         {
-            from: getPath('assets'),
+            from: utils.getPath('assets'),
             to: assetOutPutFolder
         }
     ]),
     new MiniCssExtractPlugin({
-        filename: `${outPutFolder}/css/[name].css`,
-        chunkFilename: `${outPutFolder}/css/[name].css`
+        filename: `${outputFolder}/css/[name].css`,
+        chunkFilename: `${outputFolder}/css/[name].css`
     })
 ];
 
@@ -178,12 +157,12 @@ const devServer = {};
  * @type {{}}}
  */
 const resolve = {
-    extensions: [ '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
+    extensions: ['.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig'],
     alias: {
-        src: getPath('src'),
-        assets: getPath('assets'),
+        src: utils.getPath('src'),
+        assets: utils.getPath('assets'),
         jquery: 'jquery/dist/jquery.slim',
-        scss: getPath('src/style')
+        scss: utils.getPath('src/style')
     }
 };
 

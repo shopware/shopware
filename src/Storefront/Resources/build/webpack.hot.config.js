@@ -1,7 +1,7 @@
 const webpack = require('webpack');
-const { resolve, join } = require('path');
+const { join } = require('path');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
-const buildDirectory = resolve(process.env.PROJECT_ROOT, 'public');
+const utils = require('./utils');
 
 /**
  * -------------------------------------------------------
@@ -60,7 +60,7 @@ const plugins = [
  * @type {{}}
  */
 const devServer = {
-    contentBase: buildDirectory,
+    contentBase: utils.getBuildPath(),
     open: false,
     overlay: {
         warnings: false,

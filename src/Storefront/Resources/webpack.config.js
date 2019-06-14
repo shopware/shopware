@@ -1,3 +1,4 @@
+const merge = require('webpack-merge');
 const WebpackPluginInjector = require('../../Administration/Resources/common/webpack-plugin-injector');
 
 let file = 'dev';
@@ -10,7 +11,7 @@ if (process.env.NODE_ENV === 'production') {
 
 const path = `./build/webpack.${file}.config.js`;
 
-let webpackConfig = require('webpack-merge')(
+let webpackConfig = merge(
     require('./build/webpack.base.config'),
     require(path) // eslint-disable-line
 );

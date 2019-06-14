@@ -1,7 +1,6 @@
-import { Application, Component, Mixin, State } from 'src/core/shopware';
+import { Application, Component, Mixin } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
 import { warn } from 'src/core/service/utils/debug.utils';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-mail-template-detail.html.twig';
 
@@ -25,8 +24,8 @@ Component.register('sw-mail-template-detail', {
             isLoading: false,
             isSaveSuccessful: false,
             eventAssociationStore: {},
-            mailTemplateSalesChannelsStore: {},
-            mailTemplateSalesChannels: [],
+            mailTemplateType: {},
+            mailTemplateSalesChannels: null,
             mailTemplateSalesChannelsAssoc: {},
             salesChannelTypeCriteria: null,
             selectedType: {},
@@ -44,24 +43,22 @@ Component.register('sw-mail-template-detail', {
 
     computed: {
         identifier() {
-            // ToDo: If 'mailType' is translatable, please update:
-            // ToDo: return this.placeholder(this.mailTemplate, 'mailType');
-            return this.mailTemplate ? this.mailTemplate.mailType : '';
+            return this.placeholder(this.mailTemplateType, 'name');
         },
 
-        mailTemplateStore() {
-            return State.getStore('mail_template');
+        mailTemplateRepository() {
+            return this.repositoryFactory.create('mail_template');
         },
 
-        salesChannelStore() {
-            return State.getStore('sales_channel');
+        mailTemplateSalesChannelAssociationRepository() {
+            return this.repositoryFactory.create('mail_template_sales_channel');
         },
 
         mailTemplateSalesChannelAssociationStore() {
             return this.mailTemplate.getAssociation('salesChannels');
         },
 
-        completerFunction() {
+        outerCompleterFunction() {
             return (function completerWrapper(entityMappingService, innerMailTemplateType) {
                 function completerFunction(prefix) {
                     const properties = [];
@@ -80,17 +77,8 @@ Component.register('sw-mail-template-detail', {
             }(this.entityMappingService, this.mailTemplateType));
         },
 
-        mailTemplateTypeStore() {
-            return State.getStore('mail_template_type');
-        },
-
-        mailTemplateType() {
-            if (this.mailTemplate.mailTemplateTypeId) {
-                return this.mailTemplateTypeStore.getById(
-                    this.mailTemplate.mailTemplateTypeId
-                );
-            }
-            return {};
+        mailTemplateTypeRepository() {
+            return this.repositoryFactory.create('mail_template_type');
         },
 
         testMailRequirementsMet() {
@@ -118,7 +106,6 @@ Component.register('sw-mail-template-detail', {
                 this.mailTemplateId = this.$route.params.id;
                 this.loadEntityData();
             }
-            this.mailTemplateSalesChannelsStore = new LocalStore();
             const initContainer = Application.getContainer('init');
             const httpClient = initContainer.httpClient;
 
@@ -132,25 +119,34 @@ Component.register('sw-mail-template-detail', {
         },
 
         loadEntityData() {
-            this.salesChannelStore.getList().then((response) => {
-                this.salesChannels = response;
-            });
-            this.mailTemplateStore.getByIdAsync(this.mailTemplateId).then((response) => {
-                this.mailTemplate = response;
-                this.onChangeType(this.mailTemplate.mailTemplateTypeId);
-                this.mailTemplateSalesChannelAssociationStore.getList({
-                    associations: { salesChannel: {} }
-                }).then((responseAssoc) => {
-                    this.mailTemplateSalesChannelsAssoc = responseAssoc;
-                    this.mailTemplateSalesChannelsAssoc.items.forEach((salesChannelAssoc) => {
-                        if (salesChannelAssoc.salesChannelId !== null) {
-                            this.mailTemplateSalesChannelsStore.add(salesChannelAssoc.salesChannel);
-                        }
-                    });
-                    this.$refs.mailTemplateSalesChannel.loadSelected(true);
-                    this.$refs.mailTemplateSalesChannel.updateValue();
+            const criteria = new Criteria();
+            const salesChannelCriteria = new Criteria();
+            salesChannelCriteria.addAssociation('salesChannel');
+            criteria.addAssociation('salesChannels', salesChannelCriteria);
+            criteria.addAssociation('mailTemplateType');
+            this.mailTemplateRepository.get(this.mailTemplateId, this.context, criteria).then((item) => {
+                this.mailTemplate = item;
+                this.mailTemplateSalesChannels = null;
+                const tempArray = [];
+                this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
+                    tempArray.push(salesChannelAssoc.salesChannel);
                 });
+                this.mailTemplateSalesChannels = tempArray;
+                this.onChangeType(this.mailTemplate.mailTemplateType.id);
             });
+        },
+
+        getMailTemplateType() {
+            if (this.mailTemplate.mailTemplateTypeId) {
+                this.mailTemplateTypeRepository.get(
+                    this.mailTemplate.mailTemplateTypeId,
+                    this.context
+                ).then((item) => {
+                    this.mailTemplateType = item;
+                    this.$refs.htmlEditor.defineAutocompletion(this.outerCompleterFunction);
+                    this.$refs.plainEditor.defineAutocompletion(this.outerCompleterFunction);
+                });
+            }
         },
 
         abortOnLanguageChange() {
@@ -180,10 +176,23 @@ Component.register('sw-mail-template-detail', {
             };
             this.isSaveSuccessful = false;
             this.isLoading = true;
-            this.onChangeSalesChannel();
-            return this.mailTemplate.save().then(() => {
+            this.handleSalesChannel();
+            return this.mailTemplateRepository.save(this.mailTemplate, this.context).then(() => {
+                this.mailTemplateSalesChannelsAssoc.forEach((salesChannelAssoc) => {
+                    this.mailTemplateSalesChannelAssociationRepository.save(salesChannelAssoc, this.context);
+                });
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
+            }).then(() => {
+                this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
+                    if (
+                        typeof salesChannelAssoc.salesChannelId !== 'undefined' &&
+                        !this.salesChannelIsSelected(salesChannelAssoc.salesChannelId)
+                    ) {
+                        this.mailTemplateSalesChannelAssociationRepository.delete(salesChannelAssoc.id, this.context);
+                    }
+                });
+                this.loadEntityData();
             }).catch((exception) => {
                 this.isLoading = false;
                 this.createNotificationError(notificationSaveError);
@@ -236,13 +245,17 @@ Component.register('sw-mail-template-detail', {
                 this.selectedType = {};
                 return;
             }
-            this.selectedType = this.mailTemplateTypeStore.getById(id);
-            const mailTemplateSalesChannels = this.repositoryFactory.create('mail_template_sales_channel');
+            this.getMailTemplateType();
+            this.mailTemplateTypeRepository.get(id, this.context).then((item) => {
+                this.selectedType = item;
+            });
+
+            const mailTemplateSalesChannelsEntry = this.repositoryFactory.create('mail_template_sales_channel');
             const mailTemplateSalesChannelCriteria = new Criteria();
             mailTemplateSalesChannelCriteria.addFilter(
                 Criteria.equals('mailTemplateTypeId', id)
             );
-            mailTemplateSalesChannels.search(mailTemplateSalesChannelCriteria, this.context).then(
+            mailTemplateSalesChannelsEntry.search(mailTemplateSalesChannelCriteria, this.context).then(
                 (responseSalesChannels) => {
                     const assignedSalesChannelIds = [];
                     responseSalesChannels.forEach((salesChannel) => {
@@ -253,87 +266,78 @@ Component.register('sw-mail-template-detail', {
                     this.getPossibleSalesChannels(assignedSalesChannelIds);
                 }
             );
-            this.completerFunction();
+            this.outerCompleterFunction();
         },
         getPossibleSalesChannels(assignedSalesChannelIds) {
             this.setSalesChannelCriteria(assignedSalesChannelIds);
-            this.mailTemplateSalesChannelAssociationStore.getList({
-                associations: { salesChannel: {} }
-            }).then((responseAssoc) => {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('mailTemplateId', this.mailTemplate.id));
+            criteria.addAssociation('salesChannel');
+            this.mailTemplateSalesChannelAssociationRepository.search(
+                criteria,
+                this.context
+            ).then((responseAssoc) => {
                 this.enrichAssocStores(responseAssoc);
             });
         },
         setSalesChannelCriteria(assignedSalesChannelIds) {
-            this.salesChannelTypeCriteria = null;
+            this.salesChannelTypeCriteria = new Criteria();
             if (assignedSalesChannelIds.length > 0) {
                 // get all salesChannels which are not assigned to this mailTemplateType
                 // and all SalesChannels already assigned to the current mailTemplate if type not changed
                 if (this.mailTemplate.mailTemplateTypeId === this.selectedType.id) {
-                    this.salesChannelTypeCriteria = CriteriaFactory.multi('OR',
-                        CriteriaFactory.equals('mailTemplates.id', null),
-                        CriteriaFactory.not(
-                            'AND',
-                            CriteriaFactory.equalsAny('id', assignedSalesChannelIds)
-                        ),
-                        CriteriaFactory.equals(
-                            'mailTemplates.mailTemplate.id', this.mailTemplate.id
-                        ));
+                    this.salesChannelTypeCriteria.addFilter(Criteria.multi('OR',
+                        [
+                            Criteria.equals('mailTemplates.id', null),
+                            Criteria.not(
+                                'AND',
+                                [Criteria.equalsAny('id', assignedSalesChannelIds)]
+                            ),
+                            Criteria.equals(
+                                'mailTemplates.mailTemplate.id', this.mailTemplate.id
+                            )
+                        ]));
                 } else { // type changed so only get free saleschannels
-                    this.salesChannelTypeCriteria = CriteriaFactory.multi('OR',
-                        CriteriaFactory.equals('mailTemplates.id', null),
-                        CriteriaFactory.not(
-                            'AND',
-                            CriteriaFactory.equalsAny('id', assignedSalesChannelIds)
-                        ));
+                    this.salesChannelTypeCriteria.addFilter(Criteria.multi('OR',
+                        [
+                            Criteria.equals('mailTemplates.id', null),
+                            Criteria.not(
+                                'AND',
+                                [Criteria.equalsAny('id', assignedSalesChannelIds)]
+                            )
+                        ]));
                 }
             }
         },
         enrichAssocStores(responseAssoc) {
-            this.mailTemplateSalesChannels = [];
             this.mailTemplateSalesChannelsAssoc = responseAssoc;
-            this.mailTemplateSalesChannelsAssoc.items.forEach((salesChannelAssoc) => {
+            this.mailTemplateSalesChannelsAssoc.forEach((salesChannelAssoc) => {
                 if (salesChannelAssoc.salesChannelId !== null) {
-                    this.mailTemplateSalesChannelsStore.add(salesChannelAssoc.salesChannel);
-                    this.mailTemplateSalesChannels.push(salesChannelAssoc.salesChannel.id);
+                    this.mailTemplateSalesChannels.push(salesChannelAssoc.salesChannel);
                 }
             });
-            if (this.$refs.mailTemplateSalesChannel) {
-                this.$refs.mailTemplateSalesChannel.loadSelected(true);
-            }
         },
-        onChangeSalesChannel() {
-            if (this.$refs.mailTemplateSalesChannel) {
-                this.$refs.mailTemplateSalesChannel.updateValue();
-            }
-            if (Object.keys(this.mailTemplate).length === 0) {
-                return;
-            }
+        handleSalesChannel() {
             // check selected saleschannels and associate to config
-            if (this.mailTemplateSalesChannels && this.mailTemplateSalesChannels.length > 0) {
-                this.mailTemplateSalesChannels.forEach((salesChannel) => {
-                    if (!this.mailTemplateHasSaleschannel(salesChannel)) {
-                        const assocConfig = this.mailTemplateSalesChannelAssociationStore.create();
+            const selectedIds = this.$refs.mailTemplateSalesChannel.selectedIds;
+            if (selectedIds && selectedIds.length > 0) {
+                selectedIds.forEach((salesChannelId) => {
+                    if (!this.mailTemplateHasSaleschannel(salesChannelId)) {
+                        const assocConfig = this.mailTemplateSalesChannelAssociationRepository.create(this.context);
                         assocConfig.mailTemplateId = this.mailTemplate.id;
                         assocConfig.mailTemplateTypeId = this.selectedType.id;
-                        assocConfig.salesChannelId = salesChannel;
+                        assocConfig.salesChannelId = salesChannelId;
+                        this.mailTemplateSalesChannelsAssoc.add(assocConfig);
                     } else {
-                        this.undeleteSaleschannel(salesChannel);
+                        this.undeleteSaleschannel(salesChannelId);
                     }
                 });
             }
-            this.mailTemplateSalesChannelAssociationStore.forEach((salesChannelAssoc) => {
-                if (
-                    typeof salesChannelAssoc.salesChannelId !== 'undefined' &&
-                    !this.salesChannelIsSelected(salesChannelAssoc.salesChannelId)
-                ) {
-                    salesChannelAssoc.delete();
-                }
-            });
         },
 
         mailTemplateHasSaleschannel(salesChannelId) {
             let found = false;
-            this.mailTemplateSalesChannelAssociationStore.forEach((salesChannelAssoc) => {
+            this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
                 if (salesChannelAssoc.salesChannelId === salesChannelId) {
                     found = true;
                 }
@@ -343,11 +347,14 @@ Component.register('sw-mail-template-detail', {
 
         salesChannelIsSelected(salesChannelId) {
             // SalesChannel is selected in select field?
-            return (this.mailTemplateSalesChannels && this.mailTemplateSalesChannels.includes(salesChannelId));
+            return (
+                this.$refs.mailTemplateSalesChannel.selectedIds &&
+                this.$refs.mailTemplateSalesChannel.selectedIds.includes(salesChannelId)
+            );
         },
 
         undeleteSaleschannel(salesChannelId) {
-            this.mailTemplateSalesChannelAssociationStore.forEach((salesChannelAssoc) => {
+            this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
                 if (salesChannelAssoc.salesChannelId === salesChannelId && salesChannelAssoc.isDeleted === true) {
                     salesChannelAssoc.isDeleted = false;
                 }

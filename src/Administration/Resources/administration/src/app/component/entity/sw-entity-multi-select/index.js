@@ -54,10 +54,9 @@ export default {
 
     methods: {
         initData() {
-            this.repository = this.repositoryFactory.create(this.entity, `/${this.entity}`);
+            this.repository = this.repositoryFactory.create(this.entity, `/${this.entity.replace(/_/g, '-')}`);
 
             this.$on('scroll', this.paginate);
-
             if (this.selectedEntities && this.selectedEntities.length > 0) {
                 this.selectedEntities.forEach((entity) => {
                     this.addItem({ item: entity });

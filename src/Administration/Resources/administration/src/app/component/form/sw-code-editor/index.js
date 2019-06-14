@@ -98,7 +98,7 @@ export default {
 
     watch: {
         value(value) {
-            if (value !== this.editor.getValue()) {
+            if (value !== null && value !== this.editor.getValue()) {
                 this.editor.setValue(value);
             }
         },
@@ -126,9 +126,9 @@ export default {
             };
             this.editor = Ace.edit(this.$refs['editor'.concat(this.editorId)], config);
 
-            this.defineAutocompletion();
+            this.defineAutocompletion(this.completerFunction);
 
-            this.editor.setValue(this.value, 1);
+            this.editor.setValue(this.value || '', 1);
             this.editor.on('blur', this.onBlur);
 
             if (this.setFocus) {
@@ -157,7 +157,8 @@ export default {
             const value = this.editor.getValue();
             this.$emit('blur', value);
         },
-        defineAutocompletion() {
+
+        defineAutocompletion(completerFunction) {
             /**
              * Sets a completer function. If completitionMode is set to "entity"
              * Autocomplete can handle [x] and . otherwise it uses the default
@@ -166,18 +167,22 @@ export default {
              * prevent the autocompletion-popup to hide after a .
              */
             setCompleters([]);
-            if (this.completerFunction) {
+            if (completerFunction) {
                 const textCompleterClonedPlain = JSON.parse(JSON.stringify(textCompleter));
                 const textCompleterCloned = JSON.parse(JSON.stringify(textCompleter));
+
                 if (this.completionMode === 'entity') {
                     textCompleterCloned.identifierRegexps = [/[\[\]\.a-zA-Z_0-9\$\-\u00A2-\uFFFF]/];
+
                     textCompleterCloned.getCompletions = function getComps(editor, session, pos, prefix, callback) {
                         this.identifierRegexps = [/[\[\][a-zA-Z_0-9\$\-\u00A2-\uFFFF]/];
-                        callback(null, this.completerFunction(prefix));
+                        callback(null, completerFunction(prefix));
                         this.identifierRegexps = [/[\[\]\.a-zA-Z_0-9\$\-\u00A2-\uFFFF]/];
                     };
-                    textCompleterCloned.completerFunction = this.completerFunction;
+
+                    textCompleterCloned.completerFunction = completerFunction;
                     this.editor.completers = [textCompleterCloned];
+
                     const startCallback = (function startCall(e) {
                         if (e.command.name === 'insertstring') {
                             if (e.args !== '\n' && e.args !== ' ') {
@@ -185,13 +190,15 @@ export default {
                             }
                         }
                     });
+
                     this.editor.commands.on('afterExec', startCallback);
                 } else {
                     textCompleterClonedPlain.identifierRegexps = null;
                     textCompleterClonedPlain.getCompletions = function getComps(editor, session, pos, prefix, callback) {
-                        callback(null, this.completerFunction(prefix));
+                        callback(null, completerFunction(prefix));
                     };
-                    textCompleterClonedPlain.completerFunction = this.completerFunction;
+
+                    textCompleterClonedPlain.completerFunction = completerFunction;
                     this.editor.completers = [textCompleterClonedPlain];
                 }
             } else {

@@ -14,7 +14,11 @@ function getEntityMapping(entityName, entityNameMapping) {
         properties: {}
     };
 
-    if (Object.keys(entityNameMapping).length > 0) {
+    if (typeof entityName === 'undefined') {
+        entityName = '';
+    }
+
+    if (typeof entityNameMapping !== 'undefined' && Object.keys(entityNameMapping).length > 0) {
         Object.keys(entityNameMapping).forEach((mappedKey) => {
             schema.properties[mappedKey] = {
                 entity: entityNameMapping[mappedKey],
@@ -28,6 +32,7 @@ function getEntityMapping(entityName, entityNameMapping) {
     if (entityName.indexOf('.') < 1) {
         return schema.properties;
     }
+
     entityName = entityName.split('.');
 
     let lastEntityName = '';

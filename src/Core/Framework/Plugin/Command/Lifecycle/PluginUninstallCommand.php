@@ -51,5 +51,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
         if ($uninstalledPluginCount !== 0) {
             $io->success(sprintf('Uninstalled %d plugins.', $uninstalledPluginCount));
         }
+
+        $this->handleClearCacheOption($input, $io, 'uninstalling');
     }
 }

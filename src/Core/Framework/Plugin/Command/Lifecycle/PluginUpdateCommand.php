@@ -38,5 +38,7 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
         if ($updatedPluginCount !== 0) {
             $io->success(sprintf('Updated %d plugin(s).', $updatedPluginCount));
         }
+
+        $this->handleClearCacheOption($input, $io, 'updating');
     }
 }

@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -54,7 +53,6 @@ class Generator extends TestCase
         if ($salesChannel === null) {
             $salesChannel = new SalesChannelEntity();
             $salesChannel->setId('ffa32a50e2d04cf38389a53f8d6cd594');
-            $salesChannel->setTaxCalculationType(TaxAmountCalculator::CALCULATION_HORIZONTAL);
         }
 
         $currency = $currency ?: (new CurrencyEntity())->assign([

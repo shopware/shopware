@@ -43,7 +43,6 @@ Table(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel\n(Sal
    not_null(accessKey) string
    configuration json
    active bool
-   taxCalculationType string
    customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt

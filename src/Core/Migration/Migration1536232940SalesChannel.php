@@ -33,7 +33,6 @@ class Migration1536232940SalesChannel extends MigrationStep
               `service_category_id` BINARY(16) NULL,
               `service_category_version_id` BINARY(16) NULL,
               `active` TINYINT(1) NOT NULL DEFAULT '1',
-              `tax_calculation_type` VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'vertical',
               `navigation_id` BINARY(16) NULL,
               `navigation_version_id` BINARY(16),
               `customer_group_id` BINARY(16) NOT NULL,

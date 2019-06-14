@@ -40,9 +40,9 @@ export default {
             type: String,
             required: false,
             default: 'default',
-            validValues: ['default', 'pill'],
+            validValues: ['default', 'pill', 'circle'],
             validator(value) {
-                return ['default', 'pill'].includes(value);
+                return ['default', 'pill', 'circle'].includes(value);
             }
         },
         ghost: {

@@ -77,6 +77,15 @@ $sw-label-pill-border-radius: 50px;
         border-radius: $sw-label-pill-border-radius;
     }
 
+    &.sw-label--appearance-circle {
+        width: 24px;
+        height: 24px;
+        border-radius: 16px;
+        padding: 4px;
+        border: 0;
+        min-width: 24px;
+    }
+
     &.sw-label--caps {
         text-transform: uppercase;
     }

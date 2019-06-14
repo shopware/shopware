@@ -18,7 +18,7 @@ class ArrayType implements EventDataType
     {
         return [
             'type' => 'array',
-            'ofType' => $this->type->toArray(),
+            'of' => $this->type->toArray(),
         ];
     }
 }

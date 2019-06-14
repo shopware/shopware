@@ -44,6 +44,12 @@
                             {% endblock %}
                         </template>
 
+                        <template slot="column-level" slot-scope="{ item }">
+                            {% block sw_settings_logging_list_column_level %}
+                                {{ logLevelToString(item.level) }} ({{ item.level }})
+                            {% endblock %}
+                        </template>
+
                         <template slot="column-context" slot-scope="{ item }">
                             {% block sw_settings_logging_list_column_context %}
                                 <a @click="showInfoModal(item)">{{ item.context }}</a>
@@ -76,7 +82,7 @@
 
                 {% block sw_settings_logging_list_content_info_modal %}
                     <component v-if="displayedLog !== null"
-                               :is="logInfoModalComponent"
+                               :is="modalNameFromLogEntry"
                                :logEntry="displayedLog"
                                @close="closeInfoModal">
                     </component>

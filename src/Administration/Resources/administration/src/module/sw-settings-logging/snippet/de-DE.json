@@ -10,12 +10,20 @@
       "columnMessage": "Nachricht",
       "columnLevel": "Priorität",
       "columnContent": "Inhalt",
-      "actionShowInfo": "Zeige Details..."
+      "actionShowInfo": "Zeige Details...",
+      "levelDebug":"Debug",
+      "levelInfo":"Info",
+      "levelNotice":"Hinweis",
+      "levelWarning":"Warning",
+      "levelError":"Fehler",
+      "levelCritical":"Kritisch",
+      "levelAlert":"Alarm",
+      "levelEmergency":"Notfall"
     },
     "entryInfo": {
       "title": "Log Informationen",
       "tabRaw": "Quelltext",
-      "actionClose": "Schliessen"
+      "actionClose": "Schließen"
     },
     "mailInfo": {
       "tabHTML": "HTML",

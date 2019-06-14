@@ -12,7 +12,7 @@ class ArrayTypeTest extends TestCase
     {
         $expected = [
             'type' => 'array',
-            'ofType' => [
+            'of' => [
                 'type' => 'string',
             ],
         ];

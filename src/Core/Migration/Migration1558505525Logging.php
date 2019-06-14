@@ -3,7 +3,9 @@
 namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1558505525Logging extends MigrationStep
 {
@@ -28,6 +30,27 @@ class Migration1558505525Logging extends MigrationStep
               CONSTRAINT `json.log_entry.extra` CHECK (JSON_VALID(`extra`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
+
+        $connection->insert('system_config', [
+            'id' => Uuid::randomBytes(),
+            'configuration_key' => 'core.logging.cleanupInterval',
+            'configuration_value' => '{"_value": "86400"}',
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+        ]);
+
+        $connection->insert('system_config', [
+            'id' => Uuid::randomBytes(),
+            'configuration_key' => 'core.logging.entryLimit',
+            'configuration_value' => '{"_value": "10000000"}',
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+        ]);
+
+        $connection->insert('system_config', [
+            'id' => Uuid::randomBytes(),
+            'configuration_key' => 'core.logging.entryLifetimeSeconds',
+            'configuration_value' => '{"_value": "2678400"}', // one month
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+        ]);
     }
 
     public function updateDestructive(Connection $connection): void

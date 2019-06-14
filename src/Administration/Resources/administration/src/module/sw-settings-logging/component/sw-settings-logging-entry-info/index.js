@@ -23,13 +23,7 @@ Component.register('sw-settings-logging-entry-info', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-        },
 
         onClose() {
             this.$emit('close');

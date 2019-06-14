@@ -10,7 +10,15 @@
       "columnMessage": "Message",
       "columnLevel": "Priority",
       "columnContent": "Contents",
-      "actionShowInfo": "View Details ..."
+      "actionShowInfo": "View Details ...",
+      "levelDebug":"Debug",
+      "levelInfo":"Info",
+      "levelNotice":"Notice",
+      "levelWarning":"Warning",
+      "levelError":"Error",
+      "levelCritical":"Critical",
+      "levelAlert":"Alert",
+      "levelEmergency":"Emergency"
     },
     "entryInfo": {
       "title": "Log Information",

@@ -19,7 +19,17 @@ Component.register('sw-settings-logging-list', {
             sortDirection: 'DESC',
             isLoading: true,
             logs: [],
-            displayedLog: null
+            displayedLog: null,
+            logLevels: {
+                Debug: 100,
+                Info: 200,
+                Notice: 250,
+                Warning: 300,
+                Error: 400,
+                Critical: 500,
+                Alert: 550,
+                Emergency: 600
+            }
         };
     },
 
@@ -39,7 +49,7 @@ Component.register('sw-settings-logging-list', {
             return this.getLogColumns();
         },
 
-        logInfoModalComponent() {
+        modalNameFromLogEntry() {
             const eventName = this.displayedLog.message;
 
             const subComponentName = eventName.replace(/[._]/g, '-');
@@ -76,6 +86,20 @@ Component.register('sw-settings-logging-list', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        logLevelToString(level) {
+            const distances = Object.values(this.logLevels).map((x) => {
+                return Math.abs(x - level);
+            });
+
+            const stringLevel = Object.keys(this.logLevels)[distances.findIndex((x) => {
+                return x === Math.min(...distances);
+            })];
+
+            console.log(stringLevel);
+
+            return this.$tc(`sw-settings-logging.list.level${stringLevel}`);
         },
 
         getLogColumns() {

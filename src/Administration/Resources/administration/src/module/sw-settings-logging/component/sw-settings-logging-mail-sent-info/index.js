@@ -21,9 +21,12 @@ Component.extend('sw-settings-logging-mail-sent-info', 'sw-settings-logging-entr
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
         createdComponent() {
-            this.$super.createdComponent();
             this.activeTab = 'html';
         }
     }

@@ -4,19 +4,22 @@
 In this guide, you'll learn which `Plugin Commands` come with `Shopware` and what they are used for.
 Below you'll find a list of each command and its usage.
 
-| Command           | Arguments | Options             | Usage                                                                  |
-|-------------------|-----------|---------------------|------------------------------------------------------------------------|
-| plugin:install    | plugins   | activate, reinstall | Installs, re-installs and activates one or multiple plugins            |
-| plugin:uninstall  | plugins   | keep-user-data      | Uninstalls one or multiple plugins                                     |
-| plugin:activate   | plugins   | N/A                 | Activates one or multiple installed plugins                            |
-| plugin:deactivate | plugins   | N/A                 | Deactivates one or multiple installed plugins                          |
-| plugin:update     | plugins   | N/A                 | Updates one or multiple plugins                                        |
-| plugin:list       | N/A       | filter              | Prints a list of all available plugins filtering with the given filter |
-| plugin:refresh    | N/A       | skipPluginList      | Refreshes the plugin list                                              |
+| Command           | Arguments | Options                         | Usage                                                                  |
+|-------------------|-----------|---------------------------------|------------------------------------------------------------------------|
+| plugin:install    | plugins   | activate, reinstall, clearCache | Installs, re-installs and activates one or multiple plugins            |
+| plugin:uninstall  | plugins   | keep-user-data, clearCache      | Uninstalls one or multiple plugins                                     |
+| plugin:activate   | plugins   | clearCache                      | Activates one or multiple installed plugins                            |
+| plugin:deactivate | plugins   | clearCache                      | Deactivates one or multiple installed plugins                          |
+| plugin:update     | plugins   | clearCache                      | Updates one or multiple plugins                                        |
+| plugin:list       | N/A       | filter                          | Prints a list of all available plugins filtering with the given filter |
+| plugin:refresh    | N/A       | skipPluginList                  | Refreshes the plugin list                                              |
 
 *List of all plugin commands*
 
 Please note, that arguments are always required and options are optional.
+
+After activating, deactivating, updating or uninstalling your plugin you have to clear the cache, you can use the `clearCache` option for this.
+Alternatively you can run the command `bin/console cache:clear`
 
 ## Examples
 
@@ -89,4 +92,4 @@ $ ./bin/console plugin:deactivate YourPluginWithNamespace
 $ ./bin/console plugin:activate YourPluginWithNamespace ThirdPartyPluginWithNamespace
 $ ./bin/console plugin:deactivate YourPluginWithNamespace ThirdPartyPluginWithNamespace
 ```
-*Plugin de-. activate command*
+*Plugin de-, activate command*

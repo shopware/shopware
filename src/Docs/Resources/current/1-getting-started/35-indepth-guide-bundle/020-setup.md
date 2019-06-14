@@ -195,7 +195,12 @@ by Shopware 6 and is installable.
 
 ### Installing the plugin
 
-Now it's time to check if everything was done correctly until this point.
+Now it's time to check if everything was done correctly until this point. First you have to refresh the plugins.
+
+```bash
+./bin/console plugin:refresh
+```
+
 Try to install your new plugin in the Pluginmanager in the Administration. You can find the Pluginmanager under "Settings" > "System" > "Plugins".
 
 If you're more into using the CLI, you can also execute the following command from inside your

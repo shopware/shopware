@@ -4,7 +4,7 @@ namespace Shopware\Docs\Convert;
 
 class RenderedDocument
 {
-    const GLOBAL_STYLE_CONTENT = <<<EOD
+    private const GLOBAL_STYLE_CONTENT = <<<EOD
 <style type="text/css">
 
 dl dt {
@@ -50,7 +50,7 @@ EOD;
         $this->images = $images;
     }
 
-    public function addImage(string $key, string $path)
+    public function addImage(string $key, string $path): void
     {
         $this->images[$key] = $path;
     }

@@ -49,16 +49,17 @@ EOD;
         $markdown = [];
         /** @var ModuleTagCollection $tags */
         foreach ($ruleCollection as $tags) {
-            $markdown[$tags->getBundleName()] = sprintf(self::TEMPLATE_BUNDLE_HEADLINE, $tags->getBundleName());
+            $bundleName = $tags->getBundleName();
+            $markdown[$bundleName] = sprintf(self::TEMPLATE_BUNDLE_HEADLINE, $bundleName);
 
             foreach ($tags as $tag) {
                 foreach ($tag->marker('rules') as $ruleFile) {
-                    $className = $this->moduleInspector
-                        ->getClassName($ruleFile);
+                    $className = $this->moduleInspector->getClassName($ruleFile);
 
                     $ruleDescriptions->ensure($className);
 
-                    $markdown[] = sprintf(self::TEMPLATE_RULE,
+                    $markdown[] = sprintf(
+                        self::TEMPLATE_RULE,
                         $className,
                         $className,
                         $ruleDescriptions->get($className)
@@ -71,7 +72,8 @@ EOD;
 
         file_put_contents(
             $this->ruleListPath,
-            sprintf(self::TEMPLATE_PAGE,
+            sprintf(
+                self::TEMPLATE_PAGE,
                 implode(PHP_EOL, $markdown)
             )
         );

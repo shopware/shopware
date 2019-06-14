@@ -24,16 +24,19 @@ class DocumentTree
         return $this->documents;
     }
 
+    /**
+     * @return Document[]
+     */
     public function getCategories(): array
     {
-        return array_filter($this->documents, function (Document $document): bool {
+        return array_filter($this->documents, static function (Document $document): bool {
             return $document->isCategory();
         });
     }
 
     public function getArticles(): array
     {
-        return array_filter($this->documents, function (Document $document): bool {
+        return array_filter($this->documents, static function (Document $document): bool {
             return !$document->isCategory();
         });
     }

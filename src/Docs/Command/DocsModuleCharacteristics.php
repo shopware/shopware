@@ -53,8 +53,8 @@ class DocsModuleCharacteristics extends Command
             ->directories()
             ->in(__DIR__ . '/../../Core')
             ->sortByName()
-            ->filter(function (SplFileInfo $fileInfo) {
-                return !in_array($fileInfo->getRelativePathname(), [
+            ->filter(static function (SplFileInfo $fileInfo) {
+                return !\in_array($fileInfo->getRelativePathname(), [
                     'Profiling/DependencyInjection',
                     'Framework/DependencyInjection',
                     'System/DependencyInjection',

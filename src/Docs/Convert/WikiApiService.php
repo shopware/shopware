@@ -239,7 +239,7 @@ class WikiApiService
         $images = $document->getHtml()->render($tree)->getImages();
         $imageMap = [];
         if (\count($images)) {
-            echo '=> Uploading ' . \count($images) . ' mediafile(s) ...' . PHP_EOL;
+            echo '=> Uploading ' . \count($images) . ' media file(s) ...' . PHP_EOL;
             foreach ($images as $key => $mediaFile) {
                 $mediaLink = $this->uploadCategoryMedia($categoryId, $oldContentEn['id'], $mediaFile);
                 $imageMap[$key] = $mediaLink;
@@ -588,7 +588,7 @@ class WikiApiService
         /** @var Document $document */
         foreach ($tree->getArticles() as $document) {
             ++$i;
-            echo 'Syncing article (' . $i . '/' . \count($tree->getArticles()) . ') ' . $document->getFile()->getRelativePathname() . ' with prio ' . $document->getPriority() . PHP_EOL;
+            echo 'Syncing article (' . $i . '/' . \count($tree->getArticles()) . ') ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . PHP_EOL;
 
             $documentMetadata = $document->getMetadata();
             $articleInfo = $this->createLocalizedVersionedArticle(
@@ -602,7 +602,7 @@ class WikiApiService
             $images = $document->getHtml()->render($tree)->getImages();
             $imageMap = [];
             if (\count($images)) {
-                echo '=> Uploading ' . \count($images) . ' mediafile(s) ...' . PHP_EOL;
+                echo '=> Uploading ' . \count($images) . ' media file(s) ...' . PHP_EOL;
                 foreach ($images as $key => $mediaFile) {
                     $imageMap[$key] = $this->uploadArticleMedia($articleInfo['en_GB'], $mediaFile);
                 }

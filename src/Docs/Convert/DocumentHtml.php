@@ -43,8 +43,7 @@ class DocumentHtml
             $html = end($parts);
         } else {
             $contents = $this->stripMetatags($contents);
-            $parsedown = new DocsParsedownExtra($this->document->getFile());
-            $html = $parsedown->parse($contents);
+            $html = (new DocsParsedownExtra($this->document->getFile()))->parse($contents);
         }
 
         $relativeLinkReplacementRegex = '/(?:href|src)=\"(.*?)\"/m';
@@ -64,7 +63,7 @@ class DocumentHtml
         $link = $matches[1];
         $linkParts = explode('#', $link);
         $linkHref = $linkParts[0];
-        $linkAnchor = count($linkParts) > 1 ? $linkParts[1] : '';
+        $linkAnchor = \count($linkParts) > 1 ? $linkParts[1] : '';
 
         if (strpos($link, 'http://') === 0) {
             return $matches[0];
@@ -82,7 +81,7 @@ class DocumentHtml
             return $this->resolveLinkUrl($matches, $tree, $linkHref, $linkAnchor);
         }
 
-        if (in_array(pathinfo($linkHref, PATHINFO_EXTENSION), ['svg', 'png', 'jpg', 'jpeg'], true)) {
+        if (\in_array(pathinfo($linkHref, PATHINFO_EXTENSION), ['svg', 'png', 'jpg', 'jpeg'], true)) {
             return $this->resolveMedia($matches, $linkHref);
         }
 
@@ -91,14 +90,14 @@ class DocumentHtml
 
     private function toAbsolutePath(string $link): string
     {
-        return dirname($this->document->getFile()->getRealPath()) . substr($link, 1);
+        return \dirname($this->document->getFile()->getRealPath()) . substr($link, 1);
     }
 
     private function resolveMedia(array $matches, string $link): string
     {
-        $key = 'MEDIAITEM' . count($this->media);
+        $key = 'MEDIAITEM' . \count($this->media);
 
-        $image = dirname($this->document->getFile()->getRealPath()) . substr($link, 1);
+        $image = \dirname($this->document->getFile()->getRealPath()) . substr($link, 1);
 
         if (!file_exists($image)) {
             throw new \RuntimeException(sprintf('Unable to find and therefore link %s on %s', $image, $this->document->getFile()->getRelativePathname()));
@@ -121,7 +120,15 @@ class DocumentHtml
         try {
             $relatedDocument = $tree->findByAbsolutePath($absolutePath);
         } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('No file found named %s referenced from %s', $absolutePath, $this->document->getFile()->getRealPath()));
+            throw new \RuntimeException(
+                sprintf(
+                    'No file found named %s referenced from %s',
+                    $absolutePath,
+                    $this->document->getFile()->getRealPath()
+                ),
+                0,
+                $e
+            );
         }
 
         $url = $relatedDocument->getMetadata()->getPrefixedUrlEn();

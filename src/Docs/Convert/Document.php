@@ -15,33 +15,37 @@ class Document
     /**
      * @var Document
      */
-    private $parent = null;
+    private $parent;
 
     /**
      * @var Document[]
      */
     private $children = [];
+
     /**
      * @var bool
      */
-    private $isCatgory;
+    private $isCategory;
+
     /**
      * @var SplFileInfo
      */
     private $file;
+
     /**
      * @var string
      */
     private $baseUrl;
+
     /**
      * @var int
      */
     private $categoryId;
 
-    public function __construct(SplFileInfo $file, bool $isCatgory, string $baseUrl)
+    public function __construct(SplFileInfo $file, bool $isCategory, string $baseUrl)
     {
         $this->file = $file;
-        $this->isCatgory = $isCatgory;
+        $this->isCategory = $isCategory;
         $this->baseUrl = $baseUrl;
     }
 
@@ -52,7 +56,7 @@ class Document
 
     public function getUrlPart(): string
     {
-        if ($this->isCatgory) {
+        if ($this->isCategory) {
             $part = basename($this->getFile()->getRelativePath());
         } else {
             $part = $this->getFile()->getBasename('.md');
@@ -72,7 +76,7 @@ class Document
 
     public function isCategory(): bool
     {
-        return $this->isCatgory;
+        return $this->isCategory;
     }
 
     public function setParent(Document $document): void
@@ -90,13 +94,6 @@ class Document
         $this->children[] = $child;
     }
 
-    public function getChild(string $childPath): Document
-    {
-        foreach ($this->children as $child) {
-            echo ($child->getFile()->getRelativePathname()) . PHP_EOL;
-        }
-    }
-
     public function loadRawMetadata(): array
     {
         $fileContents = $this->file->getContents();
@@ -111,8 +108,8 @@ class Document
             $metadata[$match[1]] = $match[2];
         }
 
-        $metadata = array_filter($metadata, function (string $key): bool {
-            return !in_array($key, self::IGNORE_TAGS, true);
+        $metadata = array_filter($metadata, static function (string $key): bool {
+            return !\in_array($key, self::IGNORE_TAGS, true);
         }, ARRAY_FILTER_USE_KEY);
 
         if (!$metadata) {
@@ -132,7 +129,7 @@ class Document
         return new DocumentHtml($this);
     }
 
-    public function cliOut()
+    public function cliOut(): array
     {
         $result = [
             'path' => $this->file->getRealPath(),
@@ -153,12 +150,12 @@ class Document
 
     public function getPriority(): int
     {
-        $path = dirname($this->file->getRealPath());
+        $path = \dirname($this->file->getRealPath());
         $self = $this->getFile()->getBasename();
 
         if ($this->isCategory()) {
-            $path = dirname($path);
-            $self = pathinfo(dirname($this->getFile()->getRealPath()), PATHINFO_BASENAME);
+            $path = \dirname($path);
+            $self = pathinfo(\dirname($this->getFile()->getRealPath()), PATHINFO_BASENAME);
         }
 
         $files = [];
@@ -168,7 +165,7 @@ class Document
 
         $index = array_search($self, $files, true);
 
-        return count($files) - $index;
+        return \count($files) - $index;
     }
 
     public function createParentChain(): array
@@ -183,7 +180,7 @@ class Document
         return array_reverse($chain);
     }
 
-    public function setCategoryId(int $id)
+    public function setCategoryId(int $id): void
     {
         $this->categoryId = $id;
     }

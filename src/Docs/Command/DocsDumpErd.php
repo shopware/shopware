@@ -161,10 +161,10 @@ class DocsDumpErd extends Command
         $definitions = $this->registry->getDefinitions();
 
         $definitions = array_filter($definitions, function (EntityDefinition $definition) {
-            return !in_array($definition->getClass(), $this->ignoredDefinitions, true);
+            return !\in_array($definition->getClass(), $this->ignoredDefinitions, true);
         });
 
-        return array_map(function (EntityDefinition $definition) {
+        return array_map(static function (EntityDefinition $definition) {
             return new ErdDefinition($definition);
         }, $definitions);
     }

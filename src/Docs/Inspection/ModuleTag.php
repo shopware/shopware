@@ -55,6 +55,6 @@ class ModuleTag
 
     public function fits(): bool
     {
-        return count($this->marker()) > 0;
+        return \count($this->marker()) > 0;
     }
 }

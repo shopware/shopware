@@ -34,7 +34,8 @@ class ErdGenerator
                     $this->toId($moduleName),
                     new class($definition->entityName()) extends Field {
                         protected function getSerializerClass(): string
-                        { /* nth */
+                        {
+                            /* nth */
                         }
                     },
                     'Table'

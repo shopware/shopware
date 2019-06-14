@@ -41,7 +41,7 @@ class ArrayWriter
         $this->data[$name] = $value;
     }
 
-    public function dump(bool $long = false)
+    public function dump(bool $long = false): void
     {
         $content = '<?php declare(strict_types=1);' . PHP_EOL . PHP_EOL;
         $content .= 'return [' . PHP_EOL;

@@ -128,7 +128,8 @@
       "labelDownloadPdf": "Download as PDF",
       "labelCreateNew": "Create new",
       "messageEmptyTitle": "No documents yet",
-      "messageEmptySubline": "Manage documents here."
+      "messageEmptySubline": "Manage documents here.",
+      "labelDocumentStatic": "This document was imported."
     },
     "documentModal": {
       "modalTitle": "Create document",

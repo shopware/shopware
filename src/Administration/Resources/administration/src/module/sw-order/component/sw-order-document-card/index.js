@@ -113,6 +113,32 @@ Component.register('sw-order-document-card', {
             });
         },
 
+        getDocumentColumns() {
+            return [{
+                property: 'createdAt',
+                dataIndex: 'createdAt',
+                label: this.$tc('sw-order.documentCard.labelDate'),
+                allowResize: false,
+                primary: true
+            }, {
+                property: 'config.documentNumber',
+                dataIndex: 'config.documentNumber',
+                label: this.$tc('sw-order.documentCard.labelNumber'),
+                allowResize: false
+            }, {
+                property: 'documentType.name',
+                dataIndex: 'documentType.name',
+                label: this.$tc('sw-order.documentCard.labelType'),
+                allowResize: false
+            }, {
+                property: 'sent',
+                dataIndex: 'sent',
+                label: this.$tc('sw-order.documentCard.labelSent'),
+                allowResize: false,
+                align: 'center'
+            }];
+        },
+
         documentTypeAvailable(documentType) {
             return (
                 (

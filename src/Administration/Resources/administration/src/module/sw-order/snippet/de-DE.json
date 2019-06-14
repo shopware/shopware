@@ -128,7 +128,8 @@
       "labelDownloadPdf": "Als PDF herunterladen",
       "labelCreateNew": "Neu erstellen",
       "messageEmptyTitle": "Noch keine Dokumente",
-      "messageEmptySubline": "Verwaltung von Dokumenten."
+      "messageEmptySubline": "Verwaltung von Dokumenten.",
+      "labelDocumentStatic": "Dieses Dokument wurde importiert."
     },
     "documentModal": {
       "modalTitle": "Dokument anlegen",

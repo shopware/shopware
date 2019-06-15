@@ -17,7 +17,7 @@ export default class SettingsPageObject extends GeneralPageObject {
                 languageColumnName: '.sw-language-list__column-name',
 
                 taxSaveAction: '.sw-settings-tax-detail__save-action',
-                taxColumnName: '.sw-tax-list__column-name',
+                taxColumnName: '.sw-data-grid__cell--name',
 
                 customerGroupSaveAction: '.sw-settings-customer-group-detail__save'
             }

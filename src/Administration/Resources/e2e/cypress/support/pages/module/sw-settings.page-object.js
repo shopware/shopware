@@ -11,7 +11,7 @@ export default class SettingsPageObject extends GeneralPageObject {
                 countryColumnName: '.sw-country-list__column-name',
 
                 currencySaveAction: '.sw-settings-currency-detail__save-action',
-                currencyColumnName: '.sw-currency-list__column-name',
+                currencyColumnName: '.sw-data-grid__cell--name',
 
                 languageSaveAction: '.sw-settings-language-detail__save-action',
                 languageColumnName: '.sw-language-list__column-name',

@@ -20,6 +20,7 @@ export default class GeneralPageObject {
             // Listing components
             gridRow: '.sw-grid__row',
             gridRowInlineEdit: '.sw-grid-row__inline-edit-action',
+            dataGridRowInlineEdit: '.sw-grid-row__inline-edit-action',
 
             dataGridRow: '.sw-data-grid__row',
             dataGridColumn: '.sw-data-grid__cell',

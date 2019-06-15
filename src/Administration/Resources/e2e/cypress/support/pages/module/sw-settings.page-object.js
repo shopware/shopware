@@ -8,7 +8,7 @@ export default class SettingsPageObject extends GeneralPageObject {
             ...this.elements,
             ...{
                 countrySaveAction: '.sw-settings-country-detail__save-action',
-                countryColumnName: '.sw-country-list__column-name',
+                countryColumnName: '.sw-data-grid__cell--name',
 
                 currencySaveAction: '.sw-settings-currency-detail__save-action',
                 currencyColumnName: '.sw-data-grid__cell--name',

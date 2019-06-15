@@ -18,9 +18,9 @@ Component.register('sw-settings-tax-list', {
     data() {
         return {
             tax: null,
-            sortBy: 'tax.name',
+            sortBy: 'name',
             isLoading: false,
-            sortDirection: 'DESC',
+            sortDirection: 'ASC',
             naturalSorting: true
         };
     },
@@ -31,13 +31,13 @@ Component.register('sw-settings-tax-list', {
         }
     },
 
-    methods: {
-        metaInfo() {
-            return {
-                title: this.$createTitle()
-            };
-        },
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
 
+    methods: {
         getList() {
             const criteria = new Criteria(this.page, this.limit);
             this.isLoading = true;

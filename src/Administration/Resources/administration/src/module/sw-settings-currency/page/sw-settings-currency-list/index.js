@@ -11,9 +11,9 @@ Component.register('sw-settings-currency-list', {
     ],
 
     mixins: [
-
         Mixin.getByName('sw-settings-list'),
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
     ],
 
     metaInfo() {

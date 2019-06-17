@@ -1,4 +1,4 @@
-[titleEn]: <>(Removed cotext from page in all storefront templates)
+[titleEn]: <>(Removed context from page in all storefront templates)
 
 We removed the `context` object from the `page` object in all storefront templates.
 If you need to access the `context` object it is automatically available.

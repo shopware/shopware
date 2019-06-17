@@ -7,12 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ListDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 
 class ListFieldTest extends TestCase
@@ -121,22 +121,22 @@ EOF;
         $ex = null;
         try {
             $this->getWriter()->insert($this->registerDefinition(ListDefinition::class), [$data], $context);
-        } catch (WriteStackException $ex) {
+        } catch (WriteException $ex) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/data/0', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[1];
-        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/data/1', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[2];
-        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/data/3', $fieldException->getPath());
     }
 

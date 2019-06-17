@@ -80,13 +80,8 @@ class RuleValidator implements EventSubscriberInterface
             $violationList->addAll($this->validateConsistence($basePath, $validations, $this->extractValue($payload)));
         }
 
-        $this->tryToThrow($violationList);
-    }
-
-    private function tryToThrow(ConstraintViolationList $violations): void
-    {
-        if ($violations->count() > 0) {
-            throw new WriteConstraintViolationException($violations);
+        if ($violationList->count() > 0) {
+            $event->getExceptions()->add(new WriteConstraintViolationException($violationList));
         }
     }
 

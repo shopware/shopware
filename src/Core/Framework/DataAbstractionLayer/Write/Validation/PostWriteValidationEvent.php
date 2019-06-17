@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Symfony\Component\EventDispatcher\Event;
 
@@ -47,5 +48,10 @@ class PostWriteValidationEvent extends Event implements ShopwareEvent
     public function getCommands(): array
     {
         return $this->commands;
+    }
+
+    public function getExceptions(): WriteException
+    {
+        return $this->writeContext->getExceptions();
     }
 }

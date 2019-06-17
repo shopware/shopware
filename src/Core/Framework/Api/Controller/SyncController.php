@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,8 +81,8 @@ class SyncController extends AbstractController
 
                             $errors = array_merge($errors, $event->getErrors());
                         }
-                    } catch (WriteStackException $exception) {
-                        $errors = array_merge($errors, $exception->toArray());
+                    } catch (WriteException $exception) {
+                        $errors = array_merge($errors, $exception->getErrors());
                     }
 
                     break;

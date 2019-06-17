@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -48,10 +48,10 @@ class ParentChildTest extends TestCase
         $e = null;
         try {
             $this->categoryRepository->upsert([$category], $context);
-        } catch (WriteStackException $e) {
+        } catch (WriteException $e) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $e);
+        static::assertInstanceOf(WriteException::class, $e);
 
         static::assertCount(1, $e->getExceptions());
         $first = $e->getExceptions()[0];
@@ -246,10 +246,10 @@ class ParentChildTest extends TestCase
         $e = null;
         try {
             $this->categoryRepository->upsert([$category], $context);
-        } catch (WriteStackException $e) {
+        } catch (WriteException $e) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $e);
+        static::assertInstanceOf(WriteException::class, $e);
 
         static::assertCount(1, $e->getExceptions());
         $first = $e->getExceptions()[0];

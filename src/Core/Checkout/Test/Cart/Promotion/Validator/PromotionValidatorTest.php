@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -47,7 +48,7 @@ class PromotionValidatorTest extends TestCase
      */
     public function testPromotionCodeRequired()
     {
-        $this->expectException(WriteConstraintViolationException::class);
+        $this->expectException(WriteException::class);
 
         $commands[] = new InsertCommand(
             $this->promotionDefinition,
@@ -62,6 +63,15 @@ class PromotionValidatorTest extends TestCase
         $event = new PreWriteValidationEvent($this->context, $commands);
         $validator = new PromotionValidator();
         $validator->preValidate($event);
+
+        try {
+            $event->getExceptions()->tryToThrow();
+            static::fail('Validation with invalid until was not triggered.');
+        } catch (WriteException $e) {
+            static::assertEquals(WriteConstraintViolationException::class, get_class($e->getExceptions()[0]));
+            static::assertEquals('code', $e->getExceptions()[0]->getViolations()[0]->getPropertyPath());
+            throw $e;
+        }
     }
 
     /**
@@ -73,7 +83,7 @@ class PromotionValidatorTest extends TestCase
      */
     public function testPromotionValidUntilAfterFrom()
     {
-        $this->expectException(WriteConstraintViolationException::class);
+        $this->expectException(WriteException::class);
 
         $commands[] = new InsertCommand(
             $this->promotionDefinition,
@@ -88,6 +98,14 @@ class PromotionValidatorTest extends TestCase
         $event = new PreWriteValidationEvent($this->context, $commands);
         $validator = new PromotionValidator();
         $validator->preValidate($event);
+
+        try {
+            $event->getExceptions()->tryToThrow();
+            static::fail('Validation with invalid until was not triggered.');
+        } catch (WriteException $e) {
+            static::assertEquals(WriteConstraintViolationException::class, get_class($e->getExceptions()[0]));
+            throw $e;
+        }
     }
 
     /**
@@ -109,7 +127,7 @@ class PromotionValidatorTest extends TestCase
      */
     public function testDiscountValueInvalid(string $type, float $value)
     {
-        $this->expectException(WriteConstraintViolationException::class);
+        $this->expectException(WriteException::class);
 
         $commands[] = new InsertCommand(
             $this->discountDefinition,
@@ -124,6 +142,14 @@ class PromotionValidatorTest extends TestCase
         $event = new PreWriteValidationEvent($this->context, $commands);
         $validator = new PromotionValidator();
         $validator->preValidate($event);
+
+        try {
+            $event->getExceptions()->tryToThrow();
+            static::fail('Validation with invalid until was not triggered.');
+        } catch (WriteException $e) {
+            static::assertEquals(WriteConstraintViolationException::class, get_class($e->getExceptions()[0]));
+            throw $e;
+        }
     }
 
     /**
@@ -158,6 +184,7 @@ class PromotionValidatorTest extends TestCase
         $event = new PreWriteValidationEvent($this->context, $commands);
         $validator = new PromotionValidator();
         $validator->preValidate($event);
+        $event->getExceptions()->tryToThrow();
 
         static::assertTrue(true);
     }

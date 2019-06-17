@@ -34,7 +34,9 @@ class TranslationValidator implements EventSubscriberInterface
         $violations = new ConstraintViolationList();
         $violations->addAll($this->getDeletedSystemTranslationViolations($event->getCommands()));
 
-        $this->tryToThrow($violations);
+        if ($violations->count()) {
+            $event->getExceptions()->add(new WriteConstraintViolationException($violations));
+        }
     }
 
     private function getDeletedSystemTranslationViolations(array $writeCommands): ConstraintViolationList
@@ -100,16 +102,6 @@ class TranslationValidator implements EventSubscriberInterface
         }
 
         return $fields;
-    }
-
-    /**
-     * @throws WriteConstraintViolationException
-     */
-    private function tryToThrow(ConstraintViolationList $violations): void
-    {
-        if ($violations->count() > 0) {
-            throw new WriteConstraintViolationException($violations);
-        }
     }
 
     private function buildViolation(string $messageTemplate, array $parameters, $root = null, ?string $propertyPath = null, $invalidValue = null, $code = null): ConstraintViolationInterface

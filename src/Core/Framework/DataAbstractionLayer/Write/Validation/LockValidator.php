@@ -60,7 +60,7 @@ class LockValidator implements EventSubscriberInterface
             ));
         }
 
-        throw new WriteConstraintViolationException($violations);
+        $event->getExceptions()->add(new WriteConstraintViolationException($violations));
     }
 
     /**

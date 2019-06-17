@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -40,13 +39,6 @@ class WriteParameterBag
     private $commandQueue;
 
     /**
-     * The field exception stack contain all already thrown field exception of the current write process
-     *
-     * @var FieldExceptionStack
-     */
-    private $exceptionStack;
-
-    /**
      * @var string|null
      */
     private $currentWriteLanguageId;
@@ -55,14 +47,12 @@ class WriteParameterBag
         EntityDefinition $definition,
         WriteContext $context,
         string $path,
-        WriteCommandQueue $commandQueue,
-        FieldExceptionStack $exceptionStack
+        WriteCommandQueue $commandQueue
     ) {
         $this->definition = $definition;
         $this->context = $context;
         $this->path = $path;
         $this->commandQueue = $commandQueue;
-        $this->exceptionStack = $exceptionStack;
     }
 
     public function getDefinition(): EntityDefinition
@@ -85,19 +75,13 @@ class WriteParameterBag
         return $this->commandQueue;
     }
 
-    public function getExceptionStack(): FieldExceptionStack
-    {
-        return $this->exceptionStack;
-    }
-
     public function cloneForSubresource(EntityDefinition $definition, string $path): self
     {
         return new self(
             $definition,
             $this->context,
             $path,
-            $this->commandQueue,
-            $this->exceptionStack
+            $this->commandQueue
         );
     }
 

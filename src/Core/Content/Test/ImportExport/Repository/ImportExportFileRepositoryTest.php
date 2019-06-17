@@ -7,10 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class ImportExportFileRepositoryTest extends TestCase
 {
@@ -71,7 +72,7 @@ class ImportExportFileRepositoryTest extends TestCase
                 $this->repository->create([$entry], $this->context);
                 static::fail(sprintf("Create without required property '%s'", $property));
             } catch (\Exception $e) {
-                static::assertInstanceOf(WriteStackException::class, $e);
+                static::assertInstanceOf(WriteException::class, $e);
             }
         }
     }
@@ -114,10 +115,18 @@ class ImportExportFileRepositoryTest extends TestCase
         try {
             $this->repository->create(array_values($data), $this->context);
             static::fail('Create without required properties');
-        } catch (WriteStackException $e) {
-            foreach ($requiredProperties as $property) {
-                static::assertRegExp('/\[\/' . $property . '\]/', $e->getMessage());
+        } catch (WriteException $e) {
+            static::assertCount(count($requiredProperties), $e->getExceptions());
+            $foundViolations = [];
+
+            /** @var WriteConstraintViolationException $violations */
+            foreach ($e->getExceptions() as $violations) {
+                foreach ($violations->getViolations() as $violation) {
+                    $foundViolations[] = $violation->getPropertyPath();
+                }
             }
+
+            static::assertEquals($requiredProperties, $foundViolations);
         }
     }
 

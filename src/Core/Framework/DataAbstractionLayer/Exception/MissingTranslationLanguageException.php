@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Exception;
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -29,10 +28,5 @@ class MissingTranslationLanguageException extends WriteConstraintViolationExcept
             ),
         ]);
         parent::__construct($constraintViolationList, $path);
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_BAD_REQUEST;
     }
 }

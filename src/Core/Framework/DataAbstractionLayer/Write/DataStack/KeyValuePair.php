@@ -40,4 +40,9 @@ class KeyValuePair
     {
         return $this->isRaw;
     }
+
+    public function createWithValue($value): self
+    {
+        return new self($this->key, $value, $this->isRaw);
+    }
 }

@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\Validation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class WriteConstraintViolationException extends WriteFieldException implements ConstraintViolationExceptionInterface
+class WriteConstraintViolationException extends ShopwareHttpException implements WriteFieldException, ConstraintViolationExceptionInterface
 {
     /**
      * @var string
@@ -17,12 +19,7 @@ class WriteConstraintViolationException extends WriteFieldException implements C
      */
     private $constraintViolationList;
 
-    /**
-     * @var string
-     */
-    private $concern;
-
-    public function __construct(ConstraintViolationList $constraintViolationList, string $path = '', string $concern = '')
+    public function __construct(ConstraintViolationList $constraintViolationList, string $path = '')
     {
         parent::__construct(
             'Caught {{ count }} constraint violation errors.',
@@ -31,7 +28,16 @@ class WriteConstraintViolationException extends WriteFieldException implements C
 
         $this->path = $path;
         $this->constraintViolationList = $constraintViolationList;
-        $this->concern = $concern;
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION';
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
     }
 
     public function getViolations(): ConstraintViolationList
@@ -58,10 +64,5 @@ class WriteConstraintViolationException extends WriteFieldException implements C
         }
 
         return $result;
-    }
-
-    public function getConcern(): string
-    {
-        return ($this->concern ? ($this->concern . '-') : '') . 'violation-error';
     }
 }

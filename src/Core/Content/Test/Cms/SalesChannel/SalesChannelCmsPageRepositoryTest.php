@@ -10,7 +10,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -92,10 +92,10 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
         $exception = null;
         try {
             $this->cmsPageRepository->create([$page], $this->salesChannelContext->getContext());
-        } catch (WriteStackException $exception) {
+        } catch (WriteException $exception) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $exception);
+        static::assertInstanceOf(WriteException::class, $exception);
         static::assertCount(2, $exception->getExceptions());
 
         static::assertEquals('/blocks/0/slots/1/translations/' . Defaults::LANGUAGE_SYSTEM . '/config/url/source', $exception->getExceptions()[0]->getPath());

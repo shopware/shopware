@@ -13,8 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerial
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
@@ -60,8 +58,7 @@ class JsonFieldSerializerTest extends TestCase
             $definition,
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
-            new WriteCommandQueue(),
-            new FieldExceptionStack()
+            new WriteCommandQueue()
         );
     }
 

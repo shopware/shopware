@@ -1,46 +1,50 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
-class WriteStackException extends ShopwareHttpException
+class WriteException extends ShopwareHttpException
 {
+    private const MESSAGE = 'There are {{ errorCount }} error(s) while writing data.';
     /**
-     * @var WriteFieldException[]
+     * @var \Throwable[]
      */
     private $exceptions;
 
-    public function __construct(WriteFieldException ...$exceptions)
+    public function __construct(array $exceptions = [])
     {
+        parent::__construct(self::MESSAGE, ['errorCount' => 0]);
+
         $this->exceptions = $exceptions;
-        parent::__construct(sprintf('Mapping failed, got %s failure(s). %s', \count($exceptions), print_r($this->toArray(), true)));
+        $this->updateMessage();
     }
 
-    /**
-     * @return WriteFieldException[]
-     */
+    public function add(\Throwable $exception): void
+    {
+        $this->exceptions[] = $exception;
+        $this->updateMessage();
+    }
+
     public function getExceptions(): array
     {
         return $this->exceptions;
     }
 
-    public function toArray(): array
+    public function tryToThrow(): void
     {
-        $result = [];
-
-        foreach ($this->exceptions as $exception) {
-            if (!isset($result[$exception->getPath()])) {
-                $result[$exception->getPath()] = [];
-            }
-
-            $result[$exception->getPath()][$exception->getConcern()] = $exception->toArray();
+        if (count($this->exceptions)) {
+            throw $this;
         }
+    }
 
-        return $result;
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__WRITE_ERROR';
     }
 
     public function getStatusCode(): int
@@ -56,9 +60,8 @@ class WriteStackException extends ShopwareHttpException
                 foreach ($innerException->getViolations() as $violation) {
                     $path = empty($innerException->getPath()) ? $violation->getPropertyPath() : $innerException->getPath();
                     $error = [
-                        'code' => $violation->getCode() ?? (string) $this->getCode(),
+                        'code' => $violation->getCode() ?? $innerException->getErrorCode(),
                         'status' => (string) $this->getStatusCode(),
-                        'title' => $innerException->getConcern(),
                         'detail' => $violation->getMessage(),
                         'template' => $violation->getMessageTemplate(),
                         'parameters' => $violation->getParameters(),
@@ -78,12 +81,14 @@ class WriteStackException extends ShopwareHttpException
             }
 
             $error = [
-                'code' => (string) $this->getCode(),
+                'code' => $innerException->getErrorCode(),
                 'status' => (string) $this->getStatusCode(),
-                'title' => $innerException->getConcern(),
                 'detail' => $innerException->getMessage(),
-                'source' => ['pointer' => $innerException->getPath()],
             ];
+
+            if ($innerException instanceof WriteFieldException) {
+                $error['source'] = ['pointer' => $innerException->getPath()];
+            }
 
             if ($withTrace) {
                 $error['trace'] = $innerException->getTrace();
@@ -93,8 +98,9 @@ class WriteStackException extends ShopwareHttpException
         }
     }
 
-    public function getErrorCode(): string
+    private function updateMessage(): void
     {
-        return 'FRAMEWORK__WRITE_STACK_ERROR';
+        $this->parameters = ['errorCount' => count($this->exceptions)];
+        $this->message = $this->parse(self::MESSAGE, $this->parameters);
     }
 }

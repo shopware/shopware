@@ -9,10 +9,11 @@ use Shopware\Core\Content\ImportExport\Exception\LogNotWritableException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class ImportExportLogRepositoryTest extends TestCase
 {
@@ -90,7 +91,8 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Create within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(LogNotWritableException::class, $e);
+            static::assertInstanceOf(WriteException::class, $e);
+            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
         }
     }
 
@@ -107,7 +109,8 @@ class ImportExportLogRepositoryTest extends TestCase
                 $this->logRepository->create([$entry], $this->context);
                 static::fail(sprintf("Create without required property '%s'", $property));
             } catch (\Exception $e) {
-                static::assertInstanceOf(WriteStackException::class, $e);
+                static::assertInstanceOf(WriteException::class, $e);
+                static::assertInstanceOf(WriteConstraintViolationException::class, $e->getExceptions()[0]);
             }
         }
     }
@@ -152,14 +155,18 @@ class ImportExportLogRepositoryTest extends TestCase
         try {
             $this->logRepository->create(array_values($data), $this->context);
             static::fail('Create without required properties');
-        } catch (WriteStackException $e) {
-            foreach ($requiredProperties as $property) {
-                static::assertRegExp(
-                    '/\[\/' . $property . '\]/',
-                    $e->getMessage(),
-                    sprintf('Property \'%s\' not listed in Expection', $property)
-                );
+        } catch (WriteException $e) {
+            static::assertCount(count($requiredProperties), $e->getExceptions());
+            $foundViolations = [];
+
+            /** @var WriteConstraintViolationException $violations */
+            foreach ($e->getExceptions() as $violations) {
+                foreach ($violations->getViolations() as $violation) {
+                    $foundViolations[] = $violation->getPropertyPath();
+                }
             }
+
+            static::assertEquals($requiredProperties, $foundViolations);
         }
     }
 
@@ -236,7 +243,8 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(LogNotWritableException::class, $e);
+            static::assertInstanceOf(WriteException::class, $e);
+            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
         }
     }
 
@@ -290,7 +298,8 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(LogNotWritableException::class, $e);
+            static::assertInstanceOf(WriteException::class, $e);
+            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
         }
     }
 
@@ -347,7 +356,8 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Delete within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(LogNotWritableException::class, $e);
+            static::assertInstanceOf(WriteException::class, $e);
+            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
         }
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');

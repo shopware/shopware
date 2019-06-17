@@ -8,9 +8,10 @@ use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class ShippingMethodRepositoryTest extends TestCase
 {
@@ -119,8 +120,11 @@ class ShippingMethodRepositoryTest extends TestCase
             $this->shippingRepository->create($shippingMethod, $defaultContext);
 
             static::fail('The type should always be required!');
-        } catch (WriteStackException $e) {
-            static::assertStringStartsWith('Mapping failed, got 1 failure(s). Array', $e->getMessage());
+        } catch (WriteException $e) {
+            /** @var WriteConstraintViolationException $constraintViolation */
+            $constraintViolation = $e->getExceptions()[0];
+            static::assertInstanceOf(WriteConstraintViolationException::class, $constraintViolation);
+            static::assertEquals('name', $constraintViolation->getViolations()[0]->getPropertyPath());
         }
     }
 

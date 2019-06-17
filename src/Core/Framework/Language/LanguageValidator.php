@@ -58,7 +58,9 @@ class LanguageValidator implements EventSubscriberInterface
         $violations->addAll($this->getInheritanceViolations($affectedIds));
         $violations->addAll($this->getMissingTranslationCodeViolations($affectedIds));
 
-        $this->tryToThrow($violations);
+        if ($violations->count() > 0) {
+            $event->getExceptions()->add(new WriteConstraintViolationException($violations));
+        }
     }
 
     public function preValidate(PreWriteValidationEvent $event): void
@@ -89,7 +91,9 @@ class LanguageValidator implements EventSubscriberInterface
             );
         }
 
-        $this->tryToThrow($violations);
+        if ($violations->count() > 0) {
+            $event->getExceptions()->add(new WriteConstraintViolationException($violations));
+        }
     }
 
     private function getInheritanceViolations(array $affectedIds): ConstraintViolationList
@@ -173,16 +177,6 @@ class LanguageValidator implements EventSubscriberInterface
         }
 
         return $ids;
-    }
-
-    /**
-     * @throws WriteConstraintViolationException
-     */
-    private function tryToThrow(ConstraintViolationList $violations): void
-    {
-        if ($violations->count() > 0) {
-            throw new WriteConstraintViolationException($violations);
-        }
     }
 
     private function buildViolation(

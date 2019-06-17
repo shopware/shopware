@@ -47,7 +47,7 @@ class SystemDefaultValidator implements EventSubscriberInterface
 
         $filteredIds = $this->filterSystemDefaults($ids);
         if (!empty($filteredIds)) {
-            throw new DeleteDefaultProfileException($filteredIds);
+            $event->getExceptions()->add(new DeleteDefaultProfileException($filteredIds));
         }
     }
 

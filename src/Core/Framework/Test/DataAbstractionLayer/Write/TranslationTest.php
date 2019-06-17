@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Language\LanguageDefinition;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
@@ -606,15 +606,15 @@ class TranslationTest extends TestCase
                 ['name' => 'translation without a language or languageId'],
             ],
         ];
-        /* @var WriteStackException|null $exception */
+        /* @var WriteException|null $exception */
         $exception = null;
         try {
             $categoryRepository->create([$cat], $this->context);
-        } catch (WriteStackException $e) {
+        } catch (WriteException $e) {
             $exception = $e;
         }
 
-        static::assertInstanceOf(WriteStackException::class, $exception);
+        static::assertInstanceOf(WriteException::class, $exception);
         $innerExceptions = $exception->getExceptions();
         static::assertInstanceOf(MissingTranslationLanguageException::class, $innerExceptions[0]);
     }

@@ -7,9 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InsufficientWritePermissionException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedReferenceDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedRelationDefinition;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Write
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedTranslationDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class WriteProtectedFieldTest extends TestCase
 {
@@ -105,15 +105,15 @@ EOF;
         $ex = null;
         try {
             $this->getWriter()->insert($definition, [$data], $context);
-        } catch (WriteStackException $ex) {
+        } catch (WriteException $ex) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InsufficientWritePermissionException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/protected', $fieldException->getPath());
     }
 
@@ -172,15 +172,15 @@ EOF;
         $ex = null;
         try {
             $this->getWriter()->insert($definition, [$data], $context);
-        } catch (WriteStackException $ex) {
+        } catch (WriteException $ex) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relation'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InsufficientWritePermissionException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/relation', $fieldException->getPath());
     }
 
@@ -224,15 +224,15 @@ EOF;
         $ex = null;
         try {
             $this->getWriter()->insert($definition, [$data], $context);
-        } catch (WriteStackException $ex) {
+        } catch (WriteException $ex) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'wp'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InsufficientWritePermissionException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/wp', $fieldException->getPath());
     }
 
@@ -279,15 +279,15 @@ EOF;
         $ex = null;
         try {
             $this->getWriter()->insert($definition, [$data], $context);
-        } catch (WriteStackException $ex) {
+        } catch (WriteException $ex) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relations'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InsufficientWritePermissionException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/relations', $fieldException->getPath());
     }
 
@@ -330,15 +330,15 @@ EOF;
         $ex = null;
         try {
             $this->getWriter()->insert($definition, [$data], $context);
-        } catch (WriteStackException $ex) {
+        } catch (WriteException $ex) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InsufficientWritePermissionException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/protected', $fieldException->getPath());
     }
 
@@ -372,8 +372,15 @@ EOF;
         return $this->getContainer()->get(EntityWriter::class);
     }
 
-    private function getValidationExceptionMessage(WriteStackException $ex, string $field = 'protected'): string
+    private function getValidationExceptionMessage(WriteException $ex, string $field = 'protected'): string
     {
-        return $ex->toArray()['/' . $field]['insufficient-permission'][0]['message'];
+        foreach ($ex->getExceptions() as $exception) {
+            if ($exception instanceof WriteConstraintViolationException && $exception->getPath() === '/' . $field) {
+                return $exception->getViolations()[0]->getMessage();
+            }
+        }
+
+        return '';
+//        return $ex->toArray()['/' . $field]['insufficient-permission'][0]['message'];
     }
 }

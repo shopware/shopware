@@ -73,6 +73,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             // throws exception on violation and then aborts/rollbacks this transaction
             $event = new PreWriteValidationEvent($context, $commands);
             $this->eventDispatcher->dispatch($event);
+            $context->getExceptions()->tryToThrow();
 
             /** @var WriteCommandInterface $command */
             foreach ($commands as $command) {
@@ -115,6 +116,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             // throws exception on violation and then aborts/rollbacks this transaction
             $event = new PostWriteValidationEvent($context, $commands);
             $this->eventDispatcher->dispatch($event);
+
+            $context->getExceptions()->tryToThrow();
         });
     }
 

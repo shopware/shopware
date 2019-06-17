@@ -17,9 +17,6 @@ class ImportExportLogValidator implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @throws LogNotWritableException
-     */
     public function preValidate(PreWriteValidationEvent $event): void
     {
         $ids = [];
@@ -34,7 +31,7 @@ class ImportExportLogValidator implements EventSubscriberInterface
         }
 
         if (!empty($ids)) {
-            throw new LogNotWritableException($ids);
+            $event->getExceptions()->add(new LogNotWritableException($ids));
         }
     }
 }

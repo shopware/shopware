@@ -67,7 +67,7 @@ class PromotionValidator implements EventSubscriberInterface
         }
 
         if ($violationList->count() > 0) {
-            throw new WriteConstraintViolationException($violationList);
+            $event->getExceptions()->add(new WriteConstraintViolationException($violationList));
         }
     }
 

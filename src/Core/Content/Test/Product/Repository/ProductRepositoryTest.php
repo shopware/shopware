@@ -20,12 +20,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -122,10 +123,10 @@ class ProductRepositoryTest extends TestCase
         $e = null;
         try {
             $this->repository->create([$data], $this->context);
-        } catch (WriteStackException $e) {
+        } catch (WriteException $e) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $e);
+        static::assertInstanceOf(WriteException::class, $e);
 
         $id = Uuid::randomHex();
 
@@ -870,16 +871,20 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
+        /** @var WriteException|null $e */
         $e = null;
         try {
             $this->repository->upsert($data, Context::createDefaultContext());
         } catch (\Exception $e) {
         }
-        static::assertInstanceOf(WriteStackException::class, $e);
 
-        /* @var WriteStackException $e */
-        static::assertArrayHasKey('/taxId', $e->toArray());
-        static::assertArrayHasKey('/manufacturerId', $e->toArray());
+        static::assertInstanceOf(WriteException::class, $e);
+
+        /** @var WriteConstraintViolationException $constraintViolation */
+        $constraintViolation = $e->getExceptions()[0];
+        static::assertInstanceOf(WriteConstraintViolationException::class, $constraintViolation);
+
+        static::assertEquals('manufacturerId', $constraintViolation->getViolations()[0]->getPropertyPath());
 
         $data = [
             [
@@ -960,9 +965,9 @@ class ProductRepositoryTest extends TestCase
             $this->repository->upsert($data, Context::createDefaultContext());
         } catch (\Exception $e) {
         }
-        static::assertInstanceOf(WriteStackException::class, $e);
+        static::assertInstanceOf(WriteException::class, $e);
 
-        /* @var WriteStackException $e */
+        /* @var WriteException $e */
         static::assertArrayHasKey('/taxId', $e->toArray());
         static::assertArrayHasKey('/manufacturerId', $e->toArray());
         static::assertArrayHasKey('/translations', $e->toArray(), print_r($e->toArray(), true));

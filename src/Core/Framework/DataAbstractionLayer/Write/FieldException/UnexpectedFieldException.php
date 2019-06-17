@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException;
 
-class UnexpectedFieldException extends WriteFieldException
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
+
+class UnexpectedFieldException extends ShopwareHttpException implements WriteFieldException
 {
     /**
      * @var string
@@ -25,6 +28,11 @@ class UnexpectedFieldException extends WriteFieldException
         $this->fieldName = $fieldName;
     }
 
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__WRITE_UNEXPECTED_FIELD_ERROR';
+    }
+
     public function getFieldName(): string
     {
         return $this->fieldName;
@@ -35,18 +43,8 @@ class UnexpectedFieldException extends WriteFieldException
         return $this->path;
     }
 
-    public function getConcern(): string
+    public function getStatusCode(): int
     {
-        return 'unexpected-field';
-    }
-
-    public function toArray(): array
-    {
-        return [
-            'message' => $this->getMessage(),
-            'messageTemplate' => $this->getMessage(),
-            'parameters' => [],
-            'propertyPath' => $this->getPath(),
-        ];
+        return Response::HTTP_BAD_REQUEST;
     }
 }

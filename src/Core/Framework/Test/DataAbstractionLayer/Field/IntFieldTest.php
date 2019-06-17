@@ -9,9 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class IntFieldTest extends TestCase
 {
@@ -23,7 +23,7 @@ class IntFieldTest extends TestCase
 
         $data = new KeyValuePair('count', null, false);
 
-        $this->expectException(InvalidFieldException::class);
+        $this->expectException(WriteConstraintViolationException::class);
         try {
             $serializer->encode(
                 $this->getIntField(),
@@ -31,7 +31,7 @@ class IntFieldTest extends TestCase
                 $data,
                 $this->getWriteParameterBagMock()
             )->current();
-        } catch (InvalidFieldException $e) {
+        } catch (WriteConstraintViolationException $e) {
             static::assertSame('count', $e->getViolations()->get(0)->getPropertyPath());
             static::assertSame('This value should not be blank.', $e->getViolations()->get(0)->getMessage());
             throw $e;
@@ -44,7 +44,7 @@ class IntFieldTest extends TestCase
 
         $data = new KeyValuePair('count', 'foo', false);
 
-        $this->expectException(InvalidFieldException::class);
+        $this->expectException(WriteConstraintViolationException::class);
         try {
             $serializer->encode(
                 $this->getIntField(),
@@ -52,7 +52,7 @@ class IntFieldTest extends TestCase
                 $data,
                 $this->getWriteParameterBagMock()
             )->current();
-        } catch (InvalidFieldException $e) {
+        } catch (WriteConstraintViolationException $e) {
             static::assertSame('count', $e->getViolations()->get(0)->getPropertyPath());
             static::assertSame('This value should be of type int.', $e->getViolations()->get(0)->getMessage());
             throw $e;

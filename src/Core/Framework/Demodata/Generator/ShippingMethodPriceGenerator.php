@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
-use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,7 +34,7 @@ class ShippingMethodPriceGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
-        $rules = $context->getIds(RuleDefinition::class);
+        $rules = $context->getIds('rule');
         $shippingMethodIds = $this->shippingMethodRepository->searchIds(new Criteria(), $context->getContext())->getIds();
 
         foreach ($shippingMethodIds as $shippingMethodId) {
@@ -50,8 +49,6 @@ class ShippingMethodPriceGenerator implements DemodataGeneratorInterface
             ];
 
             $this->shippingMethodPriceRepository->upsert([$data], $context->getContext());
-
-            $context->add(ShippingMethodPriceDefinition::class, $data['id']);
         }
     }
 }

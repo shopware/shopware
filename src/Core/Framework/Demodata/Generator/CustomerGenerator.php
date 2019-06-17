@@ -212,7 +212,6 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 $this->writer->upsert($this->customerDefinition, $payload, $writeContext);
 
                 $context->getConsole()->progressAdvance(\count($payload));
-                $context->add(CustomerDefinition::class, ...array_column($payload, 'id'));
 
                 $payload = [];
             }
@@ -222,7 +221,6 @@ class CustomerGenerator implements DemodataGeneratorInterface
             $this->writer->upsert($this->customerDefinition, $payload, $writeContext);
 
             $context->getConsole()->progressAdvance(\count($payload));
-            $context->add(CustomerDefinition::class, ...array_column($payload, 'id'));
         }
 
         $context->getConsole()->progressFinish();

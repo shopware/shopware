@@ -118,7 +118,6 @@ class MediaGenerator implements DemodataGeneratorInterface
             );
 
             $context->getConsole()->progressAdvance(1);
-            $context->add(MediaDefinition::class, $mediaId);
         }
 
         $context->getConsole()->progressFinish();
@@ -192,8 +191,6 @@ class MediaGenerator implements DemodataGeneratorInterface
                 'configuration' => [],
             ],
         ], $context->getContext());
-
-        $context->add(MediaDefaultFolderEntity::class, $mediaFolderId);
 
         return $mediaFolderId;
     }

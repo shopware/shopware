@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata;
 
+use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -41,43 +42,48 @@ class DemodataContext
      */
     private $projectDir;
 
-    public function __construct(Context $context, Generator $faker, string $projectDir, SymfonyStyle $console)
-    {
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(
+        Connection $connection,
+        Context $context,
+        Generator $faker,
+        string $projectDir,
+        SymfonyStyle $console
+    ) {
         $this->context = $context;
         $this->faker = $faker;
         $this->projectDir = $projectDir;
         $this->console = $console;
+        $this->connection = $connection;
     }
 
-    public function add(string $definition, string ...$entityIds): void
+    public function getIds(string $table): array
     {
-        foreach ($entityIds as $id) {
-            $this->entities[$definition][] = $id;
-        }
-    }
-
-    public function getIds(string $definition): array
-    {
-        return $this->entities[$definition] ?? [];
-    }
-
-    public function getRandomId(string $definition): ?string
-    {
-        if (empty($this->entities[$definition])) {
-            return null;
+        if (!empty($this->entities[$table])) {
+            return $this->entities[$table];
         }
 
-        return $this->entities[$definition][array_rand($this->entities[$definition])];
+        $ids = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+
+        $this->entities[$table] = array_column($ids, 'id');
+
+        return $this->entities[$table];
+    }
+
+    public function getRandomId(string $table): ?string
+    {
+        $ids = $this->getIds($table);
+
+        return $this->faker->randomElement($ids);
     }
 
     public function getContext(): Context
     {
         return $this->context;
-    }
-
-    public function getAllEntities(): array
-    {
-        return $this->entities;
     }
 
     public function getConsole(): SymfonyStyle

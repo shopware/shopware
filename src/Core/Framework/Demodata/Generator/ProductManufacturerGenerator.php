@@ -55,6 +55,5 @@ class ProductManufacturerGenerator implements DemodataGeneratorInterface
         }
 
         $context->getConsole()->progressFinish();
-        $context->add(ProductManufacturerDefinition::class, ...array_column($payload, 'id'));
     }
 }

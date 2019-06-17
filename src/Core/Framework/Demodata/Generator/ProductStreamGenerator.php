@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
-use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -40,9 +37,9 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
     {
         $context->getConsole()->progressStart($numberOfItems);
 
-        $categories = $context->getIds(CategoryDefinition::class);
-        $manufacturer = $context->getIds(ProductManufacturerDefinition::class);
-        $products = $context->getIds(ProductDefinition::class);
+        $categories = $context->getIds('category');
+        $manufacturer = $context->getIds('product_manufacturer');
+        $products = $context->getIds('product');
 
         $pool = [
             ['field' => 'height', 'type' => 'range', 'parameters' => [RangeFilter::GTE => random_int(1, 1000)]],
@@ -81,8 +78,6 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
         }
 
         $this->writer->insert($this->productStreamDefinition, $payload, WriteContext::createFromContext($context->getContext()));
-
-        $context->add(ProductStreamDefinition::class, ...array_column($payload, 'id'));
 
         $context->getConsole()->progressFinish();
     }

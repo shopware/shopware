@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Faker\Generator;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -60,7 +59,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
                 'afterCategoryId' => $lastId,
                 'active' => true,
                 'cmsPageId' => $context->getFaker()->randomElement($pageIds),
-                'mediaId' => $context->getRandomId(MediaDefinition::class),
+                'mediaId' => $context->getRandomId('media'),
                 'description' => $context->getFaker()->text(),
             ];
 
@@ -81,7 +80,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
                     'afterCategoryId' => $lastId,
                     'active' => true,
                     'cmsPageId' => $context->getFaker()->randomElement($pageIds),
-                    'mediaId' => $context->getRandomId(MediaDefinition::class),
+                    'mediaId' => $context->getRandomId('media'),
                     'description' => $context->getFaker()->text(),
                 ];
 
@@ -99,8 +98,6 @@ class CategoryGenerator implements DemodataGeneratorInterface
         }
 
         $context->getConsole()->progressFinish();
-
-        $context->add(CategoryDefinition::class, ...array_column($payload, 'id'));
     }
 
     private function randomDepartment(Generator $faker, int $max = 3, bool $fixedAmount = false, bool $unique = true)

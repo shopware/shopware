@@ -13,6 +13,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\DemodataService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="tagged" tag="shopware.demodata_generator" />
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>

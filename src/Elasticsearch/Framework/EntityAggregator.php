@@ -83,16 +83,7 @@ class EntityAggregator implements EntityAggregatorInterface
             'body' => $search->toArray(),
         ]);
 
-        $aggregations = new AggregationResultCollection();
-        foreach ($result['aggregations'] as $name => $aggResult) {
-            $aggregation = $criteria->getAggregation($name);
-
-            if (!$aggregation) {
-                continue;
-            }
-
-            $parsed = $this->hydrateAggregation($aggregation, $aggResult, $context);
-        }
+        $aggregations = $this->hydrate($criteria, $context, $result);
 
         return new AggregatorResult($aggregations, $context, $criteria);
     }
@@ -130,5 +121,26 @@ class EntityAggregator implements EntityAggregatorInterface
             default:
                 return null;
         }
+    }
+
+    private function hydrate(Criteria $criteria, Context $context, array $result): AggregationResultCollection
+    {
+        if (!isset($result['aggregations'])) {
+            return new AggregationResultCollection();
+        }
+
+        $aggregations = new AggregationResultCollection();
+
+        foreach ($result['aggregations'] as $name => $aggResult) {
+            $aggregation = $criteria->getAggregation($name);
+
+            if (!$aggregation) {
+                continue;
+            }
+
+            $this->hydrateAggregation($aggregation, $aggResult, $context);
+        }
+
+        return $aggregations;
     }
 }

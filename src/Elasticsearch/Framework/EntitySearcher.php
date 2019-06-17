@@ -58,21 +58,7 @@ class EntitySearcher implements EntitySearcherInterface
             'body' => $search->toArray(),
         ]);
 
-        $data = [];
-        foreach ($result['hits']['hits'] as $hit) {
-            $id = $hit['_id'];
-            $data[$id] = [
-                'primary_key' => $id,
-                'score' => $hit['_score'],
-            ];
-        }
-
-        return new IdSearchResult(
-            (int) $result['hits']['total'],
-            $data,
-            $criteria,
-            $context
-        );
+        return $this->hydrate($criteria, $context, $result);
     }
 
     protected function createSearch(Criteria $criteria, EntityDefinition $definition, Context $context): Search
@@ -88,5 +74,25 @@ class EntitySearcher implements EntitySearcherInterface
         $search->setFrom($criteria->getOffset());
 
         return $search;
+    }
+
+    private function hydrate(Criteria $criteria, Context $context, array $result): IdSearchResult
+    {
+        if (!isset($result['hits'])) {
+            return new IdSearchResult(0, [], $criteria, $context);
+        }
+
+        $data = [];
+        foreach ($result['hits']['hits'] as $hit) {
+            $id = $hit['_id'];
+            $data[$id] = [
+                'primary_key' => $id,
+                'score' => $hit['_score'],
+            ];
+        }
+
+        $total = (int) $result['hits']['total'];
+
+        return new IdSearchResult($total, $data, $criteria, $context);
     }
 }

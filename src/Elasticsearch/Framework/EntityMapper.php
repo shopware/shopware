@@ -56,7 +56,7 @@ class EntityMapper
     public const DATE_FIELD = [
         'type' => 'date',
         'format' => 'yyyy-MM-dd HH:mm:ss.SSS',
-        'ignore_malformed' => true
+        'ignore_malformed' => true,
     ];
 
     public const KEYWORD_FIELD = ['type' => 'keyword'];
@@ -227,7 +227,7 @@ class EntityMapper
     private function getDefinitionFields(EntityDefinition $definition): FieldCollection
     {
         return $definition->getFields()->filter(
-            function(Field $field) {
+            function (Field $field) {
                 if (!$field instanceof AssociationField) {
                     return true;
                 }

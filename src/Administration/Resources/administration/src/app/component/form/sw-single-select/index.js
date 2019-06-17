@@ -217,7 +217,7 @@ export default {
             }
 
             item = JSON.parse(JSON.stringify(item));
-            if (item[this.labelProperty].constructor === String) {
+            if (item[this.labelProperty] !== null && item[this.labelProperty].constructor === String) {
                 item[this.labelProperty] = item[this.labelProperty].replace(/<[^>]+>/g, '');
             }
 

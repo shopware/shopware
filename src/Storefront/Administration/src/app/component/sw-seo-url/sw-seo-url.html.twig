@@ -1,0 +1,20 @@
+{% block sw_seo_url %}
+    <div class="sw-seo-url">
+        <sw-card class="sw-seo-url-card"
+                 :title="$tc('sw-seo-url.titleCard')"
+                 :isLoading="isLoading">
+            <template slot="toolbar">
+                <sw-sales-channel-switch
+                        ref="salesChannelSwitch"
+                        :label="$tc('sw-seo-url.labelSalesChannelSelect')"
+                        @change-sales-channel-id="onSalesChannelChanged">
+                </sw-sales-channel-switch>
+            </template>
+
+            <sw-text-field
+                :label="$tc('sw-seo-url.labelSeoPathInfo')"
+                v-model="currentSeoUrl.seoPathInfo">
+            </sw-text-field>
+        </sw-card>
+    </div>
+{% endblock %}

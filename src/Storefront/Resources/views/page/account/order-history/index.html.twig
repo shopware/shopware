@@ -25,48 +25,52 @@
                         {% block page_account_orders_overview %}
                             <div class="account-orders-overview">
                                 {% block page_account_orders_table %}
-                                    <table class="table order-table">
+                                    <div class="table order-table">
                                         {% block page_account_orders_table_header %}
-                                            <thead class="order-table-header">
-                                            <tr>
-                                                {% block page_account_orders_table_header_date %}
-                                                    <th class="col order-header-date"
-                                                        scope="col">{{ "account.orderItemColumnDate"|trans }}</th>
-                                                {% endblock %}
-
-                                                {% block page_account_orders_table_header_number %}
-                                                    <th class="col order-header-number"
-                                                        scope="col">{{ "account.orderItemColumnNumber"|trans }}</th>
-                                                {% endblock %}
-
-                                                {% block page_account_orders_table_header_payment_method %}
-                                                    <th class="col order-header-payment-method"
-                                                        scope="col">{{ "account.orderItemColumnPaymentMethod"|trans }}</th>
-                                                {% endblock %}
-
-                                                {% block page_account_orders_table_header_shipping_method %}
-                                                    <th class="col order-header-shipping-method"
-                                                        scope="col">{{ "account.orderItemColumnShippingMethod"|trans }}</th>
-                                                {% endblock %}
-
-                                                {% block page_account_orders_table_header_actions %}
-                                                    <th class="col order-header-actions"
-                                                        scope="col">{{ "account.orderItemColumnActions"|trans }}</th>
-                                                {% endblock %}
-                                            </tr>
-                                            </thead>
+                                            <div class="order-table-header">
+                                                <div class="row">
+                                                    {% block page_account_orders_table_header_date %}
+                                                        <div class="col order-header-date">
+                                                            {{ "account.orderItemColumnDate"|trans }}
+                                                        </div>
+                                                    {% endblock %}
+    
+                                                    {% block page_account_orders_table_header_number %}
+                                                        <div class="col order-header-number">
+                                                            {{ "account.orderItemColumnNumber"|trans }}
+                                                        </div>
+                                                    {% endblock %}
+    
+                                                    {% block page_account_orders_table_header_payment_method %}
+                                                        <div class="col order-header-payment-method">
+                                                            {{ "account.orderItemColumnPaymentMethod"|trans }}
+                                                        </div>
+                                                    {% endblock %}
+    
+                                                    {% block page_account_orders_table_header_shipping_method %}
+                                                        <div class="col order-header-shipping-method">
+                                                            {{ "account.orderItemColumnShippingMethod"|trans }}
+                                                        </div>
+                                                    {% endblock %}
+    
+                                                    {% block page_account_orders_table_header_actions %}
+                                                        <div class="col order-header-actions">
+                                                            {{ "account.orderItemColumnActions"|trans }}
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                            </div>
                                         {% endblock %}
 
                                         {% block page_account_orders_table_body %}
-                                            <tbody class="order-table-body">
-                                            {% block page_account_order_items %}
-                                                {% for order in page.orders %}
+                                            {% for order in page.orders %}
+                                                <div class="order-table-body"
+                                                     data-order-detail-loader="true">
                                                     {% sw_include '@Storefront/page/account/order-history/order-item.html.twig' %}
-                                                {% endfor %}
-                                            {% endblock %}
-                                            </tbody>
+                                                </div>
+                                            {% endfor %}
                                         {% endblock %}
-                                    </table>
+                                    </div>
                                 {% endblock %}
                             </div>
                         {% endblock %}

@@ -1,0 +1,40 @@
+.order-table-header {
+    font-weight: bold;
+}
+
+.order-item-name {
+    color: $gray-800;
+}
+
+.order-detail-content-header {
+    font-weight: bold;
+}
+
+.order-item-product-name {
+    color: $headings-color;
+
+    &:hover {
+        color: $primary;
+        text-decoration: none;
+    }
+}
+
+.order-item-number-value {
+    font-weight: $font-weight-bold;
+}
+
+.order-pseudo-price-value {
+    text-decoration: line-through;
+}
+
+.order-item-detail-footer {
+    background-color: $gray-100;
+}
+
+.order-item-detail-summary dd {
+    font-weight: $font-weight-bold;
+}
+
+.order-detail-table-footer {
+    @extend .bg-light;
+}

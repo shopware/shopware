@@ -44,6 +44,8 @@
       "labelUsername": "Benutzername",
       "labelPassword": "Passwort",
       "labelProfilePicture": "Profilbild",
+      "labelLanguage": "Sprache der Benutzeroberfläche",
+      "labelLanguagePlaceholder": "Sprache auswählen ...",
       "labelChangePassword": "Passwort ändern",
       "labelNewPassword": "Neues Passwort",
       "labelNewUser": "Neuer Benutzer",
@@ -62,7 +64,7 @@
       "modal": {
         "deleteModalTitle": "Löschen",
         "detailModalTitle": "Integration anlegen",
-        "detailModalTitleEdit": "Bearbeiten:",
+        "detailModalTitleEdit": "Bearbeiten",
         "confirmDelete" : "Möchtest Du diese Integration wirklich löschen?",
         "buttonApply": "Integration speichern",
         "buttonApplyEdit": "Änderungen speichern",

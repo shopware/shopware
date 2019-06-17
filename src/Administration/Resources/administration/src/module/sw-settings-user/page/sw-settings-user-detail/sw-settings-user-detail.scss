@@ -15,8 +15,8 @@ $sw-field-help-color: $color-gutenberg;
             "FirstName LastName"
             "EMail ProfilePicture"
             "Username ProfilePicture"
-            "Password Password"
-            "none ChangePassword";
+            "Password Language"
+            "ChangePassword none";
         grid-column-gap: 32px;
     }
 
@@ -45,6 +45,10 @@ $sw-field-help-color: $color-gutenberg;
         }
     }
 
+    .sw-settings-user-detail__grid-language {
+        grid-area: Language;
+    }
+
     .sw-settings-user-detail__grid-profile-picture {
         grid-area: ProfilePicture;
     }
@@ -56,11 +60,7 @@ $sw-field-help-color: $color-gutenberg;
         cursor: pointer;
     }
 
-    .sw_settings_user_detail__detail {
-        .sw_settings_user_detail__secret-help-text-alert {
-            margin-top: 22px;
-        }
-
+    .sw-settings-user-detail__detail {
         .sw-field.sw-field__checkbox {
             align-self: center;
             margin: 0;

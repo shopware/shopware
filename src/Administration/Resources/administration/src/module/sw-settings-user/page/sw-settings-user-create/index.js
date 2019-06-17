@@ -5,12 +5,10 @@ Component.extend('sw-settings-user-create', 'sw-settings-user-detail', {
     template,
 
     methods: {
-        createdComponent() {
-            this.repository = this.repositoryFactory.create('user');
-            this.user = this.repository.create(this.context);
-
-            this.userService.getUser().then((response) => {
-                this.currentUser = response.data;
+        loadUser() {
+            return new Promise((resolve) => {
+                this.user = this.userRepository.create(this.context);
+                resolve();
             });
         },
 
@@ -23,7 +21,7 @@ Component.extend('sw-settings-user-create', 'sw-settings-user-detail', {
             if (!this.user.localeId) {
                 this.user.localeId = this.currentUser.localeId;
             }
-            this.$super.onSave();
+            this.finishEmailCheck();
         }
     }
 });

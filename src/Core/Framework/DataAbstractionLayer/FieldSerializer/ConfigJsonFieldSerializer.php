@@ -18,7 +18,7 @@ class ConfigJsonFieldSerializer extends JsonFieldSerializer
         }
 
         $wrapped = [ConfigJsonField::STORAGE_KEY => $data->getValue()];
-        $data = new KeyValuePair($data->getKey(), $wrapped, $data->isRaw());
+        $data = $data->createWithValue($wrapped);
 
         return parent::encode($field, $existence, $data, $parameters);
     }

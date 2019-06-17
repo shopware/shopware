@@ -5,27 +5,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
 {
-    use FieldValidatorTrait;
-
-    /**
-     * @var ConstraintBuilder
-     */
-    protected $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
     /**
      * @var PriceRuleEntity
      */
@@ -36,12 +22,8 @@ class PriceRulesJsonFieldSerializer implements FieldSerializerInterface
      */
     private $priceStruct;
 
-    public function __construct(
-        ConstraintBuilder $constraintBuilder,
-        ValidatorInterface $validator
-    ) {
-        $this->constraintBuilder = $constraintBuilder;
-        $this->validator = $validator;
+    public function __construct()
+    {
         $this->priceRuleEntity = new PriceRuleEntity();
         $this->priceStruct = new Price(0, 0, true);
     }

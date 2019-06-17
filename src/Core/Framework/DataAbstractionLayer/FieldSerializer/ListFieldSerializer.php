@@ -9,38 +9,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidJsonFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class ListFieldSerializer implements FieldSerializerInterface
+class ListFieldSerializer extends AbstractFieldSerializer
 {
-    use FieldValidatorTrait;
-
-    /**
-     * @var ConstraintBuilder
-     */
-    protected $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
     /**
      * @var DefinitionInstanceRegistry
      */
     protected $compositeHandler;
 
     public function __construct(
-        ConstraintBuilder $constraintBuilder,
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $compositeHandler
     ) {
-        $this->constraintBuilder = $constraintBuilder;
-        $this->validator = $validator;
+        parent::__construct($validator);
+
         $this->compositeHandler = $compositeHandler;
     }
 
@@ -53,14 +39,8 @@ class ListFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof ListField) {
             throw new InvalidSerializerFieldException(ListField::class, $field);
         }
-        /** @var ListField $field */
-        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
-            $constraints = $this->constraintBuilder
-                ->isArray()
-                ->getConstraints();
 
-            $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());
-        }
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         $value = $data->getValue();
 
@@ -86,6 +66,11 @@ class ListFieldSerializer implements FieldSerializerInterface
         return json_decode($value, true);
     }
 
+    protected function getConstraints(): array
+    {
+        return [new Type('array')];
+    }
+
     protected function validateTypes(ListField $field, array $values, WriteParameterBag $parameters): void
     {
         $fieldType = $field->getFieldType();
@@ -107,15 +92,9 @@ class ListFieldSerializer implements FieldSerializerInterface
 
                 $x = $listField->getSerializer()->encode($listField, $existence, $kvPair, $nestedParameters);
                 iterator_to_array($x);
-            } catch (InvalidFieldException $exception) {
-                $exceptions[] = $exception;
-            } catch (InvalidJsonFieldException $exception) {
-                $exceptions = array_merge($exceptions, $exception->getExceptions());
+            } catch (WriteFieldException $exception) {
+                $parameters->getContext()->getExceptions()->add($exception);
             }
-        }
-
-        if (\count($exceptions)) {
-            throw new InvalidJsonFieldException($parameters->getPath() . '/' . $field->getPropertyName(), $exceptions);
         }
     }
 }

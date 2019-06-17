@@ -24,8 +24,8 @@ class UpdatedAtFieldSerializer extends DateFieldSerializer
             return;
         }
 
-        $value = new KeyValuePair($data->getKey(), new \DateTime(), $data->isRaw());
+        $data = $data->createWithValue(new \DateTime());
 
-        yield from parent::encode($field, $existence, $value, $parameters);
+        yield from parent::encode($field, $existence, $data, $parameters);
     }
 }

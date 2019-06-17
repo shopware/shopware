@@ -8,30 +8,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
-class LongTextFieldSerializer implements FieldSerializerInterface
+class LongTextFieldSerializer extends AbstractFieldSerializer
 {
-    use FieldValidatorTrait;
-
-    /**
-     * @var ConstraintBuilder
-     */
-    protected $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
-    public function __construct(ConstraintBuilder $constraintBuilder, ValidatorInterface $validator)
-    {
-        $this->constraintBuilder = $constraintBuilder;
-        $this->validator = $validator;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -42,26 +24,30 @@ class LongTextFieldSerializer implements FieldSerializerInterface
             throw new InvalidSerializerFieldException(LongTextField::class, $field);
         }
 
+        if ($data->getValue() === '') {
+            $data = $data->createWithValue(null);
+        }
+
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
+
         $value = $data->getValue();
-        if ($value === '') {
-            $value = null;
+        if ($value !== null) {
+            $value = strip_tags((string) $value);
         }
 
-        if ($this->requiresValidation($field, $existence, $value, $parameters)) {
-            $constraints = $this->constraintBuilder
-                ->isNotBlank()
-                ->isString()
-                ->getConstraints();
-
-            $this->validate($this->validator, $constraints, $data->getKey(), $value, $parameters->getPath());
-        }
-
-        /* @var LongTextField $field */
-        yield $field->getStorageName() => $value !== null ? strip_tags((string) $value) : null;
+        yield $field->getStorageName() => $value;
     }
 
     public function decode(Field $field, $value): ?string
     {
         return $value === null ? null : (string) $value;
+    }
+
+    protected function getConstraints(): array
+    {
+        return [
+            new NotBlank(),
+            new Type('string'),
+        ];
     }
 }

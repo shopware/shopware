@@ -8,30 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class LongTextWithHtmlFieldSerializer implements FieldSerializerInterface
+class LongTextWithHtmlFieldSerializer extends AbstractFieldSerializer
 {
-    use FieldValidatorTrait;
-
-    /**
-     * @var ConstraintBuilder
-     */
-    protected $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
-    public function __construct(ConstraintBuilder $constraintBuilder, ValidatorInterface $validator)
-    {
-        $this->constraintBuilder = $constraintBuilder;
-        $this->validator = $validator;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -42,22 +22,13 @@ class LongTextWithHtmlFieldSerializer implements FieldSerializerInterface
             throw new InvalidSerializerFieldException(LongTextWithHtmlField::class, $field);
         }
 
-        $value = $data->getValue();
-        if ($value === '') {
-            $value = null;
+        if ($data->getValue() === '') {
+            $data = $data->createWithValue(null);
         }
 
-        if ($this->requiresValidation($field, $existence, $value, $parameters)) {
-            $constraints = $this->constraintBuilder
-                ->isNotBlank()
-                ->isString()
-                ->getConstraints();
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-            $this->validate($this->validator, $constraints, $data->getKey(), $value, $parameters->getPath());
-        }
-
-        /* @var LongTextWithHtmlField $field */
-        yield $field->getStorageName() => $value;
+        yield $field->getStorageName() => $data->getValue();
     }
 
     public function decode(Field $field, $value): ?string

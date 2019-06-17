@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -27,12 +26,11 @@ class CustomFieldsSerializer extends JsonFieldSerializer
 
     public function __construct(
         DefinitionInstanceRegistry $compositeHandler,
-        ConstraintBuilder $constraintBuilder,
         ValidatorInterface $validator,
         CustomFieldService $attributeService,
         WriteCommandExtractor $writeExtractor
     ) {
-        parent::__construct($compositeHandler, $constraintBuilder, $validator);
+        parent::__construct($compositeHandler, $validator);
         $this->attributeService = $attributeService;
         $this->writeExtractor = $writeExtractor;
     }
@@ -43,15 +41,9 @@ class CustomFieldsSerializer extends JsonFieldSerializer
             throw new InvalidSerializerFieldException(CustomFields::class, $field);
         }
 
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
+
         $attributes = $data->getValue();
-
-        /** @var CustomFields $field */
-        if ($this->requiresValidation($field, $existence, $attributes, $parameters)) {
-            $constraints = $this->getConstraints($parameters);
-
-            $this->validate($this->validator, $constraints, $data->getKey(), $attributes, $parameters->getPath());
-        }
-
         if ($attributes === null) {
             yield $field->getStorageName() => null;
 

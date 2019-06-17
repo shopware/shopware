@@ -17,7 +17,7 @@ class CreatedAtFieldSerializer extends DateFieldSerializer
         }
 
         if (!$data->getValue()) {
-            $data = new KeyValuePair($data->getKey(), new \DateTime(), $data->isRaw());
+            $data = $data->createWithValue(new \DateTime());
         }
 
         yield from parent::encode($field, $existence, $data, $parameters);

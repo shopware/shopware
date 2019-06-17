@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class JsonFieldSerializerTest extends TestCase
 {
@@ -124,7 +125,7 @@ class JsonFieldSerializerTest extends TestCase
 
     public function testEmptyValueForRequiredField(): void
     {
-        $field = (new JsonField('data', 'data'));
+        $field = new JsonField('data', 'data');
         $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
         $kvPair = new KeyValuePair('data', [], true);
@@ -141,6 +142,7 @@ class JsonFieldSerializerTest extends TestCase
 
         $kvPair = new KeyValuePair('data', null, true);
 
+        /** @var WriteConstraintViolationException|null $exception */
         $exception = null;
         try {
             $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
@@ -148,13 +150,13 @@ class JsonFieldSerializerTest extends TestCase
             $exception = $e;
         }
 
-        static::assertInstanceOf(InvalidFieldException::class, $exception, 'JsonFieldSerializer does not throw violation exception for empty required field.');
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'JsonFieldSerializer does not throw violation exception for empty required field.');
         static::assertEquals('/data', $exception->getPath());
     }
 
     public function testNullValueForNotRequiredField(): void
     {
-        $field = (new JsonField('data', 'data'));
+        $field = new JsonField('data', 'data');
         $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
         $kvPair = new KeyValuePair('data', null, true);

@@ -17,10 +17,9 @@ class PriceFieldSerializer extends JsonFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         $value = $data->getValue();
-
         unset($value['extensions']);
 
-        $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
+        $data = $data->createWithValue($value);
 
         yield from parent::encode($field, $existence, $data, $parameters);
     }

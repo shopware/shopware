@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
@@ -8,26 +7,37 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-trait FieldValidatorTrait
+abstract class AbstractFieldSerializer implements FieldSerializerInterface
 {
+    /**
+     * @var ValidatorInterface
+     */
+    protected $validator;
+
+    public function __construct(ValidatorInterface $validator)
+    {
+        $this->validator = $validator;
+    }
+
     protected function validate(
-        ValidatorInterface $validator,
         array $constraints,
-        string $fieldName,
-        $value,
+        KeyValuePair $data,
         string $path
     ): void {
         $violationList = new ConstraintViolationList();
+        $fieldName = $data->getKey();
 
         foreach ($constraints as $constraint) {
-            $violations = $validator->validate($value, $constraint);
+            $violations = $this->validator->validate($data->getValue(), $constraint);
 
             /** @var ConstraintViolation $violation */
             foreach ($violations as $violation) {
@@ -56,7 +66,7 @@ trait FieldValidatorTrait
         }
 
         if (\count($violationList)) {
-            throw new InvalidFieldException($violationList, $path . '/' . $fieldName);
+            throw new WriteConstraintViolationException($violationList, $path . '/' . $fieldName);
         }
     }
 
@@ -98,5 +108,26 @@ trait FieldValidatorTrait
         $field = $parent->getFields()->get($field->getPropertyName());
 
         return $field->is(Inherited::class);
+    }
+
+    /**
+     * @param Constraint[] $constraints
+     */
+    protected function validateIfNeeded(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters, ?array $constraints = null): void
+    {
+        if (!$this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
+            return;
+        }
+
+        if ($constraints === null) {
+            $constraints = $this->getConstraints();
+        }
+
+        $this->validate($constraints, $data, $parameters->getPath());
+    }
+
+    protected function getConstraints(): array
+    {
+        return [];
     }
 }

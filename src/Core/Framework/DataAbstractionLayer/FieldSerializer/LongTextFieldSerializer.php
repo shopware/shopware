@@ -25,7 +25,7 @@ class LongTextFieldSerializer extends AbstractFieldSerializer
         }
 
         if ($data->getValue() === '') {
-            $data = $data->createWithValue(null);
+            $data->setValue(null);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
@@ -43,7 +43,7 @@ class LongTextFieldSerializer extends AbstractFieldSerializer
         return $value === null ? null : (string) $value;
     }
 
-    protected function getConstraints(): array
+    protected function getConstraints(Field $field): array
     {
         return [
             new NotBlank(),

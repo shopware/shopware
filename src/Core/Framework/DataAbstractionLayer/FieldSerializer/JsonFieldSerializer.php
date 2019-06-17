@@ -105,7 +105,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         return $decoded;
     }
 
-    protected function getConstraints(): array
+    protected function getConstraints(Field $field): array
     {
         return [
             new Type('array'),

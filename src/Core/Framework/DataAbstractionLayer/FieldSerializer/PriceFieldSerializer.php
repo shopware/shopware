@@ -19,7 +19,7 @@ class PriceFieldSerializer extends JsonFieldSerializer
         $value = $data->getValue();
         unset($value['extensions']);
 
-        $data = $data->createWithValue($value);
+        $data->setValue($value);
 
         yield from parent::encode($field, $existence, $data, $parameters);
     }

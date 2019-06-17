@@ -31,7 +31,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
             try {
                 $value = $parameters->getContext()->get($field->getReferenceDefinition()->getClass(), $field->getReferenceField());
             } catch (\InvalidArgumentException $exception) {
-                $this->validate($this->getConstraints(), $data, $parameters->getPath());
+                $this->validate($this->getConstraints($field), $data, $parameters->getPath());
             }
         }
 
@@ -58,7 +58,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
         return $data->isRaw() && $data->getValue() === null && $field->is(Required::class);
     }
 
-    protected function getConstraints(): array
+    protected function getConstraints(Field $field): array
     {
         return [new NotBlank()];
     }

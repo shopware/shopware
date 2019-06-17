@@ -39,7 +39,7 @@ class BoolFieldSerializer extends AbstractFieldSerializer
         return (bool) $value;
     }
 
-    protected function getConstraints(): array
+    protected function getConstraints(Field $field): array
     {
         return [
             new Type('bool'),

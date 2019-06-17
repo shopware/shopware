@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -11,7 +12,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class SlotConfigFieldSerializer extends JsonFieldSerializer
 {
-    protected function getConstraints(): array
+    protected function getConstraints(Field $field): array
     {
         return [
             new All([

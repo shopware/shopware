@@ -27,16 +27,10 @@ class StringFieldSerializer extends AbstractFieldSerializer
         }
 
         if ($data->getValue() === '') {
-            $data->createWithValue(null);
+            $data->setValue(null);
         }
 
-        $constraints = [
-            new NotBlank(),
-            new Type('string'),
-            new Length(['max' => $field->getMaxLength()]),
-        ];
-
-        $this->validateIfNeeded($field, $existence, $data, $parameters, $constraints);
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         /* @var LongTextField $field */
         yield $field->getStorageName() => $data->getValue() !== null ? strip_tags((string) $data->getValue()) : null;
@@ -45,5 +39,17 @@ class StringFieldSerializer extends AbstractFieldSerializer
     public function decode(Field $field, $value): ?string
     {
         return $value === null ? null : (string) $value;
+    }
+
+    /**
+     * @param StringField $field
+     */
+    protected function getConstraints(Field $field): array
+    {
+        return [
+            new NotBlank(),
+            new Type('string'),
+            new Length(['max' => $field->getMaxLength()]),
+        ];
     }
 }

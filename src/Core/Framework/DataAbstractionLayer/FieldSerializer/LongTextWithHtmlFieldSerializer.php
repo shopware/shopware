@@ -23,7 +23,7 @@ class LongTextWithHtmlFieldSerializer extends AbstractFieldSerializer
         }
 
         if ($data->getValue() === '') {
-            $data = $data->createWithValue(null);
+            $data->setValue(null);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

@@ -32,7 +32,7 @@ class EmailFieldSerializer extends AbstractFieldSerializer
         return $value;
     }
 
-    protected function getConstraints(): array
+    protected function getConstraints(Field $field): array
     {
         return [new Email()];
     }

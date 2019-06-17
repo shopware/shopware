@@ -24,7 +24,7 @@ class UpdatedAtFieldSerializer extends DateFieldSerializer
             return;
         }
 
-        $data = $data->createWithValue(new \DateTime());
+        $data->setValue(new \DateTime());
 
         yield from parent::encode($field, $existence, $data, $parameters);
     }

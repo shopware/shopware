@@ -34,7 +34,7 @@ class DateFieldSerializer extends AbstractFieldSerializer
             $value = new \DateTimeImmutable($value['date']);
         }
 
-        $data = $data->createWithValue($value);
+        $data->setValue($value);
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         if ($value === null) {
@@ -51,7 +51,7 @@ class DateFieldSerializer extends AbstractFieldSerializer
         return $value === null ? null : new \DateTimeImmutable($value);
     }
 
-    protected function getConstraints(): array
+    protected function getConstraints(Field $field): array
     {
         return [new Type(\DateTimeInterface::class)];
     }

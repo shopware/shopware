@@ -374,13 +374,17 @@ EOF;
 
     private function getValidationExceptionMessage(WriteException $ex, string $field = 'protected'): string
     {
+        $message = '';
+
+        /** @var \Throwable $exception */
         foreach ($ex->getExceptions() as $exception) {
+            $message = $exception->getMessage();
+
             if ($exception instanceof WriteConstraintViolationException && $exception->getPath() === '/' . $field) {
                 return $exception->getViolations()[0]->getMessage();
             }
         }
 
-        return '';
-//        return $ex->toArray()['/' . $field]['insufficient-permission'][0]['message'];
+        return $message;
     }
 }

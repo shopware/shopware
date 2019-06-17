@@ -34,7 +34,7 @@ class IntFieldSerializer extends AbstractFieldSerializer
             $constraints[] = new Range(['min' => $field->getMinValue(), 'max' => $field->getMaxValue()]);
         }
 
-        $this->validateIfNeeded($field, $existence, $data, $parameters, $constraints);
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         yield $field->getStorageName() => $data->getValue();
     }
@@ -42,5 +42,22 @@ class IntFieldSerializer extends AbstractFieldSerializer
     public function decode(Field $field, $value): ?int
     {
         return $value === null ? null : (int) $value;
+    }
+
+    /**
+     * @param IntField $field
+     */
+    protected function getConstraints(Field $field): array
+    {
+        $constraints = [
+            new Type('int'),
+            new NotBlank(),
+        ];
+
+        if ($field->getMinValue() !== null || $field->getMaxValue() !== null) {
+            $constraints[] = new Range(['min' => $field->getMinValue(), 'max' => $field->getMaxValue()]);
+        }
+
+        return $constraints;
     }
 }

@@ -38,7 +38,7 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
         return $value === null ? null : (string) $value;
     }
 
-    protected function getConstraints(): array
+    protected function getConstraints(Field $field): array
     {
         return [
             new NotBlank(),

@@ -110,23 +110,21 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         return $field->is(Inherited::class);
     }
 
-    /**
-     * @param Constraint[] $constraints
-     */
-    protected function validateIfNeeded(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters, ?array $constraints = null): void
+    protected function validateIfNeeded(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): void
     {
         if (!$this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
             return;
         }
 
-        if ($constraints === null) {
-            $constraints = $this->getConstraints();
-        }
+        $constraints = $this->getConstraints($field);
 
         $this->validate($constraints, $data, $parameters->getPath());
     }
 
-    protected function getConstraints(): array
+    /**
+     * @return Constraint[]
+     */
+    protected function getConstraints(Field $field): array
     {
         return [];
     }

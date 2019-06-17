@@ -41,8 +41,9 @@ class KeyValuePair
         return $this->isRaw;
     }
 
-    public function createWithValue($value): self
+    public function setValue($value): void
     {
-        return new self($this->key, $value, $this->isRaw);
+        $this->isRaw = false;
+        $this->value = $value;
     }
 }

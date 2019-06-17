@@ -66,7 +66,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
         return json_decode($value, true);
     }
 
-    protected function getConstraints(): array
+    protected function getConstraints(Field $field): array
     {
         return [new Type('array')];
     }

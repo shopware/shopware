@@ -153,17 +153,15 @@ class Kernel extends HttpKernel
 
     public function getCacheDir(): string
     {
+        $pluginHash = md5(implode('', array_keys(self::getPlugins()->getActives())));
+
         return sprintf(
-            '%s/var/cache/%s_%s',
+            '%s/var/cache/%s_k%s_p%s',
             $this->getProjectDir(),
             $this->getEnvironment(),
-            $this->shopwareVersionRevision
+            substr($this->shopwareVersionRevision, 0, 8),
+            substr($pluginHash, 0, 8)
         );
-    }
-
-    public function getLogDir(): string
-    {
-        return $this->getProjectDir() . '/var/logs';
     }
 
     public function getPluginDir(): string
@@ -233,18 +231,6 @@ class Kernel extends HttpKernel
                 'kernel.plugin_dir' => $this->getPluginDir(),
                 'kernel.active_plugins' => $activePluginMeta,
             ]
-        );
-    }
-
-    protected function getContainerClass(): string
-    {
-        $pluginHash = md5(implode('', array_keys(self::getPlugins()->getActives())));
-
-        return sprintf(
-            'k%s_p%s_%s_container',
-            $this->shopwareVersionRevision,
-            $pluginHash,
-            $this->debug ? 'debug' : 'nodebug'
         );
     }
 

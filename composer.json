@@ -11,7 +11,8 @@
     "replace": {
         "shopware/core": "self.version",
         "shopware/storefront": "self.version",
-        "shopware/administration": "self.version"
+        "shopware/administration": "self.version",
+        "shopware/elasticsearch": "self.version"
     },
     "require": {
         "php": ">=7.2.0",
@@ -36,6 +37,7 @@
         "doctrine/dbal": "2.9.2",
         "doctrine/inflector": "1.3.0",
         "dompdf/dompdf": "0.8.3",
+        "elasticsearch/elasticsearch": "7.0.0",
         "enqueue/fs": "0.9.8",
         "erusev/parsedown-extra": "0.7.1",
         "google/cloud-storage": "1.12.2",
@@ -47,6 +49,7 @@
         "league/oauth2-server": "7.3.3",
         "marc1706/fast-image-size": "1.1.4",
         "nyholm/psr7": "1.1.0",
+        "ongr/elasticsearch-dsl": "6.0.3",
         "psr/cache": "1.0.1",
         "psr/http-factory": "1.0.1",
         "psr/http-message": "1.0.1",
@@ -115,7 +118,8 @@
             "Shopware\\Administration\\": "src/Administration/",
             "Shopware\\Docs\\": "src/Docs/",
             "Shopware\\Storefront\\": "src/Storefront/",
-            "Shopware\\Core\\": "src/Core/"
+            "Shopware\\Core\\": "src/Core/",
+            "Shopware\\Elasticsearch\\": "src/Elasticsearch/"
         },
         "exclude-from-classmap": [
             "src/**/Test/"

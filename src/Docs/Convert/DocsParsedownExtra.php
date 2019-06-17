@@ -16,23 +16,26 @@ class DocsParsedownExtra extends \ParsedownExtra
     private $sourceFile;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $content;
 
+    /**
+     * @throws \Exception
+     */
     public function __construct(SplFileInfo $sourceFile)
     {
         parent::__construct();
         $this->sourceFile = $sourceFile;
     }
 
-    protected function blockFencedCode($Line)
+    protected function blockFencedCode($Line): array
     {
         $Block = parent::blockFencedCode($Line);
 
         $parts = explode(':', $Line['body']);
 
-        if ($Block && count($parts) > 1) {
+        if ($Block && \count($parts) > 1) {
             $this->docsLoadIncludeData($parts);
         }
 
@@ -65,11 +68,17 @@ class DocsParsedownExtra extends \ParsedownExtra
     {
         $includeParts = explode('#', $parts[1]);
 
-        $includeFile = dirname($this->sourceFile->getRealPath()) . '' . substr($includeParts[0], 1);
+        $includeFile = \dirname($this->sourceFile->getRealPath()) . '' . substr($includeParts[0], 1);
         $namespace = $includeParts[1];
 
         if (!file_exists($includeFile)) {
-            throw new \RuntimeException(sprintf('Unable to load %s referenced in %s', $includeFile, $this->sourceFile->getRealPath()));
+            throw new \RuntimeException(
+                sprintf(
+                    'Unable to load %s referenced in %s',
+                    $includeFile,
+                    $this->sourceFile->getRealPath()
+                )
+            );
         }
 
         return [$includeFile, $namespace];
@@ -100,12 +109,12 @@ class DocsParsedownExtra extends \ParsedownExtra
             throw new \RuntimeException(sprintf('Unable to find the stop of %s in %s', $namespace, $includeFile));
         }
 
-        return array_slice($lines, $start, $stop - $start);
+        return \array_slice($lines, $start, $stop - $start);
     }
 
     protected function docsRenderIncludeContents(array $slicedLines): void
     {
-        $reIntendedLines = array_map(function (string $line) {
+        $reIntendedLines = array_map(static function (string $line) {
             return substr($line, 4);
         }, $slicedLines);
 

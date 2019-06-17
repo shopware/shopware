@@ -14,7 +14,12 @@ class DefinitionInstanceRegistry
     /**
      * @var ContainerInterface
      */
-    private $container;
+    protected $container;
+
+    /**
+     * @var array
+     */
+    protected $repositoryMap;
 
     /**
      * @var array
@@ -22,12 +27,8 @@ class DefinitionInstanceRegistry
     private $definitions;
 
     /**
-     * @var array
-     */
-    private $repositoryMap;
-
-    /**
-     * @param array $definitionMap array of $entityName => $definitionServiceId, eg. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
+     * @param array $definitionMap array of $entityName => $definitionServiceId,
+     *                             eg. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
      * @param array $repositoryMap array of $entityName => $repositoryServiceId, eg. 'product' => 'product.repository'
      */
     public function __construct(ContainerInterface $container, array $definitionMap, array $repositoryMap)
@@ -39,14 +40,23 @@ class DefinitionInstanceRegistry
 
     public function getRepository(string $entityName): EntityRepositoryInterface
     {
-        return $this->container->get($this->repositoryMap[$entityName]);
+        /** @var EntityRepositoryInterface $entityRepository */
+        $entityRepository = $this->container->get($this->repositoryMap[$entityName]);
+
+        return $entityRepository;
     }
 
     public function get(string $name): EntityDefinition
     {
-        return $this->container->get($name);
+        /** @var EntityDefinition $entityDefinition */
+        $entityDefinition = $this->container->get($name);
+
+        return $entityDefinition;
     }
 
+    /**
+     * @throws DefinitionNotFoundException
+     */
     public function getByEntityName(string $name): EntityDefinition
     {
         try {
@@ -68,16 +78,25 @@ class DefinitionInstanceRegistry
 
     public function getSerializer(string $serializerClass): FieldSerializerInterface
     {
-        return $this->container->get($serializerClass);
+        /** @var FieldSerializerInterface $fieldSerializer */
+        $fieldSerializer = $this->container->get($serializerClass);
+
+        return $fieldSerializer;
     }
 
     public function getResolver(string $resolverClass): FieldResolverInterface
     {
-        return $this->container->get($resolverClass);
+        /** @var FieldResolverInterface $fieldResolver */
+        $fieldResolver = $this->container->get($resolverClass);
+
+        return $fieldResolver;
     }
 
     public function getAccessorBuilder(string $accessorBuilderClass): FieldAccessorBuilderInterface
     {
-        return $this->container->get($accessorBuilderClass);
+        /** @var FieldAccessorBuilderInterface $fieldAccessorBuilder */
+        $fieldAccessorBuilder = $this->container->get($accessorBuilderClass);
+
+        return $fieldAccessorBuilder;
     }
 }

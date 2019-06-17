@@ -105,7 +105,6 @@
 
         <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry" public="true">
             <argument type="string"/>
-            <argument type="collection"/>
             <argument type="service" id="service_container" />
             <argument type="collection"/>
             <argument type="collection"/>

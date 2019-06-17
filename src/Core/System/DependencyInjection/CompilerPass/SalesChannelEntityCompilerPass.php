@@ -28,7 +28,9 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
         $entityNameMap = [];
         $repositoryNameMap = [];
 
-        $salesChannelDefinitions = $this->formatData($container->findTaggedServiceIds('shopware.sales_channel.entity.definition'));
+        $salesChannelDefinitions = $this->formatData(
+            $container->findTaggedServiceIds('shopware.sales_channel.entity.definition')
+        );
         $baseDefinitions = $this->formatData($container->findTaggedServiceIds('shopware.entity.definition'));
 
         $sortedData = $this->sortData($salesChannelDefinitions, $baseDefinitions);
@@ -44,12 +46,12 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
             }
 
             // if both mask base with extended extended as base
-            if (isset($definitions['extended']) && isset($definitions['base'])) {
+            if (isset($definitions['extended'], $definitions['base'])) {
                 $container->setAlias(self::PREFIX . $definitions['base'], new Alias($definitions['extended'], true));
             }
 
             // if base only clone definition
-            if (count($definitions) === 1 && isset($definitions['base'])) {
+            if (\count($definitions) === 1 && isset($definitions['base'])) {
                 $service = $container->getDefinition($definitions['base']);
 
                 $clone = clone $service;
@@ -90,9 +92,8 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
         $definitionRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
         $definitionRegistry->replaceArgument(0, self::PREFIX);
-        $definitionRegistry->replaceArgument(1, $salesChannelDefinitions);
-        $definitionRegistry->replaceArgument(3, $entityNameMap);
-        $definitionRegistry->replaceArgument(4, $repositoryNameMap);
+        $definitionRegistry->replaceArgument(2, $entityNameMap);
+        $definitionRegistry->replaceArgument(3, $repositoryNameMap);
     }
 
     private function formatData(array $taggedServiceIds): array

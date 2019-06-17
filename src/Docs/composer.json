@@ -12,7 +12,10 @@
         ]
     },
     "require": {
+        "composer/composer": "1.8.6",
         "erusev/parsedown-extra":"0.7.1",
+        "guzzlehttp/guzzle": "6.3.3",
+        "shopware/core": "dev-master",
         "symfony/config": "4.3.1",
         "symfony/console": "4.3.1",
         "symfony/dependency-injection": "4.3.1",

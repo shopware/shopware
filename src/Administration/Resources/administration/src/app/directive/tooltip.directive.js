@@ -30,7 +30,8 @@ class Tooltip {
         element,
         showDelay = 100,
         hideDelay = showDelay,
-        disabled = false
+        disabled = false,
+        appearance = 'dark'
     }) {
         this._id = id;
         this._position = Tooltip.validatePosition(position);
@@ -40,6 +41,7 @@ class Tooltip {
         this._showDelay = showDelay;
         this._hideDelay = hideDelay;
         this._disabled = disabled;
+        this._appearance = appearance;
         this._isShown = false;
         this._state = false;
 
@@ -68,7 +70,7 @@ class Tooltip {
      * @param {number} obj.showDelay
      * @param {number} obj.hideDelay
      */
-    update({ message, position, width, showDelay, hideDelay, disabled }) {
+    update({ message, position, width, showDelay, hideDelay, disabled, appearance }) {
         if (message && this._message !== message) {
             this._message = Tooltip.validateMessage(message);
             this._DOMElement.innerHTML = this._message;
@@ -97,6 +99,12 @@ class Tooltip {
         if (disabled && this._disabled !== disabled) {
             this._disabled = disabled;
         }
+
+        if (appearance && this._appearance !== appearance) {
+            this._DOMElement.classList.remove(`sw-tooltip--${this._appearance}`);
+            this._appearance = appearance;
+            this._DOMElement.classList.add(`sw-tooltip--${this._appearance}`);
+        }
     }
 
     /**
@@ -108,6 +116,7 @@ class Tooltip {
         element.setAttribute('aria-hidden', 'false');
         element.classList.add('sw-tooltip');
         element.classList.add(`sw-tooltip--${this._position}`);
+        element.classList.add(`sw-tooltip--${this._appearance}`);
 
         return element;
     }
@@ -271,6 +280,7 @@ Directive.register('tooltip', {
         const showDelay = value.showDelay;
         const hideDelay = value.hideDelay;
         const disabled = value.disabled;
+        const appearance = value.appearance;
         const width = value.width;
         const tooltip = new Tooltip({
             message: message,
@@ -279,7 +289,8 @@ Directive.register('tooltip', {
             element: el,
             showDelay: showDelay,
             hideDelay: hideDelay,
-            disabled: disabled
+            disabled: disabled,
+            appearance: appearance
         });
 
         tooltipRegistry.set(tooltip.id, tooltip);
@@ -301,6 +312,7 @@ Directive.register('tooltip', {
         const showDelay = value.showDelay;
         const hideDelay = value.hideDelay;
         const disabled = value.disabled;
+        const appearance = value.appearance || 'dark';
         const width = value.width;
 
         if (el.hasAttribute('tooltip-id')) {
@@ -311,7 +323,8 @@ Directive.register('tooltip', {
                 width: width,
                 showDelay: showDelay,
                 hideDelay: hideDelay,
-                disabled: disabled
+                disabled: disabled,
+                appearance: appearance
             });
         }
     }

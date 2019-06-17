@@ -4,48 +4,86 @@ $sw-tooltip-z-index: $z-index-tooltip;
 $sw-tooltip-color-background: $color-biscay;
 $sw-tooltip-color: $color-white;
 $sw-tooltip-border-radius: $border-radius-default;
+$sw-tooltip-color-light: $color-darkgray-200;
+$sw-tooltip-border-color-light: $color-gray-300;
 
 .sw-tooltip {
     position: absolute;
     z-index: $sw-tooltip-z-index;
-    background-color: $sw-tooltip-color-background;
-    color: $sw-tooltip-color;
-    border-radius: $sw-tooltip-border-radius;
-    padding: 12px 16px;
-    font-size: 14px;
-    word-wrap: break-word;
-    pointer-events: none;
 
-    &:before {
-        content: '';
-        position: absolute;
-        height: 8px;
-        width: 8px;
-        transform: rotate(45deg);
-        background: $sw-tooltip-color-background;
+    &.sw-tooltip--dark {
+        background-color: $sw-tooltip-color-background;
+        border-radius: $sw-tooltip-border-radius;
+        color: $sw-tooltip-color;
+        padding: 12px 16px;
+        font-size: 14px;
+        word-wrap: break-word;
+        pointer-events: none;
+
+        &:before {
+            content: '';
+            position: absolute;
+            height: 8px;
+            width: 8px;
+            transform: rotate(45deg);
+            background: $sw-tooltip-color-background;
+        }
+
+        &.sw-tooltip--top:before {
+            bottom: -4px;
+            margin-left: -4px;
+            left: 50%;
+        }
+
+        &.sw-tooltip--bottom:before {
+            top: -4px;
+            margin-left: -4px;
+            left: 50%;
+        }
+
+        &.sw-tooltip--left:before {
+            top: 50%;
+            margin-top: -4px;
+            right: -4px;
+        }
+
+        &.sw-tooltip--right:before {
+            top: 50%;
+            margin-top: -4px;
+            left: -4px;
+        }
     }
 
-    &.sw-tooltip--top:before {
-        bottom: -4px;
-        margin-left: -4px;
-        left: 50%;
-    }
+    &.sw-tooltip--light {
+        color: $sw-tooltip-color-light;
+        font-size: 12px;
+        font-weight: lighter;
+        letter-spacing: 0px;
+        line-height: 19px;
+        width: auto !important;
+        height: auto !important;
+        padding: 5px 10px;
+        background: $sw-tooltip-color;
+        border: 1px solid $sw-tooltip-border-color-light;
+        box-shadow: 0px 3px 6px 0px rgba(120, 138, 155, 0.5);
+        border-radius: 4px;
 
-    &.sw-tooltip--bottom:before {
-        top: -4px;
-        margin-left: -4px;
-        left: 50%;
-    }
+        &.sw-tooltip--top {
+            margin-top: 6px;
+            margin-left: 40px;
+        }
 
-    &.sw-tooltip--left:before {
-        top: 50%;
-        margin-top: -4px;
-        right: -4px;
-    }
+        &.sw-tooltip--bottom {
+            margin-top: -4px;
+            margin-left: 40px;
+        }
 
-    &.sw-tooltip--right:before {
-        top: 50%;
-        margin-top: -4px;
-        left: -4px;
+        &.sw-tooltip--left {
+            margin-left: 5px;
+        }
+
+        &.sw-tooltip--right {
+            margin-right: -5px;
+        }
     }
 }

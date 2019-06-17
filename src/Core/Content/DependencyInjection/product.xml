@@ -22,6 +22,7 @@
         <service id="Shopware\Core\Content\Product\ProductDefinition">
             <tag name="shopware.entity.definition" entity="product"/>
             <tag name="shopware.composite_search.definition"  priority="600"/>
+            <tag name="shopware.es.definition"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition">

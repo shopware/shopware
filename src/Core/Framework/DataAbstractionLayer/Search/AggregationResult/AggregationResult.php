@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\Struct\Struct;
 
 class AggregationResult extends Struct
@@ -12,7 +13,7 @@ class AggregationResult extends Struct
     private $aggregation;
 
     /**
-     * @var array
+     * @var AbstractAggregationResult[]
      */
     private $result;
 
@@ -27,15 +28,15 @@ class AggregationResult extends Struct
         return $this->result;
     }
 
-    public function getResultByKey(?array $key): ?array
+    public function get(?array $key): ?AbstractAggregationResult
     {
-        $index = \array_search($key, array_column($this->result, 'key'), true);
-
-        if ($index === false) {
-            return null;
+        foreach ($this->result as $result) {
+            if ($result->getKey() === $key) {
+                return $result;
+            }
         }
 
-        return $this->result[$index];
+        return null;
     }
 
     public function getName(): string

@@ -9,8 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
@@ -20,6 +18,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggrega
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AvgResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\MaxResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\MinResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\StatsResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueCountResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -205,19 +212,29 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $data = array_filter($data);
         $ids = array_column($data, 'id');
-        $entities = $this->reader->read($this->registry->get($aggregation->getDefinition()), new Criteria($ids), $context);
 
-        $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) use ($entities) {
-            if (!\array_key_exists('entities', $current)) {
-                $current['entities'] = $entities->getList([$row['id']]);
-            } else {
-                $current['entities']->add($entities->get($row['id']));
+        $relatedDefinition = $this->registry->get($aggregation->getDefinition());
+
+        $entities = $this->reader->read($relatedDefinition, new Criteria($ids), $context);
+
+        /** @var EntityResult[] $results */
+        $results = [];
+        foreach ($data as $row) {
+            $key = $this->getAggregationKey($definition, $aggregation, $row);
+
+            $hash = md5(json_encode($key));
+
+            if (!isset($results[$hash])) {
+                $results[$hash] = new EntityResult($key, $entities->getList([$row['id']]));
+                continue;
             }
 
-            return $current;
-        });
+            $results[$hash]->add(
+                $entities->get($row['id'])
+            );
+        }
 
-        return $data;
+        return array_values($results);
     }
 
     private function fetchValueCountAggregation(EntityDefinition $definition, QueryBuilder $query, ValueCountAggregation $aggregation, string $accessor): array
@@ -230,7 +247,11 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
         $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition->getEntityName());
-        $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) use ($field) {
+
+        $results = [];
+        foreach ($data as $row) {
+            $key = $this->getAggregationKey($definition, $aggregation, $row);
+
             $value = $row['key'];
             try {
                 $value = $field->getSerializer()->decode($field, $value);
@@ -238,15 +259,12 @@ class EntityAggregator implements EntityAggregatorInterface
                 $value = $this->tryToCast($value);
             }
 
-            $current['values'][] = [
-                'key' => $value,
-                'count' => (int) $row['count'],
-            ];
+            $value = ['key' => $value, 'count' => (int) $row['count']];
 
-            return $current;
-        });
+            $results[] = new ValueCountResult($key, $value);
+        }
 
-        return $data;
+        return $results;
     }
 
     private function fetchStatsAggregation(EntityDefinition $definition, QueryBuilder $query, StatsAggregation $aggregation, string $accessor): array
@@ -275,29 +293,22 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addSelect($select);
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
-        $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) {
-            $result = [];
 
-            if (\array_key_exists('count', $row)) {
-                $result['count'] = (int) $row['count'];
-            }
-            if (\array_key_exists('avg', $row)) {
-                $result['avg'] = (float) $row['avg'];
-            }
-            if (\array_key_exists('sum', $row)) {
-                $result['sum'] = (float) $row['sum'];
-            }
-            if (\array_key_exists('min', $row)) {
-                $result['min'] = $this->tryToCast($row['min']);
-            }
-            if (\array_key_exists('max', $row)) {
-                $result['max'] = $this->tryToCast($row['max']);
-            }
+        $results = [];
+        foreach ($data as $row) {
+            $key = $this->getAggregationKey($definition, $aggregation, $row);
 
-            return $result;
-        });
+            $results[] = new StatsResult(
+                $key,
+                isset($row['min']) ? (float) $row['min'] : null,
+                isset($row['max']) ? (float) $row['max'] : null,
+                isset($row['count']) ? (int) $row['count'] : null,
+                isset($row['avg']) ? (float) $row['avg'] : null,
+                isset($row['sum']) ? (float) $row['sum'] : null
+            );
+        }
 
-        return $data;
+        return $results;
     }
 
     private function fetchValueAggregation(EntityDefinition $definition, QueryBuilder $query, ValueAggregation $aggregation, string $accessor): array
@@ -307,7 +318,14 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
         $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition->getEntityName());
-        $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) use ($field) {
+
+        /** @var ValueResult[] $results */
+        $results = [];
+        foreach ($data as $row) {
+            $key = $this->getAggregationKey($definition, $aggregation, $row);
+
+            $hash = md5(json_encode($key));
+
             $value = $row['value'];
             try {
                 $value = $field->getSerializer()->decode($field, $value);
@@ -315,12 +333,14 @@ class EntityAggregator implements EntityAggregatorInterface
                 $value = $this->tryToCast($value);
             }
 
-            $current['values'][] = $value;
+            if (!isset($results[$hash])) {
+                $results[$hash] = new ValueResult($key, []);
+            }
 
-            return $current;
-        });
+            $results[$hash]->add($value);
+        }
 
-        return $data;
+        return array_values($results);
     }
 
     private function fetchAvgAggregation(EntityDefinition $definition, QueryBuilder $query, AvgAggregation $aggregation, string $accessor): array
@@ -328,11 +348,15 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addSelect('AVG(' . $accessor . ') as `avg`');
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
-        $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) {
-            return ['avg' => (float) $row['avg']];
-        });
 
-        return $data;
+        $results = [];
+        foreach ($data as $row) {
+            $key = $this->getAggregationKey($definition, $aggregation, $row);
+
+            $results[] = new AvgResult($key, (float) $row['avg']);
+        }
+
+        return $results;
     }
 
     private function fetchMaxAggregation(EntityDefinition $definition, QueryBuilder $query, MaxAggregation $aggregation, string $accessor): array
@@ -340,11 +364,15 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addSelect('MAX(' . $accessor . ') as `max`');
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
-        $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) {
-            return ['max' => $this->tryToCast($row['max'])];
-        });
 
-        return $data;
+        $results = [];
+        foreach ($data as $row) {
+            $key = $this->getAggregationKey($definition, $aggregation, $row);
+
+            $results[] = new MaxResult($key, $this->tryToCast($row['max']));
+        }
+
+        return $results;
     }
 
     private function fetchCountAggregation(EntityDefinition $definition, QueryBuilder $query, CountAggregation $aggregation, string $accessor): array
@@ -352,11 +380,15 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addSelect('COUNT(' . $accessor . ') as `count`');
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
-        $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) {
-            return ['count' => (int) $row['count']];
-        });
 
-        return $data;
+        $results = [];
+        foreach ($data as $row) {
+            $key = $this->getAggregationKey($definition, $aggregation, $row);
+
+            $results[] = new MaxResult($key, (int) $row['count']);
+        }
+
+        return $results;
     }
 
     private function fetchMinAggregation(EntityDefinition $definition, QueryBuilder $query, MinAggregation $aggregation, string $accessor): array
@@ -364,11 +396,15 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addSelect('MIN(' . $accessor . ') as `min`');
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
-        $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) {
-            return ['min' => $this->tryToCast($row['min'])];
-        });
 
-        return $data;
+        $results = [];
+        foreach ($data as $row) {
+            $key = $this->getAggregationKey($definition, $aggregation, $row);
+
+            $results[] = new MinResult($key, $this->tryToCast($row['min']));
+        }
+
+        return $results;
     }
 
     private function fetchSumAggregation(EntityDefinition $definition, QueryBuilder $query, SumAggregation $aggregation, string $accessor): array
@@ -377,11 +413,14 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
 
-        $data = $this->mapResult($definition, $aggregation, $data, function (array $current, array $row) {
-            return ['sum' => (float) $row['sum']];
-        });
+        $results = [];
+        foreach ($data as $row) {
+            $key = $this->getAggregationKey($definition, $aggregation, $row);
 
-        return $data;
+            $results[] = new MinResult($key, (float) $row['sum']);
+        }
+
+        return $results;
     }
 
     /**
@@ -399,26 +438,17 @@ class EntityAggregator implements EntityAggregatorInterface
         return $fields;
     }
 
-    private function mapResult(EntityDefinition $definition, Aggregation $aggregation, array $data, callable $mapCallback): array
+    private function getAggregationKey(EntityDefinition $definition, Aggregation $aggregation, array $row): ?array
     {
-        $data = array_reduce($data, function (array $carry, $row) use ($aggregation, $definition, $mapCallback) {
-            $key = null;
-            $id = '';
-            foreach ($aggregation->getGroupByFields() as $groupByField) {
-                $field = $this->queryHelper->getField($groupByField, $definition, $definition->getEntityName());
-                $key[$groupByField] = $field->getSerializer()->decode($field, $row[$groupByField]);
-                $id .= $row[$groupByField];
-                unset($row[$groupByField]);
-            }
+        $key = null;
 
-            $current = \array_key_exists($id, $carry) ? $carry[$id] : [];
-            $carry[$id] = $mapCallback($current, $row);
-            $carry[$id]['key'] = $key;
+        foreach ($aggregation->getGroupByFields() as $groupByField) {
+            $field = $this->queryHelper->getField($groupByField, $definition, $definition->getEntityName());
 
-            return $carry;
-        }, []);
+            $key[$groupByField] = $field->getSerializer()->decode($field, $row[$groupByField]);
+        }
 
-        return array_values($data);
+        return $key;
     }
 
     private function tryToCast($value)

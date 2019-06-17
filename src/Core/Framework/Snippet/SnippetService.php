@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
@@ -169,7 +170,14 @@ class SnippetService
 
         $criteria = new Criteria();
         $criteria->addAggregation(new ValueAggregation('author', 'distinct_author'));
-        $result = $this->snippetRepository->aggregate($criteria, $context)->getAggregations()->get('distinct_author')->getResultByKey(null)['values'] ?? [];
+
+        /** @var ValueResult $aggregation */
+        $aggregation = $this->snippetRepository->aggregate($criteria, $context)
+                ->getAggregations()
+                ->get('distinct_author')
+                ->get(null);
+
+        $result = $aggregation->getValues() ?? [];
 
         $authors = array_flip($result);
         foreach ($files as $file) {

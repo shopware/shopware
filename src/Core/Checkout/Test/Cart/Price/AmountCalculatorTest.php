@@ -8,15 +8,11 @@ use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Tax\TaxAmountCalculator;
-use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -32,7 +28,6 @@ class AmountCalculatorTest extends TestCase
         $detector->method('useGross')->willReturn(true);
 
         $shop = $this->createMock(SalesChannelEntity::class);
-        $shop->method('getTaxCalculationType')->willReturn(TaxAmountCalculator::CALCULATION_VERTICAL);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($shop);
@@ -41,15 +36,7 @@ class AmountCalculatorTest extends TestCase
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding(),
-            new TaxAmountCalculator(
-                new PercentageTaxRuleBuilder(),
-                new TaxCalculator(
-                    new PriceRounding(),
-                    new TaxRuleCalculator(new PriceRounding())
-                ),
-                $detector
-            )
+            new PriceRounding()
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
@@ -66,7 +53,6 @@ class AmountCalculatorTest extends TestCase
         $detector->method('isNetDelivery')->willReturn(false);
 
         $shop = $this->createMock(SalesChannelEntity::class);
-        $shop->method('getTaxCalculationType')->willReturn(TaxAmountCalculator::CALCULATION_VERTICAL);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($shop);
@@ -75,15 +61,7 @@ class AmountCalculatorTest extends TestCase
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding(),
-            new TaxAmountCalculator(
-                new PercentageTaxRuleBuilder(),
-                new TaxCalculator(
-                    new PriceRounding(),
-                    new TaxRuleCalculator(new PriceRounding())
-                ),
-                $detector
-            )
+            new PriceRounding()
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
@@ -100,22 +78,13 @@ class AmountCalculatorTest extends TestCase
         $detector->method('isNetDelivery')->willReturn(true);
 
         $shop = $this->createMock(SalesChannelEntity::class);
-        $shop->method('getTaxCalculationType')->willReturn(TaxAmountCalculator::CALCULATION_VERTICAL);
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getSalesChannel')->willReturn($shop);
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding(),
-            new TaxAmountCalculator(
-                new PercentageTaxRuleBuilder(),
-                new TaxCalculator(
-                    new PriceRounding(),
-                    new TaxRuleCalculator(new PriceRounding())
-                ),
-                $detector
-            )
+            new PriceRounding()
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $context);

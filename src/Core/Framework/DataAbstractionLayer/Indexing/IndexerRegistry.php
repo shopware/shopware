@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
+class IndexerRegistry implements EventSubscriberInterface
 {
     /**
      * 0    => Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer
@@ -25,15 +26,21 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
     private $indexer;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * Internal working state to prevent endless loop if an indexer fires the EntityWrittenContainerEvent
      *
      * @var bool
      */
     private $working = false;
 
-    public function __construct(iterable $indexer)
+    public function __construct(iterable $indexer, EventDispatcherInterface $eventDispatcher)
     {
         $this->indexer = $indexer;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public static function getSubscribedEvents(): array
@@ -51,11 +58,17 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
             return;
         }
 
+        $preEvent = new IndexerRegistryStartEvent(new \DateTimeImmutable());
+        $this->eventDispatcher->dispatch($preEvent);
+
         $this->working = true;
         foreach ($this->indexer as $indexer) {
             $indexer->index($timestamp);
         }
         $this->working = false;
+
+        $preEvent = new IndexerRegistryEndEvent(new \DateTimeImmutable());
+        $this->eventDispatcher->dispatch($preEvent);
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void
@@ -64,10 +77,16 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
             return;
         }
 
+        $preEvent = new IndexerRegistryStartEvent(new \DateTimeImmutable(), $event->getContext());
+        $this->eventDispatcher->dispatch($preEvent);
+
         $this->working = true;
         foreach ($this->indexer as $indexer) {
             $indexer->refresh($event);
         }
         $this->working = false;
+
+        $preEvent = new IndexerRegistryEndEvent(new \DateTimeImmutable(), $event->getContext());
+        $this->eventDispatcher->dispatch($preEvent);
     }
 }

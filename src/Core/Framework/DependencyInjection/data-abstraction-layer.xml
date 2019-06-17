@@ -224,7 +224,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\ChildCountIndexer">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\ChildCountIndexer">
             <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
@@ -234,7 +234,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\TreeIndexer">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\TreeIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -256,13 +256,14 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerRegistry">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry">
             <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
+            <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
@@ -272,7 +273,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\InheritanceIndexer">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\InheritanceIndexer">
             <tag name="shopware.dbal_indexing.indexer" priority="1500"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -496,7 +497,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\ManyToManyIdFieldIndexer">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\ManyToManyIdFieldIndexer">
             <tag name="shopware.dbal_indexing.indexer" priority="400"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Console\ShopwareStyle;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
@@ -22,7 +22,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     private $io;
 
     /**
-     * @var IndexerInterface
+     * @var IndexerRegistry
      */
     private $indexer;
 
@@ -31,7 +31,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
      */
     private $progress;
 
-    public function __construct(IndexerInterface $indexer)
+    public function __construct(IndexerRegistry $indexer)
     {
         parent::__construct('dbal:refresh:index');
         $this->indexer = $indexer;

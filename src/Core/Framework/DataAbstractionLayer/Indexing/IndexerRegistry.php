@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
+class IndexerRegistry implements EventSubscriberInterface
 {
     /**
      * 0    => Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer
@@ -58,7 +58,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
             return;
         }
 
-        $preEvent = new IndexStartEvent(new \DateTimeImmutable());
+        $preEvent = new IndexerRegistryStartEvent(new \DateTimeImmutable());
         $this->eventDispatcher->dispatch($preEvent);
 
         $this->working = true;
@@ -67,7 +67,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
         }
         $this->working = false;
 
-        $preEvent = new IndexFinishedEvent(new \DateTimeImmutable());
+        $preEvent = new IndexerRegistryEndEvent(new \DateTimeImmutable());
         $this->eventDispatcher->dispatch($preEvent);
     }
 
@@ -77,7 +77,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
             return;
         }
 
-        $preEvent = new IndexStartEvent(new \DateTimeImmutable(), $event->getContext());
+        $preEvent = new IndexerRegistryStartEvent(new \DateTimeImmutable(), $event->getContext());
         $this->eventDispatcher->dispatch($preEvent);
 
         $this->working = true;
@@ -86,7 +86,7 @@ class IndexerRegistry implements IndexerInterface, EventSubscriberInterface
         }
         $this->working = false;
 
-        $preEvent = new IndexFinishedEvent(new \DateTimeImmutable(), $event->getContext());
+        $preEvent = new IndexerRegistryEndEvent(new \DateTimeImmutable(), $event->getContext());
         $this->eventDispatcher->dispatch($preEvent);
     }
 }

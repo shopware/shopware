@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class IndexStartEvent extends Event
+class IndexerRegistryEndEvent extends Event
 {
     /**
      * @var \DateTimeInterface

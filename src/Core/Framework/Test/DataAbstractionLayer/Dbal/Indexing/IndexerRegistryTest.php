@@ -4,11 +4,11 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal\Indexing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexFinishedEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexStartEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryEndEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryStartEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -54,32 +54,32 @@ class IndexerRegistryTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->eventDispatcher->removeListener(IndexStartEvent::class, $this->callbackFn);
-        $this->eventDispatcher->removeListener(IndexFinishedEvent::class, $this->callbackFn);
+        $this->eventDispatcher->removeListener(IndexerRegistryStartEvent::class, $this->callbackFn);
+        $this->eventDispatcher->removeListener(IndexerRegistryEndEvent::class, $this->callbackFn);
     }
 
     public function testPreIndexEventIsDispatchedOnIndex(): void
     {
-        $this->eventDispatcher->addListener(IndexStartEvent::class, $this->callbackFn);
+        $this->eventDispatcher->addListener(IndexerRegistryStartEvent::class, $this->callbackFn);
 
-        static::assertArrayNotHasKey(IndexStartEvent::class, $this->events, 'IndexStartEvent was dispatched but should not yet.');
+        static::assertArrayNotHasKey(IndexerRegistryStartEvent::class, $this->events, 'IndexStartEvent was dispatched but should not yet.');
 
         $this->indexer->index(new \DateTimeImmutable());
 
-        static::assertArrayHasKey(IndexStartEvent::class, $this->events, 'IndexStartEvent was not dispatched.');
-        static::assertNull($this->events[IndexStartEvent::class]->getContext());
+        static::assertArrayHasKey(IndexerRegistryStartEvent::class, $this->events, 'IndexStartEvent was not dispatched.');
+        static::assertNull($this->events[IndexerRegistryStartEvent::class]->getContext());
     }
 
     public function testPostIndexEventIsDispatchedOnIndex(): void
     {
-        $this->eventDispatcher->addListener(IndexFinishedEvent::class, $this->callbackFn);
+        $this->eventDispatcher->addListener(IndexerRegistryEndEvent::class, $this->callbackFn);
 
-        static::assertArrayNotHasKey(IndexFinishedEvent::class, $this->events, 'IndexFinishedEvent was dispatched but should not yet.');
+        static::assertArrayNotHasKey(IndexerRegistryEndEvent::class, $this->events, 'IndexFinishedEvent was dispatched but should not yet.');
 
         $this->indexer->index(new \DateTimeImmutable());
 
-        static::assertArrayHasKey(IndexFinishedEvent::class, $this->events, 'IndexFinishedEvent was not dispatched.');
-        static::assertNull($this->events[IndexFinishedEvent::class]->getContext());
+        static::assertArrayHasKey(IndexerRegistryEndEvent::class, $this->events, 'IndexFinishedEvent was not dispatched.');
+        static::assertNull($this->events[IndexerRegistryEndEvent::class]->getContext());
     }
 
     public function testPreIndexEventIsDispatchedOnRefresh(): void
@@ -87,14 +87,14 @@ class IndexerRegistryTest extends TestCase
         $context = Context::createDefaultContext();
         $refreshEvent = new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
 
-        $this->eventDispatcher->addListener(IndexStartEvent::class, $this->callbackFn);
+        $this->eventDispatcher->addListener(IndexerRegistryStartEvent::class, $this->callbackFn);
 
-        static::assertArrayNotHasKey(IndexStartEvent::class, $this->events, 'IndexStartEvent was dispatched but should not yet.');
+        static::assertArrayNotHasKey(IndexerRegistryStartEvent::class, $this->events, 'IndexStartEvent was dispatched but should not yet.');
 
         $this->indexer->refresh($refreshEvent);
 
-        static::assertArrayHasKey(IndexStartEvent::class, $this->events, 'IndexStartEvent was not dispatched.');
-        static::assertEquals($context, $this->events[IndexStartEvent::class]->getContext());
+        static::assertArrayHasKey(IndexerRegistryStartEvent::class, $this->events, 'IndexStartEvent was not dispatched.');
+        static::assertEquals($context, $this->events[IndexerRegistryStartEvent::class]->getContext());
     }
 
     public function testPostIndexEventIsDispatchedOnRefresh(): void
@@ -102,14 +102,14 @@ class IndexerRegistryTest extends TestCase
         $context = Context::createDefaultContext();
         $refreshEvent = new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
 
-        $this->eventDispatcher->addListener(IndexFinishedEvent::class, $this->callbackFn);
+        $this->eventDispatcher->addListener(IndexerRegistryEndEvent::class, $this->callbackFn);
 
-        static::assertArrayNotHasKey(IndexFinishedEvent::class, $this->events, 'IndexFinishedEvent was dispatched but should not yet.');
+        static::assertArrayNotHasKey(IndexerRegistryEndEvent::class, $this->events, 'IndexFinishedEvent was dispatched but should not yet.');
 
         $this->indexer->refresh($refreshEvent);
 
-        static::assertArrayHasKey(IndexFinishedEvent::class, $this->events, 'IndexFinishedEvent was not dispatched.');
-        static::assertEquals($context, $this->events[IndexFinishedEvent::class]->getContext());
+        static::assertArrayHasKey(IndexerRegistryEndEvent::class, $this->events, 'IndexFinishedEvent was not dispatched.');
+        static::assertEquals($context, $this->events[IndexerRegistryEndEvent::class]->getContext());
     }
 
     public function testLockWhileIndexing(): void

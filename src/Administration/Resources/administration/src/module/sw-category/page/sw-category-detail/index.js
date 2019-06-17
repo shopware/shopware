@@ -19,7 +19,7 @@ Component.register('sw-category-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'cancelEdit'
+        ESCAPE: 'cancelEdit'
     },
 
     data() {
@@ -77,6 +77,22 @@ Component.register('sw-category-detail', {
             return {
                 'has--category': !!this.category,
                 'is--mobile': !!this.isMobileViewport
+            };
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
             };
         }
     },

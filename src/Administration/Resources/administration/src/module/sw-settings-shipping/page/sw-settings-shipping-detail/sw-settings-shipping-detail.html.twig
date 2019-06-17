@@ -10,7 +10,7 @@
         {% block sw_settings_shipping_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_shipping_detail_actions_abort %}
-                    <sw-button :disabled="isLoading" @click="onCancel">
+                    <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
                         {{ $tc('sw-settings-shipping.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -23,6 +23,7 @@
                         :disabled="isProcessLoading"
                         variant="primary"
                         @process-finish="saveFinish"
+                        v-tooltip.bottom="tooltipSave"
                         @click.prevent="onSave">
                     {{ $tc('sw-settings-shipping.detail.buttonSave') }}
                 </sw-button-process>

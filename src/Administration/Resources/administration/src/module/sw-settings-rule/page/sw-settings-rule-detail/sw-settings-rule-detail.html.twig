@@ -11,7 +11,7 @@
             <template slot="smart-bar-actions">
 
                 {% block sw_settings_rule_detail_actions_cancel %}
-                    <sw-button :disabled="rule.isLoading" @click="onCancel">
+                    <sw-button :disabled="rule.isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
                         {{ $tc('sw-settings-rule.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -24,6 +24,7 @@
                         :disabled="rule.isLoading"
                         variant="primary"
                         @process-finish="saveFinish"
+                        v-tooltip.bottom="tooltipSave"
                         @click="onSave">
                     {{ $tc('sw-settings-rule.detail.buttonSave') }}
                 </sw-button-process>

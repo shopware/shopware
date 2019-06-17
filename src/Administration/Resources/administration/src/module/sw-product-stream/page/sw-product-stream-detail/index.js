@@ -17,7 +17,7 @@ Component.register('sw-product-stream-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     data() {
@@ -96,6 +96,20 @@ Component.register('sw-product-stream-detail', {
         },
         customFieldSetStore() {
             return State.getStore('custom_field_set');
+        },
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

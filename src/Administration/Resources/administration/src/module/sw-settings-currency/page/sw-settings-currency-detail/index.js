@@ -12,7 +12,7 @@ Component.register('sw-settings-currency-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     data() {
@@ -36,6 +36,22 @@ Component.register('sw-settings-currency-detail', {
 
         currencyStore() {
             return State.getStore('currency');
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

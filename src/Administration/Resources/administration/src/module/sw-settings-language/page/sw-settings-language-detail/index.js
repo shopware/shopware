@@ -15,7 +15,7 @@ Component.register('sw-settings-language-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     props: {
@@ -71,6 +71,22 @@ Component.register('sw-settings-language-detail', {
             return (new Criteria(1, 1)).addAggregation(
                 Criteria.valueCount('usedLocales', 'language.locale.code')
             );
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

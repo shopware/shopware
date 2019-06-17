@@ -17,7 +17,7 @@ Component.register('sw-settings-document-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     data() {
@@ -317,6 +317,22 @@ Component.register('sw-settings-document-detail', {
 
         documentBaseConfigSalesChannelAssociationStore() {
             return this.documentConfig.getAssociation('salesChannels');
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

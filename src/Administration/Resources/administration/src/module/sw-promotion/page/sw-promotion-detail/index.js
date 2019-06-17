@@ -13,7 +13,7 @@ Component.register('sw-promotion-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     data() {
@@ -36,7 +36,22 @@ Component.register('sw-promotion-detail', {
         },
         promotionStore() {
             return State.getStore('promotion');
+        },
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
+
     },
 
     created() {

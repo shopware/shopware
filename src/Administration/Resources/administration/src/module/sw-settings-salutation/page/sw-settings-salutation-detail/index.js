@@ -14,7 +14,7 @@ Component.register('sw-settings-salutation-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     data() {
@@ -56,6 +56,22 @@ Component.register('sw-settings-salutation-detail', {
                 return this.$tc('sw-settings-salutation.detail.invalidKeyMessage');
             }
             return '';
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

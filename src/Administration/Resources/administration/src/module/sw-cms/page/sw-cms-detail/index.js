@@ -131,6 +131,15 @@ Component.register('sw-cms-detail', {
                 marginRight: null,
                 sizingMode: 'boxed'
             };
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
         }
     },
 

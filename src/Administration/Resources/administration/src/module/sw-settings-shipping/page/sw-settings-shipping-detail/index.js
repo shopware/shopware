@@ -17,7 +17,7 @@ Component.register('sw-settings-shipping-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     watch: {
@@ -77,6 +77,22 @@ Component.register('sw-settings-shipping-detail', {
         isLoading() {
             return Object.keys(this.shippingMethod).length === 0
                 || this.shippingMethod.isLoading;
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

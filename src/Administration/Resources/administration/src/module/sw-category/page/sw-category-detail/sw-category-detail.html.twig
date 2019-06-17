@@ -33,7 +33,7 @@
         <template slot="smart-bar-actions">
             <template v-if="category">
                 {% block sw_category_smart_bar_abort %}
-                    <sw-button :disabled="isLoading" @click="cancelEdit">
+                    <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="cancelEdit">
                         {{ $tc('sw-product.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -45,6 +45,7 @@
                         :disabled="isLoading"
                         variant="primary"
                         @process-finish="saveFinish"
+                        v-tooltip.bottom="tooltipSave"
                         @click.prevent="onSave">
                     {{ $tc('sw-category.general.buttonSafeCategory') }}
                 </sw-button-process>

@@ -16,7 +16,7 @@ Component.register('sw-product-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     props: {
@@ -171,6 +171,22 @@ Component.register('sw-product-detail', {
                 )
                 .addAssociation('customFields', this.customFieldCriteria);
             return criteria;
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

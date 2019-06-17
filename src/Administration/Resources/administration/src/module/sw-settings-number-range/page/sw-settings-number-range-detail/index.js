@@ -17,7 +17,7 @@ Component.register('sw-settings-number-range-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     data() {
@@ -77,6 +77,22 @@ Component.register('sw-settings-number-range-detail', {
                 return this.numberRange.numberRangeSalesChannels[0].salesChannelId;
             }
             return '';
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

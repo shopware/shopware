@@ -14,7 +14,7 @@
         {% block sw_property_detail_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_property_detail_smart_bar_actions_cancel %}
-                    <sw-button :disabled="group.isLoading" @click="onCancel">
+                    <sw-button :disabled="group.isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
                         {{ $tc('sw-property.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -27,6 +27,7 @@
                             :disabled="group.isLoading"
                             variant="primary"
                             @process-finish="saveFinish"
+                            v-tooltip.bottom="tooltipSave"
                             @click.prevent="onSave">
                         {{ $tc('sw-property.detail.buttonSave') }}
                     </sw-button-process>

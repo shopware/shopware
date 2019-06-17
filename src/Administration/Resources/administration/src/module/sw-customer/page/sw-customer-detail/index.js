@@ -18,7 +18,7 @@ Component.register('sw-customer-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onAbortButtonClick'
+        ESCAPE: 'onAbortButtonClick'
     },
 
     beforeRouteLeave(to, from, next) {

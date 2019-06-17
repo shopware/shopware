@@ -11,7 +11,7 @@
             <template slot="smart-bar-actions">
 
                 {% block sw_manufacturer_detail_actions_abort %}
-                    <sw-button :disabled="manufacturer.isLoading" @click="onCancel">
+                    <sw-button :disabled="manufacturer.isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
                         {{ $tc('sw-manufacturer.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -24,6 +24,7 @@
                         :disabled="manufacturer.isLoading"
                         variant="primary"
                         @process-finish="saveFinish"
+                        v-tooltip.bottom="tooltipSave"
                         @click.prevent="onSave">
                     {{ $tc('sw-manufacturer.detail.buttonSave') }}
                 </sw-button-process>

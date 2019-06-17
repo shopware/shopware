@@ -81,6 +81,7 @@
                                             :disabled="isLoading || page.locked === true"
                                             variant="primary"
                                             @process-finish="saveFinish"
+                                            v-tooltip.bottom="tooltipSave"
                                             @click="onSave">
                                             {{ $tc('sw-cms.detail.labelButtonSave') }}
                                     </sw-button-process>

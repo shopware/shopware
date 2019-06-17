@@ -10,7 +10,7 @@
         {% block sw_promotion_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_promotion_detail_actions_abort %}
-                    <sw-button :disabled="promotion.isLoading" @click="onCancel">
+                    <sw-button :disabled="promotion.isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
                         {{ $tc('sw-promotion.detail.header.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -23,6 +23,7 @@
                         :disabled="promotion.isLoading"
                         variant="primary"
                         @process-finish="saveFinish"
+                        v-tooltip.bottom="tooltipSave"
                         @click.prevent="onSave">
                         {{ $tc('sw-promotion.detail.header.buttonSave') }}
                     </sw-button-process>

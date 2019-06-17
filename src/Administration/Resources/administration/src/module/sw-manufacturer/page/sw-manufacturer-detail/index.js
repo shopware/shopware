@@ -15,7 +15,7 @@ Component.register('sw-manufacturer-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     data() {
@@ -54,6 +54,22 @@ Component.register('sw-manufacturer-detail', {
 
         mediaUploadTag() {
             return `sw-manufacturer-detail--${this.manufacturer.id}`;
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

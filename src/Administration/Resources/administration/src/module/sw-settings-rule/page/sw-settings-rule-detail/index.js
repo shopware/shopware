@@ -16,7 +16,7 @@ Component.register('sw-settings-rule-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     data() {
@@ -89,10 +89,27 @@ Component.register('sw-settings-rule-detail', {
         ruleStore() {
             return State.getStore('rule');
         },
+
         moduleTypeStore() {
             return new LocalStore(this.ruleConditionDataProviderService.getModuleTypes((moduleType) => {
                 moduleType.label = this.$tc(moduleType.name);
             }), 'id');
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

@@ -11,7 +11,8 @@
         {% block sw_settings_custom_field_set_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_custom_field_set_detail_actions_abort %}
-                    <sw-button :disabled="set.isLoading" @click="onCancel">
+                    <sw-button :disabled="set.isLoading" v-tooltip.bottom="tooltipCancel"
+@click="onCancel">
                         {{ $tc('sw-settings-custom-field.set.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -24,6 +25,7 @@
                         :disabled="set.isLoading"
                         variant="primary"
                         @process-finish="saveFinish"
+                        v-tooltip.bottom="tooltipSave"
                         @click.prevent="onSave">
                     {{ $tc('sw-settings-custom-field.set.detail.buttonSave') }}
                 </sw-button-process>

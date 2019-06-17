@@ -12,7 +12,7 @@ Component.register('sw-settings-customer-group-detail', {
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        BACKSPACE: 'onCancel'
+        ESCAPE: 'onCancel'
     },
 
     data() {
@@ -45,6 +45,22 @@ Component.register('sw-settings-customer-group-detail', {
                 'name',
                 this.$tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup')
             );
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

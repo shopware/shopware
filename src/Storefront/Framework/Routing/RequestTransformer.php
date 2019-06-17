@@ -209,7 +209,7 @@ class RequestTransformer
             $resolved = (new SeoResolver($this->connection))
                 ->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
 
-            $resolved['pathInfo'] = rtrim($seoPathInfo, '/');
+            $resolved['pathInfo'] = rtrim($resolved['pathInfo'], '/');
 
             return $resolved;
         }

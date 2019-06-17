@@ -107,7 +107,7 @@ class SeoUrlPersister
             $insert['foreign_key'] = Uuid::fromHexToBytes($fk);
 
             $insert['path_info'] = $seoUrl['pathInfo'];
-            $insert['seo_path_info'] = $seoUrl['seoPathInfo'];
+            $insert['seo_path_info'] = trim($seoUrl['seoPathInfo'], '/');
 
             $insert['route_name'] = $routeName;
             $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : 0;

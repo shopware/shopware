@@ -19,12 +19,12 @@ class SeoResolver implements SeoResolverInterface
 
     public function resolveSeoPath(string $languageId, string $salesChannelId, string $pathInfo): ?array
     {
-        $seoPathInfo = ltrim($pathInfo, '/');
+        $seoPathInfo = trim($pathInfo, '/');
         if ($seoPathInfo === '') {
             return ['pathInfo' => '/', 'isCanonical' => false];
         }
 
-        $seoPath = $this->connection->createQueryBuilder()
+        $query = $this->connection->createQueryBuilder()
             ->select('id', 'path_info pathInfo', 'is_canonical isCanonical')
             ->from('seo_url')
             ->where('language_id = :language_id')
@@ -36,9 +36,9 @@ class SeoResolver implements SeoResolverInterface
             ->setMaxResults(1)
             ->setParameter('language_id', Uuid::fromHexToBytes($languageId))
             ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
-            ->setParameter('seoPath', $seoPathInfo)
-            ->execute()
-            ->fetch();
+            ->setParameter('seoPath', $seoPathInfo);
+
+        $seoPath = $query->execute()->fetch();
 
         $seoPath = $seoPath !== false
             ? $seoPath

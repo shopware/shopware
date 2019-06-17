@@ -62,6 +62,10 @@
             <argument type="service" id="test.client.history" />
             <argument type="service" id="test.client.cookiejar" />
         </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal\Indexing\QueueTestIndexer">
+            <tag name="shopware.dbal_indexing.indexer"/>
+        </service>
     </services>
 
 </container>

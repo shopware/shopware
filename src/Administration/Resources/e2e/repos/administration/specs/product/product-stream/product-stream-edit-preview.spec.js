@@ -20,7 +20,7 @@ module.exports = {
                 mainMenuId: 'sw-catalogue',
                 subMenuId: 'sw-product-stream'
             })
-            .expect.element(`${page.elements.gridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
+            .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains(global.AdminFixtureService.basicFixture.name);
     },
     'open product stream details and change the given data': (browser) => {
         const page = productStreamPage(browser);
@@ -28,7 +28,7 @@ module.exports = {
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
                 menuActionSelector: '.sw_product_stream_list__edit-action',
-                scope: `${page.elements.gridRow}--0`
+                scope: `${page.elements.dataGridRow}--0`
             })
             .waitForElementNotPresent(page.elements.loader)
             .expect.element(page.elements.smartBarHeader).to.have.text.that.contains('1st product stream');

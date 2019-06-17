@@ -101,6 +101,27 @@ export default class Repository {
     }
 
     /**
+     * Clones an existing entity
+     *
+     * @param {String} entityId
+     * @param {Object} context
+     * @returns {Promise<T>}
+     */
+    clone(entityId, context) {
+        if (!entityId) {
+            return Promise.reject(new Error('Missing required argument: id'));
+        }
+
+        return this.httpClient
+            .post(`/_action/clone/${this.route}/${entityId}`, null, {
+                headers: this.buildHeaders(context)
+            })
+            .then((response) => {
+                return response.data;
+            });
+    }
+
+    /**
      * Detects if the entity or the relations has remaining changes which are not synchronized with the server
      * @param {Entity} entity
      * @returns {boolean}

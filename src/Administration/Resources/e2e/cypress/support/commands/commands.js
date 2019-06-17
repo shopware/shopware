@@ -117,9 +117,9 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
     // Request we want to wait for later
     cy.server();
     cy.route({
-        url: '/api/v1/search-ids/**/*',
+        url: '/api/v1/search/*',
         method: 'post'
-    }).as('searchRequest');
+    }).as('filteredResultCall');
 
     cy.wrap(subject).should('be.visible');
 
@@ -127,12 +127,15 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
     if (searchTerm) {
         cy.get(`${subject.selector} ${inputCssSelector}`).type(searchTerm);
         cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', searchTerm);
-        cy.get(`${resultPrefix}-option--${position}`).should('not.exist');
-        cy.get(`${resultPrefix}-option--${position}`).should('be.visible');
 
-        cy.wait('@searchRequest').then(() => {
-            cy.get('.sw-loader__element').should('not.exist');
-            cy.get(`${resultPrefix}-option--${position}`).contains(value);
+        cy.wait('@filteredResultCall').then(() => {
+            cy.get(`${resultPrefix}-option--${position}`).should('not.exist');
+            cy.get(`${resultPrefix}-option--${position}`).should('be.visible');
+
+            cy.wait('@filteredResultCall').then(() => {
+                cy.get('.sw-loader__element').should('not.exist');
+                cy.get(`${resultPrefix}-option--${position}`).contains(value);
+            });
         });
     }
     // select the first result (or at another position)
@@ -319,7 +322,7 @@ Cypress.Commands.add('clickContextMenuItem', (menuButtonSelector, menuOpenSelect
  * @param {String} obj.mainMenuId - Id of the Main Menu item
  * @param {String} [obj.subMenuId=null] - Id of the sub menu item
  */
-Cypress.Commands.add('clickMainMenuItem', ({ targetPath, mainMenuId, subMenuId = null }) => {
+Cypress.Commands.add('clickMainMenuItem', ({targetPath, mainMenuId, subMenuId = null}) => {
     const finalMenuItem = `.sw-admin-menu__item--${mainMenuId}`;
 
     cy.get('.sw-admin-menu').should('be.visible').then(() => {

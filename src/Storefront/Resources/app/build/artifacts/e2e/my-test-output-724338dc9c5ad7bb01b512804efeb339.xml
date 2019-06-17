@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Mocha Tests" time="0" tests="3" failures="0" skipped="3">
-  <testsuite name="Root Suite" timestamp="2019-06-15T21:45:55" tests="0" failures="0" time="0">
-  </testsuite>
-  <testsuite name="Account: Register via account menu" timestamp="2019-06-15T21:45:55" tests="3" failures="0" time="0">
-  </testsuite>
-</testsuites>

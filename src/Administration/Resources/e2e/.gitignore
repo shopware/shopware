@@ -31,8 +31,8 @@ typings/
 .yarn-integrity
 
 # temp
-/cypress/screenshots/*
-/cypress/videos/*
+cypress/screenshots/*
+cypress/videos/*
 build/
 
 .idea/

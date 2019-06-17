@@ -37,6 +37,10 @@ Cypress.Commands.add('activateShopwareTheme', () => {
  * @function
  */
 Cypress.Commands.add('cleanUpPreviousState', () => {
+    cy.log(Cypress.env('localUsage'));
+    if (Cypress.env('localUsage')) {
+        return cy.exec(`${Cypress.env('projectRoot')}/psh.phar e2e:restore-db`);
+    }
     return cy.request('http://docker.vm:8005/cleanup');
 });
 

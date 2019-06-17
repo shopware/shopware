@@ -1,9 +1,10 @@
 {
   "viewportHeight": 1080,
   "viewportWidth": 1920,
-  "baseUrl": "http://localhost:8000",
+  "baseUrl": "http://docker.vm",
   "watchForFileChanges": false,
-  "modifyObstructiveCode": false,
+  "requestTimeout": 10000,
+  "defaultCommandTimeout": 10000,
   "salesChannelName": "Storefront",
   "useDarkTheme": false,
   "video": false,

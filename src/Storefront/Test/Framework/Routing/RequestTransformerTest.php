@@ -117,6 +117,36 @@ class RequestTransformerTest extends TestCase
                     new ExpectedRequest('http://english.test/foobar', '', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
                 ],
             ],
+            'single-with-ger-and-uk-domain-with-port' => [
+                [
+                    $this->getSalesChannelWithGerAndUkDomain($gerUkId, $gerDomainId, 'http://base.test:1337', $ukDomainId, 'http://base.test:31337'),
+                ],
+                [
+                    new ExpectedRequest('http://base.test:1337', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://base.test:1337/', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://base.test:1337/foobar', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+
+                    new ExpectedRequest('http://base.test:31337', '', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
+                    new ExpectedRequest('http://base.test:31337/', '', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
+                    new ExpectedRequest('http://base.test:31337/foobar', '', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
+                ],
+            ],
+
+            'single-with-ger-and-uk-domain-with-same-port-different-path' => [
+                [
+                    $this->getSalesChannelWithGerAndUkDomain($gerUkId, $gerDomainId, 'http://base.test:1337/foo', $ukDomainId, 'http://base.test:1337/bar'),
+                ],
+                [
+                    new ExpectedRequest('http://base.test:1337/foo', '/foo', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://base.test:1337/foo/', '/foo', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://base.test:1337/foo/foobar', '/foo', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+
+                    new ExpectedRequest('http://base.test:1337/bar', '/bar', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
+                    new ExpectedRequest('http://base.test:1337/bar/', '/bar', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
+                    new ExpectedRequest('http://base.test:1337/bar/foobar', '/bar', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
+                ],
+            ],
+
             'two-domains-same-host-different-path' => [
                 [
                     $this->getSalesChannelWithGerAndUkDomain($gerUkId, $gerDomainId, 'http://saleschannel.test/de', $ukDomainId, 'http://saleschannel.test/en'),

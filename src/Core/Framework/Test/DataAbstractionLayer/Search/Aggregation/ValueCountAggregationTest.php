@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueCountItem;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueCountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
@@ -27,6 +29,13 @@ class ValueCountAggregationTest extends TestCase
 
         $taxRepository = $this->getContainer()->get('tax.repository');
         $result = $taxRepository->aggregate($criteria, $context);
+
+        $expectedValues = new ValueCountResult(null, [
+            new ValueCountItem(10, 3),
+            new ValueCountItem(20, 2),
+            new ValueCountItem(50, 2),
+            new ValueCountItem(90, 1),
+        ]);
 
         /** @var AggregationResult $rateAgg */
         $rateAgg = $result->getAggregations()->get('rate_agg');
@@ -63,18 +72,15 @@ class ValueCountAggregationTest extends TestCase
         $valueAgg = $result->getAggregations()->get('value_agg');
         static::assertCount(4, $valueAgg->getResult());
 
-        static::assertContains(['key' => 10, 'count' => 2], $valueAgg->get(['product.categories.name' => 'cat1'])['values']);
-        static::assertContains(['key' => 20, 'count' => 1], $valueAgg->get(['product.categories.name' => 'cat1'])['values']);
-
-        static::assertContains(['key' => 20, 'count' => 1], $valueAgg->get(['product.categories.name' => 'cat2'])['values']);
-        static::assertContains(['key' => 50, 'count' => 1], $valueAgg->get(['product.categories.name' => 'cat2'])['values']);
-        static::assertContains(['key' => 90, 'count' => 1], $valueAgg->get(['product.categories.name' => 'cat2'])['values']);
-
-        static::assertContains(['key' => 10, 'count' => 1], $valueAgg->get(['product.categories.name' => 'cat3'])['values']);
-        static::assertContains(['key' => 50, 'count' => 1], $valueAgg->get(['product.categories.name' => 'cat3'])['values']);
-        static::assertContains(['key' => 90, 'count' => 1], $valueAgg->get(['product.categories.name' => 'cat3'])['values']);
-
-        static::assertContains(['key' => 10, 'count' => 1], $valueAgg->get(['product.categories.name' => 'cat4'])['values']);
-        static::assertContains(['key' => 20, 'count' => 1], $valueAgg->get(['product.categories.name' => 'cat4'])['values']);
+        static::assertEquals(new ValueCountItem(10, 2), $valueAgg->get(['product.categories.name' => 'cat1'])->get(10));
+        static::assertEquals(new ValueCountItem(20, 1), $valueAgg->get(['product.categories.name' => 'cat1'])->get(20));
+        static::assertEquals(new ValueCountItem(20, 1), $valueAgg->get(['product.categories.name' => 'cat2'])->get(20));
+        static::assertEquals(new ValueCountItem(50, 1), $valueAgg->get(['product.categories.name' => 'cat2'])->get(50));
+        static::assertEquals(new ValueCountItem(90, 1), $valueAgg->get(['product.categories.name' => 'cat2'])->get(90));
+        static::assertEquals(new ValueCountItem(10, 1), $valueAgg->get(['product.categories.name' => 'cat3'])->get(10));
+        static::assertEquals(new ValueCountItem(50, 1), $valueAgg->get(['product.categories.name' => 'cat3'])->get(50));
+        static::assertEquals(new ValueCountItem(90, 1), $valueAgg->get(['product.categories.name' => 'cat3'])->get(90));
+        static::assertEquals(new ValueCountItem(10, 1), $valueAgg->get(['product.categories.name' => 'cat4'])->get(10));
+        static::assertEquals(new ValueCountItem(20, 1), $valueAgg->get(['product.categories.name' => 'cat4'])->get(20));
     }
 }

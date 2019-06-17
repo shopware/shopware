@@ -1379,13 +1379,13 @@ class VersioningTest extends TestCase
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
         /** @var AggregationResult $sum */
         $sum = $aggregations->getAggregations()->get('sum_price');
-        static::assertEquals(100, $sum->getResult()[0]['sum']);
+        static::assertEquals(100, $sum->getResult()[0]->getSum());
 
         $aggregations = $this->productRepository->aggregate($criteria, $versionContext);
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
         /** @var \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult $sum */
         $sum = $aggregations->getAggregations()->get('sum_price');
-        static::assertEquals(1000, $sum->getResult()[0]['sum']);
+        static::assertEquals(1000, $sum->getResult()[0]->getSum());
 
         $this->productRepository->merge($versionId, $context);
 
@@ -1393,7 +1393,7 @@ class VersioningTest extends TestCase
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
         /** @var AggregationResult $sum */
         $sum = $aggregations->getAggregations()->get('sum_price');
-        static::assertEquals(1000, $sum->getResult()[0]['sum']);
+        static::assertEquals(1000, $sum->getResult()[0]->getSum());
     }
 
     public function testICanAggregateOneToManyInASpecifyVersion(): void
@@ -1467,13 +1467,13 @@ class VersioningTest extends TestCase
         $aggregation = $result->getAggregations()->get('sum_prices');
 
         static::assertInstanceOf(AggregationResult::class, $aggregation);
-        static::assertEquals(25, $aggregation->getResult()[0]['sum']);
+        static::assertEquals(25, $aggregation->getResult()[0]->getSum());
 
         $result = $this->productRepository->aggregate($criteria, $versionContext);
         $aggregation = $result->getAggregations()->get('sum_prices');
 
         static::assertInstanceOf(AggregationResult::class, $aggregation);
-        static::assertEquals(199, $aggregation->getResult()[0]['sum']);
+        static::assertEquals(199, $aggregation->getResult()[0]->getSum());
 
         $this->productRepository->merge($versionId, $context);
 
@@ -1481,7 +1481,7 @@ class VersioningTest extends TestCase
         $aggregation = $result->getAggregations()->get('sum_prices');
 
         static::assertInstanceOf(AggregationResult::class, $aggregation);
-        static::assertEquals(199, $aggregation->getResult()[0]['sum']);
+        static::assertEquals(199, $aggregation->getResult()[0]->getSum());
     }
 
     public function testICanAggregateManyToManyInASpecifyVersion(): void
@@ -1529,13 +1529,13 @@ class VersioningTest extends TestCase
         $aggregation = $result->getAggregations()->get('category_count');
 
         static::assertInstanceOf(AggregationResult::class, $aggregation);
-        static::assertSame(2, $aggregation->getResult()[0]['count']);
+        static::assertSame(2, $aggregation->getResult()[0]->getCount());
 
         $result = $this->productRepository->aggregate($criteria, $versionContext);
         $aggregation = $result->getAggregations()->get('category_count');
 
         static::assertInstanceOf(AggregationResult::class, $aggregation);
-        static::assertSame(3, $aggregation->getResult()[0]['count']);
+        static::assertSame(3, $aggregation->getResult()[0]->getCount());
 
         $this->productRepository->merge($versionId, $context);
 
@@ -1543,7 +1543,7 @@ class VersioningTest extends TestCase
         $aggregation = $result->getAggregations()->get('category_count');
 
         static::assertInstanceOf(AggregationResult::class, $aggregation);
-        static::assertSame(3, $aggregation->getResult()[0]['count']);
+        static::assertSame(3, $aggregation->getResult()[0]->getCount());
     }
 
     public function testAggregateConsidersLiveVersionAsFallback(): void
@@ -1595,19 +1595,19 @@ class VersioningTest extends TestCase
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
         /** @var AggregationResult $sum */
         $sum = $aggregations->getAggregations()->get('sum_price');
-        static::assertEquals(200, $sum->getResult()[0]['sum']);
+        static::assertEquals(200, $sum->getResult()[0]->getSum());
 
         $aggregations = $this->productRepository->aggregate($criteria, $versionContext);
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
         /** @var AggregationResult $sum */
         $sum = $aggregations->getAggregations()->get('sum_price');
-        static::assertEquals(1000, $sum->getResult()[0]['sum']);
+        static::assertEquals(1000, $sum->getResult()[0]->getSum());
 
         $this->productRepository->merge($versionId, $context);
         $aggregations = $this->productRepository->aggregate($criteria, $context);
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
         $sum = $aggregations->getAggregations()->get('sum_price');
-        static::assertEquals(1000, $sum->getResult()[0]['sum']);
+        static::assertEquals(1000, $sum->getResult()[0]->getSum());
     }
 
     public function testICanAddEntitiesToSpecifyVersion(): void

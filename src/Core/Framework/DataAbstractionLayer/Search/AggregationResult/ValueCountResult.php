@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
 class ValueCountResult extends AbstractAggregationResult
 {
     /**
-     * @var array
+     * @var ValueCountItem[]
      */
     protected $values;
 
@@ -18,5 +18,21 @@ class ValueCountResult extends AbstractAggregationResult
     public function getValues(): array
     {
         return $this->values;
+    }
+
+    public function add(ValueCountItem $value): void
+    {
+        $this->values[] = $value;
+    }
+
+    public function get($key): ?ValueCountItem
+    {
+        foreach ($this->values as $value) {
+            if ($value->getKey() === $key) {
+                return $value;
+            }
+        }
+
+        return null;
     }
 }

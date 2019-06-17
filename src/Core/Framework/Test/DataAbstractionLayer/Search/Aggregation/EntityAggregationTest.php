@@ -66,7 +66,7 @@ class EntityAggregationTest extends TestCase
         static::assertCount(1, $entityAgg->getResult());
 
         /** @var EntityCollection $entities */
-        $entities = $entityAgg->getResult()[0]['entities'];
+        $entities = $entityAgg->getResult()[0]->getEntities();
         static::assertEquals(4, $entities->count());
         static::assertTrue($entities->has('061af626d7714bd6ad4cad3598a2c716')); // tax #1
         static::assertTrue($entities->has('ceac25750cdb4415b6a324fd6b857731')); // tax #2
@@ -92,21 +92,21 @@ class EntityAggregationTest extends TestCase
         static::assertCount(4, $entityAgg->getResult());
 
         /** @var EntityCollection $entities */
-        $entities = $entityAgg->get(['product.categories.name' => 'cat1'])['entities'];
+        $entities = $entityAgg->get(['product.categories.name' => 'cat1'])->getEntities();
         static::assertEquals(3, $entities->count());
         static::assertTrue($entities->has('061af626d7714bd6ad4cad3598a2c716')); // tax #1
         static::assertTrue($entities->has('8e96eabfd9a0446099a651eb2fd1d231')); // tax #5
         static::assertTrue($entities->has('d281b2a352234db0b851d962c6b3ba88')); // tax #6
 
         /** @var EntityCollection $entities */
-        $entities = $entityAgg->get(['product.categories.name' => 'cat2'])['entities'];
+        $entities = $entityAgg->get(['product.categories.name' => 'cat2'])->getEntities();
         static::assertEquals(3, $entities->count());
         static::assertTrue($entities->has('061af626d7714bd6ad4cad3598a2c716')); // tax #1
         static::assertTrue($entities->has('8e96eabfd9a0446099a651eb2fd1d231')); // tax #5
         static::assertTrue($entities->has('d281b2a352234db0b851d962c6b3ba88')); // tax #6
 
         /** @var EntityCollection $entities */
-        $entities = $entityAgg->get(['product.categories.name' => 'cat3'])['entities'];
+        $entities = $entityAgg->get(['product.categories.name' => 'cat3'])->getEntities();
         static::assertEquals(4, $entities->count());
         static::assertTrue($entities->has('061af626d7714bd6ad4cad3598a2c716')); // tax #1
         static::assertTrue($entities->has('ceac25750cdb4415b6a324fd6b857731')); // tax #2
@@ -114,7 +114,7 @@ class EntityAggregationTest extends TestCase
         static::assertTrue($entities->has('d281b2a352234db0b851d962c6b3ba88')); // tax #6
 
         /** @var EntityCollection $entities */
-        $entities = $entityAgg->get(['product.categories.name' => 'cat4'])['entities'];
+        $entities = $entityAgg->get(['product.categories.name' => 'cat4'])->getEntities();
         static::assertEquals(2, $entities->count());
         static::assertTrue($entities->has('8e96eabfd9a0446099a651eb2fd1d231')); // tax #5
         static::assertTrue($entities->has('d281b2a352234db0b851d962c6b3ba88')); // tax #6

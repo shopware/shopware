@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
@@ -32,10 +33,7 @@ class CountAggregationTest extends TestCase
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
         static::assertEquals([
-            [
-                'key' => null,
-                'count' => 8,
-            ],
+            new CountResult(null, 8),
         ], $rateAgg->getResult());
     }
 
@@ -54,9 +52,9 @@ class CountAggregationTest extends TestCase
         /** @var AggregationResult $countAgg */
         $countAgg = $result->getAggregations()->get('count_agg');
         static::assertCount(4, $countAgg->getResult());
-        static::assertEquals(3, $countAgg->get(['product.categories.name' => 'cat1'])['count']);
-        static::assertEquals(3, $countAgg->get(['product.categories.name' => 'cat2'])['count']);
-        static::assertEquals(3, $countAgg->get(['product.categories.name' => 'cat3'])['count']);
-        static::assertEquals(2, $countAgg->get(['product.categories.name' => 'cat4'])['count']);
+        static::assertEquals(3, $countAgg->get(['product.categories.name' => 'cat1'])->getCount());
+        static::assertEquals(3, $countAgg->get(['product.categories.name' => 'cat2'])->getCount());
+        static::assertEquals(3, $countAgg->get(['product.categories.name' => 'cat3'])->getCount());
+        static::assertEquals(2, $countAgg->get(['product.categories.name' => 'cat4'])->getCount());
     }
 }

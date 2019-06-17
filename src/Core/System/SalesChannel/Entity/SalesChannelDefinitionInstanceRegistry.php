@@ -32,9 +32,9 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
         return $salesChannelRepository;
     }
 
-    public function get(string $name): EntityDefinition
+    public function get(string $class): EntityDefinition
     {
-        return parent::get($this->prefix . $name);
+        return parent::get($this->prefix . $class);
     }
 
     /**

@@ -5,17 +5,17 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
 class MaxResult extends AbstractAggregationResult
 {
     /**
-     * @var float
+     * @var mixed
      */
     protected $max;
 
-    public function __construct(?array $key, float $max)
+    public function __construct(?array $key, $max)
     {
         parent::__construct($key);
         $this->max = $max;
     }
 
-    public function getMax(): float
+    public function getMax()
     {
         return $this->max;
     }

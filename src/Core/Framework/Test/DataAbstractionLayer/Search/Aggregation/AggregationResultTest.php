@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\CountResult;
 
 class AggregationResultTest extends TestCase
 {
@@ -44,7 +45,7 @@ class AggregationResultTest extends TestCase
     public function testResultReturnsAggregationData(): void
     {
         $aggregation = new CountAggregation('field', 'foo');
-        $aggregationResult = new \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult($aggregation, []);
+        $aggregationResult = new AggregationResult($aggregation, []);
 
         static::assertSame($aggregation, $aggregationResult->getAggregation());
         static::assertSame($aggregation->getName(), $aggregationResult->getName());
@@ -55,33 +56,21 @@ class AggregationResultTest extends TestCase
     public function testResultByKey(): void
     {
         $aggregation = new CountAggregation('field', 'foo', 'foo.name');
-        $aggregationResult = new \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult($aggregation, [
-            [
-                'key' => [
-                    'foo.name' => 'test',
-                ],
-                'count' => 12,
-            ],
+        $aggregationResult = new AggregationResult($aggregation, [
+            new CountResult(['foo.name' => 'test'], 12),
         ]);
 
-        static::assertEquals([
-            'key' => [
-                'foo.name' => 'test',
-            ],
-            'count' => 12,
-        ], $aggregationResult->get(['foo.name' => 'test']));
+        static::assertEquals(
+            new CountResult(['foo.name' => 'test'], 12),
+            $aggregationResult->get(['foo.name' => 'test'])
+        );
     }
 
     public function testResultByKeyReturnsNull(): void
     {
         $aggregation = new CountAggregation('field', 'foo', 'foo.name');
-        $aggregationResult = new \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult($aggregation, [
-            [
-                'key' => [
-                    'foo.name' => 'test',
-                ],
-                'count' => 12,
-            ],
+        $aggregationResult = new AggregationResult($aggregation, [
+            new CountResult(['foo.name' => 'test'], 12),
         ]);
 
         static::assertNull($aggregationResult->get(['foo.name' => 'notFound']));

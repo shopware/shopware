@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Framework;
+namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\NestedAggregation;

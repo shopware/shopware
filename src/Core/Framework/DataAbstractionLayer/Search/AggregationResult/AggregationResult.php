@@ -20,6 +20,9 @@ class AggregationResult extends Struct
     public function __construct(Aggregation $aggregation, array $result)
     {
         $this->aggregation = $aggregation;
+
+        $this->assertType($result);
+
         $this->result = $result;
     }
 
@@ -52,5 +55,30 @@ class AggregationResult extends Struct
     public function getAggregation(): Aggregation
     {
         return $this->aggregation;
+    }
+
+    protected function assertType(array $result): void
+    {
+        foreach ($result as $item) {
+            if ($item instanceof AbstractAggregationResult) {
+                continue;
+            }
+            if (!is_object($item)) {
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        'Expected collection element of type %s got none object',
+                        AbstractAggregationResult::class
+                    )
+                );
+            }
+
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Expected collection element of type %s got %s',
+                    AbstractAggregationResult::class,
+                    get_class($item)
+                )
+            );
+        }
     }
 }

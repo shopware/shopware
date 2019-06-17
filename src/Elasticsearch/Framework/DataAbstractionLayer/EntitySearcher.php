@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Framework;
+namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Search;
@@ -9,6 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Elasticsearch\Framework\DefinitionRegistry;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class EntitySearcher implements EntitySearcherInterface
 {

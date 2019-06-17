@@ -3,7 +3,10 @@
 namespace Shopware\Elasticsearch\Framework;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Elasticsearch\Framework\Event\CollectDefinitionsEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DefinitionRegistry
 {
@@ -12,14 +15,27 @@ class DefinitionRegistry
      */
     private $definitions;
 
-    public function __construct(iterable $definitions)
-    {
-        $this->definitions = $definitions;
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
+    public function __construct(
+        EventDispatcherInterface $eventDispatcher,
+        DefinitionInstanceRegistry $registry
+    ) {
+        $this->eventDispatcher = $eventDispatcher;
+        $this->registry = $registry;
     }
 
     public function isSupported(EntityDefinition $definition): bool
     {
-        foreach ($this->definitions as $def) {
+        foreach ($this->getDefinitions() as $def) {
             if ($def instanceof $definition) {
                 return true;
             }
@@ -38,6 +54,16 @@ class DefinitionRegistry
 
     public function getDefinitions(): iterable
     {
+        if (!$this->definitions) {
+            $event = new CollectDefinitionsEvent();
+
+            $this->eventDispatcher->dispatch($event);
+
+            foreach ($event->getDefinitions() as $class) {
+                $this->definitions[$class] = $this->registry->get($class);
+            }
+        }
+
         return $this->definitions;
     }
 }

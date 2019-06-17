@@ -6,21 +6,24 @@
 
     <parameters>
         <parameter key="shopware.ses.hosts">%env(SHOPWARE_SES_HOSTS)%</parameter>
+        <parameter key="shopware.ses.enabled">%env(SHOPWARE_SES_ENABLED)%</parameter>
     </parameters>
 
     <services>
         <service id="Shopware\Elasticsearch\Framework\DefinitionRegistry">
-            <argument type="tagged" tag="shopware.es.definition" />
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\CriteriaParser">
-            <argument id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper" type="service"/>
+        <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchHelper">
-            <argument id="Elasticsearch\Client" type="service"/>
-            <argument id="Shopware\Elasticsearch\Framework\DefinitionRegistry" type="service"/>
-            <argument id="Shopware\Elasticsearch\Framework\CriteriaParser" type="service"/>
+            <argument>%shopware.ses.enabled%</argument>
+            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\EntityMapper"/>
@@ -31,39 +34,39 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\EntityIndexer">
-            <argument id="Shopware\Elasticsearch\Framework\DefinitionRegistry" type="service"/>
-            <argument id="Elasticsearch\Client" type="service"/>
-            <argument id="service_container" type="service"/>
-            <argument id="event_dispatcher" type="service"/>
-            <argument id="Shopware\Elasticsearch\Framework\EntityMapper" type="service"/>
-            <argument id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" type="service"/>
             <tag name="shopware.dbal_indexing.indexer" priority="-50000"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\EntityMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\ElasticsearchIndexingCommand">
-            <argument id="Shopware\Elasticsearch\Framework\EntityIndexer" type="service"/>
+        <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\EntityIndexer"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\EntitySearcher"
+        <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\EntitySearcher"
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
                  decoration-priority="1000">
 
-            <argument id="Elasticsearch\Client" type="service"/>
-            <argument id="Shopware\Elasticsearch\Framework\EntitySearcher.inner" type="service"/>
-            <argument id="Shopware\Elasticsearch\Framework\DefinitionRegistry" type="service"/>
-            <argument id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" type="service"/>
+            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\EntitySearcher.inner"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\EntityAggregator"
+        <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\EntityAggregator"
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"
                  decoration-priority="1000">
 
-            <argument id="Shopware\Elasticsearch\Framework\DefinitionRegistry" type="service"/>
-            <argument id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" type="service"/>
-            <argument id="Elasticsearch\Client" type="service"/>
-            <argument id="Shopware\Elasticsearch\Framework\EntityAggregator.inner" type="service"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\EntityAggregator.inner"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
     </services>

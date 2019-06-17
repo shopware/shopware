@@ -6,26 +6,19 @@ namespace Shopware\Elasticsearch\Framework;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Shopware\Elasticsearch\Framework\Event\CreateIndexingCriteriaEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class EntityIndexer implements IndexerInterface
 {
@@ -38,11 +31,6 @@ class EntityIndexer implements IndexerInterface
      * @var Client
      */
     private $client;
-
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
 
     /**
      * @var EventDispatcherInterface
@@ -59,20 +47,25 @@ class EntityIndexer implements IndexerInterface
      */
     private $iteratorFactory;
 
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionRegistry;
+
     public function __construct(
-        DefinitionRegistry $registry,
+        DefinitionRegistry $esRegistry,
+        DefinitionInstanceRegistry $definitionRegistry,
         Client $client,
-        ContainerInterface $container,
         EventDispatcherInterface $eventDispatcher,
         EntityMapper $entityMapper,
         IteratorFactory $iteratorFactory
     ) {
-        $this->registry = $registry;
+        $this->registry = $esRegistry;
         $this->client = $client;
-        $this->container = $container;
         $this->eventDispatcher = $eventDispatcher;
         $this->entityMapper = $entityMapper;
         $this->iteratorFactory = $iteratorFactory;
+        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -199,14 +192,18 @@ class EntityIndexer implements IndexerInterface
 
     private function indexEntities(string $index, array $ids, EntityDefinition $definition, Context $context): void
     {
-        $repository = $this->container->get($definition->getEntityName() . '.repository');
+        $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
 
         if (!$repository instanceof EntityRepository) {
             throw new \RuntimeException('Expected entity repository for service: ' . $definition->getEntityName() . '.repository');
         }
 
         $criteria = new Criteria($ids);
-        $this->addAssociations($criteria, $definition, $definition);
+
+        $this->eventDispatcher->dispatch(
+            new CreateIndexingCriteriaEvent($definition, $criteria, $context),
+            CreateIndexingCriteriaEvent::NAME
+        );
 
         $entities = $context->disableCache(function (Context $context) use ($repository, $criteria) {
             return $repository->search($criteria, $context);
@@ -250,55 +247,5 @@ class EntityIndexer implements IndexerInterface
         }
 
         return $documents;
-    }
-
-    private function addAssociations(Criteria $criteria, EntityDefinition $definition, EntityDefinition $source): void
-    {
-        $associations = $definition->getFields()->filterInstance(AssociationField::class);
-
-        foreach ($associations as $association) {
-            if ($association instanceof ParentAssociationField) {
-                continue;
-            }
-
-            if ($association instanceof ChildrenAssociationField) {
-                continue;
-            }
-
-            if ($association instanceof TranslationsAssociationField) {
-                continue;
-            }
-
-            /** @var AssociationField $association */
-
-            // prevent circular references
-            if ($source->getEntityName() === $association->getReferenceDefinition()->getEntityName()) {
-                continue;
-            }
-
-            if ($association instanceof ManyToOneAssociationField) {
-                $criteria->addAssociation($association->getPropertyName());
-                continue;
-            }
-
-            if ($association instanceof ManyToManyAssociationField) {
-                $criteria->addAssociation($association->getPropertyName());
-                continue;
-            }
-
-            if ($association instanceof OneToManyAssociationField) {
-                if (!$association->is(CascadeDelete::class)) {
-                    continue;
-                }
-
-                $nested = new Criteria();
-
-                $criteria->addAssociation($association->getPropertyName(), $nested);
-
-                $this->addAssociations($nested, $association->getReferenceDefinition(), $definition);
-
-                continue;
-            }
-        }
     }
 }

@@ -2,17 +2,29 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
 
-class CountResult extends AbstractAggregationResult
+use Shopware\Core\Framework\Struct\Struct;
+
+class ValueCountItem extends Struct
 {
+    /**
+     * @var mixed
+     */
+    protected $key;
+
     /**
      * @var int
      */
     protected $count;
 
-    public function __construct(?array $key, int $count)
+    public function __construct($key, int $count)
     {
-        parent::__construct($key);
+        $this->key = $key;
         $this->count = $count;
+    }
+
+    public function getKey()
+    {
+        return $this->key;
     }
 
     public function getCount(): int

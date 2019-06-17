@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
 class StatsResult extends AbstractAggregationResult
 {
     /**
-     * @var float|null
+     * @var mixed|null
      */
     protected $min;
 
     /**
-     * @var float|null
+     * @var mixed|null
      */
     protected $max;
 
@@ -29,7 +29,7 @@ class StatsResult extends AbstractAggregationResult
      */
     protected $sum;
 
-    public function __construct(?array $key, ?float $min, ?float $max, ?int $count, ?float $avg, ?float $sum)
+    public function __construct(?array $key, $min, $max, ?int $count, ?float $avg, ?float $sum)
     {
         parent::__construct($key);
         $this->min = $min;
@@ -39,12 +39,12 @@ class StatsResult extends AbstractAggregationResult
         $this->sum = $sum;
     }
 
-    public function getMin(): ?float
+    public function getMin()
     {
         return $this->min;
     }
 
-    public function getMax(): ?float
+    public function getMax()
     {
         return $this->max;
     }

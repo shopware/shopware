@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Framework;
+namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Search;
@@ -22,6 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Elasticsearch\Framework\DefinitionRegistry;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class EntityAggregator implements EntityAggregatorInterface
 {

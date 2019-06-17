@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
 class ElasticsearchHelper
 {
@@ -28,7 +29,13 @@ class ElasticsearchHelper
      */
     private $parser;
 
+    /**
+     * @var bool
+     */
+    private $isEnabled;
+
     public function __construct(
+        bool $isEnabled,
         Client $client,
         DefinitionRegistry $registry,
         CriteriaParser $parser
@@ -36,6 +43,7 @@ class ElasticsearchHelper
         $this->client = $client;
         $this->registry = $registry;
         $this->parser = $parser;
+        $this->isEnabled = $isEnabled;
     }
 
     /**
@@ -43,6 +51,10 @@ class ElasticsearchHelper
      */
     public function allowSearch(EntityDefinition $definition, Context $context): bool
     {
+        if (!$this->isEnabled) {
+            return false;
+        }
+
         if (!$this->registry->isSupported($definition)) {
             return false;
         }

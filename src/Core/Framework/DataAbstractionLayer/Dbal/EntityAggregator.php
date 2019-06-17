@@ -21,10 +21,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AvgResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\MaxResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\MinResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\StatsResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\SumResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueCountItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueCountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
@@ -248,6 +251,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $data = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
         $field = $this->queryHelper->getField($aggregation->getField(), $definition, $definition->getEntityName());
 
+        /** @var ValueCountResult[] $results */
         $results = [];
         foreach ($data as $row) {
             $key = $this->getAggregationKey($definition, $aggregation, $row);
@@ -259,12 +263,17 @@ class EntityAggregator implements EntityAggregatorInterface
                 $value = $this->tryToCast($value);
             }
 
-            $value = ['key' => $value, 'count' => (int) $row['count']];
+            $value = new ValueCountItem($value, (int) $row['count']);
 
-            $results[] = new ValueCountResult($key, $value);
+            $hash = md5(json_encode($key));
+            if (!isset($results[$hash])) {
+                $results[$hash] = new ValueCountResult($key, []);
+            }
+
+            $results[$hash]->add($value);
         }
 
-        return $results;
+        return array_values($results);
     }
 
     private function fetchStatsAggregation(EntityDefinition $definition, QueryBuilder $query, StatsAggregation $aggregation, string $accessor): array
@@ -385,7 +394,7 @@ class EntityAggregator implements EntityAggregatorInterface
         foreach ($data as $row) {
             $key = $this->getAggregationKey($definition, $aggregation, $row);
 
-            $results[] = new MaxResult($key, (int) $row['count']);
+            $results[] = new CountResult($key, (int) $row['count']);
         }
 
         return $results;
@@ -417,7 +426,7 @@ class EntityAggregator implements EntityAggregatorInterface
         foreach ($data as $row) {
             $key = $this->getAggregationKey($definition, $aggregation, $row);
 
-            $results[] = new MinResult($key, (float) $row['sum']);
+            $results[] = new SumResult($key, (float) $row['sum']);
         }
 
         return $results;

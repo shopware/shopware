@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
+namespace Shopware\Elasticsearch\Framework\Command;
 
 use Shopware\Core\Framework\Console\ShopwareStyle;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Indexing\IndexerInterface;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
@@ -23,7 +22,7 @@ class ElasticsearchIndexingCommand extends Command implements EventSubscriberInt
     private $io;
 
     /**
-     * @var IndexerInterface
+     * @var EntityIndexer
      */
     private $indexer;
 

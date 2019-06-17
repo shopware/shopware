@@ -33,7 +33,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
     public function __construct(IndexerRegistryInterface $indexer)
     {
-        parent::__construct('dbal:refresh:index');
+        parent::__construct('dal:refresh:index');
         $this->indexer = $indexer;
     }
 
@@ -71,6 +71,9 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
         if (!$this->progress) {
             return;
         }
+        if (!$this->progress->getMaxSteps()) {
+            return;
+        }
         $this->progress->setMessage($event->getMessage());
         $this->progress->finish();
         $this->io->newLine(2);
@@ -82,7 +85,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     protected function configure(): void
     {
         $this
-            ->setName('dbal:refresh:index')
+            ->setName('dal:refresh:index')
             ->setDescription('Refreshes the shop indices');
     }
 

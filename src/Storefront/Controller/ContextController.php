@@ -147,6 +147,7 @@ class ContextController extends StorefrontController
             $domain->getUrl()
         );
 
+        $this->router->getContext()->setHttpPort(80);
         $this->router->getContext()->setMethod('GET');
         $this->router->getContext()->setHost($url);
         $this->router->getContext()->setBaseUrl('');

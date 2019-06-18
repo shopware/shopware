@@ -14,7 +14,7 @@
     },
     "extra": {
         "shopware-plugin-class": "SwagTest\\SwagTest",
-        "plugin-icon": "Resources/public/plugin.png",
+        "plugin-icon": "src/Resources/public/plugin.png",
         "copyright": "(c) by shopware AG",
         "label": {
             "de-DE": "Deutscher Pluginname",
@@ -36,7 +36,7 @@
     },
     "autoload": {
         "psr-4": {
-           "SwagTest\\": ""
+           "SwagTest\\": "src"
         }
     }
 }

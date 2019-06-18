@@ -7,8 +7,7 @@ export default {
             seoUrlCollection: null,
             originalSeoUrls: [],
             defaultSeoUrl: null,
-            currentSeoUrl: null,
-            loading: false
+            currentSeoUrl: null
         };
     },
 
@@ -16,6 +15,7 @@ export default {
         isLoading: (state) => {
             return state.loading;
         },
+
         getNewOrModifiedUrls: (state) => () => {
             const seoUrls = [];
 
@@ -54,17 +54,6 @@ export default {
 
         setDefaultSeoUrl(state, defaultSeoUrl) {
             state.defaultSeoUrl = defaultSeoUrl;
-        },
-
-        setLoading(state, value) {
-            state.loading = value;
-        }
-    },
-
-    actions: {
-        initState({ commit }, { seoUrlCollection, seoUrls }) {
-            commit('setSeoUrlCollection', seoUrlCollection);
-            commit('setOriginalSeoUrls', seoUrls);
         }
     }
 };

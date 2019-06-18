@@ -23,6 +23,11 @@ Component.register('sw-seo-url', {
             default() {
                 return [];
             }
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -35,10 +40,6 @@ Component.register('sw-seo-url', {
     computed: {
         seoUrlCollection() {
             return this.$store.state.swSeoUrl.seoUrlCollection;
-        },
-
-        isLoading() {
-            return this.$store.getters['swSeoUrl/isLoading'];
         },
 
         currentSeoUrl() {
@@ -74,12 +75,14 @@ Component.register('sw-seo-url', {
         this.createdComponent();
     },
 
+    beforeDestroy() {
+        this.$store.unregisterModule('swSeoUrl');
+    },
+
     methods: {
         createdComponent() {
-            this.$store.commit('swSeoUrl/setLoading', true);
             this.initSeoUrlCollection();
             this.refreshCurrentSeoUrl();
-            this.$store.commit('swSeoUrl/setLoading', false);
         },
 
         initSeoUrlCollection() {
@@ -97,14 +100,12 @@ Component.register('sw-seo-url', {
 
                 // Also save the default seo url(where salesChannel is null) as blueprint for creating new
                 if (entity.salesChannelId === null) {
-                    this.$store.commit(
-                        'swSeoUrl/setDefaultSeoUrl',
-                        entity
-                    );
+                    this.$store.commit('swSeoUrl/setDefaultSeoUrl', entity);
                 }
             });
 
-            this.$store.dispatch('swSeoUrl/initState', { seoUrlCollection, seoUrls: this.urls });
+            this.$store.commit('swSeoUrl/setSeoUrlCollection', seoUrlCollection);
+            this.$store.commit('swSeoUrl/setOriginalSeoUrls', this.urls);
         },
 
         refreshCurrentSeoUrl() {
@@ -126,18 +127,12 @@ Component.register('sw-seo-url', {
 
                 this.seoUrlCollection.add(entity);
 
-                this.$store.commit(
-                    'swSeoUrl/setCurrentSeoUrl',
-                    entity
-                );
+                this.$store.commit('swSeoUrl/setCurrentSeoUrl', entity);
 
                 return;
             }
 
-            this.$store.commit(
-                'swSeoUrl/setCurrentSeoUrl',
-                this.seoUrlCollection.get(currentSeoUrlId)
-            );
+            this.$store.commit('swSeoUrl/setCurrentSeoUrl', this.seoUrlCollection.get(currentSeoUrlId));
         },
 
         onSalesChannelChanged(salesChannelId) {

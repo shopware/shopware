@@ -13,18 +13,20 @@ Component.override('sw-product-detail', {
                 Criteria.equals('isCanonical', true)
             );
             return criteria;
+        },
+
+        productCriteria() {
+            const criteria = this.$super.productCriteria();
+
+            if (!criteria.hasAssociation('seoUrls')) {
+                criteria.addAssociation('seoUrls', this.seoUrlCriteria);
+            }
+
+            return criteria;
         }
     },
 
     methods: {
-        loadProduct() {
-            if (!this.productCriteria.hasAssociation('seoUrls')) {
-                this.productCriteria.addAssociation('seoUrls', this.seoUrlCriteria);
-            }
-
-            this.$super.loadProduct();
-        },
-
         onSaveFinished(response) {
             const seoUrls = this.$store.getters['swSeoUrl/getNewOrModifiedUrls']();
 
@@ -37,8 +39,6 @@ Component.override('sw-product-detail', {
             if (response === 'empty' && seoUrls.length > 0) {
                 response = 'success';
             }
-
-
 
             this.$super.onSaveFinished(response);
         }

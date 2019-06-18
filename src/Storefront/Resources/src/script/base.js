@@ -59,7 +59,6 @@ import CmsSlotReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-relo
 import CmsSlotHistoryReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
 import RemoteClickPlugin from 'src/script/plugin/remote-click/remote-click.plugin';
 import AddressEditorPlugin from 'src/script/plugin/address-editor/address-editor.plugin';
-import ConfirmOrderPlugin from 'src/script/plugin/confirm-order/confirm-order.plugin';
 import DateFormat from 'src/script/plugin/date-format/date-format.plugin.js';
 import SetBrowserClassPlugin from 'src/script/plugin/set-browser-class/set-browser-class.plugin';
 
@@ -117,7 +116,6 @@ PluginManager.register('CmsSlotReload', CmsSlotReloadPlugin, '[data-cms-slot-rel
 PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, document);
 PluginManager.register('RemoteClick', RemoteClickPlugin, '[data-remote-click]');
 PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-editor]');
-PluginManager.register('ConfirmOrder', ConfirmOrderPlugin, '[data-confirm-order]');
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
 
 /*

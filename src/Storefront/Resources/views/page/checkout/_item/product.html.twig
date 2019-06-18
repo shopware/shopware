@@ -46,9 +46,9 @@
                                             {% endblock %}
 
                                             {% block page_checkout_item_product_info_ordernumber %}
-                                                {% if lineItem.referencedId %}
+                                                {% if lineItem.payload.productNumber %}
                                                     <div class="cart-item-ordernumber">
-                                                        {{ "checkout.cartItemInfoId"|trans }} {{ lineItem.referencedId }}
+                                                        {{ "checkout.cartItemInfoId"|trans }} {{ lineItem.payload.productNumber }}
                                                     </div>
                                                 {% endif %}
                                             {% endblock %}

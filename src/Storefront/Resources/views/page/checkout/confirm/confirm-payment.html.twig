@@ -3,35 +3,84 @@
         <div class="card-body">
             {% block page_checkout_confirm_payment_title %}
                 <div class="card-title">
-                    {{ "checkout.confirmPaymentHeader"|trans }}
+                    {{ "checkout.confirmPaymentMethod"|trans }}
                 </div>
             {% endblock %}
 
-            {% block page_checkout_confirm_payment_form %}
-                <form id="confirmPaymentForm"
-                      name="confirmPaymentForm"
-                      action="{{ path('frontend.checkout.configure') }}"
-                      method="post"
-                      data-form-ajax-submit="true"
-                      data-form-ajax-submit-options='{
-                            "replaceSelectors": [
-                                ".js-reload-on-confirm-change",
-                                ".flashbags"
-                            ],
-                            "submitOnChange": [
-                                "[name=paymentMethodId]"
-                            ]
-                      }'>
-                    {% block page_checkout_confirm_payment_form_redirect %}
-                        <input type="hidden" name="redirectTo" value="{{ 'frontend.checkout.confirm.page' }}">
-                    {% endblock %}
+            {% block page_checkout_confirm_payment_current %}
+                <p class="checkout-confirm-payment-current">
+                    <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+                    {{ context.paymentMethod.translated.name }}
+                </p>
+            {% endblock %}
 
-                    {% block page_checkout_confirm_payment_form_fields %}
-                        {% sw_include '@Storefront/component/payment/payment-fields.html.twig' with {
-                            'defaultPaymentMethodId': context.paymentMethod.id,
-                        } %}
-                    {% endblock %}
-                </form>
+            {% block page_checkout_confirm_payment_modal_toggle %}
+                <button type="button"
+                        class="btn btn-light"
+                        data-toggle="modal"
+                        data-backdrop="static"
+                        data-target="#confirmPaymentModal">
+                    {{ "checkout.confirmChangePayment"|trans }}
+                </button>
+            {% endblock %}
+
+            {% block page_checkout_confirm_payment_modal %}
+                <div class="modal fade checkout-confirm-shipping-modal"
+                     id="confirmPaymentModal"
+                     tabindex="-1"
+                     role="dialog">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"
+                         role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="modal-title h5">
+                                    {{ "checkout.confirmChangePayment"|trans }}
+                                </div>
+                                <button type="button"
+                                        class="modal-close close"
+                                        data-dismiss="modal"
+                                        aria-label="Close">
+                                    <span aria-hidden="true">
+                                        {% sw_icon 'x' style { 'size': 'sm' } %}
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                {% block page_checkout_confirm_payment_form %}
+                                    <form id="confirmPaymentForm"
+                                          name="confirmPaymentForm"
+                                          action="{{ path('frontend.checkout.configure') }}"
+                                          method="post">
+                                        {% block page_checkout_confirm_payment_form_redirect %}
+                                            <input type="hidden" name="redirectTo" value="{{ 'frontend.checkout.confirm.page' }}">
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_payment_form_fields %}
+                                            {% sw_include '@Storefront/component/payment/payment-fields.html.twig' with {
+                                                'defaultPaymentMethodId': context.paymentMethod.id,
+                                            } %}
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_payment_form_submit %}
+                                            <button class="btn btn-primary" type="submit">
+                                                {{ "checkout.confirmChangePaymentShippingSave"|trans }}
+                                            </button>
+                                        {% endblock %}
+
+                                        {% block page_checkout_confirm_payment_cancel %}
+                                            <button class="btn btn-light"
+                                                    type="button"
+                                                    data-dismiss="modal"
+                                                    aria-label="Close">
+                                                {{ "checkout.confirmChangePaymentShippingCancel"|trans }}
+                                            </button>
+                                        {% endblock %}
+                                    </form>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endblock %}
         </div>
     </div>

@@ -1,5 +1,5 @@
 module.exports = {
-    extends: '../common/eslint-config-base/index.js',
+    extends: '@shopware/eslint-config-base',
     // We're dealing with Node.js and browser env
     env: {
         node: true,

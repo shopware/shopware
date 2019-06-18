@@ -1,23 +1,19 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
-var path = require('path');
+const path = require('path');
 const process = require('process');
+
 const appPath = process.argv.slice(2)[0];
 const appEnv = process.env.APP_ENV;
 
 module.exports = {
     build: {
-        env: require('./prod.env'),
+        env: require('./prod.env'), // eslint-disable-line
         index: path.resolve(__dirname, '../src/app/index.html'),
         assetsRoot: path.resolve(__dirname, '../../public/'),
         assetsSubDirectory: 'static',
         assetsPublicPath: `${appPath}/bundles/administration/`,
         productionSourceMap: true,
-        // Gzip off by default as many popular static hosts such as
-        // Surge or Netlify already gzip all static assets for you.
-        // Before setting to `true`, make sure to:
-        // npm install --save-dev compression-webpack-plugin
-        productionGzip: false,
-        productionGzipExtensions: [ 'js', 'css' ],
+        productionGzipExtensions: ['js', 'css'],
         // Run the build command with an extra argument to
         // View the bundle analyzer report after build finishes:
         // `npm run build --report`
@@ -26,7 +22,7 @@ module.exports = {
         performanceHints: false
     },
     dev: {
-        env: require('./dev.env'),
+        env: require('./dev.env'), // eslint-disable-line
         port: 8080,
         autoOpenBrowser: true,
         assetsSubDirectory: 'static',

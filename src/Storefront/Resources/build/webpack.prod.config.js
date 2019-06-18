@@ -1,6 +1,7 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const path = require('path');
 
 /**
  * -------------------------------------------------------
@@ -28,7 +29,12 @@ const modules = {
                     loader: 'css-loader'
                 },
                 {
-                    loader: 'postcss-loader' // needs to be AFTER css/style-loader and BEFORE sass-loader
+                    loader: 'postcss-loader', // needs to be AFTER css/style-loader and BEFORE sass-loader
+                    options: {
+                        config: {
+                            path: path.join(__dirname, '..')
+                        }
+                    }
                 },
                 {
                     loader: 'sass-loader'

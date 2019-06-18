@@ -1,0 +1,8 @@
+{
+  "packages": [
+    "common/*",
+    "administration",
+    "e2e"
+  ],
+  "version": "independent"
+}

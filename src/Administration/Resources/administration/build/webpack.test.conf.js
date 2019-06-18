@@ -1,10 +1,10 @@
 // This is the webpack config used for unit tests.
-const utils = require('./utils');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
-const baseConfig = require('./webpack.base.conf');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const KillProcessOnFailedBuildPlugin = require('./plugins/kill-process-on-failed-build');
+const KillProcessOnFailedBuildPlugin = require('@shopware/webpack-kill-process-on-failed-build');
+const baseConfig = require('./webpack.base.conf');
+const utils = require('./utils');
 
 const webpackConfig = merge(baseConfig, {
     // use inline sourcemap for karma-sourcemap-loader
@@ -19,7 +19,7 @@ const webpackConfig = merge(baseConfig, {
     devtool: '#inline-source-map',
     plugins: [
         new webpack.DefinePlugin({
-            'process.env': require('../config/test.env')
+            'process.env': require('../config/test.env') // eslint-disable-line
         }),
         new MiniCssExtractPlugin({
             filename: utils.assetsPath('css/[name].css')

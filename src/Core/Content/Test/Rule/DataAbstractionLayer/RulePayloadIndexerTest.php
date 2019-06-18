@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -22,7 +23,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\EventDispatcher\Event;
 
 class RulePayloadIndexerTest extends TestCase
 {
@@ -407,7 +407,7 @@ class RulePayloadIndexerTest extends TestCase
     /**
      * @dataProvider dataProviderForTestPostEventNullsPayload
      */
-    public function testPostEventNullsPayload(string $eventName): void
+    public function testPostEventNullsPayload(Plugin\Event\PluginLifecycleEvent $event): void
     {
         $payload = serialize(new AndRule());
 
@@ -422,7 +422,7 @@ class RulePayloadIndexerTest extends TestCase
                 ->execute();
         }
 
-        $this->eventDispatcher->dispatch(new Event(), $eventName);
+        $this->eventDispatcher->dispatch($event, $event::NAME);
 
         $rules = $this->connection->createQueryBuilder()->select(['id', 'payload', 'invalid'])->from('rule')->execute()->fetchAll();
 
@@ -435,12 +435,32 @@ class RulePayloadIndexerTest extends TestCase
 
     public function dataProviderForTestPostEventNullsPayload(): array
     {
-        return [
-            [PluginPostInstallEvent::NAME],
-            [PluginPostActivateEvent::NAME],
-            [PluginPostUpdateEvent::NAME],
-            [PluginPostDeactivateEvent::NAME],
-            [PluginPostUninstallEvent::NAME],
+        $plugin = new Plugin\PluginEntity();
+        $plugin->setBaseClass(RulePlugin::class);
+
+        $events = [
+            PluginPostInstallEvent::class,
+            PluginPostActivateEvent::class,
+            PluginPostUpdateEvent::class,
+            PluginPostDeactivateEvent::class,
+            PluginPostUninstallEvent::class,
         ];
+
+        $samples = [];
+        foreach ($events as $event) {
+            $mock = $this->getMockBuilder($event)
+                ->disableOriginalConstructor()
+                ->getMock();
+
+            $mock->method('getPlugin')->willReturn($plugin);
+
+            $samples[] = [$mock];
+        }
+
+        return $samples;
     }
+}
+
+class RulePlugin extends Plugin
+{
 }

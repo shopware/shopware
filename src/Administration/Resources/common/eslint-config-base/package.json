@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "@shopware/eslint-config-base",
+  "version": "1.0.0",
+  "description": "Common webpack configuration for several Shopware related projects",
+  "main": "index.js",
+  "author": "klarstil",
+  "license": "MIT"
+}

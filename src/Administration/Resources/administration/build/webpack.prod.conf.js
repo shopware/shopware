@@ -5,20 +5,16 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const WebpackPluginInjector = require('@shopware/webpack-plugin-injector');
 const config = require('../config');
 const utils = require('./utils');
-const WebpackCopyAfterBuildPlugin = require('./plugins/copy-after-build');
 const env = process.env.NODE_ENV === 'testing'
     ? require('../config/test.env')
     : config.build.env;
 
-let baseWebpackConfig = require('./webpack.base.conf');
+const baseWebpackConfig = require('./webpack.base.conf');
 
-const pluginList = utils.getPluginDefinitions('var/config_administration_plugins.json');
-baseWebpackConfig = utils.iteratePluginDefinitions(baseWebpackConfig, pluginList, false);
-baseWebpackConfig = utils.injectIncludePathsToLoader(baseWebpackConfig, utils.getIncludePaths());
-
-const webpackConfig = merge(baseWebpackConfig, {
+let webpackConfig = merge(baseWebpackConfig, {
     mode: 'production',
     module: {
         rules: utils.styleLoaders({
@@ -68,60 +64,12 @@ const webpackConfig = merge(baseWebpackConfig, {
     ]
 });
 
-if (config.build.productionGzip) {
-    const CompressionWebpackPlugin = require('compression-webpack-plugin');
-
-    webpackConfig.plugins.push(
-        new CompressionWebpackPlugin({
-            asset: '[path].gz[query]',
-            algorithm: 'gzip',
-            test: new RegExp(
-                `\\.(${config.build.productionGzipExtensions.join('|')})$`
-            ),
-            threshold: 10240,
-            minRatio: 0.8
-        })
-    );
-}
-
-if (pluginList.length) {
-    pluginList.forEach((plugin) => {
-        const pluginName = plugin.name;
-        const basePath = plugin.basePath;
-        const pluginPath = `${basePath}Resources/public/`;
-        const assetPath = `${plugin.viewPath}static`;
-        const publicStaticPath = `${basePath}Resources/public/static/`;
-
-        webpackConfig.plugins.push(
-            new WebpackCopyAfterBuildPlugin({
-                files: [{
-                    chunkName: pluginName,
-                    to: `${pluginPath}/${pluginName}.js`
-                }],
-                options: {
-                    absolutePath: true,
-                    sourceMap: true
-                }
-            })
-        );
-
-        if (fs.existsSync(assetPath)) {
-            webpackConfig.plugins.push(
-                // copy custom static assets
-                new CopyWebpackPlugin([
-                    {
-                        from: assetPath,
-                        to: publicStaticPath,
-                        ignore: ['.*']
-                    }
-                ])
-            );
-        }
-    });
-}
+// Inject plugins into webpack config
+const injector = new WebpackPluginInjector('var/plugins.json', webpackConfig, 'administration');
+webpackConfig = merge(injector.webpackConfig);
 
 if (config.build.bundleAnalyzerReport) {
-    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin; // eslint-disable-line
     webpackConfig.plugins.push(new BundleAnalyzerPlugin());
 }
 

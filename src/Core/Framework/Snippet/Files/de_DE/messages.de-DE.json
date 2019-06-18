@@ -55,7 +55,9 @@
         "addToCartError": "Beim Hinzufügen zum Warenkorb ist ein Fehler aufgetreten.",
         "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
         "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
-        "productNotFound": "Produkt mit der Nummer \"%number%\" konnte nicht gefunden werden."
+        "productNotFound": "Produkt mit der Nummer \"%number%\" konnte nicht gefunden werden.",
+        "payment-method-blocked": "Die gewählte Zahlungsart %name% ist nicht verfügbar.",
+        "shipping-method-blocked": "Die gewählte Versandart %name% ist nicht verfügbar."
     },
     "account": {
         "myAccount": "Mein Konto",
@@ -259,8 +261,10 @@
         "shippingAddressHeader": "Lieferadresse",
         "confirmHeader": "Prüfen und Bestellen",
         "confirmPaymentMethod": "Zahlungsart",
+        "confirmPaymentMethodNotAvailable": "Zahlungsart nicht verfügbar",
         "confirmChangePayment": "Zahlungsart ändern",
         "confirmShippingMethod": "Versandart",
+        "confirmShippingMethodNotAvailable": "Versandart nicht verfügbar",
         "confirmChangeShipping": "Versandart ändern",
         "confirmCurrentPaymentShipping": "Aktuelle Auswahl:",
         "confirmChangePaymentShippingSave": "Speichern",

@@ -55,7 +55,9 @@
         "addToCartError": "An error occurred while adding the item(s) to cart.",
         "FRAMEWORK__INVALID_UUID": "The selected payment method does not exist.",
         "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist.",
-        "productNotFound": "Product with number \"%number%\" not found."
+        "productNotFound": "Product with number \"%number%\" not found.",
+        "payment-method-blocked": "Payment method %name% not available.",
+        "shipping-method-blocked": "Shipping method %name% not available."
     },
     "account": {
         "myAccount": "My Account",
@@ -259,8 +261,10 @@
         "shippingAddressHeader": "Shipping address",
         "confirmHeader": "Complete order",
         "confirmPaymentMethod": "Payment",
+        "confirmPaymentMethodNotAvailable": "Payment method not available",
         "confirmChangePayment": "Change payment",
         "confirmShippingMethod": "Shipping",
+        "confirmShippingMethodNotAvailable": "Shipping method not available",
         "confirmChangeShipping": "Change shipping",
         "confirmCurrentPaymentShipping": "Current selection:",
         "confirmChangePaymentShippingSave": "Save",

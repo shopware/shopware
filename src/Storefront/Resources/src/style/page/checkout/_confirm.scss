@@ -34,3 +34,13 @@
     margin-bottom: $spacer-xl;
 }
 
+.checkout-confirm-payment-current,
+.checkout-confirm-shipping-current {
+    &.is-invalid {
+        color: $danger;
+    }
+}
+
+.checkout-confirm-method-tooltip {
+    margin-left: $spacer-xs;
+}

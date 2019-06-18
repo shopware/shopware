@@ -24,6 +24,11 @@ class PaymentMethodBlockedError extends Error
         parent::__construct($this->message);
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     public function getKey(): string
     {
         return sprintf('%s-%s', self::KEY, $this->name);

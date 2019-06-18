@@ -15,15 +15,28 @@
         {% endblock %}
 
         {% block page_checkout_confirm_alerts %}
-            {% for violation in formViolations.getViolations() %}
-                {% set snippetName = "error.#{violation.code}" %}
-                {% set fieldName = violation.propertyPath|trim('/', 'left') %}
+            {% block page_checkout_confirm_violations %}
+                {% for violation in formViolations.getViolations() %}
+                    {% set snippetName = "error.#{violation.code}" %}
+                    {% set fieldName = violation.propertyPath|trim('/', 'left') %}
 
-                {% sw_include '@Storefront/utilities/alert.html.twig' with {
-                    type: "danger",
-                    content: snippetName|trans({'%field%': fieldName})
-                } %}
-            {% endfor %}
+                    {% sw_include '@Storefront/utilities/alert.html.twig' with {
+                        type: "danger",
+                        content: snippetName|trans({'%field%': fieldName})
+                    } %}
+                {% endfor %}
+            {% endblock %}
+            
+            {% block page_checkout_confirm_errors %}
+                {% for error in page.cart.errors %}
+                    {% set snippetName = "error.#{error.messageKey}" %}
+
+                    {% sw_include '@Storefront/utilities/alert.html.twig' with {
+                        type: "danger",
+                        content: snippetName|trans({'%name%': error.name})
+                    } %}
+                {% endfor %}
+            {% endblock %}
         {% endblock %}
 
         {% block page_checkout_confirm_tos %}
@@ -134,6 +147,9 @@
                 <button id="confirmFormSubmit"
                         class="btn btn-primary btn-block btn-lg"
                         form="confirmOrderForm"
+                        {% if page.cart.errors|length > 0 %}
+                        disabled="disabled"
+                        {% endif %}
                         type="submit">
                     {{ "checkout.confirmSubmit"|trans }}
                 </button>

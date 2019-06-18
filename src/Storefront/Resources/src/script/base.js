@@ -25,6 +25,7 @@ import utils
  */
 import AjaxModalExtensionUtil from 'src/script/utility/modal-extension/ajax-modal-extension.util';
 import TimezoneUtil from 'src/script/utility/timezone/timezone.util.js';
+import TooltipUtil from 'src/script/utility/tooltip/tooltip.util.js';
 
 /*
 import plugins
@@ -140,3 +141,5 @@ run utils
 new AjaxModalExtensionUtil();
 
 new TimezoneUtil();
+
+new TooltipUtil();

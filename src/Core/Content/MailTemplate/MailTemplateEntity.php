@@ -56,7 +56,7 @@ class MailTemplateEntity extends Entity
     /**
      * @var MailTemplateSalesChannelCollection|null
      */
-    protected $mailTemplateSalesChannels;
+    protected $salesChannels;
 
     /**
      * @var MailTemplateTranslationCollection|null
@@ -138,14 +138,14 @@ class MailTemplateEntity extends Entity
         $this->contentPlain = $contentPlain;
     }
 
-    public function getMailTemplateSalesChannels(): ?MailTemplateSalesChannelCollection
+    public function getSalesChannels(): ?MailTemplateSalesChannelCollection
     {
-        return $this->mailTemplateSalesChannels;
+        return $this->salesChannels;
     }
 
-    public function setMailTemplateSalesChannels(MailTemplateSalesChannelCollection $mailTemplateSalesChannels): void
+    public function setSalesChannels(MailTemplateSalesChannelCollection $salesChannels): void
     {
-        $this->mailTemplateSalesChannels = $mailTemplateSalesChannels;
+        $this->salesChannels = $salesChannels;
     }
 
     public function getTranslations(): ?MailTemplateTranslationCollection

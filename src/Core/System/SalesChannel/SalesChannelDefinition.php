@@ -115,7 +115,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('productVisibilities', ProductVisibilityDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             new ManyToOneAssociationField('mailHeaderFooter', 'mail_header_footer_id', MailHeaderFooterDefinition::class, 'id', false),
             new OneToManyAssociationField('newsletterRecipients', NewsletterRecipientDefinition::class, 'sales_channel_id', 'id'),
-            new OneToManyAssociationField('mailTemplateSalesChannels', MailTemplateSalesChannelDefinition::class, 'sales_channel_id', 'id'),
+            new OneToManyAssociationField('mailTemplates', MailTemplateSalesChannelDefinition::class, 'sales_channel_id', 'id'),
             new OneToManyAssociationField('numberRangeSalesChannels', NumberRangeSalesChannelDefinition::class, 'sales_channel_id'),
             new OneToManyAssociationField('promotionSalesChannels', PromotionSalesChannelDefinition::class, 'sales_channel_id', 'id'),
             new OneToManyAssociationField('documentBaseConfigSalesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'sales_channel_id', 'id'),

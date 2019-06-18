@@ -48,6 +48,12 @@ export default {
             type: Boolean,
             required: false,
             default: null
+        },
+
+        error: {
+            type: Object,
+            required: false,
+            default: null
         }
     },
 
@@ -73,7 +79,7 @@ export default {
         },
 
         hasError() {
-            return this.actualError && this.actualError.code !== 0;
+            return this.error && this.error.code !== 0;
         },
 
         inputState() {

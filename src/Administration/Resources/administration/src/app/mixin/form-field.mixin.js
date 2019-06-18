@@ -2,12 +2,6 @@ import { Mixin } from 'src/core/shopware';
 
 Mixin.register('sw-form-field', {
     props: {
-        errorPointer: {
-            type: String,
-            required: false,
-            default: null
-        },
-
         mapInheritance: {
             type: Object,
             required: false,
@@ -37,14 +31,6 @@ Mixin.register('sw-form-field', {
             }
 
             return null;
-        },
-
-        pointer() {
-            return this.errorPointer || this.boundExpression;
-        },
-
-        actualError() {
-            return this.$store.getters.boundError(this.pointer);
         }
     },
 
@@ -81,19 +67,9 @@ Mixin.register('sw-form-field', {
 
     methods: {
         beforeDestroyComponent() {
-            if (this.pointer) {
-                this.$store.dispatch('deleteFieldError', this.pointer);
-            }
-
             // remove event listener
             this.$off('inheritance-restore');
             this.$off('inheritance-remove');
-        },
-
-        resetFormError() {
-            if (this.actualError && this.actualError.code !== 0 && !!this.pointer) {
-                this.$store.dispatch('resetFormError', this.pointer);
-            }
         },
 
         setFunctionsForEvents(prop, propValue) {

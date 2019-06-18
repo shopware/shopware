@@ -1,8 +1,6 @@
 <sw-base-field class="sw-field--radio"
                :class="classes"
-               v-bind="$attrs"
-               :name="formFieldName"
-               :error="$attrs.error || actualError">
+               v-bind="$attrs">
     <template #sw-field-input="{ identification, helpText, error, disabled }">
         <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
             <div class="sw-field__radio-group">

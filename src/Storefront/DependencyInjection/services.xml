@@ -7,6 +7,13 @@
     <services>
         <defaults autowire="true"/>
 
+        <service id="Shopware\Storefront\Framework\Routing\RequestTransformer"
+                 decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface">
+
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer.inner" />
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
             <argument type="service" id="Shopware\Storefront\Framework\Routing\Router.inner"/>
             <argument type="service" id="request_stack"/>

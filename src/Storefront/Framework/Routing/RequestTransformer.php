@@ -6,13 +6,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Seo\SeoResolver;
 use Symfony\Component\HttpFoundation\Request;
 
-class RequestTransformer
+class RequestTransformer implements RequestTransformerInterface
 {
     public const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
     public const SALES_CHANNEL_ABSOLUTE_BASE_URL = 'sw-sales-channel-absolute-base-url';
@@ -22,6 +23,11 @@ class RequestTransformer
      * @var Connection
      */
     private $connection;
+
+    /**
+     * @var RequestTransformerInterface
+     */
+    private $decorated;
 
     /**
      * @var string[]
@@ -35,15 +41,16 @@ class RequestTransformer
         '/admin/',
     ];
 
-    public function __construct(Connection $connection)
+    public function __construct(RequestTransformerInterface $decorated, Connection $connection)
     {
         $this->connection = $connection;
+        $this->decorated = $decorated;
     }
 
     public function transform(Request $request): Request
     {
         if (!$this->isSalesChannelRequired($request->getPathInfo())) {
-            return $request;
+            return $this->decorated->transform($request);
         }
 
         $salesChannel = $this->findSalesChannel($request);

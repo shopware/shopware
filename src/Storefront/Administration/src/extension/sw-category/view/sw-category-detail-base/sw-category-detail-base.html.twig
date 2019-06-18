@@ -1,0 +1,8 @@
+{% block sw_category_detail_products %}
+    {% parent() %}
+
+    <sw-seo-url v-if="seoUrls.length > 0"
+                :isLoading="isLoading"
+                :urls="seoUrls">
+    </sw-seo-url>
+{% endblock %}

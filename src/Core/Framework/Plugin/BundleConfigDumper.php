@@ -56,7 +56,7 @@ class BundleConfigDumper implements EventSubscriberInterface
         $className = $event->getPlugin()->getBaseClass();
 
         /** @var Plugin $plugin */
-        $plugin = new $className(true);
+        $plugin = new $className(true, $this->kernel->getProjectDir() . '/' . $event->getPlugin()->getPath());
 
         if (!$plugin instanceof Plugin) {
             throw new \RuntimeException(

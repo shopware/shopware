@@ -1,3 +1,4 @@
+import { State } from 'src/core/shopware';
 import ErrorStore from 'src/core/data/error-store.data';
 import { setReactive, deleteReactive } from 'src/app/adapter/view/vue.adapter';
 import utils from 'src/core/service/util.service';
@@ -83,13 +84,21 @@ class VuexErrorStore {
         };
     }
 
+    get $store() {
+        if (typeof this._store === 'object') {
+            return this._store;
+        }
+
+        this._store = State.getStore('vuex');
+        return this._store;
+    }
+
     addApiError(expression, error) {
-        this.mutations.addApiError(this.state, { expression, error });
+        return this.$store.dispatch('addApiError', { expression, error });
     }
 
     addSystemError(error, id = utils.createId()) {
-        this.mutations.addSystemError(this.state, { error, id });
-        return id;
+        return this.$store.dispatch('addSystemError', { error, id });
     }
 }
 

@@ -1,3 +1,4 @@
+import { Mixin } from 'src/core/shopware';
 import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-notification-center.html.twig';
 import './sw-notification-center.scss';
@@ -6,12 +7,17 @@ export default {
     name: 'sw-notification-center',
     template,
 
+    mixins: [
+        Mixin.getByName('notification')
+    ],
+
     data() {
         return {
             additionalContextMenuClasses: {
                 'sw-notification-center__context-container': true
             },
-            showDeleteModal: false
+            showDeleteModal: false,
+            unsubscribeFromStore: null
         };
     },
 
@@ -24,6 +30,16 @@ export default {
             return {
                 'sw-notification-center__context-button--new-available': this.notifications.some(n => !n.visited)
             };
+        }
+    },
+
+    created() {
+        this.unsubscribeFromStore = this.$store.subscribeAction(this.createNotificationFromSystemError);
+    },
+
+    beforeDestroyed() {
+        if (typeof this.unsubscribeFromStore === 'function') {
+            this.unsubscribeFromStore();
         }
     },
 
@@ -44,6 +60,17 @@ export default {
         },
         onCloseDeleteModal() {
             this.showDeleteModal = false;
+        },
+
+        createNotificationFromSystemError({ type, payload }) {
+            if (type !== 'addSystemError') {
+                return;
+            }
+
+            this.createSystemNotificationError({
+                id: payload.id,
+                message: payload.error.detail
+            });
         }
     }
 };

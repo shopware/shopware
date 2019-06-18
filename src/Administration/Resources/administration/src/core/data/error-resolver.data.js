@@ -29,6 +29,7 @@ export default class ErrorResolver {
         }
     }
 
+    /* TODO NEXT-3721 - add support for deletion queue */
     handleDeleteError() { // ({ response }, deletionQueue) {
 
     }
@@ -65,7 +66,7 @@ export default class ErrorResolver {
             this.handleToManyAssociationError(error, fieldName, entity[fieldName], changeset, systemErrors);
             return;
         }
-        systemErrors.push(error);
+
         this.errorStore.addApiError(this.getErrorPath(entity, fieldName), new ShopwareError(error));
     }
 

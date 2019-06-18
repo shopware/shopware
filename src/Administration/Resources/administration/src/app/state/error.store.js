@@ -1,5 +1,6 @@
 import ErrorStore from 'src/core/data/error-store.data';
 import { setReactive, deleteReactive } from 'src/app/adapter/view/vue.adapter';
+import utils from 'src/core/service/util.service';
 
 class VuexErrorStore {
     constructor() {
@@ -23,6 +24,14 @@ class VuexErrorStore {
 
             resetError() { // (state, { expression }) {
                 // TODO refactor with fields.....
+            },
+
+            addSystemError(state, { error, id = utils.createId() }) {
+                ErrorStore.addSystemError(error, id, state, setReactive);
+            },
+
+            removeSystemError(state, { id }) {
+                ErrorStore.removeSystemError(id, state, deleteReactive);
             }
         };
 
@@ -39,6 +48,10 @@ class VuexErrorStore {
                     }
                     return null;
                 }, state.api);
+            },
+
+            getSystemError: (state) => (id) => {
+                return state.system[id] || null;
             }
         };
 
@@ -57,12 +70,26 @@ class VuexErrorStore {
 
             resetFormError({ commit }, expression) {
                 commit('resetError', { expression, type: 'api' });
+            },
+
+            addSystemError({ commit }, { error, id = utils.createId() }) {
+                commit('addSystemError', { error, id });
+                return id;
+            },
+
+            removeSystemError({ commit }, { id }) {
+                commit('removeSystemError', { id });
             }
         };
     }
 
     addApiError(expression, error) {
         this.mutations.addApiError(this.state, { expression, error });
+    }
+
+    addSystemError(error, id = utils.createId()) {
+        this.mutations.addSystemError(this.state, { error, id });
+        return id;
     }
 }
 

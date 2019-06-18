@@ -33,8 +33,10 @@ export default class ErrorResolver {
 
     }
 
-    addSystemErrors() { // (systemErrors) {
-
+    addSystemErrors(systemErrors) {
+        systemErrors.forEach((error) => {
+            this.errorStore.addSystemError(error);
+        });
     }
 
     /**
@@ -63,7 +65,7 @@ export default class ErrorResolver {
             this.handleToManyAssociationError(error, fieldName, entity[fieldName], changeset, systemErrors);
             return;
         }
-
+        systemErrors.push(error);
         this.errorStore.addApiError(this.getErrorPath(entity, fieldName), new ShopwareError(error));
     }
 

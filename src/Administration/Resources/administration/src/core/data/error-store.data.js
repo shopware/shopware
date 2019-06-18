@@ -70,23 +70,40 @@ function removeApiError(expression, state, deleteReactive = null) {
     }
 }
 
+/**
+ * removes all api errors
+ * @param state
+ */
 function resetApiErrors(state) {
     state.api = {};
 }
 
-function addSystemError(error, id, setReactive = Object.defineProperty) {
+/**
+ * stores an system error
+ * @param {ShopwareError} error
+ * @param id
+ * @param state
+ * @param setReactive
+ */
+function addSystemError(error, id, state, setReactive = Object.defineProperty) {
     if (typeof setReactive !== 'function') {
         throw new Error('[ErrorStore] createApiError: setReactive is not a function');
     }
 
-    setReactive(this.errors.system, id, error);
+    setReactive(state.system, id, error);
 }
 
-function removeSystemError(id, deleteReactive = null) {
+/**
+ * removes a system error by a given id
+ * @param id
+ * @param state
+ * @param deleteReactive
+ */
+function removeSystemError(id, state, deleteReactive = null) {
     if (typeof deleteReactive === 'function') {
-        deleteReactive(this.errors.system, id);
+        deleteReactive(state.system, id);
     } else {
-        delete this.errors.api[id];
+        delete state.system[id];
     }
 }
 

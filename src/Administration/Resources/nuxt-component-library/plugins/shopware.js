@@ -1,7 +1,7 @@
 import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
 import VueI18n from 'vue-i18n';
-import enGBMessages from 'src/app/snippets/en-GB.json';
-import DeviceHelper from 'src/core/plugins/device-helper.plugin';
+import enGBMessages from 'src/app/snippet/en-GB.json';
+import DeviceHelper from 'src/app/plugin/device-helper.plugin';
 import ValidationService from 'src/core/service/validation.service';
 
 Vue.use(VueI18n);
@@ -26,7 +26,7 @@ Shopware.Application.$container.factory('service.validationService', () => {
     return ValidationService;
 });
 require('src/app/mixin/index');
-require('src/app/directives/index');
+require('src/app/directive/index');
 require('src/app/filter/index');
 
 function registerBaseComponents(baseComponents, componentFactory) {

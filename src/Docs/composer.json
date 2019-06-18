@@ -12,6 +12,7 @@
         ]
     },
     "require": {
+        "cocur/slugify": "3.2",
         "composer/composer": "1.8.6",
         "erusev/parsedown-extra":"0.7.1",
         "guzzlehttp/guzzle": "6.3.3",

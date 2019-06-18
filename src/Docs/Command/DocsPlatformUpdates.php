@@ -2,7 +2,6 @@
 
 namespace Shopware\Docs\Command;
 
-use Shopware\Docs\Convert\Document;
 use Shopware\Docs\Convert\DocumentTree;
 use Shopware\Docs\Convert\PlatformUpdatesDocument;
 use Symfony\Component\Console\Command\Command;
@@ -14,7 +13,7 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class DocsPlatformUpdates extends Command
 {
-    const TEMPLATE_HEADER = <<<EOD
+    private const TEMPLATE_HEADER = <<<EOD
 [titleEn]: <>(Recent updates)
 [__RAW__]: <>(__RAW__)
 
@@ -26,11 +25,11 @@ class DocsPlatformUpdates extends Command
 
 EOD;
 
-    const TEMPLATE_MONTH = <<<EOD
+    private const TEMPLATE_MONTH = <<<EOD
 <h2>%s</h2>
 
 EOD;
-    const TEMPLATE_HEADLINE = <<<EOD
+    private const TEMPLATE_HEADLINE = <<<EOD
 <h3>%s: %s</h3>
 
 EOD;
@@ -86,11 +85,11 @@ EOD;
 
             $parts = explode('-', $baseName);
 
-            if (count($parts) < 3) {
-                throw new \Exception(sprintf('File %s is invalidly named', $file->getRelativePathname()));
+            if (\count($parts) < 3) {
+                throw new \RuntimeException(sprintf('File %s is invalidly named', $file->getRelativePathname()));
             }
 
-            $date = \DateTimeImmutable::createFromFormat('Y-m-d', implode('-', array_slice($parts, 0, 3)));
+            $date = \DateTimeImmutable::createFromFormat('Y-m-d', implode('-', \array_slice($parts, 0, 3)));
 
             $month = $date->format('Y-m');
 
@@ -103,13 +102,15 @@ EOD;
 
         $rendered = [self::TEMPLATE_HEADER];
         foreach ($filesSorted as $month => $documents) {
-            $rendered[] = sprintf(self::TEMPLATE_MONTH,
+            $rendered[] = sprintf(
+                self::TEMPLATE_MONTH,
                 \DateTimeImmutable::createFromFormat('Y-m', $month)->format('F Y')
             );
 
             /** @var PlatformUpdatesDocument $document */
             foreach ($documents as $document) {
-                $rendered[] = sprintf(self::TEMPLATE_HEADLINE,
+                $rendered[] = sprintf(
+                    self::TEMPLATE_HEADLINE,
                     $document->getDate()->format('Y-m-d'),
                     $document->getMetadata()->getTitleEn()
                 );
@@ -118,11 +119,11 @@ EOD;
             }
         }
 
-        $archivedfile = $this->platformUpdatesPath . '/_archive.md';
+        $archivedFile = $this->platformUpdatesPath . '/_archive.md';
 
-        if (file_exists($archivedfile)) {
+        if (file_exists($archivedFile)) {
             $io->note('Loading archive file');
-            $rendered[] = file_get_contents($archivedfile);
+            $rendered[] = file_get_contents($archivedFile);
         }
 
         $fileContents = implode(PHP_EOL, $rendered);

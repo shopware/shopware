@@ -74,7 +74,8 @@ EOD;
                 self::TEMPLATE_MODULE_PAGE,
                 implode(PHP_EOL, $renderedTags),
                 implode(PHP_EOL, $renderedModules)
-            ));
+            )
+        );
     }
 
     protected function renderCharacteristics(CharacteristicsCollection $characteristics, SymfonyStyle $io): array
@@ -88,11 +89,11 @@ EOD;
             $modulePathName = $tags->getModulePathName();
             [$bundleName, $moduleName] = explode('/', $modulePathName);
 
-            $tagNames = array_map(function (ModuleTag $tag) {
+            $tagNames = array_map(static function (ModuleTag $tag) {
                 return $tag->name();
             }, $tags->getElements());
 
-            $renderedTags = array_map(function (string $tagName) {
+            $renderedTags = array_map(static function (string $tagName) {
                 return sprintf(self::TEMPLATE_MODULE_TAG_ITEM, $tagName);
             }, $tagNames);
 

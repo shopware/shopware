@@ -47,7 +47,7 @@ class ModuleTagCollection extends Collection
 
     public function filterName(string $name): ModuleTagCollection
     {
-        return $this->filter(function (ModuleTag $moduleTag) use ($name) {
+        return $this->filter(static function (ModuleTag $moduleTag) use ($name) {
             return $moduleTag->name() === $name;
         });
     }

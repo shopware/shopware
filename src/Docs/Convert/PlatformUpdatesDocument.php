@@ -11,9 +11,9 @@ class PlatformUpdatesDocument extends Document
      */
     private $date;
 
-    public function __construct(\DateTimeInterface $date, SplFileInfo $file, bool $isCatgory, string $baseUrl)
+    public function __construct(\DateTimeInterface $date, SplFileInfo $file, bool $isCategory, string $baseUrl)
     {
-        parent::__construct($file, $isCatgory, $baseUrl);
+        parent::__construct($file, $isCategory, $baseUrl);
 
         $this->date = $date;
     }

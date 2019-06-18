@@ -6,9 +6,9 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class CharacteristicsCollection extends Collection
 {
-    public function filterTagName(string $tagName)
+    public function filterTagName(string $tagName): array
     {
-        return $this->fmap(function (ModuleTagCollection $collection) use ($tagName) {
+        return $this->fmap(static function (ModuleTagCollection $collection) use ($tagName) {
             $filteredTags = $collection->filterName($tagName);
 
             if ($filteredTags->count() === 0) {

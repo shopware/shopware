@@ -52,7 +52,7 @@ use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlField;
 
 class ErdTypeMap
 {
-    private $fieldTypeMap = [
+    private static $fieldTypeMap = [
         CustomFields::class => 'customFields',
         BlacklistRuleField::class => 'blacklistRule',
         BlobField::class => 'blob',
@@ -103,12 +103,12 @@ class ErdTypeMap
 
     public function map(Field $field): string
     {
-        $fieldClass = get_class($field);
+        $fieldClass = \get_class($field);
 
         if (!isset($this->fieldTypeMap[$fieldClass])) {
             throw new \InvalidArgumentException($fieldClass . ' not found');
         }
 
-        return $this->fieldTypeMap[$fieldClass];
+        return self::$fieldTypeMap[$fieldClass];
     }
 }

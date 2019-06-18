@@ -30,9 +30,7 @@ class ErdDefinition
 
     public function isSpecialType(): bool
     {
-        if ($this->isMapping()
-            || $this->isTranslation()
-        ) {
+        if ($this->isMapping() || $this->isTranslation()) {
             return true;
         }
 
@@ -64,9 +62,9 @@ class ErdDefinition
         $parts = explode('\\', $this->definition->getClass());
 
         if (strpos($this->definition->getClass(), 'Shopware\\Core') === 0) {
-            $moduleName = implode('\\', array_slice($parts, 0, 4));
+            $moduleName = implode('\\', \array_slice($parts, 0, 4));
         } else {
-            $moduleName = implode('\\', array_slice($parts, 0, 2));
+            $moduleName = implode('\\', \array_slice($parts, 0, 2));
         }
 
         return $moduleName;

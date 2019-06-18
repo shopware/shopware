@@ -497,7 +497,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" public="true">
             <argument type="service" id="service_container" />
             <argument type="collection"/>
             <argument type="collection"/>

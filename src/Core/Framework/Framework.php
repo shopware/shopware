@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
@@ -9,6 +11,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompiler
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -71,13 +74,7 @@ class Framework extends Bundle
     {
         parent::boot();
 
-        /** @var ExtensionRegistry $registry */
-        $registry = $this->container->get(ExtensionRegistry::class);
-        foreach ($registry->getExtensions() as $extension) {
-            /** @var string $definition */
-            $definition = $extension->getDefinitionClass();
-            $this->container->get($definition)->addExtension($extension);
-        }
+        $this->registerEntityExtensions();
     }
 
     protected function registerMigrationPath(ContainerBuilder $container): void
@@ -113,5 +110,34 @@ class Framework extends Bundle
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
+    }
+
+    private function registerEntityExtensions(): void
+    {
+        /** @var DefinitionInstanceRegistry $definitionRegistry */
+        $definitionRegistry = $this->container->get(DefinitionInstanceRegistry::class);
+
+        /** @var SalesChannelDefinitionInstanceRegistry $salesChannelRegistry */
+        $salesChannelRegistry = $this->container->get(SalesChannelDefinitionInstanceRegistry::class);
+
+        /** @var ExtensionRegistry $registry */
+        $registry = $this->container->get(ExtensionRegistry::class);
+
+        foreach ($registry->getExtensions() as $extension) {
+            /** @var string $class */
+            $class = $extension->getDefinitionClass();
+
+            /** @var EntityDefinition $definition */
+            $definition = $definitionRegistry->get($class);
+
+            $definition->addExtension($extension);
+
+            $salesChannelDefinition = $salesChannelRegistry->get($class);
+
+            // same definition? do not added extension
+            if (get_class($salesChannelDefinition) !== get_class($definition)) {
+                $salesChannelDefinition->addExtension($extension);
+            }
+        }
     }
 }

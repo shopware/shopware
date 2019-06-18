@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryEndEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryStartEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -43,7 +44,7 @@ class IndexerRegistryTest extends TestCase
     {
         parent::setUp();
 
-        $this->indexer = $this->getContainer()->get(IndexerRegistry::class);
+        $this->indexer = $this->getContainer()->get(IndexerRegistryInterface::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->events = [];
 
@@ -145,14 +146,14 @@ class IndexerRegistryTest extends TestCase
 class TestIndexer implements IndexerInterface
 {
     /**
-     * @var IndexerRegistry
+     * @var IndexerRegistryInterface
      */
     private $indexer;
 
     private $indexCalls = 0;
     private $refreshCalls = 0;
 
-    public function __construct(IndexerRegistry $indexer)
+    public function __construct(IndexerRegistryInterface $indexer)
     {
         $this->indexer = $indexer;
     }

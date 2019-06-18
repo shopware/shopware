@@ -256,14 +256,15 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"
+                 class="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry">
             <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>

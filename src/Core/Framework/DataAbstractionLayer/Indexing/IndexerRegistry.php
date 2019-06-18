@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class IndexerRegistry implements EventSubscriberInterface
+class IndexerRegistry implements EventSubscriberInterface, IndexerRegistryInterface
 {
     /**
      * 0    => Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer

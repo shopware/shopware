@@ -60,9 +60,7 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
             return false;
         }
 
-        router.push({ path }, () => {
-            state.buffer = [];
-        });
+        router.push({ path });
 
         return true;
     }

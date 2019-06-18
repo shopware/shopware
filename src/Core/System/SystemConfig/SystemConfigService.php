@@ -49,6 +49,7 @@ class SystemConfigService
         $criteria->addFilter(new EqualsFilter('configurationKey', $key));
         $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::ASCENDING));
 
+        /** @var SystemConfigEntity|null $last */
         $last = $this->systemConfigRepository
             ->search($criteria, Context::createDefaultContext())
             ->last();
@@ -92,6 +93,7 @@ class SystemConfigService
         }
 
         $criteria = new Criteria($ids);
+        /** @var SystemConfigCollection $collection */
         $collection = $this->systemConfigRepository
             ->search($criteria, Context::createDefaultContext())
             ->getEntities();

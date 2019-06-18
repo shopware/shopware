@@ -1,0 +1,173 @@
+{% block sw_shortcut_overview %}
+    <div class="sw-shortcut-overview">
+        <sw-icon name="default-device-keyboard"
+                 size="24px"
+                 v-tooltip.left="tooltipOpenModal"
+                 @click="onOpenShortcutOverviewModal">
+        </sw-icon>
+
+        {% block sw_shortcut_overview_modal %}
+            <sw-modal v-if="showShortcutOverviewModal"
+                      class="sw-shortcut-overview--modal"
+                      @modal-close="onCloseShortcutOverviewModal"
+                      :title="$tc(`sw-shortcut-overview.modalTitle`)"
+                      variant="small">
+                <h3>{{ $tc(`sw-shortcut-overview.sectionAddingItems`) }}</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{ $tc(`sw-shortcut-overview.function`) }}</th>
+                            <th>{{ $tc(`sw-shortcut-overview.keyboardShortcut`) }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionAddProduct`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutAddProduct`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionAddCategory`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutAddCategory`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionAddShoppingExperienceLayout`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutAddShoppingExperienceLayout`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionAddCustomer`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutAddCustomer`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionAddProperties`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutAddProperties`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionAddManufacturer`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutAddManufacturer`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionAddRule`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutAddRule`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionAddSaleschannel`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutAddSaleschannel`) }}</kbd></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>{{ $tc(`sw-shortcut-overview.sectionNavigation`) }}</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{ $tc(`sw-shortcut-overview.function`) }}</th>
+                            <th>{{ $tc(`sw-shortcut-overview.keyboardShortcut`) }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToDashboard`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToDashboard`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToProducts`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToProducts`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToCategories`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToCategories`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToDynamicProductGroups`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToDynamicProductGroups`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToProperties`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToProperties`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToManufacturers`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToManufacturers`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToOrders`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToOrders`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToCustomers`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToCustomers`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToShoppingExperience`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToShoppingExperience`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToMedia`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToMedia`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToPromotion`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToPromotion`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToNewsletterRecipients`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToNewsletterRecipients`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToSettingsListing`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToSettingsListing`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToSnippets`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToSnippets`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToPayment`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToPayment`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToShipping`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToShipping`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToRuleBuilder`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToRuleBuilder`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionGoToPlugins`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutGoToPlugins`) }}</kbd></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>{{ $tc(`sw-shortcut-overview.sectionNavigation`) }}</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{ $tc(`sw-shortcut-overview.function`) }}</th>
+                            <th>{{ $tc(`sw-shortcut-overview.keyboardShortcut`) }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutFocusSearch`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutFocusSearch`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutShortcutListing`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutShortcutListing`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutSaveDetailView`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailView`) }}</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutCancelDetailView`) }}</td>
+                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutCancelDetailView`) }}</kbd></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </sw-modal>
+        {% endblock %}
+    </div>
+{% endblock %}

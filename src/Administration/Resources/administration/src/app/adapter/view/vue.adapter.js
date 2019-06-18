@@ -291,6 +291,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         const i18n = new VueI18n({
             locale: store.state.adminLocale.currentLocale,
             fallbackLocale: store.state.adminLocale.fallbackLocale,
+            silentFallbackWarn: true,
+            sync: true,
             messages
         });
 

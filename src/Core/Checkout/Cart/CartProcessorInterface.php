@@ -10,7 +10,7 @@ interface CartProcessorInterface
     public function process(
         StructCollection $data,
         Cart $original,
-        Cart $calculated,
+        Cart $toCalculate,
         SalesChannelContext $context,
         CartBehavior $behavior
     ): void;

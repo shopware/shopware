@@ -54,7 +54,7 @@ class ShippingMethodValidatorTest extends TestCase
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery]));
         $context->expects(static::once())->method('getRuleIds')->willReturn(['1']);
 
-        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
+        $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 
@@ -83,7 +83,7 @@ class ShippingMethodValidatorTest extends TestCase
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery]));
         $context->expects(static::once())->method('getRuleIds')->willReturn(['1']);
 
-        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
+        $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 
@@ -114,7 +114,7 @@ class ShippingMethodValidatorTest extends TestCase
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery]));
         $context->expects(static::once())->method('getRuleIds')->willReturn(['1']);
 
-        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
+        $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 
@@ -145,7 +145,7 @@ class ShippingMethodValidatorTest extends TestCase
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery]));
         $context->expects(static::once())->method('getRuleIds')->willReturn(['2']);
 
-        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
+        $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 
@@ -185,7 +185,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery, $delivery2]));
 
-        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
+        $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 
@@ -231,7 +231,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery, $delivery2]));
 
-        $validator = new \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator();
+        $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
         $validator->validate($cart, $errors, $context);
 

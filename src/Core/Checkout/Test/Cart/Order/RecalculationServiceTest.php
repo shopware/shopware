@@ -6,7 +6,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -15,9 +19,11 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
@@ -30,8 +36,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
+use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ExtensionHelper;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -81,6 +89,95 @@ class RecalculationServiceTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
+    }
+
+    public function testPersistOrderAndConvertToCart(): void
+    {
+        $cart = $this->generateDemoCart();
+
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+
+        $cart = $this->addProduct($cart, $id1);
+        $cart = $this->addProduct($cart, $id2);
+
+        $product1 = $cart->get($id1);
+        $product2 = $cart->get($id2);
+
+        $product1->getChildren()->add($product2);
+        $cart->remove($id2);
+
+        $cart = $this->getContainer()->get(Processor::class)
+            ->process($cart, $this->salesChannelContext, new CartBehavior());
+
+        $orderId = $this->persistCart($cart)['orderId'];
+
+        $deliveryCriteria = new Criteria();
+        $deliveryCriteria->addAssociation('positions');
+
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('transactions')
+            ->addAssociationPath('deliveries.shippingMethod')
+            ->addAssociationPath('deliveries.positions.orderLineItem')
+            ->addAssociationPath('deliveries.shippingOrderAddress.country')
+            ->addAssociationPath('deliveries.shippingOrderAddress.countryState');
+
+        $order = $this->getContainer()->get('order.repository')
+            ->search($criteria, $this->context)
+            ->get($orderId);
+
+        $convertedCart = $this->getContainer()->get(OrderConverter::class)
+            ->convertToCart($order, $this->context);
+
+        // check name and token
+        static::assertEquals(OrderConverter::CART_TYPE, $convertedCart->getName());
+        static::assertNotEquals($cart->getToken(), $convertedCart->getToken());
+        static::assertTrue(Uuid::isValid($convertedCart->getToken()));
+
+        // set name and token to be equal for further comparison
+        $cart->setName($convertedCart->getName());
+        $cart->setToken($convertedCart->getToken());
+
+        // transactions are currently not supported so they are excluded for comparison
+        $cart->setTransactions(new TransactionCollection());
+
+        // remove all extensions for comparision
+        $extensionHelper = new ExtensionHelper();
+        $extensionHelper->removeExtensions($convertedCart);
+        $extensionHelper->removeExtensions($cart);
+
+        // remove delivery information from line items
+
+        /** @var Delivery $delivery */
+        foreach ($cart->getDeliveries() as $delivery) {
+            // remove address from ShippingLocation
+            $property = ReflectionHelper::getProperty(ShippingLocation::class, 'address');
+            $property->setValue($delivery->getLocation(), null);
+
+            /** @var DeliveryPosition $position */
+            foreach ($delivery->getPositions() as $position) {
+                $position->getLineItem()->setDeliveryInformation(null);
+                $position->getLineItem()->setQuantityInformation(null);
+
+                foreach ($position->getLineItem()->getChildren() as $lineItem) {
+                    $lineItem->setDeliveryInformation(null);
+                    $lineItem->setQuantityInformation(null);
+                }
+            }
+
+            $delivery->getShippingMethod()->setPrices(new ShippingMethodPriceCollection());
+        }
+
+        /** @var LineItem $lineItem */
+        foreach ($cart->getLineItems()->getFlat() as $lineItem) {
+            $lineItem->setDeliveryInformation(null);
+            $lineItem->setQuantityInformation(null);
+        }
+
+        $cart->setData(new StructCollection());
+
+        static::assertEquals($cart, $convertedCart);
     }
 
     public function testRecalculationController(): void

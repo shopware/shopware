@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\Struct\QuantityInformation;
+use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -51,7 +51,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             ->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
 
         // find products in original cart which requires data from gateway
-        $ids = $this->getNotSatisfied($data, $lineItems);
+        $ids = $this->getNotCompleted($data, $lineItems);
 
         if (!empty($ids)) {
             // fetch missing data over gateway
@@ -107,7 +107,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         // already enriched and not modified? Skip
-        if ($this->isSatisfied($lineItem) && !$lineItem->isModified()) {
+        if ($this->isComplete($lineItem) && !$lineItem->isModified()) {
             return;
         }
 
@@ -129,7 +129,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         );
 
         // check if the price has to be updated
-        if (!$this->isPriceSatisfied($lineItem, $behavior)) {
+        if (!$this->isPriceComplete($lineItem, $behavior)) {
             $prices = $this->priceDefinitionBuilder->build($product, $context, $lineItem->getQuantity());
 
             $lineItem->setPriceDefinition($prices->getQuantityPrice());
@@ -159,7 +159,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         ]);
     }
 
-    private function getNotSatisfied(StructCollection $data, array $lineItems): array
+    private function getNotCompleted(StructCollection $data, array $lineItems): array
     {
         $ids = [];
 
@@ -181,7 +181,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
 
             // already enriched?
-            if ($this->isSatisfied($lineItem)) {
+            if ($this->isComplete($lineItem)) {
                 continue;
             }
 
@@ -191,7 +191,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         return $ids;
     }
 
-    private function isSatisfied(LineItem $lineItem): bool
+    private function isComplete(LineItem $lineItem): bool
     {
         return $lineItem->getPriceDefinition() !== null
             && $lineItem->getLabel() !== null
@@ -201,7 +201,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             && $lineItem->getQuantityInformation() !== null;
     }
 
-    private function isPriceSatisfied(LineItem $lineItem, CartBehavior $behavior): bool
+    private function isPriceComplete(LineItem $lineItem, CartBehavior $behavior): bool
     {
         //always update prices for live checkout
         if (!$behavior->isRecalculation()) {

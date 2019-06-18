@@ -436,7 +436,7 @@ class LineItem extends Struct
         return $this->quantityInformation;
     }
 
-    public function setQuantityInformation(QuantityInformation $quantityInformation): LineItem
+    public function setQuantityInformation(?QuantityInformation $quantityInformation): LineItem
     {
         $this->quantityInformation = $quantityInformation;
 

@@ -126,7 +126,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator"/>
             <argument type="service" id="shipping_method.repository"/>
             <tag name="shopware.cart.processor" priority="-5000" />
-            <tag name="shopware.cart.enrichment" priority="-5000" />
+            <tag name="shopware.cart.collector" priority="-5000" />
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator">
@@ -147,12 +147,12 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
             <argument type="tagged" tag="shopware.cart.processor"/>
-            <argument type="tagged" tag="shopware.cart.enrichment"/>
+            <argument type="tagged" tag="shopware.cart.collector"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductCartProcessor">
             <tag name="shopware.cart.processor" priority="5000" />
-            <tag name="shopware.cart.enrichment" priority="5000" />
+            <tag name="shopware.cart.collector" priority="5000" />
 
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>

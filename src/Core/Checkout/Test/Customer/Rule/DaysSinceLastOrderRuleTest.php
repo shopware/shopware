@@ -10,13 +10,13 @@ use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -60,7 +60,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
-        } catch (WriteStackException $stackException) {
+        } catch (WriteException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
@@ -87,7 +87,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
-        } catch (WriteStackException $stackException) {
+        } catch (WriteException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
@@ -114,7 +114,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
-        } catch (WriteStackException $stackException) {
+        } catch (WriteException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
@@ -140,7 +140,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
-        } catch (WriteStackException $stackException) {
+        } catch (WriteException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {

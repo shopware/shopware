@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException;
 
-class ExpectedArrayException extends WriteFieldException
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
+
+class ExpectedArrayException extends ShopwareHttpException implements WriteFieldException
 {
     /**
      * @var string
@@ -16,18 +19,18 @@ class ExpectedArrayException extends WriteFieldException
         $this->path = $path;
     }
 
+    public function getErrorCode(): string
+    {
+        return 'FRAMEWORK__WRITE_MALFORMED_INPUT';
+    }
+
     public function getPath(): string
     {
         return $this->path;
     }
 
-    public function getConcern(): string
+    public function getStatusCode(): int
     {
-        return 'data-malformat';
-    }
-
-    public function toArray(): array
-    {
-        return [$this->getMessage()];
+        return Response::HTTP_BAD_REQUEST;
     }
 }

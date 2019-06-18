@@ -8,9 +8,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\LockValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Validation\TestDefinition\TestDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -148,7 +148,7 @@ EOF;
         try {
             $data = ['id' => $data['id'], 'description' => 'bar'];
             $this->entityWriter->update($this->testDefinition, [$data], $this->getWriteContext());
-        } catch (WriteStackException $exception) {
+        } catch (WriteException $exception) {
         }
 
         $this->assertLockException($exception);
@@ -166,7 +166,7 @@ EOF;
         try {
             $data = ['id' => $data['id']];
             $this->entityWriter->delete($this->testDefinition, [$data], $this->getWriteContext());
-        } catch (WriteStackException $exception) {
+        } catch (WriteException $exception) {
         }
 
         $this->assertLockException($exception);
@@ -184,7 +184,7 @@ EOF;
         try {
             $data = ['id' => $data['id'], 'name' => 'ware'];
             $this->entityWriter->update($this->testDefinition, [$data], $this->getWriteContext());
-        } catch (WriteStackException $exception) {
+        } catch (WriteException $exception) {
         }
 
         $this->assertLockException($exception);
@@ -197,7 +197,7 @@ EOF;
 
     private function assertLockException(\Exception $exception): void
     {
-        static::assertInstanceOf(WriteStackException::class, $exception);
+        static::assertInstanceOf(WriteException::class, $exception);
 
         static::assertCount(1, $exception->getExceptions());
 

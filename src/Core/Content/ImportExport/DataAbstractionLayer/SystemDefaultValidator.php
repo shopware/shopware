@@ -7,12 +7,10 @@ use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Validation\ConstraintViolationExceptionInterface;
-use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class SystemDefaultValidator implements WriteCommandValidatorInterface
+class SystemDefaultValidator implements EventSubscriberInterface
 {
     /**
      * @var Connection
@@ -24,14 +22,21 @@ class SystemDefaultValidator implements WriteCommandValidatorInterface
         $this->connection = $connection;
     }
 
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            PreWriteValidationEvent::class => 'preValidate',
+        ];
+    }
+
     /**
-     * @param WriteCommandInterface[] $writeCommands
-     *
      * @throws DeleteDefaultProfileException
      */
-    public function preValidate(array $writeCommands, WriteContext $context): void
+    public function preValidate(PreWriteValidationEvent $event): void
     {
         $ids = [];
+        $writeCommands = $event->getCommands();
+
         foreach ($writeCommands as $command) {
             if ($command->getDefinition()->getClass() === ImportExportProfileDefinition::class
                 && $command instanceof DeleteCommand
@@ -42,18 +47,8 @@ class SystemDefaultValidator implements WriteCommandValidatorInterface
 
         $filteredIds = $this->filterSystemDefaults($ids);
         if (!empty($filteredIds)) {
-            throw new DeleteDefaultProfileException($filteredIds);
+            $event->getExceptions()->add(new DeleteDefaultProfileException($filteredIds));
         }
-    }
-
-    /**
-     * @param WriteCommandInterface[] $writeCommands
-     *
-     * @throws ConstraintViolationExceptionInterface
-     */
-    public function postValidate(array $writeCommands, WriteContext $context): void
-    {
-        // Nothing
     }
 
     private function filterSystemDefaults(array $ids): array

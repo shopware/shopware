@@ -12,40 +12,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\ItemNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidJsonFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\UnexpectedFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class JsonFieldSerializer implements FieldSerializerInterface
+class JsonFieldSerializer extends AbstractFieldSerializer
 {
-    use FieldValidatorTrait;
-
     /**
      * @var DefinitionInstanceRegistry
      */
     protected $fieldHandlerRegistry;
 
-    /**
-     * @var ConstraintBuilder
-     */
-    protected $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
-        ConstraintBuilder $constraintBuilder,
         ValidatorInterface $validator
     ) {
+        parent::__construct($validator);
+
         $this->fieldHandlerRegistry = $definitionRegistry;
-        $this->constraintBuilder = $constraintBuilder;
-        $this->validator = $validator;
     }
 
     /**
@@ -65,16 +52,10 @@ class JsonFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof JsonField) {
             throw new InvalidSerializerFieldException(JsonField::class, $field);
         }
-        $value = $data->getValue();
 
-        /** @var JsonField $field */
-        if ($this->requiresValidation($field, $existence, $value, $parameters)) {
-            $constraints = $this->getConstraints($parameters);
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-            $this->validate($this->validator, $constraints, $data->getKey(), $value, $parameters->getPath());
-        } elseif ($value === null) {
-            $value = $field->getDefault();
-        }
+        $value = $data->getValue() ?? $field->getDefault();
 
         if ($value !== null && !empty($field->getPropertyMapping())) {
             $value = $this->validateMapping($field, $value, $parameters);
@@ -124,12 +105,12 @@ class JsonFieldSerializer implements FieldSerializerInterface
         return $decoded;
     }
 
-    protected function getConstraints(WriteParameterBag $parameters): array
+    protected function getConstraints(Field $field): array
     {
-        return $this->constraintBuilder
-            ->isArray()
-            ->isNotNull()
-            ->getConstraints();
+        return [
+            new Type('array'),
+            new NotNull(),
+        ];
     }
 
     protected function validateMapping(
@@ -141,7 +122,6 @@ class JsonFieldSerializer implements FieldSerializerInterface
             unset($data['_class']);
         }
 
-        $exceptions = [];
         $stack = new DataStack($data);
         $existence = new EntityExistence(null, [], false, false, false, []);
         $fieldPath = $parameters->getPath() . '/' . $field->getPropertyName();
@@ -155,7 +135,9 @@ class JsonFieldSerializer implements FieldSerializerInterface
         $keyDiff = array_diff(array_keys($data), $propertyKeys);
         if (\count($keyDiff)) {
             foreach ($keyDiff as $fieldName) {
-                $exceptions[] = new UnexpectedFieldException($fieldPath . '/' . $fieldName, $fieldName);
+                $parameters->getContext()->getExceptions()->add(
+                    new UnexpectedFieldException($fieldPath . '/' . $fieldName, $fieldName)
+                );
             }
         }
 
@@ -178,8 +160,7 @@ class JsonFieldSerializer implements FieldSerializerInterface
                 $parameters->getDefinition(),
                 $parameters->getContext(),
                 $parameters->getPath() . '/' . $field->getPropertyName(),
-                $parameters->getCommandQueue(),
-                $parameters->getExceptionStack()
+                $parameters->getCommandQueue()
             );
 
             /*
@@ -202,15 +183,9 @@ class JsonFieldSerializer implements FieldSerializerInterface
 
                     $stack->update($fieldKey, $fieldValue);
                 }
-            } catch (InvalidFieldException $exception) {
-                $exceptions[] = $exception;
-            } catch (InvalidJsonFieldException $exception) {
-                $exceptions = array_merge($exceptions, $exception->getExceptions());
+            } catch (WriteFieldException $exception) {
+                $parameters->getContext()->getExceptions()->add($exception);
             }
-        }
-
-        if (\count($exceptions)) {
-            throw new InvalidJsonFieldException($parameters->getPath() . '/' . $field->getPropertyName(), $exceptions);
         }
 
         return $stack->getResultAsArray();

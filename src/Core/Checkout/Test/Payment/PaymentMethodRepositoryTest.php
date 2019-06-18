@@ -12,9 +12,10 @@ use Shopware\Core\Checkout\Test\Payment\Handler\AsyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class PaymentMethodRepositoryTest extends TestCase
 {
@@ -192,9 +193,11 @@ class PaymentMethodRepositoryTest extends TestCase
             $this->paymentRepository->create($paymentMethod, $defaultContext);
 
             static::fail('The name should always be required!');
-        } catch (WriteStackException $e) {
-            static::assertStringContainsString('[propertyPath] => name', $e->getMessage());
-            static::assertStringContainsString('[message] => This value should not be blank.', $e->getMessage());
+        } catch (WriteException $e) {
+            /** @var WriteConstraintViolationException $constraintViolation */
+            $constraintViolation = $e->getExceptions()[0];
+            static::assertInstanceOf(WriteConstraintViolationException::class, $constraintViolation);
+            static::assertEquals('name', $constraintViolation->getViolations()[0]->getPropertyPath());
         }
     }
 

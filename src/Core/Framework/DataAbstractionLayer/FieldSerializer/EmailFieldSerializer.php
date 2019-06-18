@@ -7,30 +7,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints\Email;
 
-class EmailFieldSerializer implements FieldSerializerInterface
+class EmailFieldSerializer extends AbstractFieldSerializer
 {
-    use FieldValidatorTrait;
-
-    /**
-     * @var ConstraintBuilder
-     */
-    protected $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
-    public function __construct(ConstraintBuilder $constraintBuilder, ValidatorInterface $validator)
-    {
-        $this->constraintBuilder = $constraintBuilder;
-        $this->validator = $validator;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -41,22 +22,18 @@ class EmailFieldSerializer implements FieldSerializerInterface
             throw new InvalidSerializerFieldException(EmailField::class, $field);
         }
 
-        $value = $data->getValue();
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-        /** @var EmailField $field */
-        if ($this->requiresValidation($field, $existence, $value, $parameters)) {
-            $constraints = $this->constraintBuilder
-                ->isEmail()
-                ->getConstraints();
-
-            $this->validate($this->validator, $constraints, $data->getKey(), $value, $parameters->getPath());
-        }
-
-        yield $field->getStorageName() => $value;
+        yield $field->getStorageName() => $data->getValue();
     }
 
     public function decode(Field $field, $value)
     {
         return $value;
+    }
+
+    protected function getConstraints(Field $field): array
+    {
+        return [new Email()];
     }
 }

@@ -5,19 +5,18 @@ namespace Shopware\Core\Content\Rule;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class RuleValidator implements WriteCommandValidatorInterface
+class RuleValidator implements EventSubscriberInterface
 {
     /**
      * @var ValidatorInterface
@@ -35,12 +34,18 @@ class RuleValidator implements WriteCommandValidatorInterface
         $this->ruleConditionRegistry = $ruleConditionRegistry;
     }
 
-    /**
-     * @param WriteCommandInterface[] $commands
-     */
-    public function preValidate(array $commands, WriteContext $context): void
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            PreWriteValidationEvent::class => 'preValidate',
+        ];
+    }
+
+    public function preValidate(PreWriteValidationEvent $event): void
     {
         $violationList = new ConstraintViolationList();
+        $commands = $event->getCommands();
+
         foreach ($commands as $command) {
             if (!($command instanceof InsertCommand || $command instanceof UpdateCommand) || $command->getDefinition()->getClass() !== RuleConditionDefinition::class) {
                 continue;
@@ -75,18 +80,8 @@ class RuleValidator implements WriteCommandValidatorInterface
             $violationList->addAll($this->validateConsistence($basePath, $validations, $this->extractValue($payload)));
         }
 
-        $this->tryToThrow($violationList);
-    }
-
-    public function postValidate(array $writeCommands, WriteContext $context): void
-    {
-        // nth
-    }
-
-    private function tryToThrow(ConstraintViolationList $violations): void
-    {
-        if ($violations->count() > 0) {
-            throw new WriteConstraintViolationException($violations);
+        if ($violationList->count() > 0) {
+            $event->getExceptions()->add(new WriteConstraintViolationException($violationList));
         }
     }
 
@@ -105,9 +100,7 @@ class RuleValidator implements WriteCommandValidatorInterface
             return [];
         }
 
-        $ret = json_decode($payload['value'], true);
-
-        return $ret;
+        return json_decode($payload['value'], true);
     }
 
     private function buildViolation(

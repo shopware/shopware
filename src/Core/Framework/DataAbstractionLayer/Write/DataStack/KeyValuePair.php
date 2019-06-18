@@ -40,4 +40,10 @@ class KeyValuePair
     {
         return $this->isRaw;
     }
+
+    public function setValue($value): void
+    {
+        $this->isRaw = false;
+        $this->value = $value;
+    }
 }

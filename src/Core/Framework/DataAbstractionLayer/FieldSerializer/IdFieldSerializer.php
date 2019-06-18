@@ -10,8 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\Constraint\Uuid as UuidConstraint;
 
-class IdFieldSerializer implements FieldSerializerInterface
+class IdFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(
         Field $field,
@@ -22,14 +23,16 @@ class IdFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof IdField) {
             throw new InvalidSerializerFieldException(IdField::class, $field);
         }
+
         $value = $data->getValue();
-        if (!$value) {
+        if ($value) {
+            $this->validate([new UuidConstraint()], $data, $parameters->getPath());
+        } else {
             $value = Uuid::randomHex();
         }
 
         $parameters->getContext()->set($parameters->getDefinition()->getClass(), $data->getKey(), $value);
 
-        /* @var IdField $field */
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 

@@ -8,14 +8,14 @@ use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class PromotionValidator implements WriteCommandValidatorInterface
+class PromotionValidator implements EventSubscriberInterface
 {
     /**
      * this is the min value for all types
@@ -29,20 +29,25 @@ class PromotionValidator implements WriteCommandValidatorInterface
      */
     private const DISCOUNT_PERCENTAGE_MAX_VALUE = 100.0;
 
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            PreWriteValidationEvent::class => 'preValidate',
+        ];
+    }
+
     /**
      * This function validates our incoming delta-values for promotions
      * and its aggregation. It does only check for business relevant rules and logic.
      * All primitive "required" constraints are done inside the definition of the entity.
      *
-     * @param array        $writeCommands all incoming commands
-     * @param WriteContext $context       the current writing context
      *
      * @throws WriteConstraintViolationException
-     * @throws \Exception
      */
-    public function preValidate(array $writeCommands, WriteContext $context): void
+    public function preValidate(PreWriteValidationEvent $event): void
     {
         $violationList = new ConstraintViolationList();
+        $writeCommands = $event->getCommands();
 
         /** @var WriteCommandInterface $command */
         foreach ($writeCommands as $command) {
@@ -62,20 +67,8 @@ class PromotionValidator implements WriteCommandValidatorInterface
         }
 
         if ($violationList->count() > 0) {
-            throw new WriteConstraintViolationException($violationList);
+            $event->getExceptions()->add(new WriteConstraintViolationException($violationList));
         }
-    }
-
-    /**
-     * This validation is being done after the entity has been
-     * written, but before the transaction is being committed.
-     *
-     * @param array        $writeCommands all incoming commands
-     * @param WriteContext $context       the current writing context
-     */
-    public function postValidate(array $writeCommands, WriteContext $context): void
-    {
-        // not used here
     }
 
     /**
@@ -87,7 +80,7 @@ class PromotionValidator implements WriteCommandValidatorInterface
      *
      * @throws \Exception
      */
-    private function validatePromotion(array $payload, ConstraintViolationList $violationList)
+    private function validatePromotion(array $payload, ConstraintViolationList $violationList): void
     {
         /** @var bool|null $useCodes */
         $useCodes = $this->getValue($payload, 'use_codes', null);
@@ -136,7 +129,7 @@ class PromotionValidator implements WriteCommandValidatorInterface
      * @param array                   $payload       the incoming delta-data
      * @param ConstraintViolationList $violationList the list of violations that needs to be filled
      */
-    private function validateDiscount(array $payload, ConstraintViolationList $violationList)
+    private function validateDiscount(array $payload, ConstraintViolationList $violationList): void
     {
         /** @var string $type */
         $type = $this->getValue($payload, 'type', '');

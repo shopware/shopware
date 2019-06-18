@@ -8,30 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Range;
+use Symfony\Component\Validator\Constraints\Type;
 
-class IntFieldSerializer implements FieldSerializerInterface
+class IntFieldSerializer extends AbstractFieldSerializer
 {
-    use FieldValidatorTrait;
-
-    /**
-     * @var ConstraintBuilder
-     */
-    protected $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
-    public function __construct(ConstraintBuilder $constraintBuilder, ValidatorInterface $validator)
-    {
-        $this->constraintBuilder = $constraintBuilder;
-        $this->validator = $validator;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -41,30 +24,40 @@ class IntFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof IntField) {
             throw new InvalidSerializerFieldException(IntField::class, $field);
         }
-        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
-            $constraintBuilder = $this->constraintBuilder
-                ->isInt()
-                ->isNotBlank();
 
-            if ($field->getMinValue() !== null) {
-                $constraintBuilder->isGreaterThanOrEqual($field->getMinValue());
-            }
+        $constraints = [
+            new Type('int'),
+            new NotBlank(),
+        ];
 
-            if ($field->getMaxValue() !== null) {
-                $constraintBuilder->isLessThanOrEqual($field->getMaxValue());
-            }
-
-            $constraints = $constraintBuilder->getConstraints();
-
-            $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());
+        if ($field->getMinValue() !== null || $field->getMaxValue() !== null) {
+            $constraints[] = new Range(['min' => $field->getMinValue(), 'max' => $field->getMaxValue()]);
         }
 
-        /* @var IntField $field */
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
+
         yield $field->getStorageName() => $data->getValue();
     }
 
     public function decode(Field $field, $value): ?int
     {
         return $value === null ? null : (int) $value;
+    }
+
+    /**
+     * @param IntField $field
+     */
+    protected function getConstraints(Field $field): array
+    {
+        $constraints = [
+            new Type('int'),
+            new NotBlank(),
+        ];
+
+        if ($field->getMinValue() !== null || $field->getMaxValue() !== null) {
+            $constraints[] = new Range(['min' => $field->getMinValue(), 'max' => $field->getMaxValue()]);
+        }
+
+        return $constraints;
     }
 }

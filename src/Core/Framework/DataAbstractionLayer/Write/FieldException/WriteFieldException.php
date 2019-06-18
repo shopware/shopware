@@ -2,18 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException;
 
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\ShopwareException;
 
-abstract class WriteFieldException extends ShopwareHttpException
+interface WriteFieldException extends ShopwareException
 {
-    abstract public function getPath(): string;
-
-    abstract public function getConcern(): string;
-
-    abstract public function toArray(): array;
-
-    public function getErrorCode(): string
-    {
-        return 'FRAMEWORK__WRITE_FIELD_ERROR';
-    }
+    public function getPath(): string;
 }

@@ -24,7 +24,7 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
 
         unset($value['extensions']);
 
-        $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
+        $data->setValue($value);
 
         yield from parent::encode($field, $existence, $data, $parameters);
     }

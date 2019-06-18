@@ -9,30 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints\Type;
 
-class DateFieldSerializer implements FieldSerializerInterface
+class DateFieldSerializer extends AbstractFieldSerializer
 {
-    use FieldValidatorTrait;
-
-    /**
-     * @var ConstraintBuilder
-     */
-    protected $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
-    public function __construct(ConstraintBuilder $constraintBuilder, ValidatorInterface $validator)
-    {
-        $this->constraintBuilder = $constraintBuilder;
-        $this->validator = $validator;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -53,14 +34,8 @@ class DateFieldSerializer implements FieldSerializerInterface
             $value = new \DateTimeImmutable($value['date']);
         }
 
-        /** @var DateField $field */
-        if ($this->requiresValidation($field, $existence, $value, $parameters)) {
-            $constraints = $this->constraintBuilder
-                ->isDate()
-                ->getConstraints();
-
-            $this->validate($this->validator, $constraints, $data->getKey(), $value, $parameters->getPath());
-        }
+        $data->setValue($value);
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         if ($value === null) {
             yield $field->getStorageName() => null;
@@ -74,5 +49,10 @@ class DateFieldSerializer implements FieldSerializerInterface
     public function decode(Field $field, $value): ?\DateTimeInterface
     {
         return $value === null ? null : new \DateTimeImmutable($value);
+    }
+
+    protected function getConstraints(Field $field): array
+    {
+        return [new Type(\DateTimeInterface::class)];
     }
 }

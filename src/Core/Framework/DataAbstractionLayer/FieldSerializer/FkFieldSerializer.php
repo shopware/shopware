@@ -6,29 +6,15 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class FkFieldSerializer implements FieldSerializerInterface
+class FkFieldSerializer extends AbstractFieldSerializer
 {
-    use FieldValidatorTrait;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
-    public function __construct(ValidatorInterface $validator)
-    {
-        $this->validator = $validator;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -45,13 +31,7 @@ class FkFieldSerializer implements FieldSerializerInterface
             try {
                 $value = $parameters->getContext()->get($field->getReferenceDefinition()->getClass(), $field->getReferenceField());
             } catch (\InvalidArgumentException $exception) {
-                $this->validate(
-                    $this->validator,
-                    $this->getConstraints($field, $existence),
-                    $data->getKey(),
-                    $value,
-                    $parameters->getPath()
-                );
+                $this->validate($this->getConstraints($field), $data, $parameters->getPath());
             }
         }
 
@@ -78,16 +58,8 @@ class FkFieldSerializer implements FieldSerializerInterface
         return $data->isRaw() && $data->getValue() === null && $field->is(Required::class);
     }
 
-    protected function getConstraints(FkField $field, EntityExistence $existence): array
+    protected function getConstraints(Field $field): array
     {
-        if ($field->is(Inherited::class) && $existence->isChild()) {
-            return [];
-        }
-
-        if ($field->is(Required::class)) {
-            return [new NotBlank()];
-        }
-
-        return [];
+        return [new NotBlank()];
     }
 }

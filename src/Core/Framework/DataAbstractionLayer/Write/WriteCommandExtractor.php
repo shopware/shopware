@@ -22,9 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\ItemNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InsufficientWritePermissionException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidJsonFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -133,12 +132,8 @@ class WriteCommandExtractor
                 foreach ($values as $fieldKey => $fieldValue) {
                     $stack->update($fieldKey, $fieldValue);
                 }
-            } catch (InvalidJsonFieldException $e) {
-                foreach ($e->getExceptions() as $exception) {
-                    $parameters->getExceptionStack()->add($exception);
-                }
             } catch (WriteFieldException $e) {
-                $parameters->getExceptionStack()->add($e);
+                $parameters->getContext()->getExceptions()->add($e);
             }
         }
 
@@ -361,6 +356,8 @@ class WriteCommandExtractor
             )
         );
 
-        throw new InsufficientWritePermissionException($parameters->getPath() . '/' . $data->getKey(), $violationList);
+        $parameters->getContext()->getExceptions()->add(
+            new WriteConstraintViolationException($violationList, $parameters->getPath() . '/' . $data->getKey())
+        );
     }
 }

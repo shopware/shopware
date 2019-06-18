@@ -10,12 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSe
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -41,7 +39,6 @@ class PasswordFieldTest extends TestCase
         $kvPair = new KeyValuePair('password', null, true);
 
         $passwordFieldHandler = new PasswordFieldSerializer(
-            new ConstraintBuilder(),
             $this->getContainer()->get('validator')
         );
 
@@ -49,8 +46,7 @@ class PasswordFieldTest extends TestCase
             $this->getContainer()->get(UserDefinition::class),
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
-            new WriteCommandQueue(),
-            new FieldExceptionStack()
+            new WriteCommandQueue()
         ));
 
         $payload = iterator_to_array($payload);
@@ -64,7 +60,6 @@ class PasswordFieldTest extends TestCase
         $kvPair = new KeyValuePair('password', 'shopware', true);
 
         $passwordFieldHandler = new PasswordFieldSerializer(
-            $this->getContainer()->get(ConstraintBuilder::class),
             $this->getContainer()->get('validator')
         );
 
@@ -72,8 +67,7 @@ class PasswordFieldTest extends TestCase
             $this->getContainer()->get(UserDefinition::class),
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
-            new WriteCommandQueue(),
-            new FieldExceptionStack()
+            new WriteCommandQueue()
         ));
 
         $payload = iterator_to_array($payload);
@@ -97,16 +91,15 @@ class PasswordFieldTest extends TestCase
                 $this->getContainer()->get(UserDefinition::class),
                 WriteContext::createFromContext(Context::createDefaultContext()),
                 '',
-                new WriteCommandQueue(),
-                new FieldExceptionStack()
+                new WriteCommandQueue()
             );
 
             $x = $handler->encode($field, $existence, $kvPair, $parameters);
             iterator_to_array($x);
-        } catch (InvalidFieldException $exception) {
+        } catch (WriteConstraintViolationException $exception) {
         }
 
-        static::assertInstanceOf(InvalidFieldException::class, $exception);
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
         static::assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
     }
 
@@ -126,14 +119,13 @@ class PasswordFieldTest extends TestCase
                 $this->getContainer()->get(UserDefinition::class),
                 WriteContext::createFromContext(Context::createDefaultContext()),
                 '',
-                new WriteCommandQueue(),
-                new FieldExceptionStack()
+                new WriteCommandQueue()
             ));
             iterator_to_array($x);
-        } catch (InvalidFieldException $exception) {
+        } catch (WriteConstraintViolationException $exception) {
         }
 
-        static::assertInstanceOf(InvalidFieldException::class, $exception);
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
         static::assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
     }
 }

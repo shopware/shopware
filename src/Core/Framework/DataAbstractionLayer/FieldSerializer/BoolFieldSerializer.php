@@ -6,58 +6,28 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints\Type;
 
-class BoolFieldSerializer implements FieldSerializerInterface
+class BoolFieldSerializer extends AbstractFieldSerializer
 {
-    use FieldValidatorTrait;
-
-    /**
-     * @var ConstraintBuilder
-     */
-    protected $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
-    public function __construct(ConstraintBuilder $constraintBuilder, ValidatorInterface $validator)
-    {
-        $this->constraintBuilder = $constraintBuilder;
-        $this->validator = $validator;
-    }
-
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof BoolField) {
             throw new InvalidSerializerFieldException(BoolField::class, $field);
         }
 
-        if (!$field->is(Inherited::class)) {
-            $constraints = $this->constraintBuilder
-                ->isBool()
-                ->getConstraints();
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-            $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());
-        }
-
-        $value = $data->getValue();
-        if ($value === null) {
+        if ($data->getValue() === null) {
             yield $field->getStorageName() => null;
 
             return;
         }
 
-        $transformed = $value ? 1 : 0;
-
-        /* @var BoolField $field */
-        yield $field->getStorageName() => $transformed;
+        yield $field->getStorageName() => $data->getValue() ? 1 : 0;
     }
 
     public function decode(Field $field, $value): ?bool
@@ -67,5 +37,12 @@ class BoolFieldSerializer implements FieldSerializerInterface
         }
 
         return (bool) $value;
+    }
+
+    protected function getConstraints(Field $field): array
+    {
+        return [
+            new Type('bool'),
+        ];
     }
 }

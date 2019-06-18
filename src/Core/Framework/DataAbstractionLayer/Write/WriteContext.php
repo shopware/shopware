@@ -30,9 +30,15 @@ class WriteContext
      */
     private $languageCodeIdMapping;
 
+    /**
+     * @var WriteException
+     */
+    private $exceptions;
+
     private function __construct(Context $context)
     {
         $this->context = $context;
+        $this->exceptions = new WriteException();
     }
 
     public function setLanguages($languages): void
@@ -105,6 +111,11 @@ class WriteContext
     public function createWithVersionId(string $versionId): self
     {
         return self::createFromContext($this->getContext()->createWithVersionId($versionId));
+    }
+
+    public function getExceptions(): WriteException
+    {
+        return $this->exceptions;
     }
 
     private function getLanguageCodeToIdMapping(): array

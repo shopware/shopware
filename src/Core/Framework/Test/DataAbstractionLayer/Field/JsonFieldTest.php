@@ -14,15 +14,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\UnexpectedFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NestedDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Framework\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 
 class JsonFieldTest extends TestCase
@@ -129,14 +129,14 @@ EOF;
         $ex = null;
         try {
             $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
-        } catch (WriteStackException $ex) {
+        } catch (WriteException $ex) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/price/net', $fieldException->getPath());
     }
 
@@ -161,10 +161,10 @@ EOF;
         $ex = null;
         try {
             $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
-        } catch (WriteStackException $ex) {
+        } catch (WriteException $ex) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
@@ -172,11 +172,11 @@ EOF;
         static::assertEquals('/price/foo', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[1];
-        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/price/gross', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[2];
-        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/price/net', $fieldException->getPath());
     }
 
@@ -201,14 +201,14 @@ EOF;
         $ex = null;
         try {
             $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
-        } catch (WriteStackException $ex) {
+        } catch (WriteException $ex) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/price/net', $fieldException->getPath());
     }
 
@@ -233,10 +233,10 @@ EOF;
         $ex = null;
         try {
             $this->getWriter()->insert($this->registerDefinition(ProductDefinition::class), [$data], $context);
-        } catch (WriteStackException $ex) {
+        } catch (WriteException $ex) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
@@ -294,22 +294,22 @@ EOF;
         $ex = null;
         try {
             $this->getWriter()->insert($this->registerDefinition(NestedDefinition::class), [$data], $context);
-        } catch (WriteStackException $ex) {
+        } catch (WriteException $ex) {
         }
 
-        static::assertInstanceOf(WriteStackException::class, $ex);
+        static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/data/gross', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[1];
-        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/data/foo/bar', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[2];
-        static::assertEquals(InvalidFieldException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/data/foo/baz/deep', $fieldException->getPath());
     }
 

@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\SalesChannelRule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -54,7 +54,7 @@ class SalesChannelRuleTest extends TestCase
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
-        } catch (WriteStackException $stackException) {
+        } catch (WriteException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
@@ -81,7 +81,7 @@ class SalesChannelRuleTest extends TestCase
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
-        } catch (WriteStackException $stackException) {
+        } catch (WriteException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
@@ -108,7 +108,7 @@ class SalesChannelRuleTest extends TestCase
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
-        } catch (WriteStackException $stackException) {
+        } catch (WriteException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
@@ -134,7 +134,7 @@ class SalesChannelRuleTest extends TestCase
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
-        } catch (WriteStackException $stackException) {
+        } catch (WriteException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
@@ -162,7 +162,7 @@ class SalesChannelRuleTest extends TestCase
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
-        } catch (WriteStackException $stackException) {
+        } catch (WriteException $stackException) {
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
@@ -231,7 +231,7 @@ class SalesChannelRuleTest extends TestCase
                     ],
                 ], $this->context);
                 static::fail('Exception was not thrown');
-            } catch (WriteStackException $stackException) {
+            } catch (WriteException $stackException) {
                 static::assertGreaterThan(0, count($stackException->getExceptions()));
                 /** @var WriteConstraintViolationException $exception */
                 foreach ($stackException->getExceptions() as $exception) {

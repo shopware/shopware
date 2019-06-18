@@ -7,30 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
-class PasswordFieldSerializer implements FieldSerializerInterface
+class PasswordFieldSerializer extends AbstractFieldSerializer
 {
-    use FieldValidatorTrait;
-
-    /**
-     * @var ConstraintBuilder
-     */
-    protected $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
-    public function __construct(ConstraintBuilder $constraintBuilder, ValidatorInterface $validator)
-    {
-        $this->constraintBuilder = $constraintBuilder;
-        $this->validator = $validator;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -40,15 +22,8 @@ class PasswordFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof PasswordField) {
             throw new InvalidSerializerFieldException(PasswordField::class, $field);
         }
-        /** @var PasswordField $field */
-        if ($this->requiresValidation($field, $existence, $data->getValue(), $parameters)) {
-            $constraints = $this->constraintBuilder
-                ->isNotBlank()
-                ->isString()
-                ->getConstraints();
 
-            $this->validate($this->validator, $constraints, $data->getKey(), $data->getValue(), $parameters->getPath());
-        }
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         $value = $data->getValue();
         if ($value) {
@@ -61,5 +36,13 @@ class PasswordFieldSerializer implements FieldSerializerInterface
     public function decode(Field $field, $value): ?string
     {
         return $value === null ? null : (string) $value;
+    }
+
+    protected function getConstraints(Field $field): array
+    {
+        return [
+            new NotBlank(),
+            new Type('string'),
+        ];
     }
 }

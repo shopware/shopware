@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -160,8 +161,8 @@ class ImportEntityCommandTest extends TestCase
         try {
             $commandTester->execute($args);
             static::fail('Expected exception not thrown.');
-        } catch (\Exception $e) {
-            static::assertRegExp('/Mapping failed, got [0-9]+ failure\(s\)/', $e->getMessage());
+        } catch (WriteException $e) {
+            static::assertGreaterThan(0, count($e->getExceptions()));
         }
     }
 

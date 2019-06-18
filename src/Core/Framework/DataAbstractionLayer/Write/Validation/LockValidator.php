@@ -6,14 +6,12 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Validation\ConstraintViolationExceptionInterface;
-use Shopware\Core\Framework\Validation\WriteCommandValidatorInterface;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class LockValidator implements WriteCommandValidatorInterface
+class LockValidator implements EventSubscriberInterface
 {
     public const VIOLATION_LOCKED = 'FRAMEWORK__ENTITY_IS_LOCKED';
 
@@ -27,14 +25,20 @@ class LockValidator implements WriteCommandValidatorInterface
         $this->connection = $connection;
     }
 
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            PreWriteValidationEvent::class => 'preValidate',
+        ];
+    }
+
     /**
-     * @param WriteCommandInterface[] $writeCommands
-     *
-     * @throws ConstraintViolationExceptionInterface
+     * @throws WriteConstraintViolationException
      */
-    public function preValidate(array $writeCommands, WriteContext $context): void
+    public function preValidate(PreWriteValidationEvent $event): void
     {
         $violations = new ConstraintViolationList();
+        $writeCommands = $event->getCommands();
         $lockedEntities = $this->containsLockedEntities($writeCommands);
 
         if (empty($lockedEntities)) {
@@ -56,14 +60,7 @@ class LockValidator implements WriteCommandValidatorInterface
             ));
         }
 
-        throw new WriteConstraintViolationException($violations);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function postValidate(array $writeCommands, WriteContext $context): void
-    {
+        $event->getExceptions()->add(new WriteConstraintViolationException($violations));
     }
 
     /**

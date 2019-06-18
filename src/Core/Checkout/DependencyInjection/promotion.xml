@@ -43,7 +43,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Validator\PromotionValidator">
-            <tag name="shopware.validator"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\PromotionGateway">

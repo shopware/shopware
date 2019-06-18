@@ -11,9 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -131,12 +131,12 @@ class SalesChannelCreateCommand extends Command
             $this->salesChannelRepository->create([$data], Context::createDefaultContext());
 
             $io->success('Sales channel has been created successfully.');
-        } catch (WriteStackException $exception) {
+        } catch (WriteException $exception) {
             $io->error('Something went wrong.');
 
             $messages = [];
             foreach ($exception->getExceptions() as $err) {
-                if ($err instanceof InvalidFieldException) {
+                if ($err instanceof WriteConstraintViolationException) {
                     foreach ($err->getViolations() as $violation) {
                         $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
                     }

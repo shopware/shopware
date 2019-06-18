@@ -9,30 +9,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
-class StringFieldSerializer implements FieldSerializerInterface
+class StringFieldSerializer extends AbstractFieldSerializer
 {
-    use FieldValidatorTrait;
-
-    /**
-     * @var ConstraintBuilder
-     */
-    protected $constraintBuilder;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
-
-    public function __construct(ConstraintBuilder $constraintBuilder, ValidatorInterface $validator)
-    {
-        $this->constraintBuilder = $constraintBuilder;
-        $this->validator = $validator;
-    }
-
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -43,27 +26,30 @@ class StringFieldSerializer implements FieldSerializerInterface
             throw new InvalidSerializerFieldException(StringField::class, $field);
         }
 
-        $value = $data->getValue();
-        if ($value === '') {
-            $value = null;
+        if ($data->getValue() === '') {
+            $data->setValue(null);
         }
 
-        if ($this->requiresValidation($field, $existence, $value, $parameters)) {
-            $constraints = $this->constraintBuilder
-                ->isNotBlank()
-                ->isString()
-                ->isLengthLessThanOrEqual($field->getMaxLength())
-                ->getConstraints();
-
-            $this->validate($this->validator, $constraints, $data->getKey(), $value, $parameters->getPath());
-        }
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         /* @var LongTextField $field */
-        yield $field->getStorageName() => $value !== null ? strip_tags((string) $value) : null;
+        yield $field->getStorageName() => $data->getValue() !== null ? strip_tags((string) $data->getValue()) : null;
     }
 
     public function decode(Field $field, $value): ?string
     {
         return $value === null ? null : (string) $value;
+    }
+
+    /**
+     * @param StringField $field
+     */
+    protected function getConstraints(Field $field): array
+    {
+        return [
+            new NotBlank(),
+            new Type('string'),
+            new Length(['max' => $field->getMaxLength()]),
+        ];
     }
 }

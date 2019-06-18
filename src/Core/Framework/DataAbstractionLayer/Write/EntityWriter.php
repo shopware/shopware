@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\FieldExceptionStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Language\LanguageLoaderInterface;
@@ -292,9 +291,7 @@ class EntityWriter implements EntityWriterInterface
         $this->validateWriteInput($rawData);
 
         $commandQueue = new WriteCommandQueue();
-        $exceptionStack = new FieldExceptionStack();
-
-        $parameters = new WriteParameterBag($definition, $writeContext, '', $commandQueue, $exceptionStack);
+        $parameters = new WriteParameterBag($definition, $writeContext, '', $commandQueue);
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
 
@@ -307,7 +304,7 @@ class EntityWriter implements EntityWriterInterface
             $commandQueue->ensureIs($definition, $ensure);
         }
 
-        $exceptionStack->tryToThrow();
+        $writeContext->getExceptions()->tryToThrow();
 
         $writeIdentifiers = $this->getWriteResults($commandQueue);
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);

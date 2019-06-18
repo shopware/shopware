@@ -12,12 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldType
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\InvalidFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -31,11 +30,11 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 
     public function __construct(
         DefinitionInstanceRegistry $compositeHandler,
-        ConstraintBuilder $constraintBuilder,
         ValidatorInterface $validator,
         RuleConditionRegistry $ruleConditionRegistry
     ) {
-        parent::__construct($compositeHandler, $constraintBuilder, $validator);
+        parent::__construct($compositeHandler, $validator);
+
         $this->ruleConditionRegistry = $ruleConditionRegistry;
     }
 
@@ -79,7 +78,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     }
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
                     if ($violations->count() > 0) {
-                        throw new InvalidFieldException($violations, $parameters->getPath());
+                        throw new WriteConstraintViolationException($violations, $parameters->getPath());
                     }
                     break;
                 case PercentagePriceDefinition::TYPE:
@@ -94,7 +93,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     }
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
                     if ($violations->count() > 0) {
-                        throw new InvalidFieldException($violations, $parameters->getPath());
+                        throw new WriteConstraintViolationException($violations, $parameters->getPath());
                     }
                     break;
                 default:
@@ -104,7 +103,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             unset($value['extensions']);
         }
 
-        $data = new KeyValuePair($data->getKey(), $value, $data->isRaw());
+        $data->setValue($value);
 
         yield from parent::encode($field, $existence, $data, $parameters);
     }
@@ -132,8 +131,9 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 $rules = array_key_exists('filter', $value) && $value['filter'] !== null ? $this->decodeRule($value['filter']) : null;
 
                 return new PercentagePriceDefinition($value['percentage'], $value['precision'], $rules);
-            default: throw new InvalidPriceFieldTypeException($value['type']);
         }
+
+        throw new InvalidPriceFieldTypeException($value['type']);
     }
 
     private function validateRules(array $data, string $basePath): ConstraintViolationList
@@ -195,16 +195,14 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         return $object;
     }
 
-    private function validateProperties(array $data, array $constraints, string $path)
+    private function validateProperties(array $data, array $constraints, string $path): void
     {
         foreach ($constraints as $key => $constraint) {
             $value = $data[$key] ?? null;
 
             $this->validate(
-                $this->validator,
                 $constraint,
-                $key,
-                $value,
+                new KeyValuePair($key, $value, true),
                 $path
             );
         }

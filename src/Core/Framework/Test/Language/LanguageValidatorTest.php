@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteStackException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Language\LanguageValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -808,15 +808,15 @@ class LanguageValidatorTest extends TestCase
 
     protected function assertWriteStackViolations(callable $function, array $expectedCodePathPairs): void
     {
-        /** @var WriteStackException|null $stack */
+        /** @var WriteException|null $stack */
         $stack = null;
         try {
             $function();
-        } catch (WriteStackException $exception) {
+        } catch (WriteException $exception) {
             $stack = $exception;
         }
         if (!empty($expectedCodePathPairs)) {
-            static::assertInstanceOf(WriteStackException::class, $stack);
+            static::assertInstanceOf(WriteException::class, $stack);
         }
 
         $actualViolations = $stack ? \iterator_to_array($stack->getErrors()) : [];

@@ -18,4 +18,4 @@ In your own handler with your custom logic you can now easily add the required p
 $context->getWriteProtection()->allow('permission_key_example');
 ```
 
-If the defined `permissionKey` is not set in the context's write protection, the DataAbstractionLayer will throw an `InsufficientWritePermissionException`.
+If the defined `permissionKey` is not set in the context's write protection, the DataAbstractionLayer will throw an `WriteException` containing an `InsufficientWritePermissionException`.

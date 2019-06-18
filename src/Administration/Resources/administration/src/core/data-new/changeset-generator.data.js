@@ -8,10 +8,8 @@ function castValueToNullIfNecessary(value) {
 }
 
 export default class ChangesetGenerator {
-    constructor(schema) {
-        this.schema = schema;
-        this.scalar = ['uuid', 'int', 'text', 'password', 'float', 'string', 'blob', 'boolean', 'date'];
-        this.jsonTypes = ['json_list', 'json_object'];
+    constructor(definitionRegistry) {
+        this.definitionRegistry = definitionRegistry;
     }
 
     /**
@@ -33,30 +31,29 @@ export default class ChangesetGenerator {
      * @returns {null}
      */
     recursion(entity, deletionQueue) {
-        const definition = this.schema[entity.getEntityName()];
+        const definition = this.definitionRegistry.get(entity.getEntityName());
         const changes = {};
 
         const origin = entity.getOrigin();
         const draft = entity.getDraft();
 
-        Object.keys(definition.properties).forEach((property) => {
-            const type = definition.properties[property];
+        definition.forEachField((field, fieldName) => {
             // skip read only
-            if (type.readOnly) {
-                return true;
+            if (field.readOnly) {
+                return;
             }
 
-            const draftValue = castValueToNullIfNecessary(draft[property]);
-            const originValue = castValueToNullIfNecessary(origin[property]);
+            const draftValue = castValueToNullIfNecessary(draft[fieldName]);
+            const originValue = castValueToNullIfNecessary(origin[fieldName]);
 
-            if (this.scalar.includes(type.type)) {
+            if (definition.isScalarField(field)) {
                 if (draftValue !== originValue) {
-                    changes[property] = draftValue;
-                    return true;
+                    changes[fieldName] = draftValue;
+                    return;
                 }
             }
 
-            if (this.jsonTypes.includes(type.type)) {
+            if (definition.isJsonField(field)) {
                 const originValueStringified = types.isEmpty(originValue) ? null : JSON.stringify(originValue);
                 const draftValueStringified = types.isEmpty(draftValue) ? null : JSON.stringify(draftValue);
 
@@ -68,39 +65,25 @@ export default class ChangesetGenerator {
                 }
 
                 if (!equals) {
-                    changes[property] = draftValue;
+                    changes[fieldName] = draftValue;
                 }
 
-                return true;
+                return;
             }
 
-            if (type.type === 'association' && type.relation === 'one_to_many') {
+            if (definition.isToManyAssociation(field)) {
                 const associationChanges = this.handleOneToMany(draftValue, originValue, deletionQueue);
                 if (associationChanges.length > 0) {
-                    changes[property] = associationChanges;
+                    changes[fieldName] = associationChanges;
                 }
 
-                return true;
-            }
-
-            if (type.type === 'association' && type.relation === 'many_to_many') {
-                const associationChanges = this.handleManyToMany(draftValue, originValue, deletionQueue);
-
-                if (associationChanges.length > 0) {
-                    changes[property] = associationChanges;
-                }
-
-                return true;
+                return;
             }
 
             // we can skip many to one, the foreign key will be set over the foreignKey field
-            if (type.type === 'association' && type.relation === 'many_to_one') {
-                return true;
-            }
-
-            if (type.type === 'association' && type.relation === 'one_to_one') {
-                if (!draftValue) {
-                    return true;
+            if (definition.isToOneAssociation(field)) {
+                if (field.relation === 'many_to_one') {
+                    return;
                 }
 
                 const change = this.recursion(draftValue, deletionQueue);
@@ -111,8 +94,6 @@ export default class ChangesetGenerator {
                     changes.push(change);
                 }
             }
-
-            return true;
         });
 
         if (Object.keys(changes).length > 0) {
@@ -145,7 +126,6 @@ export default class ChangesetGenerator {
             if (!draft.has(id)) {
                 deletionQueue.push({ route: draft.source, key: id });
             }
-            return true;
         });
 
         return changes;
@@ -177,7 +157,7 @@ export default class ChangesetGenerator {
 
                 changes.push(change);
 
-                return true;
+                return;
             }
 
             // check if some properties changed
@@ -187,7 +167,6 @@ export default class ChangesetGenerator {
                 change.id = entity.id;
                 changes.push(change);
             }
-            return true;
         });
 
         originIds.forEach((id) => {

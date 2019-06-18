@@ -1,48 +1,58 @@
-import ErrorStore from 'src/core/data/ErrorStore';
-import ShopwareError from 'src/core/data/ShopwareError';
+import ErrorStore from 'src/core/data/error-store.data';
 import { setReactive, deleteReactive } from 'src/app/adapter/view/vue.adapter';
 
-class VuexErrorStore extends ErrorStore {
+class VuexErrorStore {
     constructor() {
-        super();
-
-        this.state = this.errors;
+        this.state = {
+            system: {},
+            api: {}
+        };
 
         this.mutations = {
-            setErrorData(state, { expression, error, type }) {
-                ErrorStore.createAtPath(expression, state[type], setReactive, error);
+            addApiError(state, { expression, error }) {
+                ErrorStore.addApiError(expression, error, state, setReactive);
             },
 
-            deleteError(state, { expression, type }) {
-                ErrorStore.deleteAtPath(expression, state[type], deleteReactive);
+            removeApiError(state, { expression }) {
+                ErrorStore.removeApiError(expression, state, deleteReactive);
             },
 
-            resetError(state, { expression, type }) {
-                ErrorStore.deleteAtPath(expression, state[type], deleteReactive, false);
+            resetApiErrors(state) {
+                ErrorStore.resetApiErrors(state);
+            },
+
+            resetError() { // (state, { expression }) {
+                // TODO refactor with fields.....
             }
         };
 
         this.getters = {
-            boundError: (state, getters) => (pointer) => {
-                if (pointer === null) {
-                    return new ShopwareError();
-                }
+            getApiError: (state) => (entity, field) => {
+                const path = [entity.getEntityName(), entity.id, field];
+                return path.reduce((store, next) => {
+                    if (store === null) {
+                        return null;
+                    }
 
-                return getters.getApiError(pointer) || getters.getValidationError(pointer);
-            },
-
-            getApiError: (state) => (pointer) => {
-                return ErrorStore.getFromPath(pointer, state.api);
-            },
-
-            getValidationError: (state) => (pointer) => {
-                return ErrorStore.getFromPath(pointer, state.validation);
+                    if (store.hasOwnProperty(next)) {
+                        return store[next];
+                    }
+                    return null;
+                }, state.api);
             }
         };
 
         this.actions = {
-            deleteFieldError({ commit }, expression) {
-                commit('deleteError', { expression, type: 'api' });
+            addApiError({ commit }, { expression, error }) {
+                commit('addApiError', { expression, error });
+            },
+
+            removeApiError({ commit }, { expression }) {
+                commit('removeApiError', { expression });
+            },
+
+            resetApiErrors({ commit }) {
+                commit('resetApiErrors');
             },
 
             resetFormError({ commit }, expression) {
@@ -51,10 +61,8 @@ class VuexErrorStore extends ErrorStore {
         };
     }
 
-    setErrorData(expression, error, type = 'system') {
-        this.mutations.setErrorData(this.state, { expression, error, type });
-
-        return true;
+    addApiError(expression, error) {
+        this.mutations.addApiError(this.state, { expression, error });
     }
 }
 

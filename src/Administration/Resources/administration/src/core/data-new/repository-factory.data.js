@@ -1,12 +1,13 @@
 import Repository from './repository.data';
 
 export default class RepositoryFactory {
-    constructor(hydrator, changesetGenerator, entityFactory, entitySchema, httpClient) {
+    constructor(hydrator, changesetGenerator, entityFactory, entityDefinitionRegistry, httpClient, errorResolver) {
         this.hydrator = hydrator;
         this.changesetGenerator = changesetGenerator;
         this.entityFactory = entityFactory;
         this.httpClient = httpClient;
-        this.entitySchema = entitySchema;
+        this.definitionRegistry = entityDefinitionRegistry;
+        this.errorResolver = errorResolver;
     }
 
     /**
@@ -22,13 +23,19 @@ export default class RepositoryFactory {
             route = `/${entity.replace(/_/g, '-')}`;
         }
 
+        const definition = this.definitionRegistry.get(entity);
+        if (!definition) {
+            throw new Error(`[RepositoryFactory] No EntityDefinition found for entity with name "${entity}"`);
+        }
+
         return new Repository(
             route,
-            this.entitySchema[entity],
+            definition.getEntity(),
             this.httpClient,
             this.hydrator,
             this.changesetGenerator,
-            this.entityFactory
+            this.entityFactory,
+            this.errorResolver
         );
     }
 }

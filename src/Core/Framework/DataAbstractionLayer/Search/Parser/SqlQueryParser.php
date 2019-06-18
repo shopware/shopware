@@ -175,7 +175,7 @@ class SqlQueryParser
                     $where[] = sprintf('JSON_CONTAINS(%s, JSON_ARRAY(%s))', $select, ':' . $key);
                     $result->addParameter($key, $value);
                 }
-                $result->addWhere(implode(' OR ', $where));
+                $result->addWhere('(' . implode(' OR ', $where) . ')');
 
                 return $result;
             }

@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Event\NestedEvent;
 
 class CreateIndexingCriteriaEvent extends NestedEvent
 {
-    public const NAME = 'es.create.indexing.criteria';
-
     /**
      * @var EntityDefinition
      */
@@ -35,7 +33,7 @@ class CreateIndexingCriteriaEvent extends NestedEvent
 
     public function getName(): string
     {
-        return self::NAME;
+        return self::class;
     }
 
     public function getDefinition(): EntityDefinition

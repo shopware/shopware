@@ -25,7 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Elasticsearch\Framework\DefinitionRegistry;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
-class EntityAggregator implements EntityAggregatorInterface
+class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 {
     /**
      * @var DefinitionRegistry
@@ -139,8 +139,6 @@ class EntityAggregator implements EntityAggregatorInterface
             if (!$aggregation) {
                 continue;
             }
-
-            $this->hydrateAggregation($aggregation, $aggResult, $context);
         }
 
         return $aggregations;

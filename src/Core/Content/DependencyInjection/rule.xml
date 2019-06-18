@@ -22,7 +22,7 @@
             <argument type="service" id="Shopware\Core\Content\Rule\RuleDefinition"/>
 
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.dbal_indexing.indexer"/>
+            <tag name="shopware.dal_indexing.indexer"/>
         </service>
 
         <service id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>

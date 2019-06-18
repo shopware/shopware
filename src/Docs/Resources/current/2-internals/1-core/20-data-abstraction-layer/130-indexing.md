@@ -29,7 +29,7 @@ class MyCustomerIndexer implements IndexerInterface
 ```
 
 Your service definition needs to be tagged as
-`shopware.dbal_indexing.indexer`.
+`shopware.dal_indexing.indexer`.
 
 ## Child Count indexer
 

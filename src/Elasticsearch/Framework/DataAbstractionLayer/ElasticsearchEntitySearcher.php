@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Elasticsearch\Framework\DefinitionRegistry;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
-class EntitySearcher implements EntitySearcherInterface
+class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
     /**
      * @var Client

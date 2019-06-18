@@ -201,11 +201,12 @@ class EntityIndexer implements IndexerInterface
         $criteria = new Criteria($ids);
 
         $this->eventDispatcher->dispatch(
-            new CreateIndexingCriteriaEvent($definition, $criteria, $context),
-            CreateIndexingCriteriaEvent::NAME
+            new CreateIndexingCriteriaEvent($definition, $criteria, $context)
         );
 
         $entities = $context->disableCache(function (Context $context) use ($repository, $criteria) {
+            $context->setConsiderInheritance(true);
+
             return $repository->search($criteria, $context);
         });
 

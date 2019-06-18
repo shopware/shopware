@@ -52,9 +52,11 @@ class DefinitionRegistry
         return $definition->getEntityName() . '_' . $context->getLanguageId();
     }
 
-    public function getDefinitions(): iterable
+    public function getDefinitions(): array
     {
         if (!$this->definitions) {
+            $this->definitions = [];
+
             $event = new CollectDefinitionsEvent();
 
             $this->eventDispatcher->dispatch($event);

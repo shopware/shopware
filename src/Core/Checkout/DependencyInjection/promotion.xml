@@ -60,7 +60,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition"/>
             <argument type="service" id="promotion.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.dbal_indexing.indexer" priority="500"/>
+            <tag name="shopware.dal_indexing.indexer" priority="500"/>
         </service>
 
 

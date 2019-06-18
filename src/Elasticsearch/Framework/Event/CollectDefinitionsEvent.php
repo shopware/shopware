@@ -2,12 +2,10 @@
 
 namespace Shopware\Elasticsearch\Framework\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class CollectDefinitionsEvent extends Event
 {
-    public const NAME = 'es.collect.definitions';
-
     /**
      * @var bool[]
      */
@@ -15,7 +13,7 @@ class CollectDefinitionsEvent extends Event
 
     public function getDefinitions(): array
     {
-        return array_values($this->definitions);
+        return array_keys($this->definitions);
     }
 
     public function add(string $class): self

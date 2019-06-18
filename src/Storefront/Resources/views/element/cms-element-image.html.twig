@@ -7,6 +7,9 @@
                         <div class="cms-image-container is-{{ element.config.displayMode.value }}"{% if element.config.minHeight.value %} style="min-height: {{ element.config.minHeight.value }};"{% endif %}>
                             {% block element_image_media %}
                                 <img class="cms-image"
+                                     {% if element.config.displayMode.value == 'cover' %}
+                                         data-object-fit="cover"
+                                     {% endif %}
                                      src="{{ element.data.media.url }}"
                                      alt="{{ element.data.media.alt }}">
                             {% endblock %}

@@ -68,6 +68,7 @@
     "history": "4.9.0",
     "jquery": "3.4.1",
     "nunito-fontface": "0.7.3",
+    "object-fit-polyfill": "0.1.0",
     "popper.js": "1.14.7",
     "query-string": "5.1.1",
     "tiny-slider": "2.9.1"

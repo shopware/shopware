@@ -15,4 +15,15 @@ html.is-ie {
     .cart-item-row .cart-item-quantity {
         z-index: 1;
     }
+
+    // fix: product image overflows image area because of flexbox
+    .product-image-wrapper {
+        flex-basis: auto;
+    }
+    .product-image-link {
+        display: block;
+    }
+    .product-image {
+        margin: auto;
+    }
 }

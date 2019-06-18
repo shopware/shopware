@@ -91,7 +91,6 @@ export default {
             }
 
             this.sslActive = !this.sslActive;
-            this.resetFormError();
             this.$emit('input', this.url);
         }
     }

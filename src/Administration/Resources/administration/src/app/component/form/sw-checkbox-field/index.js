@@ -97,7 +97,6 @@ export default {
 
     methods: {
         onChange(changeEvent) {
-            this.resetFormError();
             this.$emit('change', changeEvent.target.checked);
         },
 

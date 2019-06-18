@@ -85,19 +85,21 @@ export default class Repository {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
 
         return new Promise((resolve, reject) => {
-            this.sendDeletions(deletionQueue, context)
-                .then(() => {
-                    this.sendChanges(entity, changes, context)
-                        .then(() => {
-                            resolve();
-                        }).catch((errorResponse) => {
-                            this.errorResolver.handleWriteError(errorResponse, entity, changes);
-                            reject(errorResponse);
-                        });
-                }).catch((errorResponse) => {
-                    this.errorResolver.handleDeleteError(errorResponse, deletionQueue);
-                    reject(errorResponse);
-                });
+            return this.errorResolver.resetApiErrors().then(() => {
+                return this.sendDeletions(deletionQueue, context)
+                    .then(() => {
+                        this.sendChanges(entity, changes, context)
+                            .then(() => {
+                                resolve();
+                            }).catch((errorResponse) => {
+                                this.errorResolver.handleWriteError(errorResponse, entity, changes);
+                                reject(errorResponse);
+                            });
+                    }).catch((errorResponse) => {
+                        this.errorResolver.handleDeleteError(errorResponse, deletionQueue);
+                        reject(errorResponse);
+                    });
+            });
         });
     }
 

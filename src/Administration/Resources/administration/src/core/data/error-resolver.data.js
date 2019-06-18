@@ -11,6 +11,10 @@ export default class ErrorResolver {
         this.errorStore = State.getStore('error');
     }
 
+    resetApiErrors() {
+        return this.errorStore.resetApiErrors();
+    }
+
     handleWriteError({ response }, entity, changeset) {
         if (!this.isErrorDataSet(response)) {
             throw response;

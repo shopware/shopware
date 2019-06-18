@@ -23,10 +23,6 @@ class VuexErrorStore {
                 ErrorStore.resetApiErrors(state);
             },
 
-            resetError() { // (state, { expression }) {
-                // TODO refactor with fields.....
-            },
-
             addSystemError(state, { error, id = utils.createId() }) {
                 ErrorStore.addSystemError(error, id, state, setReactive);
             },
@@ -69,10 +65,6 @@ class VuexErrorStore {
                 commit('resetApiErrors');
             },
 
-            resetFormError({ commit }, expression) {
-                commit('resetError', { expression, type: 'api' });
-            },
-
             addSystemError({ commit }, { error, id = utils.createId() }) {
                 commit('addSystemError', { error, id });
                 return id;
@@ -99,6 +91,10 @@ class VuexErrorStore {
 
     addSystemError(error, id = utils.createId()) {
         return this.$store.dispatch('addSystemError', { error, id });
+    }
+
+    resetApiErrors() {
+        return this.$store.dispatch('resetApiErrors');
     }
 }
 

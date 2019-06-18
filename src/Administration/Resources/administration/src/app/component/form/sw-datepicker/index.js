@@ -374,8 +374,6 @@ export default {
         },
 
         emitValue(value) {
-            this.resetFormError();
-
             // Prevent emitting an empty date, to reset a date, null should be emitted
             if (value === '') {
                 value = null;

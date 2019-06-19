@@ -45,8 +45,14 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextValueResolver">
-            <argument type="service" id="request_stack"/>
             <tag name="controller.argument_value_resolver" priority="1000"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\CartValueResolver">
+            <tag name="controller.argument_value_resolver" priority="1001"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">

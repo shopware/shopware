@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -21,6 +20,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -1726,16 +1726,6 @@ class VersioningTest extends TestCase
 
     public function testCreateOrderVersion(): void
     {
-        $token = Uuid::randomHex();
-        $cart = new Cart('test', $token);
-
-        $cart->add(
-            (new LineItem('test', 'test'))
-                ->setLabel('test')
-                ->setGood(true)
-                ->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection(), 2))
-        );
-
         $ruleId = Uuid::randomHex();
         $customerId = $this->createCustomer();
         $paymentMethodId = $this->createPaymentMethod($ruleId);
@@ -1748,7 +1738,11 @@ class VersioningTest extends TestCase
                 SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
             ]
         );
-        $context->setRuleIds([$ruleId]);
+        $context->setRuleIds(
+            [$ruleId, $context->getShippingMethod()->getAvailabilityRuleId()]
+        );
+
+        $cart = $this->createDemoCart();
 
         $cart = $this->processor->process($cart, $context, new CartBehavior());
 
@@ -1757,6 +1751,38 @@ class VersioningTest extends TestCase
         $versionId = $this->orderRepository->createVersion($id, $this->context);
 
         static::assertTrue(Uuid::isValid($versionId));
+    }
+
+    private function createDemoCart(): Cart
+    {
+        $cart = new Cart('A', 'a-b-c');
+
+        $id = Uuid::randomHex();
+
+        $product = [
+            'id' => $id,
+            'name' => 'test',
+            'price' => ['gross' => 119.99, 'net' => 99.99, 'linked' => false],
+            'productNumber' => Uuid::randomHex(),
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['taxRate' => 19, 'name' => 'test'],
+            'stock' => 10,
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $cart->add(
+            (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $id, 1))
+                ->setStackable(true)
+                ->setRemovable(true)
+        );
+
+        return $cart;
     }
 
     private function createCustomer(): string

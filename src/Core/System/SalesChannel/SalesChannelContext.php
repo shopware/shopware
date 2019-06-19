@@ -5,12 +5,12 @@ namespace Shopware\Core\System\SalesChannel;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\DiscountSurcharge\Exception\ContextRulesLockedException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
 use Shopware\Core\System\Tax\TaxCollection;
 
 class SalesChannelContext extends Struct

@@ -88,7 +88,6 @@ The default collectors implemented in Shopware 6:
 | service id | task |
 | ---------- | ---- |
 | `Shopware\Core\Content\Product\Cart\ProductCollector` | enrich all referenced products |
-| `Shopware\Core\Checkout\DiscountSurcharge\Cart\DiscountSurchargeCollector` | add, remove and enrich discounts and surcharges configured for the current context |
 | `Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector` | enrich add, remove and validate promotions |
 | `Shopware\Core\Checkout\Shipping\Cart\ShippingMethodPriceCollector` | handle shipping prices |
 

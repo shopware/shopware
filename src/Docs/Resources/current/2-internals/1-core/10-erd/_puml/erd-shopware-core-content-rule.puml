@@ -45,8 +45,6 @@ Table(ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition, "rul
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
-ForeignTable(ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition, "discount_surcharge") {
-}
 ForeignTable(ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition, "product_price") {
 }
 ForeignTable(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition, "shipping_method_price") {
@@ -67,7 +65,6 @@ ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotio
 ' relationshipd
 
 ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition --> ShopwareCoreContentRuleRuleDefinition
-ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutDiscountSurchargeDiscountSurchargeDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition

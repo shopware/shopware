@@ -7,19 +7,12 @@ use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
-use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -32,6 +25,8 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\Pathname\UrlGenerator;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -96,7 +91,7 @@ class DocumentServiceTest extends TestCase
     {
         $documentService = $this->getContainer()->get(DocumentService::class);
 
-        $cart = $this->generateDemoCart(75);
+        $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
         $documentStruct = $documentService->create(
@@ -130,7 +125,7 @@ class DocumentServiceTest extends TestCase
         $documentService = $this->getContainer()->get(DocumentService::class);
 
         // create an invoice
-        $cart = $this->generateDemoCart(75);
+        $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
         $invoiceStruct = $documentService->create(
@@ -200,7 +195,7 @@ class DocumentServiceTest extends TestCase
         /** @var DocumentService $documentService */
         $documentService = $this->getContainer()->get(DocumentService::class);
 
-        $cart = $this->generateDemoCart(75);
+        $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
         /** @var FilesystemInterface $fileSystem */
@@ -277,7 +272,7 @@ class DocumentServiceTest extends TestCase
         /** @var DocumentService $documentService */
         $documentService = $this->getContainer()->get(DocumentService::class);
 
-        $cart = $this->generateDemoCart(75);
+        $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
         $document = $documentService->create(
@@ -329,32 +324,41 @@ class DocumentServiceTest extends TestCase
     private function generateDemoCart(int $lineItemCount): Cart
     {
         $cart = new Cart('A', 'a-b-c');
-        $deliveryInformation = new DeliveryInformation(
-            100,
-            0,
-            new DeliveryDate(new \DateTime(), new \DateTime()),
-            new DeliveryDate(new \DateTime(), new \DateTime()),
-            false
-        );
 
         $keywords = ['awesome', 'epic', 'high quality'];
 
+        $products = [];
+
+        $factory = new ProductLineItemFactory();
+
         for ($i = 0; $i < $lineItemCount; ++$i) {
+            $id = Uuid::randomHex();
+
             $price = random_int(100, 200000) / 100.0;
-            $quantity = random_int(1, 25);
-            $taxes = [7, 19, 22];
-            $taxRate = $taxes[array_rand($taxes)];
+
             shuffle($keywords);
             $name = ucfirst(implode($keywords, ' ') . ' product');
-            $cart->add(
-                (new LineItem((string) $i, 'product_' . $i, null, $quantity))
-                    ->setPriceDefinition(new QuantityPriceDefinition($price, new TaxRuleCollection([new TaxRule($taxRate)]), $quantity))
-                    ->setLabel($name)
-                    ->setStackable(true)
-                    ->setDeliveryInformation($deliveryInformation)
-            );
+
+            $products[] = [
+                'id' => $id,
+                'name' => $name,
+                'price' => ['gross' => $price, 'net' => $price, 'linked' => false],
+                'productNumber' => Uuid::randomHex(),
+                'manufacturer' => ['id' => $id, 'name' => 'test'],
+                'tax' => ['id' => $id, 'taxRate' => 19, 'name' => 'test'],
+                'stock' => 10,
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ];
+
+            $cart->add($factory->create($id));
         }
-        $cart = $this->getContainer()->get(Enrichment::class)->enrich($cart, $this->salesChannelContext, new CartBehavior());
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, Context::createDefaultContext());
+
         $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
 
         return $cart;
@@ -422,7 +426,7 @@ class DocumentServiceTest extends TestCase
         /** @var DocumentService $documentService */
         $documentService = $this->getContainer()->get(DocumentService::class);
 
-        $cart = $this->generateDemoCart(75);
+        $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
         $documentStruct = $documentService->create(

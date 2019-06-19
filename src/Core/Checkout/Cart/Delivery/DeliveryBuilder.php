@@ -15,7 +15,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryBuilder
@@ -31,11 +33,21 @@ class DeliveryBuilder
     }
 
     public function build(
+        StructCollection $data,
         DeliveryCollection $deliveries,
         LineItemCollection $items,
         SalesChannelContext $context,
         bool $allowSplitting = true
     ): DeliveryCollection {
+        $key = DeliveryProcessor::buildKey($context->getShippingMethod()->getId());
+
+        if (!$data->has($key)) {
+            throw new ShippingMethodNotFoundException($context->getShippingMethod()->getId());
+        }
+
+        /** @var ShippingMethodEntity $shippingMethod */
+        $shippingMethod = $data->get($key);
+
         /** @var LineItem $item */
         foreach ($items as $item) {
             if (!$item->getDeliveryInformation()) {
@@ -62,7 +74,7 @@ class DeliveryBuilder
                     $deliveries,
                     $position,
                     $context->getShippingLocation(),
-                    $context->getShippingMethod()
+                    $shippingMethod
                 );
                 continue;
             }
@@ -81,7 +93,7 @@ class DeliveryBuilder
                     $deliveries,
                     $position,
                     $context->getShippingLocation(),
-                    $context->getShippingMethod()
+                    $shippingMethod
                 );
                 continue;
             }
@@ -99,7 +111,7 @@ class DeliveryBuilder
                 $deliveries,
                 $position,
                 $context->getShippingLocation(),
-                $context->getShippingMethod()
+                $shippingMethod
             );
 
             $position = $this->recalculatePosition(
@@ -113,7 +125,7 @@ class DeliveryBuilder
                 $deliveries,
                 $position,
                 $context->getShippingLocation(),
-                $context->getShippingMethod()
+                $shippingMethod
             );
         }
 

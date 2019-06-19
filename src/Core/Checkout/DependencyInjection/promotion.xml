@@ -52,7 +52,6 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\PromotionGateway"/>
-            <tag name="shopware.cart.collector"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing\PromotionRedemptionIndexer">

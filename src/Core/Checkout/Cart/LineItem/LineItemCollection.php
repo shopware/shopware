@@ -62,6 +62,23 @@ class LineItemCollection extends Collection
         return null;
     }
 
+    /**
+     * @return LineItem[]
+     */
+    public function filterFlatByType(string $type): array
+    {
+        $lineItems = $this->getFlat();
+
+        $filtered = [];
+        foreach ($lineItems as $lineItem) {
+            if ($lineItem->getType() === $type) {
+                $filtered[] = $lineItem;
+            }
+        }
+
+        return $filtered;
+    }
+
     public function filterType(string $type): self
     {
         return $this->filter(
@@ -87,6 +104,9 @@ class LineItemCollection extends Collection
         );
     }
 
+    /**
+     * @return LineItem[]
+     */
     public function getFlat(): array
     {
         return $this->buildFlat($this);

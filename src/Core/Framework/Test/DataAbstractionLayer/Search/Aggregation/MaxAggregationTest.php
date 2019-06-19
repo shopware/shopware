@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -57,9 +58,10 @@ class MaxAggregationTest extends TestCase
     public function testMaxAggregationWithGroupBy(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupGroupByFixtures($context);
+        $ids = $this->setupGroupByFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.categories.id', $ids));
         $criteria->addAggregation(new MaxAggregation('product.price.gross', 'max_agg', 'product.categories.name'));
 
         $productRepository = $this->getContainer()->get('product.repository');

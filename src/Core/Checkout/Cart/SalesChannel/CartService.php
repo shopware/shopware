@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
@@ -16,7 +15,6 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
-use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
@@ -32,11 +30,6 @@ class CartService
     public const SALES_CHANNEL = 'sales-channel';
 
     /**
-     * @var Processor
-     */
-    private $processor;
-
-    /**
      * @var CartPersisterInterface
      */
     private $persister;
@@ -50,11 +43,6 @@ class CartService
      * @var Cart[]
      */
     private $cart = [];
-
-    /**
-     * @var Enrichment
-     */
-    private $enrichment;
 
     /**
      * @var CartRuleLoader
@@ -77,8 +65,6 @@ class CartService
     private $orderCustomerRepository;
 
     public function __construct(
-        Enrichment $enrichment,
-        Processor $processor,
         CartPersisterInterface $persister,
         OrderPersisterInterface $orderPersister,
         CartRuleLoader $cartRuleLoader,
@@ -86,10 +72,8 @@ class CartService
         EntityRepositoryInterface $orderCustomerRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->processor = $processor;
         $this->persister = $persister;
         $this->orderPersister = $orderPersister;
-        $this->enrichment = $enrichment;
         $this->cartRuleLoader = $cartRuleLoader;
         $this->orderRepository = $orderRepository;
         $this->eventDispatcher = $eventDispatcher;
@@ -136,12 +120,8 @@ class CartService
     {
         $cart->add($item);
 
-        $lineItem = $cart->get($item->getId());
-
-        if ($lineItem) {
-            $lineItem->setPriceDefinition(null);
-            $lineItem->setPrice(null);
-        }
+        $cart->markModified();
+        $item->markModified();
 
         return $this->calculate($cart, $context);
     }
@@ -158,10 +138,9 @@ class CartService
         }
 
         $lineItem->setQuantity($quantity);
+        $lineItem->markModified();
 
-        // quantity change should force new price finding and calculation
-        $lineItem->setPrice(null);
-        $lineItem->setPriceDefinition(null);
+        $cart->markModified();
 
         return $this->calculate($cart, $context);
     }
@@ -173,6 +152,7 @@ class CartService
     public function remove(Cart $cart, string $identifier, SalesChannelContext $context): Cart
     {
         $cart->remove($identifier);
+        $cart->markModified();
 
         return $this->calculate($cart, $context);
     }
@@ -223,19 +203,19 @@ class CartService
     {
         $behavior = new CartBehavior();
 
-        // enrich line items with missing data,
-        // e.g products which added in the call are enriched with their prices and labels
-        $cart = $this->enrichment->enrich($cart, $context, $behavior);
-
-        // all prices are now prepared for calculation -  starts the cart calculation
-        $cart = $this->processor->process($cart, $context, $behavior);
-
         // validate cart against the context rules
-        $cart = $this->cartRuleLoader->loadByCart($context, $cart, $behavior)->getCart();
+        $cart = $this->cartRuleLoader
+            ->loadByCart($context, $cart, $behavior)
+            ->getCart();
 
         $this->persister->save($cart, $context);
 
         $this->cart[$cart->getToken()] = $cart;
+
+        $cart->markUnmodified();
+        foreach ($cart->getLineItems()->getFlat() as $lineItem) {
+            $lineItem->markUnmodified();
+        }
 
         return $cart;
     }

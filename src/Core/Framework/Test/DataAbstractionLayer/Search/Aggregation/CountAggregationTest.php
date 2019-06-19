@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -18,9 +19,10 @@ class CountAggregationTest extends TestCase
     public function testCountAggregation(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupFixtures($context);
+        $ids = $this->setupFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
         $criteria->addAggregation(new CountAggregation('id', 'rate_agg'));
 
         $taxRepository = $this->getContainer()->get('tax.repository');
@@ -40,9 +42,10 @@ class CountAggregationTest extends TestCase
     public function testCountAggregationWithGroupBy(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupGroupByFixtures($context);
+        $ids = $this->setupGroupByFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.categories.id', $ids));
         $criteria->addAggregation(new CountAggregation('product.id', 'count_agg', 'product.categories.name'));
 
         $productRepository = $this->getContainer()->get('product.repository');

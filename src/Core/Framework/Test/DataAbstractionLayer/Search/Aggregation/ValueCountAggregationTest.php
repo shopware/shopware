@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -18,36 +19,41 @@ class ValueCountAggregationTest extends TestCase
     public function testValueCountAggregation(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupFixtures($context);
+        $ids = $this->setupFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
         $criteria->addAggregation(new ValueCountAggregation('taxRate', 'rate_agg'));
 
         $taxRepository = $this->getContainer()->get('tax.repository');
         $result = $taxRepository->aggregate($criteria, $context);
 
-        $expectedValues = [
-            'key' => null,
-            'values' => [
-                ['key' => 10, 'count' => 3],
-                ['key' => 20, 'count' => 2],
-                ['key' => 50, 'count' => 2],
-                ['key' => 90, 'count' => 1],
-            ],
-        ];
-
         /** @var AggregationResult $rateAgg */
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
-        static::assertEquals($expectedValues, $rateAgg->getResult()[0]);
+
+        $expectedValues = [
+            '10' => 3,
+            '20' => 2,
+            '50' => 2,
+            '90' => 1,
+        ];
+
+        $result = $rateAgg->getResult()[0];
+        foreach ($result['values'] as $row) {
+            $key = $row['key'];
+            static::assertArrayHasKey((string) $key, $expectedValues);
+            static::assertSame($expectedValues[$key], $row['count']);
+        }
     }
 
     public function testValueAggregationWithGroupBy(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupGroupByFixtures($context);
+        $ids = $this->setupGroupByFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.categories.id', $ids));
         $criteria->addAggregation(new ValueCountAggregation('product.price.gross', 'value_agg', 'product.categories.name'));
 
         $productRepository = $this->getContainer()->get('product.repository');

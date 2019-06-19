@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -32,9 +33,10 @@ class StatsAggregationTest extends TestCase
     public function testStatsAggregation(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupFixtures($context);
+        $ids = $this->setupFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
         $criteria->addAggregation(new StatsAggregation('taxRate', 'rate_agg'));
 
         $taxRepository = $this->getContainer()->get('tax.repository');
@@ -61,9 +63,10 @@ class StatsAggregationTest extends TestCase
     public function testStatsAggregationShouldNullNotRequestedValues(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupFixtures($context);
+        $ids = $this->setupFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $ids));
         $criteria->addAggregation(new StatsAggregation('taxRate', 'rate_agg', false, true, false, true, false));
 
         $taxRepository = $this->getContainer()->get('tax.repository');
@@ -87,9 +90,10 @@ class StatsAggregationTest extends TestCase
     public function testStatsAggregationWithGroupBy(): void
     {
         $context = Context::createDefaultContext();
-        $this->setupGroupByFixtures($context);
+        $ids = $this->setupGroupByFixtures($context);
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.categories.id', $ids));
         $criteria->addAggregation(new StatsAggregation('product.price.gross', 'stats_agg', true, true, true, true, true, 'product.categories.name'));
 
         $productRepository = $this->getContainer()->get('product.repository');

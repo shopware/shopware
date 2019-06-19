@@ -129,10 +129,6 @@ EOD
 Shipping processes and especially rules.
 EOD
     ,
-    'Shopware\\Core\\Checkout\\DiscountSurcharge' => <<<'EOD'
-Manage Discounts and surcharges.
-EOD
-    ,
     'Shopware\\Storefront' => <<<'EOD'
 The storefront application of Shopware 6. Therefore contains Storefront specific entities that do not need to be part of the core and just support inner workings of this particular Storefront.
 EOD
@@ -402,10 +398,6 @@ Represents a list of available shipping methods for customers to choose from dur
 EOD
     ,
     Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition::class => '',
-    Shopware\Core\Checkout\DiscountSurcharge\DiscountSurchargeDefinition::class => <<<'EOD'
-Stores discounts or surcharges of a specific amount and is assigned based on a rule set.
-EOD
-    ,
     'Shopware\\Storefront\\Framework\\Seo\\SeoUrlDefinition' => '',
     Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition::class => '',
     Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition::class => '',
@@ -444,7 +436,6 @@ EOD
     Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition::class => '',
     Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition::class => '',
     Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition::class => '',
-    Shopware\Core\Checkout\DiscountSurcharge\Aggregate\DiscountSurchargeTranslation\DiscountSurchargeTranslationDefinition::class => '',
     Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition::class => '',
     'Shopware\\Core\\Checkout\\Payment\\Aggregate\\PaymentMethodRules\\PaymentMethodRuleDefinition' => '',
     'Shopware\\Core\\Checkout\\Shipping\\Aggregate\\ShippingMethodPriceRule\\ShippingMethodPriceRuleDefinition' => <<<'EOD'

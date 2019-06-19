@@ -12,13 +12,14 @@ class PaymentMethodValidator implements CartValidatorInterface
 {
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
-        if (!$context->getPaymentMethod()->getAvailabilityRuleId()
-            || in_array($context->getPaymentMethod()->getAvailabilityRuleId(), $context->getRuleIds(), true)) {
+        $ruleId = $context->getPaymentMethod()->getAvailabilityRuleId();
+
+        if (!$ruleId || in_array($ruleId, $context->getRuleIds(), true)) {
             return;
         }
 
-        $errors->add(new PaymentMethodBlockedError(
-            $context->getPaymentMethod()->getName() ?: $context->getPaymentMethod()->getId()
-        ));
+        $errors->add(
+            new PaymentMethodBlockedError((string) $context->getPaymentMethod()->getTranslation('name'))
+        );
     }
 }

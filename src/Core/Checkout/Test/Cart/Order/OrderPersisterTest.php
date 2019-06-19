@@ -19,7 +19,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -29,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
@@ -79,7 +79,7 @@ class OrderPersisterTest extends TestCase
         $order->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(new EntitySearchResult(1, new EntityCollection([$order]), null, new Criteria(), $this->getSalesChannelContext()->getContext()));
 
-        $persister = new OrderPersister($repository, $this->orderConverter, $this->businessEventDispatcher);
+        $persister = new OrderPersister($repository, $this->orderConverter);
 
         $persister->persist($cart, $this->getSalesChannelContext());
     }
@@ -88,15 +88,18 @@ class OrderPersisterTest extends TestCase
     {
         $cart = new Cart('A', 'a-b-c');
         $cart->add(
-            (new LineItem('test', 'test'))
+            (new LineItem('test', LineItem::CREDIT_LINE_ITEM_TYPE))
                 ->setPriceDefinition(new AbsolutePriceDefinition(1, 2))
         );
 
-        $processedCart = $this->cartProcessor->process($cart, Generator::createSalesChannelContext(), new CartBehavior());
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $processedCart = $this->cartProcessor->process($cart, $context, new CartBehavior());
 
         $exception = null;
         try {
-            $this->orderPersister->persist($processedCart, $this->getSalesChannelContext());
+            $this->orderPersister->persist($processedCart, $context);
         } catch (InvalidCartException $exception) {
         }
 

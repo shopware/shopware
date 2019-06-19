@@ -195,10 +195,6 @@ Table(ShopwareCoreCheckoutCustomer, "Shopware\Core\Checkout\Customer\n(Customer)
    customer_group Table
    customer_tag Table
 }
-Table(ShopwareCoreCheckoutDiscountSurcharge, "Shopware\Core\Checkout\DiscountSurcharge\n(Discount/Surcharge)") {
-   discount_surcharge Table
-   discount_surcharge_translation Table
-}
 Table(ShopwareCoreCheckoutDocument, "Shopware\Core\Checkout\Document\n(Printed works)") {
    document Table
    document_type Table
@@ -263,7 +259,6 @@ ShopwareCoreContentProduct --> ShopwareCoreFrameworkLanguage
 ShopwareCoreCheckoutShipping --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemUnit --> ShopwareCoreFrameworkLanguage
 ShopwareCoreContentProperty --> ShopwareCoreFrameworkLanguage
-ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemSalutation --> ShopwareCoreFrameworkLanguage
 ShopwareCoreContentProductStream --> ShopwareCoreFrameworkLanguage
 ShopwareCoreSystemStateMachine --> ShopwareCoreFrameworkLanguage
@@ -343,7 +338,6 @@ ShopwareCoreCheckoutShipping --> ShopwareCoreContentDeliveryTime
 ShopwareCoreContentDeliveryTime --> ShopwareCoreContentDeliveryTime
 ShopwareCoreContentNewsletter --> ShopwareCoreContentNewsletter
 ShopwareCoreContentRule --> ShopwareCoreContentRule
-ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreContentRule
 ShopwareCoreCheckoutShipping --> ShopwareCoreContentRule
 ShopwareCoreCheckoutPayment --> ShopwareCoreContentRule
 ShopwareCoreCheckoutPromotion --> ShopwareCoreContentRule
@@ -355,7 +349,6 @@ ShopwareCoreCheckoutCustomer --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutPromotion --> ShopwareCoreCheckoutCustomer
-ShopwareCoreCheckoutDiscountSurcharge --> ShopwareCoreCheckoutDiscountSurcharge
 ShopwareCoreCheckoutDocument --> ShopwareCoreCheckoutDocument
 ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutDocument
 ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutOrder

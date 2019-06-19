@@ -6,13 +6,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -44,50 +42,45 @@ class ProcessorTest extends TestCase
         $this->context = $this->factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
-    public function testAddOwnLineItem(): void
-    {
-        $cart = new Cart('test', 'test');
-
-        $cart->add(
-            (new LineItem('A', 'test'))
-                ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2))
-        );
-
-        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
-
-        static::assertCount(1, $calculated->getLineItems());
-        static::assertTrue($calculated->has('A'));
-        static::assertSame(100.0, $calculated->get('A')->getPrice()->getTotalPrice());
-    }
-
     public function testDeliveryCreatedForDeliverableLineItem(): void
     {
         $cart = new Cart('test', 'test');
 
+        $id = Uuid::randomHex();
+
+        $product = [
+            'id' => $id,
+            'name' => 'test',
+            'price' => ['gross' => 119.99, 'net' => 99.99, 'linked' => false],
+            'productNumber' => Uuid::randomHex(),
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['taxRate' => 19, 'name' => 'test'],
+            'stock' => 10,
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
         $cart->add(
-            (new LineItem('A', 'test'))
-                ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2))
-                ->setDeliveryInformation(
-                    new DeliveryInformation(
-                        100,
-                        100,
-                        new DeliveryDate(new \DateTime(), new \DateTime()),
-                        new DeliveryDate(new \DateTime(), new \DateTime()),
-                        false
-                    )
-                )
+            (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $id, 1))
+                ->setStackable(true)
+                ->setRemovable(true)
         );
 
         $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
 
         static::assertCount(1, $calculated->getLineItems());
-        static::assertTrue($calculated->has('A'));
-        static::assertSame(100.0, $calculated->get('A')->getPrice()->getTotalPrice());
+        static::assertTrue($calculated->has($id));
+        static::assertSame(119.99, $calculated->get($id)->getPrice()->getTotalPrice());
 
         static::assertCount(1, $calculated->getDeliveries());
 
         /** @var Delivery $delivery */
         $delivery = $calculated->getDeliveries()->first();
-        static::assertTrue($delivery->getPositions()->getLineItems()->has('A'));
+        static::assertTrue($delivery->getPositions()->getLineItems()->has($id));
     }
 }

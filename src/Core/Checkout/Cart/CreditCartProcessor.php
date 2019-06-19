@@ -1,0 +1,50 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Cart;
+
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Framework\Struct\StructCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+class CreditCartProcessor implements CartProcessorInterface
+{
+    /**
+     * @var AbsolutePriceCalculator
+     */
+    private $calculator;
+
+    public function __construct(AbsolutePriceCalculator $absolutePriceCalculator)
+    {
+        $this->calculator = $absolutePriceCalculator;
+    }
+
+    public function process(
+        StructCollection $data,
+        Cart $original,
+        Cart $calculated,
+        SalesChannelContext $context,
+        CartBehavior $behavior
+    ): void {
+        $lineItems = $original->getLineItems()->filterType(LineItem::CREDIT_LINE_ITEM_TYPE);
+
+        foreach ($lineItems as $lineItem) {
+            $definition = $lineItem->getPriceDefinition();
+
+            if (!$definition instanceof AbsolutePriceDefinition) {
+                continue;
+            }
+
+            $lineItem->setPrice(
+                $this->calculator->calculate(
+                    $definition->getPrice(),
+                    $calculated->getLineItems()->getPrices(),
+                    $context
+                )
+            );
+
+            $calculated->add($lineItem);
+        }
+    }
+}

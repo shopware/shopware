@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Cart\Order;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Enrichment;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -65,11 +64,6 @@ class RecalculationService
     protected $customerAddressRepository;
 
     /**
-     * @var Enrichment
-     */
-    protected $enrichment;
-
-    /**
      * @var Processor
      */
     protected $processor;
@@ -86,7 +80,6 @@ class RecalculationService
         EntityRepositoryInterface $productRepository,
         EntityRepositoryInterface $orderAddressRepository,
         EntityRepositoryInterface $customerAddressRepository,
-        Enrichment $enrichment,
         Processor $processor,
         CartRuleLoader $cartRuleLoader
     ) {
@@ -96,7 +89,6 @@ class RecalculationService
         $this->productRepository = $productRepository;
         $this->orderAddressRepository = $orderAddressRepository;
         $this->customerAddressRepository = $customerAddressRepository;
-        $this->enrichment = $enrichment;
         $this->processor = $processor;
         $this->cartRuleLoader = $cartRuleLoader;
     }
@@ -232,9 +224,6 @@ class RecalculationService
         $behavior = (new CartBehavior())
             ->setIsRecalculation(true);
 
-        // enrich line items with missing data, e.g products which added in the call are enriched with their prices and labels
-        $cart = $this->enrichment->enrich($cart, $context, $behavior);
-
         // all prices are now prepared for calculation -  starts the cart calculation
         return $this->processor->process($cart, $context, $behavior);
     }
@@ -297,9 +286,6 @@ class RecalculationService
     {
         $behavior = new CartBehavior();
         $behavior->setIsRecalculation(true);
-
-        // enrich line items with missing data, e.g products which added in the call are enriched with their prices and labels
-        $cart = $this->enrichment->enrich($cart, $context, $behavior);
 
         // all prices are now prepared for calculation -  starts the cart calculation
         $cart = $this->processor->process($cart, $context, $behavior);

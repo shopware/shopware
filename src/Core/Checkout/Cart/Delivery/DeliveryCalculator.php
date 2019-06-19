@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Delivery;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -13,7 +14,6 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryCalculator
@@ -42,14 +42,14 @@ class DeliveryCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    public function calculate(StructCollection $data, DeliveryCollection $deliveries, SalesChannelContext $context): void
+    public function calculate(CartDataCollection $data, DeliveryCollection $deliveries, SalesChannelContext $context): void
     {
         foreach ($deliveries as $delivery) {
             $this->calculateDelivery($data, $delivery, $context);
         }
     }
 
-    private function calculateDelivery(StructCollection $data, Delivery $delivery, SalesChannelContext $context): void
+    private function calculateDelivery(CartDataCollection $data, Delivery $delivery, SalesChannelContext $context): void
     {
         $costs = null;
         if ($delivery->getShippingCosts()->getUnitPrice() > 0) {

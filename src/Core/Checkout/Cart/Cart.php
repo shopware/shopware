@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -17,7 +18,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\Framework\Struct\StructCollection;
 
 class Cart extends Struct
 {
@@ -62,7 +62,7 @@ class Cart extends Struct
     protected $modified = false;
 
     /**
-     * @var StructCollection|null
+     * @var CartDataCollection|null
      */
     private $data;
 
@@ -219,16 +219,16 @@ class Cart extends Struct
         return $this->deliveries->getShippingCosts()->sum();
     }
 
-    public function getData(): StructCollection
+    public function getData(): CartDataCollection
     {
         if (!$this->data) {
-            $this->data = new StructCollection();
+            $this->data = new CartDataCollection();
         }
 
         return $this->data;
     }
 
-    public function setData(?StructCollection $data): void
+    public function setData(?CartDataCollection $data): void
     {
         $this->data = $data;
     }

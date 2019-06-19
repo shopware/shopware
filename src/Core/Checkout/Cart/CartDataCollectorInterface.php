@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Shopware\Core\Framework\Struct\StructCollection;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface CartDataCollectorInterface
 {
-    public function collect(StructCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void;
+    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void;
 }

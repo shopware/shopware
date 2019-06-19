@@ -6,9 +6,9 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInterface
@@ -44,7 +44,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     }
 
     public function collect(
-        StructCollection $data,
+        CartDataCollection $data,
         Cart $original,
         SalesChannelContext $context,
         CartBehavior $behavior
@@ -85,7 +85,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
         }
     }
 
-    public function process(StructCollection $data, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behavior): void
+    public function process(CartDataCollection $data, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behavior): void
     {
         if ($behavior->isRecalculation()) {
             $deliveries = $original->getDeliveries();

@@ -154,6 +154,15 @@ class LineItemCollection extends Collection
         );
     }
 
+    public function getReferenceIds(): array
+    {
+        return $this->fmap(
+            function (LineItem $lineItem) {
+                return $lineItem->getReferencedId();
+            }
+        );
+    }
+
     protected function getKey(LineItem $element): string
     {
         return $element->getId();

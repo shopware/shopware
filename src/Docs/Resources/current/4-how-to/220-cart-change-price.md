@@ -90,7 +90,7 @@ It only shows how to overwrite the price of an item in the cart due to some cond
 
 ## Changing the price
 
-To accomplish the goal of changing an item in the cart, you should use the enrichment pattern.
+To accomplish the goal of changing an item in the cart, you should use the collector pattern.
 For this you need to create your own cart collector.
 
 The collector basically compares the product IDs of the products in the cart with the product IDs from the custom table.
@@ -104,142 +104,132 @@ namespace Swag\CartChangePrice\Cart\Checkout;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
+use Shopware\Core\Checkout\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Swag\CartChangePrice\Cart\Checkout\OverwrittenPrice\OverwrittenPriceEntity;
 
-class OverwrittenPriceCollector implements \Shopware\Core\Checkout\Cart\CollectorInterface
+class OverwrittenPriceCollector implements CartDataCollectorInterface, CartProcessorInterface
 {
     /**
      * @var EntityRepositoryInterface
      */
     private $overwritePriceRepository;
 
-    public function __construct(EntityRepositoryInterface $overwritePriceRepository)
-    {
+    /**
+     * @var QuantityPriceCalculator
+     */
+    private $calculator;
+
+    public function __construct(
+        EntityRepositoryInterface $overwritePriceRepository,
+        QuantityPriceCalculator $calculator
+    ) {
         $this->overwritePriceRepository = $overwritePriceRepository;
+        $this->calculator = $calculator;
     }
 
-    public function prepare(StructCollection $definitions, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
+    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        // Simply consider all products in the cart and pass it to the collection
-        // We do not want to filter for the products from our custom database table here, since database actions are supposed to be done
-        // in the `collect` method
-        $definitions->add(new OverwrittenPriceFetchDefinition($cart->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE)->getKeys()));
-    }
+        // get all product ids of current cart
+        $productIds = $original->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE)->getReferenceIds();
 
-    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
-    {
-        // Fetch the items from the collection again.
-        $priceOverwriteFetchDefinitions = $fetchDefinitions->filterInstance(OverwrittenPriceFetchDefinition::class);
-        if ($priceOverwriteFetchDefinitions->count() === 0) {
+        // remove all product ids which are already fetched from the database
+        $filtered = $this->filterAlreadyFetchedPrices($productIds, $data);
+
+        if (empty($filtered)) {
             return;
         }
-
-        $productIds = [[]];
-        /** @var OverwrittenPriceFetchDefinition $fetchDefinition */
-        foreach ($priceOverwriteFetchDefinitions as $fetchDefinition) {
-            // Collect all product IDs from the items in the cart
-            $productIds[] = $fetchDefinition->getProductIds();
-        }
-
-        // Flatten the array
-        $productIds = array_unique(array_merge(...$productIds));
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('productId', $productIds));
-        // Check if any product id, which was collected earlier, matches with the custom table product IDs
-        $overwrittenPrices = $this->overwritePriceRepository->search($criteria, $context->getContext());
+        $criteria->addFilter(new EqualsAnyFilter('productId', $filtered));
 
-        // Necessary for the `enrich` method. Contains all product IDs, whose prices need to be overwritten
-        $data->set('overwritten_price', $overwrittenPrices);
+        // fetch prices from database
+        $prices = $this->overwritePriceRepository->search($criteria, $context->getContext());;
+
+        foreach ($filtered as $id) {
+            $key = $this->buildKey($id);
+
+            $price = null;
+            // find price for the current product id
+            foreach ($prices as $current) {
+                if ($current->getProductId() === $id) {
+                    $price = $current;
+                    break;
+                }
+            }
+
+            // we have to set a value for each product id to prevent duplicate queries in next calculation
+            $data->set($key, $price);
+        }
     }
 
-    public function enrich(StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
+    public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        // If no price has to be overwritten, do nothing
-        if (!$data->has('overwritten_price')) {
-            return;
-        }
+        // get all product line items
+        $products = $toCalculate->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
 
-        $overwrittenPrices = $data->get('overwritten_price');
+        foreach ($products as $product) {
+            $key = $this->buildKey($product->getReferencedId());
 
-        // If no price has to be overwritten, do nothing
-        if (count($overwrittenPrices) === 0) {
-            return;
-        }
-
-        /** @var OverwrittenPriceEntity $overwrittenPrice */
-        foreach ($overwrittenPrices as $overwrittenPrice) {
-            // Fetch the cart item matching to the product ID
-            $matchedCartItem = $cart->getLineItems()->get($overwrittenPrice->getProductId());
-
-            if (!$matchedCartItem) {
+            // no overwritten price? continue with next product
+            if (!$data->has($key) || $data->get($key) === null) {
                 continue;
             }
 
-            /** @var QuantityPriceDefinition $oldPriceDefinition */
-            $oldPriceDefinition = $matchedCartItem->getPriceDefinition();
-            // Overwrite price definition with the new price, hence the `$overwrittenPrice->getPrice()` call
-            $matchedCartItem->setPriceDefinition(
-                new QuantityPriceDefinition(
-                    $overwrittenPrice->getPrice(),
-                    $oldPriceDefinition->getTaxRules(),
-                    $oldPriceDefinition->getPrecision(),
-                    $oldPriceDefinition->getQuantity(),
-                    $oldPriceDefinition->isCalculated()
-                )
+            /** @var OverwrittenPriceEntity $price */
+            $price = $data->get($key);
+
+            // build new price definition
+            $definition = new QuantityPriceDefinition(
+                $price->getPrice(),
+                $product->getPrice()->getTaxRules(),
+                $context->getCurrency()->getDecimalPrecision(),
+                $product->getPrice()->getQuantity(),
+                true
             );
+
+            // build CalculatedPrice over calculator class for overwitten price
+            $calculated = $this->calculator->calculate($definition, $context);
+
+            // set new price into line item
+            $product->setPrice($calculated);
+            $product->setPriceDefinition($definition);
         }
     }
-}
-```
 
-But why is there a custom fetch definition `OverwrittenPriceFetchDefinition`?
-Imagine you wouldn't select all items from the cart in the `prepare` method, but only line items, which match the condition X.
-In the `collect` method, you're only considering the products from a `OverwrittenPriceFetchDefinition`.
-
-Now, a third party developer wants to add condition Y to your use-case, so his products are also considered by your code.
-He can now simply achieve this, by adding his own collector, which returns his products in a new instance of your `OverwrittenPriceFetchDefinition` - and that's it already,
-his plugin would already be compatible with your custom collector.
-If you were to use a default FetchDefinition, chances are high, that many other collectors would also deal with his products in some way he did not anticipate.
-
-So here's an example of the said `OverwrittenPriceFetchDefinition`:
-```php
-<?php declare(strict_types=1);
-
-namespace Swag\CartChangePrice\Cart\Checkout;
-
-use Shopware\Core\Framework\Struct\Struct;
-
-class OverwrittenPriceFetchDefinition extends Struct
-{
-    /**
-     * @var string[]
-     */
-    protected $productIds;
-
-    /**
-     * @param string[] $productIds
-     */
-    public function __construct(array $productIds)
+    private function filterAlreadyFetchedPrices(array $productIds, CartDataCollection $data): array
     {
-        $this->productIds = $productIds;
+        $filtered = [];
+
+        foreach ($productIds as $id) {
+            $key = $this->buildKey($id);
+
+            // already fetched from database?
+            if ($data->has($key)) {
+                continue;
+            }
+
+            $filtered[] = $id;
+        }
+
+        return $filtered;
     }
 
-    /**
-     * @return string[]
-     */
-    public function getProductIds(): array
+    private function buildKey(string $id): string
     {
-        return $this->productIds;
+        return 'price-overwrite-'.$id;
     }
 }
 ```
+
 
 And for completion's sake, the respective `services.xml`, which registers the collector in the first instance.
 ```xml
@@ -254,7 +244,11 @@ And for completion's sake, the respective `services.xml`, which registers the co
     
         <service id="Swag\CartChangePrice\Cart\Checkout\OverwrittenPriceCollector">
             <argument type="service" id="overwritten_price.repository" />
-            <tag name="shopware.cart.collector" />
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+
+            <!-- after product collector/processor -->
+            <tag name="shopware.cart.processor" priority="4500" />
+            <tag name="shopware.cart.collector" priority="4500" />
         </service>
     </services>
 </container>

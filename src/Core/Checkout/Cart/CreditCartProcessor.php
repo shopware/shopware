@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
-use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CreditCartProcessor implements CartProcessorInterface
@@ -21,7 +21,7 @@ class CreditCartProcessor implements CartProcessorInterface
     }
 
     public function process(
-        StructCollection $data,
+        CartDataCollection $data,
         Cart $original,
         Cart $calculated,
         SalesChannelContext $context,

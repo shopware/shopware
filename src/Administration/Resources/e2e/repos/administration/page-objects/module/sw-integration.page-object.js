@@ -28,7 +28,7 @@ class IntegrationPageObject extends GeneralPageObject {
             me.browser
                 .waitForElementVisible('.sw-field-copyable')
                 .click('.sw-field-copyable')
-                .clearValue(me.elements.integrationName)
+                .clearValueManual(me.elements.integrationName)
                 .setValue(me.elements.integrationName, [me.browser.Keys.CONTROL, 'v'])
                 .expect.element(me.elements.integrationName).value.that.equals(me.accessKeyId);
         });

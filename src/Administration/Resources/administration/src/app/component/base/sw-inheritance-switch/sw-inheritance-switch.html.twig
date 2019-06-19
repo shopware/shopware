@@ -1,0 +1,25 @@
+{% block sw_inheritance_switch %}
+    <div class="sw-inheritance-switch" :class="{ 'sw-inheritance-switch--disabled': disabled }">
+        {% block sw_inheritance_switch_inherit_icon %}
+            <sw-icon v-if="isInherited"
+                     key="inherit-icon"
+                     :multicolor="true"
+                     :name="disabled ? 'custom-inherited-disabled' : 'custom-inherited'"
+                     v-tooltip="{ message: $tc('global.sw-field.tooltipRemoveInheritance'), disabled: disabled }"
+                     @click="onClickRemoveInheritance"
+                     size="16">
+            </sw-icon>
+        {% endblock %}
+        {% block sw_inheritance_switch_uninherit_icon %}
+            <sw-icon v-else
+                     key="uninherit-icon"
+                     :class="unInheritClasses"
+                     :multicolor="true"
+                     name="custom-uninherited"
+                     v-tooltip="{ message: $tc('global.sw-field.tooltipRestoreInheritance'), disabled: disabled }"
+                     @click="onClickRestoreInheritance"
+                     size="16">
+            </sw-icon>
+        {% endblock %}
+    </div>
+{% endblock %}

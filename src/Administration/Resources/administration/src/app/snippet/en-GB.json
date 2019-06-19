@@ -60,7 +60,8 @@
       },
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password",
-      "tooltipRestoreInheritance": "Restore inheritance"
+      "tooltipRestoreInheritance": "Restore inheritance",
+      "tooltipRemoveInheritance": "Remove inheritance"
     },
     "sw-field-copyable": {
       "tooltip": {
@@ -583,6 +584,9 @@
     "titleModalButtonCancelUnsavedChanges": "Cancel",
     "titleModalButtonRevertUnsavedChanges": "Discard changes",
     "titleModalButtonSaveChanges": "Save"
+  },
+  "sw-inheritance-warning": {
+    "infoTextInheritedField": "{moduleName} has inherited fields. Meaning that as long as the inherited state is active the content will be inherited. Inherited fields can be unlinked by clicking the link symbol. Clicking the symbol again will set the inherited state back."
   },
   "sw-sales-channel-switch": {
     "messageModalUnsavedChanges": "There are unsaved changes for the current sales channel. Do you want to save them now?",

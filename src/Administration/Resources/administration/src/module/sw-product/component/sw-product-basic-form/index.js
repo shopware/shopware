@@ -18,6 +18,7 @@ Component.register('sw-product-basic-form', {
     computed: {
         ...mapState('swProductDetail', [
             'product',
+            'parentProduct',
             'loading'
         ]),
 
@@ -40,6 +41,15 @@ Component.register('sw-product-basic-form', {
         updateIsTitleRequired() {
             // TODO: Refactor when there is a possibility to check if the title field is inherited
             this.isTitleRequired = this.languageStore.getCurrentLanguage().id === '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+        },
+
+        getInheritValue(firstKey, secondKey) {
+            const p = this.parentProduct;
+
+            if (p[firstKey]) {
+                return p[firstKey].hasOwnProperty(secondKey) ? p[firstKey][secondKey] : p[firstKey];
+            }
+            return null;
         }
     }
 });

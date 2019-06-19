@@ -15,6 +15,12 @@ Component.register('sw-product-media-form', {
         productId: {
             type: String,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -49,7 +55,8 @@ Component.register('sw-product-media-form', {
 
     computed: {
         ...mapState('swProductDetail', [
-            'localMode'
+            'localMode',
+            'parentProduct'
         ]),
 
         ...mapState('swProductDetail', {

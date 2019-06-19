@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-field-transition: border-color 0.3s ease-out;
+$sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
 
 
 .sw-block-field {
@@ -48,13 +48,6 @@ $sw-field-transition: border-color 0.3s ease-out;
         .sw-block-field__block {
             border-color: $color-shopware-blue;
             box-shadow: 0 0 4px lighten($color-shopware-blue, 30%);
-        }
-    }
-
-    &.is--inherited {
-        .sw-block-field__block {
-            border-color: $color-purple;
-            box-shadow: 0 0 4px lighten($color-purple, 30%);
         }
     }
 

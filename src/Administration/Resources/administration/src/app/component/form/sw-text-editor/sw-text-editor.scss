@@ -1,6 +1,7 @@
 @import "~scss/variables";
 
 .sw-text-editor {
+    position: relative;
 
     &.is--boxed {
         margin-bottom: 22px;
@@ -54,6 +55,7 @@
     }
 
     .sw-text-editor__content {
+        transition: 0.3s all ease;
         position: relative;
         display: flex;
         flex-direction: column;
@@ -76,6 +78,7 @@
     }
 
     .sw-text-editor__word_count {
+        transition: 0.3s all ease;
         padding-top: 10px;
     }
 
@@ -184,6 +187,22 @@
 
         & > *:first-child {
             margin-top: 0;
+        }
+    }
+
+    &.is--disabled::after {
+        content: '';
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    &.is--disabled {
+        .sw-text-editor__content, .sw-text-editor__word_count {
+            background-color: $color-light-gray;
         }
     }
 }

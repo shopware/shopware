@@ -7,7 +7,8 @@ Component.register('sw-product-settings-form', {
 
     computed: {
         ...mapState('swProductDetail', [
-            'product'
+            'product',
+            'parentProduct'
         ])
     }
 });

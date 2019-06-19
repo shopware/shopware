@@ -91,7 +91,7 @@ class SalesChannelPageObject extends GeneralPageObject {
                     .click('.sw-field-copyable:nth-of-type(1)')
                     .checkNotification('Text has been copied to clipboard.')
                     .getLocationInView(me.elements.salesChannelNameInput)
-                    .clearValue(me.elements.salesChannelNameInput)
+                    .clearValueManual(me.elements.salesChannelNameInput)
                     .setValue(me.elements.salesChannelNameInput, ['', me.browser.Keys.CONTROL, 'v'])
                     .expect.element(me.elements.salesChannelNameInput).value.that.equals(me.accessKeyId);
             });

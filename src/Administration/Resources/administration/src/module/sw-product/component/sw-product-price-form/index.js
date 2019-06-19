@@ -16,9 +16,15 @@ Component.register('sw-product-price-form', {
                 return {};
             }
 
-            return Object.values(this.taxes.items).find((taxRate) => {
-                return taxRate.id === this.product.taxId;
-            });
+            if (this.$refs.taxIdInheritation) {
+                const isInherited = this.$refs.taxIdInheritation.isInheritField && this.$refs.taxIdInheritation.isInherited;
+                return Object.values(this.taxes.items).find((taxRate) => {
+                    const taxId = isInherited ? this.parentProduct.taxId : this.product.taxId;
+                    return taxRate.id === taxId;
+                });
+            }
+
+            return {};
         },
 
         defaultCurrency() {
@@ -37,6 +43,7 @@ Component.register('sw-product-price-form', {
 
         ...mapState('swProductDetail', [
             'product',
+            'parentProduct',
             'taxes',
             'currencies'
         ])

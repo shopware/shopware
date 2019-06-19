@@ -1,5 +1,5 @@
 import { Component } from 'src/core/shopware';
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import template from './sw-product-category-form.html.twig';
 
 Component.register('sw-product-category-form', {
@@ -17,13 +17,14 @@ Component.register('sw-product-category-form', {
     computed: {
         ...mapState('swProductDetail', [
             'product',
+            'parentProduct',
             'localMode',
             'loading'
         ]),
 
-        categoriesCollection() {
-            return !this.loading.product ? this.product.categories : {};
-        },
+        ...mapGetters('swProductDetail', [
+            'isChild'
+        ]),
 
         hasVisibilitesSelected() {
             if (this.product && this.product.visibilities) {
@@ -40,6 +41,12 @@ Component.register('sw-product-category-form', {
 
         closeAdvancedVisibility() {
             this.displayVisibilityDetail = false;
+        },
+
+        reloadProductVisibility() {
+            this.$nextTick(() => {
+                this.$refs.productVisibility.reloadVisibleItems();
+            });
         }
     }
 });

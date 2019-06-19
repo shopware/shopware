@@ -56,6 +56,10 @@ Component.extend('sw-product-visibility-select', 'sw-multi-select', {
 
     methods: {
         initData() {
+            if (!this.collection.entity) {
+                return null;
+            }
+
             this.repository = this.repositoryFactory.create(this.collection.entity, this.collection.source);
 
             this.searchRepository = this.repositoryFactory.create('sales_channel');

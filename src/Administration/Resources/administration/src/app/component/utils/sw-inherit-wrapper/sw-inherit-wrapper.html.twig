@@ -1,0 +1,29 @@
+{% block sw_inherit_wrapper %}
+    <div class="sw-inherit-wrapper" :class="{ 'is--inherited': isInherited, 'is--required': required }">
+        {% block sw_inherit_wrapper_toggle %}
+            <template v-if="label">
+                {% block sw_inherit_wrapper_toggle_wrapper %}
+                    <div class="sw-inherit-wrapper__toggle-wrapper">
+                        {% block sw_inherit_wrapper_toggle_wrapper_field %}
+                            <sw-inheritance-switch v-if="isInheritField"
+                                              :disabled="disabled"
+                                              class="sw-inherit-wrapper__inheritance-icon"
+                                              :isInherited="isInherited"
+                                              @inheritance-restore="restoreInheritance"
+                                              @inheritance-remove="removeInheritance">
+                            </sw-inheritance-switch>
+                        {% endblock %}
+
+                        {% block sw_inherit_wrapper_toggle_wrapper_label %}
+                            <label class="sw-inherit-wrapper__inheritance-label">{{ label }}</label>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_inherit_wrapper_content %}
+            <slot name="content" v-bind="{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance }"></slot>
+        {% endblock %}
+    </div>
+{% endblock %}

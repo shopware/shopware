@@ -15,7 +15,8 @@
       "mainMenuItemList": "Products",
       "mainMenuItemAdd": "Add product",
       "descriptionTextModule": "Manage products here.",
-      "placeholderSearchBar": "Search products..."
+      "placeholderSearchBar": "Search products...",
+      "inheritanceModuleName": "This product"
     },
     "basicForm": {
       "labelTitle": "Title",

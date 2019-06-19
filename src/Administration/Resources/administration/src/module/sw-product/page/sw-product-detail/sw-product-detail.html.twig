@@ -3,7 +3,7 @@
 
         {% block sw_product_detail_header %}
             <template slot="smart-bar-header">
-                <h2>{{ placeholder(product, 'name', $tc('sw-product.detail.textHeadline')) }}</h2>
+                <h2>{{ productTitle }}</h2>
             </template>
         {% endblock %}
 
@@ -51,6 +51,10 @@
                     </sw-language-info>
                 {% endblock %}
 
+                {% block sw_product_detail_inheritance_warning %}
+                    <sw-inheritance-warning v-if="isChild" :name="$tc('sw-product.general.inheritanceModuleName')"></sw-inheritance-warning>
+                {% endblock %}
+
                 {% block sw_product_detail_content_tabs %}
                     <sw-tabs class="sw-product-detail-page__tabs" v-if="productId">
                         {% block sw_product_detail_content_tabs_general %}
@@ -79,6 +83,7 @@
 
                         {% block sw_product_detail_content_tabs_advanced_variants %}
                             <sw-tabs-item class="sw-product-detail__tab-variants"
+                                          v-if="!isChild"
                                           :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
                                           :title="$tc('sw-product.detail.tabVariation')">
                                 {{ $tc('sw-product.detail.tabVariation') }}

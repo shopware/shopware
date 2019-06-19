@@ -1,6 +1,7 @@
 import deepmerge from 'deepmerge';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import StringHelper from 'src/script/helper/string.helper';
+import NativeEventEmitter from 'src/script/helper/emitter.helper';
 
 /**
  * Plugin Base class
@@ -20,6 +21,7 @@ export default class Plugin {
         }
 
         this.el = el;
+        this.$emitter = new NativeEventEmitter(this.el);
         this._pluginName = this._getPluginName(pluginName);
         this.options = this._mergeOptions(options);
         this._initialized = false;

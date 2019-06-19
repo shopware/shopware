@@ -61,6 +61,9 @@ import RemoteClickPlugin from 'src/script/plugin/remote-click/remote-click.plugi
 import AddressEditorPlugin from 'src/script/plugin/address-editor/address-editor.plugin';
 import DateFormat from 'src/script/plugin/date-format/date-format.plugin.js';
 import SetBrowserClassPlugin from 'src/script/plugin/set-browser-class/set-browser-class.plugin';
+import NativeEventEmitter from 'src/script/helper/emitter.helper';
+
+window.eventEmitter = new NativeEventEmitter();
 
 /*
 initialisation

@@ -1,3 +1,5 @@
+import { types } from '../../../core/service/util.service';
+
 const { Mixin } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -47,12 +49,12 @@ Mixin.register('cms-element', {
         },
 
         initElementData(elementName) {
-            if (typeof this.element.data === 'object' && Object.keys(this.element.data).length > 0) {
+            if (types.isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
                 return;
             }
 
             const elementConfig = this.cmsElements[elementName];
-            const defaultData = elementConfig.defaultData;
+            const defaultData = elementConfig.defaultData ? elementConfig.defaultData : {};
 
             this.element.data = Object.assign(cloneDeep(defaultData), this.element.data || {});
         },

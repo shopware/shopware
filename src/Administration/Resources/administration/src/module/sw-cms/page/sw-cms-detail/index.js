@@ -1,5 +1,6 @@
-import EntityProxy from 'src/core/data/EntityProxy';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
+import Criteria from '../../../../core/data-new/criteria.data';
+import { types } from '../../../../core/service/util.service';
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
 
@@ -10,7 +11,16 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-cms-detail', {
     template,
 
-    inject: ['loginService', 'cmsPageService', 'cmsService', 'context'],
+    inject: [
+        'repositoryFactory',
+        'entityFactory',
+        'entityHydrator',
+        'context',
+        'loginService',
+        'cmsPageService',
+        'cmsService',
+        'context'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -50,6 +60,18 @@ Component.register('sw-cms-detail', {
     computed: {
         identifier() {
             return this.placeholder(this.page, 'name');
+        },
+
+        pageRepository() {
+            return this.repositoryFactory.create('cms_page');
+        },
+
+        blockRepository() {
+            return this.repositoryFactory.create('cms_block');
+        },
+
+        slotRepository() {
+            return this.repositoryFactory.create('cms_slot');
         },
 
         languageStore() {
@@ -169,6 +191,7 @@ Component.register('sw-cms-detail', {
 
             // ToDo: Remove, when language handling is added to CMS
             this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            this.context.languageId = this.languageStore.systemLanguageId;
 
             this.resetCmsPageState();
 
@@ -231,35 +254,26 @@ Component.register('sw-cms-detail', {
 
         loadPage(pageId) {
             this.isLoading = true;
+            const criteria = new Criteria(1, 1);
+            const blockCriteria = new Criteria(1, 500);
+            blockCriteria.addSorting(Criteria.sort('position', 'ASC', true));
+            blockCriteria.addAssociation('slots', new Criteria(1, 500));
+            blockCriteria.addAssociation('backgroundMedia', new Criteria(1, 1));
+            criteria.addAssociation('blocks', blockCriteria);
 
-            const initContainer = Application.getContainer('init');
-            const httpClient = initContainer.httpClient;
-            const currentLanguageId = this.languageStore.getCurrentId();
+            this.pageRepository.get(pageId, this.context, criteria).then((page) => {
+                this.page = { blocks: [] };
+                this.page = page;
 
-            httpClient.get(`/_proxy/sales-channel-api/${this.currentSalesChannelKey}/v1/cms-page/${pageId}`, {
-                headers: {
-                    Authorization: `Bearer ${this.loginService.getToken()}`,
-                    'sw-language-id': currentLanguageId
+                this.updateBlockPositions();
+                this.$store.commit('cmsPageState/setCurrentPage', this.page);
+
+                if (this.currentBlock !== null) {
+                    this.currentBlock = this.page.blocks.get(this.currentBlock.id);
                 }
-            }).then((response) => {
-                if (response.data.data) {
-                    this.page = { blocks: [] };
-                    this.page = new EntityProxy('cms_page', this.cmsPageService, response.data.data.id, null);
-                    this.page.setData(response.data.data, false, true, false, currentLanguageId);
 
-                    this.page.blocks.forEach((block, index) => {
-                        block.position = index;
-                    });
-
-                    this.$store.commit('cmsPageState/setCurrentPage', this.page);
-
-                    if (this.currentBlock !== null) {
-                        this.currentBlock = this.page.blocks.find(block => block.id === this.currentBlock.id);
-                    }
-
-                    this.updateDataMapping();
-                    this.isLoading = false;
-                }
+                this.updateDataMapping();
+                this.isLoading = false;
             }).catch((exception) => {
                 this.isLoading = false;
 
@@ -267,8 +281,6 @@ Component.register('sw-cms-detail', {
                     title: exception.message,
                     message: exception.response.statusText
                 });
-                warn(this._name, exception.message, exception.response);
-                throw exception;
             });
         },
 
@@ -334,7 +346,7 @@ Component.register('sw-cms-detail', {
         },
 
         abortOnLanguageChange() {
-            return this.page.hasChanges();
+            return this.pageRepository.hasChanges(this.page);
         },
 
         saveOnLanguageChange() {
@@ -438,16 +450,12 @@ Component.register('sw-cms-detail', {
         },
 
         onBlockDelete(blockId) {
-            const blockStore = this.page.getAssociation('blocks');
-            const block = blockStore.getById(blockId);
-
-            block.delete();
+            this.page.blocks.remove(blockId);
 
             if (this.currentBlock && this.currentBlock.id === blockId) {
                 this.currentBlock = null;
             }
 
-            this.page.blocks.splice(this.page.blocks.findIndex(b => b.id === block.id), 1);
             this.updateBlockPositions();
         },
 
@@ -485,8 +493,7 @@ Component.register('sw-cms-detail', {
             }
 
             const blockConfig = this.cmsBlocks[dragData.block.name];
-            const blockStore = this.page.getAssociation('blocks');
-            const newBlock = blockStore.create();
+            const newBlock = this.blockRepository.create(this.context);
             newBlock.type = dragData.block.name;
             newBlock.position = dropData.dropIndex;
             newBlock.pageId = this.page.id;
@@ -497,27 +504,26 @@ Component.register('sw-cms-detail', {
                 cloneDeep(blockConfig.defaultConfig || {})
             );
 
-            const slotStore = newBlock.getAssociation('slots');
             Object.keys(blockConfig.slots).forEach((slotName) => {
                 const slotConfig = blockConfig.slots[slotName];
-                const element = slotStore.create();
+                const element = this.slotRepository.create(this.context);
                 element.blockId = newBlock.id;
                 element.slot = slotName;
 
                 if (typeof slotConfig === 'string') {
                     element.type = slotConfig;
-                } else if (typeof slotConfig === 'object') {
+                } else if (types.isPlainObject(slotConfig)) {
                     element.type = slotConfig.type;
 
-                    if (slotConfig.default && typeof slotConfig.default === 'object') {
+                    if (slotConfig.default && types.isPlainObject(slotConfig.default)) {
                         Object.assign(element, cloneDeep(slotConfig.default));
                     }
                 }
 
-                newBlock.slots.push(element);
+                newBlock.slots.add(element);
             });
 
-            this.page.blocks.splice(dropData.dropIndex, 0, newBlock);
+            this.page.blocks.addAt(newBlock, dropData.dropIndex);
             this.updateBlockPositions();
 
             this.onBlockSelection(newBlock);
@@ -528,26 +534,9 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
-            const newIndex = dropData.block.position;
-            const oldIndex = dragData.block.position;
+            this.page.blocks.moveItem(dragData.block.position, dropData.block.position);
 
-            if (newIndex === oldIndex) {
-                return;
-            }
-
-            const movedItem = this.page.blocks.find((item, index) => index === oldIndex);
-            const remainingItems = this.page.blocks.filter((item, index) => index !== oldIndex);
-            const sortedItems = [
-                ...remainingItems.slice(0, newIndex),
-                movedItem,
-                ...remainingItems.slice(newIndex)
-            ];
-
-            sortedItems.forEach((block, index) => {
-                block.position = index;
-            });
-
-            this.page.blocks = sortedItems;
+            this.updateBlockPositions();
         },
 
         saveFinish() {
@@ -592,7 +581,8 @@ Component.register('sw-cms-detail', {
             }
 
             this.isLoading = true;
-            return this.page.save(true).then(() => {
+
+            return this.pageRepository.save(this.page, this.context).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
 

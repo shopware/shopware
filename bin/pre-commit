@@ -13,6 +13,8 @@ function onExit {
 trap onExit EXIT
 
 PHP_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '^src/.*\.(php)$')"
+SCSS_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '\.(scss)$')"
+SCSS_ADMIN_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '^src/Administration/Resources/administration/.*\.(scss)$')"
 JS_ADMIN_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '^src/Administration/Resources/administration/.*\.(js)$')"
 JS_E2E_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '^src/Administration/Resources/e2e/.*\.(js)$')"
 JS_STOREFRONT_FILES="$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '^src/Storefront/Resources/.*\.(js)$')"
@@ -23,7 +25,7 @@ set -e
 
 php bin/generate-composer.php
 
-if [[ -z "$PHP_FILES" && -z "$JS_FILES" ]]
+if [[ -z "$PHP_FILES" && -z "$JS_FILES" && -z "$SCSS_FILES" ]]
 then
     exit 0
 fi
@@ -38,7 +40,7 @@ then
     bin/phpstan.phar analyze --level 5 --no-progress --configuration phpstan.neon --autoload-file="$AUTOLOAD_FILE" ${PHP_FILES}
 fi
 
-UNSTAGED_FILES="$(git diff --name-only -- ${PHP_FILES} ${JS_FILES})"
+UNSTAGED_FILES="$(git diff --name-only -- ${PHP_FILES} ${JS_FILES} ${SCSS_FILES})"
 
 if [[ -n "$UNSTAGED_FILES" ]]
 then
@@ -55,6 +57,16 @@ if [[ -n "$PHP_FILES" ]]
 then
     # fix code style and update the commit
     bin/php-cs-fixer.phar fix --config=.php_cs.dist --quiet -vv ${PHP_FILES}
+fi
+
+if [[ -n "$SCSS_ADMIN_FILES" ]]
+then
+    if [[ -x src/Administration/Resources/administration/node_modules/.bin/stylelint ]]
+    then
+        src/Administration/Resources/administration/node_modules/.bin/stylelint ${SCSS_ADMIN_FILES} --syntax scss
+    else
+        echo "Skipped Stylelint checks on administration, because it's not installed."
+    fi
 fi
 
 if [[ -n "$JS_ADMIN_FILES" ]]
@@ -87,4 +99,4 @@ then
     fi
 fi
 
-git add ${JS_ADMIN_FILES} ${JS_E2E_FILES} ${JS_STOREFRONT_FILES} ${PHP_FILES}
+git add ${SCSS_ADMIN_FILES} ${JS_ADMIN_FILES} ${JS_E2E_FILES} ${JS_STOREFRONT_FILES} ${PHP_FILES}

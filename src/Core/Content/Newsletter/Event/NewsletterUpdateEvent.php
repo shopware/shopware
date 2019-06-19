@@ -9,13 +9,12 @@ use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NewsletterRegisterEvent extends Event implements BusinessEventInterface, MailActionInterface
+class NewsletterUpdateEvent extends Event implements BusinessEventInterface, MailActionInterface
 {
-    public const EVENT_NAME = 'newsletter.register';
+    public const EVENT_NAME = 'newsletter.update';
 
     /**
      * @var Context
@@ -42,19 +41,17 @@ class NewsletterRegisterEvent extends Event implements BusinessEventInterface, M
      */
     private $salesChannelId;
 
-    public function __construct(Context $context, NewsletterRecipientEntity $recipientEntity, string $url, string $salesChannelId)
+    public function __construct(Context $context, NewsletterRecipientEntity $recipientEntity, string $salesChannelId)
     {
         $this->context = $context;
         $this->recipientEntity = $recipientEntity;
-        $this->url = $url;
         $this->salesChannelId = $salesChannelId;
     }
 
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class))
-            ->add('url', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class));
     }
 
     public function getName(): string

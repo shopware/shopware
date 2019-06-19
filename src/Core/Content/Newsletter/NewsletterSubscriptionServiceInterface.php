@@ -24,4 +24,6 @@ interface NewsletterSubscriptionServiceInterface
     public function confirm(DataBag $requestDataBag, SalesChannelContext $context): void;
 
     public function unsubscribe(DataBag $requestDataBag, SalesChannelContext $context): void;
+
+    public function update(DataBag $requestDataBag, SalesChannelContext $context): void;
 }

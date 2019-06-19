@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Newsletter;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
+use Shopware\Core\Content\Newsletter\Event\NewsletterUpdateEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Content\Newsletter\Exception\SalesChannelDomainNotFoundException;
 use Shopware\Core\Framework\Context;
@@ -66,12 +67,55 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         $this->domainRepository = $domainRepository;
     }
 
+    public function update(DataBag $dataBag, SalesChannelContext $context): void
+    {
+        $validator = $this->getUpdateValidator();
+        $this->validator->validate($dataBag->all(), $validator);
+
+        $data = $dataBag->only(
+            'id',
+            'title',
+            'firstName',
+            'lastName',
+            'zipCode',
+            'city',
+            'street',
+            'tags',
+            'salutationId',
+            'salutation',
+            'languageId',
+            'language'
+        );
+
+        $this->newsletterRecipientRepository->update([$data], $context->getContext());
+
+        $recipient = $this->getNewsletterRecipient('id', $data['id'], $context->getContext());
+
+        $event = new NewsletterUpdateEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
+        $this->eventDispatcher->dispatch($event, NewsletterUpdateEvent::EVENT_NAME);
+    }
+
     public function subscribe(DataBag $dataBag, SalesChannelContext $context): void
     {
         $validator = $this->getOptInValidator();
         $this->validator->validate($dataBag->all(), $validator);
 
-        $data = $this->completeData($dataBag->all(), $context);
+        $data = $dataBag->only(
+            'email',
+            'title',
+            'firstName',
+            'lastName',
+            'zipCode',
+            'city',
+            'street',
+            'tags',
+            'salutationId',
+            'languageId',
+            'option',
+            'customFields'
+        );
+
+        $data = $this->completeData($data, $context);
 
         $this->newsletterRecipientRepository->upsert([$data], $context->getContext());
 
@@ -114,7 +158,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
 
     public function unsubscribe(DataBag $dataBag, SalesChannelContext $context): void
     {
-        $data = $dataBag->all();
+        $data = $dataBag->only('email', 'option');
         $data['id'] = $this->getNewsletterRecipientId($data['email'], $context);
 
         if (empty($data['id'])) {
@@ -154,6 +198,15 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         $definition = new DataValidationDefinition('newsletter_recipient.opt_out');
         $definition->add('email', new NotBlank(), new Email())
             ->add('status', new EqualTo(['value' => self::STATUS_OPT_OUT]))
+            ->add('id', new NotBlank());
+
+        return $definition;
+    }
+
+    private function getUpdateValidator(): DataValidationDefinition
+    {
+        $definition = new DataValidationDefinition('newsletter_recipient.update');
+        $definition->add('email', new isNull())
             ->add('id', new NotBlank());
 
         return $definition;

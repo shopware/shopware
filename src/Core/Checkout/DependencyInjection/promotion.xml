@@ -6,6 +6,9 @@
 
     <services>
 
+        <!-- DAL DEFINITIONS + SERVICES -->
+        <!-- ==================================================================================================================== -->
+
         <service id="Shopware\Core\Checkout\Promotion\PromotionDefinition">
             <tag name="shopware.entity.definition" entity="promotion"/>
         </service>
@@ -46,14 +49,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Promotion\PromotionGateway">
-            <argument type="service" id="promotion.repository"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector">
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\PromotionGateway"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing\PromotionRedemptionIndexer">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\EventIdExtractor"/>
@@ -64,6 +59,34 @@
             <tag name="shopware.dbal_indexing.indexer" priority="500"/>
         </service>
 
+
+        <!-- CART CALCULATORS -->
+        <!-- ==================================================================================================================== -->
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Processor\PromotionProcessor">
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Calculator\PromotionCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\PromotionGateway"/>
+            <tag name="shopware.cart.collector" priority="4900"/>
+            <tag name="shopware.cart.processor" priority="4900"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Calculator\PromotionCalculator">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Calculator"/>
+        </service>
+
+
+        <!-- ADDITIONAL SERVICES -->
+        <!-- ==================================================================================================================== -->
+
+        <service id="Shopware\Core\Checkout\Promotion\PromotionGateway">
+            <argument type="service" id="promotion.repository"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\Util\EventIdExtractor"/>
+
     </services>
 </container>

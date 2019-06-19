@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Cart\Price;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PercentagePriceCalculator
@@ -15,24 +15,9 @@ class PercentagePriceCalculator
      */
     private $rounding;
 
-    /**
-     * @var QuantityPriceCalculator
-     */
-    private $priceCalculator;
-
-    /**
-     * @var PercentageTaxRuleBuilder
-     */
-    private $percentageTaxRuleBuilder;
-
-    public function __construct(
-        PriceRoundingInterface $rounding,
-        QuantityPriceCalculator $priceCalculator,
-        PercentageTaxRuleBuilder $percentageTaxRuleBuilder
-    ) {
+    public function __construct(PriceRoundingInterface $rounding)
+    {
         $this->rounding = $rounding;
-        $this->priceCalculator = $priceCalculator;
-        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
     /**
@@ -49,10 +34,23 @@ class PercentagePriceCalculator
             $context->getContext()->getCurrencyPrecision()
         );
 
-        $rules = $this->percentageTaxRuleBuilder->buildRules($price);
+        $taxes = new CalculatedTaxCollection();
+        foreach ($prices->getCalculatedTaxes() as $calculatedTax) {
+            $tax = $this->rounding->round(
+                $calculatedTax->getTax() / 100 * $percentage,
+                $context->getContext()->getCurrencyPrecision()
+            );
 
-        $definition = new QuantityPriceDefinition($discount, $rules, $context->getContext()->getCurrencyPrecision(), 1, true);
+            $price = $this->rounding->round(
+                $calculatedTax->getPrice() / 100 * $percentage,
+                $context->getContext()->getCurrencyPrecision()
+            );
 
-        return $this->priceCalculator->calculate($definition, $context);
+            $taxes->add(
+                new CalculatedTax($tax, $calculatedTax->getTaxRate(), $price)
+            );
+        }
+
+        return new CalculatedPrice($discount, $discount, $taxes, $prices->getTaxRules(), 1);
     }
 }

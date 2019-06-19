@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
-use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
+use Shopware\Core\Checkout\Promotion\Cart\Processor\PromotionProcessor;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -133,7 +133,7 @@ class SalesChannelCartController extends AbstractController
         /** @var string $token */
         $token = $request->request->getAlnum('token', $context->getToken());
 
-        $itemBuilder = new PromotionItemBuilder(CartPromotionsCollector::LINE_ITEM_TYPE);
+        $itemBuilder = new PromotionItemBuilder(PromotionProcessor::LINE_ITEM_TYPE);
 
         $lineItem = $itemBuilder->buildPlaceholderItem(
             $code,

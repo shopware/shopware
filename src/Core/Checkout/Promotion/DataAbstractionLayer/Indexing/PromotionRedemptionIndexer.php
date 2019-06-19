@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
-use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
+use Shopware\Core\Checkout\Promotion\Cart\Processor\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
@@ -179,7 +179,7 @@ class PromotionRedemptionIndexer implements IndexerInterface
 
             $customerId = $order['customerId'];
             foreach ($order['lineItems'] as $lineItem) {
-                if ($lineItem['type'] === CartPromotionsCollector::LINE_ITEM_TYPE) {
+                if ($lineItem['type'] === PromotionProcessor::LINE_ITEM_TYPE) {
                     $promotionId = $lineItem['payload']['promotionId'];
 
                     if (!array_key_exists($promotionId, $promotionIdsPerOrder)) {

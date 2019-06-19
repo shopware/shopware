@@ -126,7 +126,7 @@ class PromotionItemBuilder
 
         // add custom content to our payload.
         // we need this as meta data information.
-        $promotionItem->setPayload($this->buildPayload($promotion));
+        $promotionItem->setPayload($this->buildPayload($discount->getType(), $promotion));
 
         // add our lazy-validation rules.
         // this is required within the recalculation process.
@@ -142,7 +142,7 @@ class PromotionItemBuilder
      * This will make sure we have our eligible items referenced as meta data
      * and also have the code in our payload.
      */
-    private function buildPayload(PromotionEntity $promotion): array
+    private function buildPayload(string $discountType, PromotionEntity $promotion): array
     {
         $payload = [];
 
@@ -154,6 +154,9 @@ class PromotionItemBuilder
 
         // to save how many times a promotion has been used, we need to know the promotion's id during checkout
         $payload['promotionId'] = $promotion->getId();
+
+        // set the discount type absolute, percentage, ...
+        $payload['discountType'] = $discountType;
 
         return $payload;
     }

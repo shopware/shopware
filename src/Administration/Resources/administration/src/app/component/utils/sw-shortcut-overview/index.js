@@ -1,3 +1,5 @@
+import utils from 'src/core/service/util.service';
+
 import template from './sw-shortcut-overview.html.twig';
 import './sw-shortcut-overview.scss';
 
@@ -15,108 +17,134 @@ export default {
             sections: {
                 addingItems: [
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddProduct'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutAddProduct')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddCategory'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutAddCategory')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddShoppingExperienceLayout'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutAddShoppingExperienceLayout')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddCustomer'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutAddCustomer')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddProperties'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutAddProperties')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddManufacturer'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutAddManufacturer')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddRule'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutAddRule')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddSaleschannel'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutAddSaleschannel')
                     }
                 ],
                 navigation: [
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToDashboard'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToDashboard')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToProducts'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToProducts')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToCategories'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToCategories')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToDynamicProductGroups'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToDynamicProductGroups')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToProperties'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToProperties')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToManufacturers'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToManufacturers')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToOrders'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToOrders')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToCustomers'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToCustomers')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToShoppingExperience'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToShoppingExperience')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToMedia'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToMedia')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToPromotion'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToPromotion')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToNewsletterRecipients'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToNewsletterRecipients')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToSettingsListing'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToSettingsListing')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToSnippets'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToSnippets')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToPayment'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToPayment')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToShipping'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToShipping')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToRuleBuilder'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToRuleBuilder')
                     },
                     {
+                        id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToPlugins'),
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToPlugins')
                     }

@@ -21,7 +21,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <sw-shortcut-overview-item v-for="section in sections.addingItems" :title="section.title" :content="section.content"></sw-shortcut-overview-item>
+                        <sw-shortcut-overview-item v-for="section in sections.addingItems" :title="section.title" :content="section.content" :key="section.id"></sw-shortcut-overview-item>
                     </tbody>
                 </table>
 
@@ -34,7 +34,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <sw-shortcut-overview-item v-for="section in sections.navigation" :title="section.title" :content="section.content"></sw-shortcut-overview-item>
+                        <sw-shortcut-overview-item v-for="section in sections.navigation" :title="section.title" :content="section.content" :key="section.id"></sw-shortcut-overview-item>
                     </tbody>
                 </table>
 

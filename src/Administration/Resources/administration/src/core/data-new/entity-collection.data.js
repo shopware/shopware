@@ -111,7 +111,7 @@ export default class EntityCollection {
         }
 
         return Object.keys(this.items).find((id) => {
-            return callback.call(scope, this.items[id], id);
+            return callback.call(scope, this.items[id], id, this.items);
         });
     }
 }

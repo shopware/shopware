@@ -66,10 +66,11 @@ abstract class EntityDefinition
         return $this->className;
     }
 
-    final public function equals(EntityDefinition $other): bool
+    final public function isInstanceOf(EntityDefinition $other): bool
     {
-        // same reference or same class name
-        return $this === $other || $this->getClass() === $other->getClass();
+        // same reference or instance of the other class
+        return $this === $other
+            || ($other->getClass() !== EntityDefinition::class && $this instanceof $other);
     }
 
     public function compile(DefinitionInstanceRegistry $registry): void

@@ -125,7 +125,7 @@ class CanonicalUrlLoaderSubscriber implements EventSubscriberInterface
         }
         $config = $seoUrlRoute->getConfig();
 
-        if (!$event->getDefinition()->equals($config->getDefinition())) {
+        if (!$event->getDefinition()->isInstanceOf($config->getDefinition())) {
             return [];
         }
 

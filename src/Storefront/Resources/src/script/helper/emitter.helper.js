@@ -91,11 +91,14 @@ export default class NativeEventEmitter {
     unsubscribe(eventName) {
         const splitEventName = eventName.split('.');
         this.listeners = this.listeners.reduce((accumulator, listener) => {
-            if (listener.splitEventName.sort().toString() !== splitEventName.sort().toString()) {
-                accumulator.push(listener);
+            const foundEvent = listener.splitEventName.sort().toString() === splitEventName.sort().toString();
+
+            if (foundEvent) {
+                this.el.removeEventListener(listener.splitEventName[0], listener.cb);
                 return accumulator;
             }
-            this.el.removeEventListener(listener.splitEventName[0], listener.cb);
+
+            accumulator.push(listener);
             return accumulator;
         }, []);
 

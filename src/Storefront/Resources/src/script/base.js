@@ -62,6 +62,9 @@ import AddressEditorPlugin from 'src/script/plugin/address-editor/address-editor
 import ConfirmOrderPlugin from 'src/script/plugin/confirm-order/confirm-order.plugin';
 import DateFormat from 'src/script/plugin/date-format/date-format.plugin.js';
 import SetBrowserClassPlugin from 'src/script/plugin/set-browser-class/set-browser-class.plugin';
+import NativeEventEmitter from 'src/script/helper/emitter.helper';
+
+window.eventEmitter = new NativeEventEmitter();
 
 /*
 initialisation

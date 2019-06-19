@@ -1,6 +1,5 @@
 @import "~scss/variables";
 
-$sw-text-editor-toolbar-button-child-color: #52667a;
 $sw-text-editor-toolbar-button-child-shadow: rgba(120, 138, 155, 0.5);
 $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
 
@@ -15,15 +14,15 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
     justify-content: center;
 
     &:hover {
-        color: $color-shopware-blue;
+        color: $color-shopware-brand-500;
     }
 
     &.is--active {
-        color: $color-shopware-blue;
+        color: $color-shopware-brand-500;
     }
 
     &.is--disabled {
-        color: $color-steam-cloud;
+        color: $color-gray-300;
         cursor: initial;
     }
 
@@ -40,7 +39,7 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
         left: 0;
         top: calc(100% + 6px);
         white-space: nowrap;
-        border: 1px solid $color-steam-cloud;
+        border: 1px solid $color-gray-300;
         box-shadow: 0 3px 6px 0 $sw-text-editor-toolbar-button-child-shadow;
         z-index: 260;
 
@@ -59,22 +58,22 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
 
         .sw-text-editor-toolbar-button__children-child {
             cursor: pointer;
-            color: $sw-text-editor-toolbar-button-child-color;
+            color: $color-darkgray-200;
             margin: 4px;
             padding: 8px;
             border-radius: $border-radius-default;
 
             &:hover {
-                color: $color-shopware-blue;
-                background: $color-cadet-blue;
+                color: $color-shopware-brand-500;
+                background: $color-shopware-brand-50;
             }
 
             &.is--active {
-                color: $color-shopware-blue;
+                color: $color-shopware-brand-500;
             }
 
             &.is--disabled {
-                color: $color-steam-cloud;
+                color: $color-gray-300;
                 cursor: initial;
             }
         }
@@ -82,7 +81,7 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
         &.sw-text-editor-toolbar-button__link-menu {
             padding: 15px;
             cursor: initial;
-            color: $sw-text-editor-toolbar-button-child-color;
+            color: $color-darkgray-200;
 
             .sw-text-editor-toolbar-button__link-menu-text {
                 padding-bottom: 5px;

@@ -10,7 +10,7 @@
         grid-gap: 0 8px;
 
         .sw-text-editor-toolbar-table-button__grid-input-icon {
-            color: $color-gray;
+            color: $color-gray-700;
         }
     }
 
@@ -19,7 +19,7 @@
         cursor: pointer;
         border-radius: 2px;
         border-style: hidden;
-        box-shadow: 0 0 0 1px $color-steam-cloud;
+        box-shadow: 0 0 0 1px $color-gray-300;
 
         .sw-text-editor-toolbar-table-button__col-placeholder {
             min-width: 20px;
@@ -28,19 +28,19 @@
 
         .sw-text-editor-toolbar-table-button__table-head {
             .sw-text-editor-toolbar-table-button__col {
-                border: 1px solid $color-steam-cloud;
-                background: $color-light-gray;
+                border: 1px solid $color-gray-300;
+                background: $color-gray-100;
             }
         }
 
         .sw-text-editor-toolbar-table-button__table-body {
             .sw-text-editor-toolbar-table-button__row {
                 .sw-text-editor-toolbar-table-button__col {
-                    border: 1px solid $color-steam-cloud;
+                    border: 1px solid $color-gray-300;
 
                     &.is--selected {
-                        background: $color-cadet-blue;
-                        border-color: $color-shopware-blue;
+                        background: $color-shopware-brand-50;
+                        border-color: $color-shopware-brand-500;
                     }
                 }
             }

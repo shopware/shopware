@@ -1,15 +1,12 @@
 @import "~scss/variables";
 
-$sw-text-editor-toolbar-dark-grey-start: $color-gradient-dark-gray-start;
-$sw-text-editor-toolbar-dark-grey-end: $color-gradient-dark-gray-end;
-$sw-text-editor-toolbar-boxed-mode: $color-light-gray;
 $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
 
 .sw-text-editor-toolbar {
     padding: 0 6px;
-    background: linear-gradient(-180deg, $sw-text-editor-toolbar-dark-grey-start 0%, $sw-text-editor-toolbar-dark-grey-end 100%);
+    background: linear-gradient(-180deg, $color-menu-start 0%, $color-menu-end 100%);
     border-radius: 4px;
-    color: $color-steam-cloud;
+    color: $color-gray-300;
     display: grid;
     grid-auto-flow: column dense;
     grid-auto-columns: min-content;
@@ -28,9 +25,9 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         height: 8px;
         width: 8px;
         transform: rotate(45deg);
-        background: $sw-text-editor-toolbar-dark-grey-end;
-        border-top: 1px solid $sw-text-editor-toolbar-dark-grey-end;
-        border-left: 1px solid $sw-text-editor-toolbar-dark-grey-end;
+        background: $color-menu-end;
+        border-top: 1px solid $color-menu-end;
+        border-left: 1px solid $color-menu-end;
     }
 
     &.is--boxedEdit {
@@ -38,9 +35,9 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         top:0;
         left: 0;
         position: initial;
-        background: $sw-text-editor-toolbar-boxed-mode;
+        background: $color-gray-100;
         border-radius: 0;
-        border-bottom: 1px solid $color-steam-cloud;
+        border-bottom: 1px solid $color-gray-300;
         color: $sw-text-editor-toolbar-item-color-boxed;
         display: grid;
         grid-template-columns: auto;
@@ -51,11 +48,11 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
 
         .sw-text-editor-buttons {
             &.is--middle {
-                border-left: 1px solid $color-steam-cloud;
+                border-left: 1px solid $color-gray-300;
             }
 
             &.is--right {
-                border-left: 1px solid $color-steam-cloud;
+                border-left: 1px solid $color-gray-300;
             }
         }
 
@@ -70,12 +67,12 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         }
 
         &.is--middle {
-            border-left: 1px solid $color-gutenberg;
+            border-left: 1px solid $color-darkgray-200;
             padding-left: 1px;
         }
 
         &.is--right {
-            border-left: 1px solid $color-gutenberg;
+            border-left: 1px solid $color-darkgray-200;
             padding-left: 1px;
             justify-self: end;
         }

@@ -253,8 +253,8 @@ Each file could then contain your translations as such an object, you only have 
 ```js
 ...
 
-import deDE from "./snippet/de-DE";
-import enGB from "./snippet/en-GB";
+import deDE from './snippet/de-DE';
+import enGB from './snippet/en-GB';
 
 Module.register('swag-bundle', {
     ...
@@ -313,8 +313,8 @@ import { Module } from 'src/core/shopware';
 import './page/swag-bundle-list';
 import './page/swag-bundle-detail';
 import './page/swag-bundle-create';
-import deDE from "./snippet/de-DE";
-import enGB from "./snippet/en-GB";
+import deDE from './snippet/de-DE';
+import enGB from './snippet/en-GB';
 
 Module.register('swag-bundle', {
     type: 'plugin',
@@ -347,7 +347,7 @@ Module.register('swag-bundle', {
             meta: {
                 parentPath: 'swag.bundle.list'
             }
-        },
+        }
     },
 
     navigation: [{
@@ -1227,8 +1227,8 @@ as a computed property in your component.
 computed: {
     options() {
         return [
-            {'value': 'absolute', 'name': this.$t('swag-bundle.detail.absoluteText')},
-            {'value': 'percentage', 'name': this.$t('swag-bundle.detail.percentageText')},
+            { value: 'absolute', name: this.$t('swag-bundle.detail.absoluteText') },
+            { value: 'percentage', name: this.$t('swag-bundle.detail.percentageText') }
         ];
     }
 },
@@ -1275,8 +1275,8 @@ Component.register('swag-bundle-detail', {
     computed: {
         options() {
             return [
-                {'value': 'absolute', 'name': this.$t('swag-bundle.detail.absoluteText')},
-                {'value': 'percentage', 'name': this.$t('swag-bundle.detail.percentageText')},
+                { value: 'absolute', name: this.$t('swag-bundle.detail.absoluteText') },
+                { value: 'percentage', name: this.$t('swag-bundle.detail.percentageText') }
             ];
         }
     },
@@ -1374,11 +1374,11 @@ onClickSave() {
         }).catch((exception) => {
             this.isLoading = false;
 
-        this.createNotificationError({
-            title: this.$t('swag-bundle.detail.errorTitle'),
-            message: exception
+            this.createNotificationError({
+                title: this.$t('swag-bundle.detail.errorTitle'),
+                message: exception
+            });
         });
-    });
 }
 ```
 
@@ -1407,11 +1407,11 @@ Component.extend('swag-bundle-create', 'swag-bundle-detail', {
                 }).catch((exception) => {
                     this.isLoading = false;
 
-                this.createNotificationError({
-                    title: this.$t('swag-bundle.detail.errorTitle'),
-                    message: exception
+                    this.createNotificationError({
+                        title: this.$t('swag-bundle.detail.errorTitle'),
+                        message: exception
+                    });
                 });
-            });
         }
     }
 });

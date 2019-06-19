@@ -312,7 +312,7 @@ public function collect(StructCollection $fetchDefinitions, StructCollection $da
             if ($bundleLineItem->getChildren()->has($productId)) {
                 continue;
             }
-            $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE);
+            $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId);
             $productLineItem->setPayload(['id' => $productId]);
             $bundleLineItem->addChild($productLineItem);
         }
@@ -398,7 +398,7 @@ public function collect(StructCollection $fetchDefinitions, StructCollection $da
             if ($bundleLineItem->getChildren()->has($productId)) {
                 continue;
             }
-            $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE);
+            $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId);
             $productLineItem->setPayload(['id' => $productId]);
             $bundleLineItem->addChild($productLineItem);
         }
@@ -447,7 +447,7 @@ public function enrich(StructCollection $data, Cart $cart, SalesChannelContext $
     ...
 
     $bundleLineItems = $cart->getLineItems()->filterType(self::TYPE);
-    if (count($bundleLineItems) === 0) {
+    if (\count($bundleLineItems) === 0) {
         return;
     }
 
@@ -460,7 +460,7 @@ public function enrich(StructCollection $data, Cart $cart, SalesChannelContext $
 Finding the corresponding `BundleEntity` for the current bundle line item.
 ```php
 foreach ($bundleLineItems as $bundleLineItem) {
-    $id = $bundleLineItem->getKey();
+    $id = $bundleLineItem->getId();
 
     $bundle = $bundles->get($id);
 
@@ -475,7 +475,7 @@ If there's no `BundleEntity` for the current bundle line item, something went wr
 Now start enriching the bundle line item by adding a label to the line item.
 ```php
 foreach ($bundleLineItems as $bundleLineItem) {
-    $id = $bundleLineItem->getKey();
+    $id = $bundleLineItem->getId();
 
     $bundle = $bundles->get($id);
 
@@ -518,7 +518,7 @@ Start of with checking if the bundle was configured properly. What if the bundle
 ```php
 private function calculateBundleDiscount(LineItem $bundleLineItem, BundleEntity $bundleData, SalesChannelContext $context): ?LineItem
 {
-    if ($bundleData->getDiscount() === 0) {
+    if ($bundleData->getDiscount() === 0.0) {
         return null;
     }
 }
@@ -573,10 +573,12 @@ This is how your full `calculateBundleDiscount` method should look like:
 ```php
 private function calculateBundleDiscount(LineItem $bundleLineItem, BundleEntity $bundleData, SalesChannelContext $context): ?LineItem
 {
-    if ($bundleData->getDiscount() === 0) {
+    if ($bundleData->getDiscount() === 0.0) {
         return null;
     }
 
+    $price = null;
+    $label = '';
     switch ($bundleData->getDiscountType()) {
         case self::DISCOUNT_TYPE_ABSOLUTE:
             $price = new AbsolutePriceDefinition($bundleData->getDiscount() * -1, $context->getContext()->getCurrencyPrecision());
@@ -592,6 +594,7 @@ private function calculateBundleDiscount(LineItem $bundleLineItem, BundleEntity 
     $discount = new LineItem(
         $bundleData->getId() . '-discount',
         self::TYPE . '-discount',
+        $bundleData->getId(),
         $bundleLineItem->getQuantity()
     );
 
@@ -622,9 +625,9 @@ private function isComplete(LineItem $lineItem): bool
         // Has children
         && $lineItem->getChildren() !== null
         // One children's key consists of the bundle key plus the string 'discount'
-        && $lineItem->getChildren()->get($lineItem->getKey() . '-discount')
+        && $lineItem->getChildren()->get($lineItem->getId() . '-discount')
         // This discount children actually knows a price definition
-        && $lineItem->getChildren()->get($lineItem->getKey() . '-discount')->getPriceDefinition();
+        && $lineItem->getChildren()->get($lineItem->getId() . '-discount')->getPriceDefinition();
 }
 ```
 

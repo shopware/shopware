@@ -149,9 +149,9 @@ Component.register('sw-customer-detail-addresses', {
                 return;
             }
 
-            let address = this.activeCustomer.addresses.items[this.currentAddress.id];
+            let address = this.activeCustomer.addresses.get(this.currentAddress.id);
 
-            if (typeof address === 'undefined') {
+            if (typeof address === 'undefined' || address === null) {
                 address = this.addressRepository.create(this.context, this.currentAddress.id);
             }
 
@@ -194,7 +194,7 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onEditAddress(id) {
-            this.currentAddress = object.deepCopyObject(this.activeCustomer.addresses.items[id]);
+            this.currentAddress = object.deepCopyObject(this.activeCustomer.addresses.get(id));
             this.showEditAddressModal = id;
         },
 

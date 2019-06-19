@@ -16,7 +16,7 @@ export default {
             type: Object
         },
         items: {
-            type: Object,
+            type: Array,
             required: false,
             default: null
         },
@@ -73,7 +73,7 @@ export default {
         },
 
         applyResult(result) {
-            this.records = result.items;
+            this.records = result;
             this.total = result.total;
             this.page = result.criteria.page;
             this.limit = result.criteria.limit;

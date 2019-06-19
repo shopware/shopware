@@ -65,8 +65,8 @@
                                 <div class="sw-category-tree-field__results" v-if="isExpanded">
 
                                     {% block sw_category_tree_field_input_results_tree %}
-                                        <sw-tree v-if="term.length <= 0 && items.length > 0"
-                                                 :items="items"
+                                        <sw-tree v-if="term.length <= 0 && categories.length > 0"
+                                                 :items="categories"
                                                  after-id-property="afterCategoryId"
                                                  ref="swTree"
                                                  @get-tree-items="getTreeItems"
@@ -117,11 +117,11 @@
                                     {% endblock %}
 
                                     {% block sw_category_tree_field_input_results_search_results %}
-                                        <ul v-else-if="searchResultItems.length > 0 && term.length > 0"
+                                        <ul v-else-if="searchResult.length > 0 && term.length > 0"
                                             class="sw-category-tree-field__search-results">
 
                                             {% block sw_category_tree_field_input_results_search_results_item %}
-                                                <li v-for="item in searchResultItems"
+                                                <li v-for="item in searchResult"
                                                     class="sw-category-tree-field__search-result"
                                                     :class="{ 'is--focus': isSearchResultInFocus(item)}"
                                                     @click.stop="onCheckSearchItem(item)">

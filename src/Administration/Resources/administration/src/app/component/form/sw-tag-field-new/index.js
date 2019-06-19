@@ -8,8 +8,8 @@ Component.register('sw-tag-field-new', {
     inject: ['repositoryFactory', 'context'],
 
     props: {
-        entity: {
-            type: Object,
+        tagCollection: {
+            type: Array,
             required: true
         },
 
@@ -44,12 +44,8 @@ Component.register('sw-tag-field-new', {
             return this.repositoryFactory.create('tag');
         },
 
-        tagItems() {
-            if (this.entity && this.entity.items) {
-                return Object.values(this.entity.items).map(item => item.id);
-            }
-
-            return [];
+        selectedTagItemIds() {
+            return this.tagCollection.getIds();
         }
     },
 
@@ -73,8 +69,8 @@ Component.register('sw-tag-field-new', {
 
         updateOptions() {
             return new Promise((resolve) => {
-                this.tagRepository.search(new Criteria(1, 500), this.context).then((res) => {
-                    this.options = Object.values(res.items);
+                this.tagRepository.search(new Criteria(1, 500), this.context).then((searchResult) => {
+                    this.options = searchResult;
                     resolve();
                 });
             });
@@ -102,10 +98,10 @@ Component.register('sw-tag-field-new', {
             }
 
             // create new tag
-            const newTag = this.tagRepository.create(this.entity.context);
+            const newTag = this.tagRepository.create(this.tagCollection.context);
             newTag.name = term;
 
-            this.tagRepository.save(newTag, this.entity.context).then(() => {
+            this.tagRepository.save(newTag, this.tagCollection.context).then(() => {
                 swSelect.addItem({ item: newTag });
                 swSelect.searchTerm = '';
 
@@ -150,18 +146,18 @@ Component.register('sw-tag-field-new', {
             }
 
             // Remove items
-            this.tagItems.forEach((tagItemId) => {
-                if (selected && selected.indexOf(tagItemId) < 0) {
-                    this.entity.remove(tagItemId);
+            this.tagCollection.forEach((tagItem) => {
+                if (selected && selected.indexOf(tagItem.id) < 0) {
+                    this.tagCollection.remove(tagItem.id);
                 }
             });
 
             // Add items
             this.updateOptions().then(() => {
                 selected.forEach((selectionId) => {
-                    if (!this.entity.has(selectionId)) {
-                        const newTag = this.options.find((option) => option.id === selectionId);
-                        this.entity.add(newTag, this.entity.context);
+                    if (!this.tagCollection.has(selectionId)) {
+                        const newTag = this.options.get(selectionId);
+                        this.tagCollection.add(newTag);
                     }
                 });
             });

@@ -28,7 +28,7 @@ Component.extend('sw-product-visibility-select', 'sw-multi-select', {
             default: false
         },
         collection: {
-            type: Object,
+            type: Array,
             required: true
         },
         resultLimit: {
@@ -81,7 +81,7 @@ Component.extend('sw-product-visibility-select', 'sw-multi-select', {
         },
 
         reloadVisibleItems() {
-            this.displayAssigned(Object.values(this.collection.items));
+            this.displayAssigned(this.collection);
             return Promise.resolve();
         },
 

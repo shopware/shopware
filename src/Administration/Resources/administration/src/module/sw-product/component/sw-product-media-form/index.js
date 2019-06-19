@@ -100,7 +100,7 @@ Component.register('sw-product-media-form', {
         },
 
         productMedia() {
-            return Object.values(this.product.media);
+            return this.product.media;
         },
 
         productMediaStore() {
@@ -186,12 +186,12 @@ Component.register('sw-product-media-form', {
 
                 // get existing media from vuex store
                 const existingCoverId = this.productFromStore.coverId || '';
-                const mediaItemsFromStore = this.productFromStore.media.items;
+                const mediaItemsFromStore = this.productFromStore.media;
 
                 // add cover to product
                 this.product.coverId = existingCoverId;
 
-                const mediaPromises = Object.values(mediaItemsFromStore).map((media) => {
+                const mediaPromises = mediaItemsFromStore.map((media) => {
                     return new Promise((resolve) => {
                         // get media
                         this.mediaStore.getByIdAsync(media.mediaId).then((res) => {

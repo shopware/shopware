@@ -34,22 +34,6 @@ Component.register('sw-product-price-form', {
 
         ...mapFormErrors('product', ['taxId', 'price', 'purchasePrice', 'purchaseUnit', 'referenceUnit', 'packUnit']),
 
-        priceList() {
-            if (!this.product.price) {
-                return [];
-            }
-
-            return Object.values(this.product.price);
-        },
-
-        currenciesList() {
-            if (this.currencies && this.currencies.items) {
-                return Object.values(this.currencies.items);
-            }
-
-            return [];
-        },
-
         maintainCurrencyColumns() {
             return [
                 {
@@ -74,11 +58,11 @@ Component.register('sw-product-price-form', {
 
     methods: {
         getPriceForCurrencyId(currencyId) {
-            if (!this.product.price || !this.currencies.items) {
+            if (!this.product.price || !this.currencies) {
                 return null;
             }
 
-            const foundPrice = Object.values(this.product.price).find((price) => {
+            const foundPrice = this.product.price.find((price) => {
                 return price.currencyId === currencyId;
             });
 
@@ -86,7 +70,7 @@ Component.register('sw-product-price-form', {
         },
 
         isCurrencyInherited(currency) {
-            const priceForCurrency = this.priceList.find((price) => {
+            const priceForCurrency = this.product.price.find((price) => {
                 return price.currencyId === currency.id;
             });
 
@@ -95,7 +79,7 @@ Component.register('sw-product-price-form', {
 
         onInheritanceRestore(currencyId) {
             // create entry for currency in product price
-            const indexOfPrice = this.priceList.findIndex((price) => {
+            const indexOfPrice = this.product.price.findIndex((price) => {
                 return price.currencyId === currencyId;
             });
 
@@ -104,7 +88,7 @@ Component.register('sw-product-price-form', {
 
         onInheritanceRemove(currency) {
             // create new entry for currency in product price
-            this.$set(this.product.price, this.priceList.length, {
+            this.$set(this.product.price, this.product.price.length, {
                 currencyId: currency.id,
                 gross: this.convertPrice(this.defaultPrice.gross, currency),
                 linked: this.defaultPrice.linked,

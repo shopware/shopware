@@ -147,6 +147,13 @@ Component.register('sw-product-detail', {
             return criteria;
         },
 
+        configuratorSettingsCriteria() {
+            const criteria = new Criteria(1, 500);
+            criteria.addAssociation('option', this.defaultCriteria);
+
+            return criteria;
+        },
+
         productCriteria() {
             const criteria = new Criteria();
             criteria.addAssociation('media', this.mediaCriteria);
@@ -156,6 +163,7 @@ Component.register('sw-product-detail', {
             criteria.addAssociation('tags', this.tagsCriteria);
             criteria.addAssociation('categories', this.defaultCriteria);
             criteria.addAssociation('options', this.defaultCriteria);
+            criteria.addAssociation('configuratorSettings', this.configuratorSettingsCriteria);
             return criteria;
         },
 

@@ -13,6 +13,7 @@ module.exports = {
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals('Your profile');
 
         browser
+            .clearValueManual('input[name=sw-field--user-email]')
             .fillField('input[name=sw-field--user-email]', 'test@test.de', true);
 
         browser

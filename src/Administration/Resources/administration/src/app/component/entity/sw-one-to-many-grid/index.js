@@ -11,7 +11,7 @@ export default {
     props: {
         collection: {
             required: true,
-            type: Object
+            type: Array
         },
         localMode: {
             type: Boolean,
@@ -63,12 +63,12 @@ export default {
 
         applyResult(result) {
             this.result = result;
-            this.records = result.items;
+            this.records = result;
 
             if (result.total) {
                 this.total = result.total;
             } else {
-                this.total = Object.keys(result.items).length;
+                this.total = result.length;
             }
 
             this.page = result.criteria.page;

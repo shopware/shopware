@@ -86,7 +86,7 @@
         {% block sw_product_variants_overview_data_grid %}
             <sw-data-grid
                 class="sw-product-variants-overview__data-grid"
-                :dataSource="variantList"
+                :dataSource="variants"
                 :columns="variantColumns"
                 :showSettings="true"
                 :showSelection="false"
@@ -115,7 +115,7 @@
                 {% endblock %}
 
                 {% block sw_product_variants_overview_data_grid_column_price %}
-                    <template v-for="currency in currenciesList" :slot="`column-price-${currency.isoCode}`" slot-scope="{ item, compact, isInlineEdit }">
+                    <template v-for="currency in currencies" :slot="`column-price-${currency.isoCode}`" slot-scope="{ item, compact, isInlineEdit }">
 
                         {% block sw_product_variants_overview_data_grid_column_price_inline_edit %}
                             <template v-if="isInlineEdit">

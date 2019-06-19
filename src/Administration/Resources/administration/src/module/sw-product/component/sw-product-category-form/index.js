@@ -26,9 +26,9 @@ Component.register('sw-product-category-form', {
             'isChild'
         ]),
 
-        hasVisibilitesSelected() {
+        hasSelectedVisibilities() {
             if (this.product && this.product.visibilities) {
-                return Object.values(this.product.visibilities.items).length > 0;
+                return this.product.visibilities.length > 0;
             }
             return false;
         }

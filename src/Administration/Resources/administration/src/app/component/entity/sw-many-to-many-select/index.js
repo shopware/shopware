@@ -26,7 +26,7 @@ export default {
             default: false
         },
         collection: {
-            type: Object,
+            type: Array,
             required: true
         },
         resultLimit: {

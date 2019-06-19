@@ -34,10 +34,8 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
          * Reason: Is extended from sw-property-search
          */
         addOptionCount() {
-            const optionStore = Object.values(this.options.items);
-
             this.groups.forEach((group) => {
-                const optionCount = optionStore.filter((configurator) => {
+                const optionCount = this.options.filter((configurator) => {
                     // check if option belongs to group
                     return configurator.option.groupId === group.id && !configurator.isDeleted;
                 });
@@ -67,10 +65,10 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
                 return;
             }
 
-            const exists = this.findConfiguratorForOptionId(item.id);
+            const exists = this.options.find(i => i.optionId === item.id);
 
             if (exists) {
-                this.options.remove(exists[0]);
+                this.options.remove(exists.id);
                 this.addOptionCount();
                 return;
             }
@@ -82,18 +80,6 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
             this.options.add(newOption);
 
             this.addOptionCount();
-        },
-
-        findConfiguratorForOptionId(optionId) {
-            let found = null;
-
-            Object.entries(this.options.items).forEach((item) => {
-                if (optionId === item[1].optionId) {
-                    found = item;
-                }
-            });
-
-            return found;
         }
     }
 });

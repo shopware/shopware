@@ -125,7 +125,7 @@ Component.register('sw-tag-multi-select', {
 
             this.tagRepository.search(criteria, this.context).then((searchResult) => {
                 this.total = searchResult.total;
-                const items = Object.values(searchResult.items);
+                const items = searchResult;
 
                 items.forEach((item) => {
                     item.name = this.highlight(item.name);
@@ -146,7 +146,7 @@ Component.register('sw-tag-multi-select', {
                 selectedCriteria.addFilter(Criteria.equalsAny('id', items.map((x) => { return x.id; })));
 
                 this.selectedRepository.search(selectedCriteria, this.context).then((selectedSearchResult) => {
-                    Object.values(selectedSearchResult.items).forEach((tag) => {
+                    selectedSearchResult.forEach((tag) => {
                         this.selectedTagIds[tag.id] = true;
                     });
 
@@ -164,7 +164,7 @@ Component.register('sw-tag-multi-select', {
             }
 
             this.selectedRepository.search(criteria, this.context).then((searchResult) => {
-                this.selectedTags = [...this.selectedTags, ...Object.values(searchResult.items)];
+                this.selectedTags = [...this.selectedTags, ...searchResult];
                 if (isInitial) {
                     this.selectedTotal = searchResult.total;
                 }

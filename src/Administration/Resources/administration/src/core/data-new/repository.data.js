@@ -150,9 +150,7 @@ export default class Repository {
     sync(entities, context) {
         const promises = [];
 
-        Object.keys(entities).forEach((key) => {
-            const entity = entities[key];
-
+        entities.forEach((entity) => {
             promises.push(this.save(entity, context));
         });
 

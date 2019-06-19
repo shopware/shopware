@@ -2,7 +2,6 @@ import { EntityDefinition } from 'src/core/shopware';
 import types from 'src/core/service/utils/types.utils';
 import Entity from './entity.data';
 import EntityCollection from './entity-collection.data';
-import SearchResult from './search-result.data';
 
 export default class EntityHydrator {
     /**
@@ -12,18 +11,23 @@ export default class EntityHydrator {
      * @param {Object} response
      * @param {Object} context
      * @param {Criteria} criteria
-     * @returns {SearchResult}
+     * @returns {EntityCollection}
      */
     hydrateSearchResult(route, entityName, response, context, criteria) {
-        const collection = this.hydrate(route, entityName, response.data, context, criteria);
+        this.cache = {};
+        const entities = [];
 
-        return new SearchResult(
+        response.data.data.forEach((item) => {
+            entities.push(this.hydrateEntity(entityName, item, response.data, context, criteria));
+        });
+
+        return new EntityCollection(
             route,
             entityName,
-            collection.items,
-            response.data.meta.total,
-            criteria,
             context,
+            criteria,
+            entities,
+            response.data.meta.total,
             response.data.aggregations
         );
     }

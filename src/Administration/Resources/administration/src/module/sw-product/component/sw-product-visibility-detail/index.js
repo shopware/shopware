@@ -32,7 +32,7 @@ Component.register('sw-product-visibility-detail', {
 
         onPageChange(params) {
             const offset = (params.page - 1) * params.limit;
-            const all = Object.values(this.product.visibilities.items).filter((item) => {
+            const all = this.product.visibilities.filter((item) => {
                 return !item.isDeleted;
             });
             this.total = all.length;

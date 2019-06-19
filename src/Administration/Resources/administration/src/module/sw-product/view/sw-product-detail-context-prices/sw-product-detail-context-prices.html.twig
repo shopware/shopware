@@ -109,7 +109,7 @@
                             {% endblock %}
 
                             {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list %}
-                                <template v-for="currency in currenciesList" :slot="`column-price-${currency.isoCode}`" slot-scope="{ item, column, compact }">
+                                <template v-for="currency in currencies" :slot="`column-price-${currency.isoCode}`" slot-scope="{ item, column, compact }">
                                     <div class="product-detail-context-prices__price-field-wrapper">
 
                                         {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_inherit_field %}

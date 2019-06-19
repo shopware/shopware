@@ -59,13 +59,6 @@ Component.register('sw-product-variants-overview', {
             return this.repositoryFactory.create('product');
         },
 
-        currenciesList() {
-            if (this.currencies && this.currencies.items) {
-                return Object.values(this.currencies.items);
-            }
-            return [];
-        },
-
         variantColumns() {
             return [
                 {
@@ -106,7 +99,7 @@ Component.register('sw-product-variants-overview', {
         },
 
         currencyColumns() {
-            return this.currenciesList.sort((a, b) => {
+            return this.currencies.sort((a, b) => {
                 return b.isDefault ? 1 : -1;
             }).map((currency) => {
                 return {
@@ -120,14 +113,6 @@ Component.register('sw-product-variants-overview', {
                     width: '250px'
                 };
             });
-        },
-
-        variantList() {
-            if (!this.variants.items) {
-                return [];
-            }
-
-            return Object.values(this.variants.items);
         }
     },
 
@@ -182,7 +167,7 @@ Component.register('sw-product-variants-overview', {
                         this.total = res.total;
                         this.$store.commit('swProductDetail/setVariants', res);
                         this.$store.commit('swProductDetail/setLoading', ['variants', false]);
-                        this.$emit('variants-finish-update', this.variantList);
+                        this.$emit('variants-finish-update', this.variants);
                         resolve();
                     });
             });
@@ -311,7 +296,7 @@ Component.register('sw-product-variants-overview', {
         },
 
         getOptionsForGroup(groupId) {
-            return Object.values(this.product.configuratorSettings.items).filter((element) => {
+            return this.product.configuratorSettings.filter((element) => {
                 return !element.isDeleted && element.option.groupId === groupId;
             });
         },
@@ -398,7 +383,7 @@ Component.register('sw-product-variants-overview', {
             }
 
             // get product name
-            const productName = Object.values(variation.options.items).reduce((acc, option, index) => {
+            const productName = variation.options.reduce((acc, option, index) => {
                 return `${acc}${index > 0 ? ' - ' : ''}${option.translated.name}`;
             }, '');
 

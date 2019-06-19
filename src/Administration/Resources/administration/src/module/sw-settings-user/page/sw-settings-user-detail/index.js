@@ -174,7 +174,7 @@ Component.register('sw-settings-user-detail', {
 
             return this.languageRepository.search(languageCriteria, this.context).then((result) => {
                 this.languages = [];
-                Object.values(result.items).forEach((lang) => {
+                result.forEach((lang) => {
                     lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;
                     this.languages.push(lang);
                 });
@@ -210,7 +210,7 @@ Component.register('sw-settings-user-detail', {
 
         loadKeys() {
             return this.keyRepository.search(new Criteria(), this.context).then((accessKeys) => {
-                this.integrations = accessKeys.items;
+                this.integrations = accessKeys;
             });
         },
 

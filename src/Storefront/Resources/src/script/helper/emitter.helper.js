@@ -1,141 +1,136 @@
-import Iterator from 'src/script/helper/iterator.helper';
-
-const emitter = new WeakMap();
-
-export default class Emitter {
+export default class NativeEventEmitter {
     /**
+     * Event Emitter which works with the provided DOM element. The class isn't meant to be
+     * extended. It should rather being used as a mixin component to provide the ability to
+     * publish events.
+     *
+     * @example
+     * const emitter = new NativeEventEmitter();
+     * emitter.publish('my-event-name');
+     *
+     * @example using custom data
+     * const emitter = new NativeEventEmitter();
+     * emitter.subscribe('my-event-name', (event) => {
+     *     console.log(event.detail);
+     * });
+     * emitter.publish('my-event-name', { custom: 'data' });
+     *
+     * @example using a custom scope
+     * const emitter = new NativeEventEmitter();
+     * emitter.subscribe('my-event-name', (event) => {
+     *     console.log(event.detail);
+     * }, { scope: myScope });
+     * emitter.publish('my-event-name', { custom: 'data' });
+     *
+     * @example once listeners
+     * const emitter = new NativeEventEmitter();
+     * emitter.subscribe('my-event-name', (event) => {
+     *     console.log(event.detail);
+     * }, { once: true });
+     * emitter.publish('my-event-name', { custom: 'data' });
+     *
      * @constructor
+     * @param {Document|HTMLElement} [el = document]
      */
-    constructor() {
-        emitter.set(this, {
-            events: {},
-        });
-
-        this.eventLength = 0;
+    constructor(el = document) {
+        this._el = el;
+        el.$emitter = this;
+        this._listeners = [];
     }
 
     /**
-     * Registers an event listener using the provided event name and callback method. The event listener can remove it
-     * itself after getting called once using the `once` parameter.
-     *
-     * @param {String} event
-     * @param {Function} callback
-     * @param {Boolean} [once=false]
-     * @returns {Emitter}
+     * Publishes an event on the element. Additional information can be added using the `data` parameter.
+     * The data are accessible in the event handler in `event.detail` which represents the standard
+     * implementation.
      */
-    on(event, callback, once = false) {
-        if (typeof cb === 'undefined') {
-            throw new Error('Please provide a callback method.');
-        }
-
-        if (typeof callback !== 'function') {
-            throw new TypeError('Listener must be a function');
-        }
-
-        this.events[event] = this.events[event] || [];
-        this.events[event].push({
-            callback,
-            once,
+    publish(eventName, detail = {}) {
+        const event = new CustomEvent(eventName, {
+            detail
         });
 
-        this.eventLength += 1;
-
-        return this;
+        this.el.dispatchEvent(event);
     }
 
     /**
-     * Removes an event listener using the provided event name and callback method.
+     * Subscribes to an event and adds a listener.
      *
-     * @param {String} event
+     * @param {String} eventName
      * @param {Function} callback
-     * @returns {Emitter}
+     * @param {Object} [opts = {}]
      */
-    off(event, callback) {
-        if (typeof callback === 'undefined') {
-            throw new Error('Please provide a callback method.');
+    subscribe(eventName, callback, opts = {}) {
+        const emitter = this;
+        const splitEventName = eventName.split('.');
+        let cb = opts.scope ? callback.bind(opts.scope) : callback;
+
+        // Support for listeners which are fired once
+        if (opts.once && opts.once === true) {
+            const onceCallback = cb;
+            cb = function onceListener(event) {
+                emitter.unsubscribe(eventName);
+                onceCallback(event);
+            };
         }
 
-        if (typeof callback !== 'function') {
-            throw new TypeError('Listener must be a function');
-        }
+        this.el.addEventListener(splitEventName[0], cb);
 
-        if (typeof this.events[event] === 'undefined') {
-            throw new Error(`Event not found - the event you provided is: ${event}`);
-        }
+        this.listeners.push({
+            splitEventName,
+            opts,
+            cb
+        });
 
-        const listeners = this.events[event];
+        return true;
+    }
 
-        Iterator.iterate(listeners, (value, key) => {
-            if (value.callback === callback) {
-                listeners.splice(key, 1);
+    /**
+     * Removes an event listener.
+     *
+     * @param {String} eventName
+     */
+    unsubscribe(eventName) {
+        const splitEventName = eventName.split('.');
+        this.listeners = this.listeners.reduce((accumulator, listener) => {
+            if (listener.splitEventName.sort().toString() !== splitEventName.sort().toString()) {
+                accumulator.push(listener);
+                return accumulator;
             }
+            this.el.removeEventListener(listener.splitEventName[0], listener.cb);
+            return accumulator;
+        }, []);
+
+        return true;
+    }
+
+    /**
+     * Resets the listeners
+     *
+     * @return {boolean}
+     */
+    reset() {
+        // Loop through the event listener and remove them from the element
+        this.listeners.forEach((listener) => {
+            this.el.removeEventListener(listener.splitEventName[0], listener.cb);
         });
 
-        if (listeners.length === 0) {
-            delete this.events[event];
-
-            this.eventLength -= 1;
-        }
-
-        return this;
+        // Reset registry
+        this.listeners = [];
+        return true;
     }
 
-    /**
-     * Fires an event using the provided event name.
-     * @param {String} event
-     * @param {...any} args
-     * @returns {Emitter}
-     */
-    trigger(event, ...args) {
-        if (typeof event === 'undefined') {
-            throw new Error('Please provide an event to trigger.');
-        }
-
-        const listeners = this.events[event];
-        const onceListeners = [];
-
-        if (typeof listeners !== 'undefined') {
-            Iterator.iterate(listeners, (value, key) => {
-                value.cb.apply(this, args);
-
-                if (value.once) onceListeners.unshift(key);
-
-                Iterator.iterate(onceListeners, (value, key) => {
-                    listeners.splice(key, 1);
-                });
-            });
-        }
-
-        return this;
+    get el() {
+        return this._el;
     }
 
-    /**
-     * Registers an event listener which will be fired once and will remove itself.
-     *
-     * @param {String} event
-     * @param {Function} callback
-     */
-    once(event, callback) {
-        this.on(event, callback, true);
+    set el(value) {
+        this._el = value;
     }
 
-    /**
-     * Destroys all event listeners and resets the events counter.
-     *
-     * @returns {void}
-     */
-    destroy() {
-        emitter.delete(this);
-
-        this.eventLength = 0;
+    get listeners() {
+        return this._listeners;
     }
 
-    /**
-     * Returns all registered event listeners.
-     *
-     * @returns {Object}
-     */
-    get events() {
-        return emitter.get(this).events;
+    set listeners(value) {
+        this._listeners = value;
     }
 }

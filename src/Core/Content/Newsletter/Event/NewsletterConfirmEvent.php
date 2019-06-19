@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Newsletter\Event;
 
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
+use Shopware\Core\Content\Newsletter\NewsletterEvents;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
@@ -14,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class NewsletterConfirmEvent extends Event implements BusinessEventInterface, MailActionInterface
 {
-    public const EVENT_NAME = 'newsletter.confirm';
+    public const EVENT_NAME = NewsletterEvents::NEWSLETTER_CONFIRM_EVENT;
 
     /**
      * @var Context

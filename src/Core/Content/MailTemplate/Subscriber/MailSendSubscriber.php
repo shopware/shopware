@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Subscriber;
 
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
+use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -17,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class MailSendSubscriber implements EventSubscriberInterface
 {
-    public const ACTION_NAME = 'action.mail.send';
+    public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
 
     /**
      * @var MailService

@@ -4,12 +4,14 @@ declare(strict_types=1);
 namespace Shopware\Elasticsearch\Framework;
 
 use Elasticsearch\Client;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Language\LanguageCollection;
 use Shopware\Elasticsearch\Framework\Event\CreateIndexingCriteriaEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -52,13 +55,19 @@ class EntityIndexer implements IndexerInterface
      */
     private $definitionRegistry;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $languageRepository;
+
     public function __construct(
         DefinitionRegistry $esRegistry,
         DefinitionInstanceRegistry $definitionRegistry,
         Client $client,
         EventDispatcherInterface $eventDispatcher,
         EntityMapper $entityMapper,
-        IteratorFactory $iteratorFactory
+        IteratorFactory $iteratorFactory,
+        EntityRepositoryInterface $languageRepository
     ) {
         $this->registry = $esRegistry;
         $this->client = $client;
@@ -66,6 +75,7 @@ class EntityIndexer implements IndexerInterface
         $this->entityMapper = $entityMapper;
         $this->iteratorFactory = $iteratorFactory;
         $this->definitionRegistry = $definitionRegistry;
+        $this->languageRepository = $languageRepository;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -74,17 +84,39 @@ class EntityIndexer implements IndexerInterface
 
         $context = Context::createDefaultContext();
 
-        /** @var string|EntityDefinition $definition */
-        foreach ($definitions as $definition) {
-            $index = $this->registry->getIndex($definition, $context) . '_' . $timestamp->getTimestamp();
+        /** @var LanguageCollection $languages */
+        $languages = $context->disableCache(
+            function (Context $uncached) {
+                return $this
+                    ->languageRepository
+                    ->search(new Criteria(), $uncached)
+                    ->getEntities();
+            }
+        );
 
-            $this->createIndex($definition, $index, $context);
+        foreach ($languages as $language) {
+            $context = new Context(
+                new Context\SystemSource(),
+                [],
+                Defaults::CURRENCY,
+                [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]
+            );
 
-            $this->indexDefinition($index, $definition, $context);
+            /** @var string|EntityDefinition $definition */
+            foreach ($definitions as $definition) {
+                $index = $this->registry->getIndex($definition, $language->getId()) . '_' . $timestamp->getTimestamp();
 
-            $alias = $this->registry->getIndex($definition, $context);
-            $this->createAlias($index, $alias);
+                $this->createIndex($definition, $index, $context);
+
+                $this->indexDefinition($index, $definition, $context);
+
+                $alias = $this->registry->getIndex($definition, $language->getId());
+                $this->createAlias($index, $alias);
+
+                $this->client->indices()->refresh(['index' => $index]);
+            }
         }
+
         $this->cleanup();
     }
 

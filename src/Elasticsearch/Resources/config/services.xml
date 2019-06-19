@@ -19,7 +19,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\ElasticsearchHelper">
+        <service id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" public="true">
             <argument>%shopware.ses.enabled%</argument>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
@@ -33,7 +33,7 @@
             <argument>%shopware.ses.hosts%</argument>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\EntityIndexer">
+        <service id="Shopware\Elasticsearch\Framework\EntityIndexer" public="true">
             <tag name="shopware.dal_indexing.indexer" priority="-50000"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -41,6 +41,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\EntityMapper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="language.repository"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">

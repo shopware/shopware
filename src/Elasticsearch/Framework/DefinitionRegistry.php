@@ -2,7 +2,6 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Elasticsearch\Framework\Event\CollectDefinitionsEvent;
@@ -47,9 +46,9 @@ class DefinitionRegistry
         return false;
     }
 
-    public function getIndex(EntityDefinition $definition, Context $context): string
+    public function getIndex(EntityDefinition $definition, string $languageId): string
     {
-        return $definition->getEntityName() . '_' . $context->getLanguageId();
+        return $definition->getEntityName() . '_' . $languageId;
     }
 
     public function getDefinitions(): array

@@ -73,7 +73,7 @@ class ElasticsearchHelper
 
     public function hasIndexDocuments(EntityDefinition $definition, Context $context): bool
     {
-        $index = $this->registry->getIndex($definition, $context);
+        $index = $this->registry->getIndex($definition, $context->getLanguageId());
 
         $exists = $this->client->indices()->exists(['index' => $index]);
         if (!$exists) {
@@ -170,5 +170,16 @@ class ElasticsearchHelper
 
             $search->addAggregation($agg);
         }
+    }
+
+    /**
+     * Only used for unit tests because the container parameter bag is frozen and can not be changed at runtime.
+     * Therefore this function can be used to test different behaviours
+     *
+     * @internal
+     */
+    public function setEnabled(bool $enabled): void
+    {
+        $this->isEnabled = $enabled;
     }
 }

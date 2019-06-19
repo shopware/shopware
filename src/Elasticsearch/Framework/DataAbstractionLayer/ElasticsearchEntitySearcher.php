@@ -55,7 +55,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $search = $this->createSearch($criteria, $definition, $context);
 
         $result = $this->client->search([
-            'index' => $this->registry->getIndex($definition, $context),
+            'index' => $this->registry->getIndex($definition, $context->getLanguageId()),
             'type' => $definition->getEntityName(),
             'body' => $search->toArray(),
         ]);
@@ -93,7 +93,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             ];
         }
 
-        $total = (int) $result['hits']['total'];
+        $total = (int) $result['hits']['total']['value'];
 
         return new IdSearchResult($total, $data, $criteria, $context);
     }

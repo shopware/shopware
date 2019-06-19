@@ -103,7 +103,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         $search->setSize(0);
 
         $result = $this->client->search([
-            'index' => $this->registry->getIndex($definition, $context),
+            'index' => $this->registry->getIndex($definition, $context->getLanguageId()),
             'type' => $definition->getEntityName(),
             'body' => $search->toArray(),
         ]);

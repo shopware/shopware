@@ -142,56 +142,56 @@ class CriteriaParser
         }
     }
 
-    private function parseEqualsFilter(EqualsFilter $query, EntityDefinition $definition, Context $context): BuilderInterface
+    private function parseEqualsFilter(EqualsFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
-        $fieldName = $this->buildAccessor($definition, $query->getField(), $context);
+        $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
-        if ($query->getValue() === null) {
-            $filter = new BoolQuery();
-            $filter->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
+        if ($filter->getValue() === null) {
+            $query = new BoolQuery();
+            $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
         } else {
-            $filter = new TermLevel\TermQuery($fieldName, $query->getValue());
+            $query = new TermLevel\TermQuery($fieldName, $filter->getValue());
         }
 
-        return $this->createNestedQuery($filter, $definition, $query->getField());
+        return $this->createNestedQuery($query, $definition, $filter->getField());
     }
 
-    private function parseEqualsAnyFilter(EqualsAnyFilter $query, EntityDefinition $definition, Context $context): BuilderInterface
+    private function parseEqualsAnyFilter(EqualsAnyFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
-        $fieldName = $this->buildAccessor($definition, $query->getField(), $context);
+        $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
         return $this->createNestedQuery(
-            new TermsQuery($fieldName, $query->getValue()),
+            new TermsQuery($fieldName, $filter->getValue()),
             $definition,
-            $query->getField()
+            $filter->getField()
         );
     }
 
-    private function parseContainsFilter(ContainsFilter $query, EntityDefinition $definition): BuilderInterface
+    private function parseContainsFilter(ContainsFilter $filter, EntityDefinition $definition): BuilderInterface
     {
-        $accessor = $this->stripRoot($definition, $query->getField());
+        $accessor = $this->stripRoot($definition, $filter->getField());
 
         return $this->createNestedQuery(
-            new MatchQuery($accessor, $query->getValue()),
+            new MatchQuery($accessor, $filter->getValue()),
             $definition,
-            $query->getField()
+            $filter->getField()
         );
     }
 
-    private function parseRangeFilter(RangeFilter $query, EntityDefinition $definition, Context $context): BuilderInterface
+    private function parseRangeFilter(RangeFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
-        $accessor = $this->buildAccessor($definition, $query->getField(), $context);
+        $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
 
         return $this->createNestedQuery(
-            new RangeQuery($accessor, $query->getParameters()),
+            new RangeQuery($accessor, $filter->getParameters()),
             $definition,
-            $query->getField()
+            $filter->getField()
         );
     }
 
-    private function parseNotFilter(NotFilter $query, EntityDefinition $definition, string $root, Context $context): BuilderInterface
+    private function parseNotFilter(NotFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
-        $nested = $this->parseMultiFilter($query, $definition, $root, $context);
+        $nested = $this->parseMultiFilter($filter, $definition, $root, $context);
 
         $not = new BoolQuery();
         $not->add($nested, BoolQuery::MUST_NOT);
@@ -199,10 +199,10 @@ class CriteriaParser
         return $not;
     }
 
-    private function parseMultiFilter(MultiFilter $query, EntityDefinition $definition, string $root, Context $context): BuilderInterface
+    private function parseMultiFilter(MultiFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
         $bool = new BoolQuery();
-        foreach ($query->getQueries() as $nested) {
+        foreach ($filter->getQueries() as $nested) {
             $bool->add(
                 $this->parse($nested, $definition, $root, $context),
                 BoolQuery::MUST

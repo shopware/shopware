@@ -136,7 +136,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/price/0/net', $fieldException->getPath());
+        static::assertEquals('/price', $fieldException->getPath());
     }
 
     public function testMultipleMissingProperties(): void
@@ -215,7 +215,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/price/0/net', $fieldException->getPath());
+        static::assertEquals('/price', $fieldException->getPath());
     }
 
     public function testUnexpectedFieldShouldThrowException(): void
@@ -246,15 +246,8 @@ EOF;
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-
-        /** @var InvalidFieldException $fieldException */
-        static::assertInstanceOf(InvalidFieldException::class, $fieldException);
-
-        $violations = $fieldException->getViolations();
-        static::assertCount(1, $violations);
-
-        $violation = $violations->get(0);
-        static::assertEquals('price/0/fail', $violation->getPropertyPath());
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals('/price', $fieldException->getPath());
     }
 
     public function testWithoutMappingShouldAcceptAnyKey(): void

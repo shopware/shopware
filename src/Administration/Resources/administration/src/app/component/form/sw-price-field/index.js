@@ -147,6 +147,14 @@ export default {
 
         isDisabled() {
             return this.isInherited || this.disabled;
+        },
+
+        labelGross() {
+            return this.label ? this.$tc('global.sw-price-field.labelPriceGross') : '';
+        },
+
+        labelNet() {
+            return this.label ? this.$tc('global.sw-price-field.labelPriceNet') : '';
         }
     },
 

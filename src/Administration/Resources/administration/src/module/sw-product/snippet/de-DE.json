@@ -49,7 +49,8 @@
       "optionKilogram": "Kilogramm",
       "optionMetre": "Meter",
       "closeWindow": "Fenster schließen",
-      "maintainCurrencies": "Währungen pflegen"
+      "maintainCurrencies": "Währungen pflegen",
+      "columnPrice": "Preise (Brutto / Netto)"
     },
     "settingsForm": {
       "labelCreatedAt": "Erstelldatum",
@@ -120,6 +121,8 @@
       "columnPrice": "Preis",
       "columnInStock": "Lager",
       "columnActions": "Aktion(en)",
+      "filterStock": "Lagerbestand unter 10",
+      "filterPrice": "Preis über 50€",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",

@@ -7,7 +7,7 @@
 
         {% block sw_price_field_gross %}
             <sw-field type="number"
-                      :label="label ? $tc('global.sw-price-field.labelPriceGross') : ''"
+                      :label="labelGross"
                       :validation="validation"
                       :size="compact ? 'small' : 'default'"
                       :min="0"
@@ -38,7 +38,7 @@
 
         {% block sw_price_field_net %}
             <sw-field type="number"
-                      :label="label ? $tc('global.sw-price-field.labelPriceNet') : ''"
+                      :label="labelNet"
                       :validation="validation"
                       :size="compact ? 'small' : 'default'"
                       :min="0"

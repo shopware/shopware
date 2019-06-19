@@ -22,7 +22,7 @@ class ProductPageObject extends GeneralPageObject {
                 '.sw-select-product__select_manufacturer',
                 { value: 'shopware AG' }
             )
-            .fillField('input[name=sw-field--priceForCurrency-gross]', '99')
+            .fillField('input[name=sw-price-field-gross]', '99')
             .fillSelectField('select[name=sw-field--product-taxId]', '19%')
             .fillField('input[name=sw-field--product-stock]', '1')
             .expect.element(this.elements.productSaveAction).to.not.have.attribute('disabled');

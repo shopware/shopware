@@ -1757,7 +1757,9 @@ class VersioningTest extends TestCase
         $product = [
             'id' => $id,
             'name' => 'test',
-            'price' => ['gross' => 119.99, 'net' => 99.99, 'linked' => false],
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 119.99, 'net' => 99.99, 'linked' => false],
+            ],
             'productNumber' => Uuid::randomHex(),
             'manufacturer' => ['name' => 'test'],
             'tax' => ['taxRate' => 19, 'name' => 'test'],

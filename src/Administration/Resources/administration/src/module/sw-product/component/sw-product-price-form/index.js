@@ -59,7 +59,7 @@ Component.register('sw-product-price-form', {
                     width: '150px'
                 }, {
                     property: 'price',
-                    label: 'Preise (Brutto / Netto)',
+                    label: this.$tc('sw-product.priceForm.columnPrice'),
                     visible: true,
                     allowResize: false,
                     primary: true,

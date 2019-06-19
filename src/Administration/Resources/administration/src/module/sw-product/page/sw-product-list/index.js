@@ -46,18 +46,6 @@ Component.register('sw-product-list', {
             return this.repositoryFactory.create('currency');
         },
 
-        filters() {
-            return [{
-                active: false,
-                label: 'Preis über 50€',
-                criteria: { type: 'range', field: 'product.price', options: { '>': 50 } }
-            }, {
-                active: false,
-                label: 'Lagerbestand unter 10',
-                criteria: { type: 'range', field: 'product.stock', options: { '<': 10 } }
-            }];
-        },
-
         currencyList() {
             if (!this.currencies.items) {
                 return [];

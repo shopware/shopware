@@ -166,7 +166,9 @@ class PromotionIntegrationTest extends TestCase
                     'productNumber' => $productId,
                     'stock' => 1,
                     'name' => 'Test',
-                    'price' => ['gross' => $grossPrice, 'net' => 9, 'linked' => false],
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => $grossPrice, 'net' => 9, 'linked' => false],
+                    ],
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => $taxRate, 'name' => 'with id'],
                 ],

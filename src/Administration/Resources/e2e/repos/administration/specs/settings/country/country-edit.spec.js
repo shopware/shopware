@@ -28,6 +28,7 @@ module.exports = {
                 menuActionSelector: '.sw-country-list__edit-action',
                 scope: `${page.elements.gridRow}--0`
             })
+            .clearValueManual('input[name=sw-field--country-name]')
             .fillField('input[name=sw-field--country-name]', '1.Niemandsland x2', true)
             .click(page.elements.countrySaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')

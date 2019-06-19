@@ -26,7 +26,12 @@ class DeliveryValidator implements CartValidatorInterface
                 continue;
             }
 
-            $errors->add(new ShippingMethodBlockedError($delivery->getShippingMethod()->getName() ?? ''));
+            $errors->add(new ShippingMethodBlockedError(
+                    $delivery->getShippingMethod()->getTranslation('name')
+                    ?? $delivery->getShippingMethod()->getName()
+                    ?? ''
+                )
+            );
         }
     }
 }

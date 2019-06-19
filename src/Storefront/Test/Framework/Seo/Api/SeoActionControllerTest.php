@@ -23,6 +23,7 @@ class SeoActionControllerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->exec('DELETE FROM sales_channel');
+        $connection->exec('DELETE FROM product');
     }
 
     public function testValidateEmpty(): void

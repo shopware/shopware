@@ -41,8 +41,9 @@ class SeoUrlExtensionTest extends TestCase
         /** @var EntityRepositoryInterface $productRepo */
         $productRepo = $this->getContainer()->get('product.repository');
 
+        $id = Uuid::randomHex();
         $productRepo->create([[
-            'id' => Uuid::randomHex(),
+            'id' => $id,
             'name' => 'foo bar',
             'manufacturer' => [
                 'id' => Uuid::randomHex(),
@@ -54,7 +55,7 @@ class SeoUrlExtensionTest extends TestCase
             'stock' => 0,
         ]], Context::createDefaultContext());
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$id]);
         $seoUrlCriteria = new Criteria();
         $criteria->addAssociation('seoUrls', $seoUrlCriteria);
 
@@ -104,9 +105,9 @@ class SeoUrlExtensionTest extends TestCase
         $context = $salesChannelContext->getContext();
 
         $cases = [
-            ['expected' => 'root/', 'categoryId' => $rootId],
-            ['expected' => 'root/a/', 'categoryId' => $childAId],
-            ['expected' => 'root/a/1/', 'categoryId' => $childA1Id],
+            ['expected' => 'root', 'categoryId' => $rootId],
+            ['expected' => 'root/a', 'categoryId' => $childAId],
+            ['expected' => 'root/a/1', 'categoryId' => $childA1Id],
         ];
 
         foreach ($cases as $case) {

@@ -21,6 +21,10 @@ import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.s
 import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listener.service';
 import 'src/app/decorator';
 
+import RouterFactory from 'src/core/factory/router.factory';
+import coreRoutes from 'src/app/route';
+import VueRouter from 'vue-router';
+
 /** Import global styles */
 import 'src/app/assets/scss/all.scss';
 
@@ -30,6 +34,42 @@ const factoryContainer = Application.getContainer('factory');
 Object.keys(initializers).forEach((key) => {
     const initializer = initializers[key];
     Application.addInitializer(key, initializer);
+});
+
+Application.addInitializerDecorator('router', (originalService) => {
+    const initContainer = Application.getContainer('init');
+    const loginService = Application.getContainer('service').loginService;
+    const moduleFactoy = factoryContainer.module;
+
+    const context = initContainer.context;
+
+    if (!context.firstRunWizard) {
+        return originalService;
+    }
+
+    const firstRunWizard = moduleFactoy.getModuleRegistry().get('sw-first-run-wizard');
+    const moduleRoutes = [];
+    firstRunWizard.routes.forEach((route) => {
+        if (route.routeKey !== 'index') {
+            return;
+        }
+
+        moduleRoutes.push(route);
+    });
+
+    const factory = RouterFactory(VueRouter, initContainer.view, {
+        getModuleRegistry() {
+            const map = new Map();
+            map.set('sw-first-run-wizard', firstRunWizard);
+            return new Map();
+        }
+    }, loginService);
+
+    factory.addRoutes(coreRoutes);
+    factory.addModuleRoutes(moduleRoutes);
+    factory.createRouterInstance();
+
+    return factory;
 });
 
 // Add service providers

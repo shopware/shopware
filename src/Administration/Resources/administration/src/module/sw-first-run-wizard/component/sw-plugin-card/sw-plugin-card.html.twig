@@ -1,0 +1,30 @@
+{% block sw_plugin_card %}
+    <div class="sw-plugin-card">
+        <sw-container columns="1fr 1fr">
+            <img :src="plugin.iconPath" class="sw-plugin-card__icon"/>
+            <div>
+                <div class="label">{{ plugin.label }}</div>
+                <div class="manufacturer">{{ plugin.manufacturer }}</div>
+                <div class="short-description">{{ plugin.shortDescription }}</div>
+
+                <sw-button-process
+                     v-if="pluginIsNotActive"
+                     variant="primary"
+                     :isLoading="pluginIsLoading"
+                     :disabled="pluginIsLoading"
+                     :processSuccess="pluginIsSaveSuccessful"
+                     @click="onInstall">
+                    {{ $tc('sw-first-run-wizard.general.buttonInstall') }}
+                </sw-button-process>
+                <div v-else>
+                    <span>plugin already installed</span>
+                    <sw-button
+                        variant="ghost"
+                        @click="onUninstall">
+                        Uninstall
+                    </sw-button>
+                </div>
+            </div>
+        </sw-container>
+    </div>
+{% endblock %}

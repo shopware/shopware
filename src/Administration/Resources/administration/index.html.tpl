@@ -9,7 +9,7 @@
 <body>
     <div id="app"></div>
     <script type="text/javascript">
-        Shopware.Application.start({ features: <%= featureFlags %> });
+        Shopware.Application.start({ features: <%= featureFlags %>, firstRunWizard: false });
     </script>
 </body>
 </html>

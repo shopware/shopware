@@ -1,0 +1,30 @@
+{% block sw_first_run_wizard_shopware_domain %}
+    <div>
+        <h3>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod</h3>
+
+        <sw-switch-field label="Create a new shop domain"
+                         v-model="createShopDomain">
+        </sw-switch-field>
+
+        <div v-if="createShopDomain">
+            <sw-field type="text"
+                      name="newShopDomain"
+                      validation="required"
+                      :label="'Shopware ID'"
+                      v-model="newShopDomain">
+            </sw-field>
+            <sw-checkbox-field label="Test environment" v-model="testEnvironment"></sw-checkbox-field>
+        </div>
+        <div v-else>
+            <sw-select-field v-model="selectedShopDomain"
+                             label="Shop domain"
+                             placeholder="">
+                <option value="value1">Label #1</option>
+                <option value="value2">Label #2</option>
+                <option value="value3">Label #3</option>
+                <option value="value4">Label #4</option>
+                <option value="value5">Label #5</option>
+            </sw-select-field>
+        </div>
+    </div>
+{% endblock %}

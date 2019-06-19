@@ -1,0 +1,30 @@
+{% block sw_first_run_wizard_shopware_account %}
+    <div>
+        <sw-container columns="1fr 1fr">
+            <img class="sw-first-run-wizard__shopware-account-image" :src="'/administration/static/img/first-run-wizard/shopware-account.svg' | asset">
+            <div>
+                <h5>Shopware Account</h5>
+                <p>The Shopware ID is your username for the login to the Shopware account and other shopware services.
+                </p>
+                <p>You don't have an account yet? <a href="#" target="_blank">Create new account</a></p>
+                <div>
+                    <sw-field type="text"
+                              name="shopwareId"
+                              validation="required"
+                              :label="'Shopware ID'"
+                              v-model="shopwareId">
+                    </sw-field>
+                </div>
+
+                <div>
+                    <sw-password-field v-model="password"
+                        type="password"
+                        label="Password"
+                        placeholder="">
+                    </sw-password-field>
+                </div>
+                <p><a href="#" target="_blank">Forgot password?</a></p>
+            </div>
+        </sw-container>
+    </div>
+{% endblock %}

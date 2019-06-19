@@ -1,0 +1,50 @@
+{% block sw_first_run_wizard_modal %}
+    <sw-modal :title="title" class="sw-first-run-wizard-welcome--modal" variant="full">
+        {% block sw_first_run_wizard_modal_content %}
+            <div class="sw-first-run-wizard-modal-content">
+                <sw-container class="sw-first-run-wizard-modal-content__two_columns" columns="1fr 4fr">
+                    {% block sw_first_run_wizard_modal_content_steps %}
+                        <div class="sw-first-run-wizard-modal-content-steps">
+                            <sw-step-display :itemIndex="stepIndex"
+                             :itemVariant="stepVariant"
+                             :initialItemVariants="stepInitialItemVariants">
+                                <sw-step-item>
+                                    Demodata
+                                </sw-step-item>
+                                <sw-step-item>
+                                    Setup PayPal
+                                </sw-step-item>
+                                <sw-step-item>
+                                    Plugins
+                                </sw-step-item>
+                                <sw-step-item>
+                                    Shopware
+                                </sw-step-item>
+                            </sw-step-display>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_first_run_wizard_modal_content_page %}
+                        <div class="sw-first-run-wizard-modal-content-page">
+                            <router-view></router-view>
+                        </div>
+                    {% endblock %}
+                </sw-container>
+            </div>
+        {% endblock %}
+
+        {% block sw_first_run_wizard_modal_footer %}
+            <template v-slot:modal-footer>
+                <sw-button size="small">
+                    {{ $tc('sw-first-run-wizard.general.buttonBack') }}
+                </sw-button>
+                <sw-button size="small">
+                    {{ $tc('sw-first-run-wizard.general.buttonSkip') }}
+                </sw-button>
+                <sw-button size="small" variant="primary">
+                    {{ $tc('sw-first-run-wizard.general.buttonNext') }}
+                </sw-button>
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

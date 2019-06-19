@@ -1,0 +1,10 @@
+{
+  "sw-first-run-wizard": {
+    "general": {
+      "mainMenuItemIndex": "First run wizard"
+    },
+    "index": {
+      "headline": "First Run Wizard"
+    }
+  }
+}

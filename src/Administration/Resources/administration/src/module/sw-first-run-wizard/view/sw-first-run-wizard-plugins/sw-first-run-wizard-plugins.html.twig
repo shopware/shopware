@@ -1,0 +1,39 @@
+{% block sw_first_run_wizard_plugins %}
+    <div>
+        <h3>Install plugins recommended by shopware</h3>
+        <p>Lorem ipsum dolor set amet, consetetur sadipscing elitr...</p>
+
+        <div>
+            <span>Available in region</span>
+            <sw-label v-for="region in regions"
+                      :key="region.name"
+                      variant="neutral"
+                      size="default"
+                      appearance="pill"
+                      :ghost="false"
+                      :caps="false">
+                {{ region.name }}
+            </sw-label>
+        </div>
+
+        <div>
+            <span>Category</span>
+            <sw-label v-for="category in categories"
+                      :key="category.name"
+                      variant="neutral"
+                      size="default"
+                      appearance="pill"
+                      :ghost="false"
+                      :caps="false">
+                {{ category.label }}
+            </sw-label>
+        </div>
+
+        <sw-container columns="1fr 1fr">
+            <sw-plugin-card v-for="plugin in plugins"
+                            :key="plugin.name"
+                            :plugin="plugin">
+            </sw-plugin-card>
+        </sw-container>
+    </div>
+{% endblock %}

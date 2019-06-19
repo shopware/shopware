@@ -1,0 +1,21 @@
+.sw-first-run-wizard-welcome--modal .sw-modal__body {
+    overflow-y: hidden !important;
+}
+
+.sw-first-run-wizard-modal-content {
+    height: calc(100vh - 235px);
+
+    .sw-first-run-wizard-modal-content__two_columns {
+        height: 100%;
+    }
+
+    .sw-first-run-wizard-modal-content-steps {
+        margin-right: 25%;
+        border-right: 1px solid #D1D9E0;
+    }
+
+    .sw-first-run-wizard-modal-content-page {
+        position: relative;
+        overflow-y: auto;
+    }
+}

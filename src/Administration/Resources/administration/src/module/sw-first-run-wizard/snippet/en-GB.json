@@ -1,0 +1,14 @@
+{
+  "sw-first-run-wizard": {
+    "general": {
+      "buttonNext": "Next",
+      "buttonSkip": "Skip",
+      "buttonBack": "Back",
+      "buttonInstall": "Install",
+      "buttonGetAPICredentials": "Get API credentials"
+    },
+    "welcome": {
+      "modalTitle": "Welcome"
+    }
+  }
+}

@@ -105,7 +105,7 @@ Component.register('sw-settings-snippet-list', {
             });
 
             this.userService.getUser().then((response) => {
-                this.currentAuthor = `user/${response.data.name}`;
+                this.currentAuthor = `user/${response.data.username}`;
             });
 
             this.snippetService.getFilter().then((response) => {

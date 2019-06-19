@@ -43,4 +43,9 @@ class NewsletterEvents
      * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent")
      */
     public const NEWSLETTER_REGISTER_EVENT = 'newsletter.register';
+
+    /**
+     * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterUpdateEvent")
+     */
+    public const NEWSLETTER_UPDATE_EVENT = 'newsletter.update';
 }

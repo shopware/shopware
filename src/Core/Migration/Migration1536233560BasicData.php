@@ -19,10 +19,9 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
-use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
-use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
-use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
+use Shopware\Core\Content\Newsletter\NewsletterEvents;
 use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -2093,7 +2092,7 @@ class Migration1536233560BasicData extends MigrationStep
             [
                 'id' => Uuid::randomBytes(),
                 'event_name' => CheckoutOrderPlacedEvent::EVENT_NAME,
-                'action_name' => MailSendSubscriber::ACTION_NAME,
+                'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()[MailTemplateTypes::MAILTYPE_ORDER_CONFIRM]['id'],
                 ]),
@@ -2266,7 +2265,7 @@ class Migration1536233560BasicData extends MigrationStep
             [
                 'id' => Uuid::randomBytes(),
                 'event_name' => CustomerRegisterEvent::EVENT_NAME,
-                'action_name' => MailSendSubscriber::ACTION_NAME,
+                'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()[MailTemplateTypes::MAILTYPE_CUSTOMER_REGISTER]['id'],
                 ]),
@@ -2278,8 +2277,8 @@ class Migration1536233560BasicData extends MigrationStep
             'event_action',
             [
                 'id' => Uuid::randomBytes(),
-                'event_name' => NewsletterRegisterEvent::EVENT_NAME,
-                'action_name' => MailSendSubscriber::ACTION_NAME,
+                'event_name' => NewsletterEvents::NEWSLETTER_REGISTER_EVENT,
+                'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()[NewsletterSubscriptionServiceInterface::MAIL_TYPE_OPT_IN]['id'],
                 ]),
@@ -2291,8 +2290,8 @@ class Migration1536233560BasicData extends MigrationStep
             'event_action',
             [
                 'id' => Uuid::randomBytes(),
-                'event_name' => NewsletterConfirmEvent::EVENT_NAME,
-                'action_name' => MailSendSubscriber::ACTION_NAME,
+                'event_name' => NewsletterEvents::NEWSLETTER_CONFIRM_EVENT,
+                'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()[NewsletterSubscriptionServiceInterface::MAIL_TYPE_REGISTER]['id'],
                 ]),

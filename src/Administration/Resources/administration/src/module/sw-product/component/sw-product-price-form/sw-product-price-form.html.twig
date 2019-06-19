@@ -14,9 +14,9 @@
                                   name="sw-field--product-taxId"
                                   :placeholder="$tc('sw-product.priceForm.placeholderTaxRate')"
                                   validation="required"
-                                  pointer="product.taxId"
                                   :disabled="isInherited"
                                   :value="currentValue"
+                                  :error="productTaxIdError"
                                   @change="updateCurrentValue">
                             <option v-for="tax in taxes"
                                     :key="tax.id"
@@ -39,7 +39,7 @@
                     <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
                         <sw-field type="number"
-                                  pointer="product.purchasePrice"
+                                  :error="productPurchasePriceError"
                                   :min="0"
                                   :disabled="isInherited"
                                   :placeholder="$tc('sw-product.priceForm.placeholderPurchasePriceGross')"
@@ -67,6 +67,7 @@
                     <sw-price-field :price="currentValue"
                                     :taxRate="productTaxRate"
                                     :disabled="isInherited"
+                                    :error="productPriceError"
                                     :currency="defaultCurrency">
                     </sw-price-field>
 
@@ -85,7 +86,7 @@
                                   :mapInheritance="props"
                                   numberType="int"
                                   :min="0"
-                                  pointer="product.purchaseUnit"
+                                  :error="productPurchaseUnitError"
                                   :label="$tc('sw-product.priceForm.labelPurchaseUnit')"
                                   :disabled="props.isInherited"
                                   :placeholder="$tc('sw-product.priceForm.placeholderPurchaseUnit')"
@@ -107,7 +108,7 @@
                                   :mapInheritance="props"
                                   numberType="int"
                                   :min="0"
-                                  pointer="product.referenceUnit"
+                                  :error="productReferenceUnitError"
                                   :disabled="props.isInherited"
                                   :placeholder="$tc('sw-product.priceForm.placeholderReferenceUnit')"
                                   :label="$tc('sw-product.priceForm.labelReferenceUnit')"
@@ -127,7 +128,7 @@
 
                         <sw-field type="text"
                                   :mapInheritance="props"
-                                  pointer="product.packUnit"
+                                  :error="productPackUnitError"
                                   :label="$tc('sw-product.priceForm.labelPackUnit')"
                                   :placeholder="placeholder(product, 'packUnit', $tc('sw-product.priceForm.placeholderPackUnit'))"
                                   :disabled="props.isInherited"

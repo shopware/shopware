@@ -13,7 +13,7 @@
                                       :mapInheritance="props"
                                       dateType="datetime"
                                       :disabled="props.isInherited"
-                                      pointer="product.releaseDate"
+                                      :error="productReleaseDateError"
                                       :label="$tc('sw-product.settingsForm.labelReleaseDate')"
                                       :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
                                       :value="props.currentValue"
@@ -35,12 +35,12 @@
                                       :mapInheritance="props"
                                       numberType="int"
                                       :min="0"
-                                      pointer="product.stock"
                                       :disabled="props.isInherited"
                                       :label="$tc('sw-product.settingsForm.labelStock')"
                                       :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
                                       required
                                       :value="props.currentValue"
+                                      :error="productStockError"
                                       @change="props.updateCurrentValue">
                             </sw-field>
 
@@ -62,7 +62,7 @@
                                           :label="$tc('sw-product.settingsForm.labelWidth')"
                                           :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
                                           :min="0"
-                                          pointer="product.width"
+                                          :error="productWidthError"
                                           :disabled="props.isInherited"
                                           :value="props.currentValue"
                                           @change="props.updateCurrentValue">
@@ -86,7 +86,7 @@
                                           :label="$tc('sw-product.settingsForm.labelHeight')"
                                           :placeholder="$tc('sw-product.settingsForm.placeholderHeight')"
                                           :min="0"
-                                          pointer="product.height"
+                                          :error="productHeightError"
                                           :disabled="props.isInherited"
                                           :value="props.currentValue"
                                           @change="props.updateCurrentValue">
@@ -112,7 +112,7 @@
                                           :label="$tc('sw-product.settingsForm.labelLength')"
                                           :placeholder="$tc('sw-product.settingsForm.placeholderLength')"
                                           :min="0"
-                                          pointer="product.length"
+                                          :error="productLengthError"
                                           :disabled="props.isInherited"
                                           :value="props.currentValue"
                                           @change="props.updateCurrentValue">
@@ -136,7 +136,7 @@
                                           :label="$tc('sw-product.settingsForm.labelWeight')"
                                           :placeholder="$tc('sw-product.settingsForm.placeholderWeight')"
                                           :min="0"
-                                          pointer="product.weight"
+                                          :error="productWeightError"
                                           :disabled="props.isInherited"
                                           :value="props.currentValue"
                                           @change="props.updateCurrentValue">
@@ -162,7 +162,7 @@
                                       :mapInheritance="props"
                                       numberType="int"
                                       :min="0"
-                                      pointer="product.minPurchase"
+                                      :error="productMinPurchaseError"
                                       :label="$tc('sw-product.settingsForm.labelMinPurchase')"
                                       :placeholder="$tc('sw-product.settingsForm.placeholderMinPurchase')"
                                       :disabled="props.isInherited"
@@ -184,7 +184,7 @@
                                       :mapInheritance="props"
                                       numberType="int"
                                       :min="0"
-                                      pointer="product.maxPurchase"
+                                      :error="productMaxPurchaseError"
                                       :label="$tc('sw-product.settingsForm.labelMaxPurchase')"
                                       :placeholder="$tc('sw-product.settingsForm.placeholderMaxPurchase')"
                                       :disabled="props.isInherited"
@@ -207,7 +207,7 @@
 
                             <sw-field type="text"
                                       :mapInheritance="props"
-                                      pointer="product.ean"
+                                      :error="productEanError"
                                       :label="$tc('sw-product.settingsForm.labelEan')"
                                       :placeholder="$tc('sw-product.settingsForm.placeholderEan')"
                                       :disabled="props.isInherited"
@@ -227,7 +227,7 @@
 
                             <sw-field type="text"
                                       :mapInheritance="props"
-                                      pointer="product.manufacturerNumber"
+                                      :error="productManufacturerNumberError"
                                       :label="$tc('sw-product.settingsForm.labelManufacturerNumber')"
                                       :placeholder="$tc('sw-product.settingsForm.placeholderManufacturerNumber')"
                                       :disabled="props.isInherited"
@@ -249,7 +249,7 @@
 
                             <sw-field type="switch"
                                       :mapInheritance="props"
-                                      pointer="product.shippingFree"
+                                      :error="productShippingFreeError"
                                       bordered
                                       :label="$tc('sw-product.settingsForm.labelShippingFree')"
                                       :disabled="props.isInherited"
@@ -269,7 +269,7 @@
 
                             <sw-field type="switch"
                                       bordered
-                                      pointer="product.markAsTopseller"
+                                      :error="productMarkAsTopsellerError"
                                       :mapInheritance="props"
                                       :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
                                       :disabled="props.isInherited"

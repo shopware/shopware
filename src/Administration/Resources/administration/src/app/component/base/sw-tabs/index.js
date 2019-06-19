@@ -74,6 +74,10 @@ export default {
     watch: {
         '$route'() {
             this.updateActiveItem();
+        },
+
+        activeTabHasErrors() {
+            this.recalculateSlider();
         }
     },
 
@@ -106,6 +110,14 @@ export default {
                 return this.isVertical ? activeChildren.$el.offsetHeight : activeChildren.$el.offsetWidth;
             }
             return 0;
+        },
+
+        activeTabHasErrors() {
+            return this.$children[this.activeItem] && this.$children[this.activeItem].hasError;
+        },
+
+        sliderClasses() {
+            return { 'has--error': this.activeTabHasErrors };
         },
 
         sliderMovement() {
@@ -161,8 +173,10 @@ export default {
                 },
                 component: this
             });
+            this.recalculateSlider();
+        },
 
-            // Force to recalculate the slider position
+        recalculateSlider() {
             window.setTimeout(() => {
                 const activeItem = this.activeItem;
                 this.activeItem = null;

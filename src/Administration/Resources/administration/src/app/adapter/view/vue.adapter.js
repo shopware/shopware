@@ -244,9 +244,6 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
             modules: filterStateRegistry(State.getStoreRegistry()),
             strict: false
         });
-
-        // remove unnecessary objects from state.factory
-        State.getStoreRegistry().delete('vuex');
         State.registerStore('vuex', store);
 
         return store;

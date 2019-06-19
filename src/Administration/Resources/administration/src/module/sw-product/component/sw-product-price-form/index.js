@@ -1,5 +1,6 @@
 import { Component, Mixin } from 'src/core/shopware';
 import { mapState, mapGetters } from 'vuex';
+import { mapFormErrors } from 'src/app/service/map-errors.service';
 import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
 
@@ -30,6 +31,8 @@ Component.register('sw-product-price-form', {
             'taxes',
             'currencies'
         ]),
+
+        ...mapFormErrors('product', ['taxId', 'price', 'purchasePrice', 'purchaseUnit', 'referenceUnit', 'packUnit']),
 
         priceList() {
             if (!this.product.price) {

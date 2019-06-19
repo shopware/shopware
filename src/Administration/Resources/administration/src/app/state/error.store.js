@@ -34,7 +34,7 @@ class VuexErrorStore {
 
         this.getters = {
             getApiError: (state) => (entity, field) => {
-                const path = [entity.getEntityName(), entity.id, field];
+                const path = [entity.getEntityName(), entity.id, ...field.split('.')];
                 return path.reduce((store, next) => {
                     if (store === null) {
                         return null;
@@ -45,6 +45,20 @@ class VuexErrorStore {
                     }
                     return null;
                 }, state.api);
+            },
+
+            existsErrorInProperty: (state) => (entity, properties) => {
+                const entityErrors = state.api[entity];
+                if (!entityErrors) {
+                    return false;
+                }
+
+                return Object.keys(entityErrors).some((id) => {
+                    const instance = entityErrors[id];
+                    return Object.keys(instance).some((propWithError) => {
+                        return properties.includes(propWithError);
+                    });
+                });
             },
 
             getSystemError: (state) => (id) => {

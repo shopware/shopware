@@ -46,6 +46,11 @@ export default {
             type: String,
             required: false,
             default: ''
+        },
+        hasError: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -80,7 +85,8 @@ export default {
 
         tabsItemClasses() {
             return {
-                'sw-tabs-item--active': this.isActive
+                'sw-tabs-item--active': this.isActive,
+                'sw-tabs-item--has-error': this.hasError
             };
         }
     },

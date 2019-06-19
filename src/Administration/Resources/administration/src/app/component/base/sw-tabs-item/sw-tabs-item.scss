@@ -12,8 +12,26 @@ $sw-side-navigation-item-link-distance: 10px;
     cursor: pointer;
     user-select: none;
 
+    .sw-tabs-item__error-badge {
+        position: relative;
+        bottom: 2px;
+        color: $color-crimson-300;
+    }
+
     &.sw-tabs-item--active {
         color: $color-darkgray-800;
+
+        .sw-tabs-item__error-badge {
+            color: $color-crimson-500;
+        }
+    }
+
+    &.sw-tabs-item--has-error {
+        color: $color-crimson-300;
+
+        &.sw-tabs-item--active {
+            color: $color-crimson-500;
+        }
     }
 
     &:disabled {

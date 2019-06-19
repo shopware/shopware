@@ -2,8 +2,8 @@ import { State } from 'src/core/shopware';
 import ShopwareError from './ShopwareError';
 
 const regExRegularPointer = /\/([^\/]*)(.*)/;
-const regExToManyAssociation = /\/(\w*)\/(\d)(\/.*)/;
-const regExTranslations = /\/translations\/([a-fA-f\d]*)(\/.*)/;
+const regExToManyAssociation = /\/translations\/(\d)(\/.*)/;
+const regExTranslations = /\/translations\/([a-fA-f\d]*)\/(.*)/;
 
 export default class ErrorResolver {
     constructor(entityDefinitionRegistry) {
@@ -15,16 +15,21 @@ export default class ErrorResolver {
         return this.errorStore.resetApiErrors();
     }
 
+    /**
+     * @param response
+     * @param entity
+     * @param changeset
+     */
     handleWriteError({ response }, entity, changeset) {
         if (!this.isErrorDataSet(response)) {
             throw response;
         }
 
-        const apiErrors = response.data.errors;
+        const errors = response.data.errors;
         const definition = this.definitionRegistry.get(entity.getEntityName());
 
         const systemErrors = [];
-        apiErrors.forEach((error) => {
+        errors.forEach((error) => {
             this.resolveError(error, definition, entity, changeset, systemErrors);
         });
 
@@ -38,6 +43,10 @@ export default class ErrorResolver {
 
     }
 
+    /**
+     * @private
+     * @param {Object[]} systemErrors
+     */
     addSystemErrors(systemErrors) {
         systemErrors.forEach((error) => {
             this.errorStore.addSystemError(error);
@@ -53,7 +62,7 @@ export default class ErrorResolver {
      * @param systemErrors
      */
     resolveError(error, definition, entity, changeset, systemErrors) {
-        const [, fieldName] = error.source.pointer.match(regExRegularPointer);
+        const [, fieldName, subFields] = error.source.pointer.match(regExRegularPointer);
         const field = definition.getField(fieldName);
 
         if (!field) {
@@ -61,13 +70,18 @@ export default class ErrorResolver {
             return;
         }
 
+        if (definition.isJsonField(field)) {
+            this.resolveJsonField(fieldName, subFields, error, entity);
+            return;
+        }
+
         if (definition.isToManyAssociation(field)) {
             if (fieldName === 'translations') {
-                this.resolveTranslation(error, definition, entity, changeset, systemErrors);
+                this.resolveTranslation(error, definition, entity, systemErrors);
                 return;
             }
 
-            this.handleToManyAssociationError(error, fieldName, entity[fieldName], changeset, systemErrors);
+            this.resolveToManyAssociationError(error, fieldName, entity[fieldName], changeset, systemErrors);
             return;
         }
 
@@ -82,9 +96,8 @@ export default class ErrorResolver {
      * @param changeset
      * @param systemErrors
      */
-    handleToManyAssociationError(error, currentField, entityCollection, changeset, systemErrors) {
+    resolveToManyAssociationError(error, currentField, entityCollection, changeset, systemErrors) {
         const definition = this.definitionRegistry.get(entityCollection.entity);
-
         if (!definition) {
             systemErrors.push(error);
             return;
@@ -98,11 +111,30 @@ export default class ErrorResolver {
         this.resolveError(error, definition, entity, changeset, systemErrors);
     }
 
-    resolveTranslation(error, definition, entity, changeset, systemErrors) {
+    /**
+     * @private
+     * @param jsonField
+     * @param subFields
+     * @param error
+     * @param entity
+     */
+    resolveJsonField(jsonField, subFields, error, entity) {
+        const fieldPath = `${jsonField}${subFields.replace(/\//g, '.')}`;
+        this.errorStore.addApiError(this.getErrorPath(entity, fieldPath), new ShopwareError(error));
+    }
+
+    /**
+     * private
+     * @param error
+     * @param definition
+     * @param entity
+     * @param systemErrors
+     */
+    resolveTranslation(error, definition, entity, systemErrors) {
         const [, /* languageId */, fieldName] = error.source.pointer.match(regExTranslations);
         error.source.pointer = fieldName;
 
-        const field = definition.getField(fieldName.substr(1));
+        const field = definition.getField(fieldName);
         if (!field) {
             systemErrors.push(error);
             return;
@@ -112,7 +144,7 @@ export default class ErrorResolver {
             throw new Error(`[ErrorResolver] translatable field ${fieldName}`);
         }
 
-        this.resolveError(error, definition, entity, changeset, systemErrors);
+        this.errorStore.addApiError(this.getErrorPath(entity, fieldName), new ShopwareError(error));
     }
 
     /**

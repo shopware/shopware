@@ -10,11 +10,11 @@
                                   :mapInheritance="props"
                                   :value="props.currentValue"
                                   @input="props.updateCurrentValue"
-                                  pointer="product.name"
                                   :disabled="props.isInherited"
                                   :label="$tc('sw-product.basicForm.labelTitle')"
                                   :required="isTitleRequired"
                                   name="sw-field--product-name"
+                                  :error="productNameError"
                                   :placeholder="placeholder(product, 'name', $tc('sw-product.basicForm.placeholderName'))">
                         </sw-field>
 
@@ -25,7 +25,7 @@
             {% block sw_product_settings_form_active_field %}
                 <sw-field type="switch"
                           bordered
-                          pointer="product.active"
+                          :error="productActiveError"
                           :label="$tc('sw-product.settingsForm.labelActive')"
                           v-model="product.active">
                 </sw-field>
@@ -39,7 +39,7 @@
                 <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
                     <sw-text-editor :placeholder="placeholder(product, 'description', $tc('sw-product.basicForm.placeholderDescriptionLong'))"
-                                    pointer="product.description"
+                                    :error="productDescriptionError"
                                     :key="isInherited"
                                     :disabled="isInherited"
                                     :value="currentValue"
@@ -72,7 +72,7 @@
                                                  class="sw-select-product__select_manufacturer"
                                                  id="manufacturerId"
                                                  :key="isInherited"
-                                                 pointer="product.manufacturerId"
+                                                 :error="productManufacturerIdError"
                                                  :placeholder="$tc('sw-product.basicForm.placeholderManufacturer')">
                         </sw-entity-single-select>
 
@@ -91,7 +91,7 @@
                 <sw-tag-field-new v-if="!loading.product && !loading.parentProduct"
                                   :disabled="isInherited"
                                   :key="isInherited"
-                                  pointer="product.tags"
+                                  :error="productTagsError"
                                   :entity="currentValue ? currentValue : {}">
                 </sw-tag-field-new>
             </template>

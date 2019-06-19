@@ -465,6 +465,9 @@
     "sw-simple-search-field": {
       "defaultPlaceholder": "Suche ..."
     },
+    "sw-tabs-item": {
+      "tooltipTabHasErrors": "Diese Seite enthält Fehler."
+    },
     "entities": {
       "custom_field": "Zusatzfeld | Zusatzfelder",
       "cart": "Warenkorb | Warenkörbe",

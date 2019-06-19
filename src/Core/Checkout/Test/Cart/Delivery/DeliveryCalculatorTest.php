@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -23,7 +24,6 @@ use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -46,7 +46,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $context = $this->createMock(SalesChannelContext::class);
         $context->expects(static::never())->method(static::anything());
-        $this->deliveryCalculator->calculate(new StructCollection(), new DeliveryCollection(), $context);
+        $this->deliveryCalculator->calculate(new CartDataCollection(), new DeliveryCollection(), $context);
     }
 
     public function testCalculateWithAlreadyCalculatedCosts(): void
@@ -72,7 +72,7 @@ class DeliveryCalculatorTest extends TestCase
         );
         $delivery->expects(static::once())->method('getPositions')->willReturn($positions);
 
-        $this->deliveryCalculator->calculate(new StructCollection(), new DeliveryCollection([$delivery]), $context);
+        $this->deliveryCalculator->calculate(new CartDataCollection(), new DeliveryCollection([$delivery]), $context);
 
         static::assertNotNull($newCosts);
         static::assertInstanceOf(CalculatedPrice::class, $newCosts);
@@ -127,7 +127,7 @@ class DeliveryCalculatorTest extends TestCase
                 ]
             )
         );
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
         $this->deliveryCalculator->calculate($data, new DeliveryCollection([$delivery]), $context);
@@ -178,7 +178,7 @@ class DeliveryCalculatorTest extends TestCase
             )
         );
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
 
         $this->deliveryCalculator->calculate($data, new DeliveryCollection([$delivery]), $context);
         static::assertNotSame($costs, $newCosts);
@@ -214,7 +214,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
@@ -253,7 +253,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -295,13 +295,13 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(
             DeliveryProcessor::buildKey($shippingMethod->getId()),
             $shippingMethod
         );
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -344,7 +344,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -384,7 +384,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -426,7 +426,7 @@ class DeliveryCalculatorTest extends TestCase
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -465,7 +465,7 @@ class DeliveryCalculatorTest extends TestCase
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -508,7 +508,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -552,7 +552,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -598,7 +598,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -638,7 +638,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -688,7 +688,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -729,7 +729,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -784,7 +784,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
 
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 
@@ -793,7 +793,7 @@ class DeliveryCalculatorTest extends TestCase
 
     private function buildDeliveries(LineItemCollection $lineItems, SalesChannelContext $context): DeliveryCollection
     {
-        $data = new StructCollection();
+        $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($context->getShippingMethod()->getId()), $context->getShippingMethod());
 
         return $this->getContainer()->get(DeliveryBuilder::class)

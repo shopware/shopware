@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
@@ -17,7 +18,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryBuilder
@@ -33,7 +33,7 @@ class DeliveryBuilder
     }
 
     public function build(
-        StructCollection $data,
+        CartDataCollection $data,
         DeliveryCollection $deliveries,
         LineItemCollection $items,
         SalesChannelContext $context,

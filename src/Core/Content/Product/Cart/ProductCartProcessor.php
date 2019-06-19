@@ -8,13 +8,13 @@ use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
-use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
@@ -44,7 +44,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $this->calculator = $calculator;
     }
 
-    public function collect(StructCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
+    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
     {
         $lineItems = $original
             ->getLineItems()
@@ -69,7 +69,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
     }
 
-    public function process(StructCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
+    public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
         // handle all products which stored in root level
         $lineItems = $original
@@ -93,7 +93,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
     }
 
-    private function enrich(LineItem $lineItem, StructCollection $data, SalesChannelContext $context, CartBehavior $behavior): void
+    private function enrich(LineItem $lineItem, CartDataCollection $data, SalesChannelContext $context, CartBehavior $behavior): void
     {
         $id = $lineItem->getReferencedId();
 
@@ -159,7 +159,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         ]);
     }
 
-    private function getNotCompleted(StructCollection $data, array $lineItems): array
+    private function getNotCompleted(CartDataCollection $data, array $lineItems): array
     {
         $ids = [];
 

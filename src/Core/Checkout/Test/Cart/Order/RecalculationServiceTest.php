@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
@@ -36,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
-use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ExtensionHelper;
@@ -175,7 +175,7 @@ class RecalculationServiceTest extends TestCase
             $lineItem->setQuantityInformation(null);
         }
 
-        $cart->setData(new StructCollection());
+        $cart->setData(new CartDataCollection());
 
         static::assertEquals($cart, $convertedCart);
     }

@@ -1,9 +1,8 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import PaymentPageObject from '../../support/pages/module/sw-payment.page-object';
 
 describe('Payment: Test crud operations', () => {
-
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {

@@ -55,7 +55,7 @@ export default class ShippingMethodPageObject extends GeneralPageObject {
         cy.get(this.elements.successIcon).should('be.visible');
     }
 
-    selectPriceCalculation(selector, {optionSelector, value}) {
+    selectPriceCalculation(selector, { optionSelector, value }) {
         cy.get(selector).should('be.visible');
         cy.get(selector).click();
         cy.get(optionSelector).contains(value);

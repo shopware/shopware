@@ -1,9 +1,8 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SalesChannelPageObject from '../../support/pages/module/sw-sales-channel.page-object';
 
 describe('Sales Channel: Test crud operations', () => {
-
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -14,7 +13,7 @@ describe('Sales Channel: Test crud operations', () => {
             });
     });
 
-    it('@p create and read sales channel', () => {
+    it.skip('@p create and read sales channel', () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later

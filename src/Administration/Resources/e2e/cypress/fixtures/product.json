@@ -3,8 +3,12 @@
   "stock": 1,
   "productNumber": "RS-333",
   "descriptionLong": "Product description",
-  "price": {
-    "net": 42,
-    "gross": 64
-  }
+  "price": [
+    {
+      "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+      "net": 42,
+      "linked": false,
+      "gross": 64
+    }
+  ]
 }

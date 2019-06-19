@@ -1,5 +1,4 @@
-const _ = require('lodash');
-const uuid = require('uuid/v4');
+const sample = require('lodash.sample');
 
 /**
  * Get the sales channel Id via Admin API
@@ -49,7 +48,7 @@ Cypress.Commands.add('storefrontApiRequest', (method, endpoint, header = {}, bod
                 ...body
             },
             method: method,
-            url: `/sales-channel-api/v1/${endpoint}`,
+            url: `/sales-channel-api/v1/${endpoint}`
         };
 
         return cy.request(requestConfig).then((result) => {
@@ -65,29 +64,6 @@ Cypress.Commands.add('storefrontApiRequest', (method, endpoint, header = {}, bod
  * @function
  */
 Cypress.Commands.add('getRandomProductInformationForCheckout', () => {
-    const sample = require('lodash.sample');
-    return cy.storefrontApiRequest('GET', 'product').then((result) => {
-        const randomProduct = sample(result);
-
-        return {
-            id: randomProduct.id,
-            name: randomProduct.name,
-            net: randomProduct.price.net,
-            gross: randomProduct.price.gross,
-            listingPrice: randomProduct.calculatedListingPrice.unitPrice,
-            url: `/detail/${randomProduct.id}`
-        };
-    });
-});
-
-/**
- * Returns random product with id, name and url to view product
- * @memberOf Cypress.Chainable#
- * @name getRandomProductInformationForCheckout
- * @function
- */
-Cypress.Commands.add('setContextToken', () => {
-    const sample = require('lodash.sample');
     return cy.storefrontApiRequest('GET', 'product').then((result) => {
         const randomProduct = sample(result);
 

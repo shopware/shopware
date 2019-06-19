@@ -1,9 +1,8 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ShippingPageObject from '../../support/pages/module/sw-shipping.page-object';
 
 describe('Shipping: Test crud operations', () => {
-
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -34,7 +33,7 @@ describe('Shipping: Test crud operations', () => {
 
         // Verify shipping method
         cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click({force: true});
+            cy.get(page.elements.smartBarBack).click({ force: true });
             cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
                 .contains('Automated test shipping');
         });
@@ -82,6 +81,7 @@ describe('Shipping: Test crud operations', () => {
         }).as('deleteData');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Luftpost');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,

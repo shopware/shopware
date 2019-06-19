@@ -1,9 +1,8 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SettingsPageObject from '../../support/pages/module/sw-settings.page-object';
 
 describe('Tax: Test crud operations', () => {
-
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -39,7 +38,6 @@ describe('Tax: Test crud operations', () => {
             cy.get(page.elements.smartBarBack).click();
             cy.get(`${page.elements.gridRow}--3 ${page.elements.taxColumnName}`).should('be.visible')
                 .contains('Very high tax');
-
         });
     });
 

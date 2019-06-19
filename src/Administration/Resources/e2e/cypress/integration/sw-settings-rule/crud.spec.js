@@ -1,9 +1,8 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import RulePageObject from '../../support/pages/module/sw-rule.page-object';
 
 describe('Rule builder: Test crud operations', () => {
-
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {

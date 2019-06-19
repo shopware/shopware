@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 const ApiService = require('../api.service');
 
 export default class AdminApiService extends ApiService {
@@ -40,7 +42,7 @@ export default class AdminApiService extends ApiService {
         };
     }
 
-    request({url, method, params, data}) {
+    request({ url, method, params, data }) {
         return this.loginByUserName().then(() => {
             const requestConfig = {
                 headers: this.getHeaders(),
@@ -56,7 +58,7 @@ export default class AdminApiService extends ApiService {
                 }
                 return response.data.data;
             });
-        }).catch(({config, response}) => {
+        }).catch(({ config, response }) => {
             if (response.data && response.data.errors) {
                 console.log(response.data.errors);
             }
@@ -74,7 +76,7 @@ export default class AdminApiService extends ApiService {
                 refresh: responseData.refresh_token,
                 expiry: Math.round(+new Date() / 1000) + responseData.expires_in
             };
-        }).catch(({config, response}) => {
+        }).catch(({ config, response }) => {
             if (response.data && response.data.errors) {
                 console.log(response.data.errors);
             }

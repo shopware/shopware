@@ -95,21 +95,22 @@ Cypress.Commands.add('setProductFixtureVisibility', () => {
             data: {
                 visibilities: [{
                     visibility: 30,
-                    salesChannelId: salesChannelId,
+                    salesChannelId: salesChannelId
                 }]
             }
         });
     }).then(() => {
         return cy.createDefaultFixture('category');
-    }).then((result) => {
-        return cy.updateViaAdminApi('product', productId, {
-            data: {
-                categories: [{
-                    id: result.id
-                }]
-            }
+    })
+        .then((result) => {
+            return cy.updateViaAdminApi('product', productId, {
+                data: {
+                    categories: [{
+                        id: result.id
+                    }]
+                }
+            });
         });
-    });
 });
 
 /**
@@ -211,7 +212,7 @@ Cypress.Commands.add('createShippingFixture', (userData) => {
  * @function
  * @param {Object} [options={}] - Options concerning creation
  */
-Cypress.Commands.add('createSnippetFixture', (options) => {
+Cypress.Commands.add('createSnippetFixture', () => {
     let json = {};
     let languageId = '';
 
@@ -240,12 +241,13 @@ Cypress.Commands.add('createSnippetFixture', (options) => {
             languageId: languageId,
             setId: result.id
         });
-    }).then((result) => {
-        return cy.createViaAdminApi({
-            endpoint: 'snippet',
-            data: result
+    })
+        .then((result) => {
+            return cy.createViaAdminApi({
+                endpoint: 'snippet',
+                data: result
+            });
         });
-    });
 });
 
 /**

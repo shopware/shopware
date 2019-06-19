@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import CustomerPageObject from '../../support/pages/module/sw-customer.page-object';
 
@@ -13,7 +13,7 @@ const newAddress = {
     addresses: [{
         street: 'Ligusterweg 4',
         zipcode: '333333',
-        city: 'Little Whinging',
+        city: 'Little Whinging'
     }],
     country: 'Great Britain'
 };

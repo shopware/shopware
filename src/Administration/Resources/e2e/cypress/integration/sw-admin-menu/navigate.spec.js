@@ -1,9 +1,6 @@
-/// <reference types="Cypress" />
-
-import SettingsPageObject from '../../support/pages/module/sw-settings.page-object';
+// / <reference types="Cypress" />
 
 describe('Administration: Check module navigation', () => {
-
     beforeEach(() => {
         // Clean previous state and prepare Administration
         cy.loginViaApi()

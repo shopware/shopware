@@ -1,10 +1,9 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SettingsPageObject from '../../support/pages/module/sw-settings.page-object';
 import ProductPageObject from '../../support/pages/module/sw-product.page-object';
 
 describe('Language: Test crud operations', () => {
-
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {

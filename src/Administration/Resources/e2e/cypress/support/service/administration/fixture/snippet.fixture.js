@@ -21,37 +21,41 @@ export default class SnippetFixtureService extends AdminFixtureService {
 
         return this.apiClient.post('/v1/search/language?response=true', {
             filter: [{
-                field: "name",
-                type: "equals",
-                value: "English",
+                field: 'name',
+                type: 'equals',
+                value: 'English'
             }]
         }).then((data) => {
             languageId = data.id;
         }).then(() => {
             return this.apiClient.post('/v1/search/snippet-set?response=true', {
                 filter: [{
-                    field: "name",
-                    type: "equals",
-                    value: "BASE en-GB",
+                    field: 'name',
+                    type: 'equals',
+                    value: 'BASE en-GB'
                 }]
-            })
+            });
         }).then((data) => {
             setId = data.id;
-        }).then(() => {
-            return this.mergeFixtureWithData({
-                languageId: languageId,
-                setId: setId,
-            }, snippetData);
-        }).then((finalSnippetData) => {
-            return this.apiClient.post('/v1/snippet?_response=true', finalSnippetData, userData);
-        }).then((data) => {
-            const endTime = new Date() - startTime;
-            global.logger.success(`${data.id} (${endTime / 1000}s)`);
-            global.logger.lineBreak();
-        }).catch((err) => {
-            global.logger.error(err);
-            global.logger.lineBreak();
-        });
+        })
+            .then(() => {
+                return this.mergeFixtureWithData({
+                    languageId: languageId,
+                    setId: setId
+                }, snippetData);
+            })
+            .then((finalSnippetData) => {
+                return this.apiClient.post('/v1/snippet?_response=true', finalSnippetData, userData);
+            })
+            .then((data) => {
+                const endTime = new Date() - startTime;
+                global.logger.success(`${data.id} (${endTime / 1000}s)`);
+                global.logger.lineBreak();
+            })
+            .catch((err) => {
+                global.logger.error(err);
+                global.logger.lineBreak();
+            });
     }
 }
 

@@ -15,7 +15,6 @@ export default class OrderPageObject extends GeneralPageObject {
     setOrderState({ stateTitle, type, signal = 'neutral', scope = 'select' }) {
         const stateColor = `.sw-order-state__${signal}-select`;
 
-        cy.get(this.elements.loader).should('not.exist');
         cy.get(`.sw-order-state-${scope}__${type}-state select[name=sw-field--selectedActionName]`)
             .should('be.visible')
             .select(stateTitle, { force: true });
@@ -24,7 +23,9 @@ export default class OrderPageObject extends GeneralPageObject {
         cy.get(this.elements.smartBarHeader).click();
         cy.get('.sw-order-user-card .sw-loader__element').should('not.exist');
 
-        scope === 'select' ? cy.get(stateColor).should('be.visible') : null;
+        if (scope === 'select') {
+            cy.get(stateColor).should('be.visible');
+        }
     }
 
     checkOrderHistoryEntry({ type, stateTitle, signal = 'neutral', position = 0 }) {

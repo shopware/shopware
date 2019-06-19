@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import PropertyPageObject from '../../support/pages/module/sw-property.page-object';
 
@@ -10,7 +10,7 @@ describe('Property: Test crud operations', () => {
             })
             .then(() => {
                 return cy.createPropertyFixture({
-                    options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}]
+                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
                 });
             })
             .then(() => {

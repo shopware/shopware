@@ -83,22 +83,6 @@ Cypress.Commands.add('typeAndCheck', {
 });
 
 /**
- * Ticks a checkbox element and checks if it is behaving accordingly
- * @memberOf Cypress.Chainable#
- * @name tickAndCheckCheckbox
- * @function
- * @param {Boolean} checked - The value to type
- */
-Cypress.Commands.add('tickAndCheckCheckbox', {
-    prevSubject: 'element'
-}, (subject, checked) => {
-    cy.wrap(subject).click(checked);
-    checked ?
-        cy.wrap(subject).should('be.checked')
-        : cy.wrap(subject).should('not.be.checked');
-});
-
-/**
  * Types in an swSelect field and checks if the content was correctly typed
  * @memberOf Cypress.Chainable#
  * @name typeMultiSelectAndCheck
@@ -166,23 +150,35 @@ Cypress.Commands.add('typeSingleSelectAndCheck', {
     const searchTerm = options.searchTerm || value;
     const position = options.position || 0;
 
+    // Request we want to wait for later
+    cy.server();
+    cy.route({
+        url: '/api/v1/search/*',
+        method: 'post'
+    }).as('filteredResultCall');
+
     cy.wrap(subject).should('be.visible');
     cy.wrap(subject).click();
 
     // type in the search term if available
     if (searchTerm) {
-        cy.get(`${subject.selector} ${inputCssSelector}`).clear();
-        cy.get(`${subject.selector} ${inputCssSelector}`).type(searchTerm);
-        cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', searchTerm);
+        cy.wait('@filteredResultCall').then(() => {
+            cy.get(`${subject.selector} ${inputCssSelector}`).clear();
+            cy.get(`${subject.selector} ${inputCssSelector}`).type(searchTerm);
+            cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', searchTerm);
+        });
 
         // select the first result
         if (options.searchable) {
             cy.get(`${resultPrefix}-option--${position}`).should('not.exist');
             cy.get('.sw-loader__element').should('not.exist');
-            cy.get(`${resultPrefix}-option--${position}`).should('be.visible');
         }
-        cy.get(`${subject.selector} ${resultPrefix}-option--${position} ${resultPrefix}-option__result-item-text`)
-            .contains(value);
+
+        cy.wait('@filteredResultCall').then(() => {
+            cy.get(`${subject.selector} ${resultPrefix}-option--${position} ${resultPrefix}-option__result-item-text`)
+                .should('be.visible')
+                .contains(value);
+        });
     }
 
     cy.get(`${resultPrefix}-option--${position}`).click({ force: true });
@@ -322,7 +318,7 @@ Cypress.Commands.add('clickContextMenuItem', (menuButtonSelector, menuOpenSelect
  * @param {String} obj.mainMenuId - Id of the Main Menu item
  * @param {String} [obj.subMenuId=null] - Id of the sub menu item
  */
-Cypress.Commands.add('clickMainMenuItem', ({targetPath, mainMenuId, subMenuId = null}) => {
+Cypress.Commands.add('clickMainMenuItem', ({ targetPath, mainMenuId, subMenuId = null }) => {
     const finalMenuItem = `.sw-admin-menu__item--${mainMenuId}`;
 
     cy.get('.sw-admin-menu').should('be.visible').then(() => {

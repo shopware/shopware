@@ -1,9 +1,15 @@
 module.exports = {
-    extends: '@shopware/eslint-config-base',
-    // We're dealing with Node.js and browser env
+    extends: [
+        '@shopware/eslint-config-base',
+        'plugin:cypress/recommended'
+    ],
+    plugins: [
+        'cypress',
+        'chai-friendly'
+    ],
     env: {
         node: true,
-        browser: true
+        "cypress/globals": true
     },
     globals: {
         Promise: true,
@@ -20,9 +26,8 @@ module.exports = {
         'import/no-unresolved': 0,
         // Disable max line length
         'max-len': 0,
-        // Nightwatch requiring custom commands on it's own, therefore we have unused expressions
+        // Cypress requiring custom commands on it's own, therefore we have unused expressions
         'no-unused-expressions': 0,
-        // Enforce arrow callback except for named functions
-        'prefer-arrow-callback': [ "error", { "allowNamedFunctions": true } ]
+        'chai-friendly/no-unused-expressions': 2
     }
 };

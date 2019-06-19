@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ManufacturerPageObject from '../../support/pages/module/sw-manufacturer.page-object';
 

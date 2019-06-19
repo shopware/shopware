@@ -24,7 +24,7 @@ namespace Swag\EntityExtension\Extension\Content\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deferred;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -33,7 +33,7 @@ class CustomExtension implements EntityExtensionInterface
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            (new ObjectField('custom_struct', 'customStruct'))->addFlags(new Deferred())
+            (new ObjectField('custom_struct', 'customStruct'))->addFlags(new Runtime())
         );
     }
 
@@ -45,7 +45,7 @@ class CustomExtension implements EntityExtensionInterface
 ```
 
 This example adds another association named `custom_struct` to the `ProductDefinition`.
-The `Deferred` flag tells the data abstraction layer, that you're going to take care of the field's content yourself.
+The `Runtime` flag tells the data abstraction layer, that you're going to take care of the field's content yourself.
 Have a look at our detailed list of [flags](./../2-internals/1-core/20-data-abstraction-layer/090-flags.md) and what their purpose is, or find out which [field types](./../2-internals/1-core/20-data-abstraction-layer/080-types.md) are available in Shopware 6.
 
 So, time to take care about the product entities' new field yourself.

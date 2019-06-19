@@ -699,7 +699,7 @@
     "functionSpecialShortcutShortcutListing": "Tastenkürzel Übersicht",
     "keyboardShortcutSpecialShortcutShortcutListing": "?",
     "functionSpecialShortcutSaveDetailView": "Speichern in Detailansicht",
-    "keyboardShortcutSpecialShortcutSaveDetailView": "Windows: alt + s / Mac: control + s",
+    "keyboardShortcutSpecialShortcutSaveDetailView": "Windows: alt + s / Mac: control + s / Unix: alt + s",
     "functionSpecialShortcutCancelDetailView": "Abbrechen in Detailansicht",
     "keyboardShortcutSpecialShortcutCancelDetailView": "Esc"
   }

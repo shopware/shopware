@@ -695,7 +695,7 @@
     "functionSpecialShortcutShortcutListing": "Shortcut Listing",
     "keyboardShortcutSpecialShortcutShortcutListing": "?",
     "functionSpecialShortcutSaveDetailView": "Save Detail View",
-    "keyboardShortcutSpecialShortcutSaveDetailView": "Windows: alt + s / Mac: control + s",
+    "keyboardShortcutSpecialShortcutSaveDetailView": "Windows: alt + s / Mac: control + s / Unix: alt + s",
     "functionSpecialShortcutCancelDetailView": "Cancel Detail View",
     "keyboardShortcutSpecialShortcutCancelDetailView": "Esc"
   }

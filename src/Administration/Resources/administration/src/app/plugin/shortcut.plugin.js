@@ -18,7 +18,7 @@ export default {
                     return false;
                 }
 
-                document.addEventListener('keyup', this.handleKeyUp);
+                document.addEventListener('keyup', this.debounce(this.handleKeyUp));
 
                 return true;
             },
@@ -29,11 +29,22 @@ export default {
                     return false;
                 }
 
-                document.removeEventListener('keyup', this.handleKeyUp);
+                document.removeEventListener('keyup', this.debounce(this.handleKeyUp));
 
                 return true;
             },
             methods: {
+                debounce(fn, time = 100) {
+                    let timeout;
+
+                    return (...args) => {
+                        const functionCall = () => fn.apply(this, args);
+
+                        clearTimeout(timeout);
+                        timeout = setTimeout(functionCall, time);
+                    };
+                },
+
                 handleKeyUp(event) {
                     const isModalShown = !!document.querySelector('.sw-modal__dialog');
                     const shortcuts = this.$options.shortcuts;

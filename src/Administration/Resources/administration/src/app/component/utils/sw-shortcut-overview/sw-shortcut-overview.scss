@@ -1,5 +1,7 @@
 @import "~scss/variables";
 
+$sw-shortcut-overview-key-background-color : #F3F3F3;
+
 .sw-shortcut-overview {
     margin-right: 15px;
 }
@@ -21,8 +23,12 @@
             padding: 5px 10px;
         }
 
-        kbd {
+        kbd span {
             color: $color-crimson-600;
+            border: 3px outset $sw-shortcut-overview-key-background-color;
+            background-color: $sw-shortcut-overview-key-background-color;
+            padding: 0px 2px;
+            cursor: default;
         }
     }
 }

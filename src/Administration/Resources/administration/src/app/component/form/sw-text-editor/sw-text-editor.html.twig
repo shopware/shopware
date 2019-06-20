@@ -23,10 +23,11 @@
                 {% endblock %}
 
                 {% block sw_text_editor_box_table_toolbar %}
-                    <sw-text-editor-table-toolbar v-if="isTableEdit && !isInlineEdit && !isCodeEdit"
-                                                  :selection="selection"
-                                                  @table-delete="onTableDelete"
-                                                  @table-modify="onTableModify">
+                    <sw-text-editor-table-toolbar
+                        v-if="isTableEdit && !isInlineEdit && !isCodeEdit"
+                        :selection="selection"
+                        @table-delete="onTableDelete"
+                        @table-modify="onTableModify">
                     </sw-text-editor-table-toolbar>
                 {% endblock %}
 

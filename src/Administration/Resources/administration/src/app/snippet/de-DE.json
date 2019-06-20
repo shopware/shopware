@@ -538,7 +538,8 @@
     "table": {
       "addHeading": "Tabellenkopf hinzufügen",
       "cols": "Spalten",
-      "rows": "Reihen"
+      "rows": "Zeilen",
+      "editInfo": "Tabelle kann nachträglich erweitert werden."
     }
   },
   "sw-tree": {

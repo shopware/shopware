@@ -201,7 +201,7 @@ export default {
         },
 
         setSelectionRange() {
-            if (this.selection.anchorNode) {
+            if (this.selection.anchorNode && this.selection.rangeCount > 0) {
                 this.range = this.selection.getRangeAt(0);
             }
         },
@@ -271,6 +271,11 @@ export default {
 
             if (button.handler) {
                 this.keepSelection(true);
+
+                if (!this.selection || this.selection.rangeCount < 1) {
+                    button.expanded = false;
+                    return;
+                }
 
                 button.handler(button, parent);
 
@@ -360,8 +365,12 @@ export default {
             this.keepSelection(true);
 
             if (button.value) {
-                this.$emit('on-set-link', this.prepareLink(button.value), target);
+                if (!this.selection || this.selection.rangeCount < 1) {
+                    button.expanded = false;
+                    return;
+                }
 
+                this.$emit('on-set-link', this.prepareLink(button.value), target);
                 this.range = document.getSelection().getRangeAt(0);
                 this.range.setStart(this.range.startContainer, 0);
                 button.expanded = false;

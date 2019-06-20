@@ -534,7 +534,8 @@
     "table": {
       "addHeading": "Add table heading",
       "cols": "Columns",
-      "rows": "Rows"
+      "rows": "Rows",
+      "editInfo": "Table can be extended afterwards"
     }
   },
   "sw-tree": {

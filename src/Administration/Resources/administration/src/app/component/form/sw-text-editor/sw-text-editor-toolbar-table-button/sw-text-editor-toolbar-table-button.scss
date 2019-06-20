@@ -5,13 +5,24 @@
 
     .sw-text-editor-toolbar-table-button__grid-input {
         display: grid;
-        grid-template-columns: 96px 12px 96px;
+        grid-template-columns: 96px 12px 96px 1fr;
         align-items: center;
         grid-gap: 0 8px;
+        margin-bottom: 8px;
+
+        .sw-field {
+            margin-bottom: 0;
+        }
 
         .sw-text-editor-toolbar-table-button__grid-input-icon {
             color: $color-gray-700;
         }
+    }
+
+    .sw-text-editor-toolbar-table-button__grid-info {
+        white-space: pre-wrap;
+        color: $color-gray-700;
+        font-size: 12px;
     }
 
     .sw-text-editor-toolbar-table-button__table {
@@ -20,6 +31,7 @@
         border-radius: 2px;
         border-style: hidden;
         box-shadow: 0 0 0 1px $color-gray-300;
+        margin-top: 22px;
 
         .sw-text-editor-toolbar-table-button__col-placeholder {
             min-width: 20px;
@@ -33,16 +45,12 @@
             }
         }
 
-        .sw-text-editor-toolbar-table-button__table-body {
-            .sw-text-editor-toolbar-table-button__row {
-                .sw-text-editor-toolbar-table-button__col {
-                    border: 1px solid $color-gray-300;
+        .sw-text-editor-toolbar-table-button__col {
+            border: 1px solid $color-gray-300;
 
-                    &.is--selected {
-                        background: $color-shopware-brand-50;
-                        border-color: $color-shopware-brand-500;
-                    }
-                }
+            &.is--selected {
+                background: $color-shopware-brand-50;
+                border-color: $color-shopware-brand-500;
             }
         }
     }

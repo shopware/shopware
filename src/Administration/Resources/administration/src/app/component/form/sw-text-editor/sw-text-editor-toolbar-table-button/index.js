@@ -20,14 +20,14 @@ export default {
             addTableHead: false,
             tableRows: 6,
             tableCols: 6,
-            tableMinCols: 2,
-            tableMinRows: 1,
-            rowMaxLimit: 15,
+            tableMinCols: 6,
+            tableMinRows: 6,
+            rowMaxLimit: 10,
             colMaxLimit: 10,
             selectedRows: 0,
             selectedCols: 0,
-            oldHorizontalDirection: 0,
-            oldVerticalDirection: 0
+            oldHorizontalDirection: '',
+            oldVerticalDirection: ''
         };
     },
 
@@ -56,7 +56,7 @@ export default {
         },
 
         setSelectedCols(cols) {
-            if (cols >= this.tableMinCols) {
+            if (cols >= this.tableCols) {
                 this.tableCols = cols;
             }
 
@@ -68,7 +68,7 @@ export default {
         },
 
         setSelectedRows(rows) {
-            if (rows >= this.tableMinCols) {
+            if (rows >= this.tableRows) {
                 this.tableRows = rows;
             }
 

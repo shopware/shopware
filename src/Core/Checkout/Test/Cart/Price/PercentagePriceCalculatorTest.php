@@ -3,11 +3,8 @@
 namespace Shopware\Core\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
-use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
@@ -33,15 +30,7 @@ class PercentagePriceCalculatorTest extends TestCase
             new TaxRuleCalculator(new PriceRounding())
         );
 
-        $calculator = new PercentagePriceCalculator(
-            $rounding,
-            new QuantityPriceCalculator(
-                new GrossPriceCalculator($taxCalculator, $rounding),
-                new NetPriceCalculator($taxCalculator, $rounding),
-                Generator::createGrossPriceDetector()
-            ),
-            new PercentageTaxRuleBuilder()
-        );
+        $calculator = new PercentagePriceCalculator($rounding, new PercentageTaxRuleBuilder());
 
         $price = $calculator->calculate(
             $percentage,

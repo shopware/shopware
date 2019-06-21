@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Price;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -15,9 +16,15 @@ class PercentagePriceCalculator
      */
     private $rounding;
 
-    public function __construct(PriceRoundingInterface $rounding)
+    /**
+     * @var PercentageTaxRuleBuilder
+     */
+    private $taxRuleBuilder;
+
+    public function __construct(PriceRoundingInterface $rounding, PercentageTaxRuleBuilder $taxRuleBuilder)
     {
         $this->rounding = $rounding;
+        $this->taxRuleBuilder = $taxRuleBuilder;
     }
 
     /**
@@ -27,10 +34,10 @@ class PercentagePriceCalculator
      */
     public function calculate(float $percentage, PriceCollection $prices, SalesChannelContext $context): CalculatedPrice
     {
-        $price = $prices->sum();
+        $total = $prices->sum();
 
         $discount = $this->rounding->round(
-            $price->getTotalPrice() / 100 * $percentage,
+            $total->getTotalPrice() / 100 * $percentage,
             $context->getContext()->getCurrencyPrecision()
         );
 
@@ -51,6 +58,8 @@ class PercentagePriceCalculator
             );
         }
 
-        return new CalculatedPrice($discount, $discount, $taxes, $prices->getTaxRules(), 1);
+        $rules = $this->taxRuleBuilder->buildRules($total);
+
+        return new CalculatedPrice($discount, $discount, $taxes, $rules, 1);
     }
 }

@@ -92,6 +92,8 @@
       "messageDeleteSuccess":"Das Plugin wurde erfolgreich gelöscht",
       "titleUpdateSuccess":"Plugin aktualisiert",
       "messageUpdateSuccess":"Das Plugin wurde erfolgreich aktualisiert",
+      "titleDeleteConfirm":"Plugin löschen",
+      "messageDeleteConfirm":"Bist Du sicher, dass Du dieses Plugin löschen möchtest?",
       "deactivated": "Deaktiviert",
       "activated": "Aktiviert",
       "config": "Konfiguration"

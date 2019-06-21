@@ -26,7 +26,8 @@ Component.register('sw-plugin-list', {
             isLoading: false,
             sortBy: 'upgradedAt',
             sortDirection: 'desc',
-            sortType: 'upgradedAt:desc'
+            sortType: 'upgradedAt:desc',
+            showDeleteModal: false
         };
     },
 
@@ -46,6 +47,7 @@ Component.register('sw-plugin-list', {
         currentLocale() {
             return this.$store.state.adminLocale.currentLocale;
         },
+
         languageId() {
             return this.$store.state.adminLocale.languageId;
         }
@@ -59,6 +61,7 @@ Component.register('sw-plugin-list', {
         searchTerm() {
             this.onSearch(this.searchTerm);
         },
+
         languageId() {
             this.getList();
         }
@@ -130,6 +133,10 @@ Component.register('sw-plugin-list', {
         },
 
         onDeletePlugin(plugin) {
+            this.showDeleteModal = plugin.id;
+        },
+
+        onConfirmDelete(plugin) {
             this.isLoading = true;
             this.pluginService.delete(plugin.name).then(() => {
                 this.createNotificationSuccess({
@@ -139,7 +146,13 @@ Component.register('sw-plugin-list', {
                 this.getList();
                 this.$root.$emit('updates-refresh');
                 this.cacheApiService.clear();
+
+                this.showDeleteModal = false;
             });
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
         },
 
         onPluginSettings(plugin) {

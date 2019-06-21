@@ -171,13 +171,17 @@ class SnippetService
         $criteria = new Criteria();
         $criteria->addAggregation(new ValueAggregation('author', 'distinct_author'));
 
-        /** @var ValueResult $aggregation */
+        /** @var ValueResult|null $aggregation */
         $aggregation = $this->snippetRepository->aggregate($criteria, $context)
                 ->getAggregations()
                 ->get('distinct_author')
                 ->get(null);
 
-        $result = $aggregation->getValues() ?? [];
+        if (!$aggregation || empty($aggregation->getValues())) {
+            $result = [];
+        } else {
+            $result = $aggregation->getValues();
+        }
 
         $authors = array_flip($result);
         foreach ($files as $file) {

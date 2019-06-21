@@ -48,11 +48,13 @@ class ValueCountAggregationTest extends TestCase
             '90' => 1,
         ];
 
+        /** @var ValueCountResult $result */
         $result = $rateAgg->getResult()[0];
-        foreach ($result['values'] as $row) {
-            $key = $row['key'];
+
+        foreach ($result->getValues() as $row) {
+            $key = $row->getKey();
             static::assertArrayHasKey((string) $key, $expectedValues);
-            static::assertSame($expectedValues[$key], $row['count']);
+            static::assertSame($expectedValues[$key], $row->getCount());
         }
     }
 

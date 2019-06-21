@@ -2,8 +2,13 @@
 
 namespace Shopware\Elasticsearch\Test;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\EntityIndexer;
 
@@ -20,6 +25,11 @@ trait ElasticsearchTestTestBehaviour
             ->getContainer()
             ->get(ElasticsearchHelper::class)
             ->setEnabled(true);
+
+        KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(EntityIndexer::class)
+            ->setEnabled(true);
     }
 
     /**
@@ -31,6 +41,11 @@ trait ElasticsearchTestTestBehaviour
             ->getContainer()
             ->get(ElasticsearchHelper::class)
             ->setEnabled(false);
+
+        KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(EntityIndexer::class)
+            ->setEnabled(false);
     }
 
     public function indexElasticSearch(): void
@@ -38,7 +53,39 @@ trait ElasticsearchTestTestBehaviour
         KernelLifecycleManager::getKernel()
             ->getContainer()
             ->get(EntityIndexer::class)
-            ->setEnabled(true)
             ->index(new \DateTime());
+    }
+
+    protected function createEntityAggregator(): ElasticsearchEntityAggregator
+    {
+        $decorated = $this->createMock(EntityAggregator::class);
+
+        $decorated
+            ->expects(static::never())
+            ->method('aggregate');
+
+        return new ElasticsearchEntityAggregator(
+            $this->registry,
+            $this->getContainer()->get(ElasticsearchHelper::class),
+            $this->client,
+            $decorated,
+            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+        );
+    }
+
+    protected function createEntitySearcher(): ElasticsearchEntitySearcher
+    {
+        $decorated = $this->createMock(EntitySearcher::class);
+
+        $decorated
+            ->expects(static::never())
+            ->method('search');
+
+        return new ElasticsearchEntitySearcher(
+            $this->client,
+            $decorated,
+            $this->registry,
+            $this->getContainer()->get(ElasticsearchHelper::class)
+        );
     }
 }

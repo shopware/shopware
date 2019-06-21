@@ -15,6 +15,9 @@ class ValueCountResult extends AbstractAggregationResult
         $this->values = $values;
     }
 
+    /**
+     * @return ValueCountItem[]
+     */
     public function getValues(): array
     {
         return $this->values;

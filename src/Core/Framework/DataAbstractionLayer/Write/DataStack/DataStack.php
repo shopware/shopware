@@ -52,9 +52,6 @@ class DataStack
         return isset($this->data[$key]);
     }
 
-    /**
-     * @throws ItemNotFoundException
-     */
     public function pop(string $key): ?KeyValuePair
     {
         if (!$this->has($key)) {

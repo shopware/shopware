@@ -8,15 +8,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\DefinitionRegistry;
-use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class ElasticsearchProductTest extends TestCase
 {
@@ -81,6 +81,7 @@ class ElasticsearchProductTest extends TestCase
         }
 
         $searcher = $this->createEntitySearcher();
+        $aggregator = $this->createEntityAggregator();
 
         // check simple search without any restrictions
         $criteria = new Criteria();
@@ -110,22 +111,22 @@ class ElasticsearchProductTest extends TestCase
         $products = $searcher->search($this->productDefinition, $criteria, $context);
         static::assertCount(2, $products->getIds());
         static::assertSame(2, $products->getTotal());
-    }
 
-    private function createEntitySearcher()
-    {
-        $decorated = $this->createMock(EntitySearcher::class);
+        $criteria = new Criteria();
+        $criteria->addAggregation(new ValueAggregation('product.stock', 'stock'));
 
-        $decorated
-            ->expects(static::never())
-            ->method('search');
+        $result = $aggregator->aggregate($this->productDefinition, $criteria, $context);
 
-        return new ElasticsearchEntitySearcher(
-            $this->client,
-            $decorated,
-            $this->registry,
-            $this->getContainer()->get(ElasticsearchHelper::class)
-        );
+        static::assertTrue($result->getAggregations()->has('stock'));
+        $aggregation = $result->getAggregations()->get('stock');
+
+        static::assertInstanceOf(AggregationResult::class, $aggregation);
+        $stock = $aggregation->get(null);
+        static::assertInstanceOf(ValueResult::class, $stock);
+
+        /** @var ValueResult $stock */
+        static::assertCount(3, $stock->getValues());
+        static::assertEquals([2, 10, 200], $stock->getValues());
     }
 
     private function createProduct(array $data = [])

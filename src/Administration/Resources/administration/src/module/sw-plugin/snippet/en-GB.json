@@ -92,6 +92,8 @@
       "messageDeleteSuccess":"Plugin has successfully been deleted.",
       "titleUpdateSuccess":"Success",
       "messageUpdateSuccess":"Plugin has successfully been updated.",
+      "titleDeleteConfirm":"Delete plugin",
+      "messageDeleteConfirm":"Are you sure you really want to delete this plugin?",
       "deactivated": "Deactivated",
       "activated": "Activated",
       "config": "Config"

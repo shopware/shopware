@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -51,12 +52,12 @@ class WriteCommandExtractor
 
         $pkData = $this->getPrimaryKey($rawData, $parameters, $fields);
 
-        $existence = $this->entityExistenceGateway->getExistence(
-            $definition,
-            $pkData,
-            $rawData,
-            $parameters->getCommandQueue()
-        );
+        if ($definition instanceof MappingEntityDefinition) {
+            // gateway will execute always a replace into
+            $existence = new EntityExistence($definition, [], false, false, false, []);
+        } else {
+            $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $parameters->getCommandQueue());
+        }
 
         $rawData = $this->integrateDefaults($definition, $rawData, $existence);
 

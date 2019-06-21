@@ -4,7 +4,6 @@ namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Search;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -79,18 +78,6 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregatorResult
     {
-        $criteria->resetAggregations();
-        $criteria->addAggregation(new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'EntityAggregation', 'product.categories.id'));
-        $criteria->addAggregation(new AvgAggregation('product.price', 'AvgAggregation', 'product.categories.id'));
-        $criteria->addAggregation(new CountAggregation('manufacturerId', 'CountAggregation', 'product.categories.id'));
-        $criteria->addAggregation(new ValueCountAggregation('active', 'ValueCountAggregation', 'product.categories.id'));
-        $criteria->addAggregation(new MaxAggregation('active', 'MaxAggregation', 'product.categories.id'));
-        $criteria->addAggregation(new MinAggregation('active', 'MinAggregation', 'product.categories.id'));
-        $criteria->addAggregation(new StatsAggregation('product.price', 'StatsAggregation', true, true, true, true, true, 'product.categories.id'));
-        $criteria->addAggregation(new SumAggregation('product.price', 'SumAggregation', 'product.categories.id'));
-        $criteria->addAggregation(new ValueAggregation('active', 'ValueAggregation', 'product.categories.id'));
-        $criteria->addAggregation(new ValueCountAggregation('active', 'ValueCountAggregation', 'product.categories.id'));
-
         if (!$this->helper->allowSearch($definition, $context)) {
             return $this->decorated->aggregate($definition, $criteria, $context);
         }

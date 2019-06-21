@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -25,18 +24,18 @@ class BusinessEventDispatcher implements EventDispatcherInterface
     private $eventActionDefinition;
 
     /**
-     * @var ContainerInterface
+     * @var DefinitionInstanceRegistry
      */
-    private $container;
+    private $definitionRegistry;
 
     public function __construct(
         EventDispatcherInterface $dispatcher,
-        ContainerInterface $container,
+        DefinitionInstanceRegistry $definitionRegistry,
         EventActionDefinition $eventActionDefinition
     ) {
         $this->dispatcher = $dispatcher;
         $this->eventActionDefinition = $eventActionDefinition;
-        $this->container = $container;
+        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function dispatch($event, ?string $eventName = null): object
@@ -90,10 +89,13 @@ class BusinessEventDispatcher implements EventDispatcherInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('event_action.eventName', $eventName));
 
-        return $this->container->get(DefinitionInstanceRegistry::class)
+        /** @var EventActionCollection $events */
+        $events = $this->definitionRegistry
             ->getRepository($this->eventActionDefinition->getEntityName())
             ->search($criteria, $context)
             ->getEntities();
+
+        return $events;
     }
 
     private function callActions(BusinessEventInterface $event): void

@@ -4,14 +4,16 @@ namespace Shopware\Core\Framework\Test\Event;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\Framework\Event\BusinessEvents;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class BusinessEventDispatcherTest extends TestCase
@@ -62,11 +64,11 @@ class BusinessEventDispatcherTest extends TestCase
         $repository = static::createMock(EntityRepository::class);
         $repository->expects(static::once())
             ->method('search')
-            ->willReturn(new EventActionCollection());
+            ->willReturn(new EntitySearchResult(0, new EventActionCollection(), null, new Criteria(), Context::createDefaultContext()));
 
-        $container = static::createMock(Container::class);
+        $container = static::createMock(DefinitionInstanceRegistry::class);
         $container->expects(static::once())
-            ->method('get')
+            ->method('getRepository')
             ->willReturn($repository);
 
         $dispatcher = new BusinessEventDispatcher(

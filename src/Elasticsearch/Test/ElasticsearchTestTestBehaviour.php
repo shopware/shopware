@@ -38,6 +38,7 @@ trait ElasticsearchTestTestBehaviour
         KernelLifecycleManager::getKernel()
             ->getContainer()
             ->get(EntityIndexer::class)
+            ->setEnabled(true)
             ->index(new \DateTime());
     }
 }

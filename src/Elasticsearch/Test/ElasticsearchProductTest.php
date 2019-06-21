@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Test;
 
+use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -51,6 +52,8 @@ class ElasticsearchProductTest extends TestCase
 
     public function testProducts()
     {
+        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM product');
+
         $product1 = $this->createProduct(['stock' => 2]);
         $product2 = $this->createProduct(['stock' => 10]);
         $product3 = $this->createProduct(['stock' => 200]);

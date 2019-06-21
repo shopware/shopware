@@ -178,8 +178,10 @@ class ElasticsearchHelper
      *
      * @internal
      */
-    public function setEnabled(bool $enabled): void
+    public function setEnabled(bool $enabled): self
     {
         $this->isEnabled = $enabled;
+
+        return $this;
     }
 }

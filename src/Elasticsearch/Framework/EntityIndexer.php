@@ -137,6 +137,19 @@ class EntityIndexer implements IndexerInterface
         }
     }
 
+    /**
+     * Only used for unit tests because the container parameter bag is frozen and can not be changed at runtime.
+     * Therefore this function can be used to test different behaviours
+     *
+     * @internal
+     */
+    public function setEnabled(bool $enabled): self
+    {
+        $this->enabled = $enabled;
+
+        return $this;
+    }
+
     private function cleanup(): void
     {
         $aliases = $this->client->indices()->getAliases();

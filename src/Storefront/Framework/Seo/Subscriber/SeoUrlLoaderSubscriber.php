@@ -17,24 +17,33 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlField;
 use Shopware\Storefront\Framework\Seo\SeoUrl\CanonicalUrlCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
-class CanonicalUrlLoaderSubscriber implements EventSubscriberInterface
+class SeoUrlLoaderSubscriber implements EventSubscriberInterface
 {
     /**
      * @var EntityRepositoryInterface
      */
     private $seoUrlRepository;
+
     /**
      * @var SeoUrlRouteRegistry
      */
     private $seoUrlRouteRegistry;
 
-    public function __construct(EntityRepositoryInterface $seoUrlRepository, SeoUrlRouteRegistry $seoUrlRouteRegistry)
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    public function __construct(EntityRepositoryInterface $seoUrlRepository, SeoUrlRouteRegistry $seoUrlRouteRegistry, RequestStack $requestStack)
     {
         $this->seoUrlRepository = $seoUrlRepository;
         $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;
+        $this->requestStack = $requestStack;
     }
 
     public static function getSubscribedEvents(): array
@@ -47,6 +56,7 @@ class CanonicalUrlLoaderSubscriber implements EventSubscriberInterface
         return [
             'product.loaded' => ['addCanonicals', 10],
             'category.loaded' => ['addCanonicals', 10],
+            'seo_url.loaded' => ['addUrls', 10],
         ];
     }
 
@@ -68,6 +78,28 @@ class CanonicalUrlLoaderSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @internal
+     */
+    public function addUrls(EntityLoadedEvent $event): void
+    {
+        /** @var SeoUrlEntity $seoUrl */
+        foreach ($event->getEntities() as $seoUrl) {
+            $this->setUrl($seoUrl);
+        }
+    }
+
+    private function setUrl(SeoUrlEntity $seoUrlEntity): void
+    {
+        $request = $this->requestStack->getMasterRequest();
+        if (!$request) {
+            return;
+        }
+
+        $basePath = rtrim($request->getSchemeAndHttpHost() . $request->getBasePath(), '/');
+        $seoUrlEntity->setUrl($basePath . '/' . trim($seoUrlEntity->getSeoPathInfo(), '/'));
+    }
+
     private function addCanonicalsForField(CanonicalUrlField $canonicalUrlField, string $salesChannelId, EntityLoadedEvent $event): void
     {
         $routeName = $canonicalUrlField->getRouteName();
@@ -87,7 +119,9 @@ class CanonicalUrlLoaderSubscriber implements EventSubscriberInterface
         foreach ($event->getEntities() as $entity) {
             $id = $entity->getUniqueIdentifier();
             if ($canonicalUrls->has($id)) {
-                $entity->addExtension($propName, $canonicalUrls->get($id));
+                $canonicalUrl = $canonicalUrls->get($id);
+                $this->setUrl($canonicalUrl);
+                $entity->addExtension($propName, $canonicalUrl);
             }
         }
     }

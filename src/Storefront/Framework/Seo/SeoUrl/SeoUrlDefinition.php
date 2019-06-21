@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -53,6 +54,8 @@ class SeoUrlDefinition extends EntityDefinition
             new BoolField('is_modified', 'isModified'),
             new BoolField('is_deleted', 'isDeleted'),
             new BoolField('is_valid', 'isValid'),
+
+            (new StringField('url', 'url'))->addFlags(new Runtime()),
 
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
 

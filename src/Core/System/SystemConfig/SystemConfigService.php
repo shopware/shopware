@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -57,6 +58,11 @@ class SystemConfigService
         return $last ? $last->getConfigurationValue() : null;
     }
 
+    /**
+     * @throws InvalidDomainException
+     * @throws InvalidUuidException
+     * @throws InconsistentCriteriaIdsException
+     */
     public function getDomain(string $domain, ?string $salesChannelId = null, bool $inherit = false): array
     {
         $domain = trim($domain);

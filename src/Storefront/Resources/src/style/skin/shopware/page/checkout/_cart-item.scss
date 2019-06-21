@@ -2,6 +2,14 @@
     margin: 0;
     padding: 20px 0;
     border-bottom: 1px solid $border-color;
+
+    &.is-child {
+        background-color: $gray-100;
+    }
+}
+
+.cart-item-nested-icon {
+    background-color: $gray-600;
 }
 
 .cart-item-img {

@@ -37,7 +37,9 @@
                 {% block component_offcanvas_cart_items %}
                     <div class="offcanvas-cart-items">
                         {% for lineItem in page.cart.lineItems %}
-                            {% sw_include '@Storefront/component/checkout/offcanvas-item.html.twig' %}
+                            {% block component_offcanvas_cart_item %}
+                                {% sw_include '@Storefront/component/checkout/offcanvas-item.html.twig' %}
+                            {% endblock %}
                         {% endfor %}
                     </div>
                 {% endblock %}

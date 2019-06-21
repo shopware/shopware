@@ -9,7 +9,7 @@ The import/export funtionality of Shopware 6 centrally
 
 ### Table `import_export_profile`
 
-Settings regardintg the file format and the contained entity.
+Settings regarding the file format and the contained entity.
 
 
 ### Table `import_export_log`

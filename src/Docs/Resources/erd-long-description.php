@@ -568,7 +568,7 @@ The newsletter adds sales channel management of recipients. Although the data ma
 EOD
     ,
     Shopware\Core\Content\ImportExport\ImportExportProfileDefinition::class => <<<'EOD'
-Settings regardintg the file format and the contained entity.
+Settings regarding the file format and the contained entity.
 EOD
     ,
     Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition::class => <<<'EOD'

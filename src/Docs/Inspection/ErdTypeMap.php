@@ -105,7 +105,7 @@ class ErdTypeMap
     {
         $fieldClass = \get_class($field);
 
-        if (!isset($this->fieldTypeMap[$fieldClass])) {
+        if (!isset(self::$fieldTypeMap[$fieldClass])) {
             throw new \InvalidArgumentException($fieldClass . ' not found');
         }
 

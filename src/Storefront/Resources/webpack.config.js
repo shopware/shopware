@@ -1,5 +1,13 @@
 const merge = require('webpack-merge');
-const WebpackPluginInjector = require('../../Administration/Resources/common/webpack-plugin-injector');
+const fs = require('fs');
+const { resolve } = require('path');
+let WebpackPluginInjector;
+
+if (fs.existsSync(resolve('../../Administration/Resources/common/webpack-plugin-injector/index.js'))) {
+    WebpackPluginInjector = require('../../Administration/Resources/common/webpack-plugin-injector');
+} else {
+    WebpackPluginInjector = require('../../administration/Resources/common/webpack-plugin-injector');
+}
 
 let file = 'dev';
 

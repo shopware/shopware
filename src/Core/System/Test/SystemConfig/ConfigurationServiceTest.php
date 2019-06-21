@@ -33,9 +33,6 @@ class ConfigurationServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $kernel = new TestKernel('system_config_test', true, new ClassLoader());
-        $kernel->boot();
-        $this->container = $kernel->getContainer();
         $this->configurationService = $this->getConfigurationService();
     }
 
@@ -60,6 +57,17 @@ class ConfigurationServiceTest extends TestCase
         );
 
         static::assertSame($this->getConfigWithoutValues(), $actualConfig);
+    }
+
+    protected function getContainer(): ContainerInterface
+    {
+        if ($this->container === null) {
+            $kernel = new TestKernel('system_config_test', true, new ClassLoader());
+            $kernel->boot();
+            $this->container = $kernel->getContainer();
+        }
+
+        return $this->container;
     }
 
     private function getConfigWithoutValues(): array
@@ -121,6 +129,6 @@ class ConfigurationServiceTest extends TestCase
 
     private function getConfigurationService(): ConfigurationService
     {
-        return new ConfigurationService($this->container->get('kernel'), new ConfigReader());
+        return new ConfigurationService($this->getContainer()->get('kernel'), new ConfigReader());
     }
 }

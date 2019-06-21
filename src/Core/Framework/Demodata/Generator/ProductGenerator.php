@@ -108,6 +108,8 @@ class ProductGenerator implements DemodataGeneratorInterface
                 );
             }
 
+            $productProperties = array_slice($productProperties, 0, 20);
+
             $product['properties'] = array_map(function ($config) {
                 return ['id' => $config];
             }, $productProperties);
@@ -145,7 +147,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function getMediaIds(Context $context)
     {
-        return array_values($this->mediaRepository->search(new PaginationCriteria(200), $context)->getIds());
+        return array_values($this->mediaRepository->searchIds(new PaginationCriteria(200), $context)->getIds());
     }
 
     private function createSimpleProduct(DemodataContext $context, EntitySearchResult $taxes): array

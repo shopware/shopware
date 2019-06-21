@@ -74,9 +74,5 @@
         <service id="Shopware\Elasticsearch\Framework\Entity\ProductSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
-
-        <service id="Shopware\Elasticsearch\Framework\Entity\SeoUrlSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
     </services>
 </container>

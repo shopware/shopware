@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\ItemNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -99,9 +98,10 @@ class WriteCommandExtractor
         $stack = new DataStack($rawData);
 
         foreach ($fields as $field) {
-            try {
-                $kvPair = $stack->pop($field->getPropertyName());
-            } catch (ItemNotFoundException $e) {
+            $kvPair = $stack->pop($field->getPropertyName());
+
+            // not in data stack?
+            if ($kvPair === null) {
                 if ($field->is(Inherited::class) && $existence->isChild()) {
                     //inherited field of a child is never required
                     continue;

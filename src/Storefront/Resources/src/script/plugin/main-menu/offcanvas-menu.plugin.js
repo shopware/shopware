@@ -98,7 +98,11 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
         OffcanvasMenuPlugin._setLoader(link);
 
-        const url = DomAccess.getAttribute(link, 'href', true);
+        const url = DomAccess.getAttribute(link, 'data-href', false) || DomAccess.getAttribute(link, 'href', false);
+
+        if (!url) {
+            return;
+        }
 
         let animationType = this.options.forwardAnimationType;
         if (link.classList.contains(this.options.homeBtnClass) || link.classList.contains(this.options.backBtnClass)) {

@@ -124,12 +124,10 @@
 
                                                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link %}
                                                     <a class="offcanvas-menu-list-item-link nav-item nav-link{% if entity.id is same as(activeItem.id) %} active{% endif %}{% if hasChildren %} js-offcanvas-menu-link{% endif %}"
+                                                       href="{{ navigationUrl(treeItem.category) }}"
                                                         {% if hasChildren %}
-                                                            href="{{ path('frontend.menu.offcanvas', {'navigationId': entity.id}) }}"
-                                                        {% else %}
-                                                            href="{{ navigationUrl(treeItem.category) }}"
+                                                            data-href="{{ path('frontend.menu.offcanvas', {'navigationId': entity.id}) }}"
                                                         {% endif %}
-
                                                        itemprop="url"
                                                        title="{{ entity.translated.name }}">
                                                         {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_text %}

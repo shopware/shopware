@@ -92,7 +92,8 @@ class BusinessEventDispatcher implements EventDispatcherInterface
 
         return $this->container->get(DefinitionInstanceRegistry::class)
             ->getRepository($this->eventActionDefinition->getEntityName())
-            ->search($criteria, $context);
+            ->search($criteria, $context)
+            ->getEntities();
     }
 
     private function callActions(BusinessEventInterface $event): void

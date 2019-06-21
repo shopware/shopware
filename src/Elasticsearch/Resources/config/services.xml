@@ -7,6 +7,7 @@
     <parameters>
         <parameter key="shopware.ses.hosts">%env(SHOPWARE_SES_HOSTS)%</parameter>
         <parameter key="shopware.ses.enabled">%env(SHOPWARE_SES_ENABLED)%</parameter>
+        <parameter key="shopware.ses.indexing.enabled">%env(SHOPWARE_SES_INDEXING_ENABLED)%</parameter>
     </parameters>
 
     <services>
@@ -35,6 +36,7 @@
 
         <service id="Shopware\Elasticsearch\Framework\EntityIndexer" public="true">
             <tag name="shopware.dal_indexing.indexer" priority="-50000"/>
+            <argument>%shopware.ses.indexing.enabled%</argument>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Elasticsearch\Client"/>

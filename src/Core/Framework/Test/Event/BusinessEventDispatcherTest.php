@@ -4,14 +4,14 @@ namespace Shopware\Core\Framework\Test\Event;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\Framework\Event\BusinessEvents;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class BusinessEventDispatcherTest extends TestCase
@@ -54,18 +54,26 @@ class BusinessEventDispatcherTest extends TestCase
         $context = Context::createDefaultContext();
         $event = new TestBusinessEvent($context);
 
-        $searcher = static::createMock(EntitySearcherInterface::class);
-        $reader = static::createMock(EntityReaderInterface::class);
         $eventDispatcherMock = static::createMock(EventDispatcherInterface::class);
         $eventDispatcherMock->expects(static::exactly(2))
             ->method('dispatch')
             ->willReturn($event);
 
-        $reader->expects(static::once())
-            ->method('read')
+        $repository = static::createMock(EntityRepository::class);
+        $repository->expects(static::once())
+            ->method('search')
             ->willReturn(new EventActionCollection());
 
-        $dispatcher = new BusinessEventDispatcher($eventDispatcherMock, $searcher, $reader, $this->getContainer()->get(EventActionDefinition::class));
+        $container = static::createMock(Container::class);
+        $container->expects(static::once())
+            ->method('get')
+            ->willReturn($repository);
+
+        $dispatcher = new BusinessEventDispatcher(
+            $eventDispatcherMock,
+            $container,
+            $this->getContainer()->get(EventActionDefinition::class)
+        );
         $dispatcher->dispatch($event, $event->getName());
     }
 

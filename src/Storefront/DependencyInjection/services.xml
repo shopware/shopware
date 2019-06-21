@@ -11,7 +11,7 @@
                  decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface">
 
             <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer.inner" />
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">

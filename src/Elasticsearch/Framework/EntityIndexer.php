@@ -60,7 +60,13 @@ class EntityIndexer implements IndexerInterface
      */
     private $languageRepository;
 
+    /**
+     * @var bool
+     */
+    private $enabled;
+
     public function __construct(
+        bool $enabled,
         DefinitionRegistry $esRegistry,
         DefinitionInstanceRegistry $definitionRegistry,
         Client $client,
@@ -76,10 +82,14 @@ class EntityIndexer implements IndexerInterface
         $this->iteratorFactory = $iteratorFactory;
         $this->definitionRegistry = $definitionRegistry;
         $this->languageRepository = $languageRepository;
+        $this->enabled = $enabled;
     }
 
     public function index(\DateTimeInterface $timestamp): void
     {
+        if (!$this->enabled) {
+            return;
+        }
         $definitions = $this->registry->getDefinitions();
 
         $context = Context::createDefaultContext();
@@ -122,6 +132,9 @@ class EntityIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
+        if (!$this->enabled) {
+            return;
+        }
     }
 
     private function cleanup(): void

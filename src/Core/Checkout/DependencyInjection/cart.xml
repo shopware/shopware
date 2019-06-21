@@ -49,6 +49,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator">

@@ -27,16 +27,23 @@ class CartLineItemController extends StorefrontController
     private $cartService;
 
     /**
+     * @var PromotionItemBuilder
+     */
+    private $promotionItemBuilder;
+
+    /**
      * @var SalesChannelRepository
      */
     private $productRepository;
 
     public function __construct(
         CartService $cartService,
-        SalesChannelRepository $productRepository
+        SalesChannelRepository $productRepository,
+        PromotionItemBuilder $promotionItemBuilder
     ) {
         $this->cartService = $cartService;
         $this->productRepository = $productRepository;
+        $this->promotionItemBuilder = $promotionItemBuilder;
     }
 
     /**
@@ -71,7 +78,7 @@ class CartLineItemController extends StorefrontController
             if ($code === null) {
                 throw new \InvalidArgumentException('Code is required');
             }
-            $lineItem = (new PromotionItemBuilder(PromotionProcessor::LINE_ITEM_TYPE))->buildPlaceholderItem(
+            $lineItem = $this->promotionItemBuilder->buildPlaceholderItem(
                 $code,
                 $context->getContext()->getCurrencyPrecision()
             );

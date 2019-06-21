@@ -46,20 +46,20 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
 
     /**
      * This one is the most important test.
-     * It asserts that our applied code is added to the expected property of the line item.
+     * It asserts that our applied code is added to the expected property referenceId of the line item.
      * When it is converted into a real promotion line item, this code is being used
      * to fetch that promotion.
      *
      * @test
      * @group promotions
      */
-    public function testCodeValueInPayload()
+    public function testCodeValueInReferenceId()
     {
         $builder = new PromotionItemBuilder('My-TYPE');
 
         $item = $builder->buildPlaceholderItem('CODE-123', 1);
 
-        static::assertEquals('CODE-123', $item->getPayload()['code']);
+        static::assertEquals('CODE-123', $item->getReferencedId());
     }
 
     /**

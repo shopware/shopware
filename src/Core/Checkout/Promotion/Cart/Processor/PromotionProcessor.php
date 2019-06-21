@@ -46,11 +46,11 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
      */
     private $itemCollector;
 
-    public function __construct(PromotionCalculator $promotionCalculator, PromotionGatewayInterface $gateway)
+    public function __construct(PromotionCalculator $promotionCalculator, PromotionGatewayInterface $gateway, PromotionItemBuilder $itemBuilder, LineItemCollector $itemCollector)
     {
         $this->promotionCalculator = $promotionCalculator;
-        $this->itemBuilder = new PromotionItemBuilder(self::LINE_ITEM_TYPE);
-        $this->itemCollector = new LineItemCollector(self::LINE_ITEM_TYPE);
+        $this->itemBuilder = $itemBuilder;
+        $this->itemCollector = $itemCollector;
         $this->gateway = $gateway;
     }
 
@@ -78,13 +78,6 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
 
         if (count($allPromotions) === 0) {
             return;
-        }
-
-        // make sure to delete promotions again in our live-mode.
-        // with this its possible to e.g. disable auto-promotions
-        // and customers will automatically get rid off that, if they are in the cart.
-        if (!$behavior->isRecalculation()) {
-            $this->deleteAllPromotionLineItemsFromCart($original);
         }
 
         // check if max allowed redemption of promotion have been reached or not
@@ -141,7 +134,7 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
             // lets build separate line items for each
             // of the available discounts within the current promotion
             /** @var array $lineItems */
-            $lineItems = $this->buildDiscountLineItems($promotion, $original, $context);
+            $lineItems = $this->buildDiscountLineItems($promotion, $calculated, $context);
 
             // add to our list of all line items
             // that should be added
@@ -159,26 +152,13 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
         );
     }
 
-    private function deleteAllPromotionLineItemsFromCart(Cart $cart): void
-    {
-        /** @var array $promotionLineItems */
-        $promotionLineItems = $this->getPromotionLineItems($cart);
-
-        /** @var LineItem $lineItem */
-        foreach ($promotionLineItems as $lineItem) {
-            $cart->getLineItems()->removeElement($lineItem);
-        }
-    }
-
     /**
      * Gets all promotion line items from the cart.
      * This includes placeholders and real, satisfied promotion line items.
      */
     private function getPromotionLineItems(Cart $cart): array
     {
-        return array_filter(
-            $cart->getLineItems()->getElements(), [$this, 'isPromotionLineItem']
-        );
+        return $cart->getLineItems()->filterType(self::LINE_ITEM_TYPE)->getElements();
     }
 
     /**
@@ -204,8 +184,8 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
         // promotion code
         /** @var LineItem $lineItem */
         foreach ($promotionLineItems as $lineItem) {
-            if ($this->isPromotionLineItem($lineItem) && $lineItem->hasPayloadValue('code')) {
-                $codes[] = $lineItem->getPayloadValue('code');
+            if ($this->isPromotionLineItem($lineItem) && !empty($lineItem->getReferencedId())) {
+                $codes[] = $lineItem->getReferencedId();
             }
         }
 

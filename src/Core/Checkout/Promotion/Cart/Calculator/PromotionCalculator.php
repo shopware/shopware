@@ -80,7 +80,7 @@ class PromotionCalculator
         foreach ($discountLineItems as $discountLineItem) {
             // we have to verify if the line item is still valid depending on
             // the added requirements and conditions.
-            if (!$this->isRequirementValid($discountLineItem, $original->getLineItems(), $context)) {
+            if (!$this->isRequirementValid($discountLineItem, $calculated, $context)) {
                 continue;
             }
 
@@ -293,21 +293,24 @@ class PromotionCalculator
 
         /** @var LineItem $cartLineItem */
         foreach ($calculated as $cartLineItem) {
-            $isEligible = true;
-
             // if our price definition has a filter rule
             // then extract it, and check if it matches
-            if (method_exists($priceDefinition, 'getFilter')) {
-                /** @var Rule|null $filter */
-                $filter = $priceDefinition->getFilter();
-
-                if ($filter instanceof Rule) {
-                    $scope = new LineItemScope($cartLineItem, $context);
-                    $isEligible = $filter->match($scope);
-                }
+            if (!method_exists($priceDefinition, 'getFilter')) {
+                $foundItems[] = $cartLineItem;
+                continue;
             }
 
-            if ($isEligible) {
+            /** @var Rule|null $filter */
+            $filter = $priceDefinition->getFilter();
+
+            if (!$filter instanceof Rule) {
+                $foundItems[] = $cartLineItem;
+                continue;
+            }
+
+            $scope = new LineItemScope($cartLineItem, $context);
+
+            if ($filter->match($scope)) {
                 $foundItems[] = $cartLineItem;
             }
         }
@@ -319,7 +322,7 @@ class PromotionCalculator
      * Validates the included requirements and returns if the
      * line item is allowed to be added to the actual cart.
      */
-    private function isRequirementValid(LineItem $lineItem, LineItemCollection $calculated, SalesChannelContext $context): bool
+    private function isRequirementValid(LineItem $lineItem, Cart $calculated, SalesChannelContext $context): bool
     {
         // if we dont have any requirement
         // it's obviously valid
@@ -327,22 +330,7 @@ class PromotionCalculator
             return true;
         }
 
-        // create a new local and temp cart
-        // without the actual line item and verify
-        // if we are allowed to add this line item.
-        $tmpCart = new Cart('validate', 'validate');
-        $tmpCart->setLineItems($calculated);
-
-        // we have to recalculate it
-        $tmpCart->setPrice(
-            $this->amountCalculator->calculate(
-                $calculated->getPrices(),
-                new PriceCollection(),
-                $context
-            )
-        );
-
-        $scopeWithoutLineItem = new CartRuleScope($tmpCart, $context);
+        $scopeWithoutLineItem = new CartRuleScope($calculated, $context);
 
         return $lineItem->getRequirement()->match($scopeWithoutLineItem);
     }

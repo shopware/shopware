@@ -51,7 +51,7 @@ class PromotionItemBuilder
         $item->setGood(false);
 
         // this is used to pass on the code for later usage
-        $item->setPayload(['code' => $code]);
+        $item->setReferencedId($code);
 
         // this is important to avoid any side effects when calculating the cart
         // a percentage of 0,00 will just do nothing
@@ -124,6 +124,12 @@ class PromotionItemBuilder
         $promotionItem->setRemovable(true);
         $promotionItem->setPriceDefinition($promotionDefinition);
 
+        // always make sure we have a valid code entry.
+        // this helps us to identify the item by code later on
+        if ($promotion->isUseCodes()) {
+            $promotionItem->setReferencedId((string) $promotion->getCode());
+        }
+
         // add custom content to our payload.
         // we need this as meta data information.
         $promotionItem->setPayload($this->buildPayload($discount->getType(), $promotion));
@@ -145,12 +151,6 @@ class PromotionItemBuilder
     private function buildPayload(string $discountType, PromotionEntity $promotion): array
     {
         $payload = [];
-
-        // always make sure we have a valid code entry.
-        // this helps us to identify the item by code later on
-        if ($promotion->isUseCodes()) {
-            $payload['code'] = (string) $promotion->getCode();
-        }
 
         // to save how many times a promotion has been used, we need to know the promotion's id during checkout
         $payload['promotionId'] = $promotion->getId();

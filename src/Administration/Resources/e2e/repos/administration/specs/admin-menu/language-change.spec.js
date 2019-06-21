@@ -14,15 +14,5 @@ module.exports = {
             .waitForElementNotVisible('.sw-admin-menu__user-type')
             .click('.sw-admin-menu__toggle')
             .waitForElementVisible('.sw-admin-menu__user-type');
-    },
-    'change and assert language': (browser) => {
-        browser.expect.element('.sw-admin-menu__change-language-action').to.have.text.that.equals('Change language');
-
-        browser
-            .click('.sw-admin-menu__change-language-action')
-            .expect.element('.sw-admin-menu__change-language-action').to.have.text.that.equals('Sprache wechseln');
-        browser
-            .refresh()
-            .expect.element('.sw-search-bar__input').to.have.attribute('placeholder').that.equals('Finde Produkte, Kunden, Bestellungen');
     }
 };

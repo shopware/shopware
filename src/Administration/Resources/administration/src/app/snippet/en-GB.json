@@ -29,7 +29,6 @@
       }
     },
     "sw-admin-menu": {
-      "linkChangeLanguage": "Change language",
       "linkLogout": "Logout",
       "linkMinimizeMenu": "Minimize menu",
       "textShopwareAdmin": "Shopware administration",

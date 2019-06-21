@@ -8,8 +8,8 @@ import enGB from './snippet/en-GB.json';
 Module.register('sw-profile', {
     type: 'core',
     name: 'profile',
-    title: 'sw-profile.general.mainMenuItemGeneral',
-    description: 'The user profile settings.',
+    title: 'sw-profile.general.headlineProfile',
+    description: 'sw-profile.general.description',
     color: '#9AA8B5',
     icon: 'default-avatar-single',
     entity: 'user',

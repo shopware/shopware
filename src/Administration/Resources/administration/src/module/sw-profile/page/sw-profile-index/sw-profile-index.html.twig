@@ -1,13 +1,13 @@
 {% block sw_profile_index %}
     <sw-page class="sw-profile-index">
 
-        <template slot="smart-bar-header">
+        <template #smart-bar-header>
             {% block sw_profile_index_headline %}
                 <h2>{{ $tc('sw-profile.general.headlineProfile') }}</h2>
             {% endblock %}
         </template>
 
-        <template slot="smart-bar-actions">
+        <template #smart-bar-actions>
             {% block sw_profile_index_actions %}
                 <sw-button-process
                     class="sw-profile__save-action"
@@ -22,26 +22,49 @@
             {% endblock %}
         </template>
 
-        <template slot="content">
-            <sw-card-view v-if="!isUserLoading">
+        <template #content>
+            <sw-card-view>
                 {% block sw_profile_index_content %}
                     {% block sw_profile_index_info_card %}
                         <sw-card class="sw-profile__card"
                                  :title="$tc('sw-profile.index.titleInfoCard')"
-                                 :isLoading="isUserLoading">
+                                 :isLoading="isUserLoading || !languageId">
                             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
-                                {% block sw_profile_index_info_card_name_field %}
-                                    <sw-text-field :label="$tc('sw-profile.index.labelNameField')"
-                                                   v-model="user.name"
+                                {% block sw_profile_index_info_card_first_name_field %}
+                                    <sw-text-field :label="$tc('sw-profile.index.labelFirstNameField')"
+                                                   v-model="user.firstName"
                                                    :disabled="isDisabled">
                                     </sw-text-field>
                                 {% endblock %}
 
+                                {% block sw_profile_index_info_card_last_name_field %}
+                                    <sw-text-field :label="$tc('sw-profile.index.labelLastNameField')"
+                                                   v-model="user.lastName"
+                                                   :disabled="isDisabled">
+                                    </sw-text-field>
+                                {% endblock %}
+                            </sw-container>
+
+                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
                                 {% block sw_profile_index_info_card_username_field %}
                                     <sw-text-field :label="$tc('sw-profile.index.labelUsernameField')"
                                                    v-model="user.username"
                                                    :disabled="isDisabled">
                                     </sw-text-field>
+                                {% endblock %}
+
+                                {% block sw_profile_index_info_card_language %}
+                                    <sw-select-field
+                                            class="sw-profile__language"
+                                            :label="$tc('sw-settings-user.user-detail.labelLanguage')"
+                                            v-model="user.localeId"
+                                            :placeholder="$tc('sw-settings-user.user-detail.labelLanguagePlaceholder')">
+                                        <option v-for="language in languages"
+                                                :value="language.locale.id"
+                                                :selected="user.localeId === language.locale.id">
+                                            {{ language.customLabel }}
+                                        </option>
+                                    </sw-select-field>
                                 {% endblock %}
                             </sw-container>
 
@@ -57,7 +80,7 @@
                     {% block sw_profile_index_image_card %}
                         <sw-card class="sw-profile__card"
                                  :title="$tc('sw-profile.index.titleImageCard')"
-                                 :isLoading="isUserLoading">
+                                 :isLoading="isUserLoading || !languageId">
                             {% block sw_profile_index_image_card_image %}
                                 <sw-upload-store-listener
                                     :uploadTag="uploadTag"
@@ -71,7 +94,7 @@
                                     :allowMultiSelect="false"
                                     variant="regular"
                                     :label="$tc('sw-profile.index.labelUploadAvatar')"
-                                    :defaultFolder="userStore.getEntityName()"
+                                    :defaultFolder="userRepository.schema.entity"
                                     @media-drop="onDropMedia"
                                     @media-upload-sidebar-open="openMediaSidebar"
                                     @media-upload-remove-image="onUnlinkAvatar">
@@ -83,7 +106,7 @@
                     {% block sw_profile_index_password_card %}
                         <sw-card class="sw-profile__card"
                                  :title="$tc('sw-profile.index.titlePasswordCard')"
-                                 :isLoading="isUserLoading">
+                                 :isLoading="isUserLoading || !languageId">
                             {% block sw_profile_index_password_card_old_password_field %}
                                 <sw-password-field :label="$tc('sw-profile.index.labelOldPassword')"
                                                    v-model="oldPassword"
@@ -109,17 +132,15 @@
                     {% endblock %}
                 {% endblock %}
             </sw-card-view>
-            <sw-empty-state v-else :title="$tc('sw-profile.general.headlineProfile')"></sw-empty-state>
         </template>
 
         {% block sw_profile_index_sidebar %}
-            <template slot="sidebar">
+            <template #sidebar>
                 <sw-sidebar :propagateWidth="true" >
                     <sw-sidebar-media-item ref="mediaSidebarItem"
-                                           v-if="!isUserLoading"
                                            :isParentLoading="isUserLoading"
                                            :additionalSearchCriteria="userMediaCriteria">
-                        <template slot="context-menu-items" slot-scope="media">
+                        <template #context-menu-items="media">
                             <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
                                 {{ $tc('sw-profile.index.labelUseAsAvatar') }}
                             </sw-context-menu-item>

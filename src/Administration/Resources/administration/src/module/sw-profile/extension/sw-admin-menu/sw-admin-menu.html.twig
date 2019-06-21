@@ -1,6 +1,4 @@
-{% block sw_admin_menu_user_actions_items_change_language %}
-    {% parent %}
-
+{% block sw_admin_menu_user_actions_items_logout_user %}
     <li class="sw-admin-menu__navigation-list-item">
         <router-link class="sw-admin-menu__navigation-link sw-admin-menu__profile-item"
                      :to="{ name: 'sw.profile.index', params: { user } }">
@@ -8,4 +6,6 @@
             {{ $tc('sw-profile.general.headlineProfile') }}
         </router-link>
     </li>
+
+    {% parent %}
 {% endblock %}

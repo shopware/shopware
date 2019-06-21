@@ -107,19 +107,6 @@
                             <ul class="sw-admin-menu__navigation-list">
 
                                 {% block sw_admin_menu_user_actions_items %}
-
-                                    {% block sw_admin_menu_user_actions_items_change_language %}
-                                        <li class="sw-admin-menu__navigation-list-item">
-                                            <a href="#" class="sw-admin-menu__navigation-link sw-admin-menu__change-language-action" @click.prevent="onChangeLanguage">
-                                                <sw-icon class="sw-admin-menu__navigation-link-icon"
-                                                         name="default-location-flag"
-                                                         small>
-                                                </sw-icon>
-                                                {{ $tc('global.sw-admin-menu.linkChangeLanguage') }}
-                                            </a>
-                                        </li>
-                                    {% endblock %}
-
                                     {% block sw_admin_menu_user_actions_items_logout_user %}
                                         <li class="sw-admin-menu__navigation-list-item">
                                             <a href="#" class="sw-admin-menu__navigation-link sw-admin-menu__logout-action" @click.prevent="onLogoutUser">
@@ -166,8 +153,7 @@
                                                     :collapsibleText="false"
                                                     :displayIcon="false"
                                                     @menu-item-click="closeFlyout"
-                                                    @menu-item-hover="openFlyout"
-                                >
+                                                    @menu-item-hover="openFlyout">
                                 </sw-admin-menu-item>
                             </ul>
                         {% endblock %}

@@ -6,7 +6,7 @@ import template from './sw-login-login.html.twig';
 Component.register('sw-login-login', {
     template,
 
-    inject: ['loginService', 'userService'],
+    inject: ['loginService', 'userService', 'repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -17,6 +17,18 @@ Component.register('sw-login-login', {
             username: '',
             password: ''
         };
+    },
+
+    computed: {
+        localeRepository() {
+            return this.repositoryFactory.create('locale');
+        }
+    },
+
+    created() {
+        if (!localStorage.getItem('sw-admin-locale')) {
+            this.$store.dispatch('setAdminLocale', navigator.language);
+        }
     },
 
     methods: {
@@ -50,6 +62,10 @@ Component.register('sw-login-login', {
             const userInfoPromise = this.userService.getUser().then((response) => {
                 const data = response.data;
                 delete data.password;
+
+                this.localeRepository.get(data.localeId, this.context).then(({ code }) => {
+                    this.$store.dispatch('setAdminLocale', code);
+                });
 
                 contextService.currentUser = data;
                 this.$store.commit('adminUser/setCurrentUser', data);

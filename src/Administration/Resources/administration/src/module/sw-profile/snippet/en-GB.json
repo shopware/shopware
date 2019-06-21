@@ -2,6 +2,7 @@
   "sw-profile": {
     "general": {
       "mainMenuItemGeneral": "Profiles",
+      "description": "Manage your profile here.",
       "headlineProfile": "Your profile"
     },
     "index": {
@@ -9,7 +10,8 @@
       "titleInfoCard": "Profile information",
       "titleImageCard": "Profile image",
       "titlePasswordCard": "Password",
-      "labelNameField": "Display name",
+      "labelFirstNameField": "First name",
+      "labelLastNameField": "Last name",
       "labelUsernameField": "Username",
       "labelEmailField": "Email",
       "labelOldPassword": "Old password",

@@ -60,6 +60,10 @@ Component.register('sw-settings-user-detail', {
             return this.repositoryFactory.create('language');
         },
 
+        localeRepository() {
+            return this.repositoryFactory.create('locale');
+        },
+
         avatarMedia() {
             return this.mediaItem;
         },
@@ -123,7 +127,13 @@ Component.register('sw-settings-user-detail', {
                 return;
             }
 
+            const languagePromise = new Promise((resolve) => {
+                this.context.languageId = this.languageId;
+                resolve(this.languageId);
+            });
+
             const promises = [
+                languagePromise,
                 this.loadLanguages(),
                 this.loadUser(),
                 this.loadCurrentUser()
@@ -140,8 +150,6 @@ Component.register('sw-settings-user-detail', {
             languageCriteria.addSorting(Criteria.sort('locale.name', 'ASC'));
             languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
             languageCriteria.limit = 500;
-
-            this.context.languageId = this.languageId;
 
             return this.languageRepository.search(languageCriteria, this.context).then((result) => {
                 this.languages = [];
@@ -252,15 +260,17 @@ Component.register('sw-settings-user-detail', {
         },
 
         onSave() {
-            this.finishEmailCheck().then(() => {
-                this.createdComponent();
-            });
-        },
-
-        finishEmailCheck() {
             this.isSaveSuccessful = false;
+            this.isLoading = true;
+            let promises = [];
 
-            return this.checkEmail().then(() => {
+            if (this.currentUser.id === this.user.id) {
+                promises = [this.localeRepository.get(this.user.localeId, this.context).then(({ code }) => {
+                    this.$store.dispatch('setAdminLocale', code);
+                })];
+            }
+
+            return Promise.all(promises).then(this.checkEmail().then(() => {
                 if (!this.isEmailUsed) {
                     this.isLoading = true;
                     const titleSaveError = this.$tc('sw-settings-user.user-detail.notification.saveError.title');
@@ -282,7 +292,7 @@ Component.register('sw-settings-user-detail', {
                     });
                 }
                 return Promise.resolve();
-            });
+            }));
         },
 
         onChangePassword() {

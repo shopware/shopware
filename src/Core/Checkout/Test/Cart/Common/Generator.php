@@ -37,15 +37,17 @@ class Generator extends TestCase
 {
     public static function createSalesChannelContext(
         ?Context $baseContext = null,
-        $currentCustomerGroup = null,
-        $fallbackCustomerGroup = null,
-        $salesChannel = null,
-        $currency = null,
-        $taxes = null,
-        $country = null,
-        $state = null,
-        $shipping = null,
-        $paymentMethod = null
+        ?CustomerGroupEntity $currentCustomerGroup = null,
+        ?CustomerGroupEntity $fallbackCustomerGroup = null,
+        ?SalesChannelEntity $salesChannel = null,
+        ?CurrencyEntity $currency = null,
+        ?TaxCollection $taxes = null,
+        ?CountryEntity $country = null,
+        ?CountryStateEntity $state = null,
+        ?CustomerAddressEntity $shipping = null,
+        ?PaymentMethodEntity $paymentMethod = null,
+        ?ShippingMethodEntity $shippingMethod = null,
+        ?CustomerEntity $customer = null
     ): SalesChannelContext {
         if (!$baseContext) {
             $baseContext = Context::createDefaultContext();
@@ -112,18 +114,22 @@ class Generator extends TestCase
             );
         }
 
-        $deliveryTime = new DeliveryTimeEntity();
-        $deliveryTime->setMin(1);
-        $deliveryTime->setMax(2);
-        $deliveryTime->setUnit(DeliveryTimeEntity::DELIVERY_TIME_DAY);
+        if (!$shippingMethod) {
+            $deliveryTime = new DeliveryTimeEntity();
+            $deliveryTime->setMin(1);
+            $deliveryTime->setMax(2);
+            $deliveryTime->setUnit(DeliveryTimeEntity::DELIVERY_TIME_DAY);
 
-        $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setDeliveryTime($deliveryTime);
-        $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
+            $shippingMethod = new ShippingMethodEntity();
+            $shippingMethod->setDeliveryTime($deliveryTime);
+            $shippingMethod->setId('8beeb66e9dda46b18891a059257a590e');
+        }
 
-        $customer = (new CustomerEntity())->assign(['id' => Uuid::randomHex()]);
-        $customer->setId(Uuid::randomHex());
-        $customer->setGroup($currentCustomerGroup);
+        if (!$customer) {
+            $customer = (new CustomerEntity())->assign(['id' => Uuid::randomHex()]);
+            $customer->setId(Uuid::randomHex());
+            $customer->setGroup($currentCustomerGroup);
+        }
 
         return new SalesChannelContext(
             $baseContext,
@@ -183,7 +189,14 @@ class Generator extends TestCase
             ])
         );
         $cart->setPrice(
-            new CartPrice(275.0, 275.0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS)
+            new CartPrice(
+                275.0,
+                275.0,
+                0,
+                new CalculatedTaxCollection(),
+                new TaxRuleCollection(),
+                CartPrice::TAX_STATE_GROSS
+            )
         );
 
         return $cart;

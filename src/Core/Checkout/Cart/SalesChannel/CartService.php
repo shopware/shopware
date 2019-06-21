@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -94,7 +95,7 @@ class CartService
 
     public function getCart(
         string $token,
-        SalesChannelContext $context,
+        SalesChannelContext $salesChannelContext,
         string $name = self::SALES_CHANNEL,
         bool $caching = true
     ): Cart {
@@ -103,12 +104,12 @@ class CartService
         }
 
         try {
-            $cart = $this->persister->load($token, $context);
+            $cart = $this->persister->load($token, $salesChannelContext);
         } catch (CartTokenNotFoundException $e) {
             $cart = $this->createNew($token, $name);
         }
 
-        return $this->calculate($cart, $context);
+        return $this->calculate($cart, $salesChannelContext);
     }
 
     /**
@@ -157,6 +158,10 @@ class CartService
         return $this->calculate($cart, $context);
     }
 
+    /**
+     * @throws InvalidOrderException
+     * @throws InconsistentCriteriaIdsException
+     */
     public function order(Cart $cart, SalesChannelContext $context): string
     {
         $calculatedCart = $this->calculate($cart, $context);

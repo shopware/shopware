@@ -52,11 +52,12 @@ class ProductPageConfiguratorLoader
 
         /** @var PropertyGroupEntity $group */
         foreach ($groups as $group) {
-            if (!$group->getOptions()) {
+            $options = $group->getOptions();
+            if ($group->getOptions() === null) {
                 continue;
             }
 
-            foreach ($group->getOptions() as $option) {
+            foreach ($options as $option) {
                 $combinable = $this->isCombinable($option, $current, $combinations);
                 if ($combinable === null) {
                     $group->getOptions()->remove($option->getId());

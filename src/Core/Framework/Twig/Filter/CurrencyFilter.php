@@ -31,27 +31,30 @@ class CurrencyFilter extends AbstractExtension
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    public function formatCurrency($context, $price, $currencyIsoCode, $languageId = null)
+    public function formatCurrency($twigContext, $price, $currencyIsoCode = null, $languageId = null)
     {
-        if (!array_key_exists('context', $context)
+        if (!array_key_exists('context', $twigContext)
             || (
-                !$context['context'] instanceof Context
-                && !$context['context'] instanceof SalesChannelContext
+                !$twigContext['context'] instanceof Context
+                && !$twigContext['context'] instanceof SalesChannelContext
             )
         ) {
-            throw new \RuntimeException('Error while processing Twig currency filter. No context or locale given.');
+            throw new \InvalidArgumentException('Error while processing Twig currency filter. No context or locale given.');
         }
 
-        if (isset($context['testMode']) && $context['testMode'] === true && !is_float($price)) {
-            $price = 99.99;
-            $currencyIsoCode = 'USD';
+        if (!$currencyIsoCode && $twigContext['context'] instanceof SalesChannelContext) {
+            $currencyIsoCode = $twigContext['context']->getCurrency()->getIsoCode();
         }
 
-        /** @var Context $context */
-        if ($context['context'] instanceof Context) {
-            $context = $context['context'];
+        if (!$currencyIsoCode) {
+            throw new \InvalidArgumentException('Error while processing Twig currency filter. Could not resolve currencyIsoCode.');
+        }
+
+        /* @var Context $context */
+        if ($twigContext['context'] instanceof Context) {
+            $context = $twigContext['context'];
         } else {
-            $context = $context['context']->getContext();
+            $context = $twigContext['context']->getContext();
         }
 
         if ($languageId === null) {

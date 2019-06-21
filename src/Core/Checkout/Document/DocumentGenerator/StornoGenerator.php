@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
+use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Twig\Environment;
 use Twig\Error\Error;
 
 class StornoGenerator implements DocumentGeneratorInterface
@@ -19,16 +19,15 @@ class StornoGenerator implements DocumentGeneratorInterface
      * @var string
      */
     private $rootDir;
-
     /**
-     * @var Environment
+     * @var DocumentTemplateRenderer
      */
-    private $twig;
+    private $documentTemplateRenderer;
 
-    public function __construct(Environment $twig, string $rootDir)
+    public function __construct(DocumentTemplateRenderer $documentTemplateRenderer, string $rootDir)
     {
         $this->rootDir = $rootDir;
-        $this->twig = $twig;
+        $this->documentTemplateRenderer = $documentTemplateRenderer;
     }
 
     public function supports(): string
@@ -49,7 +48,7 @@ class StornoGenerator implements DocumentGeneratorInterface
 
         $order = $this->handlePrices($order);
 
-        return $this->twig->render($templatePath, [
+        return $this->documentTemplateRenderer->render($templatePath, [
             'order' => $order,
             'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
             'rootDir' => $this->rootDir,

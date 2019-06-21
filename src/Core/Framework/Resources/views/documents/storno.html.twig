@@ -8,5 +8,7 @@
 
  {% block document_side_info_contents %}
      {{ parent() }}
-     <tr><td>{% trans with {'%stornoNumber%': config.custom.stornoNumber | truncate(10)} %}document.stornoNumber{% endtrans %}</td></tr>
+     {% block document_side_info_storno_number %}
+         <tr><td>{% trans with {'%stornoNumber%': config.custom.stornoNumber | truncate(10)} %}document.stornoNumber{% endtrans %}</td></tr>
+     {% endblock %}
  {% endblock %}

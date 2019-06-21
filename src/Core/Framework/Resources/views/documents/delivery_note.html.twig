@@ -9,18 +9,9 @@
 {% endblock %}
 
 {% block document_side_info_contents %}
-        {{ parent() }}
-        <tr><td>{% trans with {'%deliveryDate%': config.custom.deliveryDate|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.deliveryDate{% endtrans %}</td></tr>
-{% endblock %}
-
-{% block document_line_item_list %}
-    {% set lineItems = [] %}
-    {% for entry in orderDelivery.positions %}
-        {% set lineItems = lineItems | merge([entry.orderLineItem]) %}
-    {% endfor %}
     {{ parent() }}
+    <tr><td>{% trans with {'%deliveryDate%': config.custom.deliveryDate|localizeddate('medium', 'none', order.saleschannel.language.locale.code)} %}document.deliveryDate{% endtrans %}</td></tr>
 {% endblock %}
-
 
 {% block document_sum %}
 {% endblock %}

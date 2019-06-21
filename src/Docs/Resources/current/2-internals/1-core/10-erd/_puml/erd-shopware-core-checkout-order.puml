@@ -135,7 +135,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition, "o
    removable bool
    stackable bool
    not_null(price) calculatedPrice
-   not_null(priceDefinition) priceDefinition
+   priceDefinition priceDefinition
    unitPrice float
    totalPrice float
    description string

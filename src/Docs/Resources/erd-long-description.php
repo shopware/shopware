@@ -567,4 +567,20 @@ EOD
 The newsletter adds sales channel management of recipients. Although the data may share similarities this is not representing a full customer with login and history.
 EOD
     ,
+    Shopware\Core\Content\ImportExport\ImportExportProfileDefinition::class => <<<'EOD'
+Settings regardintg the file format and the contained entity.
+EOD
+    ,
+    Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition::class => <<<'EOD'
+A specialized changelog storing results and error codes.     
+EOD
+    ,
+    Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileDefinition::class => <<<'EOD'
+A single import or export file.
+EOD
+    ,
+    'Shopware\\Core\\Content\\ImportExport' => <<<'EOD'
+The import/export funtionality of Shopware 6 centrally 
+EOD
+    ,
 ];

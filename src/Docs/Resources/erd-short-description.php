@@ -196,4 +196,8 @@ return [
     Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition::class => 'Discounts',
     'Shopware\\Core\\Content\\Cms' => 'Content Management',
     'Shopware\\Core\\Content\\Newsletter' => 'Newsletter',
+    Shopware\Core\Content\ImportExport\ImportExportProfileDefinition::class => 'File profile definition',
+    Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition::class => 'Change log',
+    Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileDefinition::class => 'Import/Export file',
+    'Shopware\\Core\\Content\\ImportExport' => 'Import/Export',
 ];

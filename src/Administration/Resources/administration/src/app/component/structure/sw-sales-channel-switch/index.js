@@ -1,4 +1,4 @@
-import { Component, State } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
 import { debug } from 'src/core/service/util.service';
 import template from './sw-sales-channel-switch.html.twig';
 
@@ -42,12 +42,6 @@ Component.register('sw-sales-channel-switch', {
             newSalesChannelId: '',
             showUnsavedChangesModal: false
         };
-    },
-
-    computed: {
-        salesChannelStore() {
-            return State.getStore('sales_channel');
-        }
     },
 
     methods: {

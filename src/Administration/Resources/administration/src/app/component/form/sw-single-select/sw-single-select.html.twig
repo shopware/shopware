@@ -22,7 +22,7 @@
                     {% block sw_single_select_single_selection_inner %}
                         <slot v-if="singleSelection !== null" name="selected_option" :item="singleSelection">
                             {% block sw_single_select_single_selection_slot_label %}
-                                <slot name="labelProperty" :item="singleSelection">
+                                <slot name="labelProperty" v-bind="{item: singleSelection, labelProperty, valueProperty}">
                                     {{ singleSelection[labelProperty] }}
                                 </slot>
                             {% endblock %}
@@ -90,7 +90,7 @@
                                                                          ref="swSelectOption"
                                                                          :index="index"
                                                                          :item="item">
-                                                                    <slot name="labelProperty">
+                                                                    <slot name="labelProperty" v-bind="{item, labelProperty, valueProperty}">
                                                                         <span v-html="$sanitize(item[labelProperty])"></span>
                                                                     </slot>
                                                                  </sw-single-select-option>

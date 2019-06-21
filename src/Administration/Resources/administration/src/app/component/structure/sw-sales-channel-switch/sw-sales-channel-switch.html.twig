@@ -46,6 +46,9 @@
                     @input="onInput"
                     v-model="salesChannelId"
                     entity="sales_channel">
+                <template #labelProperty="{item, labelProperty}">
+                    <span v-if="item.translated">{{ item.translated[labelProperty] }}</span>
+                </template>
             </sw-entity-single-select>
         {% endblock %}
     </div>

@@ -9,6 +9,12 @@ export default function createContext(context = {}) {
     const installationPath = getInstallationPath(context, isDevMode);
     const apiPath = `${installationPath}/api`;
 
+    let languageId = Defaults.systemLanguageId;
+    const storedLanguageId = localStorage.getItem('sw-admin-current-language');
+    if (storedLanguageId) {
+        languageId = storedLanguageId;
+    }
+
     Object.assign(context, {
         installationPath,
         environment: process.env.NODE_ENV,
@@ -16,7 +22,7 @@ export default function createContext(context = {}) {
         apiResourcePath: `${apiPath}/v1`,
         currentUser: {},
         assetsPath: getAssetsPath(installationPath, isDevMode),
-        languageId: Defaults.systemLanguageId
+        languageId: languageId
     });
 
     if (isDevMode) {

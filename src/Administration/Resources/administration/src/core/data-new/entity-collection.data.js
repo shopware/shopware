@@ -89,17 +89,29 @@ export default class EntityCollection {
         return setReactive(this.items, entity.id, entity);
     }
 
-    forEach(iterator, scope = this) {
-        if (!types.isFunction(iterator)) {
+    forEach(callback, scope = this) {
+        if (!types.isFunction(callback)) {
             warn('Base collection', 'No function provided to forEach function');
 
             return this.items;
         }
 
         Object.keys(this.items).forEach((id) => {
-            iterator.call(scope, this.items[id], id);
+            callback.call(scope, this.items[id], id);
         });
 
         return this.items;
+    }
+
+    find(callback, scope = this) {
+        if (!types.isFunction(callback)) {
+            warn('Base collection', 'No function provided to find function');
+
+            return undefined;
+        }
+
+        return Object.keys(this.items).find((id) => {
+            return callback.call(scope, this.items[id], id);
+        });
     }
 }

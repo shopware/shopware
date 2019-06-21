@@ -16,5 +16,10 @@
     "routeNames": {
       "frontend-detail-page": "Produktdetailseite"
     }
+  },
+  "sw-seo-url": {
+    "titleCard": "Canonical Urls",
+    "labelSalesChannelSelect": "Verkaufskanal",
+    "labelSeoPathInfo": "SEO Pfad"
   }
 }

@@ -1,4 +1,5 @@
 import { Component, Mixin } from 'src/core/shopware';
+import EntityCollection from 'src/core/data-new/entity-collection.data';
 import Criteria from 'src/core/data-new/criteria.data';
 import utils from 'src/core/service/util.service';
 import LocalStore from 'src/core/data/LocalStore';
@@ -35,6 +36,17 @@ Component.register('sw-seo-url-template-card', {
     methods: {
         createdComponent() {
             this.seoUrlRepository = this.repositoryFactory.create('seo_url_template');
+            this.seoUrlTemplates = new EntityCollection(
+                this.seoUrlRepository.route,
+                this.seoUrlRepository.schema.entity,
+                this.context, new Criteria()
+            );
+
+            this.defaultSeoUrlTemplates = new EntityCollection(
+                this.seoUrlRepository.route,
+                this.seoUrlRepository.schema.entity,
+                this.context, new Criteria()
+            );
 
             this.fetchSeoUrlTemplates();
         },
@@ -49,19 +61,19 @@ Component.register('sw-seo-url-template-card', {
             this.isLoading = true;
 
             this.seoUrlRepository.search(criteria, this.context).then((response) => {
-                if (!this.seoUrlTemplates) {
-                    this.seoUrlTemplates = response;
-                } else {
-                    Object.keys(response).forEach(id => {
-                        if (!this.seoUrlTemplates.has(id)) {
-                            this.seoUrlTemplates.add(response[id]);
-                        }
-                    });
-                }
+                Object.keys(response.items).forEach(id => {
+                    if (!this.seoUrlTemplates.has(id)) {
+                        this.seoUrlTemplates.add(response.items[id]);
+                    }
+                });
 
                 if (!salesChannelId) {
                     // Save the defaults for creating dynamically new entities
-                    this.defaultSeoUrlTemplates = response;
+                    Object.keys(response.items).forEach(id => {
+                        if (!this.defaultSeoUrlTemplates.has(id)) {
+                            this.defaultSeoUrlTemplates.add(response.items[id]);
+                        }
+                    });
                 } else {
                     this.createSeoUrlTemplatesFromDefaultRoutes(salesChannelId);
                 }
@@ -69,6 +81,7 @@ Component.register('sw-seo-url-template-card', {
 
                 this.seoUrlTemplates.forEach(seoUrlTemplate => {
                     // Fetch preview / validate seo url template if not done yet
+
                     if (!seoUrlTemplate.isNew() && !this.previews.hasOwnProperty(seoUrlTemplate.id)) {
                         this.fetchSeoUrlPreview(seoUrlTemplate);
                     }
@@ -85,17 +98,14 @@ Component.register('sw-seo-url-template-card', {
             // Iterate over the default seo url templates and create new entities for the actual sales channel
             // if they do not exist
             this.defaultSeoUrlTemplates.forEach(defaultEntity => {
-                let foundId = Object.keys(this.seoUrlTemplates).find(id => {
-                    return this.seoUrlTemplates[id].routeName === defaultEntity.routeName;
+                const entityAlreadyExists = Object.keys(this.seoUrlTemplates.items).find(id => {
+                    const entity = this.seoUrlTemplates.get(id);
+                    // Check if there is already an entity with the same route and salesChannel to skip the creation
+                    // of a new entity
+                    return entity.routeName === defaultEntity.routeName && entity.salesChannelId === salesChannelId;
                 });
 
-                if (foundId) {
-                    foundId = Object.keys(this.seoUrlTemplates).find(id => {
-                        return this.seoUrlTemplates[id].salesChannelId === salesChannelId;
-                    });
-                }
-
-                if (!foundId) {
+                if (!entityAlreadyExists) {
                     const entity = this.seoUrlRepository.create(this.context);
                     entity.routeName = defaultEntity.routeName;
                     entity.salesChannelId = salesChannelId;
@@ -132,11 +142,11 @@ Component.register('sw-seo-url-template-card', {
                 return '';
             }
 
-            const defaultEntityId = Object.keys(this.defaultSeoUrlTemplates).find(id => {
-                return this.defaultSeoUrlTemplates[id].routeName === seoUrlTemplate.routeName;
+            const defaultEntityId = Object.keys(this.defaultSeoUrlTemplates.items).find(id => {
+                return this.defaultSeoUrlTemplates.get(id).routeName === seoUrlTemplate.routeName;
             });
 
-            return this.defaultSeoUrlTemplates[defaultEntityId].template;
+            return this.defaultSeoUrlTemplates.get(defaultEntityId).template;
         },
         onClickSave() {
             const hasError = Object.keys(this.errorMessages).some((key) => {

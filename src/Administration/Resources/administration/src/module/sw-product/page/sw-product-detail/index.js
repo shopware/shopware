@@ -377,40 +377,42 @@ Component.register('sw-product-detail', {
 
             this.isSaveSuccessful = false;
 
-            return this.saveProduct().then((res) => {
-                switch (res) {
-                    case 'empty': {
-                        const titleSaveWarning = this.$tc('sw-product.detail.titleSaveWarning');
-                        const messageSaveWarning = this.$tc('sw-product.detail.messageSaveWarning');
+            return this.saveProduct().then(this.onSaveFinished);
+        },
 
-                        this.createNotificationWarning({
-                            title: titleSaveWarning,
-                            message: messageSaveWarning
-                        });
-                        break;
-                    }
+        onSaveFinished(response) {
+            switch (response) {
+                case 'empty': {
+                    const titleSaveWarning = this.$tc('sw-product.detail.titleSaveWarning');
+                    const messageSaveWarning = this.$tc('sw-product.detail.messageSaveWarning');
 
-                    case 'success': {
-                        this.isSaveSuccessful = true;
-
-                        break;
-                    }
-
-                    default: {
-                        const productName = this.product.translated ? this.product.translated.name : this.product.name;
-                        const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
-                        const messageSaveError = this.$tc(
-                            'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
-                        );
-
-                        this.createNotificationError({
-                            title: titleSaveError,
-                            message: messageSaveError
-                        });
-                        break;
-                    }
+                    this.createNotificationWarning({
+                        title: titleSaveWarning,
+                        message: messageSaveWarning
+                    });
+                    break;
                 }
-            });
+
+                case 'success': {
+                    this.isSaveSuccessful = true;
+
+                    break;
+                }
+
+                default: {
+                    const productName = this.product.translated ? this.product.translated.name : this.product.name;
+                    const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+                    const messageSaveError = this.$tc(
+                        'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
+                    );
+
+                    this.createNotificationError({
+                        title: titleSaveError,
+                        message: messageSaveError
+                    });
+                    break;
+                }
+            }
         },
 
         saveProduct() {
@@ -421,6 +423,7 @@ Component.register('sw-product-detail', {
                 if (!this.productRepository.hasChanges(this.product)) {
                     this.$store.commit('swProductDetail/setLoading', ['product', false]);
                     resolve('empty');
+                    this.$store.commit('swProductDetail/setLoading', ['product', false]);
                     return;
                 }
 

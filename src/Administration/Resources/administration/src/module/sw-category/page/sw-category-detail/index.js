@@ -219,7 +219,7 @@ Component.register('sw-category-detail', {
             }
 
             if (this.$route.params.id) {
-                this.getCategory(categoryId).then(response => {
+                return this.getCategory(categoryId).then(response => {
                     this.category = response;
                     this.getAssignedCmsPage(this.category.cmsPageId);
                     this.updateCmsPageDataMapping();
@@ -237,12 +237,12 @@ Component.register('sw-category-detail', {
                     this.isLoading = false;
                     this.isLoadingCategory = false;
                 });
-            } else {
-                this.isLoading = false;
-                this.isLoadingCategory = false;
-                this.category = null;
-                this.mediaItem = null;
             }
+            this.isLoading = false;
+            this.isLoadingCategory = false;
+            this.category = null;
+            this.mediaItem = null;
+            return Promise.resolve;
         },
 
         onRefreshCategories() {

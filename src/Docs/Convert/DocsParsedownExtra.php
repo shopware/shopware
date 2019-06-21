@@ -29,7 +29,7 @@ class DocsParsedownExtra extends \ParsedownExtra
         $this->sourceFile = $sourceFile;
     }
 
-    protected function blockFencedCode($Line): array
+    protected function blockFencedCode($Line): ?array
     {
         $Block = parent::blockFencedCode($Line);
 

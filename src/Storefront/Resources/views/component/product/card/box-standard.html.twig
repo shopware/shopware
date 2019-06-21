@@ -9,7 +9,7 @@
 
 					{% block component_product_box_image %}
 						<div class="product-image-wrapper">
-							<a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+							<a href="{{ productUrl(product) }}"
 							   title="{{ product.translated.name }}"
 							   class="product-image-link">
 								{% if product.cover.media.url %}
@@ -43,7 +43,7 @@
 					{% block component_product_box_info %}
 						<div class="product-info">
 							{% block component_product_box_name %}
-								<a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+								<a href="{{ productUrl(product) }}"
 								   class="product-name"
 								   title="{{ product.translated.name }}">
 									{{ product.translated.name }}

@@ -113,5 +113,10 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\Validation\SeoUrlValidationService"/>
+
+        <service id="Shopware\Storefront\Framework\Twig\Extension\SeoUrlFunctionExtension">
+            <argument type="service" id="router" />
+            <tag name="twig.extension"/>
+        </service>
     </services>
 </container>

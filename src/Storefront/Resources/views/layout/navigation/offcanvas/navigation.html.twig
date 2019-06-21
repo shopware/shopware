@@ -98,7 +98,7 @@
                                         <li class="offcanvas-menu-list-item">
                                             {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item_link %}
                                                 <a class="offcanvas-menu-list-item-link nav-item nav-link current-category"
-                                                   href="{{ path('frontend.navigation.page', {'navigationId': activeItem.id}) }}"
+                                                   href="{{ navigationUrl(activeItem) }}"
                                                    itemprop="url"
                                                    title="{{ activeItem.translated.name }}">
                                                     {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item_text %}
@@ -127,7 +127,7 @@
                                                         {% if hasChildren %}
                                                             href="{{ path('frontend.menu.offcanvas', {'navigationId': entity.id}) }}"
                                                         {% else %}
-                                                            href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
+                                                            href="{{ navigationUrl(treeItem.category) }}"
                                                         {% endif %}
 
                                                        itemprop="url"

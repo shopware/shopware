@@ -8,7 +8,7 @@
 						{% block layout_search_suggest_result_product %}
 							<li class="js-result result-product">
 								{% block layout_search_suggest_result_link %}
-									<a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+									<a href="{{ productUrl(product) }}"
 									   title="{{ product.translated.name }}"
 									   class="result-link">
 										{% block layout_search_suggest_result_image %}

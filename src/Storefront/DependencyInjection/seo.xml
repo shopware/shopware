@@ -104,13 +104,19 @@
             <tag name="shopware.seo_url.route"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Seo\Subscriber\CanonicalUrlLoaderSubscriber">
+        <service id="Shopware\Storefront\Framework\Seo\Subscriber\SeoUrlLoaderSubscriber">
             <argument type="service" id="seo_url.repository"/>
             <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
+            <argument type="service" id="request_stack"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\Validation\SeoUrlValidationService"/>
+
+        <service id="Shopware\Storefront\Framework\Twig\Extension\SeoUrlFunctionExtension">
+            <argument type="service" id="router" />
+            <tag name="twig.extension"/>
+        </service>
     </services>
 </container>

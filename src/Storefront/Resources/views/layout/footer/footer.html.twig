@@ -70,7 +70,7 @@
                                                     <li class="footer-link-item list-group-item">
                                                         {% block layout_footer_navigation_information_link %}
                                                             <a class="footer-link"
-                                                               href="{{ path('frontend.navigation.page', {'navigationId': treeItem.category.id}) }}"
+                                                               href="{{ navigationUrl(treeItem.category) }}"
                                                                title="{{ treeItem.category.translated.name }}">
                                                                 {{ treeItem.category.translated.name }}
                                                             </a>
@@ -110,7 +110,7 @@
                                 {% block layout_footer_service_menu_item %}
                                     <li class="footer-service-menu-item">
                                         <a class="footer-service-menu-link"
-                                           href="{{ path('frontend.navigation.page', {'navigationId': serviceMenuItem.id}) }}"
+                                           href="{{ navigationUrl(serviceMenuItem) }}"
                                            title="{{ serviceMenuItem.translated.name }}">
                                             {{ serviceMenuItem.translated.name }}
                                         </a>

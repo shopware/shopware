@@ -45,7 +45,7 @@
                 {% endblock %}
             {% else %}
                 {% block component_product_box_action_detail %}
-                    <a href="{{ path('frontend.detail.page', {'productId': product.id}) }}"
+                    <a href="{{ productUrl(product) }}"
                        class="btn btn-block btn-light"
                        title="{{ "listing.boxProductDetails"|trans }}">
                         {{ "listing.boxProductDetails"|trans }}

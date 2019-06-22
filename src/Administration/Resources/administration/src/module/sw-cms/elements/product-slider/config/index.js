@@ -44,6 +44,14 @@ Component.register('sw-cms-el-config-product-slider', {
             });
 
             this.$set(this.element.data, 'products', products);
+        },
+
+        onChangeDisplayMode(value) {
+            if (value === 'cover') {
+                this.element.config.verticalAlign.value = '';
+            }
+
+            this.$emit('element-update', this.element);
         }
     }
 });

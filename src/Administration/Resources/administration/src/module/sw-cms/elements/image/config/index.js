@@ -98,6 +98,16 @@ Component.register('sw-cms-el-config-image', {
             this.element.config.minHeight.value = value === null ? '' : value;
 
             this.$emit('element-update', this.element);
+        },
+
+        onChangeDisplayMode(value) {
+            if (value === 'cover') {
+                this.element.config.verticalAlign.value = '';
+            } else {
+                this.element.config.minHeight.value = '';
+            }
+
+            this.$emit('element-update', this.element);
         }
     }
 });

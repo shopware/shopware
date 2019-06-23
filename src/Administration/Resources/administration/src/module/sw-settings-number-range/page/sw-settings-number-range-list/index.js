@@ -13,7 +13,7 @@ Component.register('sw-settings-number-range-list', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('sw-settings-list'),
+        Mixin.getByName('listing'),
         Mixin.getByName('placeholder')
     ],
 
@@ -24,7 +24,8 @@ Component.register('sw-settings-number-range-list', {
             sortBy: 'name',
             isLoading: false,
             sortDirection: 'DESC',
-            naturalSorting: true
+            naturalSorting: true,
+            showDeleteModal: false
         };
     },
 

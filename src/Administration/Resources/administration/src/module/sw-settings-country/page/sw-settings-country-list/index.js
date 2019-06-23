@@ -12,7 +12,7 @@ Component.register('sw-settings-country-list', {
     ],
 
     mixins: [
-        Mixin.getByName('sw-settings-list')
+        Mixin.getByName('listing')
     ],
 
     metaInfo() {
@@ -28,7 +28,8 @@ Component.register('sw-settings-country-list', {
             sortBy: 'country.name',
             isLoading: false,
             sortDirection: 'ASC',
-            naturalSorting: true
+            naturalSorting: true,
+            showDeleteModal: false
         };
     },
 
@@ -71,6 +72,11 @@ Component.register('sw-settings-country-list', {
                     message: this.$tc('sw-settings-country.detail.messageSaveError')
                 });
             });
+        },
+
+        onChangeLanguage(languageId) {
+            this.context.languageId = languageId;
+            this.getList();
         },
 
         onDelete(id) {

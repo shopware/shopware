@@ -37,7 +37,7 @@ describe('Payment: Test crud operations', () => {
         cy.wait('@saveData').then(() => {
             cy.get(page.elements.smartBarBack).click();
             cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Bar bei Abholung');
-            cy.get(`${page.elements.gridRow}--0 a[title="Edit"]`).should('be.visible')
+            cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
                 .contains('Bar bei Abholung');
         });
     });
@@ -57,7 +57,7 @@ describe('Payment: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-settings-payment-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--0`
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get('#sw-field--paymentMethod-name').clear();
@@ -68,7 +68,7 @@ describe('Payment: Test crud operations', () => {
         cy.wait('@saveData').then(() => {
             cy.get(page.elements.smartBarBack).click();
             cy.get('input.sw-search-bar__input').typeAndCheckSearchField('In Schokoladentafeln');
-            cy.get(`${page.elements.gridRow}--0 a[title="Edit"]`).should('be.visible')
+            cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
                 .contains('In Schokoladentafeln');
         });
     });
@@ -87,17 +87,17 @@ describe('Payment: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--0`
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the payment method "CredStick"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
-        cy.get(page.elements.modal).should('not.exist');
 
         // Verify and check usage of payment-method
         cy.wait('@deleteData').then(() => {
-            cy.awaitAndCheckNotification('Payment method "CredStick" has successfully been deleted.');
+            cy.get(page.elements.modal).should('not.exist');
+            cy.get(`${page.elements.dataGridRow}--0`).should('not.exist')
         });
     });
 });

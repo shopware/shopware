@@ -11,7 +11,6 @@ Component.register('sw-settings-tax-list', {
     ],
 
     mixins: [
-        Mixin.getByName('sw-settings-list'),
         Mixin.getByName('listing')
     ],
 
@@ -21,7 +20,8 @@ Component.register('sw-settings-tax-list', {
             sortBy: 'name',
             isLoading: false,
             sortDirection: 'ASC',
-            naturalSorting: true
+            naturalSorting: true,
+            showDeleteModal: false
         };
     },
 
@@ -100,6 +100,7 @@ Component.register('sw-settings-tax-list', {
                 primary: true
             }, {
                 property: 'taxRate',
+                inlineEdit: 'string',
                 label: this.$tc('sw-settings-tax.list.columnTaxRate')
             }];
         }

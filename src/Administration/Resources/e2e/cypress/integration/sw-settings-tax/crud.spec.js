@@ -27,6 +27,7 @@ describe('Tax: Test crud operations', () => {
         }).as('saveData');
 
         // Create tax
+        cy.get('.sw-settings-tax-list-grid').should('be.visible');
         cy.get('a[href="#/sw/settings/tax/create"]').click();
         cy.get('input[name=sw-field--tax-name]').type('Very high tax');
         cy.get('input[name=sw-field--tax-taxRate]').type('99');
@@ -36,7 +37,7 @@ describe('Tax: Test crud operations', () => {
         // Verify tax
         cy.wait('@saveData').then(() => {
             cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.gridRow}--3 ${page.elements.taxColumnName}`).should('be.visible')
+            cy.get(`${page.elements.dataGridRow}--3 ${page.elements.taxColumnName}`).should('be.visible')
                 .contains('Very high tax');
         });
     });
@@ -52,10 +53,11 @@ describe('Tax: Test crud operations', () => {
         }).as('saveData');
 
         // Edit tax' base data
+        cy.get('.sw-settings-tax-list-grid').should('be.visible');
         cy.clickContextMenuItem(
             '.sw-tax-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--2`
+            `${page.elements.dataGridRow}--2`
         );
 
         cy.get('input[name=sw-field--tax-name]').clear();
@@ -65,7 +67,7 @@ describe('Tax: Test crud operations', () => {
         // Verify tax
         cy.wait('@saveData').then(() => {
             cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.gridRow}--2 ${page.elements.taxColumnName}`).should('be.visible')
+            cy.get(`${page.elements.dataGridRow}--2 ${page.elements.taxColumnName}`).should('be.visible')
                 .contains('Still high tax');
         });
     });
@@ -80,19 +82,20 @@ describe('Tax: Test crud operations', () => {
             method: 'delete'
         }).as('deleteData');
 
+        cy.get('.sw-settings-tax-list-grid').should('be.visible');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--2`
+            `${page.elements.dataGridRow}--2`
         );
 
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the tax "High tax"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
-        cy.get(page.elements.modal).should('not.exist');
 
         cy.wait('@deleteData').then(() => {
-            cy.awaitAndCheckNotification('Tax "High tax" has successfully been deleted.');
+            cy.get(page.elements.modal).should('not.exist');
+            cy.get(`${page.elements.dataGridRow}--2`).should('not.exist');
         });
     });
 });

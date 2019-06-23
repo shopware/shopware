@@ -11,7 +11,6 @@ Component.register('sw-settings-currency-list', {
     ],
 
     mixins: [
-        Mixin.getByName('sw-settings-list'),
         Mixin.getByName('listing'),
         Mixin.getByName('notification')
     ],
@@ -26,10 +25,11 @@ Component.register('sw-settings-currency-list', {
         return {
             entityName: 'currency',
             currency: null,
-            sortBy: 'name',
+            sortBy: 'currency.name',
             isLoading: false,
-            sortDirection: 'DESC',
-            naturalSorting: true
+            sortDirection: 'ASC',
+            naturalSorting: true,
+            showDeleteModal: false
         };
     },
 
@@ -63,6 +63,11 @@ Component.register('sw-settings-currency-list', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        onChangeLanguage(languageId) {
+            this.context.languageId = languageId;
+            this.getList();
         },
 
         onInlineEditSave(promise, currency) {
@@ -107,16 +112,16 @@ Component.register('sw-settings-currency-list', {
                 width: '250px',
                 primary: true
             }, {
-                property: 'isoCode',
-                label: this.$tc('sw-settings-currency.list.columnIsoCode')
-            }, {
                 property: 'shortName',
+                inlineEdit: 'string',
                 label: this.$tc('sw-settings-currency.list.columnShortName')
             }, {
                 property: 'symbol',
+                inlineEdit: 'string',
                 label: this.$tc('sw-settings-currency.list.columnSymbol')
             }, {
                 property: 'factor',
+                inlineEdit: 'string',
                 label: this.$tc('sw-settings-currency.list.columnFactor')
             }];
         }

@@ -306,4 +306,11 @@ EOD
 Logging
 EOD
     ,
+    'Content/ImportExport' => <<<'EOD'
+Mass imports and exports through files
+
+* [Entity relationship diagram](./10-erd/erd-shopware-core-content-importexport.md)
+  
+EOD
+    ,
 ];

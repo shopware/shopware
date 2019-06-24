@@ -188,6 +188,11 @@ Table(ShopwareCoreContentMailTemplate, "Shopware\Core\Content\MailTemplate\n(Mai
    mail_header_footer Table
    mail_header_footer_translation Table
 }
+Table(ShopwareCoreContentImportExport, "Shopware\Core\Content\ImportExport\n(Import/Export)") {
+   import_export_profile Table
+   import_export_log Table
+   import_export_file Table
+}
 Table(ShopwareCoreCheckoutCustomer, "Shopware\Core\Checkout\Customer\n(Customer)") {
    customer Table
    customer_group_translation Table
@@ -306,6 +311,7 @@ ShopwareCoreSystemUnit --> ShopwareCoreSystemUnit
 ShopwareCoreContentMedia --> ShopwareCoreSystemUser
 ShopwareCoreSystemUser --> ShopwareCoreSystemUser
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemUser
+ShopwareCoreContentImportExport --> ShopwareCoreSystemUser
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemStateMachine
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemStateMachine
 ShopwareCoreSystemNumberRange --> ShopwareCoreSystemNumberRange
@@ -345,6 +351,7 @@ ShopwareCoreContentProductStream --> ShopwareCoreContentProductStream
 ShopwareCoreContentProperty --> ShopwareCoreContentProperty
 ShopwareCoreContentCms --> ShopwareCoreContentCms
 ShopwareCoreContentMailTemplate --> ShopwareCoreContentMailTemplate
+ShopwareCoreContentImportExport --> ShopwareCoreContentImportExport
 ShopwareCoreCheckoutCustomer --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutPayment --> ShopwareCoreCheckoutCustomer
 ShopwareCoreCheckoutOrder --> ShopwareCoreCheckoutCustomer

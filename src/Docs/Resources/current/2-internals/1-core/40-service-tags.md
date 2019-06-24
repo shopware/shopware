@@ -9,7 +9,7 @@ Some tags are links and will provide you with further information.
 
 | Tag                                                                        | Required Arguments     | Usage                                                              | Interface                                                           |
 |----------------------------------------------------------------------------|------------------------|--------------------------------------------------------------------|---------------------------------------------------------------------|
-| [shopware.entity.definition](./../20-data-abstraction-layer/1-definition.md)| *entity*               | This tag is used to make your entities system-wide available       | \Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition      |
+| [shopware.entity.definition](./20-data-abstraction-layer/070-definition.md)| *entity*               | This tag is used to make your entities system-wide available       | \Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition      |
 | shopware.feature                                                           | *flag*                 | This tag is used internally as a feature flag for VCS              |                                                                     |
 | shopware.filesystem.factory                                                |                        | This tag is used to register a new FilesystemFactory for Flysystem | \Shopware\Core\Framework\Filesystem\Adapter\AdapterFactoryInterface |
 | [shopware.cart.collector](./../../4-how-to/230-cart-add-discount.md)       |                        | This tag is used to register a CartCollector                       | \Shopware\Core\Checkout\Cart\CollectorInterface                     |

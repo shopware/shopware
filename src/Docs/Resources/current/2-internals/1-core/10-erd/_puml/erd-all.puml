@@ -1108,8 +1108,12 @@ TranslationTable(ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTransla
    primary_key(languageId) foreignKey
 }
 Table(ShopwareCoreContentMailTemplateAggregateMailTemplateSalesChannelMailTemplateSalesChannelDefinition, "mail_template_sales_channel\n(M:N Mapping)") {
-   primary_key(mailTemplateId) foreignKey
-   primary_key(salesChannelId) foreignKey
+   primary_key(id) id
+   not_null(mailTemplateId) foreignKey
+   not_null(salesChannelId) foreignKey
+   mailTemplateTypeId foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
 }
 Table(ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition, "mail_template_media\n(M:N Mapping)") {
    primary_key(id) id
@@ -1149,6 +1153,41 @@ TranslationTable(ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslation
    not_null(updatedAt) updatedAt
    primary_key(deliveryTimeId) foreignKey
    primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreContentImportExportImportExportProfileDefinition, "import_export_profile\n(File profile definition)") {
+   primary_key(id) id
+   not_null(name) string
+   systemDefault bool
+   not_null(sourceEntity) string
+   not_null(fileType) string
+   delimiter string
+   enclosure string
+   mapping json
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition, "import_export_log\n(Change log)") {
+   primary_key(id) id
+   not_null(activity) string
+   not_null(state) string
+   not_null(records) int
+   userId foreignKey
+   profileId foreignKey
+   fileId foreignKey
+   username string
+   profileName string
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDefinition, "import_export_file\n(Import/Export file)") {
+   primary_key(id) id
+   not_null(originalName) string
+   not_null(path) string
+   not_null(expireDate) date
+   size int
+   not_null(createdAt) createdAt
+   not_null(accessToken) string
+   not_null(updatedAt) updatedAt
 }
 Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales channel customer)") {
    primary_key(id) id
@@ -1392,7 +1431,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition, "o
    removable bool
    stackable bool
    not_null(price) calculatedPrice
-   not_null(priceDefinition) priceDefinition
+   priceDefinition priceDefinition
    unitPrice float
    totalPrice float
    description string
@@ -1681,6 +1720,7 @@ ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDefinition --> Shop
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachineTransitionDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition
@@ -1780,7 +1820,10 @@ ShopwareCoreContentMailTemplateAggregateMailTemplateSalesChannelMailTemplateSale
 ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateTypeTranslationDefinition --> ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition
+ShopwareCoreContentMailTemplateAggregateMailTemplateSalesChannelMailTemplateSalesChannelDefinition --> ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition
 ShopwareCoreContentMailTemplateAggregateMailHeaderFooterTranslationMailHeaderFooterTranslationDefinition --> ShopwareCoreContentMailTemplateAggregateMailHeaderFooterMailHeaderFooterDefinition
+ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreContentImportExportImportExportProfileDefinition
+ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition

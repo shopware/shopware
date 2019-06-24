@@ -61,6 +61,8 @@ ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
 }
 ForeignTable(ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition, "state_machine_history") {
 }
+ForeignTable(ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition, "import_export_log") {
+}
 
 ' relationshipd
 
@@ -68,5 +70,6 @@ ShopwareCoreSystemUserUserDefinition --> ShopwareCoreSystemLocaleLocaleDefinitio
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition
+ShopwareCoreSystemUserUserDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition
 @enduml

@@ -9,6 +9,409 @@
 
 <h2>June 2019</h2>
 
+<h3>2019-06-19: Event Emitter Storefront</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>The storefront contains a new event emitter based on native Custom Events. It allows to publish events either globally
+or per plugin. The plugin class initializes the event emitter automatically.</p>
+<p>The global event emitter is available under <code>document.$emitter</code> &amp; <code>window.eventEmitter</code>. Inside a plugin the emitter
+is available under the property <code>this.$emitter</code>;</p>
+<p><strong>Basic usage</strong></p>
+<pre><code>// Subscribe to an event
+document.$emitter.subscribe('my-event-name', (event) =&gt; {
+    console.log(event);
+});
+
+// Publish event
+document.$emitter.publish('my-event-name');</code></pre>
+<p><strong>Provide additional data to the event</strong></p>
+<pre><code>document.$emitter.subscribe('my-event-name', (event) =&gt; {
+    console.log(event.detail);
+});
+
+document.$emitter.publish('my-event-name', {
+    custom: 'data'
+});</code></pre>
+<p>**Providing an different scope***</p>
+<pre><code>document.$emitter.subscribe('my-event-name', (event) =&gt; {
+    console.log(event.detail);
+}, { scope: myScope });
+
+document.$emitter.publish('my-event-name', {
+    custom: 'data'
+});</code></pre>
+<p>**Event listeners which will be fired once***</p>
+<pre><code>document.$emitter.subscribe('my-event-name', (event) =&gt; {
+    console.log(event.detail);
+}, { once: true });
+
+document.$emitter.publish('my-event-name', {
+    custom: 'data'
+});</code></pre>
+<p><strong>Namespaced events</strong></p>
+<pre><code>document.$emitter.publish('my-event-name.my-plugin');</code></pre>
+<p><strong>Unsubscribe events</strong></p>
+<pre><code>document.$emitter.unsubscribe('my-event-name.my-plugin');</code></pre>
+<p><strong>Reset &amp; remove all listeners from emitter</strong></p>
+<pre><code>document.$emitter.reset();</code></pre>
+<h3>2019-06-19: Cart data collection</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>In connection with the new processor pattern of the cart, we had to replace the <code>StructCollection</code> with a <code>CartDataCollection</code>.</p>
+<p>As a result, the following interfaces have changed:</p>
+<ul>
+<li><code>\Shopware\Core\Checkout\Cart\CartDataCollectorInterface</code></li>
+<li><code>\Shopware\Core\Checkout\Cart\CartProcessorInterface</code></li>
+</ul>
+<pre><code>&lt;?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Cart;
+
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+interface CartDataCollectorInterface
+{
+    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void;
+}</code></pre>
+<pre><code>&lt;?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Cart;
+
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+interface CartProcessorInterface
+{
+    public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void;
+}
+</code></pre>
+<p>Furthermore we removed the old interface <code>Shopware\Core\Checkout\Cart\CollectorInterface</code> which is no longer used.</p>
+<h3>2019-06-18: Write validation refactoring</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>The write validation has grown big since the beginning of the DAL. Therefore, it has been cleaned up and here are the changes:</p>
+<ul>
+<li>The trait <code>FieldValidatorTrait</code> has been replaced by the abstract class <code>AbstractFieldSerializer</code> which implements all of it's methods</li>
+<li>The <code>AbstractFieldSerializer</code> has a new method <code>validateIfNeeded()</code> as a shorthand to <code>requiresValidation()</code> + <code>validate()</code></li>
+<li>FieldSerializers can overwrite the <code>getConstraints()</code> method to use a standardized way to validate the data</li>
+<li>FieldSerializers should throw exceptions of type <code>WriteConstraintViolationException</code>.</li>
+<li>The following exceptions have been removed in favour of the <code>WriteException</code>:
+<ul>
+<li><code>FieldExceptionStack</code></li>
+<li><code>InsufficientWritePermissionException</code></li>
+<li><code>InvalidFieldException</code></li>
+<li><code>InvalidJsonFieldException</code></li>
+</ul></li>
+<li>The <code>WriteException</code> is the only exception which will be thrown in case something went wrong during the write. It contains all thrown exceptions.</li>
+<li>The <code>WriteParameterBag</code> no longer contains an exception stack, it has been moved to the <code>WriteContext</code>.</li>
+<li>The <code>CommandQueueValidator</code> has been removed as we now use events for Pre/Post write validation.
+<ul>
+<li><code>Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent</code>: is called pre write. One use case is to catch invalid deletes.</li>
+<li><code>Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent</code>: is called after the <code>WriteCommand</code>s are executed, but before the transaction is committed. You can check new data in combination with existing data.</li>
+<li>Validators must add an exception to the event's context found at <code>$event-&gt;getExceptions()</code> to signal a constraint violation. Any added exception aborts and rollbacks the transaction.</li>
+</ul></li>
+</ul>
+<h3>2019-06-18: New possibility for indexing</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>Up until now you could start all indexer with the help of the <code>IndexerRegistry</code> (<code>IndexerRegistryInterface</code>).
+This way the indexer are run in the current PHP process (for example in the request).</p>
+<p>Now it is also possible to index via the <code>IndexerMessageSender</code> (<code>IndexerRegistryInterface</code>).
+This way each indexer will run in the message queue worker and your request can finish much faster.</p>
+<h3>2019-06-18: IndexerRegistry changes</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>The <code>IndexerRegistry</code> no longer implements the <code>IndexerInterface</code>, but provides a new <code>IndexerRegistryInterface</code> and now dispatches events
+before and after all indexer have been run.</p>
+<p>As the indexing process is a general pattern for the DAL, it has been moved from <code>Shopware\Core\Framework\DataAbstractionLayer\DBAL\Indexing\IndexerRegistry</code>
+to <code>Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry</code>. The namespace change also applies to the <code>IndexerInterface</code> and the default indexer provided by us.</p>
+<h2>New events</h2>
+<ul>
+<li><code>Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryStartEvent</code></li>
+<li><code>Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryEndEvent</code></li>
+</ul>
+<h3>2019-06-18: Cart refactoring</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>To handle dynamic line items, which has a dependency to already added cart line items, the extension points for the cart processor has changed.
+There are two new interface for the cart:</p>
+<ul>
+<li>\Shopware\Core\Checkout\Cart\CartProcessorInterface</li>
+<li>\Shopware\Core\Checkout\Cart\CartDataCollectorInterface</li>
+</ul>
+<p>The <code>CartDataCollectorInterface</code> is an replacement for the previous <code>CollectorInterface</code>. Instead of splitting the data fetching and enrichment into three steps we decided to merge this steps into a single one to keep it more simple.
+The provided <code>StructCollection $data</code> persists for a request. This should prevent to fetching the same entity data multiple times inside a single request.</p>
+<p>By adding the <code>CartProcessorInterface</code> we implemented a new extension point for the cart process. It allows to get access to the different subtotals of the cart. This processors can be registered in the di container: <code>&lt;tag name="shopware.cart.processor" priority="xxx" /&gt;</code>.
+This allows to add an additional calculation step after the products calculated and calculate simple a discount for the previous calculated products.</p>
+<p><strong><em>Important change</em></strong>: Line items which are not handled by a processor will be removed from the cart. It is required to implement a <code>CartProcessorInterface</code> for each kind of line items.</p>
+<p>What should a processor do?<br />
+There are two different kinds of processors:</p>
+<ol>
+<li>
+<p>Lets call it <code>static elements processor</code>
+A static elements processors handles line items which added to the cart over sources which are called outside the cart process.
+The <code>ProductCartProcessor</code> is the best example for this kind of processors.
+Products added over the <code>CartLineItemController</code> controller and will be handled by the <code>ProductCartProcessor</code>. This fetches the required data over the gateway and enrich the line items with labels, description or prices.
+Additionally the processor is responsible to transfer the product line items of the provided <code>Cart $original</code> to the provided <code>Cart $toCalculate</code>. Otherwise the products would be removed from the cart.</p>
+</li>
+<li>
+<p>Lets call it <code>dynamic element processor</code>
+A dynamic element processor has no line items which are added to the cart which has to be enriched, calculated and transferred. This kind of processor checks for a specify cart/context state and adds own line items to the cart if the state reached.
+The PromotionCartProcessor is the best example for this kind of processors.
+It checks if a cart state reached (for example: Cart amount &gt; 500), and calculates a discount for -10% for the already added line items.
+Instead of checking the provided <code>Cart $original</code>, this kind of processor works only with the provided <code>Cart $toCalculate</code> to check if a corresponding state reached.</p>
+</li>
+</ol>
+<p>This new pattern simplifies the way to working with the cart for the <code>dynamic element</code> situation. Processors of this kind, has no more to validate if their are already discounts of their own type which are in conflict with the current state. </p>
+<h3>2019-06-11: sw-label refactoring</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>We refactored <code>sw-label</code> component due to a new size and several unused properties.
+In addition, we made the usage more simple. Below, you can find the changes in detail:</p>
+<p>From now on, you don't need to set the <code>dismiss</code> property to make the label dismissable.
+The label will automatically provide this possibility as soon as the listener <code>@dismiss</code> is registered.</p>
+<p>We added the property <code>size</code>, providing three sizes:</p>
+<ul>
+<li><code>default</code>: The former default size, with height of <code>32px</code></li>
+<li><code>medium</code>: This size replaces the former <code>small</code> property, with height of <code>24px</code></li>
+<li><code>small</code>: A new, small size with <code>12px</code> as height.</li>
+</ul>
+<p>Furthermore, we merged <code>pill</code> into the new property <code>appearance</code>.
+The rectangle appearance of the label will stay as default value. As the property <code>variant</code> will not automatically
+style borders anymore, please use <code>appearance="pill"</code> to get the well known look with round edges.</p>
+<p>As a result, we deleted following properties:</p>
+<ul>
+<li><code>small</code></li>
+<li><code>dismiss</code></li>
+<li><code>circle</code></li>
+<li><code>pill</code></li>
+<li><code>light</code></li>
+</ul>
+<p>You can find more detailed information about <code>sw-label</code> usage in the
+<a href="https://component-library.shopware.com/#/components/sw-label">Component Library</a>.</p>
+<h3>2019-06-07: Renamed Flag Deferred to Runtime</h3>
+
+<style type="text/css">
+
+dl dt {
+    font-weight: bolder;
+    margin-top: 1rem;
+}
+
+dl dd {
+    padding-left: 2rem;
+}
+
+h2 code {
+    font-size: 32px;
+}
+
+.category--description ul {
+    padding-left: 2rem;
+}
+
+dt code,
+li code,
+table code,
+p code {
+    font-family: monospace, monospace;
+    background-color: #f9f9f9;
+    font-size: 16px;
+}
+</style>
+<p>We renamed the DAL-Flag <code>Deferred</code> to <code>Runtime</code></p>
+<p>To put it more clearly that the flag marks field to be hydrated at runtime, we renamed the former Flag <code>Deferred</code> to <code>Runtime</code></p>
+<p>As always: <strong>sorry for the inconvenience!</strong></p>
 <h3>2019-06-06: Administration: Update design system color variables</h3>
 
 <style type="text/css">
@@ -62,7 +465,7 @@ $color-gray-900: #758CA3; // Dark</code></pre>
 <p>Some colors have been slightly updated to achieve better contrast ratios.</p>
 <p><strong>For new SCSS code please use the new gradation variables.</strong></p>
 <p>If you want to take a look at the design system visit <a href="https://shopware.design">shopware.design</a>.</p>
-<h3>2019-06-06: Removed cotext from page in all storefront templates</h3>
+<h3>2019-06-06: Removed context from page in all storefront templates</h3>
 
 <style type="text/css">
 

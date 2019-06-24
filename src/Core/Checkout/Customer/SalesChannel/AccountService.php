@@ -523,7 +523,7 @@ class AccountService
         $definition = new DataValidationDefinition('customer.password.update');
 
         $templateData = $this->templateExtension->getGlobals();
-        $minPasswordLength = $templateData['shopware']['config']['register']['minPasswordLength'];
+        $minPasswordLength = $templateData['shopware']['config']['core']['loginRegistration']['passwordMinLength'];
 
         $definition
             ->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']))

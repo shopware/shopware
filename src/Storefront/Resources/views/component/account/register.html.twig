@@ -35,7 +35,7 @@
 							{% block component_account_register_personal_fields %}
 								{% block component_account_register_personal_address_fields %}
 									{% sw_include '@Storefront/component/address/address-personal.html.twig' with {
-										'showBirthdayField': shopware.config.register.birthdayField
+										'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField
 									} %}
 								{% endblock %}
 
@@ -122,7 +122,7 @@
 											{% block component_account_register_personal_password_description %}
 												<small class="form-text text-muted">
                                                     {{ "account.personalPasswordDescription"|trans({
-														'%minLength%': shopware.config.register.minPasswordLength
+														'%minLength%': shopware.config.core.loginRegistration.passwordMinLength
 													}) }}
                                                 </small>
 											{% endblock %}

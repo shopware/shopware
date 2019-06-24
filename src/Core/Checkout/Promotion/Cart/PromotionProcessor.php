@@ -58,7 +58,10 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
         $autoPromotions = $this->searchPromotionsAuto($data, $context);
 
         /** @var array $allCodes */
-        $allCodes = $this->getCodesByPromotionLineItems($this->getPromotionLineItems($original));
+        $allCodes = $original
+            ->getLineItems()
+            ->filterType(self::LINE_ITEM_TYPE)
+            ->getReferenceIds();
 
         /** @var array $codePromotions */
         $codePromotions = $this->searchPromotionsByCodes($data, $allCodes, $context);
@@ -142,46 +145,6 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
             $context,
             $behavior
         );
-    }
-
-    /**
-     * Gets all promotion line items from the cart.
-     * This includes placeholders and real, satisfied promotion line items.
-     */
-    private function getPromotionLineItems(Cart $cart): array
-    {
-        return $cart->getLineItems()->filterType(self::LINE_ITEM_TYPE)->getElements();
-    }
-
-    /**
-     * function checks if a LineItem is a promotion
-     */
-    private function isPromotionLineItem(LineItem $lineItem): bool
-    {
-        return $lineItem->getType() === self::LINE_ITEM_TYPE;
-    }
-
-    /**
-     * Gets all codes from the payload of the
-     * provided list of line items.
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
-     */
-    private function getCodesByPromotionLineItems(array $promotionLineItems): array
-    {
-        $codes = [];
-
-        // We must not touch any existing items!
-        // This loops searches for promotion line items (both placeholders and real line items) that have a
-        // promotion code
-        /** @var LineItem $lineItem */
-        foreach ($promotionLineItems as $lineItem) {
-            if ($this->isPromotionLineItem($lineItem) && !empty($lineItem->getReferencedId())) {
-                $codes[] = $lineItem->getReferencedId();
-            }
-        }
-
-        return $codes;
     }
 
     /**
@@ -320,21 +283,23 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
                 continue;
             }
 
-            /** @var array $itemIDs */
-            $itemIDs = $this->getAllLineItemIds($cart);
+            /** @var array $itemIds */
+            $itemIds = $this->getAllLineItemIds($cart);
 
             // add a new discount line item for this discount
             // if we have at least one valid item that will be discounted.
-            if (count($itemIDs) > 0) {
-                /* @var LineItem $discountItem */
-                $discountItem = $this->itemBuilder->buildDiscountLineItem(
-                    $promotion,
-                    $discount,
-                    $context->getContext()->getCurrencyPrecision()
-                );
-
-                $lineItems[] = $discountItem;
+            if (count($itemIds) <= 0) {
+                continue;
             }
+
+            /* @var LineItem $discountItem */
+            $discountItem = $this->itemBuilder->buildDiscountLineItem(
+                $promotion,
+                $discount,
+                $context->getContext()->getCurrencyPrecision()
+            );
+
+            $lineItems[] = $discountItem;
         }
 
         return $lineItems;
@@ -342,32 +307,14 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
 
     private function getAllLineItemIds(Cart $cart): array
     {
-        $eligibleItems = [];
+        return $cart->getLineItems()->fmap(
+            static function (LineItem $lineItem) {
+                if ($lineItem->getType() === self::LINE_ITEM_TYPE) {
+                    return null;
+                }
 
-        /** @var array $lineItems */
-        $lineItems = $this->getNonPromotionLineItems($cart);
-
-        /** @var LineItem $lineItem */
-        foreach ($lineItems as $lineItem) {
-            $eligibleItems[] = $lineItem->getId();
-        }
-
-        return $eligibleItems;
-    }
-
-    /**
-     * Gets all line items that are not of the provided type
-     * These can be used to iterate through all "standard" items.
-     */
-    private function getNonPromotionLineItems(Cart $cart): array
-    {
-        $lineItems = array_filter(
-            $cart->getLineItems()->getElements(),
-            function (LineItem $lineItem) {
-                return $lineItem->getType() !== self::LINE_ITEM_TYPE;
+                return $lineItem->getId();
             }
         );
-
-        return $lineItems;
     }
 }

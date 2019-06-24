@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -101,7 +102,7 @@ class PromotionItemBuilder
         }
 
         if ($promotionDefinition === null) {
-            throw new \Exception('No Promotion Discount Type set');
+            throw new UnknownPromotionDiscountTypeException($discount);
         }
 
         // build our discount line item

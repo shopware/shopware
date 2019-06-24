@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
-use Shopware\Core\Checkout\Cart\Calculator;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -75,13 +74,7 @@ class PromotionCalculator
                 continue;
             }
 
-            $this->addStandardDiscount(
-                $discountLineItem,
-                $original,
-                $calculated,
-                $context,
-                $behaviour
-            );
+            $this->addStandardDiscount($discountLineItem, $calculated, $context);
         }
     }
 
@@ -92,7 +85,7 @@ class PromotionCalculator
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
      */
-    private function addStandardDiscount(LineItem $discount, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behaviour): void
+    private function addStandardDiscount(LineItem $discount, Cart $calculated, SalesChannelContext $context): void
     {
         /** @var LineItemCollection $cartLineItems */
         $cartLineItems = $calculated->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
@@ -184,7 +177,7 @@ class PromotionCalculator
         $originalPriceDefinition = $discount->getPriceDefinition();
 
         if (!$originalPriceDefinition instanceof AbsolutePriceDefinition) {
-            throw new InvalidPriceDefinitionException('Got a price definition that is not valid for discount type!');
+            throw new InvalidPriceDefinitionException($discount);
         }
 
         /** @var float $discountPrice */
@@ -216,7 +209,7 @@ class PromotionCalculator
         $originalPriceDefinition = $discount->getPriceDefinition();
 
         if (!$originalPriceDefinition instanceof PercentagePriceDefinition) {
-            throw new InvalidPriceDefinitionException('Got a price definition that is not valid for discount type!');
+            throw new InvalidPriceDefinitionException($discount);
         }
 
         // the discount value may never push the cart total price to a value lower than zero.

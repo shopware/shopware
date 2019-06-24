@@ -20,7 +20,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
-use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinition;
+use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -66,7 +66,7 @@ class PromotionCalculator
      * the different discount line item types (percentage, absolute, ...) and then
      * recalculate the whole cart with these new items.
      *
-     * @throws InvalidPriceDefinition
+     * @throws InvalidPriceDefinitionException
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
@@ -95,7 +95,7 @@ class PromotionCalculator
     }
 
     /**
-     * @throws InvalidPriceDefinition
+     * @throws InvalidPriceDefinitionException
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
@@ -186,14 +186,14 @@ class PromotionCalculator
     }
 
     /**
-     * @throws InvalidPriceDefinition
+     * @throws InvalidPriceDefinitionException
      */
     private function fixAbsolutePriceDefinition(LineItem $discount, float $maxDiscountValue)
     {
         $originalPriceDefinition = $discount->getPriceDefinition();
 
         if (!$originalPriceDefinition instanceof AbsolutePriceDefinition) {
-            throw new InvalidPriceDefinition('Got a price definition that is not valid for discount type!');
+            throw new InvalidPriceDefinitionException('Got a price definition that is not valid for discount type!');
         }
 
         /** @var float $discountPrice */
@@ -218,14 +218,14 @@ class PromotionCalculator
     }
 
     /**
-     * @throws InvalidPriceDefinition
+     * @throws InvalidPriceDefinitionException
      */
     private function fixPercentagePriceDefinition(LineItem $discount, float $maxDiscountValue, float $lineItemsTotalPrice)
     {
         $originalPriceDefinition = $discount->getPriceDefinition();
 
         if (!$originalPriceDefinition instanceof PercentagePriceDefinition) {
-            throw new InvalidPriceDefinition('Got a price definition that is not valid for discount type!');
+            throw new InvalidPriceDefinitionException('Got a price definition that is not valid for discount type!');
         }
 
         // the discount value may never push the cart total price to a value lower than zero.
@@ -340,10 +340,6 @@ class PromotionCalculator
      */
     private function calculateCart(Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        $cart->setLineItems(
-            $this->calculator->calculate($cart->getLineItems(), $context, $behavior)
-        );
-
         $amount = $this->amountCalculator->calculate(
             $cart->getLineItems()->getPrices(),
             $cart->getDeliveries()->getShippingCosts(),

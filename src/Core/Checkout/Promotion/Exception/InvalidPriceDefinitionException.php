@@ -2,6 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Exception;
 
-class InvalidPriceDefinition extends \Exception
+class InvalidPriceDefinitionException extends \Exception
 {
 }

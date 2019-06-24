@@ -67,15 +67,10 @@
             <argument type="constant">Shopware\Core\Checkout\Promotion\Cart\Processor\PromotionProcessor::LINE_ITEM_TYPE</argument>
         </service>
 
-        <service id="Shopware\Core\Checkout\Promotion\Cart\Collector\LineItemCollector">
-            <argument type="constant">Shopware\Core\Checkout\Promotion\Cart\Processor\PromotionProcessor::LINE_ITEM_TYPE</argument>
-        </service>
-
         <service id="Shopware\Core\Checkout\Promotion\Cart\Processor\PromotionProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Calculator\PromotionCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\PromotionGateway"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder"/>
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Collector\LineItemCollector"/>
             <tag name="shopware.cart.collector" priority="4900"/>
             <tag name="shopware.cart.processor" priority="4900"/>
         </service>

@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\Calculator\PromotionCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
-use Shopware\Core\Checkout\Promotion\Cart\Collector\LineItemCollector;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionGatewayInterface;
@@ -41,16 +40,10 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
      */
     private $itemBuilder;
 
-    /**
-     * @var LineItemCollector
-     */
-    private $itemCollector;
-
-    public function __construct(PromotionCalculator $promotionCalculator, PromotionGatewayInterface $gateway, PromotionItemBuilder $itemBuilder, LineItemCollector $itemCollector)
+    public function __construct(PromotionCalculator $promotionCalculator, PromotionGatewayInterface $gateway, PromotionItemBuilder $itemBuilder)
     {
         $this->promotionCalculator = $promotionCalculator;
         $this->itemBuilder = $itemBuilder;
-        $this->itemCollector = $itemCollector;
         $this->gateway = $gateway;
     }
 
@@ -107,7 +100,7 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinition
+     * @throws \Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException
      */
     public function process(CartDataCollection $data, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behavior): void
     {
@@ -329,7 +322,7 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
             }
 
             /** @var array $itemIDs */
-            $itemIDs = $this->itemCollector->getAllLineItemIDs($cart);
+            $itemIDs = $this->getAllLineItemIDs($cart);
 
             // add a new discount line item for this discount
             // if we have at least one valid item that will be discounted.
@@ -344,6 +337,40 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
                 $lineItems[] = $discountItem;
             }
         }
+
+        return $lineItems;
+    }
+
+    /**
+     * @return array
+     */
+    private function getAllLineItemIDs(Cart $cart)
+    {
+        $eligibleItems = [];
+
+        /** @var array $lineItems */
+        $lineItems = $this->getNonPromotionLineItems($cart);
+
+        /** @var LineItem $lineItem */
+        foreach ($lineItems as $lineItem) {
+            $eligibleItems[] = $lineItem->getId();
+        }
+
+        return $eligibleItems;
+    }
+
+    /**
+     * Gets all line items that are not of the provided type
+     * These can be used to iterate through all "standard" items.
+     */
+    private function getNonPromotionLineItems(Cart $cart): array
+    {
+        $lineItems = array_filter(
+            $cart->getLineItems()->getElements(),
+            function (LineItem $lineItem) {
+                return $lineItem->getType() !== self::LINE_ITEM_TYPE;
+            }
+        );
 
         return $lineItems;
     }

@@ -11,6 +11,24 @@ export default {
         };
     },
 
+    mutations: {
+        setSeoUrlCollection(state, seoUrlCollection) {
+            state.seoUrlCollection = seoUrlCollection;
+        },
+
+        setOriginalSeoUrls(state, originalSeoUrls) {
+            state.originalSeoUrls = originalSeoUrls;
+        },
+
+        setCurrentSeoUrl(state, currentSeoUrl) {
+            state.currentSeoUrl = currentSeoUrl;
+        },
+
+        setDefaultSeoUrl(state, defaultSeoUrl) {
+            state.defaultSeoUrl = defaultSeoUrl;
+        }
+    },
+
     getters: {
         isLoading: (state) => {
             return state.loading;
@@ -36,24 +54,6 @@ export default {
             });
 
             return seoUrls;
-        }
-    },
-
-    mutations: {
-        setSeoUrlCollection(state, seoUrlCollection) {
-            state.seoUrlCollection = seoUrlCollection;
-        },
-
-        setOriginalSeoUrls(state, originalSeoUrls) {
-            state.originalSeoUrls = originalSeoUrls;
-        },
-
-        setCurrentSeoUrl(state, currentSeoUrl) {
-            state.currentSeoUrl = currentSeoUrl;
-        },
-
-        setDefaultSeoUrl(state, defaultSeoUrl) {
-            state.defaultSeoUrl = defaultSeoUrl;
         }
     }
 };

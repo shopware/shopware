@@ -63,10 +63,8 @@ Component.register('sw-seo-url', {
     },
 
     beforeCreate() {
-        const store = this.$store;
-
         // register a new module only if doesn't exist
-        if (!(store && store.state && store.state.swSeoUrl)) {
+        if (!(this.$store && this.$store.state && this.$store.state.swSeoUrl)) {
             this.$store.registerModule('swSeoUrl', swSeoUrlState);
         }
     },

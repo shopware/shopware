@@ -417,6 +417,7 @@ Component.register('sw-product-detail', {
                         title: titleSaveWarning,
                         message: messageSaveWarning
                     });
+                    this.$store.commit('resetApiErrors');
                     break;
                 }
 

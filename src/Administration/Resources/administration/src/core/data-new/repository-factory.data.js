@@ -30,7 +30,7 @@ export default class RepositoryFactory {
 
         return new Repository(
             route,
-            definition.getEntity(),
+            definition,
             this.httpClient,
             this.hydrator,
             this.changesetGenerator,

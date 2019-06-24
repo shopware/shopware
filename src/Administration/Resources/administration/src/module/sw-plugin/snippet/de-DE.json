@@ -33,7 +33,7 @@
       "titleLoginDataInvalid": "Logindaten unvollständig",
       "messageLoginDataInvalid": "Logindaten wurden nicht vollständig angegeben",
       "titleStoreHostMissing": "Anmelden fehlgeschlagen",
-      "messageStoreHostMissing": "Um Dich anmelden zu können, musst Du zuvor deinen Lizenzierungshost in den Einstellungen setzen"
+      "messageStoreLicenseDomainMissing": "Um Dich anmelden zu können, musst Du zuvor deinen Lizenzierungshost in den Einstellungen setzen"
     },
     "fileUpload":{
       "buttonFileUpload":"Plugin hochladen",

@@ -30,9 +30,9 @@ Mixin.register('plugin-error-handler', {
                     title: 'titleLoginDataInvalid',
                     message: 'messageLoginDataInvalid'
                 },
-                FRAMEWORK__STORE_HOST_IS_MISSING: {
+                FRAMEWORK__STORE_LICENSE_DOMAIN_IS_MISSING: {
                     title: 'titleStoreHostMissing',
-                    message: 'messageStoreHostMissing'
+                    message: 'messageStoreLicenseDomainMissing'
                 }
             }
         };

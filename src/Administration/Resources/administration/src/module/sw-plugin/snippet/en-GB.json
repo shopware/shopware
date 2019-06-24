@@ -33,7 +33,7 @@
       "titleLoginDataInvalid": "Error",
       "messageLoginDataInvalid": "Login data incomplete.",
       "titleStoreHostMissing": "Error",
-      "messageStoreHostMissing": "Login failed. Did you specify a licensing host via your account's settings?"
+      "messageStoreLicenseDomainMissing": "Login failed. Did you specify a licensing host via your account's settings?"
     },
     "fileUpload":{
       "buttonFileUpload":"Upload plugin",

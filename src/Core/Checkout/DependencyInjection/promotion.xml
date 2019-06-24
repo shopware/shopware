@@ -77,7 +77,6 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Calculator\PromotionCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Calculator"/>

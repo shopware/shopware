@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
@@ -34,10 +33,7 @@ class PromotionCalculator
      * @var AmountCalculator
      */
     private $amountCalculator;
-    /**
-     * @var QuantityPriceCalculator
-     */
-    private $quantityPriceCalculator;
+
     /**
      * @var PercentagePriceCalculator
      */
@@ -51,10 +47,9 @@ class PromotionCalculator
      */
     private $calculator;
 
-    public function __construct(AmountCalculator $amountCalculator, QuantityPriceCalculator $quantityPriceCalculator, PercentagePriceCalculator $percentagePriceCalculator, AbsolutePriceCalculator $absolutePriceCalculator, Calculator $calculator)
+    public function __construct(AmountCalculator $amountCalculator, PercentagePriceCalculator $percentagePriceCalculator, AbsolutePriceCalculator $absolutePriceCalculator, Calculator $calculator)
     {
         $this->amountCalculator = $amountCalculator;
-        $this->quantityPriceCalculator = $quantityPriceCalculator;
         $this->percentagePriceCalculator = $percentagePriceCalculator;
         $this->absolutePriceCalculator = $absolutePriceCalculator;
         $this->calculator = $calculator;
@@ -101,7 +96,7 @@ class PromotionCalculator
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
      */
-    private function addStandardDiscount(LineItem $discount, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behaviour)
+    private function addStandardDiscount(LineItem $discount, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behaviour): void
     {
         /** @var LineItemCollection $cartLineItems */
         $cartLineItems = $calculated->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);

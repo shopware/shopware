@@ -131,7 +131,9 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
 
             // add to our list of all line items
             // that should be added
-            $discountLineItems = array_merge($discountLineItems, $lineItems);
+            foreach ($lineItems as $nested) {
+                $discountLineItems[] = $nested;
+            }
         }
 
         // calculate the whole cart with the

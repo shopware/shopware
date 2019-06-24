@@ -2,14 +2,10 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use function array_merge;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
@@ -23,14 +19,14 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
     private $requestStack;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var SystemConfigService
      */
-    private $systemConfigRepository;
+    private $systemConfigService;
 
-    public function __construct(RequestStack $requestStack, EntityRepositoryInterface $systemConfigRepository)
+    public function __construct(RequestStack $requestStack, SystemConfigService $systemConfigService)
     {
         $this->requestStack = $requestStack;
-        $this->systemConfigRepository = $systemConfigRepository;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function getGlobals(): array
@@ -52,7 +48,10 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
         return [
             'shopware' => [
-                'config' => $this->getSystemConfig($context),
+                'config' => array_merge(
+                    $this->systemConfigService->getConfigArray($context->getSalesChannel()->getId()),
+                    $this->getDefaultConfiguration()
+                ),
                 'theme' => $this->getThemeConfig(),
                 'dateFormat' => DATE_ATOM,
             ],
@@ -149,66 +148,5 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         }
 
         return $controllerInfo;
-    }
-
-    private function getSystemConfig(SalesChannelContext $context): array
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
-            new EqualsFilter('salesChannelId', null),
-        ]));
-
-        $systemConfigs = $this->systemConfigRepository->search($criteria, $context->getContext())->getEntities();
-
-        return $this->buildSystemConfigArray($systemConfigs);
-    }
-
-    /**
-     * the keys of the systemconfigs look like core.loginRegistration.showPhoneNumberField
-     * this method splits those strings and builds an array structur
-     *
-     * ```
-     * Array
-     * (
-     *     [core] => Array
-     *         (
-     *             [loginRegistration] => Array
-     *                 (
-     *                     [showPhoneNumberField] => 'somevalue'
-     *                 )
-     *         )
-     * )
-     * ```
-     */
-    private function buildSystemConfigArray(EntityCollection $systemConfigs): array
-    {
-        $configValues = $this->getDefaultConfiguration();
-
-        /** @var SystemConfigEntity $systemConfig */
-        foreach ($systemConfigs as $systemConfig) {
-            $keys = explode('.', $systemConfig->getConfigurationKey());
-
-            $configValues = $this->getSubArray($configValues, $keys, $systemConfig->getConfigurationValue());
-        }
-
-        return $configValues;
-    }
-
-    private function getSubArray(array $configValues, array $keys, $value): array
-    {
-        $key = array_shift($keys);
-
-        if (empty($keys)) {
-            $configValues[$key] = $value;
-        } else {
-            if (!array_key_exists($key, $configValues)) {
-                $configValues[$key] = [];
-            }
-
-            $configValues[$key] = $this->getSubArray($configValues[$key], $keys, $value);
-        }
-
-        return $configValues;
     }
 }

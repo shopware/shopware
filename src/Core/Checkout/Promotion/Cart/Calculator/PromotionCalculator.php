@@ -177,13 +177,13 @@ class PromotionCalculator
         // add the new line item to our cart
         // and calculate it after each line item!
         $calculated->addLineItems(new LineItemCollection([$discount]));
-        $this->calculateCart($calculated, $context, $behaviour);
+        $this->calculateCart($calculated, $context);
     }
 
     /**
      * @throws InvalidPriceDefinitionException
      */
-    private function fixAbsolutePriceDefinition(LineItem $discount, float $maxDiscountValue)
+    private function fixAbsolutePriceDefinition(LineItem $discount, float $maxDiscountValue): void
     {
         $originalPriceDefinition = $discount->getPriceDefinition();
 
@@ -215,7 +215,7 @@ class PromotionCalculator
     /**
      * @throws InvalidPriceDefinitionException
      */
-    private function fixPercentagePriceDefinition(LineItem $discount, float $maxDiscountValue, float $lineItemsTotalPrice)
+    private function fixPercentagePriceDefinition(LineItem $discount, float $maxDiscountValue, float $lineItemsTotalPrice): void
     {
         $originalPriceDefinition = $discount->getPriceDefinition();
 
@@ -333,7 +333,7 @@ class PromotionCalculator
     /**
      * calculate the cart sum
      */
-    private function calculateCart(Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
+    private function calculateCart(Cart $cart, SalesChannelContext $context): void
     {
         $amount = $this->amountCalculator->calculate(
             $cart->getLineItems()->getPrices(),

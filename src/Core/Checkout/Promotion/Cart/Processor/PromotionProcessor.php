@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\Calculator\PromotionCalculator;
-use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionGatewayInterface;
@@ -85,7 +84,7 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
         // otherwise make sure to remove the entry to avoid any processing
         // within our promotions scope
         if (count($eligiblePromotions) >= 0) {
-            $data->set(self::DATA_KEY, new CartPromotionsDataDefinition($eligiblePromotions));
+            $data->set(self::DATA_KEY, new PromotionCollection($eligiblePromotions));
         } else {
             $data->remove(self::DATA_KEY);
         }
@@ -119,11 +118,11 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
 
         // get all promotions that have been collected
         // and prepare them for calculating process
-        /** @var CartPromotionsDataDefinition $promotionDefinition */
+        /** @var PromotionCollection $promotionDefinition */
         $promotionDefinition = $data->get(self::DATA_KEY);
 
         /** @var PromotionEntity $promotion */
-        foreach ($promotionDefinition->getPromotions() as $promotion) {
+        foreach ($promotionDefinition as $promotion) {
             // lets build separate line items for each
             // of the available discounts within the current promotion
             /** @var array $lineItems */
@@ -324,7 +323,7 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
             }
 
             /** @var array $itemIDs */
-            $itemIDs = $this->getAllLineItemIDs($cart);
+            $itemIDs = $this->getAllLineItemIds($cart);
 
             // add a new discount line item for this discount
             // if we have at least one valid item that will be discounted.
@@ -346,7 +345,7 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
     /**
      * @return array
      */
-    private function getAllLineItemIDs(Cart $cart)
+    private function getAllLineItemIds(Cart $cart)
     {
         $eligibleItems = [];
 

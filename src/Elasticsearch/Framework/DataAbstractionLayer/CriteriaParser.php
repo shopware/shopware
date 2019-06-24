@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
@@ -97,7 +98,7 @@ class CriteriaParser
                 return $this->parseEqualsAnyFilter($query, $definition, $context);
 
             case $query instanceof ContainsFilter:
-                return $this->parseContainsFilter($query, $definition);
+                return $this->parseContainsFilter($query, $definition, $context);
 
             case $query instanceof RangeFilter:
                 return $this->parseRangeFilter($query, $definition, $context);
@@ -167,9 +168,9 @@ class CriteriaParser
         );
     }
 
-    private function parseContainsFilter(ContainsFilter $filter, EntityDefinition $definition): BuilderInterface
+    private function parseContainsFilter(ContainsFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
-        $accessor = $this->stripRoot($definition, $filter->getField());
+        $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
 
         return $this->createNestedQuery(
             new MatchQuery($accessor, $filter->getValue()),
@@ -257,6 +258,14 @@ class CriteriaParser
         }
 
         $field = $this->helper->getField($fieldName, $definition, $root);
+
+        if ($field instanceof TranslatedField) {
+            $parts = explode('.', $accessor);
+            array_pop($parts);
+            $parts[] = 'translated';
+            $parts[] = $field->getPropertyName();
+            $accessor = implode('.', $parts);
+        }
 
         if ($field instanceof PriceField) {
             $accessor .= '.gross';

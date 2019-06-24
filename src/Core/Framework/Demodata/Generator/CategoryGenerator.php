@@ -9,6 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,11 +31,16 @@ class CategoryGenerator implements DemodataGeneratorInterface
      * @var EntityRepositoryInterface
      */
     private $cmsPageRepository;
+    /**
+     * @var EntityWriter
+     */
+    private $writer;
 
-    public function __construct(EntityRepositoryInterface $categoryRepository, EntityRepositoryInterface $cmsPageRepository)
+    public function __construct(EntityWriter $writer, EntityRepositoryInterface $categoryRepository, EntityRepositoryInterface $cmsPageRepository)
     {
         $this->categoryRepository = $categoryRepository;
         $this->cmsPageRepository = $cmsPageRepository;
+        $this->writer = $writer;
     }
 
     public function getDefinition(): string
@@ -93,7 +100,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $console->progressStart($numberOfItems + $numberOfSubCategories);
 
         foreach (array_chunk($payload, 100) as $chunk) {
-            $this->categoryRepository->upsert($chunk, $context->getContext());
+            $this->writer->upsert($this->categoryRepository->getDefinition(), $chunk, WriteContext::createFromContext($context->getContext()));
             $context->getConsole()->progressAdvance(count($chunk));
         }
 

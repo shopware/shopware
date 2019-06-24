@@ -168,14 +168,19 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway">
             <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGateway">
             <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
+                 class="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder">
+            <argument id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter" type="service"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>

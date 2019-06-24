@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
@@ -43,11 +42,6 @@ class ProductGenerator implements DemodataGeneratorInterface
     private $numberRangeValueGenerator;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
-
-    /**
      * @var ProductDefinition
      */
     private $productDefinition;
@@ -57,14 +51,12 @@ class ProductGenerator implements DemodataGeneratorInterface
         EntityRepositoryInterface $taxRepository,
         Connection $connection,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        EntityRepositoryInterface $mediaRepository,
         ProductDefinition $productDefinition
     ) {
         $this->writer = $writer;
         $this->taxRepository = $taxRepository;
         $this->connection = $connection;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
-        $this->mediaRepository = $mediaRepository;
         $this->productDefinition = $productDefinition;
     }
 
@@ -87,7 +79,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $context->getConsole()->progressStart($count);
 
-        $mediaIds = $this->getMediaIds($context->getContext());
+        $mediaIds = $context->getIds('media');
 
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
@@ -143,11 +135,6 @@ class ProductGenerator implements DemodataGeneratorInterface
         $this->taxRepository->create([$tax], $context);
 
         return $this->taxRepository->search(new Criteria(), $context);
-    }
-
-    private function getMediaIds(Context $context)
-    {
-        return array_values($this->mediaRepository->searchIds(new PaginationCriteria(200), $context)->getIds());
     }
 
     private function createSimpleProduct(DemodataContext $context, EntitySearchResult $taxes): array

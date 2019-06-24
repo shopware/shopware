@@ -22,6 +22,7 @@
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" public="true">
             <argument>%shopware.ses.enabled%</argument>
+            <argument>%shopware.ses.indexing.enabled%</argument>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
@@ -73,8 +74,28 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\Entity\ProductSubscriber">
+        <service id="Shopware\Elasticsearch\Product\ProductElasticsearchSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Elasticsearch\Product\ProductElasticsearchKeywordIndexer"
+                 decorates="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordIndexer"
+                 decoration-priority="-50000">
+
+            <argument type="service" id="Shopware\Elasticsearch\Product\ProductElasticsearchKeywordIndexer.inner"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Product\ProductElasticsearchSearchBuilder"
+                 decorates="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
+                 decoration-priority="-50000">
+
+            <argument id="Shopware\Elasticsearch\Product\ProductElasticsearchSearchBuilder.inner" type="service"/>
+            <argument id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" type="service"/>
+            <argument id="Shopware\Core\Content\Product\ProductDefinition" type="service"/>
+        </service>
+
+
     </services>
 </container>

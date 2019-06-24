@@ -32,10 +32,16 @@ class ElasticsearchHelper
     /**
      * @var bool
      */
-    private $isEnabled;
+    private $searchEnabled;
+
+    /**
+     * @var bool
+     */
+    private $indexingEnabled;
 
     public function __construct(
-        bool $isEnabled,
+        bool $searchEnabled,
+        bool $indexingEnabled,
         Client $client,
         DefinitionRegistry $registry,
         CriteriaParser $parser
@@ -43,7 +49,13 @@ class ElasticsearchHelper
         $this->client = $client;
         $this->registry = $registry;
         $this->parser = $parser;
-        $this->isEnabled = $isEnabled;
+        $this->searchEnabled = $searchEnabled;
+        $this->indexingEnabled = $indexingEnabled;
+    }
+
+    public function allowIndexing(EntityDefinition $definition): bool
+    {
+        return $this->indexingEnabled && $this->registry->isSupported($definition);
     }
 
     /**
@@ -51,7 +63,7 @@ class ElasticsearchHelper
      */
     public function allowSearch(EntityDefinition $definition, Context $context): bool
     {
-        if (!$this->isEnabled) {
+        if (!$this->searchEnabled) {
             return false;
         }
 
@@ -136,13 +148,16 @@ class ElasticsearchHelper
 
             if ($parsed instanceof MatchQuery) {
                 $score = (string) ($query->getScore() / 10);
+                /* @var MatchQuery $parsed */
                 $parsed->addParameter('boost', $score);
+                $parsed->addParameter('fuzziness', '2');
             }
 
             $bool->add($parsed, BoolQuery::SHOULD);
         }
+
         $bool->addParameter('minimum_should_match', '1');
-        $search->addQuery($bool, BoolQuery::SHOULD);
+        $search->addQuery($bool);
     }
 
     public function addSortings(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
@@ -180,7 +195,7 @@ class ElasticsearchHelper
      */
     public function setEnabled(bool $enabled): self
     {
-        $this->isEnabled = $enabled;
+        $this->searchEnabled = $enabled;
 
         return $this;
     }

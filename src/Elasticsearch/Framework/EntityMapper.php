@@ -61,6 +61,8 @@ class EntityMapper
 
     public const KEYWORD_FIELD = ['type' => 'keyword'];
 
+    public const TEXT_FIELD = ['type' => 'text', 'fielddata' => true];
+
     public function generate(EntityDefinition $definition, Context $context): array
     {
         $fields = $this->getDefinitionFields($definition);
@@ -68,9 +70,9 @@ class EntityMapper
         $properties = $this->mapFields($definition, $context, $fields);
 
         return [
-            '_source' => [
-                'includes' => ['id'],
-            ],
+            //            '_source' => [
+            //                'includes' => ['id'],
+            //            ],
             'properties' => $properties,
         ];
     }
@@ -175,7 +177,13 @@ class EntityMapper
             case $field instanceof TranslatedField:
                 $reference = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
 
-                return $this->mapField($definition, $reference, $context);
+                $mapped = $this->mapField($definition, $reference, $context);
+
+                if ($mapped === self::KEYWORD_FIELD) {
+                    return self::TEXT_FIELD;
+                }
+
+                return $mapped;
 
             case $field instanceof UpdatedAtField:
             case $field instanceof CreatedAtField:
@@ -199,6 +207,9 @@ class EntityMapper
         $properties = [];
 
         $extensions = [];
+
+        $translated = [];
+
         /** @var FieldCollection $fields */
         foreach ($fields as $field) {
             $fieldMapping = $this->mapField($definition, $field, $context);
@@ -211,7 +222,18 @@ class EntityMapper
                 continue;
             }
 
+            if ($field instanceof TranslatedField) {
+                $translated[$field->getPropertyName()] = $fieldMapping;
+            }
+
             $properties[$field->getPropertyName()] = $fieldMapping;
+        }
+
+        if (!empty($translated)) {
+            $properties['translated'] = [
+                'type' => 'object',
+                'properties' => $translated,
+            ];
         }
 
         if (!empty($properties)) {

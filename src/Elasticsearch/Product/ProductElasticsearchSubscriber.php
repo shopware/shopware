@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Framework\Entity;
+namespace Shopware\Elasticsearch\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Elasticsearch\Framework\Event\CollectDefinitionsEvent;
 use Shopware\Elasticsearch\Framework\Event\CreateIndexingCriteriaEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ProductSubscriber implements EventSubscriberInterface
+class ProductElasticsearchSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {
@@ -27,14 +27,12 @@ class ProductSubscriber implements EventSubscriberInterface
         $criteria = $event->getCriteria();
 
         $criteria
-            ->addAssociation('prices')
             ->addAssociation('categoriesRo')
             ->addAssociation('properties')
             ->addAssociation('manufacturer')
             ->addAssociation('tags')
             ->addAssociation('options')
             ->addAssociation('visibilities')
-            ->addAssociation('searchKeywords')
         ;
     }
 }

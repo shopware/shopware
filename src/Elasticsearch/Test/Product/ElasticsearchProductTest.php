@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Test;
+namespace Shopware\Elasticsearch\Test\Product;
 
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
@@ -13,10 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggrega
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\DefinitionRegistry;
+use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 
 class ElasticsearchProductTest extends TestCase
 {
@@ -54,9 +57,9 @@ class ElasticsearchProductTest extends TestCase
     {
         $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM product');
 
-        $product1 = $this->createProduct(['stock' => 2]);
-        $product2 = $this->createProduct(['stock' => 10]);
-        $product3 = $this->createProduct(['stock' => 200]);
+        $product1 = $this->createProduct(['name' => 'Silk', 'stock' => 2]);
+        $product2 = $this->createProduct(['name' => 'Rubber', 'stock' => 10]);
+        $product3 = $this->createProduct(['name' => 'Stilk', 'stock' => 200]);
 
         $this->indexElasticSearch();
 
@@ -127,6 +130,29 @@ class ElasticsearchProductTest extends TestCase
         /** @var ValueResult $stock */
         static::assertCount(3, $stock->getValues());
         static::assertEquals([2, 10, 200], $stock->getValues());
+
+        $criteria = new Criteria();
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Silk'), 1000));
+        $products = $searcher->search($this->productDefinition, $criteria, $context);
+        static::assertCount(2, $products->getIds());
+        static::assertContains($product1, $products->getIds());
+        static::assertContains($product3, $products->getIds());
+
+        $criteria = new Criteria();
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Slik'), 1000));
+        $products = $searcher->search($this->productDefinition, $criteria, $context);
+        static::assertCount(2, $products->getIds());
+        static::assertContains($product1, $products->getIds());
+        static::assertContains($product3, $products->getIds());
+
+        $criteria = new Criteria();
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Skill'), 1000));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Rubar'), 1000));
+        $products = $searcher->search($this->productDefinition, $criteria, $context);
+        static::assertCount(3, $products->getIds());
+        static::assertContains($product1, $products->getIds());
+        static::assertContains($product2, $products->getIds());
+        static::assertContains($product3, $products->getIds());
     }
 
     private function createProduct(array $data = [])

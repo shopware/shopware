@@ -133,7 +133,9 @@
       "placeholderSettingsEnterUrl": "Enter URL...",
       "labelSettingsLinkTo": "Link to",
       "labelSettingsLinkNewTab": "Open link in new tab",
-      "infoTextListingElement": "This element's product data is automatically loaded by the category associated with this layout. The content just shows a sample preview."
+      "infoTextListingElement": "This element's product data is automatically loaded by the category associated with this layout. The content just shows a sample preview.",
+      "labelImageGalleryZoom": "Zoom",
+      "labelImageGalleryFullscreen": "Fullscreen gallery"
     },
     "components": {
       "cmsLayoutModal": {

@@ -38,6 +38,14 @@ Application.getContainer('service').cmsService.registerCmsElement({
         verticalAlign: {
             source: 'static',
             value: ''
+        },
+        zoom: {
+            source: 'static',
+            value: false
+        },
+        fullScreen: {
+            source: 'static',
+            value: false
         }
     }
 });

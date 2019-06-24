@@ -134,7 +134,9 @@
       "placeholderSettingsEnterUrl": "URL eingeben ...",
       "labelSettingsLinkTo": "Link zu",
       "labelSettingsLinkNewTab": "Link in neuem Tab öffnen",
-      "infoTextListingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
+      "infoTextListingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau.",
+      "labelImageGalleryZoom": "Zoom",
+      "labelImageGalleryFullscreen": "Vollbild Galerie"
     },
     "components": {
       "cmsLayoutModal": {

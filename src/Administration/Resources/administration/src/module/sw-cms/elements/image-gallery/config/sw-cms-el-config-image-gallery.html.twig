@@ -151,6 +151,25 @@
                                         </div>
                                     </div>
                                 {% endblock %}
+
+                                {% block sw_cms_element_image_gallery_config_settings_zoom_toggles %}
+                                    <div class="sw-cms-el-config-image-gallery__setting-option">
+
+                                        {% block sw_cms_element_image_gallery_config_settings_toggle_zoom %}
+                                            <sw-switch-field bordered
+                                                             :label="$tc('sw-cms.elements.labelImageGalleryZoom')"
+                                                             v-model="element.config.zoom.value">
+                                            </sw-switch-field>
+                                        {% endblock %}
+
+                                        {% block sw_cms_element_image_gallery_config_settings_toggle_fullscreen %}
+                                            <sw-switch-field bordered
+                                                             :label="$tc('sw-cms.elements.labelImageGalleryFullscreen')"
+                                                             v-model="element.config.fullScreen.value">
+                                            </sw-switch-field>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
                             </div>
                         </sw-container>
                     {% endblock %}

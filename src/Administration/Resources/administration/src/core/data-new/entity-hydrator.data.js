@@ -1,13 +1,10 @@
+import { EntityDefinition } from 'src/core/shopware';
 import types from 'src/core/service/utils/types.utils';
 import Entity from './entity.data';
 import EntityCollection from './entity-collection.data';
 import SearchResult from './search-result.data';
 
 export default class EntityHydrator {
-    constructor(entityDefinitionRegistry) {
-        this.definitionRegistry = entityDefinitionRegistry;
-    }
-
     /**
      * Hydrates the repository response to a SearchResult class with all entities and aggregations
      * @param {String} route
@@ -72,7 +69,7 @@ export default class EntityHydrator {
             return this.cache[cacheKey];
         }
 
-        const schema = this.definitionRegistry.get(entityName);
+        const schema = EntityDefinition.get(entityName);
         // currently translation can not be hydrated
         if (!schema) {
             return null;

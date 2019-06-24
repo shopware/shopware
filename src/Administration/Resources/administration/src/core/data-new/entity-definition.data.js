@@ -1,6 +1,14 @@
 const scalarTypes = ['uuid', 'int', 'text', 'password', 'float', 'string', 'blob', 'boolean', 'date'];
 const jsonTypes = ['json_list', 'json_object'];
 
+export function getScalarTypes() {
+    return scalarTypes;
+}
+
+export function getJsonTypes() {
+    return jsonTypes;
+}
+
 export default class EntityDefinition {
     constructor({ entity, properties }) {
         this.entity = entity;
@@ -56,6 +64,26 @@ export default class EntityDefinition {
             }
 
             return ['one_to_one', 'many_to_one'].includes(property.relation);
+        });
+    }
+
+    /**
+     * returns all translatable fields
+     * @returns {Object}
+     */
+    getTranslatableFields() {
+        return this.filterProperties((property) => {
+            return this.isTranslatableField(property);
+        });
+    }
+
+    /**
+     *
+     * @returns {Object}
+     */
+    getRequiredFields() {
+        return this.filterProperties((property) => {
+            return property.flags.required === true;
         });
     }
 

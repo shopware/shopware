@@ -1,3 +1,4 @@
+import { EntityDefinition } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import { warn } from 'src/core/service/utils/debug.utils';
 import Entity from './entity.data';
@@ -5,10 +6,6 @@ import EntityCollection from './entity-collection.data';
 import Criteria from './criteria.data';
 
 export default class EntityFactory {
-    constructor(entityDefinitionRegistry) {
-        this.definitionRegistry = entityDefinitionRegistry;
-    }
-
     /**
      * Creates a new entity for the provided entity name.
      * Returns null for unknown entities.
@@ -21,7 +18,7 @@ export default class EntityFactory {
     create(entityName, id, context) {
         id = id || utils.createId();
 
-        const definition = this.definitionRegistry.get(entityName);
+        const definition = EntityDefinition.get(entityName);
 
         if (!definition) {
             warn('Entity factory', `No schema found for entity ${entityName}`);

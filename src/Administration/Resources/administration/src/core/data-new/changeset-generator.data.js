@@ -1,3 +1,4 @@
+import { EntityDefinition } from 'src/core/shopware';
 import types from 'src/core/service/utils/types.utils';
 
 function castValueToNullIfNecessary(value) {
@@ -8,10 +9,6 @@ function castValueToNullIfNecessary(value) {
 }
 
 export default class ChangesetGenerator {
-    constructor(definitionRegistry) {
-        this.definitionRegistry = definitionRegistry;
-    }
-
     /**
      * Creates the change set for the provided entity.
      * @param entity
@@ -31,7 +28,7 @@ export default class ChangesetGenerator {
      * @returns {null}
      */
     recursion(entity, deletionQueue) {
-        const definition = this.definitionRegistry.get(entity.getEntityName());
+        const definition = EntityDefinition.get(entity.getEntityName());
         const changes = {};
 
         const origin = entity.getOrigin();

@@ -1,4 +1,4 @@
-import { State } from 'src/core/shopware';
+import { State, EntityDefinition } from 'src/core/shopware';
 import ShopwareError from './ShopwareError';
 
 const regExRegularPointer = /\/([^\/]*)(.*)/;
@@ -6,8 +6,7 @@ const regExToManyAssociation = /\/translations\/(\d)(\/.*)/;
 const regExTranslations = /\/translations\/([a-fA-f\d]*)\/(.*)/;
 
 export default class ErrorResolver {
-    constructor(entityDefinitionRegistry) {
-        this.definitionRegistry = entityDefinitionRegistry;
+    constructor() {
         this.errorStore = State.getStore('error');
     }
 
@@ -26,7 +25,7 @@ export default class ErrorResolver {
         }
 
         const errors = response.data.errors;
-        const definition = this.definitionRegistry.get(entity.getEntityName());
+        const definition = EntityDefinition.get(entity.getEntityName());
 
         const systemErrors = [];
         errors.forEach((error) => {
@@ -97,7 +96,7 @@ export default class ErrorResolver {
      * @param systemErrors
      */
     resolveToManyAssociationError(error, currentField, entityCollection, changeset, systemErrors) {
-        const definition = this.definitionRegistry.get(entityCollection.entity);
+        const definition = EntityDefinition.get(entityCollection.entity);
         if (!definition) {
             systemErrors.push(error);
             return;

@@ -88,6 +88,18 @@ export const ApiService = {
     has: Shopware.ApiService.has
 };
 
+export const EntityDefinition = {
+    getScalarTypes: Shopware.EntityDefinition.getScalarTypes,
+    getJsonTypes: Shopware.EntityDefinition.getJsonTypes,
+    getDefinitionRegistry: Shopware.EntityDefinition.getDefinitionRegistry,
+    get: Shopware.EntityDefinition.get,
+    add: Shopware.EntityDefinition.add,
+    remove: Shopware.EntityDefinition.remove,
+    getTranslatedFields: Shopware.EntityDefinition.getTranslatedFields,
+    getAssociationFields: Shopware.EntityDefinition.getAssociationFields,
+    getRequiredFields: Shopware.EntityDefinition.getRequiredFields
+};
+
 export const Defaults = {
     systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
     defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b', '00e84bd18c574a6ca748ac0db17654dc'],
@@ -107,5 +119,6 @@ export default {
     Locale,
     Shortcut,
     ApiService,
+    EntityDefinition,
     Defaults
 };

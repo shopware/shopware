@@ -1,23 +1,28 @@
+import { EntityDefinition } from 'src/core/shopware';
 import Criteria from './criteria.data';
 
 export default class Repository {
     /**
      * @param {String} route
-     * @param {Object} schema
+     * @param {String} entityName
      * @param {Object} httpClient
      * @param {EntityHydrator} hydrator
      * @param {ChangesetGenerator} changesetGenerator
      * @param {EntityFactory} entityFactory
      * @param {ErrorResolver} errorResolver
      */
-    constructor(route, schema, httpClient, hydrator, changesetGenerator, entityFactory, errorResolver) {
+    constructor(route, entityName, httpClient, hydrator, changesetGenerator, entityFactory, errorResolver) {
         this.route = route;
-        this.schema = schema;
+        this.entityName = entityName;
         this.httpClient = httpClient;
         this.hydrator = hydrator;
         this.changesetGenerator = changesetGenerator;
         this.entityFactory = entityFactory;
         this.errorResolver = errorResolver;
+    }
+
+    get schema() {
+        return EntityDefinition.get(this.entityName);
     }
 
     /**
@@ -52,7 +57,7 @@ export default class Repository {
         return this.httpClient
             .post(url, criteria.parse(), { headers })
             .then((response) => {
-                return this.hydrator.hydrateSearchResult(this.route, this.schema.entity, response, context, criteria);
+                return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
             });
     }
 
@@ -181,7 +186,7 @@ export default class Repository {
         const url = `${this.route}/${id}`;
         return this.httpClient.delete(url, { headers })
             .catch((error) => {
-                return this.errorResolver.handleDeleteError(error, this.schema.entity, id);
+                return this.errorResolver.handleDeleteError(error, this.entityName, id);
             });
     }
 
@@ -194,7 +199,7 @@ export default class Repository {
      * @returns {Entity}
      */
     create(context, id) {
-        return this.entityFactory.create(this.schema.entity, id, context);
+        return this.entityFactory.create(this.entityName, id, context);
     }
 
     /**
@@ -219,7 +224,7 @@ export default class Repository {
             params.versionName = versionName;
         }
 
-        const url = `_action/version/${this.schema.entity}/${entityId}`;
+        const url = `_action/version/${this.entityName}/${entityId}`;
 
         return this.httpClient.post(url, params, { headers }).then((response) => {
             return { ...context, ...{ versionId: response.data.versionId } };
@@ -238,7 +243,7 @@ export default class Repository {
     mergeVersion(versionId, context) {
         const headers = this.buildHeaders(context);
 
-        const url = `_action/version/merge/${this.schema.entity}/${versionId}`;
+        const url = `_action/version/merge/${this.entityName}/${versionId}`;
 
         return this.httpClient.post(url, {}, { headers }).catch(() => {
             // TODO handle versioning errors
@@ -255,7 +260,7 @@ export default class Repository {
     deleteVersion(entityId, versionId, context) {
         const headers = this.buildHeaders(context);
 
-        const url = `/_action/version/${versionId}/${this.schema.entity}/${entityId}`;
+        const url = `/_action/version/${versionId}/${this.entityName}/${entityId}`;
 
         return this.httpClient.post(url, {}, { headers }).catch(() => {
             // TODO handle versioning errors

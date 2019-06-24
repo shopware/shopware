@@ -16,6 +16,7 @@ const DirectiveFactory = require('src/core/factory/directive.factory').default;
 const LocaleFactory = require('src/core/factory/locale.factory').default;
 const ShortcutFactory = require('src/core/factory/shortcut.factory').default;
 const ApiServiceFactory = require('src/core/factory/api-service.factory').default;
+const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 const FeatureConfig = require('src/core/feature-config').default;
 
 const utils = require('src/core/service/util.service').default;
@@ -60,6 +61,9 @@ application
     })
     .addFactory('apiService', () => {
         return ApiServiceFactory;
+    })
+    .addFactory('entityDefinition', () => {
+        return EntityDefinitionFactory;
     });
 
 module.exports = {
@@ -200,5 +204,17 @@ module.exports = {
         getRegistry: ApiServiceFactory.getRegistry,
         getServices: ApiServiceFactory.getServices,
         has: ApiServiceFactory.has
+    },
+
+    EntityDefinition: {
+        getScalarTypes: EntityDefinitionFactory.getScalarTypes,
+        getJsonTypes: EntityDefinitionFactory.getJsonTypes,
+        getDefinitionRegistry: EntityDefinitionFactory.getDefinitionRegistry,
+        get: EntityDefinitionFactory.get,
+        add: EntityDefinitionFactory.add,
+        remove: EntityDefinitionFactory.remove,
+        getTranslatedFields: EntityDefinitionFactory.getTranslatedFields,
+        getAssociationFields: EntityDefinitionFactory.getAssociationFields,
+        getRequiredFields: EntityDefinitionFactory.getRequiredFields
     }
 };

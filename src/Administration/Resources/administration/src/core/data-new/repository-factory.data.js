@@ -1,12 +1,12 @@
+import { EntityDefinition } from 'src/core/shopware';
 import Repository from './repository.data';
 
 export default class RepositoryFactory {
-    constructor(hydrator, changesetGenerator, entityFactory, entityDefinitionRegistry, httpClient, errorResolver) {
+    constructor(hydrator, changesetGenerator, entityFactory, httpClient, errorResolver) {
         this.hydrator = hydrator;
         this.changesetGenerator = changesetGenerator;
         this.entityFactory = entityFactory;
         this.httpClient = httpClient;
-        this.definitionRegistry = entityDefinitionRegistry;
         this.errorResolver = errorResolver;
     }
 
@@ -14,23 +14,19 @@ export default class RepositoryFactory {
      * Creates a repository for the provided entity.
      * The route parameter allows to configure a custom route for the entity - used for association loading.
      *
-     * @param {String} entity
+     * @param {String} entityName
      * @param {String|null} route
      * @returns {Repository}
      */
-    create(entity, route) {
+    create(entityName, route) {
         if (!route) {
-            route = `/${entity.replace(/_/g, '-')}`;
+            route = `/${entityName.replace(/_/g, '-')}`;
         }
 
-        const definition = this.definitionRegistry.get(entity);
-        if (!definition) {
-            throw new Error(`[RepositoryFactory] No EntityDefinition found for entity with name "${entity}"`);
-        }
-
+        const definition = EntityDefinition.get(entityName);
         return new Repository(
             route,
-            definition,
+            definition.entity,
             this.httpClient,
             this.hydrator,
             this.changesetGenerator,

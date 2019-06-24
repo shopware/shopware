@@ -40,11 +40,11 @@ export default {
     computed: {
         cardClasses() {
             return {
-                'sw-card--tabs': !!this.$slots.tabs,
-                'sw-card--grid': !!this.$slots.grid,
+                'sw-card--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
+                'sw-card--grid': !!this.$slots.grid || !!this.$scopedSlots.grid,
                 'sw-card--hero': !!this.hero,
                 'sw-card--large': this.large,
-                'has--header': !!this.$slots.toolbar
+                'has--header': !!this.$slots.toolbar || !!this.$scopedSlots.toolbar
             };
         }
     }

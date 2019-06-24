@@ -75,7 +75,9 @@ class CheckoutConfirmPageLoader
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('active', true))
-            ->addSorting(new FieldSorting('position'));
+            ->addSorting(new FieldSorting('position'))
+            ->addAssociation('media');
+
         /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $salesChannelContext)->getEntities();
 

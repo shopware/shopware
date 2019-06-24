@@ -72,6 +72,7 @@ class AccountPaymentMethodPageLoader
     private function getPaymentMethods(SalesChannelContext $salesChannelContext): PaymentMethodCollection
     {
         $criteria = (new Criteria())
+            ->addAssociation('media')
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('position'));
         /** @var PaymentMethodCollection $paymentMethods */

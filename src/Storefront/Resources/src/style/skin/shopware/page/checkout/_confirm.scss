@@ -7,3 +7,13 @@
         margin-bottom: 0;
     }
 }
+
+.shipping-image{
+    max-height: 35px;
+    margin-right: $spacer-xs;
+}
+
+.checkout-aside-summary,
+.checkout-aside-products {
+    padding: $spacer;
+}

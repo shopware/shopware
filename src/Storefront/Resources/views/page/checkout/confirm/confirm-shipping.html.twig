@@ -100,14 +100,21 @@
                                                                         {% block page_checkout_confirm_shipping_form_label %}
                                                                             <label class="custom-control-label shipping-method-label"
                                                                                    for="shippingMethod{{ loop.index }}">
-                                                                                <strong>{{ shipping.translated.name }}</strong>
+
+                                                                                {% if shipping.media %}
+                                                                                    <img src="{{ shipping.media.url }}"
+                                                                                         class="shipping-image"
+                                                                                         alt="{{ shipping.media.alt ?: shipping.media.fileName }}"
+                                                                                         {{ shipping.media.title ? 'title="#{shipping.media.title}"' }}>
+                                                                                {% endif %}
 
                                                                                 {% block page_checkout_confirm_shipping_form_description %}
-                                                                                    {% if shipping.description %}
                                                                                         <div class="shipping-method-description">
-                                                                                            {{ shipping.description|raw }}
+                                                                                            <strong>{{ shipping.translated.name }}</strong>
+                                                                                            {% if shipping.description %}
+                                                                                                <p>{{ shipping.description|raw }}</p>
+                                                                                            {% endif %}
                                                                                         </div>
-                                                                                    {% endif %}
                                                                                 {% endblock %}
                                                                             </label>
                                                                         {% endblock %}

@@ -100,7 +100,8 @@ export default {
         pageContentClasses() {
             return {
                 'has--smart-bar': !!this.showSmartBar,
-                'has--side-content': !!this.hasSideContentSlot
+                'has--side-content': !!this.hasSideContentSlot,
+                'has--side-bar ': !!this.hasSidebarSlot && !this.hasSideContentSlot
             };
         },
 

@@ -27,7 +27,7 @@
                                                             } %}
                                                         </div>
                                                     {% else %}
-                                                        <a href="{{ path('frontend.detail.page', {'productId': lineItem.id}) }}"
+                                                        <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.id})) }}"
                                                            class="cart-item-img-link"
                                                            title="{{ lineItem.label }}">
                                                             {% block page_checkout_item_info_image_element %}
@@ -55,7 +55,7 @@
                                             <div class="cart-item-details-container">
                                                 {% block page_checkout_item_info_label %}
                                                     {% if lineItem.type == 'product' %}
-                                                        <a href="{{ path('frontend.detail.page', {'productId': lineItem.id}) }}"
+                                                        <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.id})) }}"
                                                            class="cart-item-label"
                                                            title="{{ lineItem.label }}">
                                                             {{ lineItem.label|truncate(60) }}

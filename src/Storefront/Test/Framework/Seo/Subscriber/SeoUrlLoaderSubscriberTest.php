@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrl\CanonicalUrlCollection;
+use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Storefront\Framework\Seo\Subscriber\SeoUrlLoaderSubscriber;
@@ -92,7 +93,7 @@ class SeoUrlLoaderSubscriberTest extends TestCase
 
     public function testAbsoluteSeoUrls(): void
     {
-        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $seoUrlDefinition = $this->getContainer()->get(SeoUrlDefinition::class);
         $registry = $this->getContainer()->get(SeoUrlRouteRegistry::class);
 
         $salesChannelId = Uuid::randomHex();
@@ -116,7 +117,7 @@ class SeoUrlLoaderSubscriberTest extends TestCase
         $subscriber = new SeoUrlLoaderSubscriber($seoUrlRepo, $registry, $requestStack);
 
         $entities = [$seoUrl1, $seoUrl2];
-        $event = new EntityLoadedEvent($productDefinition, $entities, $salesChannelApiContext);
+        $event = new EntityLoadedEvent($seoUrlDefinition, $entities, $salesChannelApiContext);
         $subscriber->addUrls($event);
 
         static::assertSame('https://shop.test/awesome-product', $seoUrl1->getUrl());

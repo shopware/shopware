@@ -8,7 +8,7 @@
                             {% block page_account_order_item_detail_image_value %}
                                 <div class="order-item-product-image">
                                     {% if lineItem.type == 'product' %}
-                                        <a href="{{ path('frontend.detail.page', {'productId': lineItem.identifier}) }}"
+                                        <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.identifier})) }}"
                                            title="{{ lineItem.label }}"
                                            class="product-image-link">
                                             {% if lineItem.cover.media.url %}
@@ -36,7 +36,7 @@
                     {% block page_account_order_item_detail_name %}
                         <div class="col-12 col-md-4 order-item order-item-name">
                             {% block page_account_order_item_detail_name_value %}
-                                <a href="{{ path('frontend.detail.page', {'productId': lineItem.identifier}) }}"
+                                <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.identifier})) }}"
                                    class="order-item-product-name"
                                    title="{{ lineItem.label }}"> <strong class="name-value">
                                         {{ lineItem.label }}

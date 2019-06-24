@@ -224,7 +224,7 @@
                     if (slotKey === 'default') {
                         accumulator += `\n    ${slotContent}\n`;
                     } else {
-                        accumulator += `\n    <template slot="${slotKey}"${slotDefinition.variables.length ? ' slot-scope="{ ' + slotDefinition.variables.join(', ') + ' }"' : ''}>${slotContent}</template>\n`;
+                        accumulator += `\n    <template v-slot:${slotKey}${slotDefinition.variables.length ? '="{ ' + slotDefinition.variables.join(', ') + ' }"' : ''}>${slotContent}</template>\n`;
                     }
 
                     return accumulator;

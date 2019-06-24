@@ -81,36 +81,49 @@ function getFileContent(fileName) {
 }
 
 function extractSlots(content) {
-    const RE_SLOTS = /<(slot(\sname="([\w|_|-]*)")?(.+")?)>/g;
-
-    let matches = content.match(RE_SLOTS);
-    if (!matches) {
+    const slots = content.match(/<slot[^>]*>/gs);
+    if (!slots || slots.length <= 0) {
         return [];
     }
-    
-    matches = matches.map((item) => {
-        const groups = new RegExp(RE_SLOTS).exec(item);
-        let slotVariables = [];
 
-        if (groups[4] && groups[4].length > 0 && groups[4] !== undefined) {
-            slotVariables = groups[4].trim();
-            slotVariables = slotVariables.split(' ');
+    return slots.map((slot) => {
+        let name = 'default';
+        const slotContent = slot.match(/<slot(.*)>/s)[1];
+        const attrs = slotContent.match(/\s?:?([\w|_|-]+)="([\w|_|-]+|\{.*\})"/g);
 
-            slotVariables = slotVariables.map((variables) => {
-                const splitVariables = variables.split('=');
-                return splitVariables[0].substring(1, splitVariables[0].length);
-            });
+        if (!attrs || attrs.length <= 0) {
+            return {
+                isDefault: true,
+                name: 'default',
+                isScopedSlot: false,
+                variables: []
+            }
         }
 
+        const slotVariables = [];
+        attrs.forEach((keyVal) => {
+            const [, attr, val] = keyVal.match(/\s?:?(.*)="(.*)"/);
+            if (attr === 'name') {
+                name = val;
+                return;
+            }
+
+            if (attr === 'v-bind') {
+                const bindings = val.substr(1, val.length - 2).split(/,\s?/);
+                slotVariables.push(...bindings)
+                return
+            }
+
+            slotVariables.push(attr);
+        });
+
         return {
-            isDefault: groups[1] === 'slot',
-            name: groups[3] && groups[3].length ? groups[3] : '',
+            isDefault: name === "default",
+            name,
             isScopedSlot: slotVariables.length > 0,
             variables: slotVariables
         };
-    });
-
-    return matches;
+    })
 }
 
 function extractBlocks(file, content) {    

@@ -29,6 +29,10 @@ Application.getContainer('service').cmsService.registerCmsElement({
         minHeight: {
             source: 'static',
             value: '340px'
+        },
+        verticalAlign: {
+            source: 'static',
+            value: ''
         }
     }
 });

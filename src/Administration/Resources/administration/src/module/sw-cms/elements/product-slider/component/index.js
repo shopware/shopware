@@ -69,6 +69,14 @@ Component.register('sw-cms-el-product-slider', {
 
         currentDeviceView() {
             return this.cmsPageState.currentCmsDeviceView;
+        },
+
+        verticalAlignStyle() {
+            if (!this.element.config.verticalAlign.value) {
+                return null;
+            }
+
+            return `align-self: ${this.element.config.verticalAlign.value};`;
         }
     },
 

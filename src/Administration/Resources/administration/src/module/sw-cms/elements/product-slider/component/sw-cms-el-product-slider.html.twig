@@ -1,5 +1,5 @@
 {% block sw_cms_element_product_slider %}
-    <div class="sw-cms-el-product-slider" :class="classes">
+    <div class="sw-cms-el-product-slider" :class="classes" :style="verticalAlignStyle">
         {% block sw_cms_element_product_slider_title %}
             <div class="sw-cms-el-product-slider__title" v-if="element.config.title.value">
                 {{ element.config.title.value }}

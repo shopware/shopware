@@ -89,7 +89,10 @@ class CheckoutConfirmPageLoader
      */
     private function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true))
+            ->addAssociation('media');
+
         /** @var ShippingMethodCollection $shippingMethods */
         $shippingMethods = $this->shippingMethodRepository->search($criteria, $salesChannelContext)->getEntities();
 

@@ -86,8 +86,11 @@ export default class ChangesetGenerator {
                     return;
                 }
 
-                const change = this.recursion(draftValue, deletionQueue);
+                if (!draftValue) {
+                    return;
+                }
 
+                const change = this.recursion(draftValue, deletionQueue);
                 if (change !== null) {
                     // if a change is detected, add id as identifier for updates
                     change.id = draftValue.id;

@@ -63,23 +63,20 @@
         <!-- CART CALCULATORS -->
         <!-- ==================================================================================================================== -->
 
-        <service id="Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder">
-            <argument type="constant">Shopware\Core\Checkout\Promotion\Cart\Processor\PromotionProcessor::LINE_ITEM_TYPE</argument>
-        </service>
+        <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder" />
 
-        <service id="Shopware\Core\Checkout\Promotion\Cart\Processor\PromotionProcessor">
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Calculator\PromotionCalculator"/>
+        <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor">
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\PromotionGateway"/>
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
             <tag name="shopware.cart.collector" priority="4900"/>
             <tag name="shopware.cart.processor" priority="4900"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Promotion\Cart\Calculator\PromotionCalculator">
+        <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Calculator"/>
         </service>
 
         <!-- ADDITIONAL SERVICES -->

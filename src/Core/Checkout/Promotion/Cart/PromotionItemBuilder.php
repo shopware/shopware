@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Promotion\Cart\Builder;
+namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -23,16 +23,6 @@ class PromotionItemBuilder
     public const PLACEHOLDER_PREFIX = 'promotion-';
 
     /**
-     * @var string
-     */
-    private $lineItemType;
-
-    public function __construct(string $lineItemType)
-    {
-        $this->lineItemType = $lineItemType;
-    }
-
-    /**
      * Builds a new placeholder promotion line item that does not have
      * any side effects for the calculation. It will contain the code
      * within the payload which can then be used to create a real promotion item.
@@ -46,7 +36,7 @@ class PromotionItemBuilder
         // that might not be from the promotion scope
         $uniqueKey = self::PLACEHOLDER_PREFIX . $code;
 
-        $item = new LineItem($uniqueKey, $this->lineItemType);
+        $item = new LineItem($uniqueKey, PromotionProcessor::LINE_ITEM_TYPE);
         $item->setLabel($uniqueKey);
         $item->setGood(false);
 
@@ -117,7 +107,7 @@ class PromotionItemBuilder
         // build our discount line item
         // and make sure it has everything as dynamic content.
         // this is necessary for the recalculation process.
-        $promotionItem = new LineItem($discount->getId(), $this->lineItemType);
+        $promotionItem = new LineItem($discount->getId(), PromotionProcessor::LINE_ITEM_TYPE);
         $promotionItem->setLabel($promotion->getName());
         $promotionItem->setDescription($promotion->getName());
         $promotionItem->setGood(false);

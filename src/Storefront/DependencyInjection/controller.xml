@@ -53,7 +53,7 @@
         <service id="Shopware\Storefront\Controller\CartLineItemController">
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

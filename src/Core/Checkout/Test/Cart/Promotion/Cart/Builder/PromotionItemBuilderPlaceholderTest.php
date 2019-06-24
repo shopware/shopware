@@ -5,7 +5,8 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Cart\Builder;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
-use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 
 class PromotionItemBuilderPlaceholderTest extends TestCase
 {
@@ -18,11 +19,11 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
      */
     public function testLineItemType()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $item = $builder->buildPlaceholderItem('CODE-123', 1);
 
-        static::assertEquals('My-TYPE', $item->getType());
+        static::assertEquals(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
     }
 
     /**
@@ -35,7 +36,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
      */
     public function testDefaultPriceIsEmpty()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $item = $builder->buildPlaceholderItem('CODE-123', 1);
 
@@ -55,7 +56,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
      */
     public function testCodeValueInReferenceId()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $item = $builder->buildPlaceholderItem('CODE-123', 1);
 
@@ -73,7 +74,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
      */
     public function testKeyIsUnique()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $item = $builder->buildPlaceholderItem('CODE-123', 1);
 

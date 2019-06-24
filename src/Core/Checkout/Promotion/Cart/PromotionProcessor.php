@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Promotion\Cart\Processor;
+namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -12,8 +12,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
-use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
-use Shopware\Core\Checkout\Promotion\Cart\Calculator\PromotionCalculator;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionGatewayInterface;
@@ -342,10 +340,7 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
         return $lineItems;
     }
 
-    /**
-     * @return array
-     */
-    private function getAllLineItemIds(Cart $cart)
+    private function getAllLineItemIds(Cart $cart): array
     {
         $eligibleItems = [];
 

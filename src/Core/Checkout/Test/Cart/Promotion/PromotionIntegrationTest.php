@@ -7,8 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
-use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
-use Shopware\Core\Checkout\Promotion\Cart\Processor\PromotionProcessor;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -150,7 +149,7 @@ class PromotionIntegrationTest extends TestCase
      */
     private function addPromotionCode(string $code, Cart $cart): Cart
     {
-        $factory = new PromotionItemBuilder(PromotionProcessor::LINE_ITEM_TYPE);
+        $factory = new PromotionItemBuilder();
 
         /** @var LineItem $promotion */
         $promotion = $factory->buildPlaceholderItem($code, $this->context->getContext()->getCurrencyPrecision());

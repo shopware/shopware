@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Promotion\Cart\Calculator;
+namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\Calculator;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -38,21 +38,17 @@ class PromotionCalculator
      * @var PercentagePriceCalculator
      */
     private $percentagePriceCalculator;
+
     /**
      * @var AbsolutePriceCalculator
      */
     private $absolutePriceCalculator;
-    /**
-     * @var Calculator
-     */
-    private $calculator;
 
-    public function __construct(AmountCalculator $amountCalculator, PercentagePriceCalculator $percentagePriceCalculator, AbsolutePriceCalculator $absolutePriceCalculator, Calculator $calculator)
+    public function __construct(AmountCalculator $amountCalculator, PercentagePriceCalculator $percentagePriceCalculator, AbsolutePriceCalculator $absolutePriceCalculator)
     {
         $this->amountCalculator = $amountCalculator;
         $this->percentagePriceCalculator = $percentagePriceCalculator;
         $this->absolutePriceCalculator = $absolutePriceCalculator;
-        $this->calculator = $calculator;
     }
 
     /**

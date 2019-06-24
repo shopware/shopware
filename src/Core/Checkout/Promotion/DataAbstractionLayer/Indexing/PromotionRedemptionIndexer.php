@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
-use Shopware\Core\Checkout\Promotion\Cart\Processor\PromotionProcessor;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;

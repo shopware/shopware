@@ -51,7 +51,6 @@
 
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing\PromotionRedemptionIndexer">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\EventIdExtractor"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition"/>
             <argument type="service" id="promotion.repository"/>
@@ -85,8 +84,6 @@
         <service id="Shopware\Core\Checkout\Promotion\PromotionGateway">
             <argument type="service" id="promotion.repository"/>
         </service>
-
-        <service id="Shopware\Core\Checkout\Promotion\Util\EventIdExtractor"/>
 
     </services>
 </container>

@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
-use Shopware\Core\Checkout\Promotion\Util\EventIdExtractor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -25,11 +24,6 @@ class PromotionRedemptionIndexer implements IndexerInterface
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
-
-    /**
-     * @var EventIdExtractor
-     */
-    private $eventIdExtractor;
 
     /**
      * @var IteratorFactory
@@ -53,14 +47,12 @@ class PromotionRedemptionIndexer implements IndexerInterface
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        EventIdExtractor $eventIdExtractor,
         IteratorFactory $iteratorFactory,
         OrderLineItemDefinition $orderLineItemDefinition,
         EntityRepositoryInterface $promotionRepository,
         Connection $connection
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->eventIdExtractor = $eventIdExtractor;
         $this->iteratorFactory = $iteratorFactory;
         $this->orderLineItemDefinition = $orderLineItemDefinition;
         $this->promotionRepository = $promotionRepository;
@@ -101,9 +93,12 @@ class PromotionRedemptionIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $ids = $this->eventIdExtractor->getOrderLineItemIds($event);
+        $lineItems = $event->getEventByDefinition(OrderLineItemDefinition::class);
+        if (!$lineItems) {
+            return;
+        }
 
-        $this->update($ids, $event->getContext());
+        $this->update($lineItems->getIds(), $event->getContext());
     }
 
     private function update(array $ids, Context $context): void

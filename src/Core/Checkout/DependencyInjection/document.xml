@@ -14,25 +14,25 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator">
-            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.root_dir%</argument>
             <tag name="document.generator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator">
-            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.root_dir%</argument>
             <tag name="document.generator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator">
-            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.root_dir%</argument>
             <tag name="document.generator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator">
-            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.root_dir%</argument>
             <tag name="document.generator"/>
         </service>
@@ -59,6 +59,11 @@
 
         <service id="Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition">
             <tag name="shopware.entity.definition" entity="document_base_config_sales_channel"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer">
+            <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
+            <argument type="service" id="twig"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentService">

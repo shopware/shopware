@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
+use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Twig\Environment;
 use Twig\Error\Error;
 
 class CreditNoteGenerator implements DocumentGeneratorInterface
@@ -21,14 +21,14 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
     private $rootDir;
 
     /**
-     * @var Environment
+     * @var DocumentTemplateRenderer
      */
-    private $twig;
+    private $documentTemplateRenderer;
 
-    public function __construct(Environment $twig, string $rootDir)
+    public function __construct(DocumentTemplateRenderer $documentTemplateRenderer, string $rootDir)
     {
+        $this->documentTemplateRenderer = $documentTemplateRenderer;
         $this->rootDir = $rootDir;
-        $this->twig = $twig;
     }
 
     public function supports(): string
@@ -62,7 +62,7 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
             }
         }
 
-        return $this->twig->render($templatePath, [
+        return $this->documentTemplateRenderer->render($templatePath, [
             'order' => $order,
             'creditItems' => $creditItems,
             'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),

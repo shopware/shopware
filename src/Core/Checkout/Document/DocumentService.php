@@ -422,9 +422,10 @@ class DocumentService
     {
         return (new Criteria([$orderId]))
             ->addAssociation('lineItems')
-            ->addAssociation('transactions')
+            ->addAssociationPath('transactions.paymentMethod')
             ->addAssociation('currency')
             ->addAssociation('addresses')
-            ->addAssociationPath('deliveries.positions');
+            ->addAssociationPath('deliveries.positions')
+            ->addAssociationPath('deliveries.shippingMethod');
     }
 }

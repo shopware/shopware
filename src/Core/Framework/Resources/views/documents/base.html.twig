@@ -59,28 +59,65 @@
                     </div>
                 {% endif %}
                 {% block document_footer %}
-                    <ul>
-                        <li class="bold">{{ config.companyName }}</li>
-                        <li>{% trans with {'%taxNumber%': config.taxNumber} %}document.taxNumber{% endtrans %}</li>
-                        <li>{% trans with {'%vatId%': config.vatId} %}document.vatId{% endtrans %}</li>
-                        <li>{% trans with {'%taxOffice%': config.taxOffice} %}document.taxOffice{% endtrans %}</li>
-                    </ul>
-                    <ul>
-                        <li class="bold">{% trans %}document.bankAccount{% endtrans %}</li>
-                        <li>{{ config.bankName }}</li>
-                        <li>{% trans with {'%bankIban%': config.bankIban} %}document.bankIban{% endtrans %}</li>
-                        <li>{% trans with {'%bankBic%': config.bankBic} %}document.bankBic{% endtrans %}</li>
-                    </ul>
-                    <ul>
-                        <li>&nbsp;</li>
-                        <li>{% trans with {'%placeOfJurisdiction%': config.placeOfJurisdiction} %}document.placeOfJurisdiction{% endtrans %}</li>
-                        <li>{% trans with {'%placeOfFulfillment%': config.placeOfFulfillment} %}document.placeOfFulfillment{% endtrans %} Schöppingen</li>
-                        <li>{% trans %}document.paymentShippingInfo.additionalInfo{% endtrans %}</li>
-                    </ul>
-                    <ul>
-                        <li class="bold">{% trans %}document.ceo{% endtrans %}</li>
-                        <li>{{ config.executiveDirector }}</li>
-                    </ul>
+                    {% block document_footer_first_column %}
+                        <ul>
+                            {% block document_footer_company_name %}
+                                <li class="bold">{{ config.companyName }}</li>
+                            {% endblock %}
+                            {% block document_footer_tax_number %}
+                                <li>{% trans with {'%taxNumber%': config.taxNumber} %}document.taxNumber{% endtrans %}</li>
+                            {% endblock %}
+                            {% block document_footer_vat_id %}
+                                <li>{% trans with {'%vatId%': config.vatId} %}document.vatId{% endtrans %}</li>
+                            {% endblock %}
+                            {% block document_footer_tax_office %}
+                                <li>{% trans with {'%taxOffice%': config.taxOffice} %}document.taxOffice{% endtrans %}</li>
+                            {% endblock %}
+                        </ul>
+                    {% endblock %}
+
+                    {% block document_footer_second_column %}
+                        <ul>
+                            {% block document_footer_bank_account %}
+                                <li class="bold">{% trans %}document.bankAccount{% endtrans %}</li>
+                            {% endblock %}
+                            {% block document_footer_bank_name %}
+                                <li>{{ config.bankName }}</li>
+                            {% endblock %}
+                            {% block document_footer_bank_iban %}
+                                <li>{% trans with {'%bankIban%': config.bankIban} %}document.bankIban{% endtrans %}</li>
+                            {% endblock %}
+                            {% block document_footer_bank_bic %}
+                                <li>{% trans with {'%bankBic%': config.bankBic} %}document.bankBic{% endtrans %}</li>
+                            {% endblock %}
+                        </ul>
+                    {% endblock %}
+
+                    {% block document_footer_third_column %}
+                        <ul>
+                            <li>&nbsp;</li>
+                            {% block document_footer_place_of_jurisdiction %}
+                                <li>{% trans with {'%placeOfJurisdiction%': config.placeOfJurisdiction} %}document.placeOfJurisdiction{% endtrans %}</li>
+                            {% endblock %}
+                            {% block document_footer_place_of_fulfillment %}
+                                <li>{% trans with {'%placeOfFulfillment%': config.placeOfFulfillment} %}document.placeOfFulfillment{% endtrans %} Schöppingen</li>
+                            {% endblock %}
+                            {% block document_footer_payment_shipping_additional_info %}
+                                <li>{% trans %}document.paymentShippingInfo.additionalInfo{% endtrans %}</li>
+                            {% endblock %}
+                        </ul>
+                    {% endblock %}
+
+                    {% block document_footer_fourth_column %}
+                        <ul>
+                            {% block document_footer_ceo %}
+                                <li class="bold">{% trans %}document.ceo{% endtrans %}</li>
+                            {% endblock %}
+                            {% block document_footer_ceo_name %}
+                                <li>{{ config.executiveDirector }}</li>
+                            {% endblock %}
+                        </ul>
+                    {% endblock %}
                 {% endblock %}
             </footer>
         {% endif %}
@@ -116,10 +153,18 @@
                 {% block document_side_info %}
                     <table>
                         {% block document_side_info_contents %}
-                            <tr><td>{% trans with {'%date%': config.documentDate|localizeddate('medium', 'none', locale)} %}document.date{% endtrans %}</td></tr>
-                            <tr><td>{% trans with {'%customerNumber%': customer.customerNumber} %}document.customerNumber{% endtrans %}</td></tr>
-                            <tr><td>{% trans with {'%orderNumber%': order.orderNumber | truncate(10)} %}document.orderNumber{% endtrans %}</td></tr>
-                            <tr><td>{% trans with {'%orderDate%': order.date|localizeddate('medium', 'none', locale)} %}document.orderDate{% endtrans %}</td></tr>
+                            {% block document_side_info_date %}
+                                <tr><td>{% trans with {'%date%': config.documentDate|localizeddate('medium', 'none', locale)} %}document.date{% endtrans %}</td></tr>
+                            {% endblock %}
+                            {% block document_side_info_customer_number %}
+                                <tr><td>{% trans with {'%customerNumber%': customer.customerNumber} %}document.customerNumber{% endtrans %}</td></tr>
+                            {% endblock %}
+                            {% block document_side_info_order_number %}
+                                <tr><td>{% trans with {'%orderNumber%': order.orderNumber | truncate(10)} %}document.orderNumber{% endtrans %}</td></tr>
+                            {% endblock %}
+                            {% block document_side_info_order_date %}
+                                <tr><td>{% trans with {'%orderDate%': order.date|localizeddate('medium', 'none', locale)} %}document.orderDate{% endtrans %}</td></tr>
+                            {% endblock %}
                         {% endblock %}
                     </table><br/>
                 {% endblock %}
@@ -138,17 +183,37 @@
                                 <thead>
                                 <tr class="line-item-table-header">
                                     {% block document_line_item_table_head %}
-                                        {% if config.displayLineItemPosition %}
-                                            <th>{% trans %}document.lineItems.header.position{% endtrans %}</th>
-                                        {% endif %}
-                                        <th>{% trans %}document.lineItems.header.articleNumber{% endtrans %}</th>
-                                        <th>{% trans %}document.lineItems.header.label{% endtrans %}</th>
-                                        <th class="numbers">{% trans %}document.lineItems.header.quantity{% endtrans %}</th>
-                                        {% if config.displayPrices %}
-                                            <th class="numbers">{% trans %}document.lineItems.header.tax{% endtrans %}</th>
-                                            <th class="numbers">{% trans %}document.lineItems.header.unitPrice{% endtrans %}</th>
-                                            <th class="numbers">{% trans %}document.lineItems.header.total{% endtrans %}</th>
-                                        {% endif %}
+                                        {% block document_line_item_table_head_position %}
+                                            {% if config.displayLineItemPosition %}
+                                                <th>{% trans %}document.lineItems.header.position{% endtrans %}</th>
+                                            {% endif %}
+                                        {% endblock %}
+
+                                        {% block document_line_item_table_head_article_number %}
+                                            <th>{% trans %}document.lineItems.header.articleNumber{% endtrans %}</th>
+                                        {% endblock %}
+
+                                        {% block document_line_item_table_head_label %}
+                                            <th>{% trans %}document.lineItems.header.label{% endtrans %}</th>
+                                        {% endblock %}
+
+                                        {% block document_line_item_table_head_quantity %}
+                                            <th class="numbers">{% trans %}document.lineItems.header.quantity{% endtrans %}</th>
+                                        {% endblock %}
+
+                                        {% block document_line_item_table_head_prices %}
+                                            {% if config.displayPrices %}
+                                                {% block document_line_item_table_head_tax_rate %}
+                                                    <th class="numbers">{% trans %}document.lineItems.header.tax{% endtrans %}</th>
+                                                {% endblock %}
+                                                {% block document_line_item_table_head_unit_price %}
+                                                    <th class="numbers">{% trans %}document.lineItems.header.unitPrice{% endtrans %}</th>
+                                                {% endblock %}
+                                                {% block document_line_item_table_head_total_price %}
+                                                    <th class="numbers">{% trans %}document.lineItems.header.total{% endtrans %}</th>
+                                                {% endblock %}
+                                            {% endif %}
+                                        {% endblock %}
                                     {% endblock %}
                                 </tr>
                                 </thead>
@@ -156,18 +221,38 @@
                                 {# @var lineItem \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity #}
                                 {% for lineItem in lineItemPage %}
                                     <tr class="line-item{% if loop.first %} first{% endif %}">
-                                        {% block document_line_item_row %}
-                                            {% if config.displayLineItemPosition %}
-                                                <td>{{ loop.index }}</td>
-                                            {% endif %}
-                                            <td>{{ lineItem.payload.productNumber | truncate(10) }}</td>
-                                            <td class="line-item-breakable">{{ lineItem.label }}</td>
-                                            <td class="align-right">{{ lineItem.quantity }}</td>
-                                            {% if config.displayPrices %}
-                                                <td class="align-right">{{ lineItem.price.taxRules.first.taxRate }}%</td>
-                                                <td class="align-right">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
-                                                <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
-                                            {% endif %}
+                                        {% block document_line_item_table_rows %}
+                                            {% block document_line_item_table_row_position %}
+                                                {% if config.displayLineItemPosition %}
+                                                    <td>{{ loop.index }}</td>
+                                                {% endif %}
+                                            {% endblock %}
+
+                                            {% block document_line_item_table_row_product_number %}
+                                                <td>{{ lineItem.payload.productNumber | truncate(10) }}</td>
+                                            {% endblock %}
+
+                                            {% block document_line_item_table_row_label %}
+                                                <td class="line-item-breakable">{{ lineItem.label }}</td>
+                                            {% endblock %}
+
+                                            {% block document_line_item_table_row_quantity %}
+                                                <td class="align-right">{{ lineItem.quantity }}</td>
+                                            {% endblock %}
+
+                                            {% block document_line_item_table_prices %}
+                                                {% if config.displayPrices %}
+                                                    {% block document_line_item_table_row_tax_rate %}
+                                                        <td class="align-right">{{ lineItem.price.taxRules.first.taxRate }}%</td>
+                                                    {% endblock %}
+                                                    {% block document_line_item_row_table_unit_price %}
+                                                        <td class="align-right">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
+                                                    {% endblock %}
+                                                    {% block document_line_item_table_row_total_price %}
+                                                        <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
+                                                    {% endblock %}
+                                                {% endif %}
+                                            {% endblock %}
                                         {% endblock %}
                                     </tr>
                                 {% endfor %}
@@ -180,34 +265,66 @@
                 {% endfor %}
             {% endif %}
 
-            <div class="sum-container">
-                <table class="sum-table">
-                    {% block document_sum %}
-                        <tr>
-                            <td class="align-right">{% trans %}document.lineItems.totalNet{% endtrans %}</td>
-                            <td class="align-right">{{ order.amountNet|currency(currencyIsoCode) }}</td>
-                        </tr>
-                        {% for calculatedTax in order.price.calculatedTaxes.sortByTax.getElements %}
-                            <tr>
-                                <td class="align-right">{% trans with {'%taxRate%': calculatedTax.taxRate} %}document.lineItems.tax{% endtrans %}</td>
-                                <td class="align-right">{{ calculatedTax.tax|currency(currencyIsoCode) }}</td>
-                            </tr>
-                        {% endfor %}
-                        <tr class="bold">
-                            <td class="align-right">{% trans %}document.lineItems.total{% endtrans %}</td>
-                            <td class="align-right">{{ order.amountTotal|currency(currencyIsoCode) }}</td>
-                        </tr>
-                    {% endblock %}
-                </table>
-            </div>
+            {% block document_sum %}
+                <div class="sum-container">
+                    {% block document_sum_table %}
+                        <table class="sum-table">
+                            {% block document_sum_table_inner %}
+                                {% block document_sum_total_net %}
+                                    <tr>
+                                        {% block document_sum_total_net_label %}
+                                            <td class="align-right">{% trans %}document.lineItems.totalNet{% endtrans %}</td>
+                                        {% endblock %}
+                                        {% block document_sum_total_net_price %}
+                                            <td class="align-right">{{ order.amountNet|currency(currencyIsoCode) }}</td>
+                                        {% endblock %}
+                                    </tr>
+                                {% endblock %}
 
-            <div class="payment-shipping-container">
-                {% block document_payment_shipping %}
-                    {% trans with {'%paymentMethod%': order.transactions.first.paymentMethod.name} %}document.paymentShippingInfo.paymentMethod{% endtrans %}<br>
-                    {% trans with {'%shippingMethod%': order.deliveries.first.shippingMethod.name} %}document.paymentShippingInfo.shippingMethod{% endtrans %}<br>
-                    {% trans %}document.paymentShippingInfo.additionalInfo{% endtrans %}<br>
-                {% endblock %}
-            </div>
+                                {% block document_sum_taxes %}
+                                    {% for calculatedTax in order.price.calculatedTaxes.sortByTax %}
+                                        <tr>
+                                            {% block document_sum_tax_label %}
+                                                <td class="align-right">{% trans with {'%taxRate%': calculatedTax.taxRate} %}document.lineItems.tax{% endtrans %}</td>
+                                            {% endblock %}
+                                            {% block document_sum_tax_rate %}
+                                                <td class="align-right">{{ calculatedTax.tax|currency(currencyIsoCode) }}</td>
+                                            {% endblock %}
+                                        </tr>
+                                    {% endfor %}
+                                {% endblock %}
+
+                                {% block document_sum_total %}
+                                    <tr class="bold">
+                                        {% block document_sum_total_label %}
+                                            <td class="align-right">{% trans %}document.lineItems.total{% endtrans %}</td>
+                                        {% endblock %}
+                                        {% block document_sum_total_price %}
+                                            <td class="align-right">{{ order.amountTotal|currency(currencyIsoCode) }}</td>
+                                        {% endblock %}
+                                    </tr>
+                                {% endblock %}
+                            {% endblock %}
+                        </table>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block document_payment_shipping %}
+                <div class="payment-shipping-container">
+                    {% block document_payment_shipping_inner %}
+                        {% block document_payment %}
+                            {% trans with {'%paymentMethod%': order.transactions.first.paymentMethod.name} %}document.paymentShippingInfo.paymentMethod{% endtrans %}<br>
+                        {% endblock %}
+                        {% block document_shipping %}
+                            {% trans with {'%shippingMethod%': order.deliveries.first.shippingMethod.name} %}document.paymentShippingInfo.shippingMethod{% endtrans %}<br>
+                        {% endblock %}
+                        {% block document_payment_shipping_additional %}
+                            {% trans %}document.paymentShippingInfo.additionalInfo{% endtrans %}<br>
+                        {% endblock %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
         </div>
     {% endblock %}
     </body>

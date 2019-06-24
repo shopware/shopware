@@ -7,9 +7,3 @@
 {% block document_headline %}
     <h1>{% trans with {'%creditNoteNumber%': config.custom.creditNoteNumber, '%invoiceNumber%': config.custom.invoiceNumber}  %}document.creditNoteHeadline{% endtrans %}</h1>
 {% endblock %}
-
-{% block document_line_item_list %}
-    {% set lineItems = creditItems %}
-    {{ parent() }}
-{% endblock %}
-

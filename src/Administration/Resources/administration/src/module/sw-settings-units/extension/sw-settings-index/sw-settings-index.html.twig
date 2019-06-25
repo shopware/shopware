@@ -1,0 +1,13 @@
+{% block sw_settings_content_card_slot_shop %}
+    {% parent %}
+
+    {% block sw_settings_units_item %}
+        <sw-settings-item id="sw-settings-units"
+                          :label="$tc('sw-settings-units.general.mainMenuItemGeneral')"
+                          :to="{ name: 'sw.settings.units.index' }">
+            <template slot="icon">
+                <sw-icon name="default-object-scale"></sw-icon>
+            </template>
+        </sw-settings-item>
+    {% endblock %}
+{% endblock %}

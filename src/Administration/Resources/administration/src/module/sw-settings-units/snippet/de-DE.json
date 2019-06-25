@@ -1,0 +1,20 @@
+{
+  "sw-settings-units": {
+    "general": {
+      "mainMenuItemGeneral": "Einheiten",
+      "placeholderSearchBar": "Durchsuche alle Einheiten",
+      "createNewUnit": "Einheit erstellen"
+    },
+    "grid": {
+      "columnName": "Name",
+      "columnShortCode": "Kurzform",
+      "contextMenuDelete": "Löschen"
+    },
+    "notification": {
+      "successTitle": "Einheit gespeichert",
+      "successMessage": "Die Einheit wurde erfolgreich gespeichert.",
+      "errorTitle": "Fehler",
+      "errorMessage": "Die Einheit konnte nicht gespeichert werden. Überprüfe, ob alle Felder ausgefüllt sind."
+    }
+  }
+}

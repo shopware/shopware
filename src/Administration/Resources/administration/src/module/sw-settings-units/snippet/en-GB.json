@@ -1,0 +1,20 @@
+{
+  "sw-settings-units": {
+    "general": {
+      "mainMenuItemGeneral": "Units",
+      "placeholderSearchBar": "Search units",
+      "createNewUnit": "New unit"
+    },
+    "grid": {
+      "columnName": "Unit",
+      "columnShortCode": "Short code",
+      "contextMenuDelete": "Delete"
+    },
+    "notification": {
+      "successTitle": "Unit saved",
+      "successMessage": "The unit was successfully saved.",
+      "errorTitle": "Error",
+      "errorMessage": "The unit could not be saved. Check if all fields are filled."
+    }
+  }
+}

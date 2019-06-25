@@ -1,6 +1,14 @@
 {% block page_checkout_confirm_shipping_inner %}
     <div class="card checkout-card">
         <div class="card-body">
+            {% set shippingMethodInvalid = true %}
+
+            {% for shipping in page.shippingMethods %}
+                {% if shipping.id is same as(context.shippingMethod.id) %}
+                    {% set shippingMethodInvalid = false %}
+                {% endif %}
+            {% endfor %}
+
             {% block page_checkout_confirm_shipping_title %}
                 <div class="card-title">
                     {{ "checkout.confirmShippingMethod"|trans }}
@@ -8,9 +16,25 @@
             {% endblock %}
 
             {% block page_checkout_confirm_shipping_current %}
-                <p class="checkout-confirm-shipping-current">
-                    <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
-                    {{ context.shippingMethod.translated.name }}
+                <p class="checkout-confirm-shipping-current{% if shippingMethodInvalid %} is-invalid{% endif %}">
+                    {% block page_checkout_confirm_shipping_current_text %}
+                        <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
+                        {{ context.shippingMethod.translated.name }}
+                    {% endblock %}
+
+                    {% block page_checkout_confirm_shipping_invalid_tooltip %}
+                        {% if shippingMethodInvalid %}
+                            <a data-toggle="tooltip"
+                               data-placement="right"
+                               class="checkout-confirm-method-tooltip"
+                               title="{{ "checkout.confirmShippingMethodNotAvailable"|trans }}">
+                                {% sw_icon 'help' style {
+                                    'color': 'danger',
+                                    'size': 'xs'
+                                } %}
+                            </a>
+                        {% endif %}
+                    {% endblock %}
                 </p>
             {% endblock %}
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
@@ -150,6 +151,7 @@ class CheckoutController extends StorefrontController
 
             return new RedirectResponse($finishUrl);
         } catch (ConstraintViolationException $formViolations) {
+        } catch (Error $blockedError) {
         } catch (AsyncPaymentProcessException | InvalidOrderException | SyncPaymentProcessException | UnknownPaymentMethodException $e) {
             // TODO: Handle errors which might occur during payment process
             throw $e;

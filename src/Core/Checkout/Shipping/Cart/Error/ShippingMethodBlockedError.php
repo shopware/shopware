@@ -24,6 +24,11 @@ class ShippingMethodBlockedError extends Error
         parent::__construct($this->message);
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     public function blockOrder(): bool
     {
         return true;
@@ -41,6 +46,6 @@ class ShippingMethodBlockedError extends Error
 
     public function getMessageKey(): string
     {
-        return $this->name;
+        return self::KEY;
     }
 }

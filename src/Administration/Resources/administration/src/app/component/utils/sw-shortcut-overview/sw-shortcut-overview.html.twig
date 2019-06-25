@@ -1,10 +1,12 @@
 {% block sw_shortcut_overview %}
     <div class="sw-shortcut-overview">
-        <sw-icon name="default-badge-help"
-                 size="24px"
-                 v-tooltip.left="tooltipOpenModal"
-                 @click="onOpenShortcutOverviewModal">
-        </sw-icon>
+        {% block sw_shortcut_overview_icon %}
+            <sw-icon name="default-badge-help"
+                     size="24px"
+                     v-tooltip.left="tooltipOpenModal"
+                     @click="onOpenShortcutOverviewModal">
+            </sw-icon>
+        {% endblock %}
 
         {% block sw_shortcut_overview_modal %}
             <sw-modal v-if="showShortcutOverviewModal"
@@ -12,59 +14,65 @@
                       @modal-close="onCloseShortcutOverviewModal"
                       :title="$tc(`sw-shortcut-overview.modalTitle`)"
                       variant="small">
-                <h3>{{ $tc(`sw-shortcut-overview.sectionAddingItems`) }}</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>{{ $tc(`sw-shortcut-overview.function`) }}</th>
-                            <th>{{ $tc(`sw-shortcut-overview.keyboardShortcut`) }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <sw-shortcut-overview-item v-for="section in sections.addingItems" :title="section.title" :content="section.content" :key="section.id"></sw-shortcut-overview-item>
-                    </tbody>
-                </table>
+                {% block sw_shortcut_overview_modal_section_adding_items %}
+                    <h3>{{ $tc(`sw-shortcut-overview.sectionAddingItems`) }}</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>{{ $tc(`sw-shortcut-overview.function`) }}</th>
+                                <th>{{ $tc(`sw-shortcut-overview.keyboardShortcut`) }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <sw-shortcut-overview-item v-for="section in sections.addingItems" :title="section.title" :content="section.content" :key="section.id"></sw-shortcut-overview-item>
+                        </tbody>
+                    </table>
+                {% endblock %}
 
-                <h3>{{ $tc(`sw-shortcut-overview.sectionNavigation`) }}</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>{{ $tc(`sw-shortcut-overview.function`) }}</th>
-                            <th>{{ $tc(`sw-shortcut-overview.keyboardShortcut`) }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <sw-shortcut-overview-item v-for="section in sections.navigation" :title="section.title" :content="section.content" :key="section.id"></sw-shortcut-overview-item>
-                    </tbody>
-                </table>
+                {% block sw_shortcut_overview_modal_section_navigation %}
+                    <h3>{{ $tc(`sw-shortcut-overview.sectionNavigation`) }}</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>{{ $tc(`sw-shortcut-overview.function`) }}</th>
+                                <th>{{ $tc(`sw-shortcut-overview.keyboardShortcut`) }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <sw-shortcut-overview-item v-for="section in sections.navigation" :title="section.title" :content="section.content" :key="section.id"></sw-shortcut-overview-item>
+                        </tbody>
+                    </table>
+                {% endblock %}
 
-                <h3>{{ $tc(`sw-shortcut-overview.sectionNavigation`) }}</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>{{ $tc(`sw-shortcut-overview.function`) }}</th>
-                            <th>{{ $tc(`sw-shortcut-overview.keyboardShortcut`) }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutFocusSearch`) }}</td>
-                            <td><kbd><span>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutFocusSearch`) }}</span></kbd></td>
-                        </tr>
-                        <tr>
-                            <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutShortcutListing`) }}</td>
-                            <td><kbd><span>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutShortcutListing`) }}</span></kbd></td>
-                        </tr>
-                        <tr>
-                            <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutSaveDetailView`) }}</td>
-                            <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailView`) }}</kbd></td>
-                        </tr>
-                        <tr>
-                            <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutCancelDetailView`) }}</td>
-                            <td><kbd><span>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutCancelDetailView`) }}</span></kbd></td>
-                        </tr>
-                    </tbody>
-                </table>
+                {% block sw_shortcut_overview_modal_section_special_shortcuts %}
+                    <h3>{{ $tc(`sw-shortcut-overview.sectionSpecialShortcuts`) }}</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>{{ $tc(`sw-shortcut-overview.function`) }}</th>
+                                <th>{{ $tc(`sw-shortcut-overview.keyboardShortcut`) }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutFocusSearch`) }}</td>
+                                <td><kbd><span>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutFocusSearch`) }}</span></kbd></td>
+                            </tr>
+                            <tr>
+                                <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutShortcutListing`) }}</td>
+                                <td><kbd><span>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutShortcutListing`) }}</span></kbd></td>
+                            </tr>
+                            <tr>
+                                <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutSaveDetailView`) }}</td>
+                                <td><kbd>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailView`) }}</kbd></td>
+                            </tr>
+                            <tr>
+                                <td>{{ $tc(`sw-shortcut-overview.functionSpecialShortcutCancelDetailView`) }}</td>
+                                <td><kbd><span>{{ $tc(`sw-shortcut-overview.keyboardShortcutSpecialShortcutCancelDetailView`) }}</span></kbd></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endblock %}
             </sw-modal>
         {% endblock %}
     </div>

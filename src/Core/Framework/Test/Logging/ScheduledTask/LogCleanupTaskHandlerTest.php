@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Logging\ScheduledTask\LogCleanupTaskHandler;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -50,6 +51,16 @@ class LogCleanupTaskHandlerTest extends TestCase
         $this->logEntryRepository = $this->getContainer()->get('log_entry.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
+
+        /** @var IdSearchResult $ids */
+        $ids = $this->logEntryRepository->searchIds(new Criteria(), $this->context);
+        if ($ids->getTotal() !== 0) {
+            $entitiesToDelete = [];
+            foreach ($ids->getIds() as $id) {
+                $entitiesToDelete[] = ['id' => $id];
+            }
+            $this->logEntryRepository->delete($entitiesToDelete, $this->context);
+        }
     }
 
     public function testCleanupWithNoLimits(): void

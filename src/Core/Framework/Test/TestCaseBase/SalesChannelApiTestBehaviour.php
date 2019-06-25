@@ -63,7 +63,7 @@ trait SalesChannelApiTestBehaviour
 
     public function createCustomSalesChannelBrowser(array $salesChannelOverride = []): KernelBrowser
     {
-        $kernel = KernelLifecycleManager::getKernel();
+        $kernel = $this->getKernel();
         $salesChannelApiBrowser = KernelLifecycleManager::createBrowser($kernel);
         $salesChannelApiBrowser->setServerParameters([
             'HTTP_Accept' => 'application/json',
@@ -73,6 +73,8 @@ trait SalesChannelApiTestBehaviour
 
         return $salesChannelApiBrowser;
     }
+
+    abstract protected function getKernel(): KernelInterface;
 
     protected function getSalesChannelClient(): KernelBrowser
     {
@@ -88,7 +90,7 @@ trait SalesChannelApiTestBehaviour
         bool $enableReboot = false
     ): KernelBrowser {
         if (!$kernel) {
-            $kernel = KernelLifecycleManager::getKernel();
+            $kernel = $this->getKernel();
         }
 
         $salesChannelApiBrowser = KernelLifecycleManager::createBrowser($kernel, $enableReboot);

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Doctrine\DBAL\Connection;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Use if your test should be wrapped in a transaction
@@ -14,8 +15,7 @@ trait DatabaseTransactionBehaviour
      */
     public function startTransactionBefore(): void
     {
-        KernelLifecycleManager::getKernel()
-            ->getContainer()
+        $this->getContainer()
             ->get(Connection::class)
             ->beginTransaction();
     }
@@ -25,9 +25,10 @@ trait DatabaseTransactionBehaviour
      */
     public function stopTransactionAfter(): void
     {
-        KernelLifecycleManager::getKernel()
-            ->getContainer()
+        $this->getContainer()
             ->get(Connection::class)
             ->rollBack();
     }
+
+    abstract protected function getContainer(): ContainerInterface;
 }

@@ -3,11 +3,11 @@
 namespace Shopware\Core\Framework\Test\CustomField\Api;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 
 class CustomFieldSetActionControllerTest extends TestCase
 {
-    use AdminApiTestBehaviour;
+    use AdminFunctionalTestBehaviour;
 
     public function testGetAvailableRelations(): void
     {

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Memory\MemoryAdapter;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Use this trait if your test operates with a filesystem
@@ -18,20 +19,7 @@ trait FilesystemBehaviour
 
     public function getFilesystem(string $serviceId): Filesystem
     {
-        if (isset($this->filesystems[$serviceId])) {
-            return $this->filesystems[$serviceId];
-        }
-
-        $container = KernelLifecycleManager::getKernel()
-            ->getContainer();
-
-        if ($container->has('test.service_container')) {
-            $container = $container->get('test.service_container');
-        }
-
-        $this->filesystems[$serviceId] = $container->get($serviceId);
-
-        return $this->filesystems[$serviceId];
+        return $this->getContainer()->get($serviceId);
     }
 
     public function getPublicFilesystem(): Filesystem
@@ -55,6 +43,7 @@ trait FilesystemBehaviour
     public function removeWrittenFilesAfterFilesystemTests(): void
     {
         MemoryAdapterFactory::clearInstancesMemory();
-        $this->filesystems = [];
     }
+
+    abstract protected function getContainer(): ContainerInterface;
 }

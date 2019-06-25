@@ -7,13 +7,16 @@ use PHPUnit\Framework\TestCase;
 class FilesystemBehaviourTest extends TestCase
 {
     use FilesystemBehaviour;
+    use KernelTestBehaviour;
 
     public function testWrittenFilesGetDeleted(): void
     {
         $this->getPublicFilesystem()
             ->put('testFile', 'testContent');
+
         $this->getPublicFilesystem()
             ->put('public/testFile', 'testContent');
+
         static::assertNotEmpty($this->getPublicFilesystem()->listContents());
     }
 

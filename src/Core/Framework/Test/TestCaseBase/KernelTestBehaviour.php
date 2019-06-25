@@ -19,10 +19,10 @@ trait KernelTestBehaviour
     {
         $container = $this->getKernel()->getContainer();
 
-        if ($container->has('test.service_container')) {
-            return $container->get('test.service_container');
+        if (!$container->has('test.service_container')) {
+            throw new \RuntimeException('Unable to run tests against kernel without test.service_container');
         }
 
-        return $container;
+        return $container->get('test.service_container');
     }
 }

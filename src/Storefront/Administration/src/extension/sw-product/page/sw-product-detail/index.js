@@ -28,13 +28,21 @@ Component.override('sw-product-detail', {
 
     methods: {
         onSaveFinished(response) {
+            // if extensions are not set the seo urls are not present in store
+            if (typeof this.$store.getters['swSeoUrl/getNewOrModifiedUrls'] !== 'function') {
+                this.$super.onSaveFinished(response);
+                return;
+            }
+
             const seoUrls = this.$store.getters['swSeoUrl/getNewOrModifiedUrls']();
 
-            seoUrls.forEach(seoUrl => {
-                if (seoUrl.seoPathInfo) {
-                    this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
-                }
-            });
+            if (seoUrls) {
+                seoUrls.forEach(seoUrl => {
+                    if (seoUrl.seoPathInfo) {
+                        this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
+                    }
+                });
+            }
 
             if (response === 'empty' && seoUrls.length > 0) {
                 response = 'success';

@@ -97,7 +97,6 @@ Component.register('sw-profile-index', {
             this.isUserLoading = true;
 
             const languagePromise = new Promise((resolve) => {
-                this.context.languageId = this.languageId;
                 resolve(this.languageId);
             });
 

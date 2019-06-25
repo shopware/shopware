@@ -146,7 +146,7 @@ class EntityReaderTest extends TestCase
             'id' => $id,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['taxRate' => 13, 'name' => 'green'],
             'translations' => [
@@ -193,7 +193,7 @@ class EntityReaderTest extends TestCase
             'id' => $id,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['taxRate' => 13, 'name' => 'green'],
             'translations' => [
@@ -235,7 +235,7 @@ class EntityReaderTest extends TestCase
                 'stock' => 1,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'parent',
-                'price' => ['gross' => 50, 'net' => 50, 'linked' => true],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 50, 'linked' => true]],
                 'tax' => ['id' => $parentTax, 'taxRate' => 13, 'name' => 'parent tax'],
             ],
             [
@@ -251,7 +251,7 @@ class EntityReaderTest extends TestCase
                 'stock' => 1,
                 'parentId' => $parentId,
                 'name' => 'green',
-                'price' => ['gross' => 100, 'net' => 100, 'linked' => true],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => true]],
                 'tax' => ['id' => $greenTax, 'taxRate' => 13, 'name' => 'green tax'],
             ],
         ];
@@ -267,8 +267,8 @@ class EntityReaderTest extends TestCase
         $parent = $products->get($parentId);
         static::assertInstanceOf(ProductEntity::class, $parent);
         static::assertInstanceOf(TaxEntity::class, $parent->getTax());
-        static::assertInstanceOf(Price::class, $parent->getPrice());
-        static::assertEquals(50, $parent->getPrice()->getGross());
+        static::assertInstanceOf(Price::class, $parent->getCurrencyPrice(Defaults::CURRENCY));
+        static::assertEquals(50, $parent->getCurrencyPrice(Defaults::CURRENCY)->getGross());
 
         /** @var ProductEntity $red */
         $red = $products->get($redId);
@@ -279,7 +279,7 @@ class EntityReaderTest extends TestCase
         //has no own tax
         static::assertNull($red->getTax());
         static::assertNull($red->getTaxId());
-        static::assertNull($red->getPrice());
+        static::assertNull($red->getCurrencyPrice(Defaults::CURRENCY));
 
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
@@ -287,8 +287,8 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $green);
         static::assertInstanceOf(TaxEntity::class, $green->getTax());
         static::assertEquals($greenTax, $green->getTaxId());
-        static::assertInstanceOf(Price::class, $green->getPrice());
-        static::assertEquals(100, $green->getPrice()->getGross());
+        static::assertInstanceOf(Price::class, $green->getCurrencyPrice(Defaults::CURRENCY));
+        static::assertEquals(100, $green->getCurrencyPrice(Defaults::CURRENCY)->getGross());
 
         $criteria = new Criteria([$parentId, $greenId, $redId]);
         $context = Context::createDefaultContext();
@@ -299,8 +299,8 @@ class EntityReaderTest extends TestCase
         $parent = $products->get($parentId);
         static::assertInstanceOf(ProductEntity::class, $parent);
         static::assertInstanceOf(TaxEntity::class, $parent->getTax());
-        static::assertInstanceOf(Price::class, $parent->getPrice());
-        static::assertEquals(50, $parent->getPrice()->getGross());
+        static::assertInstanceOf(Price::class, $parent->getCurrencyPrice(Defaults::CURRENCY));
+        static::assertEquals(50, $parent->getCurrencyPrice(Defaults::CURRENCY)->getGross());
 
         /** @var ProductEntity $red */
         $red = $products->get($redId);
@@ -309,19 +309,19 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $red);
 
         //price and tax are inherited by parent
-        static::assertInstanceOf(Price::class, $red->getPrice());
+        static::assertInstanceOf(Price::class, $red->getCurrencyPrice(Defaults::CURRENCY));
         static::assertInstanceOf(TaxEntity::class, $red->getTax());
         static::assertEquals($parentTax, $red->getTaxId());
-        static::assertInstanceOf(Price::class, $red->getPrice());
-        static::assertEquals(50, $red->getPrice()->getGross());
+        static::assertInstanceOf(Price::class, $red->getCurrencyPrice(Defaults::CURRENCY));
+        static::assertEquals(50, $red->getCurrencyPrice(Defaults::CURRENCY)->getGross());
 
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
         static::assertInstanceOf(ProductEntity::class, $green);
         static::assertInstanceOf(TaxEntity::class, $green->getTax());
         static::assertEquals($greenTax, $green->getTaxId());
-        static::assertInstanceOf(Price::class, $green->getPrice());
-        static::assertEquals(100, $green->getPrice()->getGross());
+        static::assertInstanceOf(Price::class, $green->getCurrencyPrice(Defaults::CURRENCY));
+        static::assertEquals(100, $green->getCurrencyPrice(Defaults::CURRENCY)->getGross());
     }
 
     public function testInheritanceWithOneToMany(): void
@@ -343,23 +343,21 @@ class EntityReaderTest extends TestCase
                 'id' => $parentId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'parent',
                 'prices' => [
                     [
-                        'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'quantityEnd' => 20,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false]],
                     ],
                     [
-                        'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 21,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 50, 'linked' => false]],
                     ],
                 ],
             ],
@@ -378,10 +376,9 @@ class EntityReaderTest extends TestCase
                 'name' => 'green',
                 'prices' => [
                     [
-                        'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 50, 'linked' => false]],
                     ],
                 ],
             ],
@@ -433,23 +430,21 @@ class EntityReaderTest extends TestCase
                 'id' => $parentId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'parent',
                 'prices' => [
                     [
-                        'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'quantityEnd' => 20,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false]],
                     ],
                     [
-                        'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 21,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 50, 'linked' => false]],
                     ],
                 ],
             ],
@@ -468,10 +463,9 @@ class EntityReaderTest extends TestCase
                 'name' => 'green',
                 'prices' => [
                     [
-                        'currencyId' => Defaults::CURRENCY,
                         'quantityStart' => 1,
                         'ruleId' => $ruleA,
-                        'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 50, 'linked' => false]],
                     ],
                 ],
             ],
@@ -528,7 +522,7 @@ class EntityReaderTest extends TestCase
                 'id' => $parentId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'parent',
@@ -653,7 +647,7 @@ class EntityReaderTest extends TestCase
                 'id' => $parentId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'parent',
@@ -1130,7 +1124,7 @@ class EntityReaderTest extends TestCase
             'id' => $id1,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1141,7 +1135,7 @@ class EntityReaderTest extends TestCase
             'id' => $id2,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1152,7 +1146,7 @@ class EntityReaderTest extends TestCase
             'id' => $id3,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1204,7 +1198,7 @@ class EntityReaderTest extends TestCase
                     'productNumber' => Uuid::randomHex(),
                     'stock' => 1,
                     'name' => 'test media',
-                    'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                     'active' => true,
                     'tax' => ['taxRate' => 13, 'name' => 'green'],
                     'categories' => [
@@ -1249,7 +1243,7 @@ class EntityReaderTest extends TestCase
             'id' => $id1,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1260,7 +1254,7 @@ class EntityReaderTest extends TestCase
             'id' => $id2,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1271,7 +1265,7 @@ class EntityReaderTest extends TestCase
             'id' => $id3,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1329,7 +1323,7 @@ class EntityReaderTest extends TestCase
             'id' => $id1,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1340,7 +1334,7 @@ class EntityReaderTest extends TestCase
             'id' => $id2,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1351,7 +1345,7 @@ class EntityReaderTest extends TestCase
             'id' => $id3,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1405,7 +1399,7 @@ class EntityReaderTest extends TestCase
             'id' => $id1,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'A',
@@ -1416,7 +1410,7 @@ class EntityReaderTest extends TestCase
             'id' => $id2,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'B',
@@ -1427,7 +1421,7 @@ class EntityReaderTest extends TestCase
             'id' => $id3,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => false,
             'manufacturer' => ['name' => 'test'],
             'name' => 'C',
@@ -1516,7 +1510,7 @@ class EntityReaderTest extends TestCase
                 'id' => $id1,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'active' => true,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
@@ -1537,7 +1531,7 @@ class EntityReaderTest extends TestCase
                 'id' => $id2,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'active' => false,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
@@ -1587,7 +1581,7 @@ class EntityReaderTest extends TestCase
                 'id' => $id1,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'active' => true,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
@@ -1597,7 +1591,7 @@ class EntityReaderTest extends TestCase
                 'id' => $id2,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'active' => false,
                 'manufacturer' => ['name' => 'test'],
                 'name' => 'test',
@@ -1627,7 +1621,7 @@ class EntityReaderTest extends TestCase
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
-            'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'active' => true,
             'manufacturer' => ['name' => 'test'],
             'name' => 'test',
@@ -1704,7 +1698,7 @@ class EntityReaderTest extends TestCase
                 'id' => $productId,
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 7, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 7, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'test',
@@ -1713,7 +1707,7 @@ class EntityReaderTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
-                'price' => ['gross' => 8, 'net' => 6, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8, 'net' => 6, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'name' => 'test',

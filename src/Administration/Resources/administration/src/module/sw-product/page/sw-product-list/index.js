@@ -6,10 +6,7 @@ import './sw-product-list.scss';
 Component.register('sw-product-list', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'context'
-    ],
+    inject: ['repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -20,6 +17,7 @@ Component.register('sw-product-list', {
     data() {
         return {
             products: null,
+            currencies: {},
             showDeleteModal: false,
             sortBy: 'productNumber',
             sortDirection: 'DESC',
@@ -42,6 +40,34 @@ Component.register('sw-product-list', {
 
         productColumns() {
             return this.getProductColumns();
+        },
+
+        currencyRepository() {
+            return this.repositoryFactory.create('currency');
+        },
+
+        currencyList() {
+            if (!this.currencies.items) {
+                return [];
+            }
+
+            return Object.values(this.currencies.items);
+        },
+
+        currenciesColumns() {
+            return this.currencyList.sort((a, b) => {
+                return b.isDefault ? 1 : -1;
+            }).map(item => {
+                return {
+                    property: `price-${item.isoCode}`,
+                    dataIndex: `price-${item.id}`,
+                    label: `${item.name}`,
+                    routerLink: 'sw.product.detail',
+                    allowResize: true,
+                    visible: item.isDefault,
+                    align: 'right'
+                };
+            });
         }
     },
 
@@ -61,21 +87,30 @@ Component.register('sw-product-list', {
     methods: {
         getList() {
             this.isLoading = true;
-            const criteria = new Criteria(this.page, this.limit);
+
+            const productCriteria = new Criteria(this.page, this.limit);
             this.naturalSorting = this.sortBy === 'productNumber';
 
-            criteria.setTerm(this.term);
-            criteria.addFilter(Criteria.equals('product.parentId', null));
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
-            criteria.addAssociation('cover');
-            criteria.addAssociation('manufacturer');
+            productCriteria.setTerm(this.term);
+            productCriteria.addFilter(Criteria.equals('product.parentId', null));
+            productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+            productCriteria.addAssociation('cover');
+            productCriteria.addAssociation('manufacturer');
 
-            return this.productRepository.search(criteria, this.context).then((items) => {
-                this.total = items.total;
-                this.products = items;
+            const currencyCriteria = new Criteria(1, 500);
+
+            return Promise.all([
+                this.productRepository.search(productCriteria, this.context),
+                this.currencyRepository.search(currencyCriteria, this.context)
+            ]).then((res) => {
+                const products = res[0];
+                const currencies = res[1];
+
+                this.total = products.total;
+                this.products = products;
+
+                this.currencies = currencies;
                 this.isLoading = false;
-
-                return items;
             }).catch(() => {
                 this.isLoading = false;
             });
@@ -98,6 +133,10 @@ Component.register('sw-product-list', {
             });
         },
 
+        onInlineEditCancel(product) {
+            product.discardChanges();
+        },
+
         onChangeLanguage(languageId) {
             this.context.languageId = languageId;
             this.getList();
@@ -117,6 +156,39 @@ Component.register('sw-product-list', {
             return this.productRepository.delete(id, this.context).then(() => {
                 this.getList();
             });
+        },
+
+        getCurrencyPriceByCurrencyId(itemId, currencyId) {
+            let foundPrice = {
+                currencyId: null,
+                gross: null,
+                linked: true,
+                net: null
+            };
+
+            // check if products are loaded
+            if (!this.products) {
+                return foundPrice;
+            }
+
+            // find product for itemId
+            const foundProduct = Object.values(this.products.items).find((item) => {
+                return item.id === itemId;
+            });
+
+            // find price from product with currency id
+            if (foundProduct) {
+                const priceForProduct = Object.values(foundProduct.price).find((price) => {
+                    return price.currencyId === currencyId;
+                });
+
+                if (priceForProduct) {
+                    foundPrice = priceForProduct;
+                }
+            }
+
+            // return the price
+            return foundPrice;
         },
 
         getProductColumns() {
@@ -143,12 +215,9 @@ Component.register('sw-product-list', {
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center'
-            }, {
-                property: 'price.gross',
-                label: this.$tc('sw-product.list.columnPrice'),
-                allowResize: true,
-                align: 'right'
-            }, {
+            },
+            ...this.currenciesColumns,
+            {
                 property: 'stock',
                 label: this.$tc('sw-product.list.columnInStock'),
                 inlineEdit: 'number',

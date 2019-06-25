@@ -6,13 +6,14 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\Pricing\CalculatedListingPrice;
 
 class SalesChannelProductEntity extends ProductEntity
 {
     public const VISIBILITY_FILTERED = 'product-visibility';
 
     /**
-     * @var CalculatedPrice
+     * @var CalculatedListingPrice
      */
     protected $calculatedListingPrice;
 
@@ -40,12 +41,12 @@ class SalesChannelProductEntity extends ProductEntity
         return $this->getStock() >= $this->getMinPurchase();
     }
 
-    public function getCalculatedListingPrice(): CalculatedPrice
+    public function getCalculatedListingPrice(): CalculatedListingPrice
     {
         return $this->calculatedListingPrice;
     }
 
-    public function setCalculatedListingPrice(CalculatedPrice $calculatedListingPrice): void
+    public function setCalculatedListingPrice(CalculatedListingPrice $calculatedListingPrice): void
     {
         $this->calculatedListingPrice = $calculatedListingPrice;
     }

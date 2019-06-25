@@ -297,7 +297,7 @@ namespace DocsTest {
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => Uuid::randomHex(), 'name' => 'test'],
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 17, 'name' => 'with id'],
             ]], $this->getSalesChannelContext()->getContext());

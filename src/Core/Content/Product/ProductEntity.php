@@ -17,8 +17,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityC
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\Pricing\Price;
-use Shopware\Core\Framework\Pricing\PriceRuleCollection;
+use Shopware\Core\Framework\Pricing\PriceCollection;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
@@ -58,7 +59,7 @@ class ProductEntity extends Entity
     protected $active;
 
     /**
-     * @var Price|null
+     * @var PriceCollection|null
      */
     protected $price;
 
@@ -248,7 +249,7 @@ class ProductEntity extends Entity
     protected $prices;
 
     /**
-     * @var PriceRuleCollection|null
+     * @var ListingPriceCollection|null
      */
     protected $listingPrices;
 
@@ -402,14 +403,23 @@ class ProductEntity extends Entity
         $this->active = $active;
     }
 
-    public function getPrice(): ?Price
+    public function getPrice(): ?PriceCollection
     {
         return $this->price;
     }
 
-    public function setPrice(Price $price): void
+    public function setPrice(PriceCollection $price): void
     {
         $this->price = $price;
+    }
+
+    public function getCurrencyPrice(string $currencyId): ?Price
+    {
+        if ($this->price === null) {
+            return null;
+        }
+
+        return $this->price->getCurrencyPrice($currencyId);
     }
 
     public function getManufacturerNumber(): ?string
@@ -692,12 +702,12 @@ class ProductEntity extends Entity
         $this->prices = $prices;
     }
 
-    public function getListingPrices(): ?PriceRuleCollection
+    public function getListingPrices(): ?ListingPriceCollection
     {
         return $this->listingPrices;
     }
 
-    public function setListingPrices(PriceRuleCollection $listingPrices): void
+    public function setListingPrices(ListingPriceCollection $listingPrices): void
     {
         $this->listingPrices = $listingPrices;
     }

@@ -672,7 +672,7 @@ class RecalculationServiceTest extends TestCase
             'productNumber' => $productNumber,
             'stock' => 1,
             'name' => $name,
-            'price' => ['gross' => $price + ($price * $taxRate / 100), 'net' => $price, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price + ($price * $taxRate / 100), 'net' => $price, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => $taxRate],
         ];
@@ -738,7 +738,9 @@ class RecalculationServiceTest extends TestCase
         $default = [
             'id' => $id,
             'productNumber' => Uuid::randomHex(),
-            'price' => ['gross' => 119.99, 'net' => 99.99, 'linked' => false],
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 119.99, 'net' => 99.99, 'linked' => false],
+            ],
             'name' => 'test',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['taxRate' => 19, 'name' => 'test'],

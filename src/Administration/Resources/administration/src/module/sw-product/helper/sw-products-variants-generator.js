@@ -22,7 +22,7 @@ export default class VariantsGenerator extends EventEmitter {
         this.languageStore = this.State.getStore('language');
     }
 
-    createNewVariants(forceGenerating) {
+    createNewVariants(forceGenerating, currencies) {
         return new Promise((resolve) => {
             const grouped = this.groupTheOptions(this.configurators);
 
@@ -41,7 +41,7 @@ export default class VariantsGenerator extends EventEmitter {
 
             this.loadExisting(this.product.id).then((variantsOnServer) => {
                 // filter deletable and creatable variations
-                this.filterVariations(permutations, variantsOnServer)
+                this.filterVariations(permutations, variantsOnServer, currencies)
                     .then((queues) => {
                         if (!forceGenerating) {
                             this.emit('notification', {
@@ -74,7 +74,7 @@ export default class VariantsGenerator extends EventEmitter {
         });
     }
 
-    filterVariations(newVariations, variationOnServer) {
+    filterVariations(newVariations, variationOnServer, currencies) {
         return new Promise((resolve) => {
             const createQueue = [];
 
@@ -150,67 +150,82 @@ export default class VariantsGenerator extends EventEmitter {
                     return { id: optionId };
                 });
 
-                // TODO: Refactor for currencies
-                // New variation price based on the parent price
-                const variationPrice = deepCopyObject(this.product.price);
-
-                // Rewrite the price rules for the API request
-                const priceRules = Object.values(this.product.prices.items).map((priceRule) => {
-                    return {
-                        price: {
-                            gross: parseFloat(priceRule.price.gross),
-                            net: parseFloat(priceRule.price.net),
-                            linked: priceRule.price.linked
-                        },
-                        quantityStart: priceRule.quantityStart,
-                        quantityEnd: priceRule.quantityEnd,
-                        currencyId: priceRule.currencyId,
-                        ruleId: priceRule.ruleId
-                    };
-                });
+                // new variation price
+                const variationPrice = [];
 
                 // Go through each option and add price changes to main price of variation
                 variations.map((variationObject) => variationObject.id).forEach((variationId) => {
                     priceChanges.forEach((option) => {
                         if (option.id === variationId && option.price) {
-                            // TODO: Refactor for currencies
-                            const optionPriceGross = option.price[0] && option.price[0].gross
-                                ? parseFloat(option.price[0].gross)
-                                : 0;
-                            const optionPriceNet = option.price[0] && option.price[0].net
-                                ? parseFloat(option.price[0].net)
-                                : 0;
+                            // iterate through each currency
+                            option.price.forEach((price) => {
+                                // check for price surcharges
+                                if (price.gross !== 0 || price.net !== 0) {
+                                    // get parent price for currency
+                                    const refCurrencyPrice = this.product.price.find((productPrice) => {
+                                        return productPrice.currencyId === price.currencyId;
+                                    });
 
-                            variationPrice.gross += optionPriceGross;
-                            variationPrice.net += optionPriceNet;
+                                    let refPrice = refCurrencyPrice;
 
-                            priceRules.forEach((priceRule) => {
-                                priceRule.price.gross += option.price.gross ? parseFloat(option.price.gross) : 0;
-                                priceRule.price.net += option.price.net ? parseFloat(option.price.net) : 0;
+                                    // use the default price as fallback when no custom price for the currency exists
+                                    if (!refCurrencyPrice) {
+                                        const defaultCurrency = Object.values(currencies.items).find((currency) => {
+                                            return currency.isDefault;
+                                        });
+
+                                        const defaultCurrencyPrice = this.product.price.find((productPrice) => {
+                                            return productPrice.currencyId === defaultCurrency.id;
+                                        });
+
+                                        const actualCurrency = Object.values(currencies.items).find((currency) => {
+                                            return currency.id === price.currencyId;
+                                        });
+
+                                        // recalculate price for currency with conversion factor
+                                        refPrice = {
+                                            net: defaultCurrencyPrice.net * actualCurrency.factor,
+                                            gross: defaultCurrencyPrice.gross * actualCurrency.factor
+                                        };
+                                    }
+
+                                    // calculate new price with surcharge
+                                    const grossPrice = refPrice.gross + price.gross;
+                                    const netPrice = refPrice.net + price.net;
+
+                                    // push new currency price with surcharges to variation price
+                                    variationPrice.push({
+                                        currencyId: price.currencyId,
+                                        gross: grossPrice > 0 ? grossPrice : 0,
+                                        linked: price.linked,
+                                        net: netPrice > 0 ? netPrice : 0
+                                    });
+                                }
                             });
                         }
                     });
                 });
 
-                // check for negative prices
-                // TODO: Refactor for currencies when available
-                variationPrice.gross = variationPrice.gross > 0 ? variationPrice.gross : 0;
-                variationPrice.net = variationPrice.net > 0 ? variationPrice.net : 0;
-
                 // get generated number and increment
                 const generated = this.createNumber(this.product.productNumber, increment, numbers);
                 increment = generated.increment;
 
-                // Add to create list
-                createQueue.push({
+                // create new variant product
+                const variantObject = {
                     parentId: this.product.id,
                     options: variations,
                     stock: 0,
                     productNumber: generated.number,
-                    price: variationPrice,
-                    priceRules: priceRules,
                     taxId: this.product.taxId
-                });
+                };
+
+                // when variant has custom price then add it to price
+                if (variationPrice.length > 0) {
+                    variantObject.price = variationPrice;
+                }
+
+                // Add to create list
+                createQueue.push(variantObject);
             });
 
             // create an array with only the values

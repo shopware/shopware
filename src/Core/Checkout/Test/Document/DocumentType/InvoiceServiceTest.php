@@ -171,7 +171,9 @@ class InvoiceServiceTest extends TestCase
             $products[] = [
                 'id' => $id,
                 'name' => $name,
-                'price' => ['gross' => $price, 'net' => $price, 'linked' => false],
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price, 'linked' => false],
+                ],
                 'productNumber' => Uuid::randomHex(),
                 'manufacturer' => ['id' => $id, 'name' => 'test'],
                 'tax' => ['id' => $id, 'taxRate' => $tax, 'name' => 'test'],

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -36,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -135,7 +135,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             case $field instanceof CartPriceField:
             case $field instanceof PriceDefinitionField:
             case $field instanceof PriceField:
-            case $field instanceof PriceRulesJsonField:
+            case $field instanceof ListingPriceField:
             case $field instanceof ObjectField:
             case $field instanceof JsonField:
                 $nested = [];

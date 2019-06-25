@@ -34,13 +34,14 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         string $path
     ): void {
         $violationList = new ConstraintViolationList();
-        $fieldName = $data->getKey();
 
         foreach ($constraints as $constraint) {
             $violations = $this->validator->validate($data->getValue(), $constraint);
 
             /** @var ConstraintViolation $violation */
             foreach ($violations as $violation) {
+                $fieldName = $data->getKey();
+
                 // correct pointer for json fields with pre-defined structure
                 if ($violation->getPropertyPath()) {
                     $property = str_replace('][', '/', $violation->getPropertyPath());
@@ -66,7 +67,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
 
         if (\count($violationList)) {
-            throw new WriteConstraintViolationException($violationList, $path . '/' . $fieldName);
+            throw new WriteConstraintViolationException($violationList, $path . '/' . $data->getKey());
         }
     }
 

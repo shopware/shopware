@@ -10,9 +10,9 @@ class ShopwareStyle extends SymfonyStyle
     {
         $progressBar = parent::createProgressBar($max);
 
-        $date = new \DateTime();
-        if (((int) $date->format('H')) >= 16) {
-            $progressBar->setProgressCharacter("\xF0\x9F\x8D\xBA");
+        $character = getenv('PROGRESS_BAR_CHARACTER');
+        if ($character) {
+            $progressBar->setProgressCharacter($character);
         }
 
         $progressBar->setBarCharacter('<fg=magenta>=</>');

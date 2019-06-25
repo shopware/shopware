@@ -1,5 +1,13 @@
+@import "~scss/variables";
+
 .sw-product-detail-context-prices {
+
+    .sw-card.context-price {
+        width: 100%;
+    }
+
     .context-prices__empty-state .sw-card__content {
+        width: 350px;
         height: 250px;
         position: relative;
 
@@ -8,36 +16,70 @@
         }
     }
 
-    .context-prices__toolbar-label {
-        display: block;
-        margin-bottom: 5px;
+    .sw-card .sw-card__content {
+        padding: 0;
     }
 
-    .context-prices__toolbar {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, auto));
-        grid-gap: 10px 20px;
-        margin-bottom: 30px;
+    .sw-product-detail-context-prices__toolbar {
+        padding: 25px;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-steam-cloud;
 
-        .sw-context-button {
-            .sw-button {
-                width: 100%;
-                height: 100%;
-            }
+        .sw-single-select__inner {
+            min-height: auto;
+            padding-top: 0;
+        }
+
+        .sw-single-select .sw-single-select__indicators {
+            top: 5px;
         }
     }
 
-    .context-prices__prices {
-        margin: 0 0 30px 0;
+    .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content {
+        height: auto;
+        padding: 5px 20px 10px 20px;
     }
 
-    .context-prices__actions {
-        max-width: 800px;
-        margin: 40px auto;
-        display: grid;
-        grid-auto-flow: column;
-        justify-content: center;
-        justify-items: center;
+    .sw-data-grid .sw-data-grid__body .product-detail-context-prices__price-field-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        height: 70px;
+    }
+
+    .sw-data-grid.is--compact .sw-data-grid__body .product-detail-context-prices__price-field-wrapper {
+        flex-wrap: nowrap;
         align-items: center;
+
+        .sw-product-detail-context-prices__inherited-icon {
+            margin-right: 10px;
+        }
+    }
+
+    .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content .sw-field__addition {
+        display: none;
+    }
+
+    .sw-product-detail-context-prices__inherited-icon {
+        cursor: pointer;
+    }
+
+    .sw-product-detail-context-prices__empty-state {
+        max-width: 450px;
+        margin: 0 auto;
+        padding: 60px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        p {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .sw-single-select {
+            width: 100%;
+        }
     }
 }

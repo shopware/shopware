@@ -56,15 +56,22 @@
         </sw-container>
 
         {% block sw_product_price_form_price_field %}
-            {# TODO: Add inheritation after adding currencies with Ticket NEXT-2055 #}
-            <sw-price-field v-if="!isLoading"
-                            :price="product.price"
-                            :taxRate="productTaxRate"
-                            :currency="defaultCurrency"
-                            rootPointer="product"
-                            validation="required"
-                            required>
-            </sw-price-field>
+            <sw-inherit-wrapper v-if="!isLoading"
+                                v-model="product.price"
+                                label=" "
+                                :hasParent="!!parentProduct.id"
+                                :inheritedValue="parentProduct.price"
+                                :customRemoveInheritanceFunction="removePriceInheritation">
+                <template #content="{ currentValue, updateCurrentValue, isInherited }">
+
+                    <sw-price-field :price="currentValue"
+                                    :taxRate="productTaxRate"
+                                    :disabled="isInherited"
+                                    :currency="defaultCurrency">
+                    </sw-price-field>
+
+                </template>
+            </sw-inherit-wrapper>
         {% endblock %}
 
         <sw-container columns="repeat(auto-fit, minmax(150px, 1fr))" gap="0px 30px">
@@ -132,5 +139,80 @@
                 </sw-inherit-wrapper>
             {% endblock %}
         </sw-container>
+
+        <sw-container columns="1fr" justify="end" class="sw-product-price-form__links">
+            {% block sw_product_price_form_advanced_prices_link %}
+                <router-link  :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
+                              v-if="!product._isNew"
+                             class="sw-card__quick-link">
+                    {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                </router-link>
+            {% endblock %}
+
+            {% block sw_product_price_form_maintain_currencies_link %}
+                <a @click.prevent="displayMaintainCurrencies = true" v-if="product.price" class="sw-card__quick-link">
+                    {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                </a>
+            {% endblock %}
+        </sw-container>
+
+        {% block sw_product_price_form_modal_maintain_currencies %}
+            <sw-modal v-if="displayMaintainCurrencies"
+                      @modal-close="displayMaintainCurrencies = false"
+                      :title="$tc('sw-product.priceForm.maintainCurrencies')"
+                      class="sw-product-price-form__maintain-currencies-modal">
+
+                {% block sw_product_price_form_modal_maintain_currencies_grid %}
+                    <sw-data-grid :dataSource="currenciesList"
+                                  :columns="maintainCurrencyColumns"
+                                  :showSelection="false"
+                                  :compactMode="false"
+                                  :showActions="false">
+
+                        {% block sw_product_price_form_modal_maintain_currencies_grid_column_name %}
+                            <template slot="column-name" slot-scope="{ item }">
+                                {% block sw_product_price_form_modal_maintain_currencies_grid_column_name_inherit_field %}
+                                    <sw-inheritance-switch :isInherited="isCurrencyInherited(item)"
+                                                      v-if="!item.isDefault"
+                                                      class="sw-product-price-form__inherited-icon"
+                                                      @inheritance-restore="onInheritanceRestore(item.id)"
+                                                      @inheritance-remove="onInheritanceRemove(item)">
+                                    </sw-inheritance-switch>
+                                {% endblock %}
+
+                                {% block sw_product_price_form_modal_maintain_currencies_grid_column_name_item_name %}
+                                    <p>{{ item.translated.name || item.name }}</p>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_product_price_form_modal_maintain_currencies_grid_column_price %}
+                            <template slot="column-price" slot-scope="{ item }">
+                                {% block sw_product_price_form_modal_maintain_currencies_grid_column_price_field %}
+                                    <sw-price-field :price="product.price"
+                                                    :defaultPrice="defaultPrice"
+                                                    :taxRate="productTaxRate"
+                                                    :label="false"
+                                                    enableInheritance
+                                                    :currency="item">
+                                    </sw-price-field>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                    </sw-data-grid>
+                {% endblock %}
+
+                {% block sw_product_price_form_modal_maintain_currencies_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_product_price_form_modal_maintain_currencies_footer_button %}
+                            <sw-button variant="primary" size="small" @click="displayMaintainCurrencies = false">
+                                {{ $tc('sw-product.priceForm.closeWindow') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
     </div>
 {% endblock %}

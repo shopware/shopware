@@ -98,8 +98,8 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
         static::assertInstanceOf(WriteException::class, $exception);
         static::assertCount(2, $exception->getExceptions());
 
-        static::assertEquals('/blocks/0/slots/1/translations/' . Defaults::LANGUAGE_SYSTEM . '/config/url/source', $exception->getExceptions()[0]->getPath());
-        static::assertEquals('/blocks/1/slots/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/config/content/value', $exception->getExceptions()[1]->getPath());
+        static::assertEquals('/blocks/0/slots/1/translations/' . Defaults::LANGUAGE_SYSTEM . '/config', $exception->getExceptions()[0]->getPath());
+        static::assertEquals('/blocks/1/slots/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/config', $exception->getExceptions()[1]->getPath());
     }
 
     private function createPage(): string

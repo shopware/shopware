@@ -165,7 +165,7 @@ class EntityRepositoryTest extends TestCase
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 5, 'linked' => false]],
                 ],
                 [
                     'id' => $id2,
@@ -174,7 +174,7 @@ class EntityRepositoryTest extends TestCase
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 5, 'linked' => false]],
                 ],
             ],
             $context
@@ -248,11 +248,10 @@ class EntityRepositoryTest extends TestCase
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 5, 'linked' => false]],
                     'prices' => [
                         [
-                            'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
-                            'currencyId' => Defaults::CURRENCY,
+                            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 5, 'linked' => false]],
                             'quantityStart' => 1,
                             'quantityEnd' => 9,
                             'rule' => [
@@ -261,8 +260,7 @@ class EntityRepositoryTest extends TestCase
                             ],
                         ],
                         [
-                            'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
-                            'currencyId' => Defaults::CURRENCY,
+                            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 5, 'linked' => false]],
                             'quantityStart' => 10,
                             'rule' => [
                                 'name' => 'rule 2',
@@ -278,11 +276,10 @@ class EntityRepositoryTest extends TestCase
                     'name' => 'Test',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['name' => 'test'],
-                    'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 5, 'linked' => false]],
                     'prices' => [
                         [
-                            'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
-                            'currencyId' => Defaults::CURRENCY,
+                            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 5, 'linked' => false]],
                             'quantityStart' => 1,
                             'quantityEnd' => 9,
                             'rule' => [
@@ -291,8 +288,7 @@ class EntityRepositoryTest extends TestCase
                             ],
                         ],
                         [
-                            'price' => ['gross' => 10, 'net' => 5, 'linked' => false],
-                            'currencyId' => Defaults::CURRENCY,
+                            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 5, 'linked' => false]],
                             'quantityStart' => 10,
                             'rule' => [
                                 'name' => 'rule 4',

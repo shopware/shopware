@@ -84,7 +84,7 @@ EOF;
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
-            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -111,7 +111,9 @@ EOF;
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
-            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false],
+            ],
         ];
 
         $this->getBrowserAuthenticatedWithIntegration()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -180,7 +182,7 @@ EOF;
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
-            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -223,7 +225,7 @@ EOF;
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
-            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -266,7 +268,7 @@ EOF;
             'name' => $id,
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
-            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -351,7 +353,7 @@ EOF;
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'Test',
-            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'test'],
             'categories' => [
@@ -421,7 +423,7 @@ EOF;
             'name' => 'Cotton Shirt',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'Shopware AG'],
-            'price' => ['gross' => 50, 'net' => 25, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
         ];
 
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -510,23 +512,21 @@ EOF;
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'prices' => [
                 [
                     'id' => $ruleA,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 ],
                 [
                     'id' => $ruleB,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
                 ],
             ],
         ];
@@ -582,23 +582,21 @@ EOF;
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'prices' => [
                 [
                     'id' => $ruleA,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 ],
                 [
                     'id' => $ruleB,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
                 ],
             ],
         ];
@@ -646,7 +644,7 @@ EOF;
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'categories' => [
@@ -700,7 +698,7 @@ EOF;
             'name' => 'Wool Shirt',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => 'Shopware AG'],
-            'price' => ['gross' => 8300, 'net' => 8300, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
         ];
 
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -735,7 +733,7 @@ EOF;
             'name' => 'Wool Shirt',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => $manufacturerName],
-            'price' => ['gross' => 8300, 'net' => 8300, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
             'stock' => 50,
         ];
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -748,7 +746,7 @@ EOF;
             'name' => 'Wool Shirt 2',
             'tax' => ['name' => 'test', 'taxRate' => 10],
             'manufacturer' => ['name' => $manufacturerName],
-            'price' => ['gross' => 8300, 'net' => 8300, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
             'stock' => 100,
         ];
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);

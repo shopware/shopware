@@ -90,11 +90,12 @@
                 :columns="variantColumns"
                 :showSettings="true"
                 :showSelection="false"
-                :allowInlineEdit="true"
                 :sortBy="sortBy"
                 :sortDirection="sortDirection"
                 :isLoading="isLoading"
                 :skeletonItemAmount="limit"
+                :allowInlineEdit="true"
+                identifier="product-variants-overview"
                 @column-sort="onSortColumn"
                 @inline-edit-save="onInlineEditSave"
                 @inline-edit-cancel="onInlineEditCancel">
@@ -114,44 +115,86 @@
                 {% endblock %}
 
                 {% block sw_product_variants_overview_data_grid_column_price %}
-                    <template slot="column-price" slot-scope="{ item, isInlineEdit, compact }">
-                        <template v-if="isInlineEdit">
-                            {% block sw_product_variants_overview_data_grid_column_price_field_inline %}
-                                <sw-product-variants-price-field
-                                        v-if="currency"
-                                        :price="item.price"
-                                        :taxRate="item.taxId"
-                                        :compact="compact"
-                                        :currency="currency"
-                                        onlyPositive>
-                                </sw-product-variants-price-field>
-                            {% endblock %}
-                        </template>
-                        <template v-else>
-                            {% block sw_product_variants_overview_data_grid_column_price_field_view %}
-                                <sw-product-variants-price-field
-                                        v-if="currency"
-                                        :price="item.price"
-                                        :taxRate="item.taxId"
-                                        :compact="compact"
-                                        :currency="currency"
-                                        onlyPositive
-                                        readonly>
-                                </sw-product-variants-price-field>
-                            {% endblock %}
-                        </template>
+                    <template v-for="currency in currenciesList" :slot="`column-price-${currency.isoCode}`" slot-scope="{ item, compact, isInlineEdit }">
+
+                        {% block sw_product_variants_overview_data_grid_column_price_inline_edit %}
+                            <template v-if="isInlineEdit">
+                                {% block sw_product_variants_overview_data_grid_column_price_inline_edit_inherit %}
+                                    <sw-inheritance-switch :isInherited="isPriceFieldInherited(item, currency)"
+                                                      class="sw-product-detail-context-prices__inherited-icon"
+                                                      @inheritance-restore="onInheritanceRestore(item, currency)"
+                                                      @inheritance-remove="onInheritanceRemove(item, currency)">
+                                    </sw-inheritance-switch>
+                                {% endblock %}
+
+                                {% block sw_product_variants_overview_data_grid_column_price_inline_edit_price_field %}
+                                    <sw-price-field :price="item.price ? item.price : []"
+                                                    :defaultPrice="getDefaultPriceForVariant(item, currency)"
+                                                    :taxRate="productTaxRate"
+                                                    :label="false"
+                                                    :compact="compact"
+                                                    enableInheritance
+                                                    :currency="currency">
+                                    </sw-price-field>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_product_variants_overview_data_grid_column_price_preview %}
+                            <template v-else>
+                                {% block sw_product_variants_overview_data_grid_column_price_preview_inherit %}
+                                    <sw-inheritance-switch :isInherited="isPriceFieldInherited(item, currency)"
+                                                      class="sw-product-detail-context-prices__inherited-icon"
+                                                      :disabled="true">
+                                    </sw-inheritance-switch>
+                                {% endblock %}
+
+                                {% block sw_product_variants_overview_data_grid_column_price_preview_price_field %}
+                                    <sw-price-preview :price="item.price ? item.price : []"
+                                                      :defaultPrice="getDefaultPriceForVariant(item, currency)"
+                                                      :taxRate="productTaxRate"
+                                                      :currency="currency">
+                                    </sw-price-preview>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
                     </template>
                 {% endblock %}
 
                 {% block sw_product_variants_overview_data_grid_column_stock %}
                     <template slot="column-stock" slot-scope="{ item, isInlineEdit, compact }">
-                            <template v-if="isInlineEdit">
-                                <sw-number-field :size="compact ? 'small' : 'default'" v-model="item.stock"></sw-number-field>
-                            </template>
+                        {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
+                            <sw-field v-if="isInlineEdit"
+                                      type="number"
+                                      :size="compact ? 'small' : 'default'"
+                                      v-model="item.stock">
+                            </sw-field>
+                        {% endblock %}
 
-                            <template v-else>
+                        {% block sw_product_variants_overview_data_grid_column_stock_preview %}
+                            <span v-else>
                                 {{ item.stock }}
-                            </template>
+                            </span>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_product_variants_overview_data_grid_column_product_number %}
+                    <template slot="column-productNumber" slot-scope="{ item, isInlineEdit, compact }">
+                        {% block sw_product_variants_overview_data_grid_column_product_number_inline_edit %}
+                            <sw-field v-if="isInlineEdit"
+                                      type="text"
+                                      :size="compact ? 'small' : 'default'"
+                                      v-model="item.productNumber">
+                            </sw-field>
+                        {% endblock %}
+
+                        {% block sw_product_variants_overview_data_grid_column_product_number_preview %}
+                            <span class="sw-product-variants-overview_product-number" v-else>
+                                {{ item.productNumber }}
+                            </span>
+                        {% endblock %}
                     </template>
                 {% endblock %}
 

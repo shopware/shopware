@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
@@ -36,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -93,7 +93,7 @@ class ErdTypeMap
         TranslationsAssociationField::class => 'translationAssociation',
         OneToOneAssociationField::class => 'oneToOneAssociation',
         CanonicalUrlField::class => 'CanonicalUrlAssociation',
-        PriceRulesJsonField::class => 'priceRulesJson',
+        ListingPriceField::class => 'priceRulesJson',
         NumberRangeField::class => 'numberRange',
         ConfigJsonField::class => 'configurationValue',
         ManyToManyIdField::class => 'manyToManyId',

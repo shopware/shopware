@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -57,8 +58,8 @@ EOF;
         $bigId = Uuid::randomHex();
 
         $data = [
-            ['id' => $smallId, 'data' => ['gross' => 1.000000001, 'net' => 1.000000001]],
-            ['id' => $bigId, 'data' => ['gross' => 1.000000009, 'net' => 1.000000009]],
+            ['id' => $smallId, 'data' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1.000000001, 'net' => 1.000000001, 'linked' => true]]],
+            ['id' => $bigId, 'data' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1.000000009, 'net' => 1.000000009, 'linked' => true]]],
         ];
         $this->getWriter()->insert($this->registerDefinition(PriceFieldDefinition::class), $data, $context);
 

@@ -466,7 +466,7 @@ class EntityExtensionTest extends TestCase
             'stock' => 1,
             'name' => 'price test',
             'ean' => 'test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'myPrices' => [
@@ -475,14 +475,14 @@ class EntityExtensionTest extends TestCase
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 ],
                 [
                     'id' => $ruleB,
                     'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
                 ],
             ],
         ];
@@ -509,7 +509,7 @@ class EntityExtensionTest extends TestCase
             'stock' => 1,
             'name' => 'category test',
             'ean' => 'test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'myCategories' => [

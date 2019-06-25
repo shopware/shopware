@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Product;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
@@ -44,7 +45,7 @@ class ProductControllerTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
                 'visibilities' => [
@@ -90,7 +91,7 @@ class ProductControllerTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
                 'visibilities' => [
@@ -106,7 +107,7 @@ class ProductControllerTest extends TestCase
         $content = json_decode($client->getResponse()->getContent(), true);
 
         static::assertEquals($productId, $content['data']['id']);
-        static::assertEquals(10, $content['data']['price']['gross']);
+        static::assertEquals(10, $content['data']['price'][0]['gross']);
         static::assertEquals('with id', $content['data']['tax']['name']);
         static::assertEquals(17, $content['data']['tax']['taxRate']);
     }

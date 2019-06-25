@@ -33,7 +33,9 @@ module.exports = {
     },
     'change customer data and exit edit mode': (browser) => {
         browser
+            .clearValueManual('input[name=sw-field--customer-firstName]')
             .fillField('input[name=sw-field--customer-firstName]', 'Cran', true)
+            .clearValueManual('input[name=sw-field--customer-lastName]')
             .fillField('input[name=sw-field--customer-lastName]', 'Berry', true)
             .tickCheckbox('input[name=sw-field--customer-active]', false);
     },
@@ -92,7 +94,13 @@ module.exports = {
         browser
             .refresh()
             .waitForElementVisible('.sw-customer-detail__open-edit-mode-action')
+            .expect.element('.sw-customer-detail__open-edit-mode-action').to.not.have.attribute('disabled');
+
+        browser
             .click('.sw-customer-detail__open-edit-mode-action')
+            .expect.element('.sw-customer-detail__save-action').to.not.have.attribute('disabled');
+
+        browser
             .waitForElementVisible('.sw-customer-detail__save-action');
 
         browser

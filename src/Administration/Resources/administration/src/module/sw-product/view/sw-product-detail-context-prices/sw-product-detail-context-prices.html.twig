@@ -1,5 +1,5 @@
 {% block sw_product_detail_prices %}
-    <div class="sw-product-detail-context-prices">
+    <sw-container class="sw-product-detail-context-prices">
 
         {% block sw_product_detail_prices_empty_state %}
             <sw-card class="context-prices__empty-state"
@@ -10,167 +10,223 @@
         {% endblock %}
 
         {% block sw_product_detail_prices_price_card %}
-            <sw-card :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-product.prices.cardTitlePriceRule')"
-                     v-for="priceGroup in priceRuleGroups"
-                     :key="priceGroup.ruleId"
-                     class="context-price"
-                     :isLoading="isLoading"
-                     :large="true"
-                     v-else>
+            <sw-container v-else-if="priceRuleGroupsExists">
+                <sw-card :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-product.prices.cardTitlePriceRule')"
+                         v-for="priceGroup in priceRuleGroups"
+                         :key="priceGroup.ruleId"
+                         class="context-price"
+                         :isLoading="isLoading"
+                         :large="true">
 
-                {% block sw_product_detail_prices_price_card_toolbar %}
-                    <label class="context-prices__toolbar-label">{{ $tc('sw-product.prices.toolbarLabel') }}</label>
-                    <div class="context-prices__toolbar" v-if="!isLoading">
+                    {% block sw_product_detail_prices_price_card_toolbar %}
+                        <div class="sw-product-detail-context-prices__toolbar">
+                            <sw-container columns="1fr minmax(50px, max-content) minmax(50px, max-content) minmax(250px, 300px)" gap="0 10px">
 
-                        {% block sw_product_detail_prices_price_card_rule_selection %}
-                            <sw-entity-single-select
-                                    v-if="rules.entity"
-                                    id="rule"
-                                    :value="priceGroup.ruleId"
-                                    @input="onRuleChange($event, priceGroup.ruleId)"
-                                    :entity="rules.entity">
+                                {% block sw_product_detail_prices_price_card_toolbar_rule_selection %}
+                                    <sw-entity-single-select
+                                            v-if="rules.entity"
+                                            id="rule"
+                                            :value="priceGroup.ruleId"
+                                            :placeholder="$tc('sw-product.advancedPrices.selectRule')"
+                                            @input="onRuleChange($event, priceGroup.ruleId)"
+                                            :entity="rules.entity">
 
-                                <template slot="result_items" slot-scope="{ item, index }">
-                                    <sw-single-select-option
-                                            :disabled="!!priceRuleGroups[item.id]"
-                                            :index="index"
-                                            :item="item">
-                                        {{ item.name }}
-                                    </sw-single-select-option>
-                                </template>
+                                        <template slot="result_items" slot-scope="{ item, index }">
+                                            <sw-single-select-option
+                                                    :disabled="!!priceRuleGroups[item.id]"
+                                                    :index="index"
+                                                    :item="item">
+                                                {{ item.name }}
+                                            </sw-single-select-option>
+                                        </template>
+                                    </sw-entity-single-select>
+                                {% endblock %}
 
-                            </sw-entity-single-select>
-                        {% endblock %}
-
-                        {% block sw_product_detail_prices_price_card_action_delete %}
-                            <sw-button @click="onPriceGroupDelete(priceGroup.ruleId)">
-                                <sw-icon name="small-default-x-line-medium" size="20"></sw-icon> {{ $tc('sw-product.prices.buttonPriceRuleDelete') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_product_detail_prices_price_card_action_duplicate %}
-                            <sw-button v-if="canAddPriceRule"
-                                       @click="onPriceGroupDuplicate(priceGroup)"
-                                       :disabled="priceGroup.ruleId === null">
-                                <sw-icon name="small-copy" size="20"></sw-icon> {{ $tc('sw-product.prices.buttonPriceRuleDuplicate') }}
-                            </sw-button>
-                        {% endblock %}
-
-                        {% block sw_product_detail_prices_price_card_action_currency %}
-                            <sw-context-button :menuOffsetLeft="0">
-                                {% block sw_product_detail_prices_price_card_action_currency_button %}
-                                    <sw-button slot="button" :disabled="priceGroup.ruleId === null">
-                                        <sw-icon name="default-basic-plus-circle" size="20"></sw-icon> {{ $tc('sw-product.prices.buttonPriceRuleCurrencyAdd') }}
+                                {% block sw_product_detail_prices_price_card_toolbar_rule_delete %}
+                                    <sw-button @click="onPriceGroupDelete(priceGroup.ruleId)" size="small">
+                                        {{ $tc('sw-product.prices.buttonPriceRuleDelete') }}
                                     </sw-button>
                                 {% endblock %}
 
-                                {% block sw_product_detail_prices_price_card_action_currency_menu %}
-                                    <sw-context-menu-item v-for="currency in currencies"
-                                                          :key="currency.id"
-                                                          :disabled="!!priceGroup.currencies[currency.id] || priceGroup.ruleId === null"
-                                                          @click="onAddCurrency(priceGroup.ruleId, currency)">
-                                        <span slot="icon" class="currency-symbol">{{ currency.symbol }}</span>
-                                        {{ currency.translated.name }}
-                                        {{ (currency.isDefault) ? $tc('sw-product.prices.textCurrencyDefault') : '' }}
-                                    </sw-context-menu-item>
+                                {% block sw_product_detail_prices_price_card_toolbar_add_price_rule %}
+                                    <sw-button v-if="canAddPriceRule"
+                                               size="small"
+                                               @click="onPriceGroupDuplicate(priceGroup)"
+                                               :disabled="priceGroup.ruleId === null">
+                                        {{ $tc('sw-product.prices.buttonPriceRuleDuplicate') }}
+                                    </sw-button>
                                 {% endblock %}
-                            </sw-context-button>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
 
-                {% block sw_product_detail_prices_price_matrix %}
-                    <div class="context-prices__prices" v-if="!isLoading" v-for="currencyRule in priceGroup.currencies">
+                                {% block sw_product_detail_prices_price_card_toolbar_create_price_rule %}
+                                    <sw-button @click="createPriceRule(priceGroup)"
+                                               :disabled="canCreatePriceRule(priceGroup)"
+                                               variant="ghost"
+                                               size="small">
+                                        {{ $tc('sw-product.prices.buttonAddAdditionalPriceRule') }}
+                                    </sw-button>
+                                {% endblock %}
 
-                        {% block sw_product_detail_prices_price_matrix_title %}
-                            <h3 v-if="currencyRule.currency">
-                                {{ $tc('sw-product.prices.textPriceRuleForCurrency') }}: {{ currencyRule.currency.translated.name }} {{ (currencyRule.currency.isDefault) ? $tc('sw-product.prices.textCurrencyDefault') : '' }}
-                            </h3>
-                        {% endblock %}
+                            </sw-container>
+                        </div>
+                    {% endblock %}
 
-                        {% block sw_product_detail_prices_price_matrix_grid %}
-                            <sw-grid :items="currencyRule.prices" :selectable="false" v-if="isLoaded">
-                                <template slot="columns" slot-scope="{ item }">
-                                    {% block sw_product_detail_prices_price_matrix_grid_columns %}
+                    {% block sw_product_detail_prices_price_card_price_group_grid %}
+                        <sw-data-grid v-if="priceGroup.ruleId"
+                                      :dataSource="priceGroup.prices"
+                                      :columns="pricesColumns"
+                                      showSettings
+                                      :showSelection="false"
+                                      :compactMode="true">
 
-                                        {% block sw_product_detail_prices_price_matrix_grid_quantity_start %}
-                                            <sw-grid-column flex="1"
-                                                            align="stretch"
-                                                            :label="$tc('sw-product.prices.columnQuantityStart')">
-                                                <sw-field type="number"
-                                                          validation="required"
-                                                          required
-                                                          v-model="item.quantityStart">
-                                                </sw-field>
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_product_detail_prices_price_matrix_grid_quantity_end %}
-                                            <sw-grid-column flex="1"
-                                                            align="stretch"
-                                                            :label="$tc('sw-product.prices.columnQuantityEnd')">
-                                                <sw-field type="number"
-                                                          v-model="item.quantityEnd"
-                                                          :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
-                                                          @change="onQuantityEndChange($event, item, priceGroup)"
-                                                          :placeholder="$tc('sw-product.prices.placeholderQuantityEnd')">
-                                                </sw-field>
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_product_detail_prices_price_matrix_grid_price %}
-                                            <sw-grid-column flex="2"
-                                                            align="stretch"
-                                                            :label="$tc('sw-product.prices.columnPrice')">
-                                                <sw-price-field :price="item.price"
-                                                                :taxRate="productTaxRate"
-                                                                :currency="currencyRule.currency"
-                                                                required
-                                                                validation="required">
-                                                </sw-price-field>
-                                            </sw-grid-column>
-                                        {% endblock %}
-
-                                        {% block sw_product_detail_prices_price_matrix_grid_actions %}
-                                            <sw-grid-column flex="64px" align="center">
-                                                {% block sw_product_detail_prices_price_matrix_grid_actions_button %}
-                                                    <sw-context-button>
-                                                        {% block sw_product_detail_prices_price_matrix_grid_actions_duplicate %}
-                                                            <sw-context-menu-item @click="onPriceRuleDuplicate(item)">
-                                                                {{ $tc('sw-product.prices.contextMenuDuplicate') }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-
-                                                        {% block sw_product_detail_prices_price_matrix_grid_actions_delete %}
-                                                            <sw-context-menu-item variant="danger"
-                                                                                  @click="onPriceRuleDelete(item)"
-                                                                                  :disabled="currencyRule.currency.isDefault &&
-                                                                                             currencyRule.prices.length <= 1 &&
-                                                                                             Object.keys(priceGroup.currencies).length > 1">
-                                                                {{ $tc('sw-product.prices.contextMenuDelete') }}
-                                                            </sw-context-menu-item>
-                                                        {% endblock %}
-                                                    </sw-context-button>
-                                                {% endblock %}
-                                            </sw-grid-column>
-                                        {% endblock %}
+                            {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start %}
+                                <template slot="column-quantityStart" slot-scope="{ item, itemIndex, compact }">
+                                    {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
+                                        <sw-field type="number"
+                                                  v-model="item.quantityStart"
+                                                  validation="required"
+                                                  :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd + 1 : 1"
+                                                  :max="item.quantityEnd ? item.quantityEnd : null"
+                                                  :size="compact ? 'small' : 'default'">
+                                        </sw-field>
                                     {% endblock %}
                                 </template>
-                            </sw-grid>
+                            {% endblock %}
+
+                            {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end %}
+                                <template slot="column-quantityEnd" slot-scope="{ item, itemIndex, compact }">
+                                    {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end_field %}
+                                        <sw-field type="number"
+                                                  v-model="item.quantityEnd"
+                                                  :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
+                                                  placeholder="..."
+                                                  @change="onQuantityEndChange(item, priceGroup)"
+                                                  :min="item.quantityStart"
+                                                  :max="priceGroup.prices[itemIndex + 1] ? priceGroup.prices[itemIndex + 1].quantityStart - 1 : null"
+                                                  :size="compact ? 'small' : 'default'">
+                                        </sw-field>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list %}
+                                <template v-for="currency in currenciesList" :slot="`column-price-${currency.isoCode}`" slot-scope="{ item, column, compact }">
+                                    <div class="product-detail-context-prices__price-field-wrapper">
+
+                                        {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_inherit_field %}
+                                            <sw-inheritance-switch :isInherited="isPriceFieldInherited(item, currency)"
+                                                              v-if="!currency.isDefault"
+                                                              class="sw-product-detail-context-prices__inherited-icon"
+                                                              @inheritance-restore="onInheritanceRestore(item, currency)"
+                                                              @inheritance-remove="onInheritanceRemove(item, currency)">
+                                            </sw-inheritance-switch>
+                                        {% endblock %}
+
+                                        {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_price_field %}
+                                            <sw-price-field :price="item.price"
+                                                            :defaultPrice="findDefaultPriceOfRule(item)"
+                                                            :taxRate="productTaxRate"
+                                                            :label="false"
+                                                            :compact="compact"
+                                                            enableInheritance
+                                                            :currency="currency">
+                                            </sw-price-field>
+                                        {% endblock %}
+
+                                    </div>
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_product_detail_prices_price_card_price_group_grid_actions %}
+                                <template slot="actions" slot-scope="{ item }">
+
+                                    {% block sw_product_detail_prices_price_card_price_group_grid_actions_duplicate %}
+                                        <sw-context-menu-item @click="onPriceRuleDuplicate(item)">
+                                            {{ $tc('sw-product.prices.contextMenuDuplicate') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_product_detail_prices_price_card_price_group_grid_actions_delete %}
+                                        <sw-context-menu-item variant="danger"
+                                                              @click="onPriceRuleDelete(item)">
+                                            {{ $tc('sw-product.prices.contextMenuDelete') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                </template>
+                            {% endblock %}
+
+                        </sw-data-grid>
+                    {% endblock %}
+
+                    {% block sw_product_detail_prices_price_card_price_group_empty_state %}
+                        <div v-else class="sw-product-detail-context-prices__empty-state">
+                            {% block sw_product_detail_prices_price_card_price_group_empty_state_warning %}
+                                <p>{{ $tc('sw-product.advancedPrices.newRuleWarning') }}</p>
+                            {% endblock %}
+
+                            {% block sw_product_detail_prices_price_card_price_group_empty_state_rule_select %}
+                                <sw-entity-single-select v-if="rules.entity"
+                                                         id="rule"
+                                                         :value="priceGroup.ruleId"
+                                                         :placeholder="$tc('sw-product.advancedPrices.selectRule')"
+                                                         @input="onRuleChange($event, priceGroup.ruleId)"
+                                                         :entity="rules.entity">
+                                    <template slot="result_items" slot-scope="{ item, index }">
+                                        <sw-single-select-option :disabled="!!priceRuleGroups[item.id]"
+                                                                 :index="index"
+                                                                 :item="item">
+                                            {{ item.name }}
+                                        </sw-single-select-option>
+                                    </template>
+                                </sw-entity-single-select>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                </sw-card>
+
+                {% block sw_product_detail_prices_price_card_price_group_add_price_rule %}
+                    <sw-container justify="center" columns="250x">
+                        {% block sw_product_detail_prices_price_card_price_group_add_price_rule_button %}
+                            <sw-button v-if="canAddPriceRule"
+                                       @click="onAddNewPriceGroup(null)"
+                                       class="sw-product-detail-context-prices__add-new-rule"
+                                       variant="ghost"
+                                       :disabled="emptyPriceRuleExists"
+                                       size="small">
+                                {{ $tc('sw-product.prices.buttonAddAdditionalPriceRuleGroup') }}
+                            </sw-button>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+
+            </sw-container>
+
+            <sw-card v-else>
+                {% block sw_product_detail_prices_price_empty_state %}
+                    <div class="sw-product-detail-context-prices__empty-state">
+                        {% block sw_product_detail_prices_price_empty_state_text %}
+                            <p>{{ $tc('sw-product.advancedPrices.advancedPricesNotExisting') }}</p>
+                        {% endblock %}
+
+                        {% block sw_product_detail_prices_price_empty_state_select_rule %}
+                            <sw-entity-single-select v-if="rules.entity"
+                                                     id="rule"
+                                                     value=""
+                                                     placeholder="Regel auswählen"
+                                                     @input="onAddNewPriceGroup($event)"
+                                                     :entity="rules.entity">
+                                <template slot="result_items" slot-scope="{ item, index }">
+                                    <sw-single-select-option :disabled="!!priceRuleGroups[item.id]" :index="index" :item="item">
+                                        {{ item.name }}
+                                    </sw-single-select-option>
+                                </template>
+                            </sw-entity-single-select>
                         {% endblock %}
                     </div>
                 {% endblock %}
             </sw-card>
-        {% endblock %}
 
-        {% block sw_product_detail_prices_actions %}
-            <div class="context-prices__actions" v-if="!isLoading">
-                {% block sw_product_detail_prices_actions_add_button %}
-                    <sw-button v-if="canAddPriceRule" @click="onAddNewPriceGroup">
-                        {{ $tc('sw-product.prices.buttonAddAdditionalPriceRule') }}
-                    </sw-button>
-                {% endblock %}
-            </div>
         {% endblock %}
-    </div>
+    </sw-container>
 {% endblock %}

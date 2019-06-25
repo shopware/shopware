@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Language\LanguageDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 
 class EntityCacheKeyGeneratorTest extends TestCase
@@ -56,18 +55,10 @@ class EntityCacheKeyGeneratorTest extends TestCase
                 (new ProductPriceEntity())->assign([
                     'id' => $id,
                     '_uniqueIdentifier' => $id,
-                    'currency' => (new CurrencyEntity())->assign([
-                        'id' => $id,
-                        '_uniqueIdentifier' => $id,
-                    ]),
                 ]),
                 (new ProductPriceEntity())->assign([
                     'id' => $id2,
                     '_uniqueIdentifier' => $id2,
-                    'currency' => (new CurrencyEntity())->assign([
-                        'id' => $id2,
-                        '_uniqueIdentifier' => $id2,
-                    ]),
                 ]),
             ]),
             'categories' => new CategoryCollection([
@@ -94,12 +85,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
         static::assertContains('tax-' . $id, $tags);
 
         static::assertContains('product_price-' . $id, $tags);
-        static::assertContains('currency-' . $id, $tags);
-        static::assertContains('currency_translation.language_id', $tags);
-
         static::assertContains('product_price-' . $id2, $tags);
-        static::assertContains('currency-' . $id2, $tags);
-        static::assertContains('currency_translation.language_id', $tags);
 
         static::assertContains('category-' . $id, $tags);
         static::assertContains('category_translation.language_id', $tags);

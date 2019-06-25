@@ -46,16 +46,15 @@ class ProductApiTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'prices' => [
                 [
                     'id' => $id,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false]],
                 ],
             ],
         ];
@@ -87,15 +86,14 @@ class ProductApiTest extends TestCase
                 [
                     'id' => $id,
                     'quantityEnd' => 20,
-                    'price' => ['gross' => 5000, 'net' => 4000, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 5000, 'net' => 4000, 'linked' => false]],
                 ],
 
                 //add new graduation to existing rule
                 [
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'ruleId' => $ruleA,
-                    'price' => ['gross' => 10, 'net' => 50, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 50, 'linked' => false]],
                 ],
             ],
         ];
@@ -117,7 +115,7 @@ class ProductApiTest extends TestCase
         /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->get($id);
         static::assertEquals($ruleA, $price->getRuleId());
-        static::assertEquals(new Price(4000, 5000, false), $price->getPrice());
+        static::assertEquals(new Price(Defaults::CURRENCY, 4000, 5000, false), $price->getPrice()->get(Defaults::CURRENCY));
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertEquals(20, $price->getQuantityEnd());
@@ -129,10 +127,9 @@ class ProductApiTest extends TestCase
             'prices' => [
                 [
                     'id' => $id3,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'ruleId' => $ruleB,
-                    'price' => ['gross' => 50, 'net' => 50, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 50, 'linked' => false]],
                 ],
             ],
         ];
@@ -154,7 +151,7 @@ class ProductApiTest extends TestCase
         /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->get($id3);
         static::assertEquals($ruleB, $price->getRuleId());
-        static::assertEquals(new Price(50, 50, false), $price->getPrice());
+        static::assertEquals(new Price(Defaults::CURRENCY, 50, 50, false), $price->getPrice()->get(Defaults::CURRENCY));
 
         static::assertEquals(1, $price->getQuantityStart());
         static::assertNull($price->getQuantityEnd());
@@ -171,7 +168,7 @@ class ProductApiTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'price test',
-            'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'description' => $description,

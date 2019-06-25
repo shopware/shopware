@@ -175,7 +175,9 @@ class VariantListingIndexerTest extends TestCase
                 'stock' => 10,
                 'name' => 'example',
                 'active' => true,
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => true],
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true],
+                ],
                 'configuratorSettings' => [
                     [
                         'option' => [

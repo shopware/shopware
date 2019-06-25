@@ -93,6 +93,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <tag name="shopware.dbal_indexing.indexer" priority="300"/>
             <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer">

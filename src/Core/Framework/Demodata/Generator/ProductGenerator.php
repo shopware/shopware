@@ -166,7 +166,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $product = [
             'id' => Uuid::randomHex(),
             'productNumber' => $this->numberRangeValueGenerator->getValue('product', $context->getContext(), null),
-            'price' => ['gross' => $price, 'net' => $price / $reverseTaxrate, 'linked' => true],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $reverseTaxrate, 'linked' => true]],
             'name' => $faker->productName,
             'description' => $faker->text(),
             'descriptionLong' => $this->generateRandomHTML(
@@ -213,20 +213,18 @@ class ProductGenerator implements DemodataGeneratorInterface
             $gross = random_int(500, 1000);
 
             $prices[] = [
-                'currencyId' => Defaults::CURRENCY,
                 'ruleId' => $ruleId,
                 'quantityStart' => 1,
                 'quantityEnd' => 10,
-                'price' => ['gross' => $gross, 'net' => $gross / $reverseTaxRate, 'linked' => true],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $gross, 'net' => $gross / $reverseTaxRate, 'linked' => true]],
             ];
 
             $gross = random_int(1, 499);
 
             $prices[] = [
-                'currencyId' => Defaults::CURRENCY,
                 'ruleId' => $ruleId,
                 'quantityStart' => 11,
-                'price' => ['gross' => $gross, 'net' => $gross / $reverseTaxRate, 'linked' => true],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $gross, 'net' => $gross / $reverseTaxRate, 'linked' => true]],
             ];
         }
 

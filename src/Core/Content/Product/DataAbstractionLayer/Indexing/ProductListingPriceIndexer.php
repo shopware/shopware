@@ -3,17 +3,21 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceRulesJsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Pricing\ListingPrice;
+use Shopware\Core\Framework\Pricing\ListingPriceCollection;
+use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -50,13 +54,29 @@ class ProductListingPriceIndexer implements IndexerInterface
      */
     private $cache;
 
+    /**
+     * @var PriceRounding
+     */
+    private $priceRounding;
+
+    /**
+     * @var Price
+     */
+    private $priceStruct;
+
+    /**
+     * @var ListingPrice
+     */
+    private $listingPrice;
+
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         Connection $connection,
         IteratorFactory $iteratorFactory,
         ProductDefinition $productDefinition,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapterInterface $cache
+        TagAwareAdapterInterface $cache,
+        PriceRounding $priceRounding
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->connection = $connection;
@@ -64,6 +84,9 @@ class ProductListingPriceIndexer implements IndexerInterface
         $this->productDefinition = $productDefinition;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
+        $this->priceRounding = $priceRounding;
+        $this->priceStruct = new Price('', 0, 0, true);
+        $this->listingPrice = new ListingPrice();
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -110,51 +133,64 @@ class ProductListingPriceIndexer implements IndexerInterface
             return;
         }
 
-        $prices = $this->fetchPrices($ids);
+        $currencies = $this->connection->fetchAll(
+            'SELECT LOWER(HEX(id)) as array_key, LOWER(HEX(id)) as id, decimal_precision, factor 
+             FROM currency'
+        );
+        $currencies = FetchModeHelper::groupUnique($currencies);
+
+        $prices = $this->fetchPrices($ids, $currencies);
 
         $tags = [];
 
-        foreach ($prices as $id => $productPrices) {
-            $productPrices = $this->convertPrices($productPrices);
-            $ruleIds = array_keys(array_flip(array_column($productPrices, 'ruleId')));
+        foreach ($prices as $productId => $productPrices) {
+            $ruleIds = array_keys(array_flip(array_column($productPrices, 'rule_id')));
+
             $listingPrices = [];
 
             foreach ($ruleIds as $ruleId) {
-                $listingPrices[] = $this->findCheapestRulePrice($productPrices, $ruleId);
+                foreach ($currencies as $currencyId => $currency) {
+                    $range = $this->calculatePriceRange($currencyId, $ruleId, $productPrices);
+
+                    $currencyKey = 'c' . $currencyId;
+                    $ruleKey = 'r' . $ruleId;
+
+                    $listingPrices[$ruleKey][$currencyKey] = $range;
+                }
             }
 
-            $listingPrices = PriceRulesJsonFieldSerializer::convertToStorage($listingPrices);
+            $structs = $this->hydrate($listingPrices);
+
+            $encoded = json_encode(['structs' => serialize($structs), 'formatted' => $listingPrices]);
 
             $this->connection->executeUpdate(
                 'UPDATE product SET listing_prices = :price WHERE id = :id',
                 [
-                    'price' => json_encode($listingPrices),
-                    'id' => Uuid::fromHexToBytes($id),
+                    'price' => $encoded,
+                    'id' => Uuid::fromHexToBytes($productId),
                 ]
             );
 
-            $tags[] = $this->cacheKeyGenerator->getEntityTag($id, $this->productDefinition);
+            $tags[] = $this->cacheKeyGenerator->getEntityTag($productId, $this->productDefinition);
         }
 
         $this->cache->invalidateTags($tags);
     }
 
-    private function fetchPrices(array $ids): array
+    private function fetchPrices(array $ids, array $currencies): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
             'LOWER(HEX(IFNULL(product.parent_id, product.id))) as id',
-            'price.id as price_id',
-            'product.id as variant_id',
-            'price.rule_id',
+            'LOWER(HEX(price.id)) as price_id',
+            'LOWER(HEX(product.id)) as variant_id',
+            'LOWER(HEX(price.rule_id)) as rule_id',
             'price.price',
-            'price.currency_id',
         ]);
 
         $query->from('product', 'product');
         $query->innerJoin('product', 'product_price', 'price', 'price.product_id = product.id');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
-        $query->andWhere('price.quantity_end IS NULL');
 
         $ids = Uuid::fromHexToBytesList($ids);
 
@@ -162,45 +198,45 @@ class ProductListingPriceIndexer implements IndexerInterface
 
         $data = $query->execute()->fetchAll();
 
-        return FetchModeHelper::group($data);
-    }
+        foreach ($data as &$row) {
+            $price = json_decode($row['price'], true);
 
-    private function convertPrices(array $productPrices): array
-    {
-        $productPrices = array_map(
-            function (array $price) {
-                return [
-                    'id' => bin2hex($price['price_id']),
-                    'variantId' => bin2hex($price['variant_id']),
-                    'ruleId' => bin2hex($price['rule_id']),
-                    'currencyId' => bin2hex($price['currency_id']),
-                    'price' => json_decode($price['price'], true),
-                ];
-            },
-            $productPrices
-        );
+            $key = 'c' . Defaults::CURRENCY;
 
-        return $productPrices;
-    }
-
-    private function findCheapestRulePrice(array $productPrices, string $ruleId): array
-    {
-        $cheapest = null;
-        foreach ($productPrices as $price) {
-            if ($price['ruleId'] !== $ruleId) {
-                continue;
-            }
-            if ($cheapest === null) {
-                $cheapest = $price;
-                continue;
+            if (!isset($price[$key])) {
+                throw new \RuntimeException(sprintf('Missing default price for product %s', $row['variant_id']));
             }
 
-            if ($price['price']['gross'] < $cheapest['price']['gross']) {
-                $cheapest = $price;
+            $default = $price[$key];
+
+            foreach ($currencies as $currencyId => $currency) {
+                $key = 'c' . $currencyId;
+
+                if (isset($price[$key])) {
+                    continue;
+                }
+
+                $currencyPrice = $default;
+
+                $currencyPrice['gross'] = $this->priceRounding->round(
+                    $currencyPrice['gross'] * $currency['factor'],
+                    (int) $currency['decimal_precision']
+                );
+
+                $currencyPrice['net'] = $this->priceRounding->round(
+                    $currencyPrice['net'] * $currency['factor'],
+                    (int) $currency['decimal_precision']
+                );
+
+                $currencyPrice['currencyId'] = $currencyId;
+
+                $price[$key] = $currencyPrice;
             }
+
+            $row['price'] = $price;
         }
 
-        return $cheapest;
+        return FetchModeHelper::group($data);
     }
 
     private function fetchProductPriceIds(array $priceIds): array
@@ -215,5 +251,58 @@ class ProductListingPriceIndexer implements IndexerInterface
         $query->setParameter(':ids', $priceIds, Connection::PARAM_STR_ARRAY);
 
         return $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    private function calculatePriceRange(string $currencyId, string $ruleId, array $prices): array
+    {
+        $highest = null;
+        $cheapest = null;
+
+        foreach ($prices as $price) {
+            if ($price['rule_id'] !== $ruleId) {
+                continue;
+            }
+
+            $currencyPrice = $price['price']['c' . $currencyId];
+
+            if (!$highest || $currencyPrice['gross'] > $highest['gross']) {
+                $highest = $currencyPrice;
+            }
+            if (!$cheapest || $currencyPrice['gross'] < $cheapest['gross']) {
+                $cheapest = $currencyPrice;
+            }
+        }
+
+        return [
+            'currencyId' => $currencyId,
+            'ruleId' => $ruleId,
+            'from' => $cheapest,
+            'to' => $highest,
+        ];
+    }
+
+    private function hydrate(array $listingPrices): ListingPriceCollection
+    {
+        $prices = new ListingPriceCollection();
+
+        foreach ($listingPrices as $rulePrices) {
+            foreach ($rulePrices as $price) {
+                $to = clone $this->priceStruct;
+                $from = clone $this->priceStruct;
+
+                $to->assign($price['to']);
+                $from->assign($price['from']);
+
+                $price['to'] = $to;
+                $price['from'] = $from;
+
+                $listingPrice = clone $this->listingPrice;
+                $listingPrice->assign($price);
+
+                $prices->add($listingPrice);
+            }
+        }
+
+        return $prices;
     }
 }

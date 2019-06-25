@@ -48,7 +48,7 @@ module.exports = {
         browser.expect.element(`${page.elements.userMetadata}-user-name`).to.have.text.that.equals(
             `${salutation.attributes.translated.displayName} ${customerFixture.firstName} ${customerFixture.lastName}`
         );
-        browser.expect.element('.sw-order-user-card__metadata-price').to.have.text.that.contains(global.ProductFixtureService.productFixture.price.gross);
+        browser.expect.element('.sw-order-user-card__metadata-price').to.have.text.that.contains(global.ProductFixtureService.productFixture.price[0].gross);
         browser.expect.element('.sw-order-base__label-sales-channel').to.have.text.that.contains('Storefront');
     },
     'verify line item details': (browser) => {
@@ -57,7 +57,7 @@ module.exports = {
         browser
             .getLocationInView('.sw-order-detail-base__summary')
             .expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains(global.ProductFixtureService.productFixture.name);
-        browser.expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains(global.ProductFixtureService.productFixture.price.gross);
+        browser.expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains(global.ProductFixtureService.productFixture.price[0].gross);
         browser.expect.element(`${page.elements.dataGridRow}--0`).to.have.text.that.contains('19 %');
     },
     'verify delivery metadata': (browser) => {

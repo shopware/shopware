@@ -218,4 +218,9 @@ class Context extends Struct
     {
         return $this->useCache;
     }
+
+    public function setRuleIds(array $ruleIds): void
+    {
+        $this->ruleIds = $ruleIds;
+    }
 }

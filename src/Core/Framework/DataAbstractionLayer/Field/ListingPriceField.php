@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceRuleFieldAccessorBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\ListingPriceFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceRulesJsonFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListingPriceFieldSerializer;
 
-class PriceRulesJsonField extends JsonField
+class ListingPriceField extends JsonField
 {
     public function __construct(string $storageName, string $propertyName, array $propertyMapping = [])
     {
@@ -16,11 +16,11 @@ class PriceRulesJsonField extends JsonField
 
     protected function getSerializerClass(): string
     {
-        return PriceRulesJsonFieldSerializer::class;
+        return ListingPriceFieldSerializer::class;
     }
 
     protected function getAccessorBuilderClass(): ?string
     {
-        return PriceRuleFieldAccessorBuilder::class;
+        return ListingPriceFieldAccessorBuilder::class;
     }
 }

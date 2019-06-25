@@ -6,11 +6,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Pricing\Price;
-use Shopware\Core\Framework\Pricing\PriceRuleCollection;
 use Shopware\Core\Framework\Pricing\PriceRuleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -18,10 +16,13 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 {
     public function build(ProductEntity $product, SalesChannelContext $context, int $quantity = 1): ProductPriceDefinitions
     {
+        $listingPrice = $this->buildListingPriceDefinition($product, $context);
+
         return new ProductPriceDefinitions(
             $this->buildPriceDefinition($product, $context),
             $this->buildPriceDefinitions($product, $context),
-            $this->buildListingPriceDefinition($product, $context),
+            $listingPrice['from'],
+            $listingPrice['to'],
             $this->buildPriceDefinitionForQuantity($product, $context, $quantity)
         );
     }
@@ -36,35 +37,31 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
             return new PriceDefinitionCollection();
         }
 
-        if (\in_array($context->getContext()->getCurrencyId(), $prices->getCurrencyIds(), true)) {
-            /** @var ProductPriceCollection $prices */
-            $prices = $prices->filterByCurrencyId($context->getContext()->getCurrencyId());
-        } else {
-            /** @var ProductPriceCollection $prices */
-            $prices = $prices->filterByCurrencyId(Defaults::CURRENCY);
-        }
-
         $prices->sortByQuantity();
 
-        $definitions = $prices->map(function (ProductPriceEntity $rule) use ($taxRules, $context) {
-            $quantity = $rule->getQuantityEnd() ?? $rule->getQuantityStart();
+        $definitions = [];
 
-            return new QuantityPriceDefinition(
-                $this->getRulePrice($rule, $context),
+        foreach ($prices as $price) {
+            $quantity = $price->getQuantityEnd() ?? $price->getQuantityStart();
+
+            $definitions[] = new QuantityPriceDefinition(
+                $this->getCurrencyPrice($price, $context),
                 $taxRules,
                 $context->getContext()->getCurrencyPrecision(),
                 $quantity,
                 true
             );
-        });
+        }
 
         return new PriceDefinitionCollection($definitions);
     }
 
     private function buildPriceDefinition(ProductEntity $product, SalesChannelContext $context): QuantityPriceDefinition
     {
+        $price = $this->getPriceForTaxState($product->getCurrencyPrice($context->getCurrency()->getId()), $context);
+
         return new QuantityPriceDefinition(
-            $this->getPriceForTaxState($product->getPrice(), $context) * $context->getContext()->getCurrencyFactor(),
+            $price * $context->getContext()->getCurrencyFactor(),
             $product->getTaxRuleCollection(),
             $context->getContext()->getCurrencyPrecision(),
             1,
@@ -72,37 +69,56 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         );
     }
 
-    private function buildListingPriceDefinition(ProductEntity $product, SalesChannelContext $context): QuantityPriceDefinition
+    private function buildListingPriceDefinition(ProductEntity $product, SalesChannelContext $context): array
     {
         $taxRules = $product->getTaxRuleCollection();
 
+        $currencyPrecision = $context->getContext()->getCurrencyPrecision();
+
+        $currencyId = $context->getCurrency()->getId();
+
+        $factor = $context->getContext()->getCurrencyFactor();
+
         if ($product->getListingPrices()) {
-            $prices = $product->getListingPrices();
-        } else {
-            $prices = $product->getPrices()->filter(
-                function (ProductPriceEntity $price) {
-                    return $price->getQuantityEnd() === null;
-                }
-            );
+            $listingPrice = $product->getListingPrices()->getContextPrice($context->getContext());
+
+            if ($listingPrice) {
+                // indexed listing prices are indexed for each currency
+                $from = $this->getPriceForTaxState($listingPrice->getFrom(), $context);
+
+                $to = $this->getPriceForTaxState($listingPrice->getTo(), $context);
+
+                return [
+                    'from' => new QuantityPriceDefinition($from, $taxRules, $currencyPrecision, 1, true),
+                    'to' => new QuantityPriceDefinition($to, $taxRules, $currencyPrecision, 1, true),
+                ];
+            }
         }
+
+        $prices = $this->getFirstMatchingPriceRule($product->getPrices(), $context);
 
         if (!$prices || $prices->count() <= 0) {
-            return new QuantityPriceDefinition(
-                $this->getPriceForTaxState($product->getPrice(), $context) * $context->getContext()->getCurrencyFactor(),
-                $taxRules,
-                $context->getContext()->getCurrencyPrecision(),
-                1,
-                true
-            );
+            $price = $this->getPriceForTaxState($product->getCurrencyPrice($currencyId), $context);
+
+            $definition = new QuantityPriceDefinition($price * $factor, $taxRules, $currencyPrecision, 1, true);
+
+            return ['from' => $definition, 'to' => $definition];
         }
 
-        return new QuantityPriceDefinition(
-            $this->getPriceForContext($prices, $context),
-            $taxRules,
-            $context->getContext()->getCurrencyPrecision(),
-            1,
-            true
-        );
+        $highest = $this->getCurrencyPrice($prices->first(), $context);
+        $lowest = $highest;
+
+        foreach ($prices as $price) {
+            $value = $this->getCurrencyPrice($price, $context);
+
+            $highest = $value > $highest ? $value : $highest;
+            $lowest = $value < $lowest ? $value : $lowest;
+        }
+
+        return [
+            'from' => new QuantityPriceDefinition($lowest, $taxRules, $currencyPrecision, 1, true),
+            'to' => new QuantityPriceDefinition($highest, $taxRules, $currencyPrecision, 1, true),
+        ];
     }
 
     private function buildPriceDefinitionForQuantity(ProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition
@@ -113,8 +129,10 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         $prices = $this->getFirstMatchingPriceRule($product->getPrices(), $context);
 
         if (!$prices) {
+            $price = $this->getPriceForTaxState($product->getCurrencyPrice($context->getCurrency()->getId()), $context);
+
             return new QuantityPriceDefinition(
-                $this->getPriceForTaxState($product->getPrice(), $context) * $context->getContext()->getCurrencyFactor(),
+                $price * $context->getContext()->getCurrencyFactor(),
                 $taxRules,
                 $context->getContext()->getCurrencyPrecision(),
                 $quantity,
@@ -125,7 +143,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         $prices = $prices->getQuantityPrices($quantity);
 
         return new QuantityPriceDefinition(
-            $this->getPriceForContext($prices, $context),
+            $this->getCurrencyPrice($prices->first(), $context),
             $taxRules,
             $context->getContext()->getCurrencyPrecision(),
             $quantity,
@@ -147,32 +165,17 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         return null;
     }
 
-    private function getPriceForContext(PriceRuleCollection $rules, SalesChannelContext $context): float
+    private function getCurrencyPrice(PriceRuleEntity $rule, SalesChannelContext $context): float
     {
-        if ($context->getContext()->getCurrencyId() !== Defaults::CURRENCY) {
-            $currencyRules = $rules->filterByCurrencyId($context->getContext()->getCurrencyId());
-            if ($currencyRules->count() > 0) {
-                return $this->getRulePrice($currencyRules->first(), $context);
-            }
+        $price = $rule->getPrice()->getCurrencyPrice($context->getCurrency()->getId());
+
+        $value = $this->getPriceForTaxState($price, $context);
+
+        if ($price->getCurrencyId() === Defaults::CURRENCY) {
+            $value *= $context->getContext()->getCurrencyFactor();
         }
 
-        $defaultRules = $rules->filterByCurrencyId(Defaults::CURRENCY);
-        if ($defaultRules->count() > 0) {
-            return $this->getRulePrice($defaultRules->first(), $context);
-        }
-
-        throw new \RuntimeException(sprintf('PriceRule for RuleId "%s" not found for default currency', $rules->first()->getRuleId()));
-    }
-
-    private function getRulePrice(PriceRuleEntity $rule, SalesChannelContext $context): float
-    {
-        $price = $this->getPriceForTaxState($rule->getPrice(), $context);
-
-        if ($rule->getCurrencyId() === Defaults::CURRENCY) {
-            $price *= $context->getContext()->getCurrencyFactor();
-        }
-
-        return $price;
+        return $value;
     }
 
     private function getPriceForTaxState(Price $price, SalesChannelContext $context): float

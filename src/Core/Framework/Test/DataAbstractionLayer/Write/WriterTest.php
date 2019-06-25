@@ -203,7 +203,7 @@ class WriterTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'test 1',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -256,7 +256,7 @@ class WriterTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'test 1',
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -268,7 +268,7 @@ class WriterTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'test 1',
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -279,7 +279,7 @@ class WriterTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'name' => 'test 1',
                 'stock' => 1,
-                'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manufacturer' => ['name' => 'test'],
                 'categories' => [
@@ -321,7 +321,7 @@ class WriterTest extends TestCase
                     'productNumber' => Uuid::randomHex(),
                     'name' => 'test',
                     'stock' => 1,
-                    'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
                     'the_unknown_field' => 'do nothing?',
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => ['id' => Uuid::randomHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
@@ -357,7 +357,7 @@ class WriterTest extends TestCase
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'name' => 'foo',
                     'stock' => 1,
-                    'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
                     'manufacturer' => ['id' => Uuid::randomHex(), 'link' => 'https://shopware.com', 'name' => 'shopware AG'],
                 ],
             ],
@@ -396,7 +396,7 @@ class WriterTest extends TestCase
                     'categories' => [
                         ['name' => 'Some category'],
                     ],
-                    'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
                 ],
             ],
             $this->createWriteContext()
@@ -427,7 +427,7 @@ class WriterTest extends TestCase
                     'description' => '<p>html</p>',
                     'availableFrom' => new \DateTime('2011-01-01T15:03:01.012345Z'),
                     'availableTo' => new \DateTime('2011-01-01T15:03:01.012345Z'),
-                    'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
                     'manufacturer' => [
                         'id' => $productManufacturerId,
                         'link' => 'http://www.shopware.com',
@@ -740,7 +740,7 @@ class WriterTest extends TestCase
                     'productNumber' => Uuid::randomHex(),
                     'stock' => 1,
                     'name' => 'Test product',
-                    'price' => ['gross' => 10, 'net' => 8.10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
                     'tax' => ['name' => 'test', 'taxRate' => 5],
                     'manufacturer' => [
                         'id' => Uuid::randomHex(),

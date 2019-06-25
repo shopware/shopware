@@ -21,23 +21,30 @@ class ProductPriceDefinitions extends Struct
     /**
      * @var QuantityPriceDefinition
      */
-    protected $listingPrice;
+    protected $quantityPrice;
 
     /**
      * @var QuantityPriceDefinition
      */
-    protected $quantityPrice;
+    protected $from;
+
+    /**
+     * @var QuantityPriceDefinition
+     */
+    protected $to;
 
     public function __construct(
         QuantityPriceDefinition $price,
         PriceDefinitionCollection $prices,
-        QuantityPriceDefinition $listingPrice,
+        QuantityPriceDefinition $from,
+        QuantityPriceDefinition $to,
         QuantityPriceDefinition $quantityPrice
     ) {
         $this->price = $price;
         $this->prices = $prices;
-        $this->listingPrice = $listingPrice;
         $this->quantityPrice = $quantityPrice;
+        $this->from = $from;
+        $this->to = $to;
     }
 
     public function getPrice(): QuantityPriceDefinition
@@ -60,16 +67,6 @@ class ProductPriceDefinitions extends Struct
         $this->prices = $prices;
     }
 
-    public function getListingPrice(): QuantityPriceDefinition
-    {
-        return $this->listingPrice;
-    }
-
-    public function setListingPrice(QuantityPriceDefinition $listingPrice): void
-    {
-        $this->listingPrice = $listingPrice;
-    }
-
     public function getQuantityPrice(): QuantityPriceDefinition
     {
         return $this->quantityPrice;
@@ -78,5 +75,25 @@ class ProductPriceDefinitions extends Struct
     public function setQuantityPrice(QuantityPriceDefinition $quantityPrice): void
     {
         $this->quantityPrice = $quantityPrice;
+    }
+
+    public function getFrom(): QuantityPriceDefinition
+    {
+        return $this->from;
+    }
+
+    public function setFrom(QuantityPriceDefinition $from): void
+    {
+        $this->from = $from;
+    }
+
+    public function getTo(): QuantityPriceDefinition
+    {
+        return $this->to;
+    }
+
+    public function setTo(QuantityPriceDefinition $to): void
+    {
+        $this->to = $to;
     }
 }

@@ -134,9 +134,9 @@ class VersioningTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'test',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
             'manufacturer' => ['id' => $id, 'name' => 'test'],
             'tax' => ['id' => $id, 'name' => 'updated', 'taxRate' => 11000],
-            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
         ];
 
         $this->productRepository->upsert([$product], $context);
@@ -160,7 +160,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
-            'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
@@ -175,29 +175,29 @@ class VersioningTest extends TestCase
         $this->productRepository->update([
             [
                 'id' => $id,
-                'price' => ['gross' => 1000, 'net' => 1000, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1000, 'net' => 1000, 'linked' => false]],
             ],
         ], $versionContext);
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertEquals(100, $product->getPrice()->getGross());
-        static::assertEquals(10, $product->getPrice()->getNet());
+        static::assertEquals(100, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertEquals(10, $product->getCurrencyPrice(Defaults::CURRENCY)->getNet());
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$id]), $versionContext)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertEquals(1000, $product->getPrice()->getGross());
-        static::assertEquals(1000, $product->getPrice()->getNet());
+        static::assertEquals(1000, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertEquals(1000, $product->getCurrencyPrice(Defaults::CURRENCY)->getNet());
 
         $this->productRepository->merge($versionId, $context);
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertEquals(1000, $product->getPrice()->getGross());
-        static::assertEquals(1000, $product->getPrice()->getNet());
+        static::assertEquals(1000, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertEquals(1000, $product->getCurrencyPrice(Defaults::CURRENCY)->getNet());
     }
 
     public function testICanVersionDateFields(): void
@@ -209,7 +209,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
-            'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => 1],
             'releaseDate' => '2018-01-01',
@@ -424,7 +424,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
-            'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
@@ -453,7 +453,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
-            'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
@@ -478,7 +478,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
-            'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
@@ -514,7 +514,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
-            'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['id' => $id, 'name' => 'create'],
             'tax' => ['id' => $id, 'name' => 'create', 'taxRate' => 1],
         ];
@@ -548,7 +548,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
-            'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
@@ -639,24 +639,22 @@ class VersioningTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'name' => 'to clone',
             'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'prices' => [
                 [
                     'id' => $priceId1,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'quantityEnd' => 20,
                     'ruleId' => $ruleId,
-                    'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 ],
                 [
                     'id' => $priceId2,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'ruleId' => $ruleId,
-                    'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
                 ],
             ],
         ];
@@ -705,9 +703,9 @@ class VersioningTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'to clone',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'categories' => [
                 ['id' => $categoryId1, 'name' => 'cat1'],
                 ['id' => $categoryId2, 'name' => 'cat2'],
@@ -764,7 +762,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
-            'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
@@ -812,22 +810,26 @@ class VersioningTest extends TestCase
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 15, 'linked' => false],
+            ],
             'prices' => [
                 [
                     'id' => $priceId1,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'quantityEnd' => 20,
                     'ruleId' => $ruleId,
-                    'price' => ['gross' => 15, 'net' => 15, 'linked' => false],
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 15, 'linked' => false],
+                    ],
                 ],
                 [
                     'id' => $priceId2,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'ruleId' => $ruleId,
-                    'price' => ['gross' => 10, 'net' => 10, 'linked' => false],
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false],
+                    ],
                 ],
             ],
         ];
@@ -844,11 +846,11 @@ class VersioningTest extends TestCase
             'prices' => [
                 [
                     'id' => $priceId1,
-                    'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false]],
                 ],
                 [
                     'id' => $priceId2,
-                    'price' => ['gross' => 99, 'net' => 99, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 99, 'net' => 99, 'linked' => false]],
                 ],
             ],
         ];
@@ -864,10 +866,10 @@ class VersioningTest extends TestCase
         //check if the prices are updated in the version scope
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(2, $product->getPrices());
-        static::assertEquals(100, $product->getPrices()->get($priceId1)->getPrice()->getGross());
-        static::assertEquals(100, $product->getPrices()->get($priceId1)->getPrice()->getNet());
-        static::assertEquals(99, $product->getPrices()->get($priceId2)->getPrice()->getGross());
-        static::assertEquals(99, $product->getPrices()->get($priceId2)->getPrice()->getNet());
+        static::assertEquals(100, $product->getPrices()->get($priceId1)->getPrice()->get(Defaults::CURRENCY)->getGross());
+        static::assertEquals(100, $product->getPrices()->get($priceId1)->getPrice()->get(Defaults::CURRENCY)->getNet());
+        static::assertEquals(99, $product->getPrices()->get($priceId2)->getPrice()->get(Defaults::CURRENCY)->getGross());
+        static::assertEquals(99, $product->getPrices()->get($priceId2)->getPrice()->get(Defaults::CURRENCY)->getNet());
 
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('prices');
@@ -878,10 +880,10 @@ class VersioningTest extends TestCase
         //check the prices of the live version are untouched
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertCount(2, $product->getPrices());
-        static::assertEquals(15, $product->getPrices()->get($priceId1)->getPrice()->getGross());
-        static::assertEquals(15, $product->getPrices()->get($priceId1)->getPrice()->getNet());
-        static::assertEquals(10, $product->getPrices()->get($priceId2)->getPrice()->getGross());
-        static::assertEquals(10, $product->getPrices()->get($priceId2)->getPrice()->getNet());
+        static::assertEquals(15, $product->getPrices()->get($priceId1)->getPrice()->get(Defaults::CURRENCY)->getGross());
+        static::assertEquals(15, $product->getPrices()->get($priceId1)->getPrice()->get(Defaults::CURRENCY)->getNet());
+        static::assertEquals(10, $product->getPrices()->get($priceId2)->getPrice()->get(Defaults::CURRENCY)->getGross());
+        static::assertEquals(10, $product->getPrices()->get($priceId2)->getPrice()->get(Defaults::CURRENCY)->getNet());
 
         //now delete the prices in version context
         $priceRepository = $this->getContainer()->get('product_price.repository');
@@ -919,26 +921,23 @@ class VersioningTest extends TestCase
             'prices' => [
                 [
                     'id' => $newPriceId1,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'quantityEnd' => 20,
                     'ruleId' => $ruleId,
-                    'price' => ['gross' => 15, 'net' => 10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
                 ],
                 [
                     'id' => $newPriceId2,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'quantityEnd' => 100,
                     'ruleId' => $ruleId,
-                    'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
                 ],
                 [
                     'id' => $newPriceId3,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 101,
                     'ruleId' => $ruleId,
-                    'price' => ['gross' => 5, 'net' => 3, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 5, 'net' => 3, 'linked' => false]],
                 ],
             ],
         ];
@@ -987,7 +986,7 @@ class VersioningTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'quantityStart' => 101,
             'ruleId' => $ruleId,
-            'price' => ['gross' => 5, 'net' => 3, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 5, 'net' => 3, 'linked' => false]],
         ];
 
         $priceRepository->create([$data], $versionContext);
@@ -996,7 +995,7 @@ class VersioningTest extends TestCase
         $price4 = $priceRepository->search(new Criteria([$newPriceId4]), $versionContext)->first();
         static::assertInstanceOf(ProductPriceEntity::class, $price4);
 
-        static::assertSame(5.0, $price4->getPrice()->getGross());
+        static::assertSame(5.0, $price4->getPrice()->get(Defaults::CURRENCY)->getGross());
         static::assertSame($newPriceId4, $price4->getId());
 
         $criteria = new Criteria();
@@ -1020,9 +1019,9 @@ class VersioningTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'to clone',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'categories' => [
                 ['id' => $categoryId1, 'name' => 'cat1'],
                 ['id' => $categoryId2, 'name' => 'cat2'],
@@ -1086,7 +1085,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
-            'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
@@ -1101,7 +1100,7 @@ class VersioningTest extends TestCase
         $this->productRepository->update([
             [
                 'id' => $id,
-                'price' => ['gross' => 1000, 'net' => 1000, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1000, 'net' => 1000, 'linked' => false]],
             ],
         ], $versionContext);
 
@@ -1143,23 +1142,21 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => false]],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'prices' => [
                 [
                     'id' => $priceId1,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'quantityEnd' => 20,
                     'ruleId' => $ruleId,
-                    'price' => ['gross' => 15, 'net' => 15, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 15, 'linked' => false]],
                 ],
                 [
                     'id' => $priceId2,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'ruleId' => $ruleId,
-                    'price' => ['gross' => 10, 'net' => 10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false]],
                 ],
             ],
         ];
@@ -1176,11 +1173,11 @@ class VersioningTest extends TestCase
             'prices' => [
                 [
                     'id' => $priceId1,
-                    'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false]],
                 ],
                 [
                     'id' => $priceId2,
-                    'price' => ['gross' => 99, 'net' => 99, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 99, 'net' => 99, 'linked' => false]],
                 ],
             ],
         ];
@@ -1245,9 +1242,9 @@ class VersioningTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'to clone',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'categories' => [
                 ['id' => $categoryId1, 'name' => 'cat1'],
                 ['id' => $categoryId2, 'name' => 'cat2'],
@@ -1305,7 +1302,7 @@ class VersioningTest extends TestCase
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN',
-                'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
                 'manufacturer' => ['name' => 'create'],
                 'tax' => ['name' => 'create', 'taxRate' => 1],
             ],
@@ -1315,7 +1312,7 @@ class VersioningTest extends TestCase
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => null,
-                'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
                 'manufacturer' => ['name' => 'create'],
                 'tax' => ['name' => 'create', 'taxRate' => 1],
             ],
@@ -1355,7 +1352,7 @@ class VersioningTest extends TestCase
             'stock' => 1,
             'name' => 'test',
             'ean' => 'EAN',
-            'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
@@ -1370,7 +1367,7 @@ class VersioningTest extends TestCase
         $this->productRepository->update([
             [
                 'id' => $id,
-                'price' => ['gross' => 1000, 'net' => 1000, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1000, 'net' => 1000, 'linked' => false]],
             ],
         ], $versionContext);
 
@@ -1417,25 +1414,23 @@ class VersioningTest extends TestCase
             'id' => $productId,
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => false]],
             'name' => 'to clone',
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'prices' => [
                 [
                     'id' => $priceId1,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 1,
                     'quantityEnd' => 20,
                     'ruleId' => $ruleId,
-                    'price' => ['gross' => 15, 'net' => 15, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 15, 'linked' => false]],
                 ],
                 [
                     'id' => $priceId2,
-                    'currencyId' => Defaults::CURRENCY,
                     'quantityStart' => 21,
                     'ruleId' => $ruleId,
-                    'price' => ['gross' => 10, 'net' => 10, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false]],
                 ],
             ],
         ];
@@ -1452,11 +1447,11 @@ class VersioningTest extends TestCase
             'prices' => [
                 [
                     'id' => $priceId1,
-                    'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false]],
                 ],
                 [
                     'id' => $priceId2,
-                    'price' => ['gross' => 99, 'net' => 99, 'linked' => false],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 99, 'net' => 99, 'linked' => false]],
                 ],
             ],
         ];
@@ -1503,9 +1498,9 @@ class VersioningTest extends TestCase
             'productNumber' => Uuid::randomHex(),
             'stock' => 1,
             'name' => 'to clone',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'price' => ['gross' => 10, 'net' => 8, 'linked' => false],
             'categories' => [
                 ['id' => $categoryId1, 'name' => 'cat1'],
                 ['id' => $categoryId2, 'name' => 'cat2'],
@@ -1562,7 +1557,7 @@ class VersioningTest extends TestCase
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN',
-                'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
                 'manufacturer' => ['name' => 'create'],
                 'tax' => ['name' => 'create', 'taxRate' => 1],
             ],
@@ -1572,7 +1567,7 @@ class VersioningTest extends TestCase
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN',
-                'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
                 'manufacturer' => ['name' => 'create'],
                 'tax' => ['name' => 'create', 'taxRate' => 1],
             ],
@@ -1588,7 +1583,7 @@ class VersioningTest extends TestCase
         $this->productRepository->update([
             [
                 'id' => $id1,
-                'price' => ['gross' => 900, 'net' => 900, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 900, 'net' => 900, 'linked' => false]],
             ],
         ], $versionContext);
 
@@ -1627,7 +1622,7 @@ class VersioningTest extends TestCase
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN-1',
-                'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
                 'manufacturer' => ['name' => 'create'],
                 'tax' => ['name' => 'create', 'taxRate' => 1],
             ],
@@ -1637,7 +1632,7 @@ class VersioningTest extends TestCase
                 'stock' => 1,
                 'name' => 'test',
                 'ean' => 'EAN-2',
-                'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
                 'manufacturer' => ['name' => 'create'],
                 'tax' => ['name' => 'create', 'taxRate' => 1],
             ],
@@ -1712,7 +1707,7 @@ class VersioningTest extends TestCase
             'name' => '😄',
             'stock' => 1,
             'ean' => 'EAN-1',
-            'price' => ['gross' => 100, 'net' => 10, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => 1],
         ];
@@ -1762,7 +1757,9 @@ class VersioningTest extends TestCase
         $product = [
             'id' => $id,
             'name' => 'test',
-            'price' => ['gross' => 119.99, 'net' => 99.99, 'linked' => false],
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 119.99, 'net' => 99.99, 'linked' => false],
+            ],
             'productNumber' => Uuid::randomHex(),
             'manufacturer' => ['name' => 'test'],
             'tax' => ['taxRate' => 19, 'name' => 'test'],

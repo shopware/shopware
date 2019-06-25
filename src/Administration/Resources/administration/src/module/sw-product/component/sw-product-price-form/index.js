@@ -10,35 +10,18 @@ Component.register('sw-product-price-form', {
         Mixin.getByName('placeholder')
     ],
 
+    data() {
+        return {
+            displayMaintainCurrencies: false
+        };
+    },
+
     computed: {
-        productTaxRate() {
-            if (!this.taxes.items) {
-                return {};
-            }
-
-            if (this.$refs.taxIdInheritation) {
-                const isInherited = this.$refs.taxIdInheritation.isInheritField && this.$refs.taxIdInheritation.isInherited;
-                return Object.values(this.taxes.items).find((taxRate) => {
-                    const taxId = isInherited ? this.parentProduct.taxId : this.product.taxId;
-                    return taxRate.id === taxId;
-                });
-            }
-
-            return {};
-        },
-
-        defaultCurrency() {
-            if (!this.currencies.items) {
-                return {};
-            }
-
-            return Object.values(this.currencies.items).find((currency) => {
-                return currency.isDefault;
-            });
-        },
-
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
+            'defaultPrice',
+            'defaultCurrency',
+            'productTaxRate'
         ]),
 
         ...mapState('swProductDetail', [
@@ -46,6 +29,101 @@ Component.register('sw-product-price-form', {
             'parentProduct',
             'taxes',
             'currencies'
-        ])
+        ]),
+
+        priceList() {
+            if (!this.product.price) {
+                return [];
+            }
+
+            return Object.values(this.product.price);
+        },
+
+        currenciesList() {
+            if (this.currencies && this.currencies.items) {
+                return Object.values(this.currencies.items);
+            }
+
+            return [];
+        },
+
+        maintainCurrencyColumns() {
+            return [
+                {
+                    property: 'name',
+                    label: '',
+                    visible: true,
+                    allowResize: false,
+                    primary: true,
+                    rawData: false,
+                    width: '150px'
+                }, {
+                    property: 'price',
+                    label: this.$tc('sw-product.priceForm.columnPrice'),
+                    visible: true,
+                    allowResize: false,
+                    primary: true,
+                    rawData: false
+                }
+            ];
+        }
+    },
+
+    methods: {
+        getPriceForCurrencyId(currencyId) {
+            if (!this.product.price || !this.currencies.items) {
+                return null;
+            }
+
+            const foundPrice = Object.values(this.product.price).find((price) => {
+                return price.currencyId === currencyId;
+            });
+
+            return foundPrice !== undefined ? foundPrice : null;
+        },
+
+        isCurrencyInherited(currency) {
+            const priceForCurrency = this.priceList.find((price) => {
+                return price.currencyId === currency.id;
+            });
+
+            return !priceForCurrency;
+        },
+
+        onInheritanceRestore(currencyId) {
+            // create entry for currency in product price
+            const indexOfPrice = this.priceList.findIndex((price) => {
+                return price.currencyId === currencyId;
+            });
+
+            this.$delete(this.product.price, indexOfPrice);
+        },
+
+        onInheritanceRemove(currency) {
+            // create new entry for currency in product price
+            this.$set(this.product.price, this.priceList.length, {
+                currencyId: currency.id,
+                gross: this.convertPrice(this.defaultPrice.gross, currency),
+                linked: this.defaultPrice.linked,
+                net: this.convertPrice(this.defaultPrice.net, currency)
+            });
+        },
+
+        convertPrice(value, currency) {
+            const calculatedPrice = value * currency.factor;
+            const priceRounded = calculatedPrice.toFixed(currency.decimalPrecision);
+            return Number(priceRounded);
+        },
+
+        removePriceInheritation(refPrice) {
+            const defaultRefPrice = refPrice.find((price) => price.currencyId === this.defaultCurrency.id);
+
+            return [{
+                currencyId: defaultRefPrice.currencyId,
+                gross: defaultRefPrice.gross,
+                net: defaultRefPrice.net,
+                linked: defaultRefPrice.linked
+            }];
+        }
     }
 });

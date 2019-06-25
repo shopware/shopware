@@ -1,4 +1,5 @@
 import { Component, Mixin } from 'src/core/shopware';
+import { mapState, mapGetters } from 'vuex';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-variants-overview.html.twig';
 import './sw-products-variants-overview.scss';
@@ -6,7 +7,7 @@ import './sw-products-variants-overview.scss';
 Component.register('sw-product-variants-overview', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -15,9 +16,6 @@ Component.register('sw-product-variants-overview', {
 
     data() {
         return {
-            variantList: [],
-            currency: null,
-            isLoading: false,
             showDeleteModal: false,
             modalLoading: false,
             priceEdit: false,
@@ -29,11 +27,6 @@ Component.register('sw-product-variants-overview', {
     },
 
     props: {
-        product: {
-            type: Object,
-            required: true
-        },
-
         selectedGroups: {
             type: Array,
             required: true
@@ -47,43 +40,40 @@ Component.register('sw-product-variants-overview', {
     },
 
     computed: {
-        variantColumns() {
-            return this.getVariantColumns();
-        },
+        ...mapState('swProductDetail', [
+            'context',
+            'product',
+            'currencies',
+            'taxes',
+            'variants'
+        ]),
+
+        ...mapGetters('swProductDetail', [
+            'isLoading',
+            'defaultPrice',
+            'defaultCurrency',
+            'productTaxRate'
+        ]),
 
         productRepository() {
             return this.repositoryFactory.create('product');
-        }
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    methods: {
-        createdComponent() {
-            const repo = this.repositoryFactory.create('currency');
-
-            repo.get('b7d2554b0ce847cd82f3ac9bd1c0dfca', this.context).then((currency) => {
-                this.currency = currency;
-            });
         },
 
-        getVariantColumns() {
+        currenciesList() {
+            if (this.currencies && this.currencies.items) {
+                return Object.values(this.currencies.items);
+            }
+            return [];
+        },
+
+        variantColumns() {
             return [
                 {
                     property: 'name',
                     label: this.$tc('sw-product.variations.generatedListColumnVariation'),
                     allowResize: true
                 },
-                {
-                    property: 'price',
-                    dataIndex: 'price.gross',
-                    label: this.$tc('sw-product.variations.generatedListColumnPrice'),
-                    allowResize: true,
-                    inlineEdit: 'number',
-                    width: '250px'
-                },
+                ...this.currencyColumns,
                 {
                     property: 'stock',
                     label: this.$tc('sw-product.variations.generatedListColumnStock'),
@@ -96,7 +86,8 @@ Component.register('sw-product-variants-overview', {
                     property: 'productNumber',
                     label: this.$tc('sw-product.variations.generatedListColumnProductNumber'),
                     allowResize: true,
-                    inlineEdit: 'string'
+                    inlineEdit: 'string',
+                    width: '150px'
                 },
                 {
                     property: 'active',
@@ -114,10 +105,37 @@ Component.register('sw-product-variants-overview', {
             ];
         },
 
+        currencyColumns() {
+            return this.currenciesList.sort((a, b) => {
+                return b.isDefault ? 1 : -1;
+            }).map((currency) => {
+                return {
+                    property: `price-${currency.isoCode}`,
+                    label: currency.translated.name || currency.name,
+                    visible: currency.isDefault,
+                    allowResize: true,
+                    primary: false,
+                    rawData: false,
+                    inlineEdit: 'number',
+                    width: '250px'
+                };
+            });
+        },
+
+        variantList() {
+            if (!this.variants.items) {
+                return [];
+            }
+
+            return Object.values(this.variants.items);
+        }
+    },
+
+    methods: {
         getList() {
             // Promise needed for inline edit error handling
             return new Promise((resolve) => {
-                this.isLoading = true;
+                this.$store.commit('swProductDetail/setLoading', ['variants', true]);
 
                 // Get criteria for search and for option sorting
                 const searchCriteria = new Criteria();
@@ -162,8 +180,8 @@ Component.register('sw-product-variants-overview', {
                     .search(searchCriteria, this.context)
                     .then((res) => {
                         this.total = res.total;
-                        this.variantList = res.items;
-                        this.isLoading = false;
+                        this.$store.commit('swProductDetail/setVariants', res);
+                        this.$store.commit('swProductDetail/setLoading', ['variants', false]);
                         this.$emit('variants-finish-update', this.variantList);
                         resolve();
                     });
@@ -298,22 +316,116 @@ Component.register('sw-product-variants-overview', {
             });
         },
 
+        isPriceFieldInherited(variant, currency) {
+            if (!variant.price) {
+                return true;
+            }
+
+            const foundVariant = variant.price.find((price) => {
+                return price.currencyId === currency.id;
+            });
+
+            return !foundVariant;
+        },
+
+        onInheritanceRestore(variant, currency) {
+            if (!variant.price) {
+                return;
+            }
+
+            const foundVariantIndex = variant.price.findIndex((price) => {
+                return price.currencyId === currency.id;
+            });
+
+            if (foundVariantIndex >= 0) {
+                this.$delete(variant.price, foundVariantIndex);
+            }
+        },
+
+        onInheritanceRemove(variant, currency) {
+            if (!variant.price) {
+                variant.price = [];
+            }
+
+            // remove inheritance on default currency variant
+            if (!currency.isDefault) {
+                this.onInheritanceRemove(variant, this.defaultCurrency);
+            }
+
+            // create new price for selected currency
+            const defaultPrice = this.getDefaultPriceForVariant(variant);
+            const newPrice = {
+                currencyId: currency.id,
+                gross: defaultPrice.gross * currency.factor,
+                linked: defaultPrice.linked,
+                net: defaultPrice.net * currency.factor
+            };
+
+            // add new price currency to variant
+            this.$set(variant.price, variant.price.length, newPrice);
+        },
+
+        getDefaultPriceForVariant(variant) {
+            if (!variant.price) {
+                return this.defaultPrice;
+            }
+
+            const foundDefaultPrice = variant.price.find((price) => {
+                return price.currencyId === this.defaultCurrency.id;
+            });
+
+            return foundDefaultPrice || this.defaultPrice;
+        },
+
         onVariationDelete(item) {
             this.showDeleteModal = item.id;
         },
 
         onInlineEditSave(variation) {
-            this.productRepository.save(variation, this.context).then(() => {
-                this.getList().then(() => {
-                    this.createNotificationSuccess({
-                        title: this.$tc('sw-product.variations.generatedListTitleSaveSuccess'),
-                        message: this.$tc('sw-product.variations.generatedListMessageSaveSuccess')
-                    });
+            // check for changes
+            const hasChanges = this.productRepository.hasChanges(variation);
+
+            if (!hasChanges) {
+                const titleSaveWarning = this.$tc('sw-product.detail.titleSaveWarning');
+                const messageSaveWarning = this.$tc('sw-product.detail.messageSaveWarning');
+
+                this.createNotificationWarning({
+                    title: titleSaveWarning,
+                    message: messageSaveWarning
                 });
+
+                return;
+            }
+
+            // get product name
+            const productName = Object.values(variation.options.items).reduce((acc, option, index) => {
+                return `${acc}${index > 0 ? ' - ' : ''}${option.translated.name}`;
+            }, '');
+
+            this.productRepository.save(variation, this.context).then(() => {
+                // create success notification
+                const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
+                const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
+                    name: productName
+                });
+
+                this.createNotificationSuccess({
+                    title: titleSaveSuccess,
+                    message: messageSaveSuccess
+                });
+
+                // update items
+                this.getList();
             }).catch(() => {
+                // create error notification
+                const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
+                const messageSaveError = this.$tc(
+                    'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
+                );
+
                 this.createNotificationError({
-                    title: this.$tc('sw-product.variations.generatedListTitleSaveError'),
-                    message: this.$tc('sw-product.variations.generatedListMessageSaveError')
+                    title: titleSaveError,
+                    message: messageSaveError
                 });
             });
         },

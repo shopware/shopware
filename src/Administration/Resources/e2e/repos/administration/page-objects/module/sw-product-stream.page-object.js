@@ -77,15 +77,15 @@ class ProductStreamPageObject extends GeneralPageObject {
     createCombinedInputSelectCondition(ruleData) {
         this.browser
             .fillSwSelect(`${ruleData.ruleSelector} ${this.elements.ruleFieldCondition}:nth-of-type(1)`, { value: ruleData.type })
-            .fillSwSelect(`${ruleData.ruleSelector} .field--condition:nth-of-type(2)`, {
-                value: ruleData.firstValue,
-                isMulti: ruleData.isMulti
-            })
+            // .fillSwSelect(`${ruleData.ruleSelector} .field--condition:nth-of-type(2)`, {
+            //     value: ruleData.firstValue,
+            //     isMulti: ruleData.isMulti
+            // })
             .fillSwSelect(`${ruleData.ruleSelector} .field--operator`, {
                 value: ruleData.operator,
                 isMulti: ruleData.isMulti
             })
-            .fillField(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`, ruleData.secondValue);
+            .fillField(`${ruleData.ruleSelector} input[name=${ruleData.inputName}]`, ruleData.firstValue);
     }
 
     createDateRangeCondition(ruleData) {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
+use Shopware\Core\Framework\Pricing\CalculatedListingPrice;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -47,7 +48,10 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
 
         //calculate listing price
         $product->setCalculatedListingPrice(
-            $this->priceCalculator->calculate($prices->getListingPrice(), $context)
+            new CalculatedListingPrice(
+                $this->priceCalculator->calculate($prices->getFrom(), $context),
+                $this->priceCalculator->calculate($prices->getTo(), $context)
+            )
         );
 
         //calculate context prices

@@ -17,19 +17,32 @@ class PriceRuleCollection extends EntityCollection
 {
     public function getCurrencyIds(): array
     {
-        return $this->fmap(function (PriceRuleEntity $price) {
-            return $price->getCurrencyId();
-        });
+        $currencyIds = [];
+
+        /** @var PriceRuleEntity $price */
+        foreach ($this->elements as $price) {
+            foreach ($price->getPrice() as $currencyPrice) {
+                $currencyIds[$currencyPrice->getCurrencyId()] = true;
+            }
+        }
+
+        return array_keys($currencyIds);
     }
 
-    /**
-     * @return static
-     */
-    public function filterByCurrencyId(string $id)
+    public function filterByCurrencyId(string $id): array
     {
-        return $this->filter(function (PriceRuleEntity $price) use ($id) {
-            return $price->getCurrencyId() === $id;
-        });
+        $prices = [];
+
+        /** @var PriceRuleEntity $price */
+        foreach ($this->elements as $price) {
+            foreach ($price->getPrice() as $currencyPrice) {
+                if ($currencyPrice->getCurrencyId() === $id) {
+                    $prices[] = $currencyPrice;
+                }
+            }
+        }
+
+        return $prices;
     }
 
     public function getRuleIds(): array

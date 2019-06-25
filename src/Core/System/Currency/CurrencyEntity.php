@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
@@ -69,11 +68,6 @@ class CurrencyEntity extends Entity
      * @var SalesChannelCollection|null
      */
     protected $salesChannelDefaultAssignments;
-
-    /**
-     * @var ProductPriceCollection|null
-     */
-    protected $productPrices;
 
     /**
      * @var SalesChannelDomainCollection|null
@@ -193,16 +187,6 @@ class CurrencyEntity extends Entity
     public function setSalesChannelDefaultAssignments(SalesChannelCollection $salesChannelDefaultAssignments): void
     {
         $this->salesChannelDefaultAssignments = $salesChannelDefaultAssignments;
-    }
-
-    public function getProductPrices(): ?ProductPriceCollection
-    {
-        return $this->productPrices;
-    }
-
-    public function setProductPrices(ProductPriceCollection $productPrices): void
-    {
-        $this->productPrices = $productPrices;
     }
 
     public function getSalesChannelDomains(): ?SalesChannelDomainCollection

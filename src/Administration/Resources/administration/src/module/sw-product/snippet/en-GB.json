@@ -47,7 +47,10 @@
       "placeholderPackUnit": "Package, bottle, crate...",
       "optionLitre": "Litre",
       "optionKilogram": "Kilogram",
-      "optionMetre": "Metre"
+      "optionMetre": "Metre",
+      "closeWindow": "Close window",
+      "maintainCurrencies": "Maintain currencies",
+      "columnPrice": "Prices (gross / net)"
     },
     "settingsForm": {
       "labelCreatedAt": "Creation date",
@@ -82,6 +85,7 @@
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Settings",
       "linkAdvancedPrices": "Advanced pricing options",
+      "linkMaintainCurrencyPrices": "Maintain currencies",
       "cardTitleMedia": "Media",
       "labelContextMenuAddToProduct": "Add to product",
       "cardTitleSeo": "SEO"
@@ -94,6 +98,7 @@
       "buttonPriceRuleDuplicate": "Duplicate pricing rule",
       "buttonPriceRuleCurrencyAdd": "Add currency",
       "buttonAddAdditionalPriceRule": "Add pricing rule",
+      "buttonAddAdditionalPriceRuleGroup": "Add pricing rule group",
       "textCurrencyDefault": "(Default)",
       "textPriceRuleForCurrency": "Pricing rule applicable to currency",
       "columnQuantityStart": "Quantity from ...",
@@ -116,6 +121,8 @@
       "columnPrice": "Price",
       "columnInStock": "In Stock",
       "columnActions": "Action(s)",
+      "filterStock": "Lagerbestand unter 10",
+      "filterPrice": "Preis über 50€",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
@@ -147,7 +154,12 @@
     },
     "advancedPrices": {
       "deletionNotPossibleTitle": "Deletion is not possible",
-      "deletionNotPossibleMessage": "The last price of the default currency can't get deleted."
+      "deletionNotPossibleMessage": "The last price of the default currency can't get deleted.",
+      "newRuleWarning": "For a new price rule you have to select a rule.",
+      "advancedPricesNotExisting": "There are no advanced prices for this product yet.",
+      "columnFrom": "From",
+      "columnTo": "To",
+      "selectRule": "Select rule…"
     },
     "properties": {
       "cardTitleProperties": "Available properties",

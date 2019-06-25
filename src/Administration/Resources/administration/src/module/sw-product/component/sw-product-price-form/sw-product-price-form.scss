@@ -8,5 +8,37 @@ $sw-product-price-suffix-font-weight: 400;
         font-weight: $sw-product-price-suffix-font-weight;
         font-size: $sw-product-price-suffix-font-size;
     }
+
+    .sw-product-price-form__links {
+        a:first-child {
+            margin-top: 0;
+        }
+
+        a {
+            transition: color 0.3s ease;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+    }
+
 }
 
+.sw-modal.sw-product-price-form__maintain-currencies-modal {
+    .sw-modal__body {
+        padding: 0;
+        border-bottom: 1px solid $color-steam-cloud;
+
+        .sw-data-grid__cell--header {
+            border-width: 0;
+        }
+
+        .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
+            height: auto;
+        }
+
+        .sw-product-price-form__inherited-icon.sw-inheritance-switch {
+            cursor: pointer;
+            margin-right: 5px;
+        }
+    }
+}

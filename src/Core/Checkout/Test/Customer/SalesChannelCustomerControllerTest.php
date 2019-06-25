@@ -709,7 +709,7 @@ class SalesChannelCustomerControllerTest extends TestCase
                 'productNumber' => $productNumber,
                 'stock' => 1,
                 'name' => 'Test',
-                'price' => ['gross' => 10, 'net' => 9, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 17, 'name' => 'with id'],
             ],

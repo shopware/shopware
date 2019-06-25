@@ -51,7 +51,14 @@ class SeoUrlExtensionTest extends TestCase
             ],
             'productNumber' => 'P1234',
             'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
-            'price' => ['gross' => 10, 'net' => 12, 'linked' => false],
+            'price' => [
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 10,
+                    'net' => 12,
+                    'linked' => false,
+                ],
+            ],
             'stock' => 0,
         ]], Context::createDefaultContext());
 
@@ -140,7 +147,9 @@ class SeoUrlExtensionTest extends TestCase
             ],
             'productNumber' => Uuid::randomHex(),
             'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
-            'price' => ['gross' => 10, 'net' => 12, 'linked' => false],
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false],
+            ],
             'stock' => 0,
         ]], Context::createDefaultContext());
 
@@ -170,7 +179,9 @@ class SeoUrlExtensionTest extends TestCase
             ],
             'productNumber' => Uuid::randomHex(),
             'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
-            'price' => ['gross' => 10, 'net' => 12, 'linked' => false],
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false],
+            ],
             'stock' => 0,
             'seoUrls' => [
                 ['id' => Uuid::randomHex(), 'pathInfo' => 'foo', 'seoPathInfo' => 'asdf'],
@@ -300,7 +311,7 @@ class SeoUrlExtensionTest extends TestCase
                 'name' => 'amazing brand',
             ],
             'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
-            'price' => ['gross' => 10, 'net' => 12, 'linked' => false],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
             'stock' => 0,
         ];
         $data = array_merge($defaults, $data);

@@ -50,22 +50,24 @@ It grants access to the criteria object before it has been used for a search, so
 ```php
 public function onProductCriteriaLoaded(ProductPageCriteriaEvent $event): void
 {
-    $event->getCriteria()->addAssociation('bundles', (new Criteria())->addAssociation('products'));
+    $event->getCriteria()->addAssociationPath('bundles.products.cover');
 }
 ```
 
-So, first of all you're telling the criteria to also load the `bundles` association, that you defined earlier in this tutorial series.
+So, first of all you're telling the criteria to also load a set of nested associations.
+First we want to add the `bundles` association, that you defined earlier in this tutorial series.
 You can find this in the `<plugin root>/src/Core/Content/Product/ProductExtension.php` file, make sure to have a look at it again to remember what you've done there.
 
-The second parameter of the `addAssociation` method can be a new `Criteria` itself. This is done here, to also have your `bundles` association know the `products` association in return.
 Imagine being on the detail page, where only the `product` entity is loaded. You now want to show "Hey, this product has a bundle", so you have to add the `bundle` association.
 This association call then adds the basic bundle entity as an association, but not the bundle's own associations. All you would know then is the `name`, the `discount` and the `discountType` of the bundle.
-Now, you also want to show **all products** that are part of this specific bundle, but you don't have this information yet. Thus, you're adding a new
-`Criteria` yourself, that tells the DAL to also load your bundles associations, `products` in this case.
+Now, you also want to show **all products** that are part of this specific bundle, but you don't have this information yet. 
+Thus, you're also adding the `products` of each bundle to the `associationPath` that should be loaded.
+Because we want to display all products in the bundle in its own buy-box we also need to add the `cover`-Association to our `associationPath`, so that the product images can be displayed properly.
 Now you'll have:
 - The product entity
 - The bundle entity related to this product
 - The product entities being assigned to this bundle
+- The cover image of each product assigned to this bundle
 
 Hopefully it's clear why this is necessary now.
 
@@ -363,7 +365,8 @@ Here's the example code, it will be explained afterwards
             <input type="hidden" name="lineItems[{{ bundle.id }}][id]" value="{{ bundle.id }}">
             <input type="hidden" name="lineItems[{{ bundle.id }}][type]" value="swagbundle">
             <input type="hidden" name="lineItems[{{ bundle.id }}][quantity]" value="1">
-            <input type="hidden" name="redirectTo" value="frontend.cart.detail"/>
+            <input type="hidden" name="lineItems[{{ bundle.id }}][referencedId]" value="{{ bundle.id }}">
+            <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas"/>
         </div>
     </form>
 </div>
@@ -440,7 +443,8 @@ Your `tabs.html.twig` file should now look like this:
                                 <input type="hidden" name="lineItems[{{ bundle.id }}][id]" value="{{ bundle.id }}">
                                 <input type="hidden" name="lineItems[{{ bundle.id }}][type]" value="swagbundle">
                                 <input type="hidden" name="lineItems[{{ bundle.id }}][quantity]" value="1">
-                                <input type="hidden" name="redirectTo" value="frontend.cart.detail"/>
+                                <input type="hidden" name="lineItems[{{ bundle.id }}][referencedId]" value="{{ bundle.id }}">
+                                <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas"/>
                             </div>
                         </form>
                     </div>

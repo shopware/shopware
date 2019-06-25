@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Framework\Twig\Extension;
 
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Extension\AbstractExtension;
@@ -27,7 +27,7 @@ class SeoUrlFunctionExtension extends AbstractExtension
         return [
             new TwigFunction('productUrl', [$this, 'productUrl']),
             new TwigFunction('navigationUrl', [$this, 'navigationUrl']),
-            new TwigFunction('entityUrl', [$this, 'entityUrl']),
+            new TwigFunction('canonicalUrl', [$this, 'canonicalUrl']),
         ];
     }
 
@@ -63,7 +63,7 @@ class SeoUrlFunctionExtension extends AbstractExtension
         return $canonical->getUrl();
     }
 
-    public function entityUrl(Entity $entity, string $fallback): string
+    public function canonicalUrl(Struct $entity, string $fallback): string
     {
         if (!$entity->hasExtension('canonicalUrl')) {
             return $fallback;

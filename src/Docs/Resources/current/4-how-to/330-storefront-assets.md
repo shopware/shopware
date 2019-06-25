@@ -66,13 +66,13 @@ You've never loaded those files from the `public` directory though.
 For that purpose, you'll have to extend the templates.
 If you don't know how to extend a Storefront template via plugin, head over to our explanation on [How to extend a Storefront block](https://docs.shopware.com/en/shopware-platform-dev-en/how-to/extending-storefront-block).
 
-The proper file for that is the file `base.html.twig`, which includes all styles and javascript files.
+The proper files for that are the files `base.html.twig`, which includes the javascript files, and `layout/meta.html.twig`, which includes all style files.
 
-First of all, there's the block `layout_head_stylesheet`, responsible for the styles.
+First of all, there's the block `layout_head_stylesheet`, responsible for the styles, inside of the file `layout/meta.html.twig`.
 Simply extend from the template mentioned above in your plugin, and overwrite this block to add your custom styles.
 
 ```twig
-{% sw_extends '@Storefront/base.html.twig' %}
+{% sw_extends '@Storefront/layout/meta.html.twig' %}
 
 {% block layout_head_stylesheet %}
     {{ parent() }}
@@ -81,11 +81,13 @@ Simply extend from the template mentioned above in your plugin, and overwrite th
 {% endblock %}
 ```
 
+This file's path would now look like this: `<plugin root/Resources/views/layout/meta.html.twig`.
+
 Technically, that would be it already - your styles are now loaded. You wouldn't load any custom javascript code as of now though.
 
 Imagine you didn't only import your custom styles via your `main.js` file, but also added some actual javascript code to it.
 You also have to load the generated `.js` file from the `public` directory.
-For that case, you should use the block `base_script_hmr_mode`.
+For that case, you should use the block `base_script_hmr_mode` from the file `base.html.twig`.
 
 ```twig
 {% sw_extends '@Storefront/base.html.twig' %}

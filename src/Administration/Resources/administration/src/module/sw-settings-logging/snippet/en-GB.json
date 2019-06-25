@@ -1,0 +1,35 @@
+{
+  "sw-settings-logging": {
+    "general": {
+      "mainMenuItemGeneral": "Logging",
+      "placeholderSearchBar": "Search logs"
+    },
+    "list": {
+      "title": "Logs",
+      "columnDate": "Date",
+      "columnMessage": "Message",
+      "columnLevel": "Priority",
+      "columnContent": "Contents",
+      "actionShowInfo": "View Details ...",
+      "levelDebug":"Debug",
+      "levelInfo":"Info",
+      "levelNotice":"Notice",
+      "levelWarning":"Warning",
+      "levelError":"Error",
+      "levelCritical":"Critical",
+      "levelAlert":"Alert",
+      "levelEmergency":"Emergency"
+    },
+    "entryInfo": {
+      "title": "Log Information",
+      "tabRaw": "Raw",
+      "actionClose": "Close"
+    },
+    "mailInfo": {
+      "tabHTML": "HTML",
+      "tabPlain": "Plain",
+      "recipientsTitle": "Recipients",
+      "contentsTitle": "Contents"
+    }
+  }
+}

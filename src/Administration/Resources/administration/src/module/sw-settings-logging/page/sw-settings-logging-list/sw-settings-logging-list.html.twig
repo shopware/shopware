@@ -1,0 +1,93 @@
+{% block sw_settings_list %}
+    <sw-page class="sw-settings-logging-list">
+
+        {% block sw_settings_logging_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar initialSearchType="Logs"
+                               :placeholder="$tc('sw-settings-logging.general.placeholderSearchBar')"
+                               :initialSearch="term"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_logging_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {{ $tc('sw-settings-logging.list.title') }}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_logging_list_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_logging_list_content %}
+            <template slot="content">
+                {% block sw_settings_logging_list_content_listing %}
+                    <sw-entity-listing :dataSource="logs"
+                                       :columns="logColumns"
+                                       :fullPage="true"
+                                       :showSettings="true"
+                                       :showSelection="false"
+                                       :showActions="true"
+                                       :sortBy="sortBy"
+                                       :sortDirection="sortDirection"
+                                       :isLoading="isLoading"
+                                       :allowColumnEdit="true"
+                                       :repository="logEntryRepository"
+                                       identifier="sw-log-entry-list">
+
+                        <template slot="column-createdAt" slot-scope="{ item }">
+                            {% block sw_settings_logging_list_column_created_at %}
+                                {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                            {% endblock %}
+                        </template>
+
+                        <template slot="column-level" slot-scope="{ item }">
+                            {% block sw_settings_logging_list_column_level %}
+                                {{ logLevelToString(item.level) }} ({{ item.level }})
+                            {% endblock %}
+                        </template>
+
+                        <template slot="column-context" slot-scope="{ item }">
+                            {% block sw_settings_logging_list_column_context %}
+                                <a @click="showInfoModal(item)">{{ item.context }}</a>
+                            {% endblock %}
+                        </template>
+
+                        <template slot="pagination">
+                            {% block sw_settings_logging_list_content_listing_pagination %}
+                                <sw-pagination :page="page"
+                                               :limit="limit"
+                                               :total="total"
+                                               :total-visible="7"
+                                               @page-change="onPageChange">
+                                </sw-pagination>
+                            {% endblock %}
+                        </template>
+
+                        <template slot="actions" slot-scope="{ item }">
+                            {% block sw_settings_logging_list_content_listing_actions %}
+                                <sw-context-menu-item @click="showInfoModal(item)">
+                                    {% block sw_settings_logging_list_content_listing_action_show_label %}
+                                        {{ $tc('sw-settings-logging.list.actionShowInfo') }}
+                                    {% endblock %}
+                                </sw-context-menu-item>
+                            {% endblock %}
+                        </template>
+
+                    </sw-entity-listing>
+                {% endblock %}
+
+                {% block sw_settings_logging_list_content_info_modal %}
+                    <component v-if="displayedLog !== null"
+                               :is="modalNameFromLogEntry"
+                               :logEntry="displayedLog"
+                               @close="closeInfoModal">
+                    </component>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

@@ -11,10 +11,13 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class NewsletterConfirmEvent extends Event implements BusinessEventInterface, MailActionInterface
 {
+    use JsonSerializableTrait;
+
     public const EVENT_NAME = NewsletterEvents::NEWSLETTER_CONFIRM_EVENT;
 
     /**

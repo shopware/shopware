@@ -13,6 +13,11 @@ Component.register('sw-settings-payment-detail', {
         Mixin.getByName('discard-detail-page-changes')('paymentMethod')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             paymentMethod: {},
@@ -57,6 +62,22 @@ Component.register('sw-settings-payment-detail', {
 
         mediaStore() {
             return State.getStore('media');
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 
@@ -125,6 +146,10 @@ Component.register('sw-settings-payment-detail', {
                 this.isLoading = false;
                 throw exception;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.payment.index' });
         },
 
         setMediaItem({ targetId }) {

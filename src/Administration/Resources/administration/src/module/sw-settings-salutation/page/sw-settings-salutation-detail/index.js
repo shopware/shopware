@@ -12,6 +12,11 @@ Component.register('sw-settings-salutation-detail', {
         Mixin.getByName('discard-detail-page-changes')('salutation')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             entityName: 'salutation',
@@ -51,6 +56,22 @@ Component.register('sw-settings-salutation-detail', {
                 return this.$tc('sw-settings-salutation.detail.invalidKeyMessage');
             }
             return '';
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

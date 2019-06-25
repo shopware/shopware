@@ -13,6 +13,11 @@ Component.register('sw-settings-language-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     props: {
         languageId: {
             type: String,
@@ -66,6 +71,22 @@ Component.register('sw-settings-language-detail', {
             return (new Criteria(1, 1)).addAggregation(
                 Criteria.valueCount('usedLocales', 'language.locale.code')
             );
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 
@@ -149,6 +170,10 @@ Component.register('sw-settings-language-detail', {
             }).then(() => {
                 this.loadEntityData();
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.language.index' });
         },
 
         onChangeLanguage() {

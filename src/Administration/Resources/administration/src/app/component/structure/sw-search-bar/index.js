@@ -16,6 +16,10 @@ export default {
 
     inject: ['searchService', 'searchTypeService'],
 
+    shortcuts: {
+        s: 'setFocus'
+    },
+
     props: {
         initialSearchType: {
             type: String,
@@ -128,12 +132,10 @@ export default {
 
         destroyedComponent() {
             document.removeEventListener('click', this.closeOnClickOutside);
-            document.removeEventListener('keydown', this.onKeyDown);
         },
 
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
-            document.addEventListener('keydown', this.onKeyDown);
             this.$on('mouse-over', this.setActiveResultPosition);
         },
 
@@ -149,19 +151,8 @@ export default {
             return this.$tc(`global.entities.${type}`, 2);
         },
 
-        onKeyDown(event) {
-            if (event instanceof KeyboardEvent && event.key === 's') {
-                const element = event.target;
-                if (element.nodeName === 'INPUT' || element.nodeName === 'TEXTAREA' || element.nodeName === 'SELECT') {
-                    return;
-                }
-                if (element.nodeName === 'DIV' && element.className.includes('sw-text-editor__content-editor')) {
-                    return;
-                }
-
-                this.$refs.searchInput.focus();
-                event.preventDefault();
-            }
+        setFocus() {
+            this.$refs.searchInput.focus();
         },
 
         closeOnClickOutside(event) {

@@ -10,6 +10,11 @@ Component.register('sw-settings-customer-group-detail', {
         Mixin.getByName('discard-detail-page-changes')('customerGroup')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             entityName: 'customer_group',
@@ -40,6 +45,22 @@ Component.register('sw-settings-customer-group-detail', {
                 'name',
                 this.$tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup')
             );
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 

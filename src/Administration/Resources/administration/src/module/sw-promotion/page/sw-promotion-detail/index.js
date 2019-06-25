@@ -11,6 +11,11 @@ Component.register('sw-promotion-detail', {
         Mixin.getByName('discard-detail-page-changes')('promotion')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             promotion: {},
@@ -31,7 +36,22 @@ Component.register('sw-promotion-detail', {
         },
         promotionStore() {
             return State.getStore('promotion');
+        },
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
+
     },
 
     created() {
@@ -100,6 +120,10 @@ Component.register('sw-promotion-detail', {
                 this.isLoading = false;
                 throw exception;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.promotion.index' });
         }
     }
 });

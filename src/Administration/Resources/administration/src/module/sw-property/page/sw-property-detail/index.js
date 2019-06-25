@@ -9,6 +9,11 @@ Component.register('sw-property-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             group: {},
@@ -31,7 +36,24 @@ Component.register('sw-property-detail', {
 
         groupStore() {
             return State.getStore('property_group');
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
+
     },
 
     created() {
@@ -94,6 +116,10 @@ Component.register('sw-property-detail', {
                 this.isLoading = false;
                 throw exception;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.property.index' });
         }
     }
 });

@@ -10,6 +10,11 @@ Component.register('sw-settings-custom-field-set-detail', {
         Mixin.getByName('discard-detail-page-changes')('set')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             set: {},
@@ -34,6 +39,22 @@ Component.register('sw-settings-custom-field-set-detail', {
 
         customFieldSetStore() {
             return State.getStore('custom_field_set');
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 
@@ -89,6 +110,10 @@ Component.register('sw-settings-custom-field-set-detail', {
             }).then(() => {
                 this.isLoading = false;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.custom.field.index' });
         },
 
         abortOnLanguageChange() {

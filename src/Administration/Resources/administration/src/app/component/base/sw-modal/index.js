@@ -18,6 +18,8 @@ export default {
 
     inheritAttrs: false,
 
+    inject: ['shortcutService'],
+
     props: {
         title: {
             type: String,
@@ -83,6 +85,10 @@ export default {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     mounted() {
         this.mountedComponent();
     },
@@ -92,6 +98,10 @@ export default {
     },
 
     methods: {
+        createdComponent() {
+            this.shortcutService.stopEventListener();
+        },
+
         mountedComponent() {
             const targetEl = document.querySelector(this.selector);
             targetEl.appendChild(this.$el);
@@ -100,6 +110,7 @@ export default {
         },
 
         destroyedComponent() {
+            this.shortcutService.startEventListener();
             document.querySelector('.sw-modal__dialog').focus();
         },
 

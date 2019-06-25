@@ -15,6 +15,11 @@ Component.register('sw-product-stream-detail', {
         Mixin.getByName('discard-detail-page-changes')('productStream')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             nameRequired: this.isSystemLanguage(),
@@ -91,6 +96,20 @@ Component.register('sw-product-stream-detail', {
         },
         customFieldSetStore() {
             return State.getStore('custom_field_set');
+        },
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 
@@ -175,6 +194,12 @@ Component.register('sw-product-stream-detail', {
                 warn(this._name, exception.message, exception.response);
             });
         },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.product.stream.index' });
+        },
+
+
         openModalPreview() {
             this.showModalPreview = true;
         },

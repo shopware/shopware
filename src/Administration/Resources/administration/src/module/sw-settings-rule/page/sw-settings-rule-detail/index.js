@@ -14,6 +14,11 @@ Component.register('sw-settings-rule-detail', {
         Mixin.getByName('discard-detail-page-changes')('rule')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             rule: {},
@@ -84,10 +89,27 @@ Component.register('sw-settings-rule-detail', {
         ruleStore() {
             return State.getStore('rule');
         },
+
         moduleTypeStore() {
             return new LocalStore(this.ruleConditionDataProviderService.getModuleTypes((moduleType) => {
                 moduleType.label = this.$tc(moduleType.name);
             }), 'id');
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 
@@ -171,6 +193,10 @@ Component.register('sw-settings-rule-detail', {
                 this.isLoading = false;
                 this.$refs.conditionTree.$emit('entity-save', false);
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.rule.index' });
         },
 
         removeOriginalConditionTypes(conditions) {

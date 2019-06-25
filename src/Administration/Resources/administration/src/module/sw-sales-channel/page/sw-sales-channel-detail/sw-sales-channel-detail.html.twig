@@ -18,6 +18,7 @@
                         :disabled="isLoading"
                         variant="primary"
                         @process-finish="saveFinish"
+                        v-tooltip.bottom="tooltipSave"
                         @click.prevent="onSave">
                         {{ $tc('sw-sales-channel.detail.buttonSave') }}
                     </sw-button-process>

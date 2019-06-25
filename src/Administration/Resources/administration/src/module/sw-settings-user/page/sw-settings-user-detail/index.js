@@ -14,6 +14,11 @@ Component.register('sw-settings-user-detail', {
         Mixin.getByName('salutation')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             isLoading: false,
@@ -107,6 +112,22 @@ Component.register('sw-settings-user-detail', {
 
         languageId() {
             return this.$store.state.adminLocale.languageId;
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 
@@ -293,6 +314,10 @@ Component.register('sw-settings-user-detail', {
                 }
                 return Promise.resolve();
             }));
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.user.list' });
         },
 
         onChangePassword() {

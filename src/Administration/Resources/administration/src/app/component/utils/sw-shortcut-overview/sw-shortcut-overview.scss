@@ -1,0 +1,34 @@
+@import "~scss/variables";
+
+$sw-shortcut-overview-key-background-color : #F3F3F3;
+
+.sw-shortcut-overview {
+    margin-right: 15px;
+}
+
+.sw-shortcut-overview--modal {
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 25px;
+
+        th {
+            background-color: $color-gray-300;
+            border: 1px solid $color-gray-700;
+        }
+
+        td {
+            width: 50%;
+            border: 1px solid $color-gray-700;
+            padding: 5px 10px;
+        }
+
+        kbd span {
+            color: $color-crimson-600;
+            border: 3px outset $sw-shortcut-overview-key-background-color;
+            background-color: $sw-shortcut-overview-key-background-color;
+            padding: 0px 2px;
+            cursor: default;
+        }
+    }
+}

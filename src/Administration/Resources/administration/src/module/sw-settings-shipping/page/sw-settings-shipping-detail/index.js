@@ -15,6 +15,11 @@ Component.register('sw-settings-shipping-detail', {
         Mixin.getByName('discard-detail-page-changes')('shippingMethod')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     watch: {
         'shippingMethod.mediaId'() {
             if (this.shippingMethod.mediaId) {
@@ -72,6 +77,22 @@ Component.register('sw-settings-shipping-detail', {
         isLoading() {
             return Object.keys(this.shippingMethod).length === 0
                 || this.shippingMethod.isLoading;
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 
@@ -134,6 +155,10 @@ Component.register('sw-settings-shipping-detail', {
                 this.isProcessLoading = false;
                 throw exception;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.shipping.index' });
         },
 
         setMediaItem({ targetId }) {

@@ -26,7 +26,7 @@
         {% block sw_settings_salutation_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_salutation_detail_actions_cancel %}
-                    <sw-button class="sw-settings-salutation-detail__cancel"
+                    <sw-button class="sw-settings-salutation-detail__cancel" v-tooltip.bottom="tooltipCancel"
                                @click="onCancel">
                         {{ $tc('sw-settings-salutation.general.buttonCancel') }}
                     </sw-button>
@@ -40,6 +40,7 @@
                         :disabled="!salutation.salutationKey || isLoading || invalidKey || isKeyChecking"
                         variant="primary"
                         @process-finish="saveFinish"
+                        v-tooltip.bottom="tooltipSave"
                         @click="onSave">
                         {{ $tc('sw-settings-salutation.general.buttonSave') }}
                     </sw-button-process>

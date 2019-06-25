@@ -14,6 +14,11 @@ Component.register('sw-product-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     props: {
         productId: {
             type: String,
@@ -166,6 +171,22 @@ Component.register('sw-product-detail', {
                 )
                 .addAssociation('customFields', this.customFieldCriteria);
             return criteria;
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 
@@ -415,6 +436,10 @@ Component.register('sw-product-detail', {
                     break;
                 }
             }
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.product.index' });
         },
 
         saveProduct() {

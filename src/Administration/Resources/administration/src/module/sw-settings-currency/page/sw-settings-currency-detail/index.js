@@ -10,6 +10,11 @@ Component.register('sw-settings-currency-detail', {
         Mixin.getByName('discard-detail-page-changes')('currency')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             currency: {},
@@ -31,6 +36,22 @@ Component.register('sw-settings-currency-detail', {
 
         currencyStore() {
             return State.getStore('currency');
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 
@@ -64,6 +85,10 @@ Component.register('sw-settings-currency-detail', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.currency.index' });
         },
 
         abortOnLanguageChange() {

@@ -129,6 +129,17 @@ DeviceHelper.prototype = Object.assign(DeviceHelper.prototype, {
      */
     getPlatform() {
         return window.navigator.platform;
+    },
+
+    /**
+     * Returns the system-key (e.g. "CTRL") as a string depending of the current operating system.
+     *
+     * @returns {string}
+     */
+    getSystemKey() {
+        return this.getPlatform().indexOf('Mac') > -1
+            ? 'CTRL'
+            : 'ALT';
     }
 });
 

@@ -13,6 +13,11 @@ Component.register('sw-manufacturer-detail', {
         Mixin.getByName('discard-detail-page-changes')('manufacturer')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave',
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             manufacturerId: null,
@@ -49,6 +54,22 @@ Component.register('sw-manufacturer-detail', {
 
         mediaUploadTag() {
             return `sw-manufacturer-detail--${this.manufacturer.id}`;
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 
@@ -160,6 +181,10 @@ Component.register('sw-manufacturer-detail', {
                 warn(this._name, exception.message, exception.response);
                 throw exception;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.manufacturer.index' });
         }
     }
 });

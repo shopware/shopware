@@ -16,6 +16,10 @@ Component.register('sw-cms-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave'
+    },
+
     data() {
         return {
             pageId: null,
@@ -126,6 +130,15 @@ Component.register('sw-cms-detail', {
                 marginLeft: null,
                 marginRight: null,
                 sizingMode: 'boxed'
+            };
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
             };
         }
     },

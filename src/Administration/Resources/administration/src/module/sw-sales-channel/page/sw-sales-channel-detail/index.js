@@ -16,6 +16,10 @@ Component.register('sw-sales-channel-detail', {
         Mixin.getByName('placeholder')
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': 'onSave'
+    },
+
     data() {
         return {
             salesChannel: null,
@@ -46,6 +50,15 @@ Component.register('sw-sales-channel-detail', {
 
         customFieldRepository() {
             return this.repositoryFactory.create('custom_field_set');
+        },
+
+        tooltipSave() {
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
         }
     },
 

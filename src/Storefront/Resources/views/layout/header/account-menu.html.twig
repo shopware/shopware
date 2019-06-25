@@ -4,7 +4,7 @@
     <div class="account-menu">
         {% block layout_header_actions_account_widget_dropdown_header %}
             {% if not context.customer.guest %}
-                <div class="dropdown-header account-widget-header">
+                <div class="dropdown-header account-menu-header">
                     {{ "account.myAccount"|trans }}
                 </div>
             {% endif %}
@@ -12,14 +12,14 @@
 
         {% block layout_header_actions_account_widget_dropdown_login %}
             {% if not context.customer %}
-                <div class="account-widget-login">
+                <div class="account-menu-login">
                     <a href="{{ path('frontend.account.login.page') }}"
                        title="{{ "account.loginSubmit"|trans }}"
-                       class="btn btn-primary account-widget-login-button">
+                       class="btn btn-primary account-menu-login-button">
                         {{ "account.loginSubmit"|trans }}
                     </a>
 
-                    <div class="account-widget-register">
+                    <div class="account-menu-register">
                         {{ "account.orRegister"|trans }} <a href="{{ path('frontend.account.login.page') }}"
                                                             title="{{ "account.orRegisterLink"|trans }}">{{ "account.orRegisterLink"|trans }}</a>
                     </div>
@@ -28,7 +28,7 @@
         {% endblock %}
 
         {% block layout_header_actions_account_widget_dropdown_links %}
-            <div class="account-widget-links">
+            <div class="account-menu-links">
                 {% sw_include '@Storefront/page/account/sidebar.html.twig' with {'headerWidget': true} %}
             </div>
         {% endblock %}

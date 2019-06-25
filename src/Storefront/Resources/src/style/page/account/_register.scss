@@ -1,15 +1,3 @@
-.login-card {
-    margin-bottom: $spacer;
-}
-
-.register-advantages {
-    display: none;
-}
-
-.register-advantages-header {
-    font-size: $font-size-lg;
-}
-
 .register-personal {
     margin-bottom: $spacer;
 }
@@ -24,22 +12,4 @@
 
 .register-shipping {
     padding-top: $spacer-lg;
-}
-
-.js-different-shipping-container {
-    display: none;
-
-    &.js-show {
-        display: block;
-    }
-}
-
-.register-required-info {
-    margin-bottom: $spacer;
-}
-
-@include media-breakpoint-up(lg) {
-    .register-advantages {
-        display: block;
-    }
 }

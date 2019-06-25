@@ -1,37 +1,42 @@
 {% block layout_search_suggest %}
-	<div class="js-search-result">
+	<div class="search-suggest js-search-result">
 		{% block layout_search_suggest_container %}
 			<ul class="search-suggest-container">
-				{# List of found product results #}
 				{% block layout_search_suggest_results %}
 					{% for product in page.searchResult %}
 						{% block layout_search_suggest_result_product %}
-							<li class="js-result result-product">
+							<li class="search-suggest-product js-result">
 								{% block layout_search_suggest_result_link %}
 									<a href="{{ productUrl(product) }}"
 									   title="{{ product.translated.name }}"
-									   class="result-link">
-										{% block layout_search_suggest_result_image %}
-											<span class="result-image">
-                                                {% if product.cover.media.url %}
-													<img src="{{ product.cover.media.url }}"
-														 alt="{{ product.translated.name }}">
-												{% else %}
-													{% sw_icon 'placeholder' style {
-														'size': 'lg'
-													} %}
-												{% endif %}
-                                            </span>
-										{% endblock %}
+									   class="search-suggest-product-link">
+										<div class="row align-items-center no-gutters">
+											{% block layout_search_suggest_result_image %}
+												<div class="col-auto search-suggest-product-image-container">
+													{% if product.cover.media.url %}
+														<img src="{{ product.cover.media.url }}"
+															 class="search-suggest-product-image"
+															 alt="{{ product.translated.name }}">
+													{% else %}
+														{% sw_icon 'placeholder' style {
+															'size': 'lg'
+														} %}
+													{% endif %}
+												</div>
+											{% endblock %}
 
-										{% block layout_search_suggest_result_name %}
-											<span class="result-name">{{ product.translated.name }}</span>
-										{% endblock %}
+											{% block layout_search_suggest_result_name %}
+												<div class="col search-suggest-product-name">
+													{{ product.translated.name }}
+												</div>
+											{% endblock %}
 
-										{% block layout_search_suggest_result_price %}
-											<span
-													class="result-price">{{ product.price.gross|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}</span>
-										{% endblock %}
+											{% block layout_search_suggest_result_price %}
+												<div class="col-auto search-suggest-product-price">
+													{{ product.price.gross|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+												</div>
+											{% endblock %}
+										</div>
 									</a>
 								{% endblock %}
 							</li>
@@ -39,32 +44,35 @@
 					{% endfor %}
 				{% endblock %}
 
-				{# Total results link #}
 				{% block layout_search_suggest_result_total %}
 					{% if page.searchResult.total == 0 %}
 						{% block layout_search_suggest_no_result %}
-							<li class="js-result no-search-result">
+							<li class="search-suggest-no-result">
 								{{ "header.searchNoResult"|trans }}
 							</li>
 						{% endblock %}
 					{% else %}
 
 						{% block layout_search_suggest_result_total_result %}
-							{% block layout_search_suggest_result_total_link %}
-								<li class="js-result result-total">
-								<a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
-								   title="{{ "header.searchAllResults"|trans }}"
-								   class="total-link">
-                                    {% sw_icon 'arrow-head-right' style { 'size': 'sm' } %}
-									{{ "header.searchAllResults"|trans }}
-								</a>
-							{% endblock %}
+							<li class="js-result search-suggest-total">
+								<div class="row align-items-center no-gutters">
+									{% block layout_search_suggest_result_total_link %}
+										<div class="col">
+											<a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
+											   title="{{ "header.searchAllResults"|trans }}"
+											   class="search-suggest-total-link">
+												{% sw_icon 'arrow-head-right' style { 'size': 'sm' } %}
+												{{ "header.searchAllResults"|trans }}
+											</a>
+										</div>
+									{% endblock %}
 
-							{% block layout_search_suggest_result_total_count %}
-								<span class="total-count">
-                                    {{ page.searchResult.total }} {{ "header.searchResults"|trans }}
-                                </span>
-							{% endblock %}
+									{% block layout_search_suggest_result_total_count %}
+										<div class="col-auto search-suggest-total-count">
+											{{ page.searchResult.total }} {{ "header.searchResults"|trans }}
+										</div>
+									{% endblock %}
+								</div>
 							</li>
 						{% endblock %}
 					{% endif %}

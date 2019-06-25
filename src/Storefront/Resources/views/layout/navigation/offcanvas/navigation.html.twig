@@ -2,17 +2,13 @@
 
 {% block utilities_offcanvas_content %}
     {% block layout_navigation_offcanvas_navigation_actions %}
-        <nav class="nav offcanvas-menu-actions">
+        <nav class="nav navigation-offcanvas-actions">
             {% block layout_navigation_offcanvas_navigation_action_language %}
-                <div class="nav-item nav-link">
-                    {% sw_include '@Storefront/layout/header/actions/language-widget.html.twig' with {position: 'offcanvas'} %}
-                </div>
+                {% sw_include '@Storefront/layout/header/actions/language-widget.html.twig' with {position: 'offcanvas'} %}
             {% endblock %}
 
             {% block layout_navigation_offcanvas_navigation_action_currency %}
-                <div class="nav-item nav-link">
-                    {% sw_include '@Storefront/layout/header/actions/currency-widget.html.twig' with {position: 'offcanvas'} %}
-                </div>
+                {% sw_include '@Storefront/layout/header/actions/currency-widget.html.twig' with {position: 'offcanvas'} %}
             {% endblock %}
         </nav>
     {% endblock %}
@@ -27,20 +23,19 @@
         {% set isRootLevel = offcanvasNavigation.active.parentId is null %}
         {% set activeItem = offcanvasNavigation.active %}
 
-        <div class="offcanvas-menu js-offcanvas-menu">
+        <div class="navigation-offcanvas-container js-navigation-offcanvas">
 
             {% block layout_navigation_offcanvas_navigation_overlay %}
-                <div class="offcanvas-menu-overlay-content js-offcanvas-menu-overlay-content">
+                <div class="navigation-offcanvas-overlay-content js-navigation-offcanvas-overlay-content">
                     {% block layout_navigation_offcanvas_navigation_overlay_content %}
                         {% if not isRootLevel %}
                             {% block layout_navigation_offcanvas_navigation_home_link %}
-                                <a class="nav-item nav-link go-home offcanvas-menu-list-item-link js-offcanvas-menu-link"
+                                <a class="nav-item nav-link is-home-link navigation-offcanvas-link js-navigation-offcanvas-link"
                                    href="{{ path('frontend.menu.offcanvas') }}"
                                    itemprop="url"
                                    title="{{ "general.mainMenu"|trans }}">
                                     {% block layout_navigation_offcanvas_navigation_home_link_text %}
-                                        <span
-                                            class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
+                                        <span class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
                                             {% sw_icon 'stack' %}
                                         </span>
                                         <span itemprop="{{ "general.mainMenu"|trans }}">
@@ -51,7 +46,7 @@
                             {% endblock %}
 
                             {% block layout_navigation_offcanvas_navigation_category_headline %}
-                                <a class="nav-item offcanvas-menu-headline"
+                                <a class="nav-item nav-link navigation-offcanvas-headline"
                                    href="{{ path('frontend.navigation.page', {'navigationId': activeItem.parentId}) }}"
                                    itemprop="url">
                                     {% block layout_navigation_offcanvas_navigation_category_headline_text %}
@@ -63,13 +58,12 @@
                             {% endblock %}
 
                             {% block layout_navigation_offcanvas_navigation_category_back_link %}
-                                <a class="nav-item nav-link go-back offcanvas-menu-list-item-link js-offcanvas-menu-link"
+                                <a class="nav-item nav-link is-back-link navigation-offcanvas-link js-navigation-offcanvas-link"
                                    href="{{ path('frontend.menu.offcanvas', {'navigationId': activeItem.parentId}) }}"
                                    itemprop="url"
                                    title="{{ "general.back"|trans }}">
                                     {% block layout_navigation_offcanvas_navigation_category_back_link_text %}
-                                        <span
-                                            class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
+                                        <span class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
                                             {% block layout_utilities_offcanvas_close_icon %}
                                                 {% sw_icon 'arrow-medium-left' style { 'pack':'solid', 'size': 'sm' } %}
                                             {% endblock %}
@@ -82,7 +76,7 @@
                             {% endblock %}
                         {% else %}
                             {% block layout_navigation_offcanvas_navigation_categories_headline %}
-                                <div class="offcanvas-menu-headline">
+                                <div class="navigation-offcanvas-headline">
                                     {% block layout_navigation_offcanvas_navigation_categories_headline_text %}
                                         {{ "general.categories"|trans }}
                                     {% endblock %}
@@ -91,13 +85,13 @@
                         {% endif %}
 
                         {% block layout_navigation_offcanvas_navigation_categories_list %}
-                            <ul class="list-unstyled offcanvas-menu-list">
+                            <ul class="list-unstyled navigation-offcanvas-list">
 
                                 {% if not isRootLevel %}
                                     {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item %}
-                                        <li class="offcanvas-menu-list-item">
+                                        <li class="navigation-offcanvas-list-item">
                                             {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item_link %}
-                                                <a class="offcanvas-menu-list-item-link nav-item nav-link current-category"
+                                                <a class="nav-item nav-link navigation-offcanvas-link is-current-category"
                                                    href="{{ navigationUrl(activeItem) }}"
                                                    itemprop="url"
                                                    title="{{ activeItem.translated.name }}">
@@ -118,12 +112,12 @@
 
                                     {% if entity.id is not same as( activeItem.id) %}
                                         {% block layout_navigation_offcanvas_navigation_categories_list_category_item %}
-                                            <li class="offcanvas-menu-list-item">
+                                            <li class="navigation-offcanvas-list-item">
 
                                                 {% set hasChildren = entity.childCount > 0 %}
 
                                                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link %}
-                                                    <a class="offcanvas-menu-list-item-link nav-item nav-link{% if entity.id is same as(activeItem.id) %} active{% endif %}{% if hasChildren %} js-offcanvas-menu-link{% endif %}"
+                                                    <a class="navigation-offcanvas-link nav-item nav-link{% if entity.id is same as(activeItem.id) %} active{% endif %}{% if hasChildren %} js-navigation-offcanvas-link{% endif %}"
                                                        href="{{ navigationUrl(treeItem.category) }}"
                                                         {% if hasChildren %}
                                                             data-href="{{ path('frontend.menu.offcanvas', {'navigationId': entity.id}) }}"
@@ -135,7 +129,7 @@
                                                             {% if hasChildren %}
                                                                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_icon %}
                                                                     <span
-                                                                        class="offcanvas-menu-list-item-link-icon js-offcanvas-menu-loading-icon">
+                                                                        class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
                                                                         {% sw_icon 'arrow-medium-right' style { 'pack':'solid', 'size': 'sm' } %}
                                                                     </span>
                                                                 {% endblock %}

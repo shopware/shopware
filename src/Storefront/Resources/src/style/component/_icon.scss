@@ -1,4 +1,9 @@
-// Credit: https://github.com/FortAwesome/Font-Awesome
+/*
+Icons
+==============================================
+Basic styling for icon component plus helper classes for sizing and colors.
+Credit: https://github.com/FortAwesome/Font-Awesome
+*/
 
 // Mixins
 // --------------------------
@@ -215,3 +220,8 @@
     }
 }
 
+.navigation-offcanvas-link-icon {
+    .icon > svg {
+        top: 0;
+    }
+}

@@ -1,7 +1,7 @@
 {% block layout_header_actions_account_widget %}
 	<div class="dropdown">
 		{% block layout_header_actions_account_widget_dropdown_button %}
-			<button class="btn account-widget-btn header-actions-btn"
+			<button class="btn account-menu-btn header-actions-btn"
 					type="button"
 					id="accountWidget"
 					data-offcanvas-account-menu="true"
@@ -13,7 +13,7 @@
 		{% endblock %}
 
 		{% block layout_header_actions_account_widget_dropdown_menu %}
-			<div class="dropdown-menu dropdown-menu-right account-widget-dropdown js-account-widget-dropdown"
+			<div class="dropdown-menu dropdown-menu-right account-menu-dropdown js-account-menu-dropdown"
 				 aria-labelledby="accountWidget">
 				{% sw_include '@Storefront/layout/header/account-menu.html.twig' %}
 			</div>

@@ -1,7 +1,13 @@
 /*
- * The file organization follows the 7-1 pattern architecture
- * https://sass-guidelin.es/#the-7-1-pattern
- *
+Basic styles
+==================================================
+Contains the imports to all basic styles.
+
+The file organization follows the 7-1 pattern architecture
+https://sass-guidelin.es/#the-7-1-pattern
+*/
+
+/*
  * Variables, Mixins, Functions
  * ---------------------------- */
 @import 'variables';
@@ -20,64 +26,66 @@
  * Base stuff
  * ---------- */
 @import 'base/base';
-@import 'base/input';
+@import 'base/reboot';
 @import 'base/ie11-fixes';
-
-/*
- * Layout-related sections
- * ----------------------- */
-@import 'layout/grid';
-@import 'layout/top-bar';
-@import 'layout/header';
-@import 'layout/header-minimal';
-@import 'layout/footer';
-@import 'layout/navigation';
-@import 'layout/navigation-flyout';
-@import 'layout/navigation-offcanvas';
 
 /*
  * Components
  * ---------- */
 @import 'component/alert';
 @import 'component/card';
-@import 'component/offcanvas-cart';
 @import 'component/backdrop';
 @import 'component/image-slider';
 @import 'component/offcanvas';
 @import 'component/product-box';
-@import 'component/search-widget';
-@import 'component/cookie-permission';
 @import 'component/loader';
 @import 'component/modal';
-@import 'component/zoom-modal';
-@import 'component/image-zoom';
-@import 'component/magnifier';
-@import 'component/account-dropdown';
-@import 'component/account-offcanvas';
 @import 'component/flags';
 @import 'component/icon';
-@import 'component/element-loading-indicator';
+@import 'component/pagination';
 @import 'component/cms-block';
 @import 'component/cms-element';
 @import 'component/forms';
 @import 'component/address-editor';
-@import 'component/delivery-information';
+@import 'component/delivery-status';
+
+/*
+ * Layout-related sections
+ * ----------------------- */
+@import 'layout/container';
+@import 'layout/top-bar';
+@import 'layout/header';
+@import 'layout/header-minimal';
+@import 'layout/footer';
+@import 'layout/main-navigation';
+@import 'layout/navigation-flyout';
+@import 'layout/navigation-offcanvas';
+@import 'layout/offcanvas-cart';
+@import 'layout/account-menu';
+@import 'layout/search-suggest';
+@import 'layout/cookie-permission';
 
 /*
  * Page-specific styles
  * -------------------- */
 @import 'page/product-detail/product-detail';
+@import 'page/product-detail/media';
 @import 'page/product-detail/configurator';
+@import 'page/product-detail/tabs';
+@import 'page/product-detail/magnifier';
+@import 'page/product-detail/zoom-modal';
 
 @import 'page/account/account';
-@import 'page/account/menu';
+@import 'page/account/aside';
 @import 'page/account/overview';
 @import 'page/account/register';
+@import 'page/account/login';
 @import 'page/account/address';
 @import 'page/account/profile';
 @import 'page/account/order';
 @import 'page/account/order-detail';
 
+@import 'page/checkout/checkout';
 @import 'page/checkout/aside';
 @import 'page/checkout/cart';
 @import 'page/checkout/cart-item';

@@ -1,18 +1,22 @@
-html.no-scroll {
-    position: relative;
-    overflow: hidden;
-}
+/*
+Base
+==================================================
+Contains global base styles for all pages
+*/
 
-/**
- * The definition of html:before will be needed to
- * determine the current viewport via JS because
- * CSS holds the single version of truth
- */
 html {
+    // used by backdrop util to override body scroll behaviour
+    &.no-scroll {
+        position: relative;
+        overflow: hidden;
+    }
+
+    // used by viewport detection helper to determine the current viewport
     &::before {
         position: absolute;
         top: -100%;
         font-size: 0;
+
         @include media-breakpoint-only(xs) {
             content: 'xs';
         }

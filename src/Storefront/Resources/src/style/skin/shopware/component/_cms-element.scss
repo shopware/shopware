@@ -1,18 +1,22 @@
-$listing-grid-gutter-width: 30px;
+/*
+CMS elements
+==============================================
+Skin styling for cms elements
+*/
 
 .cms-element-product-listing {
     .cms-listing-row {
-        margin-right: -$listing-grid-gutter-width / 2;
-        margin-left: -$listing-grid-gutter-width / 2;
+        margin-right: -$cms-element-product-listing-gutter-width / 2;
+        margin-left: -$cms-element-product-listing-gutter-width / 2;
     }
 
     .cms-listing-col {
-        padding-right: $listing-grid-gutter-width / 2;
-        padding-left: $listing-grid-gutter-width / 2;
+        padding-right: $cms-element-product-listing-gutter-width / 2;
+        padding-left: $cms-element-product-listing-gutter-width / 2;
     }
 
     .cms-listing-col {
-        margin-bottom: $listing-grid-gutter-width;
+        margin-bottom: $cms-element-product-listing-gutter-width;
     }
 }
 
@@ -29,7 +33,7 @@ $listing-grid-gutter-width: 30px;
             content: '"';
             font-size: 40px;
             line-height: 16px;
-            color: #9aa7be;
+            color: $cms-element-text-quotes-color;
             position: absolute;
             top: 10px;
             left: -24px;

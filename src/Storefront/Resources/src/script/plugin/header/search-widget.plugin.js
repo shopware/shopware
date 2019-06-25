@@ -12,7 +12,7 @@ export default class SearchWidgetPlugin extends Plugin {
     static options = {
         searchWidgetSelector: '.js-search-form',
         searchWidgetResultSelector: '.js-search-result',
-        searchWidgetResultItemSelector: '.js-result:not(.no-search-result)',
+        searchWidgetResultItemSelector: '.js-result',
         searchWidgetInputFieldSelector: 'input[type=search]',
         searchWidgetButtonFieldSelector: 'button[type=submit]',
         searchWidgetUrlDataAttribute: 'data-url',

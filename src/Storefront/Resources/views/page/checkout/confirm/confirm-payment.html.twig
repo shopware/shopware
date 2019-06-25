@@ -8,7 +8,7 @@
                     {% set paymentMethodInvalid = false %}
                 {% endif %}
             {% endfor %}
-            
+
             {% block page_checkout_confirm_payment_title %}
                 <div class="card-title">
                     {{ "checkout.confirmPaymentMethod"|trans }}
@@ -16,7 +16,7 @@
             {% endblock %}
 
             {% block page_checkout_confirm_payment_current %}
-                <p class="checkout-confirm-payment-current{% if paymentMethodInvalid %} is-invalid{% endif %}">
+                <p class="confirm-payment-current{% if paymentMethodInvalid %} is-invalid{% endif %}">
                     {% block page_checkout_confirm_payment_current_text %}
                         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
                         {{ context.paymentMethod.translated.name }}
@@ -26,7 +26,7 @@
                         {% if paymentMethodInvalid %}
                             <a data-toggle="tooltip"
                                data-placement="right"
-                               class="checkout-confirm-method-tooltip"
+                               class="confirm-method-tooltip"
                                title="{{ "checkout.confirmPaymentMethodNotAvailable"|trans }}">
                                 {% sw_icon 'help' style {
                                     'color': 'danger',
@@ -49,7 +49,7 @@
             {% endblock %}
 
             {% block page_checkout_confirm_payment_modal %}
-                <div class="modal fade checkout-confirm-shipping-modal"
+                <div class="modal fade confirm-payment-modal"
                      id="confirmPaymentModal"
                      tabindex="-1"
                      role="dialog">

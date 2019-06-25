@@ -1,11 +1,11 @@
 {% block page_product_detail_media_inner %}
     {% set mediaItems = page.product.media %}
 
-    <div class="row product-detail-media-container{% if mediaItems|length == 1 %} is-single-image{% endif %}"
+    <div class="row product-detail-media-row{% if mediaItems|length == 1 %} is-single-image{% endif %}"
         {% if mediaItems|length > 1 %} data-image-slider="true"{% endif %}
          data-magnifier="true">
         {% block page_product_detail_media_image_container %}
-            <div class="col-xl-10 order-1 order-xl-2 product-detail-media-image-container"
+            <div class="col-xl-10 order-1 order-xl-2 product-detail-media-col"
                  data-zoom-modal="true">
                 {% block page_product_detail_media_image %}
                     {% if mediaItems|length > 1 %}

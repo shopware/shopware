@@ -1,0 +1,53 @@
+/*
+Account menu
+==================================================
+Contains custom styles for the account menu which opens via click/touch on the avatar icon in the header section.
+The menu opens on smaller viewports inside an offcanvas and on larger viewports inside a bootstrap dropdown.
+*/
+.account-menu-header {
+    border-bottom: 1px solid $border-color;
+    font-size: $font-size-base;
+    font-weight: $font-weight-bold;
+    padding: $spacer-sm 0;
+    color: $headings-color;
+}
+
+.account-menu-register {
+    text-align: center;
+}
+
+.account-menu-login {
+    padding: $spacer 0;
+    border-bottom: 1px solid $border-color;
+    margin-bottom: $spacer-xs;
+}
+
+.account-menu-login-button {
+    width: 100%;
+    margin-bottom: $spacer-sm;
+}
+
+.account-menu-dropdown {
+    padding: $spacer-sm $spacer;
+    min-width: 200px;
+}
+
+.account-menu-offcanvas,
+.account-menu-dropdown {
+    .account-aside-item {
+        padding: $spacer-sm 0;
+    }
+
+    .account-aside-footer {
+        background: none;
+        padding: $spacer-xs 0;
+    }
+}
+
+@include media-breakpoint-up(sm) {
+    .account-menu {
+        .offcanvas-close {
+            display: none;
+        }
+    }
+}

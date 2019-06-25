@@ -16,7 +16,7 @@
             {% endblock %}
 
             {% block page_checkout_confirm_shipping_current %}
-                <p class="checkout-confirm-shipping-current{% if shippingMethodInvalid %} is-invalid{% endif %}">
+                <p class="confirm-shipping-current{% if shippingMethodInvalid %} is-invalid{% endif %}">
                     {% block page_checkout_confirm_shipping_current_text %}
                         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
                         {{ context.shippingMethod.translated.name }}
@@ -26,7 +26,7 @@
                         {% if shippingMethodInvalid %}
                             <a data-toggle="tooltip"
                                data-placement="right"
-                               class="checkout-confirm-method-tooltip"
+                               class="confirm-method-tooltip"
                                title="{{ "checkout.confirmShippingMethodNotAvailable"|trans }}">
                                 {% sw_icon 'help' style {
                                     'color': 'danger',
@@ -49,7 +49,7 @@
             {% endblock %}
 
             {% block page_checkout_confirm_shipping_modal %}
-                <div class="modal fade checkout-confirm-shipping-modal"
+                <div class="modal fade confirm-shipping-modal"
                      id="confirmShippingModal"
                      tabindex="-1"
                      role="dialog">
@@ -81,13 +81,13 @@
                                         {% endblock %}
 
                                         {% block page_checkout_confirm_shipping_form_fields %}
-                                            <div class="shipping-fields">
+                                            <div class="confirm-shipping-fields">
                                                 {% for shipping in page.shippingMethods %}
-                                                    <div class="shipping-method">
+                                                    <div class="confirm-shipping-method">
                                                         {% block page_checkout_confirm_shipping_form_field %}
                                                             <div class="form-group checkout-config-form-group">
                                                                 {% block page_checkout_confirm_shipping_form_control %}
-                                                                    <div class="custom-control custom-radio shipping-method">
+                                                                    <div class="custom-control custom-radio confirm-shipping-method-radio">
                                                                         {% block page_checkout_confirm_shipping_form_input %}
                                                                             <input type="radio"
                                                                                    id="shippingMethod{{ loop.index }}"

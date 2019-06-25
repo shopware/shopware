@@ -1,3 +1,15 @@
-// Shopware
-$buy-button-bg: $primary;
-$buy-button-color: color-yiq($primary);
+/*
+Custom variables
+==================================================
+Contains custom non bootstrap variables.
+*/
+
+$buy-btn-bg: $primary;
+$buy-btn-color: color-yiq($primary);
+
+$disabled-btn-bg: #eee;
+$disabled-btn-border-color: #eee;
+
+$cms-block-text-hero-hr-color: #e9edf0;
+$cms-element-text-quotes-color: #9aa7be;
+$cms-element-product-listing-gutter-width: 30px;

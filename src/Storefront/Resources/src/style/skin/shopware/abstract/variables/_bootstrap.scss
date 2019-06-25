@@ -1,11 +1,17 @@
-// Bootstrap
+/*
+Bootstrap variables
+==================================================
+Contains all overrides of bootstrap default variables.
+
+https://getbootstrap.com/docs/4.3/getting-started/theming/#variable-defaults
+*/
 
 // Color system
-$gray-100: #f8f8fa; // ~ 'sw5 gray-light'
-$gray-200: #f5f5f8; // ~ 'sw5 gray'
-$gray-300: #d1d9e0; // ~ 'sw5 gray-dark'
-$gray-600: #576574; // ~ 'sw5 brand-secondary'
-$gray-800: #3f4c58; // ~ 'sw5 brand-secondary-dark'
+$gray-100: #f8f8fa;
+$gray-200: #f5f5f8;
+$gray-300: #d1d9e0;
+$gray-600: #576574;
+$gray-800: #3f4c58;
 
 $primary: #399;
 $secondary: $gray-600;

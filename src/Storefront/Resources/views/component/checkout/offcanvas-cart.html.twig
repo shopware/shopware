@@ -14,12 +14,19 @@
 
         <div class="offcanvas-cart">
             {% block component_offcanvas_cart_header %}
-                <span class="offcanvas-cart-header">
-                    {{ "checkout.cartHeader"|trans }}
+                <div class="row align-items-center h4 offcanvas-cart-header">
+                    <div class="col">
+                        {{ "checkout.cartHeader"|trans }}
+                    </div>
+
                     {% if isCartNotEmpty %}
-                        <small>{{ "checkout.itemCounter"|trans({'%count%': page.cart.lineItems|length}) }}</small>
+                        <div class="col-auto">
+                            <small class="offcanvas-cart-header-count">
+                                {{ "checkout.itemCounter"|trans({'%count%': page.cart.lineItems|length}) }}
+                            </small>
+                        </div>
                     {% endif %}
-                </span>
+                </div>
             {% endblock %}
 
             {% block component_offcanvas_cart_flashbags %}
@@ -55,7 +62,7 @@
             {% if isCartNotEmpty %}
                 {% block component_offcanvas_summary %}
                     <div class="offcanvas-summary">
-                        <dl class="row summary-list">
+                        <dl class="row offcanvas-summary-list">
                             {% block component_offcanvas_summary_total %}
                                 {% block component_offcanvas_summary_total_label %}
                                     <dt class="col-7 summary-label summary-total">
@@ -73,11 +80,13 @@
                     </div>
                     {% block component_offcanvas_summary_tax_info %}
                         <p class="offcanvas-cart-tax">
-                            {% if page.cart.price.taxStatus == "gross" %}
-                                {{ "general.grossTaxInformation"|trans }}
-                            {% else %}
-                                {{ "general.netTaxInformation"|trans }}
-                            {% endif %}
+                            <small>
+                                {% if page.cart.price.taxStatus == "gross" %}
+                                    {{ "general.grossTaxInformation"|trans }}
+                                {% else %}
+                                    {{ "general.netTaxInformation"|trans }}
+                                {% endif %}
+                            </small>
                         </p>
                     {% endblock %}
                 {% endblock %}

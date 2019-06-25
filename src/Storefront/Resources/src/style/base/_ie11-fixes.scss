@@ -1,3 +1,9 @@
+/*
+IE11 fixes
+==================================================
+Contains specific browser fixes which are only applied in IE.
+*/
+
 html.is-ie {
     // fix: wrong height and alignment of icons in input append buttons.
     .input-group-append {

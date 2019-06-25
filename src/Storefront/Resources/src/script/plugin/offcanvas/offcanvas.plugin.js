@@ -2,7 +2,7 @@ import DeviceDetection from 'src/script/helper/device-detection.helper';
 import Backdrop, { BACKDROP_EVENT } from 'src/script/utility/backdrop/backdrop.util';
 import Iterator from 'src/script/helper/iterator.helper';
 
-const OFF_CANVAS_CLASS = 'js-offcanvas';
+const OFF_CANVAS_CLASS = 'offcanvas';
 const OFF_CANVAS_OPEN_CLASS = 'is-open';
 const OFF_CANVAS_POSITION_LEFT_CLASS = 'is-left';
 const OFF_CANVAS_POSITION_RIGHT_CLASS = 'is-right';

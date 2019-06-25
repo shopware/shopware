@@ -6,13 +6,12 @@ Custom styling for bootstrap card component.
 https://getbootstrap.com/docs/4.3/components/card/
 */
 
-.card {
-    .card-title {
-        color: $headings-color;
-        font-size: $font-size-lg;
-        font-weight: $headings-font-weight;
-        line-height: $headings-line-height;
-    }
+// unified card title styles for h1-h6
+.card-title {
+    color: $headings-color;
+    font-size: $font-size-lg;
+    font-weight: $headings-font-weight;
+    line-height: $headings-line-height;
 }
 
 // equal height cards

@@ -28,13 +28,13 @@
                                     {% block page_checkout_aside_summary %}
                                         <div class="checkout-aside-summary">
                                             {% block page_checkout_summary_header %}
-                                                <h2 class="checkout-summary-header">
+                                                <h2 class="checkout-aside-summary-header">
                                                     {{ "checkout.summaryHeader"|trans }}
                                                 </h2>
                                             {% endblock %}
 
                                             {% block page_checkout_summary_list %}
-                                                <div class="checkout-summary-list">
+                                                <div class="checkout-aside-summary-list-container">
                                                     {% block page_checkout_summary_list_container %}
                                                         {% sw_include '@Storefront/page/checkout/summary.html.twig' %}
                                                     {% endblock %}

@@ -26,22 +26,6 @@
     }
 }
 
-.checkout-aside-code {
-    margin-top: $spacer;
-}
-
-.checkout-aside-action {
-    margin-top: $spacer;
-}
-
-.checkout-product-table {
-    margin-bottom: $spacer-lg;
-}
-
-.checkout-container {
-    margin-bottom: $spacer-lg;
-}
-
 .cart-main-header {
     margin-bottom: $spacer-lg;
 }
@@ -79,7 +63,7 @@ $cart-grid-gutter-width: $spacer-sm;
     align-self: center;
 }
 
-.shipping-costs-trigger {
+.cart-shipping-costs-btn {
     padding-left: 0;
     margin: 1px 0;
 }

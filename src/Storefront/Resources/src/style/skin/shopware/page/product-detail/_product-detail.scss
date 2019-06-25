@@ -2,38 +2,21 @@
     color: $gray-800;
 }
 
+.product-detail-manufacturer-logo {
+    max-width: 200px;
+    max-height: 70px;
+}
+
 .product-detail-price {
     color: $gray-800;
+    margin-bottom: 0;
+    font-weight: $font-weight-bold;
 }
 
 .product-detail-ordernumber-label {
     font-weight: $font-weight-bold;
 }
 
-.product-detail-properties-table {
-    th,
-    td {
-        border: 0;
-    }
-}
-
 .product-detail-quantity-select {
     height: 100%;
-}
-
-@include media-breakpoint-down(xs) {
-    .product-detail-tabs {
-        .card-tabs .nav-link,
-        .card-tabs .nav-link.active {
-            color: $gray-600;
-        }
-
-        .card-tabs .nav-link:hover {
-            color: $primary;
-        }
-
-        .card-tabs .nav-link.active {
-            border-color: $border-color;
-        }
-    }
 }

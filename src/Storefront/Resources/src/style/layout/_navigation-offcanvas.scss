@@ -1,117 +1,30 @@
-.js-offcanvas.offcanvas-menu {
-    overflow-x: hidden;
+/*
+Navigation offcanvas
+==============================================
+Custom styling for navigation offcanvas which replaces main navigation on smaller screens.
+Based on custom offcanvas component.
+*/
 
-    .offcanvas-menu {
-        position: relative;
-    }
+.navigation-offcanvas {
+    overflow-x: hidden;
 
     .offcanvas-content-container {
         padding: 0;
     }
 }
 
-.offcanvas-menu-actions {
-    .top-bar-nav-name {
-        display: inline;
-    }
-}
-
-.offcanvas-menu-headline {
-    @extend .nav-link;
-    font-weight: $font-weight-bold;
-    color: $secondary;
-    padding: 20px $spacer-md $spacer-md;
-}
-
-.offcanvas-menu-list-item-link-icon {
-    position: absolute;
-    right: $spacer-md;
-    top: 50%;
-    transform: translateY(-50%);
-
-    .loader {
-        @extend .icon-sm;
-    }
-}
-
-.offcanvas-menu-list-item {
-    background-color: $white;
-    border-top: 1px solid $gray-300;
+.navigation-offcanvas-container {
     position: relative;
-
-    &:last-child {
-        border-bottom: 1px solid $gray-300;
-    }
 }
 
-.offcanvas-menu-list-item-link {
-    @include transition(color 0.45s cubic-bezier(0.3, 0, 0.15, 1));
-    align-items: center;
-    color: $body-color;
-    display: flex;
-    justify-content: space-between;
-    padding: 12px $spacer-md;
-    position: relative;
-
-    &.go-home,
-    &.go-back {
-        justify-content: flex-start;
-        padding-left: 40px;
-
-        .offcanvas-menu-list-item-link-icon {
-            right: auto;
-        }
-    }
-
-    &.go-home {
-        .offcanvas-menu-list-item-link-icon {
-            left: 14px;
-        }
-
-        &,
-        .icon {
-            color: $primary;
-        }
-    }
-
-    &.go-back {
-        border-top: 1px solid $gray-300;
-        font-weight: $font-weight-bold;
-        color: $secondary;
-
-        .offcanvas-menu-list-item-link-icon {
-            left: 11px;
-
-            .loader {
-                left: 3px;
-                position: relative;
-            }
-        }
-    }
-
-    &.current-category {
-        color: $primary;
-        font-weight: $font-weight-bold;
-    }
-
-    &:hover,
-    &:active,
-    &:focus {
-        &,
-        .offcanvas-menu-list-item-link-icon .icon {
-            color: $primary;
-        }
-    }
-}
-
-.offcanvas-menu-overlay {
+.navigation-offcanvas-overlay {
     &.has-transition {
         transition: left 0.5s ease-in;
     }
 }
 
-.offcanvas-menu-placeholder,
-.offcanvas-menu-overlay {
+.navigation-offcanvas-placeholder,
+.navigation-offcanvas-overlay {
     width: 100%;
     background-color: $white;
     position: absolute;
@@ -119,3 +32,41 @@
     left: 0;
 }
 
+.navigation-offcanvas-actions {
+    .top-bar-nav-item {
+        padding: 0 $spacer;
+    }
+
+    .top-bar-nav-name {
+        display: inline;
+    }
+}
+
+.navigation-offcanvas-headline {
+    padding: 20px $spacer-md $spacer-md;
+}
+
+.navigation-offcanvas-link-icon {
+    display: inline-flex;
+
+    .loader {
+        @extend .icon-sm;
+    }
+}
+
+.navigation-offcanvas-link {
+    @include transition(color 0.45s cubic-bezier(0.3, 0, 0.15, 1));
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px $spacer-md;
+
+    &.is-home-link,
+    &.is-back-link {
+        justify-content: flex-start;
+
+        .navigation-offcanvas-link-icon {
+            margin-right: $spacer-sm;
+        }
+    }
+}

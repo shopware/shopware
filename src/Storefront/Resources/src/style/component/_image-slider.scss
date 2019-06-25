@@ -1,3 +1,10 @@
+/*
+Image slider
+==============================================
+Styling for image slider component.
+based on: https://github.com/ganlanyuan/tiny-slider
+*/
+
 .image-slider-thumbnails {
     list-style: none;
     padding: 0;
@@ -65,10 +72,7 @@
 
 .image-slider-controls-prev,
 .image-slider-controls-next {
-    &,
-    &:focus {
-        color: $gray-600;
-    }
+    cursor: pointer;
 
     &:hover {
         color: $primary;

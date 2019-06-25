@@ -7,7 +7,7 @@
                         method="post">
                         <button type="submit"
                                 title="{{ "account.addressesSetAsDefaultShippingAction"|trans }}"
-                                class="btn btn-link">
+                                class="btn btn-link address-action-set-default">
                             {{ "account.addressesSetAsDefaultShippingAction"|trans }}
                         </button>
                     </form>
@@ -20,7 +20,7 @@
                         method="post">
                         <button type="submit"
                                 title="{{ "account.addressesSetAsDefaultBillingAction"|trans }}"
-                                class="btn btn-link btn-sm">
+                                class="btn btn-link address-action-set-default">
                             {{ "account.addressesSetAsDefaultBillingAction"|trans }}
                         </button>
                     </form>
@@ -30,26 +30,30 @@
     {% endblock %}
 
     {% block page_account_address_actions_buttons %}
-        <div class="address-actions-buttons">
+        <div class="row no-gutters address-actions-buttons">
             {% block page_account_address_actions_update %}
-                <a href="{{ path('frontend.account.address.edit.page', {'addressId': address.id}) }}"
-                   title="{{ "account.addressesContentItemActionEdit"|trans }}"
-                   class="btn btn-light btn-sm">
-                    {{ "account.addressesContentItemActionEdit"|trans }}
-                </a>
+                <div class="col-auto">
+                    <a href="{{ path('frontend.account.address.edit.page', {'addressId': address.id}) }}"
+                       title="{{ "account.addressesContentItemActionEdit"|trans }}"
+                       class="btn btn-light btn-sm">
+                        {{ "account.addressesContentItemActionEdit"|trans }}
+                    </a>
+                </div>
             {% endblock %}
 
             {% block page_account_address_actions_delete %}
                 {% if defaultShippingAddress != address.id and defaultBillingAddress != address.id %}
-                    <form action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}"
-                          class="address-action-delete"
-                          method="post">
-                        <button type="submit"
-                                class="btn btn-light btn-sm"
-                                title="{{ "account.addressesContentItemActionDelete"|trans }}">
-                            {{ "account.addressesContentItemActionDelete"|trans }}
-                        </button>
-                    </form>
+                    <div class="col-auto">
+                        <form action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}"
+                              class="address-action-delete"
+                              method="post">
+                            <button type="submit"
+                                    class="btn btn-light btn-sm"
+                                    title="{{ "account.addressesContentItemActionDelete"|trans }}">
+                                {{ "account.addressesContentItemActionDelete"|trans }}
+                            </button>
+                        </form>
+                    </div>
                 {% endif %}
             {% endblock %}
         </div>

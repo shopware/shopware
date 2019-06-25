@@ -1,7 +1,7 @@
 import DomAccess from 'src/script/helper/dom-access.helper';
 import Iterator from 'src/script/helper/iterator.helper';
 
-const ARROW_NAVIGATION_ACTIVE_CLASS = 'active';
+const ARROW_NAVIGATION_ACTIVE_CLASS = 'is-active';
 
 const ARROW_NAVIGATION_ITERATOR_DEFAULT = -1;
 

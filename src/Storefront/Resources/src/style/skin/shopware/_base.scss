@@ -1,7 +1,13 @@
 /*
- * The file organization follows the 7-1 pattern architecture
- * https://sass-guidelin.es/#the-7-1-pattern
- *
+Shopware skin
+==================================================
+Contains the imports to all Shopware skin styles.
+
+The file organization follows the 7-1 pattern architecture
+https://sass-guidelin.es/#the-7-1-pattern
+*/
+
+/*
  * Vendors
  * ------- */
 @import 'vendor/inter-fontface';
@@ -17,15 +23,6 @@
 @import 'base/typography';
 
 /*
- * Layout-related sections
- * ----------------------- */
-@import 'layout/top-bar';
-@import 'layout/header';
-@import 'layout/footer';
-@import 'layout/grid';
-@import 'layout/navigation';
-
-/*
  * Components
  * ---------- */
 @import 'component/alert';
@@ -38,27 +35,39 @@
 @import 'component/image-slider';
 @import 'component/modal';
 @import 'component/product-box';
-@import 'component/loader';
 @import 'component/tab-menu';
 @import 'component/payment-form';
-@import 'component/pagination';
 @import 'component/cms-block';
 @import 'component/cms-element';
+
+/*
+ * Layout-related sections
+ * ----------------------- */
+@import 'layout/top-bar';
+@import 'layout/header';
+@import 'layout/footer';
+@import 'layout/container';
+@import 'layout/main-navigation';
+@import 'layout/navigation-flyout';
+@import 'layout/navigation-offcanvas';
+@import 'layout/offcanvas-cart';
+@import 'layout/search-suggest';
 
 /*
  * Page-specific styles
  * -------------------- */
 @import 'page/product-detail/product-detail';
+@import 'page/product-detail/tabs';
 
-@import 'page/account/overview';
+@import 'page/account/aside';
 @import 'page/account/register';
 @import 'page/account/address';
 @import 'page/account/profile';
 @import 'page/account/order-detail';
 
+@import 'page/checkout/aside';
 @import 'page/checkout/cart';
 @import 'page/checkout/cart-item';
 @import 'page/checkout/confirm';
-@import 'page/checkout/summary';
 
 @import 'page/newsletter/newsletter';

@@ -1,19 +1,11 @@
+/*
+Offcanvas cart
+==============================================
+Extends the basic offcanvas component with additional cart styles.
+*/
+
 .offcanvas-cart {
     .alert {
-        margin-top: $spacer;
-    }
-
-    .offcanvas-cart-header {
-        @extend .h4;
-
-        small {
-            color: $text-muted;
-            float: right;
-            font-weight: $font-weight-bold;
-        }
-    }
-
-    .offcanvas-cart-items {
         margin-top: $spacer;
     }
 
@@ -44,18 +36,8 @@
         }
     }
 
-    .cart-item-link {
-        display: inline-block;
-        color: $gray-600;
-
-        &:hover {
-            text-decoration: none;
-        }
-    }
-
-    .cart-item-price {
-        text-align: right;
-        font-weight: $font-weight-bold;
+    .cart-item-details {
+        margin-bottom: $spacer;
     }
 
     .cart-quantity-price {
@@ -64,22 +46,17 @@
         align-items: center;
     }
 
-    .cart-item-details {
-        margin-bottom: $spacer;
+    .cart-item-price {
+        font-weight: $font-weight-bold;
     }
 }
 
-.offcanvas-summary {
-    margin-top: $spacer;
-
-    .summary-list {
-        margin-bottom: 0;
-    }
+.offcanvas-cart-items {
+    margin: $spacer 0;
 }
 
-.offcanvas-cart-tax {
-    color: $text-muted;
-    font-size: $small-font-size;
+.offcanvas-summary-list {
+    margin-bottom: 0;
 }
 
 .offcanvas-cart-promotion-form {

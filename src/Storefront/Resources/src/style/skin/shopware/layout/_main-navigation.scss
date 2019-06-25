@@ -1,8 +1,9 @@
 /*
 Main navigation
 ==============================================
-Custom styling for bootstrap nav.
+Custom styling for main navigation on larger screens.
 
+Based on bootstrap nav:
 https://getbootstrap.com/docs/4.3/components/navs/
 */
 
@@ -18,7 +19,7 @@ https://getbootstrap.com/docs/4.3/components/navs/
             padding-left: 0;
         }
 
-        .main-navigation-link-inner {
+        .main-navigation-link-text {
             border-bottom: 2px solid transparent;
             padding-bottom: 3px;
         }
@@ -32,7 +33,7 @@ https://getbootstrap.com/docs/4.3/components/navs/
             color: $gray-800;
             font-weight: $font-weight-bold;
 
-            .main-navigation-link-inner {
+            .main-navigation-link-text {
                 border-color: $primary;
             }
         }

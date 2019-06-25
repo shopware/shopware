@@ -1,49 +1,47 @@
+/*
+Address editor
+==============================================
+Custom styling for an address modal which allows the user to create and edit addresses.
+
+based on: https://getbootstrap.com/docs/4.3/components/modal/
+*/
+
 .address-editor-modal {
     .modal-dialog {
-        max-width: 700px;
+        @extend .modal-lg;
     }
+}
 
-    .address-editor-current-wrapper {
-        margin-bottom: $spacer-lg;
+.address-editor-select,
+.address-editor-create {
+    cursor: pointer;
 
-        .card {
-            margin-top: $spacer-md;
-        }
+    &:not(.collapsed) {
+        @extend .btn-primary;
     }
+}
 
-    .address-item-select,
-    .address-item-create {
-        cursor: pointer;
+.address-editor-select {
+    margin-bottom: $spacer;
+}
 
-        &:not(.collapsed) {
-            @extend .btn-primary;
-        }
-    }
+.address-editor-list-wrapper,
+.address-editor-create-address-wrapper {
+    padding-top: $spacer-lg;
+    padding-bottom: $spacer-lg;
+}
 
-    .address-item-select {
-        margin-bottom: $spacer;
-    }
+.address-editor-card {
+    padding-top: $spacer-md;
 
-    .address-editor-list-wrapper,
-    .address-editor-create-address-wrapper {
-        padding-top: $spacer-lg;
-        padding-bottom: $spacer-lg;
-    }
-
-    .address-editor-list-wrapper {
-        .card.address-card {
-            padding-top: $spacer-md;
-
-            &:not(:last-child) {
-                padding-bottom: $spacer-md;
-                border-bottom: 1px solid $border-color;
-            }
-        }
+    &:not(:last-child) {
+        padding-bottom: $spacer-md;
+        border-bottom: 1px solid $border-color;
     }
 }
 
 @include media-breakpoint-up(md) {
-    .address-item-select {
+    .address-editor-select {
         margin-bottom: 0;
     }
 }

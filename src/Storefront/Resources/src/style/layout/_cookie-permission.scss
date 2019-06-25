@@ -1,3 +1,9 @@
+/*
+Cookie permission
+==============================================
+Shows a cookie permission alert at the bottom of the page.
+*/
+
 .cookie-permission-container {
     display: none;
     border-top: 1px solid $border-color;
@@ -7,13 +13,13 @@
     right: 0;
     left: 0;
     text-align: center;
-    padding: $spacer * 0.5;
+    padding: $spacer-sm;
     font-size: $font-size-sm;
     z-index: $cookie-msg-zindex;
 }
 
 .cookie-permission-content {
-    margin-bottom: $spacer * 0.5;
+    margin-bottom: $spacer-sm;
 
     a {
         display: inline-block;

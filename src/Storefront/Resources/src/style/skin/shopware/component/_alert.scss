@@ -1,3 +1,11 @@
+/*
+Alert
+==============================================
+Custom skin styling for bootstrap alert component.
+
+https://getbootstrap.com/docs/4.3/components/alerts/
+*/
+
 @mixin sw-skin-alert($color, $background) {
     background-color: $color;
 

@@ -1,14 +1,18 @@
-.summary-label {
+.checkout-aside-summary-label {
     font-weight: $font-weight-normal;
 }
 
-.summary-total {
+.checkout-aside-summary-total {
     font-size: $font-size-lg;
     font-weight: $font-weight-bold;
 }
 
-.summary-value {
+.checkout-aside-summary-value {
     text-align: right;
+}
+
+.checkout-aside-product-header {
+    margin-bottom: $spacer-lg;
 }
 
 .checkout-aside-item {
@@ -18,4 +22,12 @@
 .checkout-aside-item-price {
     font-weight: $font-weight-bold;
     text-align: right;
+}
+
+.checkout-aside-action {
+    margin-top: $spacer;
+}
+
+.checkout-aside-add-code {
+    margin-top: $spacer;
 }

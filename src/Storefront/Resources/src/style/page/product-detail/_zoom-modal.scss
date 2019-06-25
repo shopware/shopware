@@ -12,26 +12,17 @@
     .modal-close {
         position: absolute;
         top: 0;
-        z-index: 9999;
+        opacity: 1;
+        z-index: $zoom-modal-action-zindex;
         margin: 15px;
     }
 
     .zoom-modal-actions {
         left: 0;
-        opacity: 1;
-
-        .btn {
-            font-size: 16px;
-            vertical-align: middle;
-        }
     }
 
     .modal-close {
-        font-size: 16px;
-        vertical-align: middle;
-        line-height: $btn-line-height;
         right: 0;
-        opacity: 1;
     }
 
     .modal-dialog {
@@ -74,6 +65,19 @@
         left: 0;
     }
 
+    .image-zoom-container {
+        height: 100%;
+        width: 100%;
+        overflow: hidden !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-content: center;
+
+        > * {
+            position: relative;
+        }
+    }
 }
 
 @include media-breakpoint-down(sm) {

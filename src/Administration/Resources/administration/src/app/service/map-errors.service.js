@@ -21,7 +21,7 @@ export function mapPageErrors(errorConfig) {
         const subjects = errorConfig[routeName];
         map[`${string.camelCase(routeName)}Error`] = function getterPropertyError() {
             return Object.keys(subjects).some((entityName) => {
-                return this.$store.getters.existsErrorInProperty(entityName, Object.keys(subjects[entityName]));
+                return this.$store.getters.existsErrorInProperty(entityName, subjects[entityName]);
             });
         };
     });

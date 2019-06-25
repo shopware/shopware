@@ -7,7 +7,7 @@ use Shopware\Elasticsearch\Framework\Event\CollectDefinitionsEvent;
 use Shopware\Elasticsearch\Framework\Event\CreateIndexingCriteriaEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ProductElasticsearchSubscriber implements EventSubscriberInterface
+class ProductSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {

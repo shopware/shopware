@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Search;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -34,16 +35,23 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
      */
     private $helper;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         Client $client,
         EntitySearcherInterface $searcher,
         DefinitionRegistry $registry,
-        ElasticsearchHelper $helper
+        ElasticsearchHelper $helper,
+        LoggerInterface $logger
     ) {
         $this->client = $client;
         $this->decorated = $searcher;
         $this->registry = $registry;
         $this->helper = $helper;
+        $this->logger = $logger;
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
@@ -54,11 +62,17 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         $search = $this->createSearch($criteria, $definition, $context);
 
-        $result = $this->client->search([
-            'index' => $this->registry->getIndex($definition, $context->getLanguageId()),
-            'type' => $definition->getEntityName(),
-            'body' => $search->toArray(),
-        ]);
+        try {
+            $result = $this->client->search([
+                'index' => $this->registry->getIndex($definition, $context->getLanguageId()),
+                'type' => $definition->getEntityName(),
+                'body' => $search->toArray(),
+            ]);
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
+
+            return $this->decorated->search($definition, $criteria, $context);
+        }
 
         return $this->hydrate($criteria, $context, $result);
     }

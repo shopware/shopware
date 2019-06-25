@@ -4,7 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
-use Shopware\Elasticsearch\Framework\EntityIndexer;
+use Shopware\Elasticsearch\Framework\Indexing\EntityIndexer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

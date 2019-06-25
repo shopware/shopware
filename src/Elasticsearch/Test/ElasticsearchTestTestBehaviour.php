@@ -7,14 +7,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use Shopware\Elasticsearch\Framework\EntityIndexer;
+use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
+use Shopware\Elasticsearch\Framework\Indexing\EntityIndexer;
 
 trait ElasticsearchTestTestBehaviour
 {
     use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
 
     /**
      * @before
@@ -54,6 +57,13 @@ trait ElasticsearchTestTestBehaviour
             ->getContainer()
             ->get(EntityIndexer::class)
             ->index(new \DateTime());
+
+        $this->runWorker();
+
+        KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(CreateAliasTaskHandler::class)
+            ->run();
     }
 
     protected function createEntityAggregator(): ElasticsearchEntityAggregator

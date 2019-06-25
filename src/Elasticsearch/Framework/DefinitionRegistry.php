@@ -34,11 +34,9 @@ class DefinitionRegistry
 
     public function isSupported(EntityDefinition $definition): bool
     {
+        /** @var EntityDefinition $def */
         foreach ($this->getDefinitions() as $def) {
-            if ($def instanceof $definition) {
-                return true;
-            }
-            if ($definition instanceof $def) {
+            if ($def->getEntityName() === $definition->getEntityName()) {
                 return true;
             }
         }

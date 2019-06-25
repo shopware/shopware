@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
-class ProductElasticsearchKeywordIndexer implements IndexerInterface
+class ProductKeywordIndexer implements IndexerInterface
 {
     /**
      * @var IndexerInterface
@@ -38,8 +38,10 @@ class ProductElasticsearchKeywordIndexer implements IndexerInterface
     {
         // deactivate sql keyword indexing
         if ($this->helper->allowIndexing($this->productDefinition)) {
-            $this->decorated->index($timestamp);
+            return;
         }
+
+        $this->decorated->index($timestamp);
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void

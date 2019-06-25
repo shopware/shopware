@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProductElasticsearchSearchBuilder implements ProductSearchBuilderInterface
+class ProductSearchBuilder implements ProductSearchBuilderInterface
 {
     /**
      * @var ProductSearchBuilderInterface

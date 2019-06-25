@@ -1,26 +1,25 @@
 <?php
 declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Framework;
+namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Language\LanguageCollection;
-use Shopware\Elasticsearch\Framework\Event\CreateIndexingCriteriaEvent;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Framework\DefinitionRegistry;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class EntityIndexer implements IndexerInterface
@@ -51,11 +50,6 @@ class EntityIndexer implements IndexerInterface
     private $iteratorFactory;
 
     /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $languageRepository;
@@ -65,24 +59,36 @@ class EntityIndexer implements IndexerInterface
      */
     private $enabled;
 
+    /**
+     * @var MessageBusInterface
+     */
+    private $messageBus;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     public function __construct(
         bool $enabled,
         DefinitionRegistry $esRegistry,
-        DefinitionInstanceRegistry $definitionRegistry,
         Client $client,
         EventDispatcherInterface $eventDispatcher,
         EntityMapper $entityMapper,
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $languageRepository
+        EntityRepositoryInterface $languageRepository,
+        MessageBusInterface $messageBus,
+        Connection $connection
     ) {
         $this->registry = $esRegistry;
         $this->client = $client;
         $this->eventDispatcher = $eventDispatcher;
         $this->entityMapper = $entityMapper;
         $this->iteratorFactory = $iteratorFactory;
-        $this->definitionRegistry = $definitionRegistry;
         $this->languageRepository = $languageRepository;
         $this->enabled = $enabled;
+        $this->messageBus = $messageBus;
+        $this->connection = $connection;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -93,6 +99,9 @@ class EntityIndexer implements IndexerInterface
         $definitions = $this->registry->getDefinitions();
 
         $context = Context::createDefaultContext();
+
+        // clear all pending indexing tasks
+        $this->connection->executeUpdate('DELETE FROM elasticsearch_indexing');
 
         /** @var LanguageCollection $languages */
         $languages = $context->disableCache(
@@ -114,20 +123,23 @@ class EntityIndexer implements IndexerInterface
 
             /** @var string|EntityDefinition $definition */
             foreach ($definitions as $definition) {
-                $index = $this->registry->getIndex($definition, $language->getId()) . '_' . $timestamp->getTimestamp();
+                $alias = $this->registry->getIndex($definition, $language->getId());
+
+                $index = $alias . '_' . $timestamp->getTimestamp();
 
                 $this->createIndex($definition, $index, $context);
 
-                $this->indexDefinition($index, $definition, $context);
+                $count = $this->indexDefinition($index, $definition, $context);
 
-                $alias = $this->registry->getIndex($definition, $language->getId());
-                $this->createAlias($index, $alias);
-
-                $this->client->indices()->refresh(['index' => $index]);
+                $this->connection->insert('elasticsearch_indexing', [
+                    'id' => Uuid::randomBytes(),
+                    '`entity`' => $definition->getEntityName(),
+                    '`index`' => $index,
+                    '`alias`' => $alias,
+                    '`doc_count`' => $count,
+                ]);
             }
         }
-
-        $this->cleanup();
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void
@@ -150,23 +162,14 @@ class EntityIndexer implements IndexerInterface
         return $this;
     }
 
-    private function cleanup(): void
-    {
-        $aliases = $this->client->indices()->getAliases();
-
-        foreach ($aliases as $index => $config) {
-            if (empty($config['aliases'])) {
-                $this->client->indices()->delete(['index' => $index]);
-            }
-        }
-    }
-
-    private function indexDefinition(string $index, EntityDefinition $definition, Context $context): void
+    private function indexDefinition(string $index, EntityDefinition $definition, Context $context): int
     {
         $iterator = $this->iteratorFactory->createIterator($definition);
 
+        $count = $iterator->fetchCount();
+
         $this->eventDispatcher->dispatch(
-            new ProgressStartedEvent(sprintf('Start indexing elastic search for entity %s', $definition->getEntityName()), $iterator->fetchCount()),
+            new ProgressStartedEvent(sprintf('Start indexing elastic search for entity %s', $definition->getEntityName()), $count),
             ProgressStartedEvent::NAME
         );
 
@@ -175,29 +178,18 @@ class EntityIndexer implements IndexerInterface
                 new ProgressAdvancedEvent(count($ids)),
                 ProgressAdvancedEvent::NAME
             );
-            $this->indexEntities($index, $ids, $definition, $context);
+
+            $this->messageBus->dispatch(
+                new IndexingMessage($ids, $index, $context, $definition->getEntityName())
+            );
         }
 
         $this->eventDispatcher->dispatch(
             new ProgressFinishedEvent(sprintf('Finished indexing elastic search for entity %s', $definition->getEntityName())),
             ProgressFinishedEvent::NAME
         );
-    }
 
-    private function createAlias(string $index, string $alias): void
-    {
-        $exist = $this->client->indices()->existsAlias(['name' => $alias]);
-
-        if ($exist) {
-            $this->switchAlias($index, $alias);
-
-            return;
-        }
-
-        $this->client->indices()->putAlias([
-            'index' => $index,
-            'name' => $alias,
-        ]);
+        return $count;
     }
 
     private function indexExists(string $index): bool
@@ -231,80 +223,5 @@ class EntityIndexer implements IndexerInterface
             'body' => $mapping,
             'include_type_name' => true,
         ]);
-    }
-
-    private function switchAlias(string $index, string $entity): void
-    {
-        $actions = [
-            ['add' => ['index' => $index, 'alias' => $entity]],
-        ];
-
-        $current = $this->client->indices()->getAlias(['name' => $entity]);
-        $current = array_keys($current);
-
-        foreach ($current as $value) {
-            $actions[] = ['remove' => ['index' => $value, 'alias' => $entity]];
-        }
-        $this->client->indices()->updateAliases(['body' => ['actions' => $actions]]);
-    }
-
-    private function indexEntities(string $index, array $ids, EntityDefinition $definition, Context $context): void
-    {
-        $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
-
-        if (!$repository instanceof EntityRepository) {
-            throw new \RuntimeException('Expected entity repository for service: ' . $definition->getEntityName() . '.repository');
-        }
-
-        $criteria = new Criteria($ids);
-
-        $this->eventDispatcher->dispatch(
-            new CreateIndexingCriteriaEvent($definition, $criteria, $context)
-        );
-
-        $entities = $context->disableCache(function (Context $context) use ($repository, $criteria) {
-            $context->setConsiderInheritance(true);
-
-            return $repository->search($criteria, $context);
-        });
-
-        /** @var EntitySearchResult $entities */
-        if (empty($entities->getIds())) {
-            return;
-        }
-
-        $documents = $this->createDocuments($entities);
-
-        $this->client->bulk([
-            'index' => $index,
-            'type' => $definition->getEntityName(),
-            'body' => $documents,
-        ]);
-    }
-
-    private function deleteEntities(string $index, array $ids, EntityDefinition $definition): void
-    {
-        $deletes = array_map(function ($id) {
-            return ['delete' => ['_id' => $id]];
-        }, $ids);
-
-        $this->client->bulk([
-            'index' => $index,
-            'type' => $definition->getEntityName(),
-            'body' => $deletes,
-        ]);
-    }
-
-    private function createDocuments(iterable $entities): array
-    {
-        $documents = [];
-
-        /** @var Entity $entity */
-        foreach ($entities as $entity) {
-            $documents[] = ['index' => ['_id' => $entity->getUniqueIdentifier()]];
-            $documents[] = json_decode(json_encode($entity, JSON_PRESERVE_ZERO_FRACTION), true);
-        }
-
-        return $documents;
     }
 }

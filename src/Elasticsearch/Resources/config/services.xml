@@ -28,27 +28,28 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\EntityMapper"/>
+        <service id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
 
         <service id="Elasticsearch\Client" public="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%shopware.ses.hosts%</argument>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\EntityIndexer" public="true">
+        <service id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer" public="true">
             <tag name="shopware.dal_indexing.indexer" priority="-50000"/>
             <argument>%shopware.ses.indexing.enabled%</argument>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\EntityMapper"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="language.repository"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
-            <argument type="service" id="Shopware\Elasticsearch\Framework\EntityIndexer"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
@@ -61,6 +62,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator"
@@ -74,28 +76,45 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Product\ProductElasticsearchSubscriber">
+        <service id="Shopware\Elasticsearch\Product\ProductSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Product\ProductElasticsearchKeywordIndexer"
+        <service id="Shopware\Elasticsearch\Product\ProductKeywordIndexer"
                  decorates="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordIndexer"
                  decoration-priority="-50000">
 
-            <argument type="service" id="Shopware\Elasticsearch\Product\ProductElasticsearchKeywordIndexer.inner"/>
+            <argument type="service" id="Shopware\Elasticsearch\Product\ProductKeywordIndexer.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Product\ProductElasticsearchSearchBuilder"
+        <service id="Shopware\Elasticsearch\Product\ProductSearchBuilder"
                  decorates="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
                  decoration-priority="-50000">
 
-            <argument id="Shopware\Elasticsearch\Product\ProductElasticsearchSearchBuilder.inner" type="service"/>
-            <argument id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" type="service"/>
-            <argument id="Shopware\Core\Content\Product\ProductDefinition" type="service"/>
+            <argument type="service" id="Shopware\Elasticsearch\Product\ProductSearchBuilder.inner"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexingMessageHandler">
+            <tag name="messenger.message_handler"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+        </service>
 
+        <service id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" public="true">
+            <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
     </services>
 </container>

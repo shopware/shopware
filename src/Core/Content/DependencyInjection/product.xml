@@ -180,7 +180,7 @@
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
                  class="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder">
-            <argument id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter" type="service"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>

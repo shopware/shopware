@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Framework;
+namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -70,9 +70,9 @@ class EntityMapper
         $properties = $this->mapFields($definition, $context, $fields);
 
         return [
-            //            '_source' => [
-            //                'includes' => ['id'],
-            //            ],
+            '_source' => [
+                'includes' => ['id'],
+            ],
             'properties' => $properties,
         ];
     }

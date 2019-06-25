@@ -47,18 +47,18 @@ Component.register('sw-mail-template-list', {
         },
 
         getSalesChannelsString(item) {
-            if (typeof item.mailTemplateSalesChannels === 'undefined') {
+            if (typeof item.salesChannels === 'undefined') {
                 return '';
             }
             let salesChannels = '';
-            item.mailTemplateSalesChannels.slice(0, 4).forEach((mailTemplateSalesChannel) => {
+            item.salesChannels.slice(0, 4).forEach((mailTemplateSalesChannel) => {
                 if (salesChannels !== '') {
                     salesChannels += ', ';
                 }
                 salesChannels += `${mailTemplateSalesChannel.salesChannel.translated.name}`;
             });
 
-            if (item.mailTemplateSalesChannels.length >= 5) {
+            if (item.salesChannels.length >= 5) {
                 salesChannels += '...';
             }
 

@@ -1,4 +1,3 @@
-import { Application } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-modal.html.twig';
 import './sw-modal.scss';
@@ -18,6 +17,8 @@ export default {
     template,
 
     inheritAttrs: false,
+
+    inject: ['shortcutService'],
 
     props: {
         title: {
@@ -98,9 +99,7 @@ export default {
 
     methods: {
         createdComponent() {
-            const shortcutService = Application.getContainer('service').shortcutService;
-
-            shortcutService.stopEventListener();
+            this.shortcutService.stopEventListener();
         },
 
         mountedComponent() {
@@ -111,9 +110,7 @@ export default {
         },
 
         destroyedComponent() {
-            const shortcutService = Application.getContainer('service').shortcutService;
-
-            shortcutService.startEventListener();
+            this.shortcutService.startEventListener();
             document.querySelector('.sw-modal__dialog').focus();
         },
 

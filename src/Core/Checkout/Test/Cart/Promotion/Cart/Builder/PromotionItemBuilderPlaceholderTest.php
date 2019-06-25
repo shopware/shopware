@@ -5,7 +5,8 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Cart\Builder;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
-use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 
 class PromotionItemBuilderPlaceholderTest extends TestCase
 {
@@ -18,11 +19,11 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
      */
     public function testLineItemType()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $item = $builder->buildPlaceholderItem('CODE-123', 1);
 
-        static::assertEquals('My-TYPE', $item->getType());
+        static::assertEquals(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
     }
 
     /**
@@ -35,7 +36,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
      */
     public function testDefaultPriceIsEmpty()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $item = $builder->buildPlaceholderItem('CODE-123', 1);
 
@@ -46,20 +47,20 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
 
     /**
      * This one is the most important test.
-     * It asserts that our applied code is added to the expected property of the line item.
+     * It asserts that our applied code is added to the expected property referenceId of the line item.
      * When it is converted into a real promotion line item, this code is being used
      * to fetch that promotion.
      *
      * @test
      * @group promotions
      */
-    public function testCodeValueInPayload()
+    public function testCodeValueInReferenceId()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $item = $builder->buildPlaceholderItem('CODE-123', 1);
 
-        static::assertEquals('CODE-123', $item->getPayload()['code']);
+        static::assertEquals('CODE-123', $item->getReferencedId());
     }
 
     /**
@@ -73,7 +74,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
      */
     public function testKeyIsUnique()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $item = $builder->buildPlaceholderItem('CODE-123', 1);
 

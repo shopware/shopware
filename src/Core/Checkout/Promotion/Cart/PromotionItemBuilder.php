@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Promotion\Cart\Builder;
+namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -23,16 +24,6 @@ class PromotionItemBuilder
     public const PLACEHOLDER_PREFIX = 'promotion-';
 
     /**
-     * @var string
-     */
-    private $lineItemType;
-
-    public function __construct(string $lineItemType)
-    {
-        $this->lineItemType = $lineItemType;
-    }
-
-    /**
      * Builds a new placeholder promotion line item that does not have
      * any side effects for the calculation. It will contain the code
      * within the payload which can then be used to create a real promotion item.
@@ -46,12 +37,12 @@ class PromotionItemBuilder
         // that might not be from the promotion scope
         $uniqueKey = self::PLACEHOLDER_PREFIX . $code;
 
-        $item = new LineItem($uniqueKey, $this->lineItemType);
+        $item = new LineItem($uniqueKey, PromotionProcessor::LINE_ITEM_TYPE);
         $item->setLabel($uniqueKey);
         $item->setGood(false);
 
         // this is used to pass on the code for later usage
-        $item->setPayload(['code' => $code]);
+        $item->setReferencedId($code);
 
         // this is important to avoid any side effects when calculating the cart
         // a percentage of 0,00 will just do nothing
@@ -111,22 +102,28 @@ class PromotionItemBuilder
         }
 
         if ($promotionDefinition === null) {
-            throw new \Exception('No Promotion Discount Type set');
+            throw new UnknownPromotionDiscountTypeException($discount);
         }
 
         // build our discount line item
         // and make sure it has everything as dynamic content.
         // this is necessary for the recalculation process.
-        $promotionItem = new LineItem($discount->getId(), $this->lineItemType);
+        $promotionItem = new LineItem($discount->getId(), PromotionProcessor::LINE_ITEM_TYPE);
         $promotionItem->setLabel($promotion->getName());
         $promotionItem->setDescription($promotion->getName());
         $promotionItem->setGood(false);
         $promotionItem->setRemovable(true);
         $promotionItem->setPriceDefinition($promotionDefinition);
 
+        // always make sure we have a valid code entry.
+        // this helps us to identify the item by code later on
+        if ($promotion->isUseCodes()) {
+            $promotionItem->setReferencedId((string) $promotion->getCode());
+        }
+
         // add custom content to our payload.
         // we need this as meta data information.
-        $promotionItem->setPayload($this->buildPayload($promotion));
+        $promotionItem->setPayload($this->buildPayload($discount->getType(), $promotion));
 
         // add our lazy-validation rules.
         // this is required within the recalculation process.
@@ -142,18 +139,15 @@ class PromotionItemBuilder
      * This will make sure we have our eligible items referenced as meta data
      * and also have the code in our payload.
      */
-    private function buildPayload(PromotionEntity $promotion): array
+    private function buildPayload(string $discountType, PromotionEntity $promotion): array
     {
         $payload = [];
 
-        // always make sure we have a valid code entry.
-        // this helps us to identify the item by code later on
-        if ($promotion->isUseCodes()) {
-            $payload['code'] = (string) $promotion->getCode();
-        }
-
         // to save how many times a promotion has been used, we need to know the promotion's id during checkout
         $payload['promotionId'] = $promotion->getId();
+
+        // set the discount type absolute, percentage, ...
+        $payload['discountType'] = $discountType;
 
         return $payload;
     }

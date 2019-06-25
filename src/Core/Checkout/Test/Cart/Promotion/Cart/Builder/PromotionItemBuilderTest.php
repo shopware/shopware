@@ -7,7 +7,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
-use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -37,7 +38,7 @@ class PromotionItemBuilderTest extends TestCase
      */
     public function testLineItemType()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -46,7 +47,7 @@ class PromotionItemBuilderTest extends TestCase
 
         $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
 
-        static::assertEquals('My-TYPE', $item->getType());
+        static::assertEquals(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
     }
 
     /**
@@ -64,7 +65,7 @@ class PromotionItemBuilderTest extends TestCase
      */
     public function testLineItemKey()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -89,7 +90,7 @@ class PromotionItemBuilderTest extends TestCase
      */
     public function testPriceTypePercentage()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -116,7 +117,7 @@ class PromotionItemBuilderTest extends TestCase
      */
     public function testPriceTypeAbsolute()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -139,7 +140,7 @@ class PromotionItemBuilderTest extends TestCase
      */
     public function testDiscountTargetFilter()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -177,7 +178,7 @@ class PromotionItemBuilderTest extends TestCase
      */
     public function testDiscountTargetFilterIfDiscountRulesShouldBeIgnored()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -212,7 +213,7 @@ class PromotionItemBuilderTest extends TestCase
      */
     public function testDiscountTargetFilterIfDiscountRulesAreEmpty()
     {
-        $builder = new PromotionItemBuilder('My-TYPE');
+        $builder = new PromotionItemBuilder();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');

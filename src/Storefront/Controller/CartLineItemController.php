@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Promotion\Cart\Builder\PromotionItemBuilder;
-use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsCollector;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -27,16 +27,23 @@ class CartLineItemController extends StorefrontController
     private $cartService;
 
     /**
+     * @var PromotionItemBuilder
+     */
+    private $promotionItemBuilder;
+
+    /**
      * @var SalesChannelRepository
      */
     private $productRepository;
 
     public function __construct(
         CartService $cartService,
-        SalesChannelRepository $productRepository
+        SalesChannelRepository $productRepository,
+        PromotionItemBuilder $promotionItemBuilder
     ) {
         $this->cartService = $cartService;
         $this->productRepository = $productRepository;
+        $this->promotionItemBuilder = $promotionItemBuilder;
     }
 
     /**
@@ -71,7 +78,7 @@ class CartLineItemController extends StorefrontController
             if ($code === null) {
                 throw new \InvalidArgumentException('Code is required');
             }
-            $lineItem = (new PromotionItemBuilder(CartPromotionsCollector::LINE_ITEM_TYPE))->buildPlaceholderItem(
+            $lineItem = $this->promotionItemBuilder->buildPlaceholderItem(
                 $code,
                 $context->getContext()->getCurrencyPrecision()
             );
@@ -216,7 +223,7 @@ class CartLineItemController extends StorefrontController
     private function hasPromotion(Cart $cart, string $code): bool
     {
         foreach ($cart->getLineItems() as $lineItem) {
-            if ($lineItem->getType() !== CartPromotionsCollector::LINE_ITEM_TYPE) {
+            if ($lineItem->getType() !== PromotionProcessor::LINE_ITEM_TYPE) {
                 continue;
             }
 

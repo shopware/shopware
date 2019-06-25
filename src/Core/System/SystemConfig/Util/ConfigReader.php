@@ -23,7 +23,7 @@ class ConfigReader extends XmlReader
         if ($bundleConfigName === null) {
             $bundleConfigName = $bundle->getConfigPath() . '/config.xml';
         } else {
-            $bundleConfigName = $bundle->getConfigPath() . '/' . rtrim($bundleConfigName, '.xml') . '.xml';
+            $bundleConfigName = $bundle->getConfigPath() . '/' . preg_replace('/\\.xml$/i', '', $bundleConfigName) . '.xml';
         }
         $configPath = $bundle->getPath() . '/' . ltrim($bundleConfigName, '/');
 

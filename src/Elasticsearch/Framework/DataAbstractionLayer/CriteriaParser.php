@@ -11,9 +11,9 @@ use ONGR\ElasticsearchDSL\BuilderInterface;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use ONGR\ElasticsearchDSL\Query\Joining\NestedQuery;
-use ONGR\ElasticsearchDSL\Query\TermLevel;
 use ONGR\ElasticsearchDSL\Query\TermLevel\ExistsQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\RangeQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\TermQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
 use ONGR\ElasticsearchDSL\Sort\FieldSort;
 use Shopware\Core\Framework\Context;
@@ -151,7 +151,7 @@ class CriteriaParser
             $query = new BoolQuery();
             $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
         } else {
-            $query = new TermLevel\TermQuery($fieldName, $filter->getValue());
+            $query = new TermQuery($fieldName, $filter->getValue());
         }
 
         return $this->createNestedQuery($query, $definition, $filter->getField());
@@ -213,7 +213,7 @@ class CriteriaParser
         return $bool;
     }
 
-    private function createNestedQuery(BuilderInterface $query, EntityDefinition $definition, string $field)
+    private function createNestedQuery(BuilderInterface $query, EntityDefinition $definition, string $field): BuilderInterface
     {
         $path = $this->getNestedPath($definition, $field);
 
@@ -224,7 +224,7 @@ class CriteriaParser
         return $query;
     }
 
-    private function getNestedPath(EntityDefinition $definition, string $accessor)
+    private function getNestedPath(EntityDefinition $definition, string $accessor): ?string
     {
         if (strpos($accessor, $definition->getEntityName() . '.') === false) {
             $accessor = $definition->getEntityName() . '.' . $accessor;
@@ -248,7 +248,7 @@ class CriteriaParser
         return implode('.', $path);
     }
 
-    private function buildAccessor(EntityDefinition $definition, string $fieldName, Context $context)
+    private function buildAccessor(EntityDefinition $definition, string $fieldName, Context $context): string
     {
         $root = $definition->getEntityName();
 
@@ -269,18 +269,6 @@ class CriteriaParser
 
         if ($field instanceof PriceField) {
             $accessor .= '.gross';
-        }
-
-        return $accessor;
-    }
-
-    private function stripRoot(EntityDefinition $definition, string $fieldName)
-    {
-        $root = $definition->getEntityName();
-
-        $accessor = $fieldName;
-        if (strpos($fieldName, $root . '.') !== false) {
-            $accessor = str_replace($root . '.', '', $fieldName);
         }
 
         return $accessor;

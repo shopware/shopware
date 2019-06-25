@@ -7,8 +7,8 @@ use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
@@ -18,14 +18,16 @@ use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Language\LanguageCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\Framework\DefinitionRegistry;
+use Shopware\Elasticsearch\Framework\ElasticsearchDefinitionInterface;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class EntityIndexer implements IndexerInterface
 {
     /**
-     * @var DefinitionRegistry
+     * @var ElasticsearchRegistry
      */
     private $registry;
 
@@ -38,11 +40,6 @@ class EntityIndexer implements IndexerInterface
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
-
-    /**
-     * @var EntityMapper
-     */
-    private $entityMapper;
 
     /**
      * @var IteratorFactory
@@ -69,12 +66,17 @@ class EntityIndexer implements IndexerInterface
      */
     private $connection;
 
+    /**
+     * @var ElasticsearchHelper
+     */
+    private $helper;
+
     public function __construct(
         bool $enabled,
-        DefinitionRegistry $esRegistry,
+        ElasticsearchRegistry $esRegistry,
         Client $client,
+        ElasticsearchHelper $helper,
         EventDispatcherInterface $eventDispatcher,
-        EntityMapper $entityMapper,
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $languageRepository,
         MessageBusInterface $messageBus,
@@ -83,12 +85,12 @@ class EntityIndexer implements IndexerInterface
         $this->registry = $esRegistry;
         $this->client = $client;
         $this->eventDispatcher = $eventDispatcher;
-        $this->entityMapper = $entityMapper;
         $this->iteratorFactory = $iteratorFactory;
         $this->languageRepository = $languageRepository;
         $this->enabled = $enabled;
         $this->messageBus = $messageBus;
         $this->connection = $connection;
+        $this->helper = $helper;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -96,12 +98,13 @@ class EntityIndexer implements IndexerInterface
         if (!$this->enabled) {
             return;
         }
+
         $definitions = $this->registry->getDefinitions();
 
         $context = Context::createDefaultContext();
 
         // clear all pending indexing tasks
-        $this->connection->executeUpdate('DELETE FROM elasticsearch_indexing');
+        $this->connection->executeUpdate('DELETE FROM elasticsearch_index_task');
 
         /** @var LanguageCollection $languages */
         $languages = $context->disableCache(
@@ -115,15 +118,14 @@ class EntityIndexer implements IndexerInterface
 
         foreach ($languages as $language) {
             $context = new Context(
-                new Context\SystemSource(),
+                new SystemSource(),
                 [],
                 Defaults::CURRENCY,
                 [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]
             );
 
-            /** @var string|EntityDefinition $definition */
             foreach ($definitions as $definition) {
-                $alias = $this->registry->getIndex($definition, $language->getId());
+                $alias = $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId());
 
                 $index = $alias . '_' . $timestamp->getTimestamp();
 
@@ -131,9 +133,9 @@ class EntityIndexer implements IndexerInterface
 
                 $count = $this->indexDefinition($index, $definition, $context);
 
-                $this->connection->insert('elasticsearch_indexing', [
+                $this->connection->insert('elasticsearch_index_task', [
                     'id' => Uuid::randomBytes(),
-                    '`entity`' => $definition->getEntityName(),
+                    '`entity`' => $definition->getEntityDefinition()->getEntityName(),
                     '`index`' => $index,
                     '`alias`' => $alias,
                     '`doc_count`' => $count,
@@ -162,14 +164,14 @@ class EntityIndexer implements IndexerInterface
         return $this;
     }
 
-    private function indexDefinition(string $index, EntityDefinition $definition, Context $context): int
+    private function indexDefinition(string $index, ElasticsearchDefinitionInterface $definition, Context $context): int
     {
-        $iterator = $this->iteratorFactory->createIterator($definition);
+        $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
 
         $count = $iterator->fetchCount();
 
         $this->eventDispatcher->dispatch(
-            new ProgressStartedEvent(sprintf('Start indexing elastic search for entity %s', $definition->getEntityName()), $count),
+            new ProgressStartedEvent(sprintf('Start indexing elastic search for entity %s', $definition->getEntityDefinition()->getEntityName()), $count),
             ProgressStartedEvent::NAME
         );
 
@@ -180,12 +182,12 @@ class EntityIndexer implements IndexerInterface
             );
 
             $this->messageBus->dispatch(
-                new IndexingMessage($ids, $index, $context, $definition->getEntityName())
+                new IndexingMessage($ids, $index, $context, $definition->getEntityDefinition()->getEntityName())
             );
         }
 
         $this->eventDispatcher->dispatch(
-            new ProgressFinishedEvent(sprintf('Finished indexing elastic search for entity %s', $definition->getEntityName())),
+            new ProgressFinishedEvent(sprintf('Finished indexing elastic search for entity %s', $definition->getEntityDefinition()->getEntityName())),
             ProgressFinishedEvent::NAME
         );
 
@@ -197,7 +199,7 @@ class EntityIndexer implements IndexerInterface
         return $this->client->indices()->exists(['index' => $index]);
     }
 
-    private function createIndex(EntityDefinition $definition, string $index, Context $context): void
+    private function createIndex(ElasticsearchDefinitionInterface $definition, string $index, Context $context): void
     {
         if ($this->indexExists($index)) {
             $this->client->indices()->delete(['index' => $index]);
@@ -215,11 +217,11 @@ class EntityIndexer implements IndexerInterface
             ],
         ]);
 
-        $mapping = $this->entityMapper->generate($definition, $context);
+        $mapping = $definition->getMapping($context);
 
         $this->client->indices()->putMapping([
             'index' => $index,
-            'type' => $definition->getEntityName(),
+            'type' => $definition->getEntityDefinition()->getEntityName(),
             'body' => $mapping,
             'include_type_name' => true,
         ]);

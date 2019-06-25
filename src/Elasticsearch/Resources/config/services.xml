@@ -11,11 +11,6 @@
     </parameters>
 
     <services>
-        <service id="Shopware\Elasticsearch\Framework\DefinitionRegistry">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-        </service>
-
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
         </service>
@@ -24,7 +19,7 @@
             <argument>%shopware.ses.enabled%</argument>
             <argument>%shopware.ses.indexing.enabled%</argument>
             <argument type="service" id="Elasticsearch\Client"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
         </service>
 
@@ -38,10 +33,10 @@
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer" public="true">
             <tag name="shopware.dal_indexing.indexer" priority="-50000"/>
             <argument>%shopware.ses.indexing.enabled%</argument>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
@@ -54,13 +49,17 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchTestAnalyzerCommand">
+            <argument id="Elasticsearch\Client" type="service"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher"
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
                  decoration-priority="1000">
 
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher.inner"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="logger"/>
         </service>
@@ -69,15 +68,10 @@
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"
                  decoration-priority="1000">
 
-            <argument type="service" id="Shopware\Elasticsearch\Framework\DefinitionRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator.inner"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-        </service>
-
-        <service id="Shopware\Elasticsearch\Product\ProductSubscriber">
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\ProductKeywordIndexer"
@@ -86,7 +80,6 @@
 
             <argument type="service" id="Shopware\Elasticsearch\Product\ProductKeywordIndexer.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\ProductSearchBuilder"
@@ -100,9 +93,9 @@
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexingMessageHandler">
             <tag name="messenger.message_handler"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Elasticsearch\Client"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="messenger.bus.shopware"/>
         </service>
 
@@ -115,6 +108,21 @@
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask">
             <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry">
+            <argument type="tagged" tag="shopware.es.definition" />
+        </service>
+
+        <service id="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition">
+            <argument id="Shopware\Core\Content\Product\ProductDefinition" type="service"/>
+            <argument id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper" type="service"/>
+            <tag name="shopware.es.definition" />
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchCreateAliasCommand">
+            <argument id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" type="service"/>
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

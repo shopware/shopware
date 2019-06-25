@@ -129,6 +129,11 @@ abstract class EntityDefinition
         return $this->fields;
     }
 
+    final public function getField(string $propertyName): ?Field
+    {
+        return $this->getFields()->get($propertyName);
+    }
+
     public function getCollectionClass(): string
     {
         return EntityCollection::class;

@@ -80,8 +80,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
     private function handleQueue(): void
     {
-        $indices = $this->connection->fetchAll('SELECT * FROM elasticsearch_indexing');
-
+        $indices = $this->connection->fetchAll('SELECT * FROM elasticsearch_index_task');
         if (empty($indices)) {
             return;
         }
@@ -89,7 +88,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
         foreach ($indices as $row) {
             $index = $row['index'];
             $entity = $row['entity'];
-            $count = $row['doc_count'];
+            $count = (int) $row['doc_count'];
 
             if (!$this->indexReady($index, $entity, $count)) {
                 continue;
@@ -102,7 +101,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
             $this->client->indices()->refresh(['index' => $index]);
 
             $this->connection->executeUpdate(
-                'DELETE FROM elasticsearch_indexing WHERE id = :id',
+                'DELETE FROM elasticsearch_index_task WHERE id = :id',
                 ['id' => $row['id']]
             );
         }

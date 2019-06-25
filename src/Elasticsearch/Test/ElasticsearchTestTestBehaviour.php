@@ -2,17 +2,18 @@
 
 namespace Shopware\Elasticsearch\Test;
 
+use Elasticsearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\EntityIndexer;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait ElasticsearchTestTestBehaviour
 {
@@ -24,13 +25,11 @@ trait ElasticsearchTestTestBehaviour
      */
     public function enableElasticsearch(): void
     {
-        KernelLifecycleManager::getKernel()
-            ->getContainer()
+        $this->getContainer()
             ->get(ElasticsearchHelper::class)
             ->setEnabled(true);
 
-        KernelLifecycleManager::getKernel()
-            ->getContainer()
+        $this->getContainer()
             ->get(EntityIndexer::class)
             ->setEnabled(true);
     }
@@ -40,28 +39,24 @@ trait ElasticsearchTestTestBehaviour
      */
     public function disableElasticsearch(): void
     {
-        KernelLifecycleManager::getKernel()
-            ->getContainer()
+        $this->getContainer()
             ->get(ElasticsearchHelper::class)
             ->setEnabled(false);
 
-        KernelLifecycleManager::getKernel()
-            ->getContainer()
+        $this->getContainer()
             ->get(EntityIndexer::class)
             ->setEnabled(false);
     }
 
     public function indexElasticSearch(): void
     {
-        KernelLifecycleManager::getKernel()
-            ->getContainer()
+        $this->getContainer()
             ->get(EntityIndexer::class)
             ->index(new \DateTime());
 
         $this->runWorker();
 
-        KernelLifecycleManager::getKernel()
-            ->getContainer()
+        $this->getContainer()
             ->get(CreateAliasTaskHandler::class)
             ->run();
     }
@@ -75,9 +70,8 @@ trait ElasticsearchTestTestBehaviour
             ->method('aggregate');
 
         return new ElasticsearchEntityAggregator(
-            $this->registry,
             $this->getContainer()->get(ElasticsearchHelper::class),
-            $this->client,
+            $this->getContainer()->get(Client::class),
             $decorated,
             $this->getContainer()->get(DefinitionInstanceRegistry::class)
         );
@@ -92,10 +86,12 @@ trait ElasticsearchTestTestBehaviour
             ->method('search');
 
         return new ElasticsearchEntitySearcher(
-            $this->client,
+            $this->getContainer()->get(Client::class),
             $decorated,
-            $this->registry,
-            $this->getContainer()->get(ElasticsearchHelper::class)
+            $this->getContainer()->get(ElasticsearchHelper::class),
+            $this->getContainer()->get('logger')
         );
     }
+
+    abstract protected function getContainer(): ContainerInterface;
 }

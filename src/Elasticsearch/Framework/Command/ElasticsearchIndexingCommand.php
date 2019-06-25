@@ -21,7 +21,7 @@ class ElasticsearchIndexingCommand extends Command implements EventSubscriberInt
 
     public function __construct(EntityIndexer $indexer)
     {
-        parent::__construct('dal:es:index');
+        parent::__construct();
         $this->indexer = $indexer;
     }
 
@@ -31,7 +31,7 @@ class ElasticsearchIndexingCommand extends Command implements EventSubscriberInt
     protected function configure(): void
     {
         $this
-            ->setName('dal:es:index')
+            ->setName('es:index')
             ->setDescription('Reindex all entities to elasticsearch');
     }
 

@@ -43,7 +43,7 @@ As aggregations can now return more than one result the `getResult()`-method ret
 &nbsp;&nbsp; &nbsp;
 ]</pre>
 
-<p>The AbstractAggregationResult has a helper method `getResultByKey()` which returns the specific result for a given key:</p>
+<p>The AggregationResult has a helper method `getResultByKey()` which returns the specific result for a given key:</p>
 
 <pre>
 $aggregationResult-&gt;getResultByKey([

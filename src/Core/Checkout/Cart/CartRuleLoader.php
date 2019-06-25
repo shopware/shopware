@@ -9,6 +9,7 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartRuleLoader
@@ -72,8 +73,6 @@ class CartRuleLoader
     {
         $rules = $this->loadRules($context->getContext());
 
-        $rules->sortByPriority();
-
         $context->setRuleIds($rules->getIds());
 
         $iteration = 1;
@@ -119,9 +118,12 @@ class CartRuleLoader
             return $this->rules;
         }
 
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
+
         /** @var RuleCollection $rules */
         $rules = $this->repository
-            ->search(new Criteria(), $context)
+            ->search($criteria, $context)
             ->getEntities();
 
         /** @var RuleEntity $rule */

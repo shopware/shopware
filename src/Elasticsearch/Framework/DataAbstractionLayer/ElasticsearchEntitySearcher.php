@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Elasticsearch\Framework\DefinitionRegistry;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
@@ -26,11 +25,6 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
     private $decorated;
 
     /**
-     * @var DefinitionRegistry
-     */
-    private $registry;
-
-    /**
      * @var ElasticsearchHelper
      */
     private $helper;
@@ -43,13 +37,11 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
     public function __construct(
         Client $client,
         EntitySearcherInterface $searcher,
-        DefinitionRegistry $registry,
         ElasticsearchHelper $helper,
         LoggerInterface $logger
     ) {
         $this->client = $client;
         $this->decorated = $searcher;
-        $this->registry = $registry;
         $this->helper = $helper;
         $this->logger = $logger;
     }
@@ -64,7 +56,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         try {
             $result = $this->client->search([
-                'index' => $this->registry->getIndex($definition, $context->getLanguageId()),
+                'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
                 'type' => $definition->getEntityName(),
                 'body' => $search->toArray(),
             ]);

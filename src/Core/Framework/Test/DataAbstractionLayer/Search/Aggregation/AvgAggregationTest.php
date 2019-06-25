@@ -47,7 +47,7 @@ class AvgAggregationTest extends TestCase
         $productRepository = $this->getContainer()->get('product.repository');
         $result = $productRepository->aggregate($criteria, $context);
 
-        /** @var \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult $priceAgg */
+        /** @var AggregationResult $priceAgg */
         $priceAgg = $result->getAggregations()->get('price_agg');
         static::assertCount(4, $priceAgg->getResult());
         static::assertEqualsWithDelta(13.33, $priceAgg->get(['product.categories.name' => 'cat1'])->getAvg(), 0.01);

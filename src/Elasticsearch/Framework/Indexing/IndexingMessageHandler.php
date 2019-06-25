@@ -6,38 +6,36 @@ use Elasticsearch\Client;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
-use Shopware\Elasticsearch\Framework\Event\CreateIndexingCriteriaEvent;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 
 class IndexingMessageHandler extends AbstractMessageHandler
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
-
     /**
      * @var Client
      */
     private $client;
 
     /**
-     * @var EventDispatcherInterface
+     * @var ElasticsearchRegistry
      */
-    private $eventDispatcher;
+    private $registry;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $entityRegistry;
 
     public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
         Client $client,
-        EventDispatcherInterface $eventDispatcher
+        ElasticsearchRegistry $registry,
+        DefinitionInstanceRegistry $entityRegistry
     ) {
-        $this->definitionRegistry = $definitionRegistry;
         $this->client = $client;
-        $this->eventDispatcher = $eventDispatcher;
+        $this->registry = $registry;
+        $this->entityRegistry = $entityRegistry;
     }
 
     public static function getHandledMessages(): iterable
@@ -60,19 +58,17 @@ class IndexingMessageHandler extends AbstractMessageHandler
 
     private function indexEntities(string $index, array $ids, string $entityName, Context $context): void
     {
-        $repository = $this->definitionRegistry->getRepository($entityName);
+        $definition = $this->registry->get($entityName);
 
-        $definition = $repository->getDefinition();
-
-        if (!$repository instanceof EntityRepository) {
-            throw new \RuntimeException('Expected entity repository for service: ' . $entityName . '.repository');
+        if (!$definition) {
+            throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entityName));
         }
+
+        $repository = $this->entityRegistry->getRepository($entityName);
 
         $criteria = new Criteria($ids);
 
-        $this->eventDispatcher->dispatch(
-            new CreateIndexingCriteriaEvent($definition, $criteria, $context)
-        );
+        $definition->extendCriteria($criteria);
 
         $entities = $context->disableCache(function (Context $context) use ($repository, $criteria) {
             $context->setConsiderInheritance(true);
@@ -85,12 +81,10 @@ class IndexingMessageHandler extends AbstractMessageHandler
             return;
         }
 
-        $documents = $this->createDocuments($entities);
-
         $this->client->bulk([
             'index' => $index,
-            'type' => $definition->getEntityName(),
-            'body' => $documents,
+            'type' => $definition->getEntityDefinition()->getEntityName(),
+            'body' => $this->createDocuments($entities),
         ]);
     }
 

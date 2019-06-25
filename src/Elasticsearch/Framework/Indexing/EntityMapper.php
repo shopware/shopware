@@ -15,13 +15,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -32,7 +32,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceRulesJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -61,25 +60,24 @@ class EntityMapper
 
     public const KEYWORD_FIELD = ['type' => 'keyword'];
 
-    public const TEXT_FIELD = ['type' => 'text', 'fielddata' => true];
-
-    public function generate(EntityDefinition $definition, Context $context): array
-    {
-        $fields = $this->getDefinitionFields($definition);
-
-        $properties = $this->mapFields($definition, $context, $fields);
-
-        return [
-            '_source' => [
-                'includes' => ['id'],
-            ],
-            'properties' => $properties,
-        ];
-    }
-
-    private function mapField(EntityDefinition $definition, Field $field, Context $context): ?array
+    public function mapField(EntityDefinition $definition, Field $field, Context $context): ?array
     {
         switch (true) {
+            case $field instanceof TranslationsAssociationField:
+                return null;
+
+            case $field instanceof ManyToManyAssociationField:
+                return [
+                    'type' => 'nested',
+                    'properties' => $this->mapFields($field->getToManyReferenceDefinition(), $context),
+                ];
+            case $field instanceof ManyToOneAssociationField:
+            case $field instanceof OneToManyAssociationField:
+                return [
+                    'type' => 'nested',
+                    'properties' => $this->mapFields($field->getReferenceDefinition(), $context),
+                ];
+
             case $field instanceof BlobField:
                 return null;
 
@@ -118,49 +116,13 @@ class EntityMapper
             case $field instanceof LongTextWithHtmlField:
                 return ['type' => 'text'];
 
-            case $field instanceof ManyToManyAssociationField:
-                return [
-                    'type' => 'nested',
-                    'properties' => $this->mapFields(
-                        $field->getToManyReferenceDefinition(),
-                        $context,
-                        $field->getToManyReferenceDefinition()->getFields()->getBasicFields()
-                    ),
-                ];
-
-            case $field instanceof ManyToOneAssociationField:
-                return [
-                    'type' => 'nested',
-                    'properties' => $this->mapFields(
-                        $field->getReferenceDefinition(),
-                        $context,
-                        $field->getReferenceDefinition()->getFields()->getBasicFields()
-                    ),
-                ];
-
             case $field instanceof ObjectField:
                 return ['type' => 'object'];
-
-            case $field instanceof TranslationsAssociationField:
-                return null;
-
-            case $field instanceof OneToManyAssociationField:
-                return [
-                    'type' => 'nested',
-                    'properties' => $this->mapFields(
-                        $field->getReferenceDefinition(),
-                        $context,
-                        $this->getDefinitionFields($field->getReferenceDefinition())
-                    ),
-                ];
-
-            case $field instanceof PasswordField:
-                return self::KEYWORD_FIELD;
 
             case $field instanceof PriceField:
                 return self::PRICE_FIELD;
 
-            case $field instanceof PriceRulesJsonField:
+            case $field instanceof ListingPriceField:
                 return [
                     'type' => 'nested',
                     'properties' => [
@@ -171,25 +133,18 @@ class EntityMapper
                     ],
                 ];
 
-            case $field instanceof StringField:
-                return self::KEYWORD_FIELD;
-
             case $field instanceof TranslatedField:
                 $reference = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
 
-                $mapped = $this->mapField($definition, $reference, $context);
-
-                if ($mapped === self::KEYWORD_FIELD) {
-                    return self::TEXT_FIELD;
-                }
-
-                return $mapped;
+                return $this->mapField($definition, $reference, $context);
 
             case $field instanceof UpdatedAtField:
             case $field instanceof CreatedAtField:
             case $field instanceof DateField:
                 return self::DATE_FIELD;
 
+            case $field instanceof PasswordField:
+            case $field instanceof StringField:
             case $field instanceof FkField:
             case $field instanceof IdField:
             case $field instanceof VersionField:
@@ -202,13 +157,17 @@ class EntityMapper
         }
     }
 
-    private function mapFields(EntityDefinition $definition, Context $context, FieldCollection $fields): array
+    public function mapFields(EntityDefinition $definition, Context $context): array
     {
         $properties = [];
 
         $extensions = [];
 
         $translated = [];
+
+        $fields = $definition->getFields()->filter(function (Field $field) {
+            return !$field instanceof AssociationField;
+        });
 
         /** @var FieldCollection $fields */
         foreach ($fields as $field) {
@@ -244,44 +203,5 @@ class EntityMapper
         }
 
         return $properties;
-    }
-
-    private function getDefinitionFields(EntityDefinition $definition): FieldCollection
-    {
-        return $definition->getFields()->filter(
-            function (Field $field) {
-                if (!$field instanceof AssociationField) {
-                    return true;
-                }
-
-                if ($field instanceof ParentAssociationField) {
-                    return false;
-                }
-                if ($field instanceof ChildrenAssociationField) {
-                    return false;
-                }
-                if ($field instanceof TranslationsAssociationField) {
-                    return false;
-                }
-
-                if ($field->getAutoload()) {
-                    return true;
-                }
-
-                if ($field instanceof ManyToOneAssociationField) {
-                    return true;
-                }
-
-                if ($field instanceof ManyToManyAssociationField) {
-                    return true;
-                }
-
-                if ($field instanceof OneToManyAssociationField) {
-                    return $field->is(CascadeDelete::class);
-                }
-
-                return false;
-            }
-        );
     }
 }

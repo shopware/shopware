@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1561442979ElasticsearchAlias extends MigrationStep
+class Migration1561442979ElasticsearchIndexTask extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -15,7 +15,7 @@ class Migration1561442979ElasticsearchAlias extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('
-CREATE TABLE `elasticsearch_indexing` (
+CREATE TABLE `elasticsearch_index_task` (
   `id` binary(16) NOT NULL,
   `index` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
   `alias` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,

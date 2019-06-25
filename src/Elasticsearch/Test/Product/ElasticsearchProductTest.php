@@ -14,11 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\Framework\DefinitionRegistry;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 
 class ElasticsearchProductTest extends TestCase
@@ -36,19 +37,19 @@ class ElasticsearchProductTest extends TestCase
     private $productDefinition;
 
     /**
-     * @var DefinitionRegistry
-     */
-    private $registry;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $languageRepository;
 
+    /**
+     * @var ElasticsearchHelper
+     */
+    private $helper;
+
     protected function setUp(): void
     {
+        $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
         $this->client = $this->getContainer()->get(Client::class);
-        $this->registry = $this->getContainer()->get(DefinitionRegistry::class);
         $this->productDefinition = $this->getContainer()->get(ProductDefinition::class);
         $this->languageRepository = $this->getContainer()->get('language.repository');
     }
@@ -57,7 +58,15 @@ class ElasticsearchProductTest extends TestCase
     {
         $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM product');
 
-        $product1 = $this->createProduct(['name' => 'Silk', 'stock' => 2]);
+        $cat1 = Uuid::randomHex();
+
+        $product1 = $this->createProduct([
+            'name' => 'Silk',
+            'stock' => 2,
+            'categories' => [
+                ['id' => $cat1, 'name' => 'test'],
+            ],
+        ]);
         $product2 = $this->createProduct(['name' => 'Rubber', 'stock' => 10]);
         $product3 = $this->createProduct(['name' => 'Stilk', 'stock' => 200]);
 
@@ -68,7 +77,7 @@ class ElasticsearchProductTest extends TestCase
         $languages = $this->languageRepository->searchIds(new Criteria(), $context);
 
         foreach ($languages->getIds() as $languageId) {
-            $index = $this->registry->getIndex($this->productDefinition, $languageId);
+            $index = $this->helper->getIndexName($this->productDefinition, $languageId);
 
             $exists = $this->client->indices()->exists(['index' => $index]);
             static::assertTrue($exists);
@@ -115,11 +124,19 @@ class ElasticsearchProductTest extends TestCase
         static::assertCount(2, $products->getIds());
         static::assertSame(2, $products->getTotal());
 
+        // check filter for categories
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.categoriesRo.id', [$cat1]));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $context);
+        static::assertCount(1, $products->getIds());
+        static::assertSame(1, $products->getTotal());
+        static::assertContains($product1, $products->getIds());
+
         $criteria = new Criteria();
         $criteria->addAggregation(new ValueAggregation('product.stock', 'stock'));
 
         $result = $aggregator->aggregate($this->productDefinition, $criteria, $context);
-
         static::assertTrue($result->getAggregations()->has('stock'));
         $aggregation = $result->getAggregations()->get('stock');
 
@@ -162,7 +179,9 @@ class ElasticsearchProductTest extends TestCase
         $defaults = [
             'id' => $id,
             'name' => 'test',
-            'price' => ['gross' => 100, 'net' => 100, 'linked' => false],
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false],
+            ],
             'stock' => 100,
             'productNumber' => $id,
             // use always the same manufacturer

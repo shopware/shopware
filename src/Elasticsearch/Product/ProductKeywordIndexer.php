@@ -2,7 +2,6 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -19,25 +18,16 @@ class ProductKeywordIndexer implements IndexerInterface
      */
     private $helper;
 
-    /**
-     * @var ProductDefinition
-     */
-    private $productDefinition;
-
-    public function __construct(
-        IndexerInterface $decorated,
-        ElasticsearchHelper $helper,
-        ProductDefinition $productDefinition
-    ) {
+    public function __construct(IndexerInterface $decorated, ElasticsearchHelper $helper)
+    {
         $this->decorated = $decorated;
         $this->helper = $helper;
-        $this->productDefinition = $productDefinition;
     }
 
     public function index(\DateTimeInterface $timestamp): void
     {
         // deactivate sql keyword indexing
-        if ($this->helper->allowIndexing($this->productDefinition)) {
+        if ($this->helper->allowIndexing()) {
             return;
         }
 
@@ -47,7 +37,7 @@ class ProductKeywordIndexer implements IndexerInterface
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         // deactivate sql keyword indexing
-        if ($this->helper->allowIndexing($this->productDefinition)) {
+        if ($this->helper->allowIndexing()) {
             return;
         }
 

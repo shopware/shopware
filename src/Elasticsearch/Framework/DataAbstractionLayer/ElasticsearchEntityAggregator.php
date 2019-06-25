@@ -32,16 +32,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueR
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
-use Shopware\Elasticsearch\Framework\DefinitionRegistry;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 {
-    /**
-     * @var DefinitionRegistry
-     */
-    private $registry;
-
     /**
      * @var ElasticsearchHelper
      */
@@ -63,13 +57,11 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
     private $definitionInstanceRegistry;
 
     public function __construct(
-        DefinitionRegistry $registry,
         ElasticsearchHelper $helper,
         Client $client,
         EntityAggregatorInterface $decorated,
         DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
-        $this->registry = $registry;
         $this->helper = $helper;
         $this->client = $client;
         $this->decorated = $decorated;
@@ -90,7 +82,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         $search->setSize(0);
 
         $result = $this->client->search([
-            'index' => $this->registry->getIndex($definition, $context->getLanguageId()),
+            'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
             'type' => $definition->getEntityName(),
             'body' => $search->toArray(),
         ]);
@@ -100,7 +92,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         return new AggregatorResult($aggregations, $context, $criteria);
     }
 
-    private function hydrateAggregation(Aggregation $aggregation, array $result, Context $context)
+    private function hydrateAggregation(Aggregation $aggregation, array $result, Context $context): ?AggregationResult
     {
         switch (true) {
             case $aggregation instanceof StatsAggregation:

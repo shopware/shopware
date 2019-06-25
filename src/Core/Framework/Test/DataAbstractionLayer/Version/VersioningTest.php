@@ -1383,7 +1383,7 @@ class VersioningTest extends TestCase
 
         $aggregations = $this->productRepository->aggregate($criteria, $versionContext);
         static::assertTrue($aggregations->getAggregations()->has('sum_price'));
-        /** @var \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult $sum */
+        /** @var AggregationResult $sum */
         $sum = $aggregations->getAggregations()->get('sum_price');
         static::assertEquals(1000, $sum->getResult()[0]->getSum());
 

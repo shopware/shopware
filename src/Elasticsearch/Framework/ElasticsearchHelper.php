@@ -20,7 +20,7 @@ class ElasticsearchHelper
     private $client;
 
     /**
-     * @var DefinitionRegistry
+     * @var ElasticsearchRegistry
      */
     private $registry;
 
@@ -43,7 +43,7 @@ class ElasticsearchHelper
         bool $searchEnabled,
         bool $indexingEnabled,
         Client $client,
-        DefinitionRegistry $registry,
+        ElasticsearchRegistry $registry,
         CriteriaParser $parser
     ) {
         $this->client = $client;
@@ -53,9 +53,14 @@ class ElasticsearchHelper
         $this->indexingEnabled = $indexingEnabled;
     }
 
-    public function allowIndexing(EntityDefinition $definition): bool
+    public function getIndexName(EntityDefinition $definition, string $languageId): string
     {
-        return $this->indexingEnabled && $this->registry->isSupported($definition);
+        return $definition->getEntityName() . '_' . $languageId;
+    }
+
+    public function allowIndexing(): bool
+    {
+        return $this->indexingEnabled;
     }
 
     /**
@@ -67,7 +72,7 @@ class ElasticsearchHelper
             return false;
         }
 
-        if (!$this->registry->isSupported($definition)) {
+        if (!$this->isSupported($definition)) {
             return false;
         }
 
@@ -81,23 +86,6 @@ class ElasticsearchHelper
         }
 
         return true;
-    }
-
-    public function hasIndexDocuments(EntityDefinition $definition, Context $context): bool
-    {
-        $index = $this->registry->getIndex($definition, $context->getLanguageId());
-
-        $exists = $this->client->indices()->exists(['index' => $index]);
-        if (!$exists) {
-            return false;
-        }
-
-        $count = $this->client->count(['index' => $index]);
-        if (!array_key_exists('count', $count)) {
-            return false;
-        }
-
-        return $count['count'] > 0;
     }
 
     public function addFilters(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
@@ -198,5 +186,33 @@ class ElasticsearchHelper
         $this->searchEnabled = $enabled;
 
         return $this;
+    }
+
+    private function isSupported(EntityDefinition $definition): bool
+    {
+        foreach ($this->registry->getDefinitions() as $def) {
+            if ($def->getEntityDefinition()->getEntityName() === $definition->getEntityName()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasIndexDocuments(EntityDefinition $definition, Context $context): bool
+    {
+        $index = $this->getIndexName($definition, $context->getLanguageId());
+
+        $exists = $this->client->indices()->exists(['index' => $index]);
+        if (!$exists) {
+            return false;
+        }
+
+        $count = $this->client->count(['index' => $index]);
+        if (!array_key_exists('count', $count)) {
+            return false;
+        }
+
+        return $count['count'] > 0;
     }
 }

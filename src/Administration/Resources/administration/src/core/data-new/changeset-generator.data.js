@@ -60,8 +60,8 @@ export default class ChangesetGenerator {
                 const equals = originValueStringified === draftValueStringified;
 
                 if (!equals && Array.isArray(draftValue) && draftValue.length <= 0) {
-                    changes[property] = null;
-                    return true;
+                    changes[fieldName] = null;
+                    return;
                 }
 
                 if (!equals) {
@@ -71,30 +71,41 @@ export default class ChangesetGenerator {
                 return;
             }
 
-            if (definition.isToManyAssociation(field)) {
-                const associationChanges = this.handleOneToMany(draftValue, originValue, deletionQueue);
-                if (associationChanges.length > 0) {
-                    changes[fieldName] = associationChanges;
-                }
-
+            if (field.type !== 'association') {
                 return;
             }
 
-            // we can skip many to one, the foreign key will be set over the foreignKey field
-            if (definition.isToOneAssociation(field)) {
-                if (field.relation === 'many_to_one') {
-                    return;
+            switch (field.relation) {
+                case 'one_to_many': {
+                    const associationChanges = this.handleOneToMany(draftValue, originValue, deletionQueue);
+                    if (associationChanges.length > 0) {
+                        changes[fieldName] = associationChanges;
+                    }
+                    break;
                 }
-
-                if (!draftValue) {
-                    return;
+                case 'many_to_many': {
+                    const associationChanges = this.handleManyToMany(draftValue, originValue, deletionQueue);
+                    if (associationChanges.length > 0) {
+                        changes[fieldName] = associationChanges;
+                    }
+                    break;
                 }
+                case 'one_to_one': {
+                    if (!draftValue) {
+                        return;
+                    }
 
-                const change = this.recursion(draftValue, deletionQueue);
-                if (change !== null) {
-                    // if a change is detected, add id as identifier for updates
-                    change.id = draftValue.id;
-                    changes.push(change);
+                    const change = this.recursion(draftValue, deletionQueue);
+                    if (change !== null) {
+                        // if a change is detected, add id as identifier for updates
+                        change.id = draftValue.id;
+                        changes.push(change);
+                    }
+                    break;
+                }
+                case 'many_to_one':
+                default: {
+                    break;
                 }
             }
         });

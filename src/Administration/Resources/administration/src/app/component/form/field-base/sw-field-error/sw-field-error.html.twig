@@ -1,5 +1,5 @@
 {% block sw_field_error %}
     <div class="sw-field__error" v-if="error && error.code !== 0">
-        {{ $t(error.code, error.params) }}
+        {{ $t(`global.error-codes.${error.code}`, error.params) }}
     </div>
 {% endblock %}

@@ -171,6 +171,14 @@ class WebpackPluginInjector {
         const webpackConfigPath = !hasCustomWebpackConfig ? null
             : join(basePath, pluginDefinition[section].webpack);
 
+        const assetPaths = [];
+        if (pluginDefinition.administration) {
+            assetPaths.push(join(basePath, pluginDefinition.administration.path, 'static'));
+        }
+        if (pluginDefinition.storefront) {
+            assetPaths.push(join(basePath, pluginDefinition.storefront.path, 'static'));
+        }
+
         return {
             basePath,
             hasCustomWebpackConfig,
@@ -178,7 +186,8 @@ class WebpackPluginInjector {
             pluginName,
             technicalName: toKebabCase(pluginName),
             viewPath: pluginDefinition.views.map((path) => join(basePath, path)),
-            entryFile: join(basePath, pluginDefinition[section].entryFilePath)
+            entryFile: join(basePath, pluginDefinition[section].entryFilePath),
+            assetPaths
         };
     }
 
@@ -277,9 +286,7 @@ class WebpackPluginInjector {
             const basePath = plugin.basePath;
             const pluginPath = `${basePath}Resources/public/${this.section}`;
             const publicStaticPath = `${basePath}Resources/public/static/`;
-            const assetPaths = plugin.views && plugin.views.length > 0
-                ? plugin.views.map((path) => join(basePath, path, 'static'))
-                : [];
+            const assetPaths = plugin.assetPaths;
 
             // Copy plugin chunk after build
             if (!this.webpackConfig.plugins) {

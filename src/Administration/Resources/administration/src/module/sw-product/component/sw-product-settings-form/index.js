@@ -15,10 +15,6 @@ Component.register('sw-product-settings-form', {
         ...mapApiErrors('product', [
             'releaseDate',
             'stock',
-            'width',
-            'height',
-            'length',
-            'weight',
             'minPurchase',
             'maxPurchase',
             'ean',

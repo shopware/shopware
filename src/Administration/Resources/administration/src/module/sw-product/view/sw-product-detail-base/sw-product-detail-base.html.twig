@@ -88,6 +88,14 @@
             </sw-card>
         {% endblock %}
 
+        {% block sw_product_detail_base_packaging_card %}
+            <sw-card :title="$tc('sw-product.detailBase.cardTitlePackaging')" :isLoading="loading.product">
+                {% block sw_product_detail_base_packaging_form %}
+                    <sw-product-packaging-form></sw-product-packaging-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
         {% block sw_product_detail_attribute_sets %}
             <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
                      v-if="customFieldSetsArray.length > 0"

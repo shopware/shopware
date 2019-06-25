@@ -41,7 +41,6 @@
       "labelPackUnit": "Verpackungseinheit",
       "placeholderTaxRate": "Wähle einen Steuersatz aus ...",
       "placeholderPurchasePriceGross": "Gib den Einkaufspreis (Brutto) ein ...",
-      "placeholderUnit": "Wählen ...",
       "placeholderPurchaseUnit": "Inhalt ...",
       "placeholderReferenceUnit": "Grundeinheit ...",
       "placeholderPackUnit": "Karton, Flasche ...",
@@ -79,11 +78,16 @@
       "placeholderEan": "Gib die EAN-Nummer ein ...",
       "placeholderManufacturerNumber": "Gib die Herstellernummer ein ..."
     },
+    "packagingForm": {
+      "labelUnit": "Einheit",
+      "placeholderUnit": "Wählen ..."
+    },
     "detailBase": {
       "cardTitleProductInfo": "Informationen",
       "cardTitleAssignment": "Zuordnung",
       "cardTitlePrices": "Preise",
       "cardTitleSettings": "Einstellungen",
+      "cardTitlePackaging": "Maße & Verpackung",
       "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
       "linkMaintainCurrencyPrices": "Währungen pflegen",
       "cardTitleMedia": "Medien",

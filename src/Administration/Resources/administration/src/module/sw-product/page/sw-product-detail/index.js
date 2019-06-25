@@ -164,6 +164,7 @@ Component.register('sw-product-detail', {
             criteria.addAssociation('categories', this.defaultCriteria);
             criteria.addAssociation('options', this.defaultCriteria);
             criteria.addAssociation('configuratorSettings', this.configuratorSettingsCriteria);
+            criteria.addAssociation('unit', this.defaultCriteria);
             return criteria;
         },
 

@@ -32,7 +32,7 @@ Component.register('sw-product-price-form', {
             'currencies'
         ]),
 
-        ...mapApiErrors('product', ['taxId', 'price', 'purchasePrice', 'purchaseUnit', 'referenceUnit', 'packUnit']),
+        ...mapApiErrors('product', ['taxId', 'price', 'purchasePrice']),
 
         maintainCurrencyColumns() {
             return [

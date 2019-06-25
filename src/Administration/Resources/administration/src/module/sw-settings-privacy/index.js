@@ -21,15 +21,5 @@ Module.register('sw-settings-privacy', {
     snippets: {
         'de-DE': deDE,
         'en-GB': enGB
-    },
-
-    routes: {
-        index: {
-            component: 'sw-settings-privacy',
-            path: 'index',
-            meta: {
-                parentPath: 'sw.settings.index'
-            }
-        }
     }
 });

@@ -30,8 +30,8 @@ describe('Product: Test crud operations', () => {
         cy.get('input[name=sw-field--product-name]').type('Product with file upload image');
         cy.get('.sw-select-product__select_manufacturer').typeSingleSelectAndCheck('shopware AG');
         cy.get('select[name=sw-field--product-taxId]').select('19%');
-        cy.get('input[name=sw-field--price-gross]').type('10');
-        cy.get('input[name=sw-field--price-net]').should('have.value', '8.4');
+        cy.get('#sw-price-field-gross').type('10');
+        cy.get('#sw-price-field-net').should('have.value', '8.4');
         cy.get('input[name=sw-field--product-stock]').type('100');
         cy.get(page.elements.productSaveAction).click();
 
@@ -54,7 +54,7 @@ describe('Product: Test crud operations', () => {
 
         // Edit base data of product
         cy.clickContextMenuItem(
-            '.sw-product-list__edit-action',
+            ' sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
@@ -86,8 +86,8 @@ describe('Product: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get(`${page.elements.modal} .sw-product-list__confirm-delete-text`).contains(
-            'Are you sure you really want to delete the product "Product name"?'
+        cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
+            'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
 

@@ -24,18 +24,18 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
         }).then(() => {
             return cy.setProductFixtureVisibility('Product name')
         }).then(() => {
-            return cy.getRandomProductInformationForCheckout();
+            return cy.fixture('product');
         }).then((result) => {
             product = result;
             return cy.createCustomerFixture()
+        }).then(() => {
+            cy.visit('/');
         })
     });
 
     devices.forEach(device => {
         context(`Checkout on ${device.model} resolution (${device.orientation})`, () => {
             beforeEach(() => {
-                // run these tests as if in a desktop
-                // browser with a 720p monitor
                 cy.viewport(device.model, device.orientation)
             });
 
@@ -43,8 +43,16 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 const page = new CheckoutPageObject();
                 const accountPage = new AccountPageObject();
 
+                if (device.model === 'iphone-6+' && device.orientation === 'portrait') {
+                    cy.get('.search-toggle-btn').click();
+                }
+
                 // Product detail
-                cy.visit(product.url);
+                cy.get('input[name=search]')
+                    .should('be.visible')
+                    .type(product.name);
+                cy.get('.search-suggest-product-name').contains(product.name);
+                cy.get('.search-suggest-product-name').click();
                 cy.get('.product-detail-buy .btn-buy').click();
 
                 // Off canvas
@@ -68,8 +76,8 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
                 cy.get('.confirm-address').contains('Pep Eroni');
                 cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`).contains(product.name);
-                cy.get(`${page.elements.cartItem}-total-price`).contains(product.gross);
-                cy.get(`${page.elements.cartItem}-total-price`).contains(product.gross);
+                cy.get(`${page.elements.cartItem}-total-price`).contains(product.price[0].gross);
+                cy.get(`${page.elements.cartItem}-total-price`).contains(product.price[0].gross);
 
                 // Finish checkout
                 cy.get('#confirmFormSubmit').scrollIntoView();

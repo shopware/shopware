@@ -14,7 +14,7 @@ export default class CheckoutPageObject extends GeneralPageObject {
                 cardWidget: '.cart-widget',
 
                 // Offcanvas cart
-                offCanvasCart: '.js-offcanvas',
+                offCanvasCart: '.offcanvas',
                 cartActions: '.cart-actions'
             }
         };

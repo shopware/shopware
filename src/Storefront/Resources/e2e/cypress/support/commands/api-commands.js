@@ -155,8 +155,6 @@ Cypress.Commands.add('createViaAdminApi', (data) => {
  * @param {Object} data - Necessary data for the API request
  */
 Cypress.Commands.add('searchViaAdminApi', (data) => {
-    console.log('data :', data);
-    
     const filters = {
         filter: [{
             field: data.data.field,

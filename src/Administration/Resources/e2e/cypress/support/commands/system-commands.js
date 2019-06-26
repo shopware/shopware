@@ -7,7 +7,7 @@
 Cypress.Commands.add('activateShopwareTheme', () => {
     const { join } = require('path');
     const isStyleLoaded = $head => $head.find('#cypress-dark').length > 0;
-    const themeFilename = join(__dirname, './../../../src/shopware.css');
+    const themeFilename = join(__dirname, './../../../theme/shopware.css');
 
     // Cypress includes jQuery
     const $head = Cypress.$(parent.window.document.head); // eslint-disable-line no-restricted-globals

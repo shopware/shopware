@@ -27,7 +27,7 @@ describe('Product: Edit in various ways', () => {
         }).as('saveData');
 
         cy.clickContextMenuItem(
-            '.sw-product-list__edit-action',
+            ' sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );

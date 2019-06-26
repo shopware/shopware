@@ -33,8 +33,10 @@ require('./commands/storefront-api-commands');
 require('./commands/system-commands');
 
 // Import themes:
-Cypress.config('useDarkTheme') ? require('cypress-dark') : null;
-Cypress.config('useDarkTheme') ? require('cypress-dark/src/halloween') : null;
+if (Cypress.config('useDarkTheme')) {
+    require('cypress-dark');
+    require('cypress-dark/src/halloween');
+}
 
 Cypress.on('uncaught:exception', (err, runnable) => {
     // returning false here prevents Cypress from

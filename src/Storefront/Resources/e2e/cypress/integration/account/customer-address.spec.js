@@ -16,7 +16,9 @@ describe('Account: Login as customer', () => {
         cy.get('.login-submit [type="submit"]').click();
 
         // Add address form
-        cy.get('.account-sidebar .list-group .account-sidebar-item[title="Addresses"]').click();
+        cy.get('.account-content .account-aside-item[title="Addresses"]')
+            .should('be.visible')
+            .click();
         cy.get('a[href="/account/address/create"]').click();
         cy.get('.account-address-form').should('be.visible');
 
@@ -32,11 +34,11 @@ describe('Account: Login as customer', () => {
 
         // Verify new address
         cy.get('.alert-success .alert-content').contains('Address saved successfully');
-        cy.get('.account-sidebar .list-group .account-sidebar-item[href="/account"]').click();
+        cy.get('.account-content .account-aside-item[href="/account"]').click();
         cy.get(`${page.elements.lightButton}[title="Change shipping address"]`).click();
         cy.get('.address-editor-modal .modal-dialog').should('be.visible');
-        cy.get('#addressEditorAccordion .address-card p').contains('Sherman');
-        cy.get('#addressEditorAccordion .address-card p').contains('42 Wallaby Way');
+        cy.get('#addressEditorAccordion .address-editor-card p').contains('Sherman');
+        cy.get('#addressEditorAccordion .address-editor-card p').contains('42 Wallaby Way');
 
         // Set new address as shipping address
         cy.get(`${page.elements.lightButton}[title="Set as default shipping "]`).click();

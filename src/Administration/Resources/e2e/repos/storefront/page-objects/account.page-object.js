@@ -10,7 +10,7 @@ class AccountPageObject extends GeneralPageObject {
             ...{
                 accountRoot: '.account',
                 accountHeadline: '.account-welcome',
-                accountMenu: '.js-account-widget-dropdown',
+                accountMenu: '.js-account-menu-dropdown',
                 registerCard: '.register-card',
                 accountSidebar: '.account-sidebar',
 

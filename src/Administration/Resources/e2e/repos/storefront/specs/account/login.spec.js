@@ -13,7 +13,7 @@ module.exports = {
         browser
             .click('#accountWidget')
             .waitForElementVisible(page.elements.accountMenu)
-            .click('.account-widget-register a')
+            .click('.account-menu-register a')
             .assert.urlContains('/account/login');
     },
     'login as customer': (browser) => {

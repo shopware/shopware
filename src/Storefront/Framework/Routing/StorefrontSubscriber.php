@@ -3,11 +3,16 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ErrorController;
+use Shopware\Storefront\Event\StorefrontRequestEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -35,11 +40,28 @@ class StorefrontSubscriber implements EventSubscriberInterface
      */
     private $errorController;
 
-    public function __construct(RequestStack $requestStack, RouterInterface $router, ErrorController $errorController)
-    {
+    /**
+     * @var CartService
+     */
+    private $cartService;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(
+        RequestStack $requestStack,
+        RouterInterface $router,
+        ErrorController $errorController,
+        CartService $cartService,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
         $this->errorController = $errorController;
+        $this->cartService = $cartService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public static function getSubscribedEvents(): array
@@ -54,6 +76,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             ],
             KernelEvents::CONTROLLER => [
                 ['preventPageLoadingFromXmlHttpRequest'],
+                ['storefrontReady', -100],
             ],
             KernelEvents::RESPONSE => [
                 ['setCanonicalUrl'],
@@ -62,6 +85,34 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 'updateSession',
             ],
         ];
+    }
+
+    public function storefrontReady(ControllerEvent $event): void
+    {
+        if (!$event->isMasterRequest()) {
+            return;
+        }
+
+        $request = $event->getRequest();
+
+        if (!$request->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+            return;
+        }
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        if (!$context) {
+            return;
+        }
+
+        /** @var SalesChannelContext $context */
+        if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
+            return;
+        }
+
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+
+        $this->eventDispatcher->dispatch(new StorefrontRequestEvent($context, $cart, $request));
     }
 
     public function startSession(): void
@@ -118,10 +169,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $token = $event->getContextToken();
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
-        $master->headers->set(
-            PlatformRequest::HEADER_CONTEXT_TOKEN,
-            $token
-        );
+        $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
     }
 
     public function showHtmlExceptionResponse(ExceptionEvent $event): void

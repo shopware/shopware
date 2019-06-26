@@ -6,6 +6,10 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\LineItemQuantityChangedEvent;
+use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
@@ -13,7 +17,6 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Order\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -124,6 +127,8 @@ class CartService
         $cart->markModified();
         $item->markModified();
 
+        $this->eventDispatcher->dispatch(new LineItemAddedEvent($item, $cart, $context));
+
         return $this->calculate($cart, $context);
     }
 
@@ -143,6 +148,8 @@ class CartService
 
         $cart->markModified();
 
+        $this->eventDispatcher->dispatch(new LineItemQuantityChangedEvent($lineItem, $cart, $context));
+
         return $this->calculate($cart, $context);
     }
 
@@ -152,8 +159,16 @@ class CartService
      */
     public function remove(Cart $cart, string $identifier, SalesChannelContext $context): Cart
     {
+        $lineItem = $cart->get($identifier);
+
+        if (!$lineItem) {
+            throw new LineItemNotFoundException($identifier);
+        }
+
         $cart->remove($identifier);
         $cart->markModified();
+
+        $this->eventDispatcher->dispatch(new LineItemRemovedEvent($lineItem, $cart, $context));
 
         return $this->calculate($cart, $context);
     }

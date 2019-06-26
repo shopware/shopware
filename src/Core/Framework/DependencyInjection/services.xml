@@ -130,7 +130,6 @@
         <service id="Shopware\Core\Framework\Routing\ContextResolverListener">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>
-            <argument>%kernel.debug%</argument>
             <tag name="kernel.event_subscriber"/>
         </service>
 

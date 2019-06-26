@@ -19,19 +19,12 @@ class ContextResolverListener implements EventSubscriberInterface
      */
     private $requestContextResolver;
 
-    /**
-     * @var bool
-     */
-    private $debug;
-
     public function __construct(
         RequestStack $requestStack,
-        RequestContextResolverInterface $requestContextResolver,
-        bool $debug
+        RequestContextResolverInterface $requestContextResolver
     ) {
         $this->requestStack = $requestStack;
         $this->requestContextResolver = $requestContextResolver;
-        $this->debug = $debug;
     }
 
     public static function getSubscribedEvents(): array

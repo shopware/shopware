@@ -272,6 +272,28 @@ $sw-tag-multi-select-transition-result-icon: all ease-in-out .15s;
         }
     }
 
+    &.is--small {
+        .sw-tag-multi-select__selections {
+            padding-top: 3px;
+        }
+
+        .sw-tag-multi-select__input {
+            line-height: 20px;
+        }
+    }
+
+    &.is--small.is--disabled {
+        .sw-tag-multi-select__inner {
+            padding-left: 0;
+            background: transparent;
+            border-color: transparent;
+        }
+
+        .sw-tag-multi-select__selection-item-input {
+            display: none;
+        }
+    }
+
     // Vue.js transitions
     .sw-tag-multi-select-fade-down-enter-active,
     .sw-tag-multi-select-fade-down-leave-active {

@@ -129,7 +129,7 @@
 			{% endblock %}
 
 			{% block component_address_form_additional_field1 %}
-				{% if shopware.config.address.additionalField1 %}
+				{% if shopware.config.core.loginRegistration.showAdditionalAddressField1 %}
 					<div class="form-group col-md-6">
 						{% block component_address_form_additional_field1_label %}
 							<label class="form-label"
@@ -151,7 +151,7 @@
 			{% endblock %}
 
 			{% block component_address_form_additional_field2 %}
-				{% if shopware.config.address.additionalField2 %}
+				{% if shopware.config.core.loginRegistration.showAdditionalAddressField2 %}
 					<div class="form-group col-md-6">
 						{% block component_address_form_additional_field2_label %}
 							<label class="form-label"

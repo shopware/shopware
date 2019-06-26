@@ -101,7 +101,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'seo' => [
                 'descriptionMaxLength' => 150,
             ],
-            'metaIsFamilyFriendly' => true,
             'cms' => [
                 'revocationNoticeCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
                 'taxCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
@@ -113,8 +112,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'passwordConfirmation' => false,
             ],
             'address' => [
-                'additionalField1' => false,
-                'additionalField2' => false,
                 'zipBeforeCity' => true,
             ],
             'confirm' => [

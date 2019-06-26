@@ -80,4 +80,9 @@ class SalesChannelProductEntity extends ProductEntity
     {
         $this->sortedProperties = $sortedProperties;
     }
+
+    public function hasPriceRange(): bool
+    {
+        return $this->getCalculatedListingPrice()->hasRange() || $this->getCalculatedPrices()->count() > 1;
+    }
 }

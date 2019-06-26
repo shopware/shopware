@@ -42,4 +42,9 @@ class CalculatedListingPrice extends Struct
     {
         $this->to = $to;
     }
+
+    public function hasRange(): bool
+    {
+        return $this->getFrom()->getTotalPrice() !== $this->getTo()->getTotalPrice();
+    }
 }

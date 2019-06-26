@@ -33,7 +33,15 @@
 
 											{% block layout_search_suggest_result_price %}
 												<div class="col-auto search-suggest-product-price">
-													{{ product.price.gross|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                                                    {% if product.priceRange %}
+                                                        {{ product.calculatedListingPrice.from.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                                                        -
+                                                        {{ product.calculatedListingPrice.to.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                                                    {% elseif product.calculatedPrices %}
+                                                        {{ product.calculatedPrices.first.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                                                    {% else %}
+                                                        {{ product.calculatedPrice.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                                                    {% endif %}
 												</div>
 											{% endblock %}
 										</div>

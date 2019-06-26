@@ -1,12 +1,5 @@
 {% block component_product_box_price_info %}
     <div class="product-price-info">
-        {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
-        {% set price = product.calculatedPrice %}
-
-        {% if product.calculatedListingPrice %}
-            {% set price = product.calculatedListingPrice %}
-        {% endif %}
-
         {% block component_product_box_price_unit %}
             <p class="product-price-unit">
                 {# Price is based on the purchase unit #}
@@ -25,9 +18,7 @@
                 {% block component_product_box_price_reference_unit %}
                     {% if product.purchaseUnit and product.referenceUnit and product.purchaseUnit !=  product.referenceUnit %}
                         <span class="price-unit-reference">
-                            {% set referencePrice = price.unitPrice * product.referenceUnit / product.purchaseUnit %}
-                            ({{ referencePrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
-                            {{ "general.star"|trans }} / {{ product.referenceUnit }} {{ product.packUnit }})
+                            {# todo@dr NEXT-3678 reference price #}
                         </span>
                     {% endif %}
                 {% endblock %}
@@ -36,7 +27,15 @@
 
         {% block component_product_box_price %}
             <p class="product-price">
-                {{ price.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                {% if product.priceRange %}
+                    {{ product.calculatedListingPrice.from.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                    -
+                    {{ product.calculatedListingPrice.to.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                {% elseif product.calculatedPrices %}
+                    {{ product.calculatedPrices.first.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                {% else %}
+                    {{ product.calculatedPrice.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                {% endif %}
             </p>
         {% endblock %}
     </div>

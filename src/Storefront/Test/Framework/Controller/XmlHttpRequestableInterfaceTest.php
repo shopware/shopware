@@ -11,7 +11,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
 
     public function testPageLoads()
     {
-        $client = $this->createSalesChannelClient(null, true);
+        $client = $this->createSalesChannelBrowser(null, true);
         $client->request('GET', getenv('APP_URL'));
 
         static::assertEquals(200, $client->getResponse()->getStatusCode());
@@ -19,7 +19,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
 
     public function testAccessDeniedForXmlHttpRequest()
     {
-        $client = $this->createSalesChannelClient(null, true);
+        $client = $this->createSalesChannelBrowser(null, true);
 
         $client->xmlHttpRequest('GET', getenv('APP_URL'));
 
@@ -28,7 +28,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
 
     public function testPageletLoads()
     {
-        $client = $this->createSalesChannelClient(null, true);
+        $client = $this->createSalesChannelBrowser(null, true);
 
         $client->request('GET', getenv('APP_URL') . '/widgets/checkout/info');
 
@@ -37,7 +37,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
 
     public function testPageletLoadsForXmlHttpRequest()
     {
-        $client = $this->createSalesChannelClient(null, true);
+        $client = $this->createSalesChannelBrowser(null, true);
 
         $client->xmlHttpRequest('GET', getenv('APP_URL') . '/widgets/checkout/info');
 

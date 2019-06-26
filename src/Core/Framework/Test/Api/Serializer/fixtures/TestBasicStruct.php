@@ -1,0 +1,242 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
+
+use Shopware\Core\Content\Media\MediaEntity;
+
+class TestBasicStruct extends SerializationFixture
+{
+    public function getInput()
+    {
+        $media = new MediaEntity();
+        $media->setId('1d23c1b015bf43fb97e89008cf42d6fe');
+        $media->setTitle('Manufacturer');
+        $media->setMimeType('image/png');
+        $media->setFileExtension('png');
+        $media->setFileSize(310818);
+        $media->setAlt('A media object description');
+        $media->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
+
+        return $media;
+    }
+
+    protected function getJsonApiFixtures(string $baseUrl): array
+    {
+        return [
+            'data' => [
+                'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
+                'type' => 'media',
+                'attributes' => [
+                    'userId' => null,
+                    'mediaFolderId' => null,
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'uploadedAt' => null,
+                    'fileName' => null,
+                    'fileSize' => 310818,
+                    'metaData' => null,
+                    'mediaType' => null,
+                    'createdAt' => '2018-01-15T08:01:16+00:00',
+                    'updatedAt' => null,
+                    'alt' => 'A media object description',
+                    'title' => 'Manufacturer',
+                    'url' => '',
+                    'customFields' => null,
+                    'hasFile' => false,
+                    'translated' => [],
+                    'private' => false,
+                ],
+                'links' => [
+                    'self' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe', $baseUrl),
+                ],
+                'relationships' => [
+                    'user' => [
+                        'data' => null,
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/user', $baseUrl),
+                        ],
+                    ],
+                    'categories' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/categories', $baseUrl),
+                        ],
+                    ],
+                    'productManufacturers' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/product-manufacturers', $baseUrl),
+                        ],
+                    ],
+                    'productMedia' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/product-media', $baseUrl),
+                        ],
+                    ],
+                    'avatarUser' => [
+                        'data' => null,
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/avatar-user', $baseUrl),
+                        ],
+                    ],
+                    'translations' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/translations', $baseUrl),
+                        ],
+                    ],
+                    'thumbnails' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/thumbnails', $baseUrl),
+                        ],
+                    ],
+                    'mediaFolder' => [
+                        'data' => null,
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/media-folder', $baseUrl),
+                        ],
+                    ],
+                    'propertyGroupOptions' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/property-group-options', $baseUrl),
+                        ],
+                    ],
+                    'tags' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/tags', $baseUrl),
+                        ],
+                    ],
+                    'mailTemplateMedia' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/mail-template-media', $baseUrl),
+                        ],
+                    ],
+                    'documentBaseConfigs' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/document-base-configs', $baseUrl),
+                        ],
+                    ],
+                    'shippingMethods' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/shipping-methods', $baseUrl),
+                        ],
+                    ],
+                    'paymentMethods' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/payment-methods', $baseUrl),
+                        ],
+                    ],
+                    'productConfiguratorSettings' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/product-configurator-settings', $baseUrl),
+                        ],
+                    ],
+                    'orderLineItems' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/order-line-items', $baseUrl),
+                        ],
+                    ],
+                    'cmsBlocks' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/cms-blocks', $baseUrl),
+                        ],
+                    ],
+                    'cmsPages' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/cms-pages', $baseUrl),
+                        ],
+                    ],
+                    'documents' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/documents', $baseUrl),
+                        ],
+                    ],
+                ],
+                'meta' => null,
+            ],
+            'included' => [],
+        ];
+    }
+
+    protected function getJsonFixtures(): array
+    {
+        return [
+            'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
+            'userId' => null,
+            'mediaFolderId' => null,
+            'mimeType' => 'image/png',
+            'fileExtension' => 'png',
+            'uploadedAt' => null,
+            'fileName' => null,
+            'fileSize' => 310818,
+            'metaData' => null,
+            'mediaType' => null,
+            'createdAt' => '2018-01-15T08:01:16+00:00',
+            'updatedAt' => null,
+            'alt' => 'A media object description',
+            'title' => 'Manufacturer',
+            'url' => '',
+            'customFields' => null,
+            'hasFile' => false,
+            'translated' => [],
+            'private' => false,
+            'user' => null,
+            'translations' => null,
+            'categories' => null,
+            'productManufacturers' => null,
+            'productMedia' => null,
+            'avatarUser' => null,
+            'thumbnails' => null,
+            'mediaFolder' => null,
+            'propertyGroupOptions' => null,
+            'mailTemplateMedia' => null,
+            'tags' => null,
+            'documentBaseConfigs' => null,
+            'shippingMethods' => null,
+            'paymentMethods' => null,
+            'productConfiguratorSettings' => null,
+            'orderLineItems' => null,
+            'cmsBlocks' => null,
+            'cmsPages' => null,
+            'documents' => null,
+            '_uniqueIdentifier' => '1d23c1b015bf43fb97e89008cf42d6fe',
+            'versionId' => null,
+            'extensions' => [],
+        ];
+    }
+
+    protected function removeProtectedSalesChannelJsonApiData(array $fixtures): array
+    {
+        unset(
+            $fixtures['data']['attributes']['userId'],
+            $fixtures['data']['relationships']['user'],
+            $fixtures['data']['relationships']['avatarUser']
+        );
+
+        return $fixtures;
+    }
+
+    protected function removeProtectedSalesChannelJsonData(array $fixtures): array
+    {
+        unset(
+            $fixtures['userId'],
+            $fixtures['user'],
+            $fixtures['avatarUser']
+        );
+
+        return $fixtures;
+    }
+}

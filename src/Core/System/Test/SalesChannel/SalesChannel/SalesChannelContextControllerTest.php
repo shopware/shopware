@@ -50,9 +50,9 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Shipping method
          */
-        $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['shippingMethodId' => $testId]);
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelClient()->getResponse()->getStatusCode());
-        $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['shippingMethodId' => $testId]);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(
             sprintf('The "shipping_method" entity with id "%s" does not exists.', $testId),
@@ -62,9 +62,9 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Payment method
          */
-        $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['paymentMethodId' => $testId]);
-        $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelClient()->getResponse()->getStatusCode());
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['paymentMethodId' => $testId]);
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
         static::assertEquals(
             sprintf('The "payment_method" entity with id "%s" does not exists.', $testId),
@@ -79,9 +79,9 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Billing address
          */
-        $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['billingAddressId' => $testId]);
-        $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelClient()->getResponse()->getStatusCode());
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['billingAddressId' => $testId]);
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
         static::assertEquals(
             'Customer is not logged in.',
@@ -91,9 +91,9 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Shipping address
          */
-        $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['shippingAddressId' => $testId]);
-        $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelClient()->getResponse()->getStatusCode());
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['shippingAddressId' => $testId]);
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
         static::assertEquals(
             'Customer is not logged in.',
@@ -110,10 +110,10 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Billing address
          */
-        $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['billingAddressId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['billingAddressId' => $testId]);
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelClient()->getResponse()->getStatusCode());
-        $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(
             sprintf('The "customer_address" entity with id "%s" does not exists.', $testId),
@@ -123,9 +123,9 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Shipping address
          */
-        $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/context', ['shippingAddressId' => $testId]);
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelClient()->getResponse()->getStatusCode());
-        $content = json_decode($this->getSalesChannelClient()->getResponse()->getContent(), true);
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['shippingAddressId' => $testId]);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
+        $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(
             sprintf('The "customer_address" entity with id "%s" does not exists.', $testId),
@@ -142,26 +142,26 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Billing address
          */
-        $this->getSalesChannelClient()
+        $this->getSalesChannelBrowser()
             ->request('PATCH', '/sales-channel-api/v1/context', ['billingAddressId' => $billingId]);
-        static::assertSame(Response::HTTP_OK, $this->getSalesChannelClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
         /*
          * Shipping address
          */
-        $this->getSalesChannelClient()
+        $this->getSalesChannelBrowser()
             ->request('PATCH', '/sales-channel-api/v1/context', ['shippingAddressId' => $shippingId]);
-        static::assertSame(Response::HTTP_OK, $this->getSalesChannelClient()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
     }
 
     public function testSwitchToNotExistingLanguage()
     {
         $id = Uuid::randomHex();
 
-        $this->getSalesChannelClient()
+        $this->getSalesChannelBrowser()
             ->request('PATCH', '/sales-channel-api/v1/context', ['languageId' => $id]);
 
-        $request = $this->getSalesChannelClient()->getResponse();
+        $request = $this->getSalesChannelBrowser()->getResponse();
 
         $content = json_decode($request->getContent(), true);
 
@@ -177,10 +177,10 @@ class SalesChannelContextControllerTest extends TestCase
     {
         $id = Defaults::LANGUAGE_SYSTEM;
 
-        $this->getSalesChannelClient()
+        $this->getSalesChannelBrowser()
             ->request('PATCH', '/sales-channel-api/v1/context', ['languageId' => $id]);
 
-        $request = $this->getSalesChannelClient()->getResponse();
+        $request = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($request->getContent(), true);
 
         static::assertSame(Response::HTTP_OK, $request->getStatusCode(), print_r($content, true));
@@ -190,10 +190,10 @@ class SalesChannelContextControllerTest extends TestCase
     {
         $id = Defaults::CURRENCY;
 
-        $this->getSalesChannelClient()
+        $this->getSalesChannelBrowser()
             ->request('PATCH', '/sales-channel-api/v1/context', ['currencyId' => $id]);
 
-        $request = $this->getSalesChannelClient()->getResponse();
+        $request = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($request->getContent(), true);
 
         static::assertSame(Response::HTTP_OK, $request->getStatusCode(), print_r($content, true));
@@ -203,10 +203,10 @@ class SalesChannelContextControllerTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $this->getSalesChannelClient()
+        $this->getSalesChannelBrowser()
             ->request('PATCH', '/sales-channel-api/v1/context', ['currencyId' => $id]);
 
-        $request = $this->getSalesChannelClient()->getResponse();
+        $request = $this->getSalesChannelBrowser()->getResponse();
 
         $content = json_decode($request->getContent(), true);
 
@@ -223,17 +223,17 @@ class SalesChannelContextControllerTest extends TestCase
         $email = $email ?? Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($password, $email);
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/customer/login', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
-        $this->getSalesChannelClient()->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $this->getSalesChannelBrowser()->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
         return $customerId;
     }

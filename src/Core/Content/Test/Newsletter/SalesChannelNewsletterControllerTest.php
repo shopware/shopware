@@ -30,7 +30,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /*
          * Add subscribeDomain because Headless SalesChannels don't have a domain
          */
-        $this->getSalesChannelClient(); // must be called for initializing the SalesChannel
+        $this->getSalesChannelBrowser(); // must be called for initializing the SalesChannel
         $newsletterDomainConfig = [
             'id' => $id ?? Uuid::randomHex(),
             'configurationKey' => 'core.newsletter.subscribeDomain',
@@ -48,10 +48,10 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var EntityRepositoryInterface $newsletterRecipientRepository */
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
             'email' => $email,
         ]);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
         $criteria = new Criteria();
@@ -70,10 +70,10 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var EntityRepositoryInterface $newsletterRecipientRepository */
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
             'email' => $email,
         ]);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
         $criteria = new Criteria();
@@ -84,11 +84,11 @@ class SalesChannelNewsletterControllerTest extends TestCase
 
         $hash = $subscriptions->first()->getHash();
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/newsletter/confirm', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/confirm', [
             'hash' => $hash,
         ]);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertEquals(204, $response->getStatusCode());
 
@@ -108,17 +108,17 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var EntityRepositoryInterface $newsletterRecipientRepository */
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
             'email' => $email,
         ]);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/newsletter/unsubscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/unsubscribe', [
             'email' => $email,
         ]);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertEquals(204, $response->getStatusCode());
 
@@ -138,10 +138,10 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var EntityRepositoryInterface $newsletterRecipientRepository */
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
             'email' => $email,
         ]);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
         $criteria = new Criteria();
@@ -152,11 +152,11 @@ class SalesChannelNewsletterControllerTest extends TestCase
 
         $hash = $subscriptions->first()->getHash();
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/newsletter/confirm', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/confirm', [
             'hash' => $hash,
         ]);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertEquals(204, $response->getStatusCode());
 
@@ -168,11 +168,11 @@ class SalesChannelNewsletterControllerTest extends TestCase
 
         static::assertEquals(NewsletterSubscriptionServiceInterface::STATUS_OPT_IN, $subscriptions->first()->getStatus());
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/newsletter/unsubscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/unsubscribe', [
             'email' => $email,
         ]);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertEquals(204, $response->getStatusCode());
 
@@ -192,10 +192,10 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var EntityRepositoryInterface $newsletterRecipientRepository */
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
             'email' => $email,
         ]);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
         $criteria = new Criteria();
@@ -207,12 +207,12 @@ class SalesChannelNewsletterControllerTest extends TestCase
         static::assertEquals(NewsletterSubscriptionServiceInterface::STATUS_NOT_SET, $subscriptions->first()->getStatus());
         static::assertEmpty($subscriptions->first()->getFirstName());
 
-        $this->getSalesChannelClient()->request('PATCH', '/sales-channel-api/v1/newsletter', [
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/newsletter', [
             'id' => $subscriptions->first()->getId(),
             'firstName' => $firstName,
         ]);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertEquals(204, $response->getStatusCode());
 

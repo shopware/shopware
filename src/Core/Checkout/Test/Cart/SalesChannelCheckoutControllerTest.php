@@ -525,12 +525,12 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $expectedOrder = $this->createGuestOrder();
 
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $this->getSalesChannelClient()->setServerParameter($accessHeader, '');
+        $this->getSalesChannelBrowser()->setServerParameter($accessHeader, '');
 
         $orderId = $expectedOrder['data']['id'];
         $accessCode = $expectedOrder['data']['deepLinkCode'];
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(200, $response->getStatusCode(), print_r($response, true));
 
         $actualOrder = json_decode($response->getContent(), true);
@@ -552,9 +552,9 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $expectedOrder = $this->createGuestOrder();
         $orderId = $expectedOrder['data']['id'];
         $accessCode = $expectedOrder['data']['deepLinkCode'];
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(200, $response->getStatusCode());
 
         $actualOrder = json_decode($response->getContent(), true);
@@ -576,13 +576,13 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $order = $this->createGuestOrder();
 
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $this->getSalesChannelClient()->setServerParameter($accessHeader, '');
+        $this->getSalesChannelBrowser()->setServerParameter($accessHeader, '');
 
         $orderId = $order['data']['id'];
         $accessCode = Random::getBase64UrlString(32);
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
@@ -594,12 +594,12 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $order = $this->createGuestOrder();
 
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $this->getSalesChannelClient()->setServerParameter($accessHeader, '');
+        $this->getSalesChannelBrowser()->setServerParameter($accessHeader, '');
 
         $orderId = $order['data']['id'];
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
@@ -611,13 +611,13 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $order = $this->createGuestOrder();
 
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $this->getSalesChannelClient()->setServerParameter($accessHeader, '');
+        $this->getSalesChannelBrowser()->setServerParameter($accessHeader, '');
 
         $orderId = Uuid::randomHex();
         $accessCode = $order['data']['deepLinkCode'];
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
         $content = json_decode($response->getContent(), true);
@@ -736,7 +736,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
     {
         $salesChannelClient = $browser;
         if ($browser === null) {
-            $salesChannelClient = $this->getSalesChannelClient();
+            $salesChannelClient = $this->getSalesChannelBrowser();
         }
         $salesChannelClient->request('POST', '/sales-channel-api/v1/checkout/cart');
         $response = $salesChannelClient->getResponse();

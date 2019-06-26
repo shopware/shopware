@@ -530,10 +530,10 @@ class SalesChannelCartControllerTest extends TestCase
     public function testGetCartWithoutAccessKey(): void
     {
         $accessHeader = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $this->getSalesChannelClient()->setServerParameter($accessHeader, '');
+        $this->getSalesChannelBrowser()->setServerParameter($accessHeader, '');
 
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/checkout/cart');
-        $response = $this->getSalesChannelClient()->getResponse();
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/cart');
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(500, $response->getStatusCode(), $response->getContent());
         $content = json_decode($response->getContent(), true);
         static::assertEquals('Access key is invalid and could not be identified.', $content['errors'][0]['detail']);
@@ -541,14 +541,14 @@ class SalesChannelCartControllerTest extends TestCase
 
     private function createCart(): KernelBrowser
     {
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/checkout/cart');
-        $response = $this->getSalesChannelClient()->getResponse();
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/checkout/cart');
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
         $content = json_decode($response->getContent(), true);
 
-        $browser = clone $this->getSalesChannelClient();
+        $browser = clone $this->getSalesChannelBrowser();
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 
         return $browser;
@@ -556,7 +556,7 @@ class SalesChannelCartControllerTest extends TestCase
 
     private function getCart(KernelBrowser $browser)
     {
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/checkout/cart');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/cart');
 
         $cart = json_decode($browser->getResponse()->getContent(), true);
 

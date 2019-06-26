@@ -26,19 +26,12 @@ class SalesChannelApiController
      */
     private $criteriaBuilder;
 
-    /**
-     * @var ResponseFactoryInterface
-     */
-    private $responseFactory;
-
     public function __construct(
         SalesChannelDefinitionInstanceRegistry $registry,
-        RequestCriteriaBuilder $criteriaBuilder,
-        ResponseFactoryInterface $responseFactory
+        RequestCriteriaBuilder $criteriaBuilder
     ) {
         $this->registry = $registry;
         $this->criteriaBuilder = $criteriaBuilder;
-        $this->responseFactory = $responseFactory;
     }
 
     public function searchIds(Request $request, SalesChannelContext $context, string $entity): Response
@@ -66,7 +59,7 @@ class SalesChannelApiController
      * @throws InvalidUuidException
      * @throws ResourceNotFoundException
      */
-    public function detail(Request $request, string $id, SalesChannelContext $context, string $entity): Response
+    public function detail(Request $request, string $id, SalesChannelContext $context, string $entity, ResponseFactoryInterface $responseFactory): Response
     {
         $entity = $this->urlToSnakeCase($entity);
 
@@ -88,10 +81,10 @@ class SalesChannelApiController
             throw new ResourceNotFoundException($definition->getEntityName(), ['id' => $id]);
         }
 
-        return $this->responseFactory->createDetailResponse($result->get($id), $definition, $request, $context->getContext());
+        return $responseFactory->createDetailResponse($result->get($id), $definition, $request, $context->getContext());
     }
 
-    public function search(Request $request, SalesChannelContext $context, string $entity): Response
+    public function search(Request $request, SalesChannelContext $context, string $entity, ResponseFactoryInterface $responseFactory): Response
     {
         $entity = $this->urlToSnakeCase($entity);
 
@@ -105,7 +98,7 @@ class SalesChannelApiController
 
         $result = $repository->search($criteria, $context);
 
-        return $this->responseFactory->createListingResponse($result, $definition, $request, $context->getContext());
+        return $responseFactory->createListingResponse($result, $definition, $request, $context->getContext());
     }
 
     private function urlToSnakeCase(string $name): string

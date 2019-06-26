@@ -20,6 +20,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -27,8 +29,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
@@ -73,7 +75,7 @@ class MediaDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            new FkField('user_id', 'userId', UserDefinition::class),
+            (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             new FkField('media_folder_id', 'mediaFolderId', MediaFolderDefinition::class),
 
             (new StringField('mime_type', 'mimeType'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
@@ -81,7 +83,7 @@ class MediaDefinition extends EntityDefinition
             (new DateTimeField('uploaded_at', 'uploadedAt'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new LongTextField('file_name', 'fileName'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new IntField('file_size', 'fileSize'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new BlobField('media_type', 'mediaTypeRaw'))->addFlags(new Internal(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new BlobField('media_type', 'mediaTypeRaw'))->addFlags(new ReadProtected(AdminApiSource::class, SalesChannelApiSource::class), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new JsonField('meta_data', 'metaData'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new JsonField('media_type', 'mediaType'))->addFlags(new WriteProtected(), new Runtime()),
             (new TranslatedField('alt'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
@@ -89,15 +91,15 @@ class MediaDefinition extends EntityDefinition
             (new StringField('url', 'url'))->addFlags(new Runtime()),
             new TranslatedField('customFields'),
 
-            new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
+            (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
 
             new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', 'id'),
             new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', 'id'),
             (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', 'id'))->addFlags(new CascadeDelete()),
-            (new OneToOneAssociationField('avatarUser', 'id', 'avatar_id', UserDefinition::class, false))->addFlags(new CascadeDelete()),
+            (new OneToOneAssociationField('avatarUser', 'id', 'avatar_id', UserDefinition::class, false))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new TranslationsAssociationField(MediaTranslationDefinition::class, 'media_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id'))->addFlags(new CascadeDelete()),
-            (new BlobField('thumbnails_ro', 'thumbnailsRo'))->addFlags(new Computed(), new Internal()),
+            (new BlobField('thumbnails_ro', 'thumbnailsRo'))->addFlags(new Computed(), new ReadProtected(AdminApiSource::class, SalesChannelApiSource::class)),
             (new BoolField('has_file', 'hasFile'))->addFlags(new Runtime()),
             new BoolField('private', 'private'),
             new ManyToOneAssociationField('mediaFolder', 'media_folder_id', MediaFolderDefinition::class, 'id', false),

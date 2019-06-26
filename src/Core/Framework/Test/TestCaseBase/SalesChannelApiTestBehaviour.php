@@ -66,26 +66,26 @@ trait SalesChannelApiTestBehaviour
         $kernel = $this->getKernel();
         $salesChannelApiBrowser = KernelLifecycleManager::createBrowser($kernel);
         $salesChannelApiBrowser->setServerParameters([
-            'HTTP_Accept' => 'application/json',
+            'HTTP_ACCEPT' => 'application/json',
         ]);
 
-        $this->authorizeSalesChannelClient($salesChannelApiBrowser, $salesChannelOverride);
+        $this->authorizeSalesChannelBrowser($salesChannelApiBrowser, $salesChannelOverride);
 
         return $salesChannelApiBrowser;
     }
 
     abstract protected function getKernel(): KernelInterface;
 
-    protected function getSalesChannelClient(): KernelBrowser
+    protected function getSalesChannelBrowser(): KernelBrowser
     {
         if ($this->salesChannelApiBrowser) {
             return $this->salesChannelApiBrowser;
         }
 
-        return $this->salesChannelApiBrowser = $this->createSalesChannelClient();
+        return $this->salesChannelApiBrowser = $this->createSalesChannelBrowser();
     }
 
-    protected function createSalesChannelClient(
+    protected function createSalesChannelBrowser(
         ?KernelInterface $kernel = null,
         bool $enableReboot = false
     ): KernelBrowser {
@@ -95,15 +95,15 @@ trait SalesChannelApiTestBehaviour
 
         $salesChannelApiBrowser = KernelLifecycleManager::createBrowser($kernel, $enableReboot);
         $salesChannelApiBrowser->setServerParameters([
-            'HTTP_Accept' => 'application/json',
+            'HTTP_ACCEPT' => 'application/json',
         ]);
 
-        $this->authorizeSalesChannelClient($salesChannelApiBrowser);
+        $this->authorizeSalesChannelBrowser($salesChannelApiBrowser);
 
         return $salesChannelApiBrowser;
     }
 
-    private function authorizeSalesChannelClient(KernelBrowser $salesChannelApiClient, array $salesChannelOverride = []): void
+    private function authorizeSalesChannelBrowser(KernelBrowser $salesChannelApiClient, array $salesChannelOverride = []): void
     {
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
 

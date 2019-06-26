@@ -17,7 +17,7 @@ export default {
     inject: ['searchService', 'searchTypeService'],
 
     shortcuts: {
-        s: 'setFocus'
+        f: 'setFocus'
     },
 
     props: {

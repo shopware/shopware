@@ -1,4 +1,5 @@
 import { warn } from 'src/core/service/utils/debug.utils';
+import util from 'src/core/service/util.service';
 
 let pluginInstalled = false;
 
@@ -9,6 +10,8 @@ export default {
             return false;
         }
 
+        let activeShortcuts = [];
+
         // Register component shortcuts
         Vue.mixin({
             created() {
@@ -18,7 +21,19 @@ export default {
                     return false;
                 }
 
-                document.addEventListener('keyup', this.debounce(this.handleKeyUp));
+                // add shortcuts
+                Object.entries(shortcuts).forEach((shortcut) => {
+                    activeShortcuts.push({
+                        key: shortcut[0],
+                        functionName: shortcut[1],
+                        instance: this
+                    });
+
+                    // add event listener when one shortcut is registered
+                    if (activeShortcuts.length <= 1) {
+                        document.addEventListener('keyup', this.handleKeyUpDebounce);
+                    }
+                });
 
                 return true;
             },
@@ -29,69 +44,57 @@ export default {
                     return false;
                 }
 
-                document.removeEventListener('keyup', this.debounce(this.handleKeyUp));
+                // remove shortcuts
+                activeShortcuts = activeShortcuts.filter((activeShortcut) => {
+                    return this._uid !== activeShortcut.instance._uid;
+                });
+
+                // remove event listener when no shortcuts exists
+                if (activeShortcuts.length <= 0) {
+                    document.removeEventListener('keyup', this.handleKeyUpDebounce);
+                }
 
                 return true;
             },
             methods: {
-                debounce(fn, time = 100) {
-                    let timeout;
-
-                    return (...args) => {
-                        const functionCall = () => fn.apply(this, args);
-
-                        clearTimeout(timeout);
-                        timeout = setTimeout(functionCall, time);
-                    };
-                },
-
-                handleKeyUp(event) {
+                handleKeyUpDebounce: util.debounce(function handleKeyUp(event) {
                     const isModalShown = !!document.querySelector('.sw-modal__dialog');
-                    const shortcuts = this.$options.shortcuts;
                     const systemKey = this.$device.getSystemKey();
                     const { key, altKey, ctrlKey } = event;
+                    const systemKeyPressed = systemKey === 'CTRL' ? ctrlKey : altKey;
 
-                    if (isModalShown || typeof shortcuts !== 'object') {
+                    if (isModalShown) {
                         return false;
                     }
 
-                    Object.keys(shortcuts).forEach((combination) => {
-                        const method = shortcuts[combination];
-                        let executeable = false;
+                    // create combined key name and look for matching shortcut
+                    const combinedKey = `${systemKeyPressed ? 'SYSTEMKEY+' : ''}${key.toUpperCase()}`;
+                    const matchedShortcut = activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === combinedKey);
 
-                        // combination with modifier?
-                        if (combination.indexOf('+') > 1) {
-                            const [modifier, shortcut] = combination.split('+');
-                            const translatedModifier = modifier === 'SYSTEMKEY'
-                                ? systemKey
-                                : modifier.toUpperCase();
+                    // check for editable elements
+                    const isEditableDiv = event.target.tagName === 'DIV' && event.target.isContentEditable;
 
-                            executeable = (
-                                (translatedModifier === 'ALT' && altKey)
-                                || (translatedModifier === 'CTRL' && ctrlKey)
-                            ) && key.toUpperCase() === shortcut.toUpperCase();
-                        } else {
-                            const shortcut = combination.toUpperCase();
-                            const source = event.srcElement;
-                            const tagName = source.tagName;
-                            const isEditableDiv = tagName === 'DIV' && source.isContentEditable;
-                            const restrictedTags = /INPUT|TEXTAREA|SELECT/;
-                            const isRestrictedTag = restrictedTags.test(tagName);
+                    // check for restricted elements
+                    const restrictedTags = /INPUT|TEXTAREA|SELECT/;
+                    const isRestrictedTag = restrictedTags.test(event.target.tagName);
 
-                            executeable = !(isEditableDiv || isRestrictedTag)
-                                && !(altKey || ctrlKey)
-                                && key.toUpperCase() === shortcut;
-                        }
+                    // check for situations where the shortcut should not trigger
+                    if (isEditableDiv ||
+                        isRestrictedTag ||
+                        !matchedShortcut ||
+                        !matchedShortcut.instance ||
+                        !matchedShortcut.functionName) {
+                        return false;
+                    }
 
-                        if (executeable) {
-                            this[method].call(this);
-                        }
-
-                        return true;
-                    });
+                    // check if function exists
+                    if (matchedShortcut.instance[matchedShortcut.functionName]) {
+                        // trigger function
+                        matchedShortcut.instance[matchedShortcut.functionName].call(matchedShortcut.instance);
+                    }
 
                     return true;
-                }
+                }, 200)
             }
         });
 

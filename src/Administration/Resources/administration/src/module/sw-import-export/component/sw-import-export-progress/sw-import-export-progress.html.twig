@@ -3,14 +3,27 @@
               :title="$tc('sw-import-export-progress.title')"
               @modal-close="closeModal">
 
-        <sw-progress-bar :value="percentage"></sw-progress-bar>
+        <sw-alert v-if="failed" variant="error">
+            {{ $tc('sw-import-export-progress.messages.failed') }}
+        </sw-alert>
+        <sw-alert v-if="aborted" variant="warning">
+            {{ $tc('sw-import-export-progress.messages.aborted') }}
+        </sw-alert>
+        <sw-alert v-if="succeeded" variant="success">
+            {{ $tc('sw-import-export-progress.messages.succeeded') }}
+        </sw-alert>
+        <sw-alert v-if="progress" variant="info">
+            {{ $tc('sw-import-export-progress.messages.progress') }}
+        </sw-alert>
+
+        <sw-progress-bar :value="percentage" v-if="progress"></sw-progress-bar>
 
         {% block sw_import_export_progress_footer %}
             <template #modal-footer>
                 {% block sw_import_export_progress_footer_actions_cancel %}
-                    <sw-button @click="onCancel"
-                               v-if="processing"
-                               :disabled="cancelled"
+                    <sw-button @click="onUserCancel"
+                               v-if="progress"
+                               :disabled="aborted"
                                size="small">
                         {{ $tc('sw-import-export-progress.buttonCancel') }}
                     </sw-button>
@@ -18,7 +31,7 @@
 
                 {% block sw_import_export_progress_footer_actions_close %}
                     <sw-button @click="closeModal"
-                               :disabled="processing"
+                               :disabled="progress"
                                :variant="downloadUrl ? '' : 'primary'"
                                size="small">
                         {{ $tc('sw-import-export-progress.buttonClose') }}

@@ -11,7 +11,13 @@
     "title": "Fortschritt",
     "buttonClose": "Schließen",
     "buttonCancel": "Abbrechen",
-    "buttonDownload": "Download"
+    "buttonDownload": "Download",
+    "messages": {
+      "progress": "Daten werden verarbeitet ...",
+      "failed": "Daten konnte nicht vollständig verarbeitet werden. Bitte prüfen sie die Log-Dateien für Fehlerdetails.",
+      "succeeded": "Daten erfolgreich verarbeitet",
+      "aborted": "Datenverarbeitung durch Benutzer abgebrochen."
+    }
   },
   "sw-import-export-index": {
     "cards": {

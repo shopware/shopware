@@ -11,7 +11,13 @@
     "title": "Progress",
     "buttonClose": "Close",
     "buttonCancel": "Cancel",
-    "buttonDownload": "Download"
+    "buttonDownload": "Download",
+    "messages": {
+      "progress": "Processing your data ...",
+      "failed": "Your data could not be processed entirely. Please check the log files for further details.",
+      "succeeded": "Your data has been processed successfully.",
+      "aborted": "Processing aborted due to user cancellation."
+    }
   },
   "sw-import-export-index": {
     "cards": {

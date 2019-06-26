@@ -13,11 +13,25 @@ Component.register('sw-import-export-progress', {
         }
     },
 
+    computed: {
+        aborted() {
+            return this.state === 'aborted'
+        },
+        failed() {
+            return this.state === 'failed';
+        },
+        progress() {
+            return this.state === 'progress';
+        },
+        succeeded() {
+            return this.state === 'succeeded';
+        }
+    },
+
     data() {
         return {
+            state: null,
             percentage: 0,
-            processing: false,
-            cancelled: false,
             downloadUrl: null
         };
     },
@@ -38,39 +52,41 @@ Component.register('sw-import-export-progress', {
             }
 
             this.percentage = offset / total * 100;
-            this.processing = true;
+            this.state = 'progress';
             this.importExportService.process(logId, offset).then((response) => {
-                offset += response.processed;
+                if (this.aborted || this.failed) {
+                    return;
+                }
 
-                if (!this.cancelled && offset < this.log.records) {
+                offset += response.processed;
+                if (offset < this.log.records) {
                     this.process(logId, offset, total);
                     return;
                 }
 
                 this.complete();
             }).catch(() => {
-                this.processing = false;
-                this.onCancel();
+                this.state = 'failed';
             });
         },
 
         complete() {
             this.percentage = 100;
-            this.processing = false;
+            this.state = 'succeeded';
             if (this.log.activity === 'export') {
                 this.downloadUrl = this.importExportService.getDownloadUrl(this.log.file.id, this.log.file.accessToken);
             }
         },
 
         closeModal() {
-            if (this.processing) {
+            if (this.progress) {
                 return;
             }
             this.$emit('modal-close');
         },
 
-        onCancel() {
-            this.cancelled = true;
+        onUserCancel() {
+            this.state = 'aborted';
             this.importExportService.cancel(this.log.id);
         }
     }

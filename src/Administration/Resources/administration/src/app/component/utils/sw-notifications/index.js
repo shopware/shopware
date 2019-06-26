@@ -67,6 +67,24 @@ export default {
     methods: {
         onClose(notification) {
             this.$store.commit('notification/removeGrowlNotification', notification);
+        },
+
+        handleAction(action, notification) {
+            if (action.method) {
+                this.callMethod(action.method, notification);
+                this.onClose(notification);
+
+                return;
+            }
+
+            this.onClose(notification);
+        },
+
+        callMethod(method) {
+            if (typeof method !== 'function') {
+                return;
+            }
+            method.call();
         }
     }
 };

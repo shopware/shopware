@@ -12,13 +12,23 @@
                 </slot>
             {% endblock %}
 
-            {% block sw_alert_title %}
-                <div v-if="title" class="sw-alert__title">{{ title }}</div>
+            {% block sw_alert_body %}
+                <div class="sw-alert__body">
+                    {% block sw_alert_title %}
+                        <div v-if="title" class="sw-alert__title">{{ title }}</div>
+                    {% endblock %}
+
+                    {% block sw_alert_message %}
+                        <div class="sw-alert__message">
+                            <slot>{% block sw_alert_slot_default %}{% endblock %}</slot>
+                        </div>
+                    {% endblock %}
+                </div>
             {% endblock %}
 
-            {% block sw_alert_message %}
-                <div class="sw-alert__message">
-                    <slot>{% block sw_alert_slot_default %}{% endblock %}</slot>
+            {% block sw_alert_actions %}
+                <div v-if="hasActionSlot" class="sw-alert__actions">
+                    <slot name="actions"></slot>
                 </div>
             {% endblock %}
 

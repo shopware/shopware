@@ -4,12 +4,7 @@ const AdminApiService = require('./admin-api.service');
 
 export default class AdminFixtureService {
     constructor() {
-        this.apiClient = new AdminApiService(process.env.APP_URL);
-        this.basicFixture = '';
-    }
-
-    setBasicFixture(json) {
-        this.basicFixture = this.loadJson(json);
+        this.apiClient = new AdminApiService();
     }
 
     create(endpoint, rawData) {
@@ -17,13 +12,10 @@ export default class AdminFixtureService {
     }
 
     update(userData) {
-        if (userData.id) {
-            return this.apiClient.patch(`/v1/${userData.type}/${userData.id}?_response=true`, userData.data);
+        if (!userData.id) {
+            throw new Error('Update fixtures must always contain an id');
         }
-
-        return this.search(userData.type, userData.data).then((result) => {
-            this.apiClient.patch(`/v1/${userData.type}/${result.id}?_response=true`, userData.data);
-        });
+        return this.apiClient.patch(`/v1/${userData.type}/${userData.id}?_response=true`, userData.data);
     }
 
     search(type, filter) {
@@ -41,8 +33,7 @@ export default class AdminFixtureService {
     }
 
     mergeFixtureWithData(...args) {
-        const result = _.merge({}, ...args);
-        return result;
+        return _.merge({}, ...args);
     }
 }
 

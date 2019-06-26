@@ -17,7 +17,7 @@ export default class OrderFixtureService extends SalesChannelFixtureService {
 
         return this.getClientId()
             .then((result) => {
-                return this.apiClient.setAccessKey(result);
+                this.apiClient.setAccessKey(result);
             }).then(() => {
                 return Promise.all([
                     findSalutationId(),

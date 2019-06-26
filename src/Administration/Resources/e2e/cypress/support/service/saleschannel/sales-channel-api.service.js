@@ -1,23 +1,14 @@
 const ApiService = require('../api.service');
 
 export default class SalesChannelApiService extends ApiService {
-    loginByUserName(username = 'admin', password = 'shopware') {
-        return this.client.post('/oauth/token', {
-            grant_type: 'password',
-            client_id: 'administration',
-            scopes: 'write',
-            username,
-            password
-        }).catch((err) => {
-            console.log(Promise.reject(err.data));
-        }).then((response) => {
-            this.authInformation = response.data;
-            return this.authInformation;
-        });
+    constructor() {
+        super();
+        this.accessKey = '';
+        this.contextToken = '';
     }
 
-    getBasicPath(path) {
-        return `${path}/sales-channel-api`;
+    getBasicPath() {
+        return `${Cypress.config('baseUrl')}/sales-channel-api`;
     }
 
     /**
@@ -56,11 +47,9 @@ export default class SalesChannelApiService extends ApiService {
 
     setAccessKey(salesChannelId) {
         this.accessKey = salesChannelId;
-        return this.accessKey;
     }
 
     setContextToken(contextId) {
         this.contextToken = contextId;
-        return this.contextToken;
     }
 }

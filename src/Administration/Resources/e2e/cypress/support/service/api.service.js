@@ -3,8 +3,6 @@ import axios from 'axios';
 export default class ApiService {
     constructor() {
         this.authInformation = {};
-        this.accessKey = '';
-        this.contextToken = '';
         this.basePath = '';
 
         this.client = axios.create({
@@ -20,8 +18,9 @@ export default class ApiService {
         throw new Error('Implement method getHeaders()');
     }
 
-    loginByUserName() {
-        throw new Error('Implement method loginByUserName()');
+
+    request({ url, method, params, data }) {
+        throw new Error('Implement method request()');
     }
 
     clearCache(action) {
@@ -88,9 +87,5 @@ export default class ApiService {
             url,
             params
         });
-    }
-
-    request({ url, method, params, data }) {
-        throw new Error('Implement method request()');
     }
 }

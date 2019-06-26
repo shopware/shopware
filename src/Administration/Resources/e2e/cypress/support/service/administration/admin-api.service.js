@@ -3,6 +3,10 @@
 const ApiService = require('../api.service');
 
 export default class AdminApiService extends ApiService {
+    getBasicPath() {
+        return `${Cypress.config('baseUrl')}/api`;
+    }
+
     /**
      * Renders an header to stdout including information about the available flags.
      *
@@ -23,10 +27,6 @@ export default class AdminApiService extends ApiService {
             this.authInformation = response.data;
             return this.authInformation;
         });
-    }
-
-    getBasicPath() {
-        return `${Cypress.config('baseUrl')}/api`;
     }
 
     /**
@@ -58,7 +58,7 @@ export default class AdminApiService extends ApiService {
                 }
                 return response.data.data;
             });
-        }).catch(({ config, response }) => {
+        }).catch(({ response }) => {
             if (response.data && response.data.errors) {
                 console.log(response.data.errors);
             }

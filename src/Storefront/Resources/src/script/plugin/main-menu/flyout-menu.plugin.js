@@ -92,6 +92,8 @@ export default class FlyoutMenuPlugin extends Plugin {
             flyoutEl.classList.add(this.options.activeCls);
             triggerEl.classList.add(this.options.activeCls);
         }
+
+        this.$emitter.publish('openFlyout');
     }
 
     /**
@@ -106,6 +108,8 @@ export default class FlyoutMenuPlugin extends Plugin {
             flyoutEl.classList.remove(this.options.activeCls);
             triggerEl.classList.remove(this.options.activeCls);
         }
+
+        this.$emitter.publish('closeFlyout');
     }
 
     /**
@@ -127,6 +131,8 @@ export default class FlyoutMenuPlugin extends Plugin {
         if (!this._isOpen(triggerEl)) {
             FlyoutMenuPlugin._stopEvent(event);
         }
+
+        this.$emitter.publish('openFlyoutById');
     }
 
     /**
@@ -142,6 +148,8 @@ export default class FlyoutMenuPlugin extends Plugin {
             const triggerEl = this._retrieveTriggerEl(el);
             this._closeFlyout(el, triggerEl);
         });
+
+        this.$emitter.publish('closeAllFlyouts');
     }
 
     /**
@@ -204,6 +212,5 @@ export default class FlyoutMenuPlugin extends Plugin {
             event.stopImmediatePropagation();
         }
     }
-
 }
 

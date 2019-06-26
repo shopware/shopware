@@ -44,6 +44,8 @@ export default class CmsSlotHistoryReload extends Plugin {
                 this._reloadSlot(history);
             }
         }
+
+        this.$emitter.publish('onHistoryChange', { history, action });
     }
 
     /**
@@ -55,5 +57,7 @@ export default class CmsSlotHistoryReload extends Plugin {
      */
     _reloadSlot(history) {
         this._slotReloader.reloadFromHistory(history);
+
+        this.$emitter.publish('reloadSlot', { history });
     }
 }

@@ -119,7 +119,6 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
             return;
         }
 
-
         event.preventDefault();
         event.stopPropagation();
 
@@ -129,6 +128,8 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
 
         this._getFirstInvalidFormFields(event);
         this._scrollToInvalidFormFields();
+
+        this.$emitter.publish('onInvalid');
     }
 
     /**
@@ -144,6 +145,8 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
                 this._firstInvalidElement = field;
             }
         });
+
+        this.$emitter.publish('getFirstInvalidFormFields');
     }
 
     /**
@@ -158,6 +161,8 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
             this._firstInvalidElement.reportValidity(false);
             this._firstInvalidElement = false;
         }
+
+        this.$emitter.publish('onScrollEnd');
     }
 
     /**
@@ -180,6 +185,8 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
         } else {
             this._onScrollEnd();
         }
+
+        this.$emitter.publish('scrollToInvalidFormFields');
     }
 
     /**
@@ -197,7 +204,6 @@ export default class FormScrollToInvalidFieldPlugin extends Plugin {
         });
 
         return shouldScroll;
-
     }
 
     /**

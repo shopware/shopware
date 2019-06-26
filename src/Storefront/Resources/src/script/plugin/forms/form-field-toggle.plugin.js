@@ -57,7 +57,6 @@ export default class FormFieldTogglePlugin extends Plugin {
         this._targets = DomAccess.querySelectorAll(document, selector);
     }
 
-
     /**
      * sets the value on which the the
      * targets should be toggled
@@ -93,8 +92,9 @@ export default class FormFieldTogglePlugin extends Plugin {
                 this._showTarget(node);
             }
         });
-    }
 
+        this.$emitter.publish('onChange');
+    }
 
     /**
      * returns whether or not the
@@ -170,5 +170,4 @@ export default class FormFieldTogglePlugin extends Plugin {
     _getFields(target) {
         return DomAccess.querySelectorAll(target, 'input, select, textarea', false);
     }
-
 }

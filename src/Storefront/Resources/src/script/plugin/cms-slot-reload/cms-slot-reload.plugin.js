@@ -57,6 +57,9 @@ export default class CmsSlotReloadPlugin extends Plugin {
     _reloadCmsSlot(event) {
         event.preventDefault();
         const data = FormSerializeUtil.serializeJson(this.el);
+
+        this.$emitter.publish('beforeReloadCmsSlot');
+
         this._slotReloader.reload(this.options, data, this._prevData);
     }
 }

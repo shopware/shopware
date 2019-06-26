@@ -59,6 +59,9 @@ export default class ViewportDetection {
     _onResize() {
         if (this._viewportHasChanged(ViewportDetection.getCurrentViewport())) {
             this._dispatchEvents();
+
+            // dispatch event that a viewport change has taken place
+            this._dispatchViewportEvent(EVENT_VIEWPORT_HAS_CHANGED);
         }
     }
 
@@ -67,9 +70,6 @@ export default class ViewportDetection {
      * @private
      */
     _dispatchEvents() {
-        // dispatch event that a viewport change has taken place
-        this._dispatchViewportEvent(EVENT_VIEWPORT_HAS_CHANGED);
-
         // dispatch specific events for each single viewport
         if (ViewportDetection.isXS()) {
             this._dispatchViewportEvent(EVENT_VIEWPORT_IS_XS);
@@ -91,7 +91,6 @@ export default class ViewportDetection {
      * @private
      */
     _viewportHasChanged(newViewport) {
-
         // determine whether the viewport has changed
         const hasChanged = newViewport !== this.currentViewport;
 
@@ -104,17 +103,15 @@ export default class ViewportDetection {
     }
 
     /**
-     * Dispatch custom event with additional data
+     * Dispatch event with additional data
      * including the previous viewport
      * @param {string} eventName
      * @private
      */
     _dispatchViewportEvent(eventName) {
-        document.dispatchEvent(new CustomEvent(eventName, {
-            detail: {
-                previousViewport: this.previousViewport
-            }
-        }));
+        document.$emitter.publish(eventName, {
+            previousViewport: this.previousViewport
+        });
     }
 
     /**

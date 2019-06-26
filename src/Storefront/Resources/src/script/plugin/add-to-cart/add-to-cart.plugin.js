@@ -31,7 +31,7 @@ export default class AddToCartPlugin extends Plugin {
     }
 
     _registerEvents() {
-        this.el.addEventListener('submit', this._onFormSubmit.bind(this));
+        this.el.addEventListener('submit', this._formSubmit.bind(this));
     }
 
     /**
@@ -41,11 +41,13 @@ export default class AddToCartPlugin extends Plugin {
      * @param {Event} event
      * @private
      */
-    _onFormSubmit(event) {
+    _formSubmit(event) {
         event.preventDefault();
 
         const requestUrl = DomAccess.getAttribute(this._form, 'action').toLowerCase();
         const formData = FormSerializeUtil.serialize(this._form);
+
+        this.$emitter.publish('beforeFormSubmit');
 
         this._openOffCanvasCarts(requestUrl, formData);
     }
@@ -69,6 +71,8 @@ export default class AddToCartPlugin extends Plugin {
      * @private
      */
     _openOffCanvasCart(instance, requestUrl, formData) {
-        instance.openOffCanvas(requestUrl, formData);
+        instance.openOffCanvas(requestUrl, formData, () => {
+            this.$emitter.publish('openOffCanvasCart');
+        });
     }
 }

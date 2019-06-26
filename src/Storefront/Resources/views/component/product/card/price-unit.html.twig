@@ -31,7 +31,7 @@
                     {{ product.calculatedListingPrice.from.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
                     -
                     {{ product.calculatedListingPrice.to.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
-                {% elseif product.calculatedPrices %}
+                {% elseif product.calculatedPrices|length == 1 %}
                     {{ product.calculatedPrices.first.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
                 {% else %}
                     {{ product.calculatedPrice.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}

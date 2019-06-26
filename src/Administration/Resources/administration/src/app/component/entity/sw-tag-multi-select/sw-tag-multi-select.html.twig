@@ -10,7 +10,7 @@
          @keydown.down.prevent="onNavigateDown">
 
         {% block sw_tag_multi_select_label %}
-            <label v-if="label" for="entiy_tag_select" class="sw-tag-multi-select__label">
+            <label v-if="label && showLabel" for="entiy_tag_select" class="sw-tag-multi-select__label">
                 {{ $tc('global.sw-tag-field.title') }}
             </label>
         {% endblock %}
@@ -26,7 +26,7 @@
                                 :data-id="tag.id">
 
                                 {% block sw_tag_multi_select_selected_list_items_label %}
-                                    <sw-label @dismiss="deleteSelectedTag(tag)">
+                                    <sw-label @dismiss="deleteSelectedTag(tag)" :size="labelSize">
                                         <template>
                                             {% block sw_tag_multi_select_selected_list_items_label_content %}
                                                 <span class="sw-tag-multi-select__selection-item">

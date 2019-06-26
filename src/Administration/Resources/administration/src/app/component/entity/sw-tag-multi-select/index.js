@@ -38,6 +38,12 @@ Component.register('sw-tag-multi-select', {
                 }
                 return ['default', 'small'].includes(value);
             }
+        },
+
+        showLabel: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -45,11 +51,14 @@ Component.register('sw-tag-multi-select', {
         classes() {
             return {
                 'is--disabled': this.disabled,
-                'is--expanded': this.isExpanded
+                'is--expanded': this.isExpanded,
+                'is--small': this.size === 'small'
             };
+        },
+
+        labelSize() {
+            return this.size === 'small' ? 'medium' : 'default';
         }
-
-
     },
 
     data() {

@@ -4,7 +4,7 @@ namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
-use Shopware\Core\Checkout\Cart\Order\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;

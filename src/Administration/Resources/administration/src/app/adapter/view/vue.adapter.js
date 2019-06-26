@@ -244,9 +244,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
             modules: filterStateRegistry(State.getStoreRegistry()),
             strict: false
         });
-
-        // remove unnecessary objects from state.factory
-        State.getStoreRegistry().delete('vuex');
+        State.registerStore('vuex', store);
 
         return store;
     }
@@ -291,6 +289,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         const i18n = new VueI18n({
             locale: store.state.adminLocale.currentLocale,
             fallbackLocale: store.state.adminLocale.fallbackLocale,
+            silentFallbackWarn: true,
+            sync: true,
             messages
         });
 

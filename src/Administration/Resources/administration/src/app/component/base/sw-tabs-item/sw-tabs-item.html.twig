@@ -8,6 +8,12 @@
     <router-link v-else :class="tabsItemClasses" ref="sw-tabs-item" v-bind="$attrs" class="sw-tabs-item" @click.native="clickEvent" :to="route">
         {% block sw_tabs_item_slot_native %}
             <slot></slot>
+            <sw-icon v-if="hasError"
+                     class="sw-tabs-item__error-badge"
+                     name="default-badge-warning"
+                     size="14px"
+                     v-tooltip="{ message: $tc('global.sw-tabs-item.tooltipTabHasErrors') }">
+            </sw-icon>
         {% endblock %}
     </router-link>
 {% endblock %}

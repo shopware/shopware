@@ -142,6 +142,7 @@ export default {
     },
 
     beforeDestroy() {
+        this.$store.dispatch('resetApiErrors');
         this.beforeDestroyComponent();
     },
 

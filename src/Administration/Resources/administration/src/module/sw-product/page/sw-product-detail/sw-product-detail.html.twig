@@ -61,6 +61,7 @@
                         {% block sw_product_detail_content_tabs_general %}
                             <sw-tabs-item class="sw-product-detail__tab-general"
                                           :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
+                                          :hasError="swProductDetailBaseError"
                                           :title="$tc('sw-product.detail.tabGeneral')">
                                 {{ $tc('sw-product.detail.tabGeneral') }}
                             </sw-tabs-item>

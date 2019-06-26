@@ -1,0 +1,11 @@
+{
+    "sw.product.detail.base": {
+        "product": [
+            "taxId",
+            "price",
+            "stock",
+            "manufacturerId",
+            "name"
+        ]
+    }
+}

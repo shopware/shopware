@@ -461,6 +461,9 @@
     "sw-simple-search-field": {
       "defaultPlaceholder": "Search..."
     },
+    "sw-tabs-item": {
+      "tooltipTabHasErrors": "This page contains errors."
+    },
     "entities": {
       "custom_field": "Custom field | Custom fields",
       "cart": "Cart | Carts",

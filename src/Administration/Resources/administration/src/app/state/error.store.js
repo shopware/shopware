@@ -1,60 +1,114 @@
-import ErrorStore from 'src/core/data/ErrorStore';
-import ShopwareError from 'src/core/data/ShopwareError';
+import { State } from 'src/core/shopware';
+import ErrorStore from 'src/core/data/error-store.data';
 import { setReactive, deleteReactive } from 'src/app/adapter/view/vue.adapter';
+import utils from 'src/core/service/util.service';
 
-class VuexErrorStore extends ErrorStore {
+class VuexErrorStore {
     constructor() {
-        super();
-
-        this.state = this.errors;
+        this.state = {
+            system: {},
+            api: {}
+        };
 
         this.mutations = {
-            setErrorData(state, { expression, error, type }) {
-                ErrorStore.createAtPath(expression, state[type], setReactive, error);
+            addApiError(state, { expression, error }) {
+                ErrorStore.addApiError(expression, error, state, setReactive);
             },
 
-            deleteError(state, { expression, type }) {
-                ErrorStore.deleteAtPath(expression, state[type], deleteReactive);
+            removeApiError(state, { expression }) {
+                ErrorStore.removeApiError(expression, state, deleteReactive);
             },
 
-            resetError(state, { expression, type }) {
-                ErrorStore.deleteAtPath(expression, state[type], deleteReactive, false);
+            resetApiErrors(state) {
+                ErrorStore.resetApiErrors(state);
+            },
+
+            addSystemError(state, { error, id = utils.createId() }) {
+                ErrorStore.addSystemError(error, id, state, setReactive);
+            },
+
+            removeSystemError(state, { id }) {
+                ErrorStore.removeSystemError(id, state, deleteReactive);
             }
         };
 
         this.getters = {
-            boundError: (state, getters) => (pointer) => {
-                if (pointer === null) {
-                    return new ShopwareError();
+            getApiError: (state) => (entity, field) => {
+                const path = [entity.getEntityName(), entity.id, ...field.split('.')];
+                return path.reduce((store, next) => {
+                    if (store === null) {
+                        return null;
+                    }
+
+                    if (store.hasOwnProperty(next)) {
+                        return store[next];
+                    }
+                    return null;
+                }, state.api);
+            },
+
+            existsErrorInProperty: (state) => (entity, properties) => {
+                const entityErrors = state.api[entity];
+                if (!entityErrors) {
+                    return false;
                 }
 
-                return getters.getApiError(pointer) || getters.getValidationError(pointer);
+                return Object.keys(entityErrors).some((id) => {
+                    const instance = entityErrors[id];
+                    return Object.keys(instance).some((propWithError) => {
+                        return properties.includes(propWithError);
+                    });
+                });
             },
 
-            getApiError: (state) => (pointer) => {
-                return ErrorStore.getFromPath(pointer, state.api);
-            },
-
-            getValidationError: (state) => (pointer) => {
-                return ErrorStore.getFromPath(pointer, state.validation);
+            getSystemError: (state) => (id) => {
+                return state.system[id] || null;
             }
         };
 
         this.actions = {
-            deleteFieldError({ commit }, expression) {
-                commit('deleteError', { expression, type: 'api' });
+            addApiError({ commit }, { expression, error }) {
+                commit('addApiError', { expression, error });
             },
 
-            resetFormError({ commit }, expression) {
-                commit('resetError', { expression, type: 'api' });
+            removeApiError({ commit }, { expression }) {
+                commit('removeApiError', { expression });
+            },
+
+            resetApiErrors({ commit }) {
+                commit('resetApiErrors');
+            },
+
+            addSystemError({ commit }, { error, id = utils.createId() }) {
+                commit('addSystemError', { error, id });
+                return id;
+            },
+
+            removeSystemError({ commit }, { id }) {
+                commit('removeSystemError', { id });
             }
         };
     }
 
-    setErrorData(expression, error, type = 'system') {
-        this.mutations.setErrorData(this.state, { expression, error, type });
+    get $store() {
+        if (typeof this._store === 'object') {
+            return this._store;
+        }
 
-        return true;
+        this._store = State.getStore('vuex');
+        return this._store;
+    }
+
+    addApiError(expression, error) {
+        return this.$store.dispatch('addApiError', { expression, error });
+    }
+
+    addSystemError(error, id = utils.createId()) {
+        return this.$store.dispatch('addSystemError', { error, id });
+    }
+
+    resetApiErrors() {
+        return this.$store.dispatch('resetApiErrors');
     }
 }
 

@@ -26,6 +26,7 @@ export default class LanguageStore extends EntityStore {
      */
     setCurrentId(languageId) {
         this.currentLanguageId = languageId;
+        Application.getContainer('init').contextService.languageId = languageId;
         return this.getByIdAsync(languageId);
     }
 

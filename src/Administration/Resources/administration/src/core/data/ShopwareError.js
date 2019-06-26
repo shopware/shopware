@@ -14,8 +14,7 @@ export default class ShopwareError {
         title = '',
         detail = '',
         parameters = {},
-        status = '',
-        trace
+        status = ''
     } = {}) {
         this._id = utils.createId();
         this._code = code;
@@ -23,7 +22,6 @@ export default class ShopwareError {
         this._detail = detail;
         this._parameters = parameters;
         this._status = status;
-        this._trace = trace;
     }
 
     get id() {

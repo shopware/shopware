@@ -1,15 +1,10 @@
+import { EntityDefinition } from 'src/core/shopware';
 import types from 'src/core/service/utils/types.utils';
 import Entity from './entity.data';
 import EntityCollection from './entity-collection.data';
 import SearchResult from './search-result.data';
 
 export default class EntityHydrator {
-    constructor(schema) {
-        this.schema = schema;
-        this.toOne = ['one_to_one', 'many_to_one'];
-        this.toMany = ['one_to_many', 'many_to_many'];
-    }
-
     /**
      * Hydrates the repository response to a SearchResult class with all entities and aggregations
      * @param {String} route
@@ -74,7 +69,7 @@ export default class EntityHydrator {
             return this.cache[cacheKey];
         }
 
-        const schema = this.schema[entityName];
+        const schema = EntityDefinition.get(entityName);
         // currently translation can not be hydrated
         if (!schema) {
             return null;
@@ -91,13 +86,13 @@ export default class EntityHydrator {
                 return true;
             }
 
-            if (this.toMany.includes(field.relation)) {
+            if (schema.isToManyAssociation(field)) {
                 data[property] = this.hydrateToMany(criteria, property, value, field, context, response);
 
                 return true;
             }
 
-            if (this.toOne.includes(field.relation) && types.isObject(value.data)) {
+            if (schema.isToOneAssociation(field) && types.isObject(value.data)) {
                 const nestedEntity = this.hydrateToOne(criteria, property, value, response, context);
 
                 // currently translation can not be hydrated

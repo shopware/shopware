@@ -103,7 +103,6 @@ export default {
         },
 
         onChange(event) {
-            this.resetFormError();
             this.currentValue = event.target.value;
             if (event.target.value === '') {
                 this.currentValue = null;

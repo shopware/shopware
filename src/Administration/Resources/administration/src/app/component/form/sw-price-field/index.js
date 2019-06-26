@@ -67,8 +67,8 @@ export default {
             default: false
         },
 
-        rootPointer: {
-            tye: String,
+        error: {
+            type: Object,
             required: false,
             default: null
         },
@@ -104,12 +104,12 @@ export default {
             return Application.getContainer('factory').apiService.getByName('calculate-price');
         },
 
-        grossPointer() {
-            return this.rootPointer ? `${this.rootPointer}.price.gross` : null;
+        grossError() {
+            return this.error ? this.error.gross : null;
         },
 
-        netPointer() {
-            return this.rootPointer ? `${this.rootPointer}.price.net` : null;
+        netError() {
+            return this.error ? this.error.net : null;
         },
 
         priceForCurrency: {

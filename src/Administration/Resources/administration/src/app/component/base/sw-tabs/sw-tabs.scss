@@ -31,6 +31,10 @@
          bottom: 0;
          height: 2px;
          background-color: $color-shopware-brand-500;
+
+        &.has--error {
+            background-color: $color-crimson-500;
+        }
     }
 
     .sw-tabs__arrow {

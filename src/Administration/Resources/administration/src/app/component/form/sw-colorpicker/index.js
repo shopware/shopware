@@ -129,7 +129,6 @@ export default {
         },
 
         colorWatcher() {
-            this.resetFormError();
             this.$emit('input', this.color);
         },
 
@@ -156,7 +155,6 @@ export default {
         },
 
         onInput(event) {
-            this.resetFormError();
             this.$emit('input', event.target.value);
         },
 

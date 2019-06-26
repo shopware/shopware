@@ -1,4 +1,4 @@
-<sw-block-field class="sw-field--textarea" v-bind="$attrs" :name="formFieldName" :error="$attrs.error || actualError">
+<sw-block-field class="sw-field--textarea" v-bind="$attrs" :name="formFieldName">
     <template #sw-field-input="{identification, helpText, error, disabled, setFocusClass, removeFocusClass }">
         <textarea :id="identification"
                   :name="identification"

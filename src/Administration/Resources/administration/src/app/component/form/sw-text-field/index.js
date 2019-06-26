@@ -76,12 +76,10 @@ export default {
 
     methods: {
         onChange(event) {
-            this.resetFormError();
             this.$emit('change', event.target.value || '');
         },
 
         onInput(event) {
-            this.resetFormError();
             this.$emit('input', event.target.value);
         },
 

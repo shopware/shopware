@@ -1,4 +1,3 @@
-import ShopwareError from 'src/core/data/ShopwareError';
 import template from './sw-field-error.html.twig';
 import './sw-field-error.scss';
 
@@ -13,9 +12,7 @@ export default {
         error: {
             type: Object,
             required: false,
-            default() {
-                return new ShopwareError();
-            }
+            default: null
         }
     }
 };

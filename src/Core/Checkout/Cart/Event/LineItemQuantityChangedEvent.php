@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class RemoveLineItemEvent extends Event
+class LineItemQuantityChangedEvent extends Event
 {
     /**
      * @var LineItem

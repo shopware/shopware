@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+           xmlns:monolog="http://symfony.com/schema/dic/monolog"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd http://symfony.com/schema/dic/monolog http://symfony.com/schema/dic/monolog/monolog-1.0.xsd">
+
+    <monolog:config>
+        <monolog:handler
+                id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler"
+                name="business_event_handler_discard"
+                type="service"
+                priority="1">
+            <monolog:channels>
+                <monolog:channel>business_events</monolog:channel>
+            </monolog:channels>
+        </monolog:handler>
+    </monolog:config>
 
     <services>
         <defaults public="true"/>
@@ -65,6 +78,9 @@
 
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal\Indexing\QueueTestIndexer">
             <tag name="shopware.dbal_indexing.indexer"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler">
         </service>
     </services>
 

@@ -36,8 +36,6 @@ class ProductListingGateway implements ProductListingGatewayInterface
     public function search(Request $request, SalesChannelContext $context): EntitySearchResult
     {
         $criteria = new Criteria();
-        $criteria->addAssociationPath('cover');
-        $criteria->addFilter(new EqualsFilter('product.displayInListing', true));
 
         $this->handleCategoryFilter($request, $criteria, $context);
 

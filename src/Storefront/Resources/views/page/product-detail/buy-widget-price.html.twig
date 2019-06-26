@@ -1,5 +1,5 @@
 {% block page_product_detail_price_inner %}
-    {% if page.product.calculatedPrices|length >= 1 %}
+    {% if page.product.calculatedPrices|length > 1 %}
         {% block page_product_detail_price_block %}
             <div class="product-block-prices">
                 {% block page_product_detail_price_block_table %}
@@ -52,16 +52,14 @@
 
                                                 {% block page_product_detail_price_block_table_body_cell_price %}
                                                     <td class="product-block-prices-cell">
-                                                        {{ price.unitPrice|localizedcurrency(context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                        {{ price.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                                                     </td>
                                                 {% endblock %}
 
                                                 {% block page_product_detail_price_block_table_body_cell_reference_price %}
                                                     {% if page.product.purchaseUnit %}
                                                         <td class="product-block-prices-cell">
-                                                            {% set blockReferencePrice = price.unitPrice * page.product.referenceUnit / page.product.purchaseUnit %}
-                                                            {{ blockReferencePrice|localizedcurrency(context.currency.shortName, app.request.locale) }}{{ "general.star"|trans }}
-                                                            / {{ page.product.referenceUnit }} {#TODO: NEXT-2781 - add measuring unit (old sArticle.sUnit.description) #}
+                                                            {# todo@dr NEXT-3678 reference price #}
                                                         </td>
                                                     {% endif %}
                                                 {% endblock %}
@@ -76,10 +74,16 @@
             </div>
         {% endblock %}
     {% else %}
+        {% set price = page.product.calculatedPrice %}
+
+        {% if page.product.calculatedPrices|length == 1 %}
+            {% set price = page.product.calculatedPrices.first %}
+        {% endif %}
+
         <meta itemprop="price"
-              content="{{ page.product.calculatedPrice.unitPrice }}">
+              content="{{ price.unitPrice }}">
         <p class="product-detail-price">
-            {{ page.product.calculatedPrice.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+            {{ price.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
         </p>
 
         {% if page.product.purchaseUnit %}
@@ -100,10 +104,7 @@
                     {% if page.product.purchaseUnit and page.product.referenceUnit and page.product.purchaseUnit != page.product.referenceUnit %}
                         {% block page_product_detail_price_unit_refrence_content %}
                             <span class="price-unit-reference-content">
-                                {% set referencePrice =  page.product.calculatedPrice.unitPrice * page.product.referenceUnit / page.product.purchaseUnit %}
-                                ({{ referencePrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
-                                / {{ page.product.referenceUnit }} {#TODO: NEXT-2781 - add measuring unit (old sArticle.sUnit.description) #}
-                                )
+                                {# todo@dr NEXT-3678 reference price #}
                             </span>
                         {% endblock %}
                     {% endif %}

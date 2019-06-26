@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -21,8 +22,17 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     {
         return [
             ProductEvents::PRODUCT_LISTING_CRITERIA => 'handleRequest',
+            ProductEvents::PRODUCT_SUGGEST_CRITERIA => 'handleSuggestRequest',
             ProductEvents::PRODUCT_SEARCH_CRITERIA => 'handleRequest',
         ];
+    }
+
+    public function handleSuggestRequest(ProductListingCriteriaEvent $event)
+    {
+        $criteria = $event->getCriteria();
+
+        $criteria->addAssociationPath('cover.media');
+        $criteria->addFilter(new EqualsFilter('product.displayInListing', true));
     }
 
     public function handleRequest(ProductListingCriteriaEvent $event): void
@@ -30,6 +40,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
 
         $criteria = $event->getCriteria();
+
+        $criteria->addAssociationPath('cover.media');
+        $criteria->addFilter(new EqualsFilter('product.displayInListing', true));
 
         $this->handlePagination($request, $criteria);
 

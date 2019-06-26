@@ -3,17 +3,8 @@
               :title="$tc('sw-import-export-progress.title')"
               @modal-close="closeModal">
 
-        <sw-alert v-if="failed" variant="error">
-            {{ $tc('sw-import-export-progress.messages.failed') }}
-        </sw-alert>
-        <sw-alert v-if="aborted" variant="warning">
-            {{ $tc('sw-import-export-progress.messages.aborted') }}
-        </sw-alert>
-        <sw-alert v-if="succeeded" variant="success">
-            {{ $tc('sw-import-export-progress.messages.succeeded') }}
-        </sw-alert>
-        <sw-alert v-if="progress" variant="info">
-            {{ $tc('sw-import-export-progress.messages.progress') }}
+        <sw-alert :variant="alertVariant">
+            {{ alertMessage }}
         </sw-alert>
 
         <sw-progress-bar :value="percentage" v-if="progress"></sw-progress-bar>

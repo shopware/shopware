@@ -25,6 +25,20 @@ Component.register('sw-import-export-progress', {
         },
         succeeded() {
             return this.state === 'succeeded';
+        },
+        alertVariant() {
+            switch (true) {
+                case this.aborted:
+                    return 'warning';
+                case this.failed:
+                    return 'error';
+                case this.succeeded:
+                    return 'success';
+            }
+            return 'info';
+        },
+        alertMessage() {
+            return this.$tc(`sw-import-export-progress.messages.${this.state}`);
         }
     },
 

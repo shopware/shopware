@@ -222,8 +222,10 @@ class SalesChannelContextFactory
             $id = $customer->getDefaultPaymentMethodId();
         }
 
+        $criteria = (new Criteria([$id]))->addAssociation('media');
+
         return $this->paymentMethodRepository
-            ->search(new Criteria([$id]), $context)
+            ->search($criteria, $context)
             ->get($id);
     }
 
@@ -237,7 +239,8 @@ class SalesChannelContextFactory
 
         $criteria = (new Criteria([$id]))
             ->addAssociation('deliveryTime')
-            ->addAssociation('prices');
+            ->addAssociation('prices')
+            ->addAssociation('media');
 
         return $this->shippingMethodRepository->search($criteria, $context)->get($id);
     }

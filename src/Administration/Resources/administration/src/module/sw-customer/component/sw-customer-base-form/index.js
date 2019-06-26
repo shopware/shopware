@@ -58,8 +58,8 @@ Component.register('sw-customer-base-form', {
     methods: {
         createdComponent() {
             const criteria = new Criteria(1, 500);
-            this.salutationRepository.search(criteria, this.context).then(({ items }) => {
-                this.salutations = items;
+            this.salutationRepository.search(criteria, this.context).then((searchResult) => {
+                this.salutations = searchResult;
             });
         }
     }

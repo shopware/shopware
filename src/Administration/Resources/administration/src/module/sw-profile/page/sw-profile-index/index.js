@@ -134,7 +134,7 @@ Component.register('sw-profile-index', {
 
             return this.languageRepository.search(languageCriteria, this.context).then((result) => {
                 this.languages = [];
-                Object.values(result.items).forEach((lang) => {
+                result.forEach((lang) => {
                     lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;
                     this.languages.push(lang);
                 });

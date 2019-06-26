@@ -27,10 +27,10 @@ Component.register('sw-product-detail-base', {
 
         ...mapState('swProductDetail', {
             customFieldSetsArray: state => {
-                if (!state.customFieldSets.items) {
+                if (!state.customFieldSets) {
                     return [];
                 }
-                return Object.values(state.customFieldSets.items);
+                return state.customFieldSets;
             }
         }),
 

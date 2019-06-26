@@ -41,7 +41,7 @@ Component.register('sw-product-detail-variants', {
 
         selectedGroups() {
             // get groups for selected options
-            const groupIds = Object.values(this.productEntity.configuratorSettings.items).reduce((result, element) => {
+            const groupIds = this.productEntity.configuratorSettings.reduce((result, element) => {
                 if (result.indexOf(element.option.groupId) < 0) {
                     result.push(element.option.groupId);
                 }
@@ -109,8 +109,8 @@ Component.register('sw-product-detail-variants', {
                         .setLimit(100)
                         .setPage(1);
 
-                    this.groupRepository.search(groupCriteria, this.context).then((response) => {
-                        this.groups = Object.values(response.items);
+                    this.groupRepository.search(groupCriteria, this.context).then((searchResult) => {
+                        this.groups = searchResult;
                         resolve();
                     });
                 });
@@ -138,7 +138,7 @@ Component.register('sw-product-detail-variants', {
             const isFilterActive = this.$refs.generatedVariants.includeOptions.length > 0;
             const searchTerm = this.$route.query ? this.$route.query.term : '';
 
-            this.variantListHasContent = Object.keys(variantList).length > 0 || searchTerm || isFilterActive;
+            this.variantListHasContent = variantList.length > 0 || searchTerm || isFilterActive;
             this.isLoading = false;
         },
 

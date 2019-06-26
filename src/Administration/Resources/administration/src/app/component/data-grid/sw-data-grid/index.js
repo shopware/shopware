@@ -30,7 +30,7 @@ export default {
 
     props: {
         dataSource: {
-            type: [Array, Object],
+            type: Array,
             required: true
         },
 
@@ -131,6 +131,7 @@ export default {
 
     data() {
         return {
+            /** @type {Array} */
             records: this.dataSource,
             currentSortBy: this.sortBy,
             currentSortDirection: this.sortDirection,
@@ -171,11 +172,6 @@ export default {
 
         localStorageItemKey() {
             return `${this.identifier}-grid-columns`;
-        },
-
-        recordArray() {
-            const isArray = Array.isArray(this.records);
-            return isArray ? this.dataSource : Object.values(this.records);
         },
 
         selectionCount() {
@@ -379,7 +375,7 @@ export default {
         selectAll(selected) {
             this.$delete(this.selection);
 
-            this.recordArray.forEach((item) => {
+            this.records.forEach((item) => {
                 if (this.isSelected(item.id) !== selected) {
                     this.selectItem(selected, item);
                 }
@@ -408,7 +404,7 @@ export default {
 
         checkSelection() {
             let selected = true;
-            this.recordArray.forEach((item) => {
+            this.records.forEach((item) => {
                 if (this.selection[item.id] === undefined) {
                     selected = false;
                 }

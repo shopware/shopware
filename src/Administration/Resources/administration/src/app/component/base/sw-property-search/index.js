@@ -19,10 +19,10 @@ export default {
             default: true
         },
         options: {
-            type: Object,
+            type: Array,
             required: true,
             default() {
-                return {};
+                return [];
             }
         }
     },
@@ -156,7 +156,7 @@ export default {
             grid.selectAll(false);
 
             this.preventSelection = true;
-            Object.values(this.options).forEach((option) => {
+            this.options.forEach((option) => {
                 grid.selectItem(!option.isDeleted, option);
             });
             this.preventSelection = false;
@@ -255,10 +255,8 @@ export default {
         },
 
         addOptionCount() {
-            const options = Object.values(this.options);
-
             this.groups.forEach((group) => {
-                const optionCount = options.filter((option) => {
+                const optionCount = this.options.filter((option) => {
                     return option.groupId === group.id && !option.isDeleted;
                 });
 

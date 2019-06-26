@@ -47,8 +47,8 @@ Component.register('sw-promotion-detail-discounts', {
             );
             criteria.addAssociation('discountRules');
 
-            this.repository.search(criteria, this.context).then((response) => {
-                this.discounts = Object.values(response.items);
+            this.repository.search(criteria, this.context).then((searchResult) => {
+                this.discounts = searchResult;
                 this.isLoading = false;
             });
         },

@@ -101,7 +101,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
         },
 
         getOptionsForGroupId(groupId) {
-            return Object.values(this.product.configuratorSettings.items).filter((element) => {
+            return this.product.configuratorSettings.filter((element) => {
                 return !element.isDeleted && element.option.groupId === groupId;
             });
         },
@@ -116,7 +116,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
             return {
                 id: cRestriction.id,
                 values: cRestriction.values.map((value) => {
-                    const actualGroup = Object.values(this.selectedGroups).find((group) => {
+                    const actualGroup = this.selectedGroups.find((group) => {
                         return group.id === value.group;
                     });
 
@@ -131,7 +131,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
                     const optionNames = value.options.reduce((acc, optionId) => {
                         const idOfOption = optionId.optionId ? optionId.optionId : optionId;
 
-                        const actualOption = Object.values(this.product.configuratorSettings.items).find((sOption) => {
+                        const actualOption = this.product.configuratorSettings.find((sOption) => {
                             return idOfOption === sOption.optionId;
                         });
 
@@ -156,7 +156,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
             this.product.variantRestrictions = this.product.variantRestrictions.filter((restriction) => {
                 restriction.values = restriction.values.filter((value) => {
                     value.options = value.options.filter((option) => {
-                        return Object.values(this.product.configuratorSettings.items).find((sOption) => {
+                        return this.product.configuratorSettings.find((sOption) => {
                             return option === sOption.optionId;
                         });
                     });

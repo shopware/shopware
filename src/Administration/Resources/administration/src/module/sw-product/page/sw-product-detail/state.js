@@ -5,11 +5,11 @@ export default {
         return {
             product: {},
             parentProduct: {},
-            currencies: {},
+            currencies: [],
             context: {},
-            taxes: {},
-            variants: {},
-            customFieldSets: {},
+            taxes: [],
+            variants: [],
+            customFieldSets: [],
             loading: {
                 init: false,
                 product: false,
@@ -32,11 +32,11 @@ export default {
         },
 
         defaultCurrency(state) {
-            if (!state.currencies.items) {
+            if (!state.currencies) {
                 return {};
             }
 
-            return Object.values(state.currencies.items).find((currency) => currency.isDefault);
+            return state.currencies.find((currency) => currency.isDefault);
         },
 
         defaultPrice(state, getters) {
@@ -53,17 +53,17 @@ export default {
             }
 
             // get default price bases on currency
-            return Object.values(productPrice).find((price) => {
+            return productPrice.find((price) => {
                 return price.currencyId === getters.defaultCurrency.id;
             });
         },
 
         productTaxRate(state) {
-            if (!state.taxes.items) {
+            if (!state.taxes) {
                 return {};
             }
 
-            return Object.values(state.taxes.items).find((tax) => {
+            return state.taxes.find((tax) => {
                 return tax.id === state.product.taxId;
             });
         },
@@ -124,7 +124,7 @@ export default {
             state.taxes = newTaxes;
 
             if (state.product && state.product.taxId === null) {
-                state.product.taxId = Object.values(state.taxes.items)[0].id;
+                state.product.taxId = state.taxes[0].id;
             }
         },
 

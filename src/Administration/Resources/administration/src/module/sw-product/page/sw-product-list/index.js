@@ -46,16 +46,8 @@ Component.register('sw-product-list', {
             return this.repositoryFactory.create('currency');
         },
 
-        currencyList() {
-            if (!this.currencies.items) {
-                return [];
-            }
-
-            return Object.values(this.currencies.items);
-        },
-
         currenciesColumns() {
-            return this.currencyList.sort((a, b) => {
+            return this.currencies.sort((a, b) => {
                 return b.isDefault ? 1 : -1;
             }).map(item => {
                 return {
@@ -161,7 +153,7 @@ Component.register('sw-product-list', {
             }
 
             // find product for itemId
-            const foundProduct = Object.values(this.products.items).find((item) => {
+            const foundProduct = this.products.find((item) => {
                 return item.id === itemId;
             });
 

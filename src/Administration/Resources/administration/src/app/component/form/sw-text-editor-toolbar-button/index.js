@@ -63,6 +63,7 @@ export default {
             if (button.type === 'link' && event.target.closest('.sw-text-editor-toolbar-button__link-menu')) {
                 return;
             }
+
             if (button.type === 'link' && event.target.closest('.sw-text-editor-toolbar-button__link-menu')) {
                 return;
             }

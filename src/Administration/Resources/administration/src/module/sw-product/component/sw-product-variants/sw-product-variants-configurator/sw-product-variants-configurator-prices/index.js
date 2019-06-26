@@ -49,7 +49,7 @@ Component.register('sw-product-variants-configurator-prices', {
         },
 
         currenciesList() {
-            return Object.values(this.currencies).map((currency) => {
+            return this.currencies.map((currency) => {
                 return {
                     id: currency.id,
                     name: currency.name,
@@ -90,13 +90,13 @@ Component.register('sw-product-variants-configurator-prices', {
         loadCurrencies() {
             this.currencyRepository
                 .search(new Criteria(), this.context)
-                .then((response) => {
-                    this.currencies = response.items;
+                .then((searchResult) => {
+                    this.currencies = searchResult;
                 });
         },
 
         getOptionsForGroup() {
-            this.optionsForGroup = Object.values(this.product.configuratorSettings.items)
+            this.optionsForGroup = this.product.configuratorSettings
                 // Filter if option is in active group
                 .filter((element) => {
                     if (element.option.groupId === this.activeGroup.id) {

@@ -53,15 +53,15 @@ Component.register('sw-product-detail-context-prices', {
         priceRuleGroups() {
             const priceRuleGroups = {};
 
-            if (!this.product.prices || !this.product.prices.items) {
+            if (!this.product.prices) {
                 return priceRuleGroups;
             }
 
-            if (!this.rules || !this.rules.items) {
+            if (!this.rules) {
                 return priceRuleGroups;
             }
 
-            Object.values(this.product.prices.items).forEach((rule) => {
+            this.product.prices.forEach((rule) => {
                 if (!priceRuleGroups[rule.ruleId]) {
                     priceRuleGroups[rule.ruleId] = {
                         ruleId: rule.ruleId,
@@ -98,21 +98,13 @@ Component.register('sw-product-detail-context-prices', {
 
         isLoaded() {
             return !this.isLoading &&
-                   this.currencies.items &&
-                   this.taxes.items &&
+                   this.currencies &&
+                   this.taxes &&
                    this.product;
         },
 
-        currenciesList() {
-            if (this.currencies && this.currencies.items) {
-                return Object.values(this.currencies.items);
-            }
-
-            return [];
-        },
-
         currencyColumns() {
-            return this.currenciesList.sort((a, b) => {
+            return this.currencies.sort((a, b) => {
                 return b.isDefault ? 1 : -1;
             }).map((currency) => {
                 return {
@@ -216,7 +208,7 @@ Component.register('sw-product-detail-context-prices', {
         },
 
         onPriceGroupDelete(ruleId) {
-            Object.values(this.product.prices.items).forEach((item) => {
+            this.product.prices.forEach((item) => {
                 if (item.ruleId === ruleId) {
                     this.product.prices.remove(item.id);
                 }
@@ -244,7 +236,7 @@ Component.register('sw-product-detail-context-prices', {
                 const priceRuleGroup = this.priceRuleGroups[priceRule.ruleId];
                 const defaultCurrencyPrices = priceRuleGroup.currencies[this.defaultCurrency.id].prices;
 
-                if (defaultCurrencyPrices.length <= 1 && Object.keys(priceRuleGroup.currencies.items).length >= 1) {
+                if (defaultCurrencyPrices.length <= 1 && priceRuleGroup.currencies.length >= 1) {
                     this.createNotificationError({
                         title: this.$tc('sw-product.advancedPrices.deletionNotPossibleTitle'),
                         message: this.$tc('sw-product.advancedPrices.deletionNotPossibleMessage')
@@ -253,7 +245,7 @@ Component.register('sw-product-detail-context-prices', {
                 }
             }
 
-            const priceRuleToDelete = Object.values(this.product.prices.items).find((price) => price.id === priceRule.id);
+            const priceRuleToDelete = this.product.prices.find((price) => price.id === priceRule.id);
             this.product.prices.remove(priceRuleToDelete.id);
         },
 
@@ -288,13 +280,13 @@ Component.register('sw-product-detail-context-prices', {
         },
 
         findRuleById(ruleId) {
-            return Object.values(this.rules.items).find((rule) => {
+            return this.rules.find((rule) => {
                 return rule.id === ruleId;
             });
         },
 
         findPricesByRuleId(ruleId) {
-            return Object.values(this.product.prices.items).filter((item) => {
+            return this.product.prices.filter((item) => {
                 return item.ruleId === ruleId;
             });
         },

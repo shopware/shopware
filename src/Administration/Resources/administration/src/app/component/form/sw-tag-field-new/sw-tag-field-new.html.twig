@@ -1,9 +1,8 @@
 {% block sw_tag_field_new %}
     <sw-multi-select class="sw-tag-field"
-                     :id="entity.id"
                      multi
                      ref="swTagSelect"
-                     :value="tagItems"
+                     :value="selectedTagItemIds"
                      :options="options"
                      :label="label"
                      :placeholder="disabled ? null : $tc('global.sw-tag-field.placeholder')"

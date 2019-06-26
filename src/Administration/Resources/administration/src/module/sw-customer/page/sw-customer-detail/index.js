@@ -159,41 +159,41 @@ Component.register('sw-customer-detail', {
 
             const criteria = new Criteria(1, 100);
             criteria.addAssociation('languages');
-            this.salesChannelRepository.search(criteria, this.context).then((response) => {
-                Object.values(response.items).forEach((salesChannel) => {
+            this.salesChannelRepository.search(criteria, this.context).then((searchResult) => {
+                searchResult.forEach((salesChannel) => {
                     if (salesChannel.id === this.customer.salesChannelId) {
-                        this.languages = Object.values(salesChannel.languages.items);
+                        this.languages = salesChannel.languages;
                     }
                 });
-                this.salesChannels = Object.values(response.items);
+                this.salesChannels = searchResult;
             });
 
-            this.customerGroupRepository.search(new Criteria(1, 100), this.context).then((response) => {
-                this.customerGroups = Object.values(response.items);
+            this.customerGroupRepository.search(new Criteria(1, 100), this.context).then((searchResult) => {
+                this.customerGroups = searchResult;
             });
 
             const countryCriteria = new Criteria(1, 100);
             countryCriteria.addSorting(Criteria.sort('name'));
-            this.countryRepository.search(countryCriteria, this.context).then((response) => {
-                this.countries = Object.values(response.items);
+            this.countryRepository.search(countryCriteria, this.context).then((searchResult) => {
+                this.countries = searchResult;
             });
 
-            this.paymentMethodRepository.search(new Criteria(1, 100), this.context).then((response) => {
-                this.paymentMethods = Object.values(response.items);
+            this.paymentMethodRepository.search(new Criteria(1, 100), this.context).then((searchResult) => {
+                this.paymentMethods = searchResult;
             });
 
             this.customFieldSetRepository.search(
                 this.buildCustomFieldCriteria('customer'),
                 this.context
-            ).then(({ items }) => {
-                this.customerCustomFieldSets = Object.values(items).filter(set => set.customFields.length > 0);
+            ).then((searchResult) => {
+                this.customerCustomFieldSets = searchResult.filter(set => set.customFields.length > 0);
             });
 
             this.customFieldSetRepository.search(
                 this.buildCustomFieldCriteria('customer_address'),
                 this.context
-            ).then(({ items }) => {
-                this.customerAddressCustomFieldSets = Object.values(items).filter(set => set.customFields.length > 0);
+            ).then((searchResult) => {
+                this.customerAddressCustomFieldSets = searchResult.filter(set => set.customFields.length > 0);
             });
         },
 

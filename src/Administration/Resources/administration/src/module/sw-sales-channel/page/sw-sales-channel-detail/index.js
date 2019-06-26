@@ -124,8 +124,8 @@ Component.register('sw-sales-channel-detail', {
 
             this.customFieldRepository
                 .search(criteria, this.context)
-                .then(({ items }) => {
-                    this.customFieldSets = Object.values(items);
+                .then((searchResult) => {
+                    this.customFieldSets = searchResult;
                 });
         },
 

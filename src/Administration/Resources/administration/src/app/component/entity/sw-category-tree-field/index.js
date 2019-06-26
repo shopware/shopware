@@ -1,5 +1,5 @@
 import Criteria from 'src/core/data-new/criteria.data';
-import utils, { types, array } from 'src/core/service/util.service';
+import utils, { array } from 'src/core/service/util.service';
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
 
@@ -11,7 +11,7 @@ export default {
 
     props: {
         categoriesCollection: {
-            type: Object,
+            type: Array,
             required: true
         },
 
@@ -32,11 +32,11 @@ export default {
             isFetching: false,
             isComponentReady: false,
             tagLimit: true,
-            categories: {},
-            selectedCategories: {},
+            categories: [],
+            selectedCategories: [],
             isExpanded: false,
             term: '',
-            searchResult: {},
+            searchResult: [],
             searchResultFocusItem: {},
             setInputFocusClass: null,
             removeInputFocusClass: null,
@@ -48,7 +48,7 @@ export default {
         categoriesCollection: {
             handler() {
                 // check if categoriesCollection is loaded
-                if (!types.isEmpty(this.categoriesCollection) && !this.isComponentReady && !this.isFetching) {
+                if (this.categoriesCollection.entity && !this.isComponentReady && !this.isFetching) {
                     Promise.all([
                         this.getTreeItems(),
                         this.getSelectedCategories()
@@ -69,7 +69,7 @@ export default {
 
                         // set first item as focus
                         if (this.searchResult.total > 0) {
-                            this.searchResultFocusItem = Object.values(this.searchResult.items)[0];
+                            this.searchResultFocusItem = this.searchResult.first();
                         }
                     });
                 } else {
@@ -120,56 +120,28 @@ export default {
             return this.repositoryFactory.create(this.categoriesCollection.entity, this.categoriesCollection.source);
         },
 
-        selectedCategoriesItems() {
-            if (types.isEmpty(this.selectedCategories)) {
-                return [];
-            }
-
-            return Object.values(this.selectedCategories.items);
-        },
-
         visibleTags() {
-            return this.tagLimit ? this.selectedCategoriesItems.slice(0, 5) : this.selectedCategoriesItems;
+            return this.tagLimit ? this.selectedCategories.slice(0, 5) : this.selectedCategories;
         },
 
         numberOfHiddenTags() {
-            const hiddenTagsLength = this.selectedCategoriesItems.length - this.visibleTags.length;
+            const hiddenTagsLength = this.selectedCategories.length - this.visibleTags.length;
 
             return hiddenTagsLength > 0 ? hiddenTagsLength : 0;
         },
 
         selectedCategoriesItemsIds() {
-            return this.selectedCategoriesItems.map(item => item.id);
+            return this.selectedCategories.getIds();
         },
 
         selectedCategoriesPathIds() {
-            if (types.isEmpty(this.selectedCategories)) {
-                return [];
-            }
-
-            return Object.values(this.selectedCategories.items).reduce((acc, item) => {
+            return this.selectedCategories.reduce((acc, item) => {
                 // get each parent id
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
                 // add parent id to accumulator
                 return [...acc, ...pathIds];
             }, []);
-        },
-
-        items() {
-            if (types.isEmpty(this.categories)) {
-                return [];
-            }
-
-            return Object.values(this.categories.items);
-        },
-
-        searchResultItems() {
-            if (types.isEmpty(this.searchResult)) {
-                return [];
-            }
-
-            return Object.values(this.searchResult.items);
         }
     },
 
@@ -207,18 +179,16 @@ export default {
             categoryCriteria.addFilter(Criteria.equals('parentId', parentId), 'AND', Criteria.equals('type', 'page'));
 
             // search for categories
-            return this.globalCategoryRepository.search(categoryCriteria, this.context).then((res) => {
+            return this.globalCategoryRepository.search(categoryCriteria, this.context).then((searchResult) => {
                 // when requesting root categories, replace the data
                 if (parentIds === null) {
-                    this.categories = res;
+                    this.categories = searchResult;
                     this.isFetching = false;
                     return Promise.resolve();
                 }
 
                 // add new categories
-                const newCategoryItems = Object.values(res.items);
-
-                newCategoryItems.forEach((category) => {
+                searchResult.forEach((category) => {
                     this.categories.add(category);
                 });
 
@@ -302,9 +272,8 @@ export default {
         },
 
         onDeleteKeyup() {
-            if (this.term.length <= 0 && this.selectedCategories && this.selectedCategories.items) {
-                const selectedItems = Object.values(this.selectedCategories.items);
-                const lastItem = selectedItems[selectedItems.length - 1];
+            if (this.term.length <= 0 && this.selectedCategories) {
+                const lastItem = this.selectedCategories.last();
 
                 this.removeItem(lastItem);
             }
@@ -527,13 +496,13 @@ export default {
         },
 
         changeSearchSelection(type = 'next') {
-            const typeValue = type === 'previous' ? -1 : 1;
+            const typeValue = (type === 'previous') ? -1 : 1;
 
-            const searchResultItems = Object.values(this.searchResult.items);
-            const actualIndex = searchResultItems.indexOf(this.searchResultFocusItem);
+            const actualIndex = this.searchResult.indexOf(this.searchResultFocusItem);
+            const focusItem = this.searchResult[actualIndex + typeValue];
 
-            if (searchResultItems[actualIndex + typeValue]) {
-                this.searchResultFocusItem = searchResultItems[actualIndex + typeValue];
+            if (typeof focusItem !== 'undefined') {
+                this.searchResultFocusItem = focusItem;
             }
         },
 

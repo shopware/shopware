@@ -10,10 +10,7 @@ export default {
 
     props: {
         propertyCollection: {
-            validator: (prop) => {
-                // requires an EntityCollection Object
-                return typeof prop === 'undefined' || typeof prop === 'object';
-            },
+            type: Array,
             required: true
         }
     },
@@ -29,13 +26,13 @@ export default {
 
     computed: {
         groupWithOptions() {
-            if (!this.groups.items) {
+            if (!this.groups) {
                 return [];
             }
 
-            return Object.values(this.groups.items).reduce((acc, group) => {
+            return this.groups.reduce((acc, group) => {
                 // set options to group
-                group.options = Object.values(this.properties).filter((property) => property.groupId === group.id);
+                group.options = this.properties.filter((property) => property.groupId === group.id);
 
                 acc.push(group);
                 return acc;
@@ -43,10 +40,11 @@ export default {
         },
 
         properties() {
-            if (this.propertyCollection) {
-                return this.propertyCollection.items;
+            if (!this.propertyCollection) {
+                return [];
             }
-            return {};
+
+            return this.propertyCollection;
         },
 
         propertyRepository() {
@@ -102,7 +100,7 @@ export default {
 
         groupProperties() {
             // Get Ids
-            const groupIds = Object.values(this.properties).reduce((acc, property) => {
+            const groupIds = this.propertyCollection.reduce((acc, property) => {
                 if (acc.indexOf(property.groupId) < 0) {
                     acc.push(property.groupId);
                 }

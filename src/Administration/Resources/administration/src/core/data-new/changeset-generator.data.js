@@ -116,18 +116,16 @@ export default class ChangesetGenerator {
 
     /**
      * @private
-     * @param draft
-     * @param origin
+     * @param {EntityCollection} draft
+     * @param {EntityCollection} origin
      * @param deletionQueue
      * @returns {Array}
      */
     handleManyToMany(draft, origin, deletionQueue) {
         const changes = [];
-        const originIds = Object.keys(origin.items);
+        const originIds = origin.getIds();
 
-        Object.keys(draft.items).forEach((key) => {
-            const entity = draft.items[key];
-
+        draft.forEach((entity) => {
             if (!originIds.includes(entity.id)) {
                 changes.push({ id: entity.id });
             }
@@ -144,20 +142,19 @@ export default class ChangesetGenerator {
 
     /**
      *
-     * @param {Object} draft
-     * @param {Object} origin
+     * @param {EntityCollection} draft
+     * @param {EntityCollection} origin
      * @param {Array} deletionQueue
      * @returns {Array}
      */
     handleOneToMany(draft, origin, deletionQueue) {
         const changes = [];
-        const originIds = Object.keys(origin.items);
+        const originIds = origin.getIds();
 
         // check for new and updated items
-        Object.keys(draft.items).forEach((key) => {
-            const entity = draft.items[key];
+        draft.forEach((entity) => {
             // new record?
-            if (!originIds.includes(key)) {
+            if (!originIds.includes(entity.id)) {
                 let change = this.recursion(entity, []);
 
                 if (change === null) {

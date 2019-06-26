@@ -1,117 +1,145 @@
-import { warn } from 'src/core/service/utils/debug.utils';
-import types from 'src/core/service/utils/types.utils';
-import { setReactive, deleteReactive } from 'src/app/adapter/view/vue.adapter';
+export default class EntityCollection extends Array {
+    constructor(source, entity, context, criteria = null, entities = [], total = null, aggregations = null) {
+        super();
 
-export default class EntityCollection {
-    constructor(source, entity, context, criteria) {
+        this.entity = entity;
         this.source = source;
         this.context = context;
         this.criteria = criteria;
-        this.items = {};
-        this.entity = entity;
+        this.aggregations = aggregations;
+        this.total = total;
 
-        // makes the collection iterable via for(const item of collection)
-        this[Symbol.iterator] = function* iterator() {
-            const values = Object.values(this.items);
+        this.push(...entities);
 
-            for (const item of values) { // eslint-disable-line no-restricted-syntax
-                yield item;
+        /**
+         * Returns the first item of the collection.
+         * Returns null if the collection is empty
+         * @returns {Object}
+         */
+        this.first = function firstEntityOfCollection() {
+            if (this.length <= 0) {
+                return null;
             }
+
+            return this[0];
         };
-    }
 
-    /**
-     * Returns the first element of the collection.
-     * Returns null if the collection is empty
-     * @returns {Object|null}
-     */
-    first() {
-        const keys = Object.keys(this.items);
-        if (keys.length <= 0) {
+        /**
+         * Returns the last item of the collection.
+         * Returns null if the collection is empty.
+         * @return {Object}
+         */
+        this.last = function lastEntityOfCollection() {
+            if (this.length <= 0) {
+                return null;
+            }
+
+            return this[this.length - 1];
+        };
+
+        /**
+         * Removes an entity from the collection. The entity is identified by the provided id
+         * Returns true if the entity removed, false if the entity wasn't found
+         * @param {string} id
+         * @returns {boolean}
+         */
+        this.remove = function removeEntityFromCollection(id) {
+            const itemIndex = this.findIndex(i => i.id === id);
+
+            if (itemIndex < 0) {
+                return false;
+            }
+
+            this.splice(itemIndex, 1);
+            return true;
+        };
+
+        /**
+         * Checks if the provided id is inside the collection
+         * @param {string} id
+         * @returns {boolean}
+         */
+        this.has = function hasEntityInCollection(id) {
+            return this.some(i => i.id === id);
+        };
+
+        /**
+         * Returns the entity for the provided id, null if the entity is not inside the collection
+         * @param {String} id
+         * @returns {Object|null}
+         */
+        this.get = function getEntityByIdOfCollection(id) {
+            const item = this.find(i => i.id === id);
+
+            if (typeof item !== 'undefined') {
+                return item;
+            }
             return null;
-        }
-        return this.items[keys[0]];
-    }
+        };
 
-    /**
-     * Removes an entity from the collection. The entity is identified by the provided id
-     * Returns true if the entity removed, false if the entity wasn't found
-     * @param {string} id
-     * @returns {boolean}
-     */
-    remove(id) {
-        if (!this.has(id)) {
-            return false;
-        }
+        /**
+         * Returns the entity at the given index position.
+         * @param {Number} index
+         * @return {Object|null}
+         */
+        this.getAt = function getEntityAtIndexOfCollection(index) {
+            const item = this[index];
 
-        const entity = this.get(id);
+            if (typeof item !== 'undefined') {
+                return item;
+            }
+            return null;
+        };
 
-        deleteReactive(this.items, entity.id);
+        /**
+         * Returns all ids of the internal entities
+         * @returns {String[]}
+         */
+        this.getIds = function getEntityIdsOfCollection() {
+            return this.map(i => i.id);
+        };
 
-        return true;
-    }
+        /**
+         * If the entity already exists in the collection, it will be replaced with the new one
+         * @param {Entity} e
+         * @returns {boolean}
+         */
+        this.add = function addEntityToCollection(e) {
+            this.push(e);
+        };
 
-    /**
-     * Checks if the provided id is inside the collection
-     * @param {string} id
-     * @returns {boolean}
-     */
-    has(id) {
-        return Object.prototype.hasOwnProperty.call(this.items, id);
-    }
+        /**
+         * Adds an entity to the collection at the given position.
+         * @param {Entity} e
+         * @param {Number} insertIndex
+         */
+        this.addAt = function addEntityAtIndexOfCollection(e, insertIndex) {
+            this.splice(insertIndex, 0, e);
+        };
 
-    /**
-     * Returns the entity for the provided id, null if the entity is not inside the collection
-     * @param {string} id
-     * @returns {Object|null}
-     */
-    get(id) {
-        if (this.items[id]) {
-            return this.items[id];
-        }
-        return null;
-    }
+        /**
+         * Moved an item of the collection from an old index to a new index position.
+         * @param {Number} oldIndex
+         * @param {Number} newIndex
+         * @return {Object}
+         */
+        this.moveItem = function moveEntityToNewIndexInCollection(oldIndex, newIndex) {
+            if (newIndex === oldIndex) {
+                return null;
+            }
 
-    /**
-     * Returns all ids of the internal entities
-     * @returns {string[]}
-     */
-    getIds() {
-        return Object.keys(this.items);
-    }
+            const movedItem = this.find((item, index) => index === oldIndex);
+            const remainingItems = this.filter((item, index) => index !== oldIndex);
 
-    /**
-     * If the entity already exists in the collection, it will be replaced with the new one
-     * @param {Entity} entity
-     * @returns {boolean}
-     */
-    add(entity) {
-        return setReactive(this.items, entity.id, entity);
-    }
+            const orderedItems = [
+                ...remainingItems.slice(0, newIndex),
+                movedItem,
+                ...remainingItems.slice(newIndex)
+            ];
 
-    forEach(callback, scope = this) {
-        if (!types.isFunction(callback)) {
-            warn('Base collection', 'No function provided to forEach function');
+            this.splice(0, this.length, ...orderedItems);
 
-            return this.items;
-        }
-
-        Object.keys(this.items).forEach((id) => {
-            callback.call(scope, this.items[id], id);
-        });
-
-        return this.items;
-    }
-
-    find(callback, scope = this) {
-        if (!types.isFunction(callback)) {
-            warn('Base collection', 'No function provided to find function');
-
-            return undefined;
-        }
-
-        return Object.keys(this.items).find((id) => {
-            return callback.call(scope, this.items[id], id, this.items);
-        });
+            return movedItem;
+        };
     }
 }

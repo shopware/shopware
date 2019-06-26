@@ -83,8 +83,8 @@ Component.register('sw-customer-card', {
     methods: {
         createdComponent() {
             const criteria = new Criteria(1, 500);
-            return this.salutationRepository.search(criteria, this.context).then(({ items }) => {
-                this.salutations = items;
+            return this.salutationRepository.search(criteria, this.context).then((searchResult) => {
+                this.salutations = searchResult;
             });
         },
 

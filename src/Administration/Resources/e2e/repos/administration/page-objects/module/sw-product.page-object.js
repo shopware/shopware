@@ -29,6 +29,9 @@ class ProductPageObject extends GeneralPageObject {
 
         this.browser
             .waitForElementNotPresent('.icon--small-default-checkmark-line-medium')
+            .expect.element(this.elements.productSaveAction).to.not.have.attribute('disabled');
+
+        this.browser
             .click(this.elements.productSaveAction)
             .waitForElementVisible('.icon--small-default-checkmark-line-medium')
             .waitForElementVisible('.sw-product-detail-page__tabs')

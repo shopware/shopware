@@ -9,7 +9,7 @@ export default class VariantsGenerator extends EventEmitter {
         super();
 
         this.product = product;
-        this.configurators = product.configuratorSettings.items;
+        this.configurators = product.configuratorSettings;
 
         // set dependencies
         this.syncService = Application.getContainer('service').syncService;
@@ -104,7 +104,7 @@ export default class VariantsGenerator extends EventEmitter {
             const newVariationsSorted = newVariations.map((variation) => variation.sort());
 
             // Get price changes for all option ids
-            const priceChanges = Object.values(this.configurators).reduce((result, element) => {
+            const priceChanges = this.configurators.reduce((result, element) => {
                 result.push({
                     id: element.option.id,
                     price: element.price
@@ -170,7 +170,7 @@ export default class VariantsGenerator extends EventEmitter {
 
                                     // use the default price as fallback when no custom price for the currency exists
                                     if (!refCurrencyPrice) {
-                                        const defaultCurrency = Object.values(currencies.items).find((currency) => {
+                                        const defaultCurrency = currencies.find((currency) => {
                                             return currency.isDefault;
                                         });
 
@@ -178,7 +178,7 @@ export default class VariantsGenerator extends EventEmitter {
                                             return productPrice.currencyId === defaultCurrency.id;
                                         });
 
-                                        const actualCurrency = Object.values(currencies.items).find((currency) => {
+                                        const actualCurrency = currencies.find((currency) => {
                                             return currency.id === price.currencyId;
                                         });
 
@@ -272,7 +272,7 @@ export default class VariantsGenerator extends EventEmitter {
          * Go through the whole createQueue and check for each variation,
          * if the option combination matches one of the restrictions
          */
-        const filteredCreateQueue = createQueue.filter((newVariation) => {
+        return createQueue.filter((newVariation) => {
             const variations = newVariation.options.map((variation) => variation.id);
 
             return restrictionsOnly.reduce((result, restriction) => {
@@ -287,8 +287,6 @@ export default class VariantsGenerator extends EventEmitter {
                 return hasRestriction ? false : result;
             }, true);
         });
-
-        return filteredCreateQueue;
     }
 
     loadExisting(id) {
@@ -310,7 +308,7 @@ export default class VariantsGenerator extends EventEmitter {
         //     ...
         // }
 
-        const groupedData = Object.values(configurators).reduce((accumulator, configurator) => {
+        const groupedData = configurators.reduce((accumulator, configurator) => {
             const groupId = configurator.option.groupId;
             const grouped = accumulator[groupId];
 

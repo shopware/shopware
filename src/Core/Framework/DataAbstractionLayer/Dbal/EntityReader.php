@@ -931,6 +931,8 @@ class EntityReader implements EntityReaderInterface
             return $entity->get($association->getPropertyName());
         });
 
+        $related = array_filter($related);
+
         $referenceDefinition = $association->getReferenceDefinition();
         $collectionClass = $referenceDefinition->getCollectionClass();
 

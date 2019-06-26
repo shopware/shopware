@@ -28,10 +28,6 @@
         "expireDateLabel": "Ablauf-Datum",
         "action": "Import starten",
         "notification": {
-          "initSuccess": {
-            "title": "Upload erfolgreich",
-            "message": "Datei wurde erfolgreich hochgeladen. Beginne mit der Verarbeitung ..."
-          },
           "initFailed": {
             "title": "Upload fehlgeschlagen",
             "messages": {

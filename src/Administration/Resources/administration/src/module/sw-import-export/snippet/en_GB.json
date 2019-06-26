@@ -28,10 +28,6 @@
         "expireDateLabel": "Expiration date",
         "action": "Start import",
         "notification": {
-          "initSuccess": {
-            "title": "Success",
-            "message": "File has been uploaded. Processing..."
-          },
           "initFailed": {
             "title": "Upload failed",
             "messages": {

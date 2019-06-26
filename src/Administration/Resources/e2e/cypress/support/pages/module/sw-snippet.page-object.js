@@ -41,7 +41,7 @@ export default class SnippetPageObject extends GeneralPageObject {
     filterSnippets(name, position = 0) {
         cy.get('.icon--default-action-filter').click();
         cy.get('input[name=addedSnippets]').click();
-        cy.get(this.elements.loader).should('not.exist');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get(`${this.elements.dataGridRow}--${position}`).should('be.visible');
         cy.get(`${this.elements.dataGridRow}--${position} .sw-data-grid__cell--id`).contains(name);
     }

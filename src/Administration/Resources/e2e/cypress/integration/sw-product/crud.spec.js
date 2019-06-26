@@ -25,13 +25,22 @@ describe('Product: Test crud operations', () => {
             url: '/api/v1/product',
             method: 'post'
         }).as('saveData');
+        cy.route({
+            url: '/api/v1/_action/calculate-price',
+            method: 'post'
+        }).as('calculatePrice');
 
         cy.get('a[href="#/sw/product/create"]').click();
         cy.get('input[name=sw-field--product-name]').type('Product with file upload image');
         cy.get('.sw-select-product__select_manufacturer').typeSingleSelectAndCheck('shopware AG');
         cy.get('select[name=sw-field--product-taxId]').select('19%');
         cy.get('#sw-price-field-gross').type('10');
-        cy.get('#sw-price-field-net').should('have.value', '8.4');
+
+        // Check net price calculation
+        cy.wait('@calculatePrice').then(() => {
+            cy.get('#sw-price-field-net').should('have.value', '8.4');
+        });
+
         cy.get('input[name=sw-field--product-stock]').type('100');
         cy.get(page.elements.productSaveAction).click();
 
@@ -42,7 +51,7 @@ describe('Product: Test crud operations', () => {
         });
     });
 
-    it('@p update and read product', () => {
+    it.skip('@p update and read product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -54,7 +63,7 @@ describe('Product: Test crud operations', () => {
 
         // Edit base data of product
         cy.clickContextMenuItem(
-            ' sw-entity-listing__context-menu-edit-action',
+            '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
@@ -70,7 +79,7 @@ describe('Product: Test crud operations', () => {
         });
     });
 
-    it('@p delete product', () => {
+    it.skip('@p delete product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

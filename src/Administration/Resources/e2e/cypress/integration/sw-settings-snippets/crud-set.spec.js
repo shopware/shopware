@@ -34,6 +34,8 @@ describe('Snippet set: Test crud operations', () => {
     it('update and read snippet set', () => {
         const page = new SettingsPageObject();
 
+        // Update snippet set
+        cy.get(page.elements.loader).should('not.exist');
         cy.get(`${page.elements.gridRow}--0 a`).contains('A Set Name Snippet');
         cy.get(`${page.elements.gridRow}--0`).dblclick();
         cy.get(`${page.elements.gridRow}--0 input[name=sw-field--item-name]`).clear();
@@ -47,6 +49,8 @@ describe('Snippet set: Test crud operations', () => {
     it('delete snippet set', () => {
         const page = new SettingsPageObject();
 
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get(`${page.elements.gridRow}--0 a`).contains('A Set Name Snippet');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,

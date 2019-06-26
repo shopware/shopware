@@ -45,9 +45,8 @@ Cypress.Commands.add('removeFixtureByName', (name, endpoint, options = {}) => {
  * @name createProductFixture
  * @function
  * @param {String} endpoint - API endpoint for the request
- * @param {Object} [options={}] - Options concerning creation
  */
-Cypress.Commands.add('createProductFixture', (options = {}) => {
+Cypress.Commands.add('createProductFixture', () => {
     let json = {};
     let manufacturerId = '';
     let categoryId = '';
@@ -151,9 +150,8 @@ Cypress.Commands.add('setProductFixtureVisibility', () => {
  * @memberOf Cypress.Chainable#
  * @name createCustomerFixture
  * @function
- * @param {Object} [options={}] - Options concerning creation
  */
-Cypress.Commands.add('createCustomerFixture', (options = {}) => {
+Cypress.Commands.add('createCustomerFixture', () => {
     const addressId = uuid();
     const customerId = uuid();
     let customerJson = {};

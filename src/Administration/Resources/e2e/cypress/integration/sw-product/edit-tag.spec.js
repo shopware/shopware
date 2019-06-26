@@ -30,7 +30,7 @@ describe('Product: Tagging product', () => {
         }).as('saveData');
 
         cy.clickContextMenuItem(
-            ' sw-entity-listing__context-menu-edit-action',
+            '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );

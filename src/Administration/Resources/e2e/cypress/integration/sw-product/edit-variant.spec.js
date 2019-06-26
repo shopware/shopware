@@ -26,7 +26,7 @@ describe('Product: Test variants', () => {
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
-            ' sw-entity-listing__context-menu-edit-action',
+            '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
@@ -34,6 +34,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
         cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${page.elements.ghostButton}`)
+            .should('be.visible')
             .click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
 

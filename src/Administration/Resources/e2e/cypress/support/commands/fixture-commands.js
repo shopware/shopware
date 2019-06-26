@@ -24,27 +24,6 @@ Cypress.Commands.add('createDefaultFixture', (endpoint, data = {}) => {
 });
 
 /**
- * Remove existing entity using Shopware API at the given endpoint
- * @memberOf Cypress.Chainable#
- * @name removeFixtureByName
- * @function
- * @param {String} name - Name of the fixture to be deleted
- * @param {String} endpoint - API endpoint for the request
- * @param {Object} [options={}] - Options concerning deletion [options={}]
- */
-Cypress.Commands.add('removeFixtureByName', (name, endpoint, options = {}) => {
-    return cy.searchViaAdminApi({
-        endpoint: endpoint,
-        data: {
-            field: options.identifier ? options.identifier : 'name',
-            value: name
-        }
-    }).then((result) => {
-        return cy.deleteViaAdminApi(endpoint, result.id);
-    });
-});
-
-/**
  * Create product fixture using Shopware API at the given endpoint
  * @memberOf Cypress.Chainable#
  * @name createProductFixture
@@ -60,57 +39,6 @@ Cypress.Commands.add('createProductFixture', (userData = {}) => {
     }).then((data) => {
         return fixture.setProductFixture(data);
     });
-});
-
-/**
- * Sets category and visibility for a product in order to set it visible in the Storefront
- * @memberOf Cypress.Chainable#
- * @name setProductFixtureVisibility
- * @function
- */
-Cypress.Commands.add('setProductFixtureVisibility', () => {
-    let salesChannelId = '';
-    let productId = '';
-
-    return cy.searchViaAdminApi({
-        endpoint: 'sales-channel',
-        data: {
-            field: 'name',
-            value: 'Storefront'
-        }
-    }).then((result) => {
-        salesChannelId = result.id;
-
-        return cy.searchViaAdminApi({
-            endpoint: 'product',
-            data: {
-                field: 'name',
-                value: 'Product name'
-            }
-        });
-    }).then((result) => {
-        productId = result.id;
-
-        return cy.updateViaAdminApi('product', productId, {
-            data: {
-                visibilities: [{
-                    visibility: 30,
-                    salesChannelId: salesChannelId
-                }]
-            }
-        });
-    }).then(() => {
-        return cy.createDefaultFixture('category');
-    })
-        .then((result) => {
-            return cy.updateViaAdminApi('product', productId, {
-                data: {
-                    categories: [{
-                        id: result.id
-                    }]
-                }
-            });
-        });
 });
 
 /**
@@ -142,16 +70,14 @@ Cypress.Commands.add('createCustomerFixture', (userData = {}) => {
  */
 Cypress.Commands.add('createPropertyFixture', (options, userData) => {
     let json = {};
+    const fixture = new Fixture();
 
     return cy.fixture('property-group').then((result) => {
         json = Cypress._.merge(result, options);
     }).then(() => {
         return Cypress._.merge(json, userData);
     }).then((result) => {
-        return cy.createViaAdminApi({
-            endpoint: 'property-group',
-            data: result
-        });
+        return fixture.create('property-group', result);
     });
 });
 
@@ -163,16 +89,15 @@ Cypress.Commands.add('createPropertyFixture', (options, userData) => {
  */
 Cypress.Commands.add('createLanguageFixture', () => {
     let json = {};
+    const fixture = new Fixture();
 
     return cy.fixture('language').then((result) => {
         json = result;
 
-        return cy.searchViaAdminApi({
-            endpoint: 'locale',
-            data: {
-                field: 'code',
-                value: 'en-PH'
-            }
+        return fixture.search('locale', {
+            field: 'code',
+            type: 'equals',
+            value: 'en-PH'
         });
     }).then((result) => {
         return {
@@ -181,10 +106,7 @@ Cypress.Commands.add('createLanguageFixture', () => {
             parentId: json.parentId
         };
     }).then((result) => {
-        return cy.createViaAdminApi({
-            endpoint: 'language',
-            data: result
-        });
+        return fixture.create('language', result);
     });
 });
 
@@ -214,39 +136,34 @@ Cypress.Commands.add('createShippingFixture', (userData) => {
  */
 Cypress.Commands.add('createSnippetFixture', () => {
     let json = {};
-    let languageId = '';
+    const fixture = new Fixture();
 
-    return cy.fixture('snippet').then((result) => {
-        json = result;
+    const findLanguageId = () => fixture.search('language', {
+        type: 'equals',
+        value: 'English'
+    });
+    const findSetId = () => fixture.search('snippet-set', {
+        type: 'equals',
+        value: 'BASE en-GB'
+    });
 
-        return cy.searchViaAdminApi({
-            endpoint: 'language',
-            data: {
-                field: 'name',
-                value: 'English'
-            }
-        });
-    }).then((result) => {
-        languageId = result.id;
-
-        return cy.searchViaAdminApi({
-            endpoint: 'snippet-set',
-            data: {
-                field: 'name',
-                value: 'BASE en-GB'
-            }
-        });
-    }).then((result) => {
-        return Cypress._.merge(json, {
-            languageId: languageId,
-            setId: result.id
-        });
-    })
+    return cy.fixture('snippet')
         .then((result) => {
-            return cy.createViaAdminApi({
-                endpoint: 'snippet',
-                data: result
+            json = result;
+
+            return Promise.all([
+                findLanguageId(),
+                findSetId()
+            ])
+        })
+        .then(([language, set]) => {
+            return Cypress._.merge(json, {
+                languageId: language.id,
+                setId: set.id
             });
+        })
+        .then((result) => {
+            return fixture.create('snippet', result);
         });
 });
 

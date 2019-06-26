@@ -13,8 +13,4 @@ export default class CategoryPageObject extends GeneralPageObject {
             }
         };
     }
-
-    addCategory(name, nthPosition = 1) {
-
-    }
 }

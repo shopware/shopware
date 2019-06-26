@@ -18,6 +18,10 @@ export default class AdminFixtureService {
         return this.apiClient.patch(`/v1/${userData.type}/${userData.id}?_response=true`, userData.data);
     }
 
+    authenticate() {
+        return this.apiClient.loginToAdministration();
+    }
+
     search(type, filter) {
         return this.apiClient.post(`/v1/search/${type}?response=true`, {
             filter: [{

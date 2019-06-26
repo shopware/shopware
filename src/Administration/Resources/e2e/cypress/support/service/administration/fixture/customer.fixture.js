@@ -66,10 +66,9 @@ export default class CustomerFixtureService extends AdminFixtureService {
             }, customerAddressJson);
         }).then(() => {
             return this.mergeFixtureWithData(finalCustomerRawData, finalAddressRawData);
-        })
-            .then((finalCustomerData) => {
-                return this.apiClient.post('/v1/customer?_response=true', finalCustomerData);
-            });
+        }).then((finalCustomerData) => {
+            return this.apiClient.post('/v1/customer?_response=true', finalCustomerData);
+        });
     }
 }
 

@@ -22,7 +22,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
-                menuActionSelector: '.sw-product-list__edit-action',
+                menuActionSelector: '.sw-entity-listing__context-menu-edit-action',
                 scope: `${page.elements.dataGridRow}--0`
             })
             .expect.element(page.elements.smartBarHeader).to.have.text.that.equals(global.ProductFixtureService.productFixture.name);
@@ -91,7 +91,7 @@ module.exports = {
             .waitForElementVisible(page.elements.smartBarHeader)
             .assert.containsText(page.elements.smartBarHeader, 'Products')
             .clickContextMenuItem(page.elements.contextMenuButton, {
-                menuActionSelector: '.sw-product-list__edit-action',
+                menuActionSelector: '.sw-entity-listing__context-menu-edit-action',
                 scope: `${page.elements.dataGridRow}--0`
             })
             .expect.element(page.elements.previewItem).to.have.attribute('alt').equals('sw-test-image');

@@ -49,6 +49,8 @@ export default {
     data() {
         return {
             deleteId: null,
+            showBulkDeleteModal: false,
+            isBulkLoading: false,
             page: 1,
             limit: 25,
             total: 10
@@ -76,6 +78,8 @@ export default {
             this.page = result.criteria.page;
             this.limit = result.criteria.limit;
             this.loading = false;
+
+            this.$emit('update-records', result);
         },
 
         deleteItem(id) {
@@ -83,8 +87,33 @@ export default {
 
             // send delete request to the server, immediately
             return this.repository.delete(id, this.items.context).then(() => {
+                this.resetSelection();
                 return this.doSearch();
             });
+        },
+
+        deleteItems() {
+            this.isBulkLoading = true;
+            const promises = [];
+
+            Object.values(this.selection).forEach((selectedProxy) => {
+                promises.push(this.repository.delete(selectedProxy.id, this.items.context));
+            });
+
+            return Promise.all(promises).then(() => {
+                return this.deleteItemsFinish();
+            }).catch(() => {
+                return this.deleteItemsFinish();
+            });
+        },
+
+        deleteItemsFinish() {
+            this.resetSelection();
+            this.isBulkLoading = false;
+            this.showBulkDeleteModal = false;
+            this.$emit('items-delete-finish');
+
+            return this.doSearch();
         },
 
         doSearch() {

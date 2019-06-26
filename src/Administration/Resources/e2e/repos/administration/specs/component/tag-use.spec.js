@@ -25,7 +25,7 @@ module.exports = {
 
         browser
             .clickContextMenuItem(page.elements.contextMenuButton, {
-                menuActionSelector: '.sw-product-list__edit-action',
+                menuActionSelector: '.sw-entity-listing__context-menu-edit-action',
                 scope: `${page.elements.dataGridRow}--0`
             })
             .waitForElementNotPresent(`.product-basic-form ${page.elements.loader}`)

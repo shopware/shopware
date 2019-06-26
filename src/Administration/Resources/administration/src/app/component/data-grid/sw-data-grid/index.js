@@ -176,6 +176,10 @@ export default {
         recordArray() {
             const isArray = Array.isArray(this.records);
             return isArray ? this.dataSource : Object.values(this.records);
+        },
+
+        selectionCount() {
+            return Object.values(this.selection).length;
         }
     },
 
@@ -202,6 +206,14 @@ export default {
 
         dataSource() {
             this.records = this.dataSource;
+        },
+
+        showSelection() {
+            this.selection = this.showSelection ? this.selection : {};
+        },
+
+        records() {
+            this.selection = {};
         }
     },
 
@@ -402,6 +414,11 @@ export default {
                 }
             });
             this.allSelectedChecked = selected;
+        },
+
+        resetSelection() {
+            this.selection = {};
+            this.allSelectedChecked = false;
         },
 
         onClickSaveInlineEdit(item) {

@@ -51,7 +51,7 @@ module.exports = {
                 subMenuId: 'sw-product'
             })
             .clickContextMenuItem(page.elements.contextMenuButton, {
-                menuActionSelector: '.sw-product-list__edit-action',
+                menuActionSelector: '.sw-entity-listing__context-menu-edit-action',
                 scope: `${page.elements.dataGridRow}--0`
             });
         page.changeTranslation('Product name', 'Philippine English', 3);

@@ -45,7 +45,7 @@
     "entity-components": {
       "editAction": "Editieren",
       "deleteAction": "Löschen",
-      "deleteMessage": "Soll der Eintrag wirklich gelöscht werden?",
+      "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
       "deleteCancel": "Abbrechen",
       "deleteConfirm": "Löschen",
       "deleteTitle": "Eintrag löschen"
@@ -103,6 +103,7 @@
       "labelSettingsCompactMode": "Kompaktmodus verwenden",
       "labelSettingsPreviewImages": "Vorschaubilder anzeigen",
       "labelColumnHide": "Spalte ausblenden",
+      "labelSelectionCount": "Ausgewählt:",
       "titleButtonInlineEditSave": "Speichern",
       "titleButtonInlineEditCancel": "Abbrechen"
     },

@@ -331,7 +331,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         onSelectionChanged(selection) {
-            this.selection = selection;
+            this.snippetSelection = selection;
             this.selectionCount = Object.keys(selection).length;
             this.hasResetableItems = this.selectionCount === 0;
         },
@@ -342,8 +342,8 @@ Component.register('sw-settings-snippet-list', {
 
             if (this.showOnlyEdited) {
                 items = Object.values(fullSelection).filter(item => typeof item !== 'string');
-            } else if (this.selection !== undefined) {
-                items = Object.values(this.selection);
+            } else if (this.snippetSelection !== undefined) {
+                items = Object.values(this.snippetSelection);
             } else {
                 items = Object.values(this.resetItems);
             }

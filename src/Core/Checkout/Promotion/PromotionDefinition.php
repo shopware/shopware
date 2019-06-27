@@ -14,7 +14,7 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -73,8 +73,8 @@ class PromotionDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new TranslatedField('name'),
             (new BoolField('active', 'active'))->addFlags(new Required()),
-            new DateField('valid_from', 'validFrom'),
-            new DateField('valid_until', 'validUntil'),
+            new DateTimeField('valid_from', 'validFrom'),
+            new DateTimeField('valid_until', 'validUntil'),
             (new IntField('max_redemptions_global', 'maxRedemptionsGlobal'))->addFlags(new Required()),
             (new IntField('max_redemptions_per_customer', 'maxRedemptionsPerCustomer'))->addFlags(new Required()),
             (new BoolField('exclusive', 'exclusive'))->addFlags(new Required()),

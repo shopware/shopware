@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -59,7 +59,7 @@ class DeadMessageDefinition extends EntityDefinition
 
             (new IntField('error_count', 'errorCount', 0))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
 
-            (new DateField('next_execution_time', 'nextExecutionTime'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new DateTimeField('next_execution_time', 'nextExecutionTime'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
 
             (new LongTextField('exception', 'exception'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new LongTextField('exception_message', 'exceptionMessage'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),

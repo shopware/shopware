@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -57,8 +57,8 @@ class PluginDefinition extends EntityDefinition
             new StringField('license', 'license'),
             (new StringField('version', 'version'))->addFlags(new Required()),
             new StringField('upgrade_version', 'upgradeVersion'),
-            new DateField('installed_at', 'installedAt'),
-            new DateField('upgraded_at', 'upgradedAt'),
+            new DateTimeField('installed_at', 'installedAt'),
+            new DateTimeField('upgraded_at', 'upgradedAt'),
             (new BlobField('icon', 'iconRaw'))->addFlags(new Internal()),
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime()),
 

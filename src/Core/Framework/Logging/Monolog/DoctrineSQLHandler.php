@@ -31,7 +31,7 @@ class DoctrineSQLHandler extends AbstractProcessingHandler
             'context' => json_encode($record['context']),
             'extra' => json_encode($record['extra']),
             'updated_at' => null,
-            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         $this->connection->insert('log_entry', $envelope);

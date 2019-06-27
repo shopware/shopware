@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -66,8 +66,8 @@ class OrderDeliveryDefinition extends EntityDefinition
             new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', false),
 
             (new StringField('tracking_code', 'trackingCode'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new DateField('shipping_date_earliest', 'shippingDateEarliest'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new DateField('shipping_date_latest', 'shippingDateLatest'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new DateTimeField('shipping_date_earliest', 'shippingDateEarliest'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
+            (new DateTimeField('shipping_date_latest', 'shippingDateLatest'))->addFlags(new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new CalculatedPriceField('shipping_costs', 'shippingCosts'),
 
             new CustomFields(),

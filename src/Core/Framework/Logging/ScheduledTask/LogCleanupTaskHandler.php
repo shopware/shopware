@@ -41,7 +41,7 @@ class LogCleanupTaskHandler extends ScheduledTaskHandler
         $maxEntries = $this->systemConfigService->get('core.logging.entryLimit');
 
         if ($entryLifetimeSeconds !== -1) {
-            $deleteBefore = date(Defaults::STORAGE_DATE_FORMAT, time() - $entryLifetimeSeconds);
+            $deleteBefore = date(Defaults::STORAGE_DATE_TIME_FORMAT, time() - $entryLifetimeSeconds);
             $this->connection->executeQuery(
                 'DELETE FROM `log_entry` WHERE `created_at` < :before', ['before' => $deleteBefore]
             );

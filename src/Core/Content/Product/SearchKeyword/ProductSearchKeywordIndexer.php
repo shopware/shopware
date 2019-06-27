@@ -157,7 +157,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
 
         $insert = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         /** @var ProductEntity $product */
         foreach ($products as $product) {

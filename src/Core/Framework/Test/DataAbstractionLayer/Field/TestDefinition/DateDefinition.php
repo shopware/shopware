@@ -4,16 +4,14 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class JsonDefinition extends EntityDefinition
+class DateDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = '_test_nullable';
+    public const ENTITY_NAME = '_date_field_test';
 
     public function getEntityName(): string
     {
@@ -24,13 +22,8 @@ class JsonDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            new JsonField('data', 'data'),
-            new JsonField('root', 'root', [
-                new JsonField('child', 'child', [
-                    new DateTimeField('childDateTime', 'childDateTime'),
-                    new DateField('childDate', 'childDate'),
-                ]),
-            ]),
+            (new DateField('date', 'date'))->addFlags(new Required()),
+            new DateField('date_nullable', 'dateNullable'),
         ]);
     }
 }

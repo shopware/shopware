@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -90,8 +91,12 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             );
         }
 
-        if ($field instanceof DateField) {
+        if ($field instanceof DateTimeField) {
             return sprintf('CAST(JSON_UNQUOTE(%s) AS datetime(3))', $jsonValueExpr);
+        }
+
+        if ($field instanceof DateField) {
+            return sprintf('CAST(JSON_UNQUOTE(%s) AS DATE)', $jsonValueExpr);
         }
 
         // The CONVERT is required for mariadb support (mysqls JSON_UNQUOTE returns utf8mb4)

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -362,7 +363,7 @@ EOF;
             'INSERT INTO `tax` (id, tax_rate, name, created_at) VALUES(UNHEX(%s), %s, "foo", %s)',
             $connection->quote($taxId),
             $taxRate,
-            date(Defaults::STORAGE_DATE_FORMAT)
+            date(Defaults::STORAGE_DATE_TIME_FORMAT)
         );
         $keyWithQuotes = sprintf(
             'data.%s\')) = "%s"); %s; SELECT 1 FROM ((("',
@@ -395,6 +396,7 @@ EOF;
             'id' => $id,
             'root' => [
                 'child' => [
+                    'childDateTime' => $insertTime,
                     'childDate' => $insertTime,
                 ],
             ],
@@ -405,12 +407,14 @@ EOF;
 
         /** @var EntityWriteResult $event */
         $event = $written[JsonDefinition::class][0];
-        static::assertEquals($insertTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDate']);
+        static::assertEquals($insertTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDateTime']);
+        static::assertEquals($insertTime->format(Defaults::STORAGE_DATE_FORMAT), $event->getPayload()['root']['child']['childDate']);
 
         $update = [
             'id' => $id,
             'root' => [
                 'child' => [
+                    'childDateTime' => $updateTime,
                     'childDate' => $updateTime,
                 ],
             ],
@@ -421,7 +425,8 @@ EOF;
 
         /** @var EntityWriteResult $event */
         $event = $written[JsonDefinition::class][0];
-        static::assertEquals($updateTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDate']);
+        static::assertEquals($updateTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDateTime']);
+        static::assertEquals($updateTime->format(Defaults::STORAGE_DATE_FORMAT), $event->getPayload()['root']['child']['childDate']);
     }
 
     public function testNestedJsonFilter(): void
@@ -440,15 +445,15 @@ EOF;
         $data = [
             [
                 'id' => $firstId,
-                'root' => ['child' => ['childDate' => $firstDate]],
+                'root' => ['child' => ['childDateTime' => $firstDate, 'childDate' => $firstDate]],
             ],
             [
                 'id' => $laterId,
-                'root' => ['child' => ['childDate' => $laterDate]],
+                'root' => ['child' => ['childDateTime' => $laterDate, 'childDate' => $laterDate]],
             ],
             [
                 'id' => $latestId,
-                'root' => ['child' => ['childDate' => $latestDate]],
+                'root' => ['child' => ['childDateTime' => $latestDate, 'childDate' => $latestDate]],
             ],
         ];
         $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), $data, $context);
@@ -457,7 +462,13 @@ EOF;
         $context = $context->getContext();
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('root.child.childDate', $firstDate->format(Defaults::STORAGE_DATE_FORMAT)));
+        $criteria->addFilter(new MultiFilter(
+            MultiFilter::CONNECTION_AND,
+            [
+                new EqualsFilter('root.child.childDateTime', $firstDate->format(Defaults::STORAGE_DATE_TIME_FORMAT)),
+                new EqualsFilter('root.child.childDate', $firstDate->format(Defaults::STORAGE_DATE_FORMAT)),
+            ]
+        ));
         $result = $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, $context);
 
         static::assertCount(1, $result->getIds());
@@ -465,7 +476,13 @@ EOF;
 
         $criteria = new Criteria();
         // string match, should only work if its casted correctly
-        $criteria->addFilter(new EqualsFilter('root.child.childDate', '2005-02-28 08:59:59'));
+        $criteria->addFilter(new MultiFilter(
+            MultiFilter::CONNECTION_AND,
+            [
+                new EqualsFilter('root.child.childDateTime', '2005-02-28 08:59:59'),
+                new EqualsFilter('root.child.childDate', '2005-02-28'),
+            ]
+        ));
         $result = $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, $context);
 
         static::assertCount(1, $result->getIds());
@@ -474,9 +491,7 @@ EOF;
 
     protected function createWriteContext(): WriteContext
     {
-        $context = WriteContext::createFromContext(Context::createDefaultContext());
-
-        return $context;
+        return WriteContext::createFromContext(Context::createDefaultContext());
     }
 
     private function getWriter(): EntityWriterInterface

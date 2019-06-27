@@ -200,7 +200,7 @@ class VersioningTest extends TestCase
         static::assertEquals(1000, $product->getCurrencyPrice(Defaults::CURRENCY)->getNet());
     }
 
-    public function testICanVersionDateFields(): void
+    public function testICanVersionDateTimeFields(): void
     {
         $id = Uuid::randomHex();
         $data = [

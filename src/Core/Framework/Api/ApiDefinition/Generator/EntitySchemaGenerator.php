@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
@@ -210,7 +210,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             // date fields
             case $field instanceof UpdatedAtField:
             case $field instanceof CreatedAtField:
-            case $field instanceof DateField:
+            case $field instanceof DateTimeField:
                 return ['type' => 'date', 'flags' => $flags];
 
             // scalar fields

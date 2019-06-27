@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -62,7 +62,7 @@ class ErdTypeMap
         ChildCountField::class => 'childCount',
         ChildrenAssociationField::class => 'childrenAssociation',
         CreatedAtField::class => 'createdAt',
-        DateField::class => 'date',
+        DateTimeField::class => 'date',
         EmailField::class => 'email',
         FkField::class => 'foreignKey',
         FloatField::class => 'float',

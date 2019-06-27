@@ -38,7 +38,7 @@ class MaxAggregationTest extends TestCase
         ], $rateAgg->getResult());
     }
 
-    public function testMaxAggregationWorksOnDateFields(): void
+    public function testMaxAggregationWorksOnDateTimeFields(): void
     {
         $context = Context::createDefaultContext();
         $this->setupFixtures($context);

@@ -72,7 +72,7 @@ class MonitoringBusDecorator implements MessageBusInterface
         ', [
             'id' => Uuid::randomBytes(),
             'name' => $name,
-            'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
+            'createdAt' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

@@ -46,8 +46,8 @@ class DeliveryTransformer
 
         $deliveryData = [
             'id' => self::getId($delivery),
-            'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_FORMAT),
-            'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format(Defaults::STORAGE_DATE_FORMAT),
+            'shippingDateEarliest' => $delivery->getDeliveryDate()->getEarliest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'shippingDateLatest' => $delivery->getDeliveryDate()->getLatest()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'shippingMethodId' => $delivery->getShippingMethod()->getId(),
             'shippingOrderAddress' => $shippingAddress,
             'shippingCosts' => $delivery->getShippingCosts(),

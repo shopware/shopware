@@ -340,6 +340,11 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\DateTimeFieldSerializer">
+            <argument type="service" id="validator"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\EmailFieldSerializer">
             <argument type="service" id="validator"/>
             <tag name="shopware.field_serializer"/>

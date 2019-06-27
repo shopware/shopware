@@ -8,7 +8,7 @@ use Shopware\Core\Framework\CustomField\CustomFieldService;
 use Shopware\Core\Framework\CustomField\CustomFieldTypes;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -42,7 +42,7 @@ class CustomFieldServiceTest extends TestCase
         return [
             [
                 CustomFieldTypes::BOOL, BoolField::class,
-                CustomFieldTypes::DATETIME, DateField::class,
+                CustomFieldTypes::DATETIME, DateTimeField::class,
                 CustomFieldTypes::FLOAT, FloatField::class,
                 CustomFieldTypes::HTML, LongTextWithHtmlField::class,
                 CustomFieldTypes::INT, IntField::class,

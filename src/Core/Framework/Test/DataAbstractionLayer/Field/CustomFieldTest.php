@@ -648,7 +648,7 @@ class CustomFieldTest extends TestCase
 
         $ids = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
         $nowId = Uuid::randomHex();
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $entities = [
             ['id' => $ids[0], 'custom' => ['datetime' => new \DateTime('1990-01-01')]],

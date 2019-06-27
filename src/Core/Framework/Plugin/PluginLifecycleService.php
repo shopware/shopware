@@ -162,7 +162,7 @@ class PluginLifecycleService
             $pluginData['upgradeVersion'] = null;
             $plugin->setUpgradeVersion(null);
             $upgradeDate = new \DateTime();
-            $pluginData['upgradedAt'] = $upgradeDate->format(Defaults::STORAGE_DATE_FORMAT);
+            $pluginData['upgradedAt'] = $upgradeDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             $plugin->setUpgradedAt($upgradeDate);
         }
 
@@ -176,7 +176,7 @@ class PluginLifecycleService
         $this->runMigrations($pluginBaseClass);
 
         $installDate = new \DateTime();
-        $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_FORMAT);
+        $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $plugin->setInstalledAt($installDate);
 
         $this->updatePluginData($pluginData, $shopwareContext);
@@ -282,7 +282,7 @@ class PluginLifecycleService
                 'id' => $plugin->getId(),
                 'version' => $updateVersion,
                 'upgradeVersion' => null,
-                'upgradedAt' => $updateDate->format(Defaults::STORAGE_DATE_FORMAT),
+                'upgradedAt' => $updateDate->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
             $shopwareContext
         );

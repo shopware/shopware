@@ -43,7 +43,7 @@ class Migration1551969523SeoUrlTemplate extends MigrationStep
             'route_name' => ProductPageSeoUrlRoute::ROUTE_NAME,
             'entity_name' => 'product',
             'template' => ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('seo_url_template', [
@@ -52,7 +52,7 @@ class Migration1551969523SeoUrlTemplate extends MigrationStep
             'route_name' => NavigationPageSeoUrlRoute::ROUTE_NAME,
             'entity_name' => 'category',
             'template' => NavigationPageSeoUrlRoute::DEFAULT_TEMPLATE,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

@@ -113,8 +113,8 @@ EOF;
         static::assertInstanceOf(\DateTimeInterface::class, $entity->get('createdAt'));
 
         static::assertEquals(
-            $date->format(Defaults::STORAGE_DATE_FORMAT),
-            $entity->get('createdAt')->format(Defaults::STORAGE_DATE_FORMAT)
+            $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $entity->get('createdAt')->format(Defaults::STORAGE_DATE_TIME_FORMAT)
         );
     }
 

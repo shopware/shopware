@@ -219,7 +219,7 @@ class CustomFieldTranslationTest extends TestCase
         $this->addLanguage($rootId, null);
         $this->addLanguage($childId, $rootId);
 
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $entity = [
             'id' => $id,
             'translations' => [
@@ -373,7 +373,7 @@ class CustomFieldTranslationTest extends TestCase
         $this->addLanguage($rootId, null);
         $this->addLanguage($subId, $rootId);
 
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $entities = [
             [
                 'id' => $parentId,

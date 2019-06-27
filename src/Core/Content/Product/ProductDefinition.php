@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -149,7 +149,7 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('width', 'width'))->addFlags(new Inherited()),
             (new FloatField('height', 'height'))->addFlags(new Inherited()),
             (new FloatField('length', 'length'))->addFlags(new Inherited()),
-            (new DateField('release_date', 'releaseDate'))->addFlags(new Inherited()),
+            (new DateTimeField('release_date', 'releaseDate'))->addFlags(new Inherited()),
 
             // ro fields
             (new ListField('category_tree', 'categoryTree', IdField::class))->addFlags(new Inherited(), new WriteProtected()),

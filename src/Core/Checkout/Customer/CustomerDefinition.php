@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -84,11 +84,11 @@ class CustomerDefinition extends EntityDefinition
             new StringField('title', 'title'),
             new BoolField('active', 'active'),
             new BoolField('guest', 'guest'),
-            new DateField('first_login', 'firstLogin'),
-            new DateField('last_login', 'lastLogin'),
+            new DateTimeField('first_login', 'firstLogin'),
+            new DateTimeField('last_login', 'lastLogin'),
             new BoolField('newsletter', 'newsletter'),
-            new DateField('birthday', 'birthday'),
-            (new DateField('last_order_date', 'lastOrderDate'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            new DateTimeField('birthday', 'birthday'),
+            (new DateTimeField('last_order_date', 'lastOrderDate'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new IntField('order_count', 'orderCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new CustomFields(),
             new StringField('legacy_password', 'legacyPassword'),

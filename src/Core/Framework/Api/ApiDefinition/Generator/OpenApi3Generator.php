@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
@@ -298,7 +298,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             'type' => $this->getType($fieldClass),
         ];
 
-        if (\is_a($fieldClass, DateField::class, true)) {
+        if (\is_a($fieldClass, DateTimeField::class, true)) {
             $property['format'] = 'date-time';
         }
         if (\is_a($fieldClass, FloatField::class, true)) {

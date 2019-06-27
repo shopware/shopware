@@ -1,8 +1,8 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import Hammer from 'hammerjs';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import { Vector2, Vector3 } from 'src/script/helper/vector.helper';
-import PluginManager from 'src/script/helper/plugin/plugin.manager';
+import PluginManager from 'src/script/plugin-system/plugin.manager';
 
 const IMAGE_SLIDER_INIT_SELECTOR = '[data-image-slider]';
 

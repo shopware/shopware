@@ -1,5 +1,5 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
-import PluginManager from 'src/script/helper/plugin/plugin.manager';
+import Plugin from 'src/script/plugin-system/plugin.class';
+import PluginManager from 'src/script/plugin-system/plugin.manager';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import HttpClient from 'src/script/service/http-client.service';
 import AjaxOffCanvas from 'src/script/plugin/offcanvas/ajax-offcanvas.plugin';

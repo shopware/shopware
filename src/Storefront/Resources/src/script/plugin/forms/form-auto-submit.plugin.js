@@ -1,4 +1,4 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import PageLoadingIndicatorUtil from 'src/script/utility/loading-indicator/page-loading-indicator.util';
 import FormSerializeUtil from 'src/script/utility/form/form-serialize.util';
 import HttpClient from 'src/script/service/http-client.service';

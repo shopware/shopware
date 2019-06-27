@@ -1,4 +1,4 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import HistoryUtil from 'src/script/utility/history/history.util';
 import CmsSlotReloadService from 'src/script/plugin/cms-slot-reload/service/cms-slot-reload.service';
 

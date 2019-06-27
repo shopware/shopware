@@ -1,4 +1,4 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import Debouncer from 'src/script/helper/debouncer.helper';
 import Iterator from 'src/script/helper/iterator.helper';

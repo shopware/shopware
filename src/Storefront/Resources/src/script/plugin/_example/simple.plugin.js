@@ -2,7 +2,7 @@
  * This is just a sample file.
  * @todo: please remove before release!
  */
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 
 /**
  * base plugin for example purposes

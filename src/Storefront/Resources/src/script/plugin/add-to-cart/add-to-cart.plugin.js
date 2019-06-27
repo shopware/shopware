@@ -1,5 +1,5 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
-import PluginManager from 'src/script/helper/plugin/plugin.manager';
+import Plugin from 'src/script/plugin-system/plugin.class';
+import PluginManager from 'src/script/plugin-system/plugin.manager';
 import Iterator from 'src/script/helper/iterator.helper';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import FormSerializeUtil from 'src/script/utility/form/form-serialize.util';

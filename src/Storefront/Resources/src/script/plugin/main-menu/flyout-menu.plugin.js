@@ -1,4 +1,4 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import Iterator from 'src/script/helper/iterator.helper';

@@ -1,4 +1,4 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import CookieStorage from 'src/script/helper/storage/cookie-storage.helper';
 import Debouncer from 'src/script/helper/debouncer.helper';
 import DeviceDetection from 'src/script/helper/device-detection.helper';

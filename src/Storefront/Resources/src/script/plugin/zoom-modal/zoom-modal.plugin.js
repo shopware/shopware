@@ -1,5 +1,5 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
-import PluginManager from 'src/script/helper/plugin/plugin.manager';
+import Plugin from 'src/script/plugin-system/plugin.class';
+import PluginManager from 'src/script/plugin-system/plugin.manager';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';

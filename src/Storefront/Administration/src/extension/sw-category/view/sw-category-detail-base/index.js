@@ -13,9 +13,11 @@ Component.override('sw-category-detail-base', {
     },
 
     created() {
-        this.initSeoUrls();
+        if (!this.next741) {
+            this.initSeoUrls();
 
-        this.$root.$on('on-change-application-language', this.initSeoUrls);
+            this.$root.$on('on-change-application-language', this.initSeoUrls);
+        }
     },
 
     methods: {

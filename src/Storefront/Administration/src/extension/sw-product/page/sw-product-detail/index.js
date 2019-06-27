@@ -16,6 +16,9 @@ Component.override('sw-product-detail', {
         },
 
         productCriteria() {
+            if (!this.next741) {
+                return this.$super.productCriteria();
+            }
             const criteria = this.$super.productCriteria();
 
             if (!criteria.hasAssociation('seoUrls')) {
@@ -28,6 +31,10 @@ Component.override('sw-product-detail', {
 
     methods: {
         onSaveFinished(response) {
+            if (!this.next741) {
+                this.$super.onSaveFinished(response);
+                return;
+            }
             // if extensions are not set the seo urls are not present in store
             if (typeof this.$store.getters['swSeoUrl/getNewOrModifiedUrls'] !== 'function') {
                 this.$super.onSaveFinished(response);

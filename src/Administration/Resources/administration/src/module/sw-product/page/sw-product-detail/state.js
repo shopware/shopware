@@ -36,7 +36,9 @@ export default {
                 return {};
             }
 
-            return state.currencies.find((currency) => currency.isDefault);
+            const defaultCurrency = state.currencies.find((currency) => currency.isDefault);
+
+            return defaultCurrency || {};
         },
 
         defaultPrice(state, getters) {

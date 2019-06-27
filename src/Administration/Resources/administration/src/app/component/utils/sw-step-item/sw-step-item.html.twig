@@ -1,0 +1,18 @@
+{% block sw_step_item %}
+    <div class="sw-step-item" :class="modifierClasses">
+        {% block sw_step_item_bubble %}
+            <div class="sw-step-item__bubble">
+                <sw-icon class="sw-step-item__icon"
+                         :name="icon"
+                         size="16px"
+                         small>
+                </sw-icon>
+            </div>
+        {% endblock %}
+        {% block sw_step_item_description %}
+            <span class="sw-step-item__description">
+                <slot></slot>
+            </span>
+        {% endblock %}
+    </div>
+{% endblock %}

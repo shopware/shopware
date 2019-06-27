@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -96,7 +98,8 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             $embedded->compile($this->fieldHandlerRegistry);
             $decodedValue = $embedded->getSerializer()->decode($embedded, $value);
             if ($decodedValue instanceof \DateTimeInterface) {
-                $decodedValue = $decodedValue->format(\DateTime::ATOM);
+                $format = $embedded instanceof DateField ? Defaults::STORAGE_DATE_FORMAT : DATE_ATOM;
+                $decodedValue = $decodedValue->format($format);
             }
 
             $decoded[$key] = $decodedValue;

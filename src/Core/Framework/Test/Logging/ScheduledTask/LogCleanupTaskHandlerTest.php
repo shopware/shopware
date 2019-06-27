@@ -113,19 +113,19 @@ class LogCleanupTaskHandlerTest extends TestCase
                     'message' => 'test1',
                     'level' => 12,
                     'channel' => 'test',
-                    'createdAt' => date(Defaults::STORAGE_DATE_FORMAT, time() - $year),
+                    'createdAt' => date(Defaults::STORAGE_DATE_TIME_FORMAT, time() - $year),
                 ],
                 [
                     'message' => 'test2',
                     'level' => 42,
                     'channel' => 'test',
-                    'createdAt' => date(Defaults::STORAGE_DATE_FORMAT, time() - 2 * $year),
+                    'createdAt' => date(Defaults::STORAGE_DATE_TIME_FORMAT, time() - 2 * $year),
                 ],
                 [
                     'message' => 'test3',
                     'level' => 1337,
                     'channel' => 'test',
-                    'createdAt' => date(Defaults::STORAGE_DATE_FORMAT, time() - 3 * $year),
+                    'createdAt' => date(Defaults::STORAGE_DATE_TIME_FORMAT, time() - 3 * $year),
                 ],
             ],
             $this->context

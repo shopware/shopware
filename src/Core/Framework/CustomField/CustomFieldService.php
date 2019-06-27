@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\CustomField;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -52,7 +52,7 @@ class CustomFieldService implements EventSubscriberInterface
                 return new BoolField($attributeName, $attributeName);
 
             case CustomFieldTypes::DATETIME:
-                return new DateField($attributeName, $attributeName);
+                return new DateTimeField($attributeName, $attributeName);
 
             case CustomFieldTypes::TEXT:
                 return new LongTextField($attributeName, $attributeName);

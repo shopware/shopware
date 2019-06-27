@@ -167,7 +167,7 @@ class AuthControllerTest extends TestCase
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'locale_id' => Uuid::fromHexToBytes($this->getLocaleIdOfSystemLanguage()),
             'active' => 1,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $this->apiUsernames[] = $username;
@@ -251,7 +251,7 @@ class AuthControllerTest extends TestCase
             'access_key' => $accessKey,
             'secret_access_key' => password_hash($secretKey, PASSWORD_BCRYPT),
             'write_access' => 1,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         /**

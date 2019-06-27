@@ -135,7 +135,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'payment_method_id' => Uuid::fromHexToBytes($this->getValidPaymentMethodId()),
             'country_id' => Uuid::fromHexToBytes($this->getValidCountryId()),
             'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         static::assertTrue($this->cartExists($token));

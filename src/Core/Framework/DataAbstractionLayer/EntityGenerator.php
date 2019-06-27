@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -257,7 +257,7 @@ EOF;
             case $field instanceof BoolField:
                 $type = 'boolean';
                 break;
-            case $field instanceof DateField:
+            case $field instanceof DateTimeField:
                 $type = "\DateTime";
                 break;
             case $field instanceof BlobField:

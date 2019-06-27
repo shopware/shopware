@@ -39,7 +39,7 @@ class MinAggregationTest extends TestCase
         ], $rateAgg->getResult());
     }
 
-    public function testMinAggregationWorksOnDateFields(): void
+    public function testMinAggregationWorksOnDateTimeFields(): void
     {
         $context = Context::createDefaultContext();
         $this->setupFixtures($context);

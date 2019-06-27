@@ -135,8 +135,8 @@ trait AdminApiTestBehaviour
             'id' => $avatarId,
             'mime_type' => 'image/png',
             'file_size' => 1024,
-            'uploaded_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'uploaded_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('user', [
@@ -149,7 +149,7 @@ trait AdminApiTestBehaviour
             'locale_id' => $this->getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'avatar_id' => $avatarId,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $this->apiUsernames[] = $username;
@@ -200,7 +200,7 @@ trait AdminApiTestBehaviour
             'access_key' => $accessKey,
             'secret_access_key' => password_hash($secretAccessKey, PASSWORD_BCRYPT),
             'label' => 'test integration',
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $this->apiIntegrations[] = $id;

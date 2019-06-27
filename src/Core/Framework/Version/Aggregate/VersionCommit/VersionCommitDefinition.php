@@ -49,7 +49,7 @@ class VersionCommitDefinition extends EntityDefinition
     {
         return [
             'name' => 'auto-save',
-            'createdAt' => date(Defaults::STORAGE_DATE_FORMAT),
+            'createdAt' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
     }
 

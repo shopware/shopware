@@ -747,8 +747,8 @@ class WriterTest extends TestCase
                         'name' => 'shopware AG',
                         'link' => 'https://shopware.com',
                     ],
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-                    'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
             ],
             $this->createWriteContext()

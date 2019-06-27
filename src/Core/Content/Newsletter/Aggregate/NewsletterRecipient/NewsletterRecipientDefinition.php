@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipientTag\NewsletterRecipientTagDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -53,7 +53,7 @@ class NewsletterRecipientDefinition extends EntityDefinition
             (new StringField('hash', 'hash'))->addFlags(new Required()),
             new CustomFields(),
 
-            new DateField('confirmed_at', 'confirmedAt'),
+            new DateTimeField('confirmed_at', 'confirmedAt'),
 
             new ManyToManyAssociationField('tags', TagDefinition::class, NewsletterRecipientTagDefinition::class, 'newsletter_recipient_id', 'tag_id'),
 

@@ -85,7 +85,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -94,7 +94,7 @@ json
             'value' => 'foo_ab',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);
@@ -120,7 +120,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -129,7 +129,7 @@ json
             'value' => 'foo_ab',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
         $connection->insert('snippet', [
             'id' => Uuid::randomBytes(),
@@ -137,7 +137,7 @@ json
             'value' => 'foo_123',
             'author' => 'test',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile, $snippetFile2);
@@ -161,7 +161,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -170,7 +170,7 @@ json
             'value' => 'foo_ab',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
         $connection->insert('snippet', [
             'id' => Uuid::randomBytes(),
@@ -178,7 +178,7 @@ json
             'value' => 'foo_123',
             'author' => 'test',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService();
@@ -224,7 +224,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -233,7 +233,7 @@ json
             'value' => 'foo_baz',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);
@@ -264,7 +264,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -273,7 +273,7 @@ json
             'value' => 'foo_baz',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);
@@ -304,14 +304,14 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
         $connection->insert('snippet_set', [
             'id' => $barId,
             'name' => 'bar',
             'base_file' => 'bar',
             'iso' => 'bar',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -320,7 +320,7 @@ json
             'value' => 'bar_baz',
             'author' => 'shopware',
             'snippet_set_id' => $barId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);
@@ -352,14 +352,14 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
         $connection->insert('snippet_set', [
             'id' => $barId,
             'name' => 'bar',
             'base_file' => 'bar',
             'iso' => 'bar',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -368,7 +368,7 @@ json
             'value' => 'bar_baz',
             'author' => 'shopware',
             'snippet_set_id' => $barId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);
@@ -412,7 +412,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -421,7 +421,7 @@ json
             'value' => 'foo_test',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);
@@ -471,7 +471,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -480,7 +480,7 @@ json
             'value' => 'foo_ab',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);
@@ -528,7 +528,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -537,7 +537,7 @@ json
             'value' => 'foo_ab',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);
@@ -585,7 +585,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -594,7 +594,7 @@ json
             'value' => 'foo_ab',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);
@@ -644,7 +644,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -653,7 +653,7 @@ json
             'value' => 'foo_ab',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);
@@ -703,7 +703,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -712,7 +712,7 @@ json
             'value' => 'foo_ab',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);
@@ -759,7 +759,7 @@ json
             'name' => 'foo',
             'base_file' => 'foo',
             'iso' => 'foo',
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('snippet', [
@@ -768,7 +768,7 @@ json
             'value' => 'foo_ab',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
         $connection->insert('snippet', [
             'id' => Uuid::randomBytes(),
@@ -776,7 +776,7 @@ json
             'value' => 'bar_ab',
             'author' => 'shopware',
             'snippet_set_id' => $fooId,
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $service = $this->getSnippetService($snippetFile);

@@ -128,7 +128,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testInstallPluginAlreadyInstalled(): void
     {
-        $installedAt = (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT);
+        $installedAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_VERSION, $installedAt);
 
         /** @var PluginEntity $plugin */
@@ -140,7 +140,7 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginInstalled = $this->getTestPlugin();
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
-        static::assertSame($installedAt, $pluginInstalled->getInstalledAt()->format(Defaults::STORAGE_DATE_FORMAT));
+        static::assertSame($installedAt, $pluginInstalled->getInstalledAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
     public function testInstallPluginWithUpdate(): void

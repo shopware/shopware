@@ -24,5 +24,7 @@ final class Defaults
 
     public const SALES_CHANNEL_TYPE_STOREFRONT = '8a243080f92e4c719546314b577cf82b';
 
-    public const STORAGE_DATE_FORMAT = 'Y-m-d H:i:s.v';
+    public const STORAGE_DATE_TIME_FORMAT = 'Y-m-d H:i:s.v';
+
+    public const STORAGE_DATE_FORMAT = 'Y-m-d';
 }

@@ -21,8 +21,8 @@ class DeliveryDate extends Struct
         \DateTimeInterface $earliest,
         \DateTimeInterface $latest
     ) {
-        $earliest = new \DateTimeImmutable($earliest->format(Defaults::STORAGE_DATE_FORMAT));
-        $latest = new \DateTimeImmutable($latest->format(Defaults::STORAGE_DATE_FORMAT));
+        $earliest = new \DateTimeImmutable($earliest->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        $latest = new \DateTimeImmutable($latest->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
         $this->earliest = $earliest->setTime(16, 0);
         $this->latest = $latest->setTime(16, 0);

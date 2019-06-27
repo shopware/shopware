@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
-class UpdatedAtFieldSerializer extends DateFieldSerializer
+class UpdatedAtFieldSerializer extends DateTimeFieldSerializer
 {
     public function encode(
         Field $field,

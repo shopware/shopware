@@ -36,7 +36,7 @@ class UserProvisioner
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'locale_id' => $this->getLocaleOfSystemLanguage(),
             'active' => true,
-            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         $this->connection->insert('user', $userPayload);

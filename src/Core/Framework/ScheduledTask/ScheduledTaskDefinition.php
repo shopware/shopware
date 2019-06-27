@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ScheduledTask;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -58,8 +58,8 @@ class ScheduledTaskDefinition extends EntityDefinition
             (new StringField('scheduled_task_class', 'scheduledTaskClass', 512))->setFlags(new Required()),
             (new IntField('run_interval', 'runInterval', 0))->setFlags(new Required()),
             (new StringField('status', 'status'))->setFlags(new Required()),
-            new DateField('last_execution_time', 'lastExecutionTime'),
-            (new DateField('next_execution_time', 'nextExecutionTime'))->setFlags(new Required()),
+            new DateTimeField('last_execution_time', 'lastExecutionTime'),
+            (new DateTimeField('next_execution_time', 'nextExecutionTime'))->setFlags(new Required()),
 
             new OneToManyAssociationField('deadMessages', DeadMessageDefinition::class, 'scheduled_task_id'),
         ]);

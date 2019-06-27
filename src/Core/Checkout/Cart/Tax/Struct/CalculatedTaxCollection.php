@@ -66,8 +66,7 @@ class CalculatedTaxCollection extends Collection
                 continue;
             }
 
-            $taxRate = (string) $calculatedTax->getTaxRate();
-            $new->get($taxRate)->increment($calculatedTax);
+            $new->get($this->getKey($calculatedTax))->increment($calculatedTax);
         }
 
         return $new;

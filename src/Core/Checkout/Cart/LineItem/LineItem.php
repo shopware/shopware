@@ -461,13 +461,9 @@ class LineItem extends Struct
     /**
      * @throws InvalidQuantityException
      */
-    private function refreshChildQuantity(?LineItemCollection $lineItems, int $oldParentQuantity, int $newParentQuantity): void
+    private function refreshChildQuantity(LineItemCollection $lineItems, int $oldParentQuantity, int $newParentQuantity): void
     {
         foreach ($lineItems as $lineItem) {
-            if (!$lineItem->isStackable()) {
-                continue;
-            }
-
             $newQuantity = intdiv($lineItem->getQuantity(), $oldParentQuantity) * $newParentQuantity;
 
             if ($lineItem->hasChildren()) {

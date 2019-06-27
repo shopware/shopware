@@ -71,28 +71,4 @@ class CalculatedPrice extends Struct
     {
         return $this->quantity;
     }
-
-    public function add(self $price): void
-    {
-        $this->unitPrice += $price->getUnitPrice();
-        $this->totalPrice += $price->getTotalPrice();
-        $this->calculatedTaxes = $this->calculatedTaxes->merge(
-            $price->getCalculatedTaxes()
-        );
-        $this->taxRules = $this->taxRules->merge(
-            $price->getTaxRules()
-        );
-    }
-
-    public function sub(self $price): void
-    {
-        $this->unitPrice -= $price->getUnitPrice();
-        $this->totalPrice -= $price->getTotalPrice();
-        $this->calculatedTaxes = $this->calculatedTaxes->merge(
-            $price->getCalculatedTaxes()
-        );
-        $this->taxRules = $this->taxRules->merge(
-            $price->getTaxRules()
-        );
-    }
 }

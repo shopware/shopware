@@ -2,7 +2,7 @@ import { State, EntityDefinition } from 'src/core/shopware';
 import ShopwareError from './ShopwareError';
 
 const regExRegularPointer = /\/([^\/]*)(.*)/;
-const regExToManyAssociation = /\/translations\/(\d)(\/.*)/;
+const regExToManyAssociation = /\/([^\/]*)\/(\d)(\/.*)/;
 const regExTranslations = /\/translations\/([a-fA-f\d]*)\/(.*)/;
 
 export default class ErrorResolver {
@@ -130,7 +130,20 @@ export default class ErrorResolver {
      * @param systemErrors
      */
     resolveTranslation(error, definition, entity, systemErrors) {
-        const [, /* languageId */, fieldName] = error.source.pointer.match(regExTranslations);
+        const match = error.source.pointer.match(regExTranslations);
+        const fieldName = match[2];
+
+        if (typeof fieldName === 'undefined') {
+            if (error.code === 'MISSING-SYSTEM-TRANSLATION') {
+                systemErrors.push(error);
+                return;
+            }
+            throw new Error(
+                // eslint-disable-next-line
+                `[ErrorResolver] Could not resolve translation error for ${definition.entity} with id ${entity.id}. Missing field name`
+            );
+        }
+
         error.source.pointer = fieldName;
 
         const field = definition.getField(fieldName);

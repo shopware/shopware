@@ -129,8 +129,16 @@ export default {
         },
 
         onInput(event) {
-            const val = Number.parseFloat(event.target.value);
+            let val = Number.parseFloat(event.target.value);
+
             if (val !== Number.NaN) {
+                if (val > this.max) {
+                    val = this.max;
+                }
+                if (val < this.min) {
+                    val = this.min;
+                }
+
                 this.$emit('input-change', val);
             }
         },

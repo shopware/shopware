@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Order;
 
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -155,11 +154,6 @@ class OrderEntity extends Entity
      * @var TagCollection|null
      */
     protected $tags;
-
-    /**
-     * @var LineItemCollection|null
-     */
-    protected $nestedLineItems;
 
     public function getCurrencyId(): string
     {
@@ -431,13 +425,28 @@ class OrderEntity extends Entity
         $this->tags = $tags;
     }
 
-    public function getNestedLineItems(): ?LineItemCollection
+    public function getNestedLineItems(): ?OrderLineItemCollection
     {
-        return $this->nestedLineItems;
+        $lineItems = $this->getLineItems();
+
+        if (!$lineItems) {
+            return null;
+        }
+
+        $roots = $lineItems->filterByProperty('parentId', null);
+        $this->addChildren($lineItems, $roots);
+
+        return $roots;
     }
 
-    public function setNestedLineItems(LineItemCollection $nestedLineItems): void
+    private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void
     {
-        $this->nestedLineItems = $nestedLineItems;
+        foreach ($parents as $parent) {
+            $children = $lineItems->filterByProperty('parentId', $parent->getId());
+
+            $parent->setChildren($children);
+
+            $this->addChildren($lineItems, $children);
+        }
     }
 }

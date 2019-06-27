@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
@@ -98,11 +95,6 @@ class LineItemTransformer
         return $root;
     }
 
-    /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws InvalidPayloadException
-     */
     private static function updateLineItem(LineItem $lineItem, OrderLineItemEntity $entity, string $id): void
     {
         $lineItem->setId($entity->getIdentifier())

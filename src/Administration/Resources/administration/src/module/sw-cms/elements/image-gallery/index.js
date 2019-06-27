@@ -25,7 +25,7 @@ Application.getContainer('service').cmsService.registerCmsElement({
         },
         galleryPosition: {
             source: 'static',
-            value: 'besides'
+            value: 'left'
         },
         displayMode: {
             source: 'static',

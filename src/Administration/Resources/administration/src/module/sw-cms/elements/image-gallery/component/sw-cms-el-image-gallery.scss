@@ -7,7 +7,10 @@
     grid-gap: 8px;
 
     &.is--mobile {
-        grid-template-columns: 1fr;
+        .sw-cms-el-image-gallery__item-holder {
+            justify-content: center;
+            align-self: center;
+        }
     }
 
     &.is--preview-underneath {
@@ -29,7 +32,7 @@
     }
 
     .sw-cms-el-image-slider {
-        align-self: center;
+        align-items: center;
     }
 
     .sw-cms-el-image-gallery__grid {

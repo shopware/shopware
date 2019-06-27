@@ -1,11 +1,9 @@
-import { Component } from 'src/core/shopware';
+import { Component, EntityDefinition } from 'src/core/shopware';
 import template from './sw-import-export-profile-csv-mapping-modal.html.twig';
 import './sw-import-export-profile-csv-mapping-modal.scss';
 
 Component.register('sw-import-export-profile-csv-mapping-modal', {
     template,
-
-    inject: ['entityRegistry'],
 
     props: {
         importExportProfile: {
@@ -51,7 +49,7 @@ Component.register('sw-import-export-profile-csv-mapping-modal', {
 
     methods: {
         createdComponent() {
-            this.loadMapping();
+            this.availableEntityFields = this.buildFlattenedFieldSet();
         },
 
         onCloseModal() {
@@ -66,8 +64,28 @@ Component.register('sw-import-export-profile-csv-mapping-modal', {
             });
         },
 
-        loadMapping() {
-            this.availableEntityFields = this.entityRegistry.getProperties(this.importExportProfile.sourceEntity);
+        buildFlattenedFieldSet() {
+            const rootEntityDefinition = EntityDefinition.get(this.importExportProfile.sourceEntity);
+            const flattenedFieldSet = {};
+
+            rootEntityDefinition.forEachField((property, propertyName) => {
+                // Add direct scalar fields
+                if (rootEntityDefinition.isScalarField(property) && !property.flags.primary_key) {
+                    flattenedFieldSet[propertyName] = property.type;
+                }
+
+                // Add scalar fields from associations
+                if (property.type === 'association') {
+                    const subDefinition = EntityDefinition.get(property.entity);
+                    subDefinition.forEachField((subProperty, subPropertyName) => {
+                        if (subDefinition.isScalarField(subProperty)) {
+                            flattenedFieldSet[`${propertyName}.${subPropertyName}`] = subProperty.type;
+                        }
+                    });
+                }
+            });
+
+            return flattenedFieldSet;
         },
 
         addMappingField() {

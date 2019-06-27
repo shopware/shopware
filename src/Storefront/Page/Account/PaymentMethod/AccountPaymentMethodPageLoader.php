@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Account\PaymentMethod;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -37,6 +38,9 @@ class AccountPaymentMethodPageLoader
         $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
+    /**
+     * @throws CustomerNotLoggedInException
+     */
     public function load(Request $request, SalesChannelContext $context): AccountPaymentMethodPage
     {
         if (!$context->getCustomer()) {
@@ -69,6 +73,7 @@ class AccountPaymentMethodPageLoader
         return (new Criteria())
             ->setOffset(($page - 1) * $limit)
             ->setLimit($limit)
-            ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+            ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT)
+            ->addSorting(new FieldSorting('position'));
     }
 }

@@ -30,7 +30,14 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         EntityRepositoryInterface $snippetSetRepository,
         EntityRepositoryInterface $categoryRepository
     ) {
-        parent::__construct($definitionRegistry, $salesChannelRepository, $paymentMethodRepository, $shippingMethodRepository, $countryRepository, $snippetSetRepository);
+        parent::__construct(
+            $definitionRegistry,
+            $salesChannelRepository,
+            $paymentMethodRepository,
+            $shippingMethodRepository,
+            $countryRepository,
+            $snippetSetRepository
+        );
         $this->categoryRepository = $categoryRepository;
     }
 

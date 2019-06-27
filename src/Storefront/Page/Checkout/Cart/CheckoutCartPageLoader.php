@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -88,7 +89,8 @@ class CheckoutCartPageLoader
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('payment_method.salesChannels.id', $context->getSalesChannel()->getId()));
+            ->addFilter(new EqualsFilter('payment_method.salesChannels.id', $context->getSalesChannel()->getId()))
+            ->addSorting(new FieldSorting('position'));
 
         /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $this->paymentMethodRepository

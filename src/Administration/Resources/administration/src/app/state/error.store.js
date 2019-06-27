@@ -33,8 +33,12 @@ class VuexErrorStore {
         };
 
         this.getters = {
-            getApiError: (state) => (entity, field) => {
-                const path = [entity.getEntityName(), entity.id, ...field.split('.')];
+            getApiErrorFromPath: (state) => (entityName, id, path) => {
+                const entityStorage = state.api[entityName];
+                if (!entityStorage) {
+                    return null;
+                }
+
                 return path.reduce((store, next) => {
                     if (store === null) {
                         return null;
@@ -44,7 +48,12 @@ class VuexErrorStore {
                         return store[next];
                     }
                     return null;
-                }, state.api);
+                }, entityStorage[id]);
+            },
+
+            getApiError: (state, getters) => (entity, field) => {
+                const path = field.split('.');
+                return getters.getApiErrorFromPath(entity.getEntityName(), entity.id, path);
             },
 
             existsErrorInProperty: (state) => (entity, properties) => {

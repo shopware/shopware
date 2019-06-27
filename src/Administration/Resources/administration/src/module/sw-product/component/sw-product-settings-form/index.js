@@ -1,6 +1,6 @@
 import { Component } from 'src/core/shopware';
 import { mapState } from 'vuex';
-import { mapFormErrors } from 'src/app/service/map-errors.service';
+import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-product-settings-form.html.twig';
 
 Component.register('sw-product-settings-form', {
@@ -12,7 +12,7 @@ Component.register('sw-product-settings-form', {
             'parentProduct'
         ]),
 
-        ...mapFormErrors('product', [
+        ...mapApiErrors('product', [
             'releaseDate',
             'stock',
             'width',

@@ -1,6 +1,6 @@
 import { string } from 'src/core/service/util.service';
 
-export function mapFormErrors(subject, properties = []) {
+export function mapApiErrors(subject, properties = []) {
     const map = {};
     properties.forEach((property) => {
         const getter = string.camelCase(`${subject}.${property}.error`);

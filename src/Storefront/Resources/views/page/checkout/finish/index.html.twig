@@ -20,7 +20,7 @@
                     {% endblock %}
 
                     {% block page_checkout_finish_items %}
-                        {% for lineItem in page.order.lineItems %}
+                        {% for lineItem in page.order.nestedLineItems %}
                             {% block page_checkout_finish_item %}
                                 {% sw_include '@Storefront/page/checkout/finish/finish-item.html.twig' %}
                             {% endblock %}

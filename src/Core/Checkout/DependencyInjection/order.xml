@@ -91,5 +91,9 @@
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Order\Subscriber\OrderLoadedSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

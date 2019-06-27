@@ -4,40 +4,18 @@
       "mainMenuItemGeneral": "Dashboard",
       "descriptionTextModule": "The administration's front page, displaying statistics and system information"
     },
-    "welcome": {
-      "header": "Welcome {firstName}",
-      "subHeader": "We are glad to have you here!",
-      "text": "This is where you start discovering the new Shopware generation.",
-      "subText": "We are looking forward to your feedback!",
-      "subSubText": "In the meantime, take a peek at what lies ahead. Our dedicated roadmap will keep you up to date with the latest developments regarding Shopware.",
-      "roadmapButton": "Roadmap",
-      "issueTrackerButton": "Send your feedback",
-      "roadmapLink": "https://www.shopware.com/en/roadmap/",
-      "issueTrackerLink": "https://issues.shopware.com?lang=en",
-      "enduserDocumentationLink": "http://docs.shopware.com/en/shopware-6-en",
-      "migrationDocumentationLink": "http://docs.shopware.com/en/migration-en"
+    "todayStats": {
+      "headline": "What is happening today?",
+      "shopwareVersion": "Early access 1",
+      "orders": "Orders",
+      "turnover": "Turnover",
+      "orderTime": "Time"
     },
-    "paypal": {
-      "setupButtonText": "Set up PayPal",
-      "settingsLinkButtonText": "Open PayPal settings"
-    },
-    "documentation": {
-      "header": "Documentation",
-      "pluginLinkLabel": "Plugin documentation",
-      "devLinkLabel": "Developer documentation",
-      "userLinkLabel": "User documentation"
-    },
-    "migration": {
-      "header": "Migration from Shopware 5",
-      "description": "Discover Shopware and start off with something familiar - your own data! Together we will connect your Shopware 5 data and to Shopware 6. Afterwards you will be able to migrate your data. A migration assistant we'll be at your side and help guide you through the process.",
-      "sw6pluginLinkLabel": "Migration plugin",
-      "sw5pluginLinkLabel": "Shopware 5 Connector",
-      "documentationLabel": "Migration documentation",
-      "setupButtonText": "Setup Migration",
-      "settingsLinkButtonText": "Migrate my data"
-    },
-    "plugin": {
-      "setupSuccessfulMsg": "Completed {pluginName} setup"
+    "monthStats": {
+      "headline": "What is happened the last 30 days",
+      "orderNumber": "Number of orders",
+      "turnover": "Turnover",
+      "numberOfOrders": "Number of orders"
     }
   }
 }

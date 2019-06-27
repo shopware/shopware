@@ -268,10 +268,11 @@ export default class Criteria {
      *
      * @param {String} name
      * @param {String} field
+     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static avg(name, field) {
-        return { type: 'avg', name, field };
+    static avg(name, field, groupByFields = []) {
+        return { type: 'avg', name, field, groupByFields };
     }
 
     /**
@@ -280,10 +281,11 @@ export default class Criteria {
      *
      * @param {String} name
      * @param {String} field
+     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static value(name, field) {
-        return { type: 'value', name, field };
+    static value(name, field, groupByFields = []) {
+        return { type: 'value', name, field, groupByFields };
     }
 
     /**
@@ -292,10 +294,11 @@ export default class Criteria {
      *
      * @param {String} name
      * @param {String} field
+     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static count(name, field) {
-        return { type: 'count', name, field };
+    static count(name, field, groupByFields = []) {
+        return { type: 'count', name, field, groupByFields };
     }
 
     /**
@@ -304,10 +307,11 @@ export default class Criteria {
      *
      * @param {String} name
      * @param {String} field
+     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static max(name, field) {
-        return { type: 'max', name, field };
+    static max(name, field, groupByFields = []) {
+        return { type: 'max', name, field, groupByFields };
     }
 
     /**
@@ -316,10 +320,11 @@ export default class Criteria {
      *
      * @param {String} name
      * @param {String} field
+     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static min(name, field) {
-        return { type: 'min', name, field };
+    static min(name, field, groupByFields = []) {
+        return { type: 'min', name, field, groupByFields };
     }
 
     /**
@@ -328,10 +333,11 @@ export default class Criteria {
      *
      * @param {String} name
      * @param {String} field
+     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static stats(name, field) {
-        return { type: 'stats', name, field };
+    static stats(name, field, groupByFields = []) {
+        return { type: 'stats', name, field, groupByFields };
     }
 
     /**
@@ -340,10 +346,11 @@ export default class Criteria {
      *
      * @param {String} name
      * @param {String} field
+     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static sum(name, field) {
-        return { type: 'sum', name, field };
+    static sum(name, field, groupByFields = []) {
+        return { type: 'sum', name, field, groupByFields };
     }
 
     /**
@@ -354,10 +361,11 @@ export default class Criteria {
      *
      * @param {string} name
      * @param {string} field
+     * @param {Array} [groupByFields]
      * @returns {Object}
      */
-    static valueCount(name, field) {
-        return { type: 'value_count', name, field };
+    static valueCount(name, field, groupByFields = []) {
+        return { type: 'value_count', name, field, groupByFields };
     }
 
     /**

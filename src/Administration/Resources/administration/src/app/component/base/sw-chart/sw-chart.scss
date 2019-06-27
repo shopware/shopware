@@ -1,0 +1,24 @@
+@import "~scss/variables";
+
+.apexcharts-canvas {
+    .apexcharts-tooltip.dark {
+        background: $color-darkgray-500;
+        color: $color-white;
+
+        .apexcharts-tooltip-series-group.active {
+            padding-top: 4px;
+        }
+
+        .apexcharts-tooltip-title {
+            background: none;
+            border-bottom-width: 0;
+        }
+    }
+
+    .apexcharts-xaxistooltip.dark {
+        background: $color-darkgray-500;
+    }
+    .apexcharts-xaxistooltip.dark:before, .apexcharts-xaxistooltip.dark:after {
+        border-bottom-color: $color-darkgray-500;
+    }
+}

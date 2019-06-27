@@ -46,7 +46,7 @@ Component.register('sw-cms-layout-modal', {
 
             return this.pageRepository.search(criteria, this.context).then((searchResult) => {
                 this.total = searchResult.total;
-                this.pages = searchResult.items;
+                this.pages = searchResult;
                 this.isLoading = false;
                 return this.pages;
             }).catch(() => {

@@ -116,8 +116,8 @@ class OrderingProcessTest extends TestCase
             'quantity' => $quantity,
         ];
 
-        $this->getSalesChannelClient()->request('POST', '/cart/addProduct', $data);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $this->getSalesChannelBrowser()->request('POST', '/cart/addProduct', $data);
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), print_r($response->getContent(), true));
 
@@ -133,8 +133,8 @@ class OrderingProcessTest extends TestCase
             'quantity' => $quantity,
         ];
 
-        $this->getSalesChannelClient()->request('POST', '/cart/setLineItemQuantity', $data);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $this->getSalesChannelBrowser()->request('POST', '/cart/setLineItemQuantity', $data);
+        $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertTrue($content['success']);
@@ -146,8 +146,8 @@ class OrderingProcessTest extends TestCase
             'identifier' => $id,
         ];
 
-        $this->getSalesChannelClient()->request('POST', '/cart/removeLineItem', $data);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $this->getSalesChannelBrowser()->request('POST', '/cart/removeLineItem', $data);
+        $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertTrue($content['success']);
@@ -202,10 +202,10 @@ class OrderingProcessTest extends TestCase
             'password' => $password,
         ];
 
-        $this->getSalesChannelClient()->request('POST', '/account/login', $data);
+        $this->getSalesChannelBrowser()->request('POST', '/account/login', $data);
 
         /** @var Response $response */
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertStringEndsWith('/account', (string) $response->headers->get('Location'), $response->getContent());
     }
@@ -216,10 +216,10 @@ class OrderingProcessTest extends TestCase
             'paymentMethodId' => $paymentMethodId,
         ];
 
-        $this->getSalesChannelClient()->request('POST', '/checkout/saveShippingPayment', $data);
+        $this->getSalesChannelBrowser()->request('POST', '/checkout/saveShippingPayment', $data);
 
         /** @var Response $response */
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertStringEndsWith('/checkout/confirm', $response->headers->get('Location'));
     }
 
@@ -229,10 +229,10 @@ class OrderingProcessTest extends TestCase
             'tos' => 'on',
         ];
 
-        $this->getSalesChannelClient()->request('POST', '/checkout/pay', $data);
+        $this->getSalesChannelBrowser()->request('POST', '/checkout/pay', $data);
 
         /** @var Response $response */
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         return $this->getOrderIdByResponse($response);
     }

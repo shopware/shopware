@@ -60,7 +60,6 @@ trait AdminApiTestBehaviour
                 ['ids' => $this->apiIntegrations],
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
-            $connection->executeQuery('DELETE FROM media');
         } catch (\Exception $ex) {
             //nth
         }
@@ -129,15 +128,6 @@ trait AdminApiTestBehaviour
         /** @var Connection $connection */
         $connection = $browser->getContainer()->get(Connection::class);
         $userId = Uuid::randomBytes();
-        $avatarId = Uuid::randomBytes();
-
-        $connection->insert('media', [
-            'id' => $avatarId,
-            'mime_type' => 'image/png',
-            'file_size' => 1024,
-            'uploaded_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
 
         $connection->insert('user', [
             'id' => $userId,
@@ -148,7 +138,6 @@ trait AdminApiTestBehaviour
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'locale_id' => $this->getLocaleOfSystemLanguage($connection),
             'active' => 1,
-            'avatar_id' => $avatarId,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 

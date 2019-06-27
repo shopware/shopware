@@ -43,9 +43,9 @@ class SalesChannelCategoryControllerTest extends TestCase
             ['id' => $id, 'name' => 'Test category', 'active' => true],
         ], $this->context);
 
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/category');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category');
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertSame(200, $response->getStatusCode());
 
@@ -65,9 +65,9 @@ class SalesChannelCategoryControllerTest extends TestCase
             ['id' => $id, 'name' => 'Test category', 'active' => true],
         ], $this->context);
 
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/category/' . $id);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category/' . $id);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode(), print_r($content, true));
@@ -96,17 +96,17 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/category', $params);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category', $params);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         $ids = array_column($content['data'], 'id');
         static::assertSame([$categoryA, $categoryB, $categoryC], $ids);
 
         $params['sort'] = '-name';
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/category', $params);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category', $params);
+        $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         $ids = array_column($content['data'], 'id');
@@ -126,9 +126,9 @@ class SalesChannelCategoryControllerTest extends TestCase
             ['id' => $categoryB, 'active' => true, 'name' => 'Matching name'],
         ], $this->context);
 
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/category', ['term' => 'Matching']);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category', ['term' => 'Matching']);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($content);
@@ -158,9 +158,9 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/category', $params);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category', $params);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         static::assertSame(1, $content['total']);
@@ -193,9 +193,9 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/category', $body);
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/category', $body);
 
-        $response = $this->getSalesChannelClient()->getResponse();
+        $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertSame(200, $response->getStatusCode());
         static::assertSame(2, $content['total']);
@@ -216,8 +216,8 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/category', $body);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/category', $body);
+        $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
@@ -238,8 +238,8 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/category', $body);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/category', $body);
+        $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
@@ -262,8 +262,8 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelClient()->request('POST', '/sales-channel-api/v1/category', $body);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/category', $body);
+        $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
@@ -291,8 +291,8 @@ class SalesChannelCategoryControllerTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $this->getSalesChannelClient()->request('GET', '/sales-channel-api/v1/category/' . $id);
-        $response = $this->getSalesChannelClient()->getResponse();
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category/' . $id);
+        $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertSame(404, $response->getStatusCode());
         $content = json_decode($response->getContent(), true);

@@ -111,9 +111,6 @@ class ResponseTypeRegistryTest extends TestCase
 
     public function testSalesChannelJsonApi(): void
     {
-        // jsonapi support for sales channel is deactivated
-        $this->expectException(UnsupportedMediaTypeHttpException::class);
-
         $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
         $self = 'http://localhost/sales-channel-api/category/' . $id;
@@ -127,8 +124,6 @@ class ResponseTypeRegistryTest extends TestCase
         static::assertEquals($id, $content['data']['attributes']['name']);
         static::assertEquals($self, $content['links']['self']);
         static::assertEquals($self, $content['data']['links']['self']);
-
-        $this->assertEmptyRelationships($content);
     }
 
     public function testSSalesChannelDefaultContentType(): void
@@ -156,9 +151,6 @@ class ResponseTypeRegistryTest extends TestCase
 
     public function testSalesChannelJsonApiList(): void
     {
-        // jsonapi support for storefront is deactivated
-        $this->expectException(UnsupportedMediaTypeHttpException::class);
-
         $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
         $self = 'http://localhost/sales-channel-api/category';
@@ -191,17 +183,6 @@ class ResponseTypeRegistryTest extends TestCase
         static::assertEquals($id, $content['data'][0]['attributes']['name']);
         static::assertEquals($self, $content['links']['self']);
         static::assertEquals($self . '/' . $id, $content['data'][0]['links']['self']);
-    }
-
-    protected function assertEmptyRelationships($content): void
-    {
-        static::assertEmpty($content['data']['relationships']);
-
-        if (isset($content['included'])) {
-            foreach ($content['included'] as $inc) {
-                static::assertEmpty($inc['relationships']);
-            }
-        }
     }
 
     protected function assertDetailJsonApiStructure($content): void

@@ -8,9 +8,9 @@ use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\CreateAtAndUpdatedAtFieldTest;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\Flag\WriteProtectedFlagTest;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\JsonFieldTest;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\ListFieldTest;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\WriteProtectedFieldTest;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\SearchCriteriaBuilderTest;
 use Shopware\Storefront\Test\OrderingProcessTest;
 
@@ -30,7 +30,7 @@ class TestValidityListener implements TestListener
             CreateAtAndUpdatedAtFieldTest::class,
             JsonFieldTest::class,
             ListFieldTest::class,
-            WriteProtectedFieldTest::class,
+            WriteProtectedFlagTest::class,
         ],
         'traits' => [
             OrderingProcessTest::class,

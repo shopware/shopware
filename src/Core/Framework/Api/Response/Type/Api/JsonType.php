@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Response\Type\Api;
 
 use Shopware\Core\Framework\Api\Response\Type\JsonFactoryBase;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\Context\ContextSource;
@@ -12,18 +13,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\Serializer;
 
 class JsonType extends JsonFactoryBase
 {
     /**
-     * @var Serializer
+     * @var JsonEntityEncoder
      */
-    private $serializer;
+    private $encoder;
 
-    public function __construct(Serializer $serializer)
+    public function __construct(JsonEntityEncoder $encoder)
     {
-        $this->serializer = $serializer;
+        $this->encoder = $encoder;
     }
 
     public function supports(string $contentType, ContextSource $origin): bool
@@ -38,7 +38,7 @@ class JsonType extends JsonFactoryBase
             $headers['Location'] = $this->getEntityBaseUrl($request, $definition) . '/' . $entity->getUniqueIdentifier();
         }
 
-        $decoded = $this->serializer->normalize($entity);
+        $decoded = $this->encoder->encode($definition, $entity, $this->getApiBaseUrl($request));
 
         $response = [
             'data' => $decoded,
@@ -49,7 +49,7 @@ class JsonType extends JsonFactoryBase
 
     public function createListingResponse(EntitySearchResult $searchResult, EntityDefinition $definition, Request $request, Context $context): Response
     {
-        $decoded = $this->serializer->normalize($searchResult);
+        $decoded = $this->encoder->encode($definition, $searchResult->getEntities(), $this->getApiBaseUrl($request));
 
         $response = [
             'total' => $searchResult->getTotal(),

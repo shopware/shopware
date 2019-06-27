@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -21,7 +22,7 @@ class JsonApiEncoder
     private $caseCache = [];
 
     /**
-     * @var Record[]
+     * @var array[string]array[string]Record
      */
     private $serializeCache = [];
 
@@ -55,7 +56,7 @@ class JsonApiEncoder
 
         $self = $result->getBaseUrl() . '/' . $this->camelCaseToSnailCase($definition->getEntityName()) . '/' . $entity->getUniqueIdentifier();
 
-        $serialized = clone $this->createSerializedEntity($definition);
+        $serialized = clone $this->createSerializedEntity($definition, $result);
         $serialized->addLink('self', $self);
         $serialized->merge($entity);
 
@@ -129,10 +130,10 @@ class JsonApiEncoder
         }
     }
 
-    private function createSerializedEntity(EntityDefinition $definition): Record
+    private function createSerializedEntity(EntityDefinition $definition, JsonApiEncodingResult $result): Record
     {
-        if (isset($this->serializeCache[$definition->getClass()])) {
-            return clone $this->serializeCache[$definition->getClass()];
+        if (isset($this->serializeCache[$definition->getClass()][$result->getBaseUrl()])) {
+            return clone $this->serializeCache[$definition->getClass()][$result->getBaseUrl()];
         }
 
         $serialized = new Record();
@@ -140,6 +141,13 @@ class JsonApiEncoder
 
         foreach ($definition->getFields() as $propertyName => $field) {
             if ($propertyName === 'id' || $field->is(Internal::class)) {
+                continue;
+            }
+
+            /** @var ReadProtected|null $readProtected */
+            $readProtected = $field->getFlag(ReadProtected::class);
+
+            if ($readProtected && !$readProtected->isBaseUrlAllowed($result->getBaseUrl())) {
                 continue;
             }
 
@@ -171,7 +179,7 @@ class JsonApiEncoder
             }
         }
 
-        return $this->serializeCache[$definition->getClass()] = $serialized;
+        return $this->serializeCache[$definition->getClass()][$result->getBaseUrl()] = $serialized;
     }
 
     private function formatToJson(JsonApiEncodingResult $result): string

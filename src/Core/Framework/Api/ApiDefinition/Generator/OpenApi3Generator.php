@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -12,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -96,7 +99,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $onlyReference = true;
             }
 
-            $schema = $this->getSchemaByDefinition($definition);
+            $schema = $this->getSchemaByDefinition($definition, $forSalesChannel);
 
             if ($onlyReference) {
                 // if the definition is only used for references we just need the flat schema
@@ -126,6 +129,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     {
         $schemaDefinitions = [];
 
+        $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
+
         ksort($definitions);
 
         foreach ($definitions as $definition) {
@@ -140,7 +145,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $schema = $this->getSchemaByDefinition($definition);
+            $schema = $this->getSchemaByDefinition($definition, $forSalesChannel);
             $schema = array_shift($schema);
             $schema = $schema['allOf'][1]['properties'];
 
@@ -315,7 +320,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $property;
     }
 
-    private function getSchemaByDefinition(EntityDefinition $definition): array
+    private function getSchemaByDefinition(EntityDefinition $definition, bool $forSalesChannel): array
     {
         $attributes = [];
         $requiredAttributes = [];
@@ -327,12 +332,19 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         $extensions = [];
 
+        $apiSource = $forSalesChannel ? SalesChannelApiSource::class : AdminApiSource::class;
         /** @var Field $field */
         foreach ($definition->getFields() as $field) {
             if ($field->getPropertyName() === 'translations'
                 || $field->getPropertyName() === 'id'
                 || preg_match('#translations$#i', $field->getPropertyName())
                 || $field->is(Internal::class)) {
+                continue;
+            }
+
+            /** @var ReadProtected|null $readProtected */
+            $readProtected = $field->getFlag(ReadProtected::class);
+            if ($readProtected && !$readProtected->isSourceAllowed($apiSource)) {
                 continue;
             }
 
@@ -637,10 +649,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         if (is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
             unset($openapi['paths'][$path]['post']);
-            unset($openapi['paths'][$path]['get']['responses'][Response::HTTP_OK]['content']['application/vnd.api+json']);
             unset($openapi['paths'][$path . '/{id}']['patch']);
             unset($openapi['paths'][$path . '/{id}']['delete']);
-            unset($openapi['paths'][$path . '/{id}']['get']['responses'][Response::HTTP_OK]['content']['application/vnd.api+json']);
         }
 
         return $openapi;

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
+use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicStruct;
@@ -21,7 +22,7 @@ use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestMainResourceShouldN
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
 
-class JsonApiEncoderTest extends TestCase
+class JsonEntityEncoderTest extends TestCase
 {
     use KernelTestBehaviour;
 
@@ -32,7 +33,7 @@ class JsonApiEncoderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->encoder = new JsonApiEncoder();
+        $this->encoder = new JsonEntityEncoder($this->getContainer()->get('serializer'));
     }
 
     public function emptyInputProvider(): array
@@ -77,6 +78,6 @@ class JsonApiEncoderTest extends TestCase
     {
         $actual = $this->encoder->encode($definition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
-        static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+        static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
     }
 }

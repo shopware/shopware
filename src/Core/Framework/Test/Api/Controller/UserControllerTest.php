@@ -23,6 +23,6 @@ class UserControllerTest extends TestCase
         static::assertArrayHasKey('attributes', $content['data']);
         static::assertSame('user', $content['data']['type']);
         static::assertSame('admin@example.com', $content['data']['attributes']['email']);
-        static::assertNotNull($content['data']['relationships']['avatarMedia']['data']);
+        static::assertNotNull($content['data']['relationships']['avatarMedia']);
     }
 }

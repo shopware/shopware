@@ -462,7 +462,7 @@
             <tag name="shopware.field_serializer" />
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedAtTimeFieldSerializer">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedAtFieldSerializer">
             <argument type="service" id="validator"/>
             <tag name="shopware.field_serializer"/>
         </service>

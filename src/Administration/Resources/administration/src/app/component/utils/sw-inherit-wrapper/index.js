@@ -141,8 +141,8 @@ export default {
             }
 
             // if association
-            if (this.isAssociation && this.value && this.value.items) {
-                return Object.values(this.value.items).length <= 0;
+            if (this.isAssociation && this.value) {
+                return this.value.length <= 0;
             }
 
             return this.value === null;
@@ -178,12 +178,12 @@ export default {
 
             // if association
             if (this.isAssociation) {
-                // remove all items from tags
-                Object.values(this.value.items).map(item => item.id).forEach((id) => {
-                    this.value.remove(id);
+                // remove all items from value
+                this.value.forEach((item) => {
+                    this.value.remove(item.id);
                 });
 
-                // return new tags
+                // return new value
                 this.updateValue(this.value, 'restore');
                 return;
             }
@@ -199,16 +199,16 @@ export default {
             }
 
             // if association
-            if (this.isAssociation && newValue && newValue.items && this.value && this.value.items) {
+            if (this.isAssociation && newValue && this.value) {
                 // remove all items
                 this.restoreInheritance();
 
-                if (Object.values(newValue.items).length <= 0) {
+                if (newValue.length <= 0) {
                     this.forceInheritanceRemove = true;
                 }
 
                 // add each item from the parentValue to the original value
-                Object.values(newValue.items).forEach((item) => {
+                newValue.forEach((item) => {
                     this.value.add(item);
                 });
 

@@ -121,8 +121,6 @@
       "columnPrice": "Price",
       "columnInStock": "In Stock",
       "columnActions": "Action(s)",
-      "filterStock": "Lagerbestand unter 10",
-      "filterPrice": "Preis über 50€",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",

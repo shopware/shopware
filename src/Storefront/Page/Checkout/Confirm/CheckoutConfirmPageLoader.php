@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -62,7 +63,9 @@ class CheckoutConfirmPageLoader
 
     private function getPaymentMethods(SalesChannelContext $context): PaymentMethodCollection
     {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true))
+            ->addSorting(new FieldSorting('position'));
         /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $context->getContext())->getEntities();
 

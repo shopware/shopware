@@ -24,10 +24,8 @@ class CheckoutConfirmPage extends Page
      */
     protected $shippingMethods;
 
-    public function __construct(
-        PaymentMethodCollection $paymentMethods,
-        ShippingMethodCollection $shippingMethods
-    ) {
+    public function __construct(PaymentMethodCollection $paymentMethods, ShippingMethodCollection $shippingMethods)
+    {
         $this->paymentMethods = $paymentMethods;
         $this->shippingMethods = $shippingMethods;
     }

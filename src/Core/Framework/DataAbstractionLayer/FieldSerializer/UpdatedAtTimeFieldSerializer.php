@@ -9,8 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
-class UpdatedAtFieldSerializer extends DateTimeFieldSerializer
+class UpdatedAtTimeFieldSerializer extends DateTimeFieldSerializer
 {
+    /**
+     * @throws InvalidSerializerFieldException
+     */
     public function encode(
         Field $field,
         EntityExistence $existence,

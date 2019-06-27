@@ -34,11 +34,13 @@ class SeoUrlFunctionExtension extends AbstractExtension
     public function productUrl(ProductEntity $product): string
     {
         if (!$product->hasExtension('canonicalUrl')) {
-            return $this->router->generate(
+            $productUrl = $this->router->generate(
                 'frontend.detail.page',
                 ['productId' => $product->getId()],
                 RouterInterface::ABSOLUTE_URL
             );
+
+            return $productUrl;
         }
 
         /** @var SeoUrlEntity $canonical */

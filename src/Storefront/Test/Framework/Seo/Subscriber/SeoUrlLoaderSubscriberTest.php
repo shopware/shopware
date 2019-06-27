@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Seo\SeoUrl\CanonicalUrlCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
@@ -43,6 +44,7 @@ class SeoUrlLoaderSubscriberTest extends TestCase
         $seoUrlRepo = $this->getSeoUrlRepoMock([$seoUrl], $salesChannelApiContext);
 
         $request = Request::create('https://shop.test/foo/bar');
+        $request->attributes->set(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL, 'https://shop.test');
         $requestStack = $this->getRequestStackMock($request);
         $subscriber = new SeoUrlLoaderSubscriber($seoUrlRepo, $registry, $requestStack);
 
@@ -77,6 +79,7 @@ class SeoUrlLoaderSubscriberTest extends TestCase
 
         $seoUrlRepo = $this->getSeoUrlRepoMock([$seoUrl], $context);
         $request = Request::create('https://shop.test/foo/bar');
+        $request->attributes->set(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL, 'https://shop.test');
         $requestStack = $this->getRequestStackMock($request);
         $subscriber = new SeoUrlLoaderSubscriber($seoUrlRepo, $registry, $requestStack);
 
@@ -113,6 +116,7 @@ class SeoUrlLoaderSubscriberTest extends TestCase
         $seoUrlRepo = $this->getSeoUrlRepoMock([$seoUrl1, $seoUrl2], $salesChannelApiContext);
 
         $request = Request::create('https://shop.test/foo/bar');
+        $request->attributes->set(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL, 'https://shop.test');
         $requestStack = $this->getRequestStackMock($request);
         $subscriber = new SeoUrlLoaderSubscriber($seoUrlRepo, $registry, $requestStack);
 

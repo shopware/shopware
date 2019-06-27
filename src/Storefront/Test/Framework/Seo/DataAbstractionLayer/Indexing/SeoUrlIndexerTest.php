@@ -450,7 +450,7 @@ class SeoUrlIndexerTest extends TestCase
                 'name' => 'foo',
                 'productNumber' => 'P1',
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
-                'price' => ['gross' => 10, 'net' => 12, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
                 'stock' => 0,
             ],
             [
@@ -462,7 +462,7 @@ class SeoUrlIndexerTest extends TestCase
                 'name' => 'bar',
                 'productNumber' => 'P2',
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
-                'price' => ['gross' => 10, 'net' => 12, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
                 'stock' => 0,
             ],
         ];
@@ -499,7 +499,7 @@ class SeoUrlIndexerTest extends TestCase
                 'name' => 'foo',
                 'productNumber' => 'P1',
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
-                'price' => ['gross' => 10, 'net' => 12, 'linked' => false],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
                 'stock' => 0,
             ],
         ];

@@ -132,10 +132,10 @@ export default {
             let val = Number.parseFloat(event.target.value);
 
             if (val !== Number.NaN) {
-                if (val > this.max) {
+                if (this.max && val > this.max) {
                     val = this.max;
                 }
-                if (val < this.min) {
+                if (this.min && val < this.min) {
                     val = this.min;
                 }
 

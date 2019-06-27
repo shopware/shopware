@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedAtFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedAtTimeFieldSerializer;
 
 class UpdatedAtField extends DateTimeField
 {
@@ -15,6 +15,6 @@ class UpdatedAtField extends DateTimeField
 
     protected function getSerializerClass(): string
     {
-        return UpdatedAtFieldSerializer::class;
+        return UpdatedAtTimeFieldSerializer::class;
     }
 }

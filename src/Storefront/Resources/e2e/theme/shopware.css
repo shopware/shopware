@@ -1,0 +1,99 @@
+/*
+ * Styles for a Shopware-themed test runner
+ */
+
+/* Styling of general things and icons */
+.reporter .stats li.passed,
+.reporter .command-is-pinned > span > .command-wrapper .command-pin,
+.reporter .command-name-xhr .fa-circle.successful,
+.reporter .command-name-request .fa-circle.successful,
+.reporter .runnable.runnable-passed > .runnable-wrapper .runnable-state {
+    color: #189eff;
+}
+
+.reporter .stats li.failed,
+.reporter .command-name-xhr .fa-circle.bad,
+.reporter .command-name-request .fa-circle.bad,
+.reporter .runnable.runnable-failed > .runnable-wrapper .runnable-state {
+    color: #E94F5F;
+}
+
+.reporter .commands-container {
+    background-color: #eceff3;
+}
+
+/* Fonts */
+.reporter .runnable.suite > div > .runnable-wrapper .runnable-title,
+.reporter .test .runnable-content-region,
+.reporter header,
+.runner header,
+.runner header button,
+.runner .viewport-info button,
+.runner header button i,
+.reporter header button {
+    color: #2b354b;
+}
+
+.runner .iframes-container {
+    background-color: #2b354b;
+}
+
+/* Styling of passed state */
+.reporter .runnable.test.runnable-passed > .runnable-wrapper,
+.reporter .runnable.suite.runnable-passed > div > .runnable-wrapper {
+    border-left: 10px solid #189eff;
+}
+
+.reporter .command-name-assert.command-state-passed .command-method span,
+.num-elements {
+    background-color: #189eff;
+}
+
+.reporter .command-name-assert.command-state-passed .command-message-text,
+.reporter .command-name-assert.command-state-passed .command-message-text strong {
+    color: #189eff;
+}
+
+.fa-check:before,
+.reporter .runnable.runnable-passed > .runnable-wrapper .runnable-state:before {
+    content: "\f5b5";
+    font-family: "Font Awesome 5 Brands";
+}
+
+.reporter .controls .toggle-auto-scrolling.auto-scrolling-enabled i:first-child {
+    color: #b46fff;
+}
+
+/* Styling of pending state */
+.reporter .stats li.pending,
+.reporter .runnable.runnable-pending > .runnable-wrapper .runnable-state,
+.reporter .runnable.runnable-pending > .runnable-wrapper .runnable-title {
+    color: #b46fff;
+}
+
+.reporter .runnable.test.runnable-pending > .runnable-wrapper,
+.reporter .runnable.suite.runnable-pending > div > .runnable-wrapper {
+    border-left: 10px solid #b46fff;
+}
+
+.reporter .command-name-assert.command-state-pending .command-method span,
+.num-elements {
+    background-color: #b46fff;
+}
+
+/* Failed state styling */
+.reporter .runnable pre:hover {
+    color: #2b354b;
+    background-color: #14243233;
+}
+.reporter .runnable pre {
+    color: #2b354b;
+    background-color: #1424321A;
+}
+
+/* Pinned styling */
+.reporter .command-is-pinned > span > .command-wrapper,
+.reporter .command-is-pinned > span > .command-wrapper:hover {
+    background-color: #189eff33;
+    border-left: 2px solid #189eff;
+}

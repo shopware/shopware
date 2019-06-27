@@ -1,0 +1,10 @@
+{
+  "customerNumber": "RS-1232123",
+  "firstName": "Pep",
+  "lastName": "Eroni",
+  "email": "test@example.com",
+  "password": "shopware",
+  "addresses": [
+    {}
+  ]
+}

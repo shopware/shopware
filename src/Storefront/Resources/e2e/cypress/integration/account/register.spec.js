@@ -1,0 +1,50 @@
+import AccountPageObject from '../../support/pages/account.page-object';
+
+describe('Account: Register via account menu', () => {
+    it('check if register form is present', () => {
+        const page = new AccountPageObject();
+        cy.visit('/account/login');
+        cy.get(page.elements.registerCard).should('be.visible');
+    });
+
+    it('trigger validation error', () => {
+        const page = new AccountPageObject();
+        cy.visit('/account/login');
+        cy.get(page.elements.registerCard).should('be.visible');
+
+        cy.get('[name="email"]:invalid').should('be.visible');
+        cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
+    });
+
+    it('fill registration form and submit', () => {
+        const page = new AccountPageObject();
+        cy.visit('/account/login');
+        cy.get(page.elements.registerCard).should('be.visible');
+
+        cy.get('select[name="salutationId"]').select('Mr.');
+        cy.get('input[name="title"]').type('Prof. Dr.');
+        cy.get('input[name="firstName"]').type('John');
+        cy.get('input[name="lastName"]').type('Doe');
+
+        cy.get('select[name="birthdayDay"]').select('4');
+        cy.get('select[name="birthdayMonth"]').select('8');
+        cy.get('select[name="birthdayYear"]').select('1917');
+
+        cy.get(`${page.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
+        cy.get(`${page.elements.registerForm} input[name="password"]`).type('1234567890');
+
+        cy.get('input[name="billingAddress[street]"]').type('123 Main St');
+        cy.get('input[name="billingAddress[zipcode]"]').type('9876');
+        cy.get('input[name="billingAddress[city]"]').type('Anytown');
+        cy.get('select[name="billingAddress[countryId]"]').select('USA');
+
+        cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
+
+        cy.url().should('not.include', '/register');
+        cy.url().should('include', '/account');
+
+        cy.get('.account-welcome h1').should((element) => {
+            expect(element).to.contain('Overview');
+        });
+    });
+});

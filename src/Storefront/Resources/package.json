@@ -24,6 +24,7 @@
     "bootstrap": "4.3.1",
     "copy-webpack-plugin": "5.0.1",
     "deepmerge": "3.2.0",
+    "eslint-plugin-cypress": "^2.2.1",
     "formdata-polyfill": "3.0.17",
     "friendly-errors-webpack-plugin": "1.7.0",
     "hammerjs": "2.0.8",

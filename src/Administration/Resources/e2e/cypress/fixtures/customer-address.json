@@ -1,0 +1,17 @@
+{
+  "addresses": [
+    {
+      "firstName": "Pep",
+      "lastName": "Eroni",
+      "street": "Ebbinghoff 10",
+      "zipcode": "48624",
+      "city": "Schöppingen"
+    }, {
+      "firstName": "Lemon",
+      "lastName": "Zitrone",
+      "street": "Ebbinghoff 10A",
+      "zipcode": "48624",
+      "city": "Schöppingen"
+    }
+  ]
+}

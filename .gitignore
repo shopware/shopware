@@ -83,6 +83,7 @@ src/Docs/Command/wiki.secret
 .phpunit
 .phpunit.result.cache
 /phpunit.xml
+/src/Administration/Resources/app/
 ###< symfony/phpunit-bridge ###
 
 ###> phpunit/phpunit ###

@@ -112,7 +112,8 @@
                                                     <sw-context-button>
 
                                                         {% block sw_settings_payment_list_columns_actions_edit %}
-                                                            <sw-context-menu-item :routerLink="{ name: 'sw.settings.payment.detail', params: { id: item.id } }">
+                                                            <sw-context-menu-item :routerLink="{ name: 'sw.settings.payment.detail', params: { id: item.id } }"
+                                                                                   class="sw-settings-payment-list__edit-action">
                                                                 {{ $tc('sw-settings-payment.list.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

@@ -38,7 +38,7 @@
 														-
 														{{ product.calculatedListingPrice.to.unitPrice|currency}}
 													{% elseif product.calculatedPrices|length == 1 %}
-														{{ product.calculatedPrices.first.unitPricey |currency }}
+														{{ product.calculatedPrices.first.unitPrice|currency }}
 													{% else %}
 														{{ product.calculatedPrice.unitPrice|currency }}
 													{% endif %}

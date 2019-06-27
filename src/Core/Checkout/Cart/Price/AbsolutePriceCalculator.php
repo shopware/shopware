@@ -26,11 +26,11 @@ class AbsolutePriceCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    public function calculate(float $price, PriceCollection $prices, SalesChannelContext $context): CalculatedPrice
+    public function calculate(float $price, PriceCollection $prices, SalesChannelContext $context, int $quantity = 1): CalculatedPrice
     {
         $taxRules = $this->percentageTaxRuleBuilder->buildRules($prices->sum());
 
-        $priceDefinition = new QuantityPriceDefinition($price, $taxRules, $context->getContext()->getCurrencyPrecision(), 1, true);
+        $priceDefinition = new QuantityPriceDefinition($price, $taxRules, $context->getContext()->getCurrencyPrecision(), $quantity, true);
 
         return $this->priceCalculator->calculate($priceDefinition, $context);
     }

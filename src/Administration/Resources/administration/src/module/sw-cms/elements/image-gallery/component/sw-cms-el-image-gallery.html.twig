@@ -2,10 +2,10 @@
     <div class="sw-cms-el-image-gallery" :class="[galleryPositionClass, currentDeviceViewClass]" :style="verticalAlignStyle">
 
         {% block sw_cms_element_image_gallery_grid %}
-            <div class="sw-cms-el-image-gallery__grid" v-if="currentDeviceView !== 'mobile'">
+            <div class="sw-cms-el-image-gallery__grid" ref="galleryItemHolder">
 
                 <template v-if="element.data && element.data.sliderItems && element.data.sliderItems.length">
-                    <div class="sw-cms-el-image-gallery__item-holder" ref="galleryItemHolder">
+                    <div class="sw-cms-el-image-gallery__item-holder">
                         {% block sw_cms_element_image_gallery_selection %}
                             <sw-media-list-selection-item
                                 v-for="(sliderItem, index) in element.data.sliderItems"

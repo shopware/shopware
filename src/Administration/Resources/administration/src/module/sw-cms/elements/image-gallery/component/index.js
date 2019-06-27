@@ -40,6 +40,10 @@ Component.register('sw-cms-el-image-gallery', {
 
     watch: {
         currentDeviceView() {
+            if (this.currentDeviceView === 'mobile') {
+                this.galleryLimit = 0;
+            }
+
             // timeout due to css transition 0.4s
             setTimeout(() => {
                 this.setGalleryLimit();
@@ -105,10 +109,6 @@ Component.register('sw-cms-el-image-gallery', {
         },
 
         setGalleryLimit() {
-            if (this.currentDeviceView === 'mobile') {
-                return;
-            }
-
             if (this.element.config.sliderItems.value.length === 0) {
                 return;
             }
@@ -116,9 +116,10 @@ Component.register('sw-cms-el-image-gallery', {
             let boxSpace = 0;
             let elSpace = 0;
             const elGap = 8;
+            const arrowAndGapWidth = 36;
 
             if (this.element.config.galleryPosition.value === 'underneath') {
-                boxSpace = this.$refs.galleryItemHolder.offsetWidth;
+                boxSpace = this.$refs.galleryItemHolder.offsetWidth - arrowAndGapWidth;
                 elSpace = 92;
             } else {
                 boxSpace = this.$refs.galleryItemHolder.offsetHeight;

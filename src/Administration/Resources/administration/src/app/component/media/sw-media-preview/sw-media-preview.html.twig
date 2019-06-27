@@ -24,6 +24,7 @@
                                  :srcset="sourceSet"
                                  :sizes="`${width}px`"
                                  draggable="false"
+                                 @click="$emit('click')"
                                  @error="showEvent">
                             <sw-icon v-else class="sw-media-preview__item" name="multicolor-file-thumbnail-broken" multicolor></sw-icon>
                             <sw-icon v-if="mediaIsPrivate" class="sw-media-preview__locked-icon sw-icon--small" name="default-lock-closed" multicolor></sw-icon>

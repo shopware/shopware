@@ -3,7 +3,8 @@
 .sw-cms-el-image-slider {
     position: relative;
     width: 100%;
-    align-self: flex-start;
+    height: 100%;
+    align-items: start;
 
     &.has--outside-arrows {
         width: calc(100% - 48px);
@@ -12,7 +13,6 @@
 
     .sw-cms-el-image-slider__image-box {
         display: grid;
-        height: 100%;
 
         .sw-cms-el-image-slider__image {
             margin: 0 auto;

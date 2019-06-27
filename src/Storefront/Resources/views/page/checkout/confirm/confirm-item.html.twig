@@ -16,7 +16,7 @@
 
             {% block page_checkout_item_tax_price_inner %}
                 {% for calculatedTax in lineItem.price.calculatedTaxes %}
-                    {{ calculatedTax.tax|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                    {{ calculatedTax.tax|currency }}
                     <br>
                 {% endfor %}
             {% endblock %}

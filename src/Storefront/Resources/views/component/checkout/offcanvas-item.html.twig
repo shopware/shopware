@@ -105,7 +105,7 @@
 
                                         {% block component_offcanvas_product_total_price %}
                                             <div class="cart-item-price">
-                                                {{ lineItem.price.totalPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans }}
                                             </div>
                                         {% endblock %}
                                     </div>

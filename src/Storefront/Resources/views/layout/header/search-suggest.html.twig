@@ -34,13 +34,13 @@
 											{% block layout_search_suggest_result_price %}
 												<div class="col-auto search-suggest-product-price">
 													{% if product.priceRange %}
-														{{ product.calculatedListingPrice.from.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+														{{ product.calculatedListingPrice.from.unitPrice|currency }}
 														-
-														{{ product.calculatedListingPrice.to.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+														{{ product.calculatedListingPrice.to.unitPrice|currency}}
 													{% elseif product.calculatedPrices|length == 1 %}
-														{{ product.calculatedPrices.first.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+														{{ product.calculatedPrices.first.unitPricey |currency }}
 													{% else %}
-														{{ product.calculatedPrice.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+														{{ product.calculatedPrice.unitPrice|currency }}
 													{% endif %}
 												</div>
 											{% endblock %}

@@ -17,7 +17,7 @@
 
                     {% block page_checkout_summary_position_value %}
                         <dd class="col-5 checkout-aside-summary-value">
-                            {{ summary.price.positionPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                            {{ summary.price.positionPrice|currency }}{{ "general.star"|trans }}
                         </dd>
                     {% endblock %}
                 {% endblock %}
@@ -33,7 +33,7 @@
 
                             {% block page_checkout_summary_shipping_value %}
                                 <dd class="col-5 checkout-aside-summary-value">
-                                    {{ delivery.shippingCosts.totalPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                    {{ delivery.shippingCosts.totalPrice|currency }}{{ "general.star"|trans }}
                                 </dd>
                             {% endblock %}
                         {% endblock %}
@@ -49,7 +49,7 @@
 
                     {% block page_checkout_summary_total_value %}
                         <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
-                            {{ summary.price.totalPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                            {{ summary.price.totalPrice|currency }}
                         </dd>
                     {% endblock %}
                 {% endblock %}
@@ -63,7 +63,7 @@
 
                     {% block page_checkout_summary_net_value %}
                         <dd class="col-5 checkout-aside-summary-value">
-                            {{ summary.price.netPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                            {{ summary.price.netPrice|currency }}
                         </dd>
                     {% endblock %}
                 {% endblock %}
@@ -81,7 +81,7 @@
 
                             {% block page_checkout_summary_tax_value %}
                                 <dd class="col-5 checkout-aside-summary-value">
-                                    {{ taxItem.tax|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                                    {{ taxItem.tax|currency }}
                                 </dd>
                             {% endblock %}
                         {% endblock %}

@@ -107,7 +107,7 @@
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_shipping_costs_value %}
-                                                        <dd class="col-6 col-md-4">{{ order.shippingTotal|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}</dd>
+                                                        <dd class="col-6 col-md-4">{{ order.shippingTotal|currency }}</dd>
                                                     {% endblock %}
                                                 {% endblock %}
 
@@ -125,9 +125,9 @@
                                                     {% block page_account_order_item_detail_amount_value %}
                                                         <dd class="col-6 col-md-4">
                                                             {% if order.isTaxFree %}
-                                                                {{ order.amountNet|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                                                                {{ order.amountNet|currency }}
                                                             {% else %}
-                                                                {{ order.amountTotal|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                                                                {{ order.amountTotal|currency }}
                                                             {% endif %}
                                                         </dd>
                                                     {% endblock %}

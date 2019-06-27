@@ -60,7 +60,7 @@
                                                         <span class="order-base-price">
                                                                     {{ "account.orderItemInfoBaseprice"|trans }}:
                                                                 </span>
-                                                        {{ lineItem.referenceunit }} {{ lineItem.packUnit }} = {{ lineItem.referencePrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                        {{ lineItem.referenceunit }} {{ lineItem.packUnit }} = {{ lineItem.referencePrice|currency }}{{ "general.star"|trans }}
                                                     {% endif %}
                                                 </p>
                                             {% endif %}
@@ -98,7 +98,7 @@
                             {% block page_account_order_item_detail_price_value %}
                                 <span class="order-item-value order-item-price-value">
                                             {% if lineItem.unitPrice and lineItem.type == 'product' %}
-                                                {{ lineItem.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                                {{ lineItem.unitPrice|currency }}{{ "general.star"|trans }}
                                             {% elseif lineItem.type == 'promotion' %}
                                                 /
                                             {% else %}
@@ -120,7 +120,7 @@
                             {% block page_account_order_item_detail_total_value %}
                                 <span class="order-item-value order-item-total-value">
                                     {% if lineItem.totalPrice %}
-                                        {{ lineItem.totalPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
+                                        {{ lineItem.totalPrice|currency }}{{ "general.star"|trans }}
                                     {% else %}
                                         {{ "account.orderItemInfoFree"|trans }}
                                     {% endif %}

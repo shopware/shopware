@@ -17,9 +17,11 @@ Single action example:
 
 Full example for notification actions:
 ```
-this.createSystemNotificationInfo({
+this.$store.dispatch('notification/createNotification', {
     title: 'Shopware update',
     message: 'Shopware 6.0-ea2 is now available. Do you want to update now?',
+    variant: 'info',
+    system: true,
     actions: [{
         label: 'Cancel'
     }, {

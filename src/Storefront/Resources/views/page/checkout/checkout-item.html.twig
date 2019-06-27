@@ -1,6 +1,7 @@
 {% block page_checkout_item %}
     {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
     {% set isNested = lineItem.children.count > 0 %}
+    {% set childTemplate = '@Storefront/page/checkout/checkout-item.html.twig' %}
 
     {% block page_checkout_item_container %}
         <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %}">
@@ -202,7 +203,7 @@
     {% block page_checkout_item_children %}
         {% for lineItem in lineItem.children %}
             {% block page_checkout_item_child %}
-                {% sw_include '@Storefront/page/checkout/checkout-item.html.twig' with {
+                {% sw_include childTemplate with {
                     'isChild': true
                 } %}
             {% endblock %}

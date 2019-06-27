@@ -37,3 +37,8 @@
            name="redirectTo"
            value="frontend.checkout.confirm.page">
 {% endblock %}
+
+{% block page_checkout_item_children %}
+    {% set childTemplate = '@Storefront/page/checkout/confirm/confirm-item.html.twig' %}
+    {{ parent() }}
+{% endblock %}

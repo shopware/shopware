@@ -118,7 +118,7 @@ The guest parameter is always set to true.
 
 ## Start the payment process for an order
 
-**POST  /sales-channel-api/v1/checkout/pay/order/{orderId}**
+**POST  /sales-channel-api/v1/checkout/order/{orderId}/pay**
 
 **Header:** sw-context-token is required
 

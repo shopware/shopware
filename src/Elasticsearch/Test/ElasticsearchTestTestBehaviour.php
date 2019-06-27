@@ -25,11 +25,11 @@ trait ElasticsearchTestTestBehaviour
      */
     public function enableElasticsearch(): void
     {
-        $this->getContainer()
+        $this->getDiContainer()
             ->get(ElasticsearchHelper::class)
             ->setEnabled(true);
 
-        $this->getContainer()
+        $this->getDiContainer()
             ->get(EntityIndexer::class)
             ->setEnabled(true);
     }
@@ -39,24 +39,24 @@ trait ElasticsearchTestTestBehaviour
      */
     public function disableElasticsearch(): void
     {
-        $this->getContainer()
+        $this->getDiContainer()
             ->get(ElasticsearchHelper::class)
             ->setEnabled(false);
 
-        $this->getContainer()
+        $this->getDiContainer()
             ->get(EntityIndexer::class)
             ->setEnabled(false);
     }
 
     public function indexElasticSearch(): void
     {
-        $this->getContainer()
+        $this->getDiContainer()
             ->get(EntityIndexer::class)
             ->index(new \DateTime());
 
         $this->runWorker();
 
-        $this->getContainer()
+        $this->getDiContainer()
             ->get(CreateAliasTaskHandler::class)
             ->run();
     }
@@ -70,10 +70,10 @@ trait ElasticsearchTestTestBehaviour
             ->method('aggregate');
 
         return new ElasticsearchEntityAggregator(
-            $this->getContainer()->get(ElasticsearchHelper::class),
-            $this->getContainer()->get(Client::class),
+            $this->getDiContainer()->get(ElasticsearchHelper::class),
+            $this->getDiContainer()->get(Client::class),
             $decorated,
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+            $this->getDiContainer()->get(DefinitionInstanceRegistry::class)
         );
     }
 
@@ -86,12 +86,12 @@ trait ElasticsearchTestTestBehaviour
             ->method('search');
 
         return new ElasticsearchEntitySearcher(
-            $this->getContainer()->get(Client::class),
+            $this->getDiContainer()->get(Client::class),
             $decorated,
-            $this->getContainer()->get(ElasticsearchHelper::class),
-            $this->getContainer()->get('logger')
+            $this->getDiContainer()->get(ElasticsearchHelper::class),
+            $this->getDiContainer()->get('logger')
         );
     }
 
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected function getDiContainer(): ContainerInterface;
 }

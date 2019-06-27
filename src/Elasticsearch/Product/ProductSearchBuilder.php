@@ -5,8 +5,6 @@ namespace Shopware\Elasticsearch\Product;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -53,17 +51,10 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             throw new MissingRequestParameterException('search');
         }
 
-        $fields = [
-            'product.name' => 1000,
-            'product.productNumber' => 1000,
-            'product.ean' => 800,
-            'product.manufacturer.name' => 200,
-        ];
+        // reset queries and set term to criteria.
+        $criteria->resetQueries();
 
-        foreach ($fields as $field => $boost) {
-            $criteria->addQuery(
-                new ScoreQuery(new ContainsFilter($field, $term), $boost)
-            );
-        }
+        // elasticsearch will interpret this on deman
+        $criteria->setTerm($term);
     }
 }

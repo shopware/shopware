@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Language\LanguageCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\Framework\ElasticsearchDefinitionInterface;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -164,7 +164,7 @@ class EntityIndexer implements IndexerInterface
         return $this;
     }
 
-    private function indexDefinition(string $index, ElasticsearchDefinitionInterface $definition, Context $context): int
+    private function indexDefinition(string $index, AbstractElasticsearchDefinition $definition, Context $context): int
     {
         $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
 
@@ -199,7 +199,7 @@ class EntityIndexer implements IndexerInterface
         return $this->client->indices()->exists(['index' => $index]);
     }
 
-    private function createIndex(ElasticsearchDefinitionInterface $definition, string $index, Context $context): void
+    private function createIndex(AbstractElasticsearchDefinition $definition, string $index, Context $context): void
     {
         if ($this->indexExists($index)) {
             $this->client->indices()->delete(['index' => $index]);
@@ -219,11 +219,32 @@ class EntityIndexer implements IndexerInterface
 
         $mapping = $definition->getMapping($context);
 
+        $mapping = $this->addFullText($mapping);
+
         $this->client->indices()->putMapping([
             'index' => $index,
             'type' => $definition->getEntityDefinition()->getEntityName(),
             'body' => $mapping,
             'include_type_name' => true,
         ]);
+    }
+
+    private function addFullText(array $mapping): array
+    {
+        $mapping['properties']['fullText'] = ['type' => 'text'];
+        $mapping['properties']['fullTextBoosted'] = ['type' => 'text'];
+
+        if (!array_key_exists('_source', $mapping)) {
+            return $mapping;
+        }
+
+        if (!array_key_exists('includes', $mapping['_source'])) {
+            return $mapping;
+        }
+
+        $mapping['_source']['includes'][] = 'fullText';
+        $mapping['_source']['includes'][] = 'fullTextBoosted';
+
+        return $mapping;
     }
 }

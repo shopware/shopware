@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch\Framework\Command;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\Console\ShopwareStyle;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -33,6 +34,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
     {
         $this
             ->setName('es:test:analyzer')
+            ->addArgument('term', InputArgument::REQUIRED)
             ->setDescription('Allows to test an elasticsearch analyzer');
     }
 
@@ -40,7 +42,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
     {
         $this->io = new ShopwareStyle($input, $output);
 
-        $term = $input->getOption('term');
+        $term = $input->getArgument('term');
 
         $iteration = $this->getAnalyzers();
 

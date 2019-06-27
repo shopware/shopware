@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch\Framework;
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
+use ONGR\ElasticsearchDSL\Query\FullText\MultiMatchQuery;
 use ONGR\ElasticsearchDSL\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -120,6 +121,32 @@ class ElasticsearchHelper
         );
 
         $search->addPostFilter($query, BoolQuery::FILTER);
+    }
+
+    public function addTerm(Criteria $criteria, Search $search, Context $context): void
+    {
+        if (!$criteria->getTerm()) {
+            return;
+        }
+
+        $bool = new BoolQuery();
+
+        $bool->add(
+            // search boosting
+            new MultiMatchQuery(
+                ['fullText^2', 'fullTextBoosted^7'],
+                $criteria->getTerm(),
+                ['type' => 'cross_fields']
+            ),
+            BoolQuery::SHOULD
+        );
+
+        $bool->add(
+            // fuzziness for typos
+            new MatchQuery('fullText', $criteria->getTerm(), ['fuzziness' => 'auto'])
+        );
+
+        $search->addQuery($bool);
     }
 
     public function addQueries(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void

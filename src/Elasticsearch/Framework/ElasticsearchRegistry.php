@@ -15,14 +15,14 @@ class ElasticsearchRegistry
     }
 
     /**
-     * @return ElasticsearchDefinitionInterface[]
+     * @return AbstractElasticsearchDefinition[]
      */
     public function getDefinitions(): iterable
     {
         return $this->definitions;
     }
 
-    public function get(string $entityName): ?ElasticsearchDefinitionInterface
+    public function get(string $entityName): ?AbstractElasticsearchDefinition
     {
         foreach ($this->getDefinitions() as $definition) {
             if ($definition->getEntityDefinition()->getEntityName() === $entityName) {

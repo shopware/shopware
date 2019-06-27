@@ -20,22 +20,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Symfony\Component\HttpFoundation\Request;
 
 class RequestCriteriaBuilder
 {
-    /**
-     * @var SearchTermInterpreter
-     */
-    private $interpreter;
-
-    /**
-     * @var EntityScoreQueryBuilder
-     */
-    private $scoreBuilder;
-
     /**
      * @var int
      */
@@ -46,12 +34,10 @@ class RequestCriteriaBuilder
      */
     private $allowedLimits;
 
-    public function __construct(SearchTermInterpreter $interpreter, EntityScoreQueryBuilder $scoreBuilder, int $maxLimit, array $availableLimits = [])
+    public function __construct(int $maxLimit, array $availableLimits = [])
     {
         $this->maxLimit = $maxLimit;
         $this->allowedLimits = $availableLimits;
-        $this->interpreter = $interpreter;
-        $this->scoreBuilder = $scoreBuilder;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
@@ -119,12 +105,7 @@ class RequestCriteriaBuilder
 
         if (isset($payload['term'])) {
             $term = trim((string) $payload['term']);
-
-            $pattern = $this->interpreter->interpret($term);
-
-            $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName());
-
-            $criteria->addQuery(...$queries);
+            $criteria->setTerm($term);
         }
 
         if (isset($payload['sort'])) {

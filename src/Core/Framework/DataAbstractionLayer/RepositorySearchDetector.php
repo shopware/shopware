@@ -17,6 +17,10 @@ class RepositorySearchDetector
             return true;
         }
 
+        if ($criteria->getTerm()) {
+            return true;
+        }
+
         //paginated lists are handled by entity searcher
         if ($criteria->getOffset() !== null || $criteria->getLimit() !== null) {
             return true;

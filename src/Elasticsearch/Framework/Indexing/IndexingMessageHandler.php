@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 
 class IndexingMessageHandler extends AbstractMessageHandler
@@ -84,18 +85,25 @@ class IndexingMessageHandler extends AbstractMessageHandler
         $this->client->bulk([
             'index' => $index,
             'type' => $definition->getEntityDefinition()->getEntityName(),
-            'body' => $this->createDocuments($entities),
+            'body' => $this->createDocuments($definition, $entities),
         ]);
     }
 
-    private function createDocuments(iterable $entities): array
+    private function createDocuments(AbstractElasticsearchDefinition $definition, iterable $entities): array
     {
         $documents = [];
 
         /** @var Entity $entity */
         foreach ($entities as $entity) {
             $documents[] = ['index' => ['_id' => $entity->getUniqueIdentifier()]];
-            $documents[] = json_decode(json_encode($entity, JSON_PRESERVE_ZERO_FRACTION), true);
+            $document = json_decode(json_encode($entity, JSON_PRESERVE_ZERO_FRACTION), true);
+
+            $fullText = $definition->buildFullText($entity);
+
+            $document['fullText'] = $fullText->getFullText();
+            $document['fullTextBoosted'] = $fullText->getBoosted();
+
+            $documents[] = $document;
         }
 
         return $documents;

@@ -274,6 +274,7 @@ class EntityCacheKeyGenerator
         return md5(json_encode([
             $criteria->getIds(),
             $criteria->getFilters(),
+            $criteria->getTerm(),
             $criteria->getPostFilters(),
             $criteria->getQueries(),
             $criteria->getSorting(),

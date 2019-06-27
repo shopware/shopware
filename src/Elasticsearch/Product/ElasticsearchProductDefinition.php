@@ -6,25 +6,20 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Elasticsearch\Framework\ElasticsearchDefinitionInterface;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 
-class ElasticsearchProductDefinition implements ElasticsearchDefinitionInterface
+class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {
     /**
      * @var ProductDefinition
      */
     private $definition;
 
-    /**
-     * @var EntityMapper
-     */
-    private $mapper;
-
     public function __construct(ProductDefinition $definition, EntityMapper $mapper)
     {
+        parent::__construct($mapper);
         $this->definition = $definition;
-        $this->mapper = $mapper;
     }
 
     public function getEntityDefinition(): EntityDefinition

@@ -5,7 +5,9 @@ namespace Shopware\Core\Framework\Demodata;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DemodataContext
@@ -47,36 +49,46 @@ class DemodataContext
      */
     private $connection;
 
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
     public function __construct(
         Connection $connection,
         Context $context,
         Generator $faker,
         string $projectDir,
-        SymfonyStyle $console
+        SymfonyStyle $console,
+        DefinitionInstanceRegistry $registry
     ) {
         $this->context = $context;
         $this->faker = $faker;
         $this->projectDir = $projectDir;
         $this->console = $console;
         $this->connection = $connection;
+        $this->registry = $registry;
     }
 
-    public function getIds(string $table): array
+    public function getIds(string $entity): array
     {
-        if (!empty($this->entities[$table])) {
-            return $this->entities[$table];
+        if (!empty($this->entities[$entity])) {
+            return $this->entities[$entity];
         }
 
-        $ids = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+        $repository = $this->registry->getRepository($entity);
 
-        $this->entities[$table] = array_column($ids, 'id');
+        $ids = $repository->searchIds(new PaginationCriteria(500), Context::createDefaultContext())
+            ->getIds();
 
-        return $this->entities[$table];
+        $this->entities[$entity] = $ids;
+
+        return $this->entities[$entity];
     }
 
-    public function getRandomId(string $table): ?string
+    public function getRandomId(string $entity): ?string
     {
-        $ids = $this->getIds($table);
+        $ids = $this->getIds($entity);
 
         return $this->faker->randomElement($ids);
     }

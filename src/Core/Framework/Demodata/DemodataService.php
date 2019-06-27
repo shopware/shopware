@@ -43,7 +43,7 @@ class DemodataService
         Connection $connection,
         iterable $generators,
         string $projectDir,
-        DefinitionInstanceRegistry   $registry
+        DefinitionInstanceRegistry $registry
     ) {
         $this->projectDir = $projectDir;
 
@@ -62,7 +62,7 @@ class DemodataService
 
         $faker = $this->getFaker();
 
-        $demodataContext = new DemodataContext($this->connection, $context, $faker, $this->projectDir, $console);
+        $demodataContext = new DemodataContext($this->connection, $context, $faker, $this->projectDir, $console, $this->registry);
 
         /** @var EntityDefinition|string $definitionClass */
         foreach ($request->all() as $definitionClass => $numberOfItems) {

@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -37,14 +39,28 @@ class EntitySearcher implements EntitySearcherInterface
      */
     private $queryHelper;
 
+    /**
+     * @var SearchTermInterpreter
+     */
+    private $interpreter;
+
+    /**
+     * @var EntityScoreQueryBuilder
+     */
+    private $scoreBuilder;
+
     public function __construct(
         Connection $connection,
         SqlQueryParser $queryParser,
-        EntityDefinitionQueryHelper $queryHelper
+        EntityDefinitionQueryHelper $queryHelper,
+        SearchTermInterpreter $interpreter,
+        EntityScoreQueryBuilder $scoreBuilder
     ) {
         $this->connection = $connection;
         $this->queryParser = $queryParser;
         $this->queryHelper = $queryHelper;
+        $this->interpreter = $interpreter;
+        $this->scoreBuilder = $scoreBuilder;
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
@@ -61,7 +77,7 @@ class EntitySearcher implements EntitySearcherInterface
             $criteria->addFilter(new EqualsAnyFilter($table . '.id', $criteria->getIds()));
         }
 
-        $query = $this->buildQueryByCriteria($query, $this->queryHelper, $this->queryParser, $definition, $criteria, $context);
+        $query = $this->buildQueryByCriteria($query, $definition, $criteria, $context);
 
         if ($query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
             $query->addGroupBy(
@@ -97,6 +113,26 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         return new IdSearchResult($total, $converted, $criteria, $context);
+    }
+
+    protected function getParser(): SqlQueryParser
+    {
+        return $this->queryParser;
+    }
+
+    protected function getDefinitionHelper(): EntityDefinitionQueryHelper
+    {
+        return $this->queryHelper;
+    }
+
+    protected function getInterpreter(): SearchTermInterpreter
+    {
+        return $this->interpreter;
+    }
+
+    protected function getScoreBuilder(): EntityScoreQueryBuilder
+    {
+        return $this->scoreBuilder;
     }
 
     private function addTotalCountMode(Criteria $criteria, QueryBuilder $query): void

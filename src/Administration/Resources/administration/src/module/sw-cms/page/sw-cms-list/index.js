@@ -127,7 +127,7 @@ Component.register('sw-cms-list', {
 
             return this.pageRepository.search(criteria, this.context).then((searchResult) => {
                 this.total = searchResult.total;
-                this.pages = searchResult.items;
+                this.pages = searchResult;
                 this.isLoading = false;
 
                 return this.pages;

@@ -132,14 +132,17 @@ $sw-page-smart-bar-headline-font-weight: 600;
     }
 
     .sw-page__content {
-        display: grid;
-        grid-template-columns: 1fr auto;
         position: relative;
         height: 100%;
 
         &.has--side-content {
             display: grid;
             grid-template-columns: $sw-page-side-content-default-width 1fr auto;
+        }
+
+        &.has--side-bar {
+            display: grid;
+            grid-template-columns: 1fr auto;
         }
 
         .content__wrapper {

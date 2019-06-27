@@ -76,12 +76,16 @@ Component.register('sw-import-export-profile-csv-mapping-modal', {
 
                 // Add scalar fields from associations
                 if (property.type === 'association') {
-                    const subDefinition = EntityDefinition.get(property.entity);
-                    subDefinition.forEachField((subProperty, subPropertyName) => {
-                        if (subDefinition.isScalarField(subProperty)) {
-                            flattenedFieldSet[`${propertyName}.${subPropertyName}`] = subProperty.type;
-                        }
-                    });
+                    try {
+                        const subDefinition = EntityDefinition.get(property.entity);
+                        subDefinition.forEachField((subProperty, subPropertyName) => {
+                            if (subDefinition.isScalarField(subProperty)) {
+                                flattenedFieldSet[`${propertyName}.${subPropertyName}`] = subProperty.type;
+                            }
+                        });
+                    } catch {
+                        // Ignore missing definitions, because translation entities are unknown to the client
+                    }
                 }
             });
 

@@ -1,4 +1,4 @@
-import { Module } from 'src/core/shopware';
+import { Module, Application } from 'src/core/shopware';
 
 const ModuleFactory = Module;
 const register = ModuleFactory.register;
@@ -282,5 +282,76 @@ describe('core/factory/module.factory.js', () => {
         const module = ModuleFactory.getModuleByEntityName('bar');
 
         expect(typeof module).toBe('undefined');
+    });
+    test('it merges snippets from more than two modules', () => {
+        register('sw-foo', {
+            entity: 'foo',
+            snippets: {
+                'de-DE': {
+                    global: {
+                        snippets: {
+                            foo: 'foo'
+                        }
+                    }
+                }
+            },
+            routes: {
+                index: {
+                    path: 'index',
+                    component: 'sw-foo-index'
+                }
+            }
+        });
+        register('sw-bar', {
+            entity: 'bar',
+
+            snippets: {
+                'de-DE': {
+                    global: {
+                        snippets: {
+                            bar: 'bar'
+                        }
+                    }
+                }
+            },
+            routes: {
+                index: {
+                    path: 'index',
+                    component: 'sw-foo-index'
+                }
+            }
+        });
+        register('sw-baz', {
+            entity: 'bar2',
+
+            snippets: {
+                'de-DE': {
+                    global: {
+                        snippets: {
+                            foo: 'no foo'
+                        }
+                    }
+                }
+            },
+
+            routes: {
+                index: {
+                    path: 'index',
+                    component: 'sw-foo-index'
+                }
+            }
+        });
+
+        const moduleFactory = Application.getContainer('factory').module;
+        expect(moduleFactory.getModuleSnippets()).toEqual({
+            'de-DE': {
+                global: {
+                    snippets: {
+                        foo: 'no foo',
+                        bar: 'bar'
+                    }
+                }
+            }
+        });
     });
 });

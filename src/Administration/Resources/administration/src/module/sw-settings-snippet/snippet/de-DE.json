@@ -1,4 +1,9 @@
 {
+  "global": {
+    "error-codes": {
+      "DUPLICATED_SNIPPET_KEY": "Es existieren bereits Textbausteine für \"{key}\". Bitte wähle einen anderen Namen."
+    }
+  },
   "sw-settings-snippet": {
     "general": {
       "mainMenuItemGeneral": "Textbausteine",
@@ -22,7 +27,6 @@
       "labelNamePlaceholder": "Benennung hinzufügen",
       "labelNamespace": "Bereich",
       "labelNamespacePlaceholder": "Bereich auswählen",
-      "messageKeyExists": "Bitte gib einen Namen ein | Es existieren bereits Textbausteine für \"{key}\". Bitte wähle einen anderen Namen.",
       "messageSaveError": "Die Textbausteine für \"{key}\" konnten nicht gespeichert werden.",
       "messageSaveSuccess": "Die Textbausteine für \"{key}\" wurden erfolgreich gespeichert.",
       "textHeadline": "Neuer Textbaustein",

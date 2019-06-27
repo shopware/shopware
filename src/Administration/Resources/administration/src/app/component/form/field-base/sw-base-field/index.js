@@ -26,10 +26,10 @@ export default {
             default: null
         },
 
-        errorMessage: {
-            type: String,
+        isInvalid: {
+            type: Boolean,
             required: false,
-            default: null
+            default: false
         },
 
         error: {
@@ -91,7 +91,7 @@ export default {
         },
 
         hasError() {
-            return !!this.errorMessage || (this.error && this.error.code !== 0);
+            return this.isInvalid || !!this.error;
         },
 
         swFieldClasses() {

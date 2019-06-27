@@ -9,7 +9,7 @@
             <sw-text-field
                 class="sw-media-url-form__url-input"
                 label="URL"
-                :errorMessage="hasInvalidInput ? $tc('global.sw-media-url-form.invalidUrl') : ''"
+                :error="invalidUrlError"
                 v-model="url"
                 :placeholder="$tc('global.sw-media-url-form.example')">
             </sw-text-field>

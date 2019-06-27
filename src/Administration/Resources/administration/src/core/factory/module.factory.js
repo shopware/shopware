@@ -2,7 +2,7 @@
  * @module core/factory/module
  */
 import { warn } from 'src/core/service/utils/debug.utils';
-import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+import { hasOwnProperty, merge } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
 
@@ -352,17 +352,17 @@ function getModuleSnippets() {
             return accumulator;
         }
 
-        const keys = Object.keys(manifest.snippets);
-        if (!keys.length) {
+        const localeKey = Object.keys(manifest.snippets);
+        if (!localeKey.length) {
             return accumulator;
         }
 
-        keys.forEach((key) => {
+        localeKey.forEach((key) => {
             if (!hasOwnProperty(accumulator, key)) {
                 accumulator[key] = {};
             }
             const snippets = manifest.snippets[key];
-            accumulator[key] = { ...accumulator[key], ...snippets };
+            accumulator[key] = merge(accumulator[key], snippets);
         });
 
         return accumulator;

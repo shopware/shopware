@@ -1,4 +1,9 @@
 {
+  "global": {
+    "error-codes": {
+      "DUPLICATED_SNIPPET_KEY": "Snippets already exists for \"{key}\". Please choose a new name."
+    }
+  },
   "sw-settings-snippet": {
     "general": {
       "mainMenuItemGeneral": "Snippets",
@@ -22,7 +27,6 @@
       "labelNamePlaceholder": "Add name",
       "labelNamespace": "Section",
       "labelNamespacePlaceholder": "Select section",
-      "messageKeyExists": "Please choose a name | Snippets already exists for \"{key}\". Please choose a new name.",
       "messageSaveError": "Snippets for \"{key}\" could not be saved.",
       "messageSaveSuccess": "Snippet for \"{key}\" has successfully been saved.",
       "textHeadline": "New snippet",

@@ -23,7 +23,7 @@
     <meta property="product:brand"
           content="{{ page.product.manufacturer.translated.name }}"/>
     <meta property="product:price"
-          content="{{ page.product.calculatedPrice.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}"/>
+          content="{{ page.product.calculatedPrice.unitPrice|currency }}"/>
     <meta property="product:product_link"
           content="{{ productUrl(page.product) }}"/>
 

@@ -61,6 +61,10 @@ class CurrencyFilter extends AbstractExtension
             $languageId = $context->getLanguageId();
         }
 
+        if ($price === null) {
+            $price = 0.0;
+        }
+
         return $this->currencyFormatter->formatCurrencyByLanguage($price, $currencyIsoCode, $languageId, $context);
     }
 }

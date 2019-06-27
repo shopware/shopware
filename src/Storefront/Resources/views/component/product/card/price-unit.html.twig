@@ -28,13 +28,13 @@
         {% block component_product_box_price %}
             <p class="product-price">
                 {% if product.priceRange %}
-                    {{ product.calculatedListingPrice.from.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                    {{ product.calculatedListingPrice.from.unitPrice|currency }}
                     -
-                    {{ product.calculatedListingPrice.to.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                    {{ product.calculatedListingPrice.to.unitPrice|currency }}
                 {% elseif product.calculatedPrices|length == 1 %}
-                    {{ product.calculatedPrices.first.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                    {{ product.calculatedPrices.first.unitPrice|currency }}
                 {% else %}
-                    {{ product.calculatedPrice.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}
+                    {{ product.calculatedPrice.unitPrice|currency }}
                 {% endif %}
             </p>
         {% endblock %}

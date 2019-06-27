@@ -71,21 +71,28 @@ class IndexingMessageHandler extends AbstractMessageHandler
 
         $definition->extendCriteria($criteria);
 
+        /** @var EntitySearchResult $entities */
         $entities = $context->disableCache(function (Context $context) use ($repository, $criteria) {
             $context->setConsiderInheritance(true);
 
             return $repository->search($criteria, $context);
         });
 
-        /** @var EntitySearchResult $entities */
-        if (empty($entities->getIds())) {
-            return;
+        $toRemove = array_filter($ids, function (string $id) use ($entities) {
+            return !$entities->has($id);
+        });
+
+        $documents = $this->createDocuments($definition, $entities);
+
+        foreach ($toRemove as $id) {
+            $documents[] = ['delete' => ['_id' => $id]];
         }
 
+        // index found entities
         $this->client->bulk([
             'index' => $index,
             'type' => $definition->getEntityDefinition()->getEntityName(),
-            'body' => $this->createDocuments($definition, $entities),
+            'body' => $documents,
         ]);
     }
 
@@ -96,6 +103,7 @@ class IndexingMessageHandler extends AbstractMessageHandler
         /** @var Entity $entity */
         foreach ($entities as $entity) {
             $documents[] = ['index' => ['_id' => $entity->getUniqueIdentifier()]];
+
             $document = json_decode(json_encode($entity, JSON_PRESERVE_ZERO_FRACTION), true);
 
             $fullText = $definition->buildFullText($entity);

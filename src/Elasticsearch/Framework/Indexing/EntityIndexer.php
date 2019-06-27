@@ -9,14 +9,17 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Language\LanguageCollection;
+use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -52,11 +55,6 @@ class EntityIndexer implements IndexerInterface
     private $languageRepository;
 
     /**
-     * @var bool
-     */
-    private $enabled;
-
-    /**
      * @var MessageBusInterface
      */
     private $messageBus;
@@ -72,7 +70,6 @@ class EntityIndexer implements IndexerInterface
     private $helper;
 
     public function __construct(
-        bool $enabled,
         ElasticsearchRegistry $esRegistry,
         Client $client,
         ElasticsearchHelper $helper,
@@ -87,7 +84,6 @@ class EntityIndexer implements IndexerInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->iteratorFactory = $iteratorFactory;
         $this->languageRepository = $languageRepository;
-        $this->enabled = $enabled;
         $this->messageBus = $messageBus;
         $this->connection = $connection;
         $this->helper = $helper;
@@ -95,34 +91,20 @@ class EntityIndexer implements IndexerInterface
 
     public function index(\DateTimeInterface $timestamp): void
     {
-        if (!$this->enabled) {
+        if (!$this->helper->allowIndexing()) {
             return;
         }
 
         $definitions = $this->registry->getDefinitions();
 
-        $context = Context::createDefaultContext();
-
         // clear all pending indexing tasks
         $this->connection->executeUpdate('DELETE FROM elasticsearch_index_task');
 
         /** @var LanguageCollection $languages */
-        $languages = $context->disableCache(
-            function (Context $uncached) {
-                return $this
-                    ->languageRepository
-                    ->search(new Criteria(), $uncached)
-                    ->getEntities();
-            }
-        );
+        $languages = $this->getLanguages();
 
         foreach ($languages as $language) {
-            $context = new Context(
-                new SystemSource(),
-                [],
-                Defaults::CURRENCY,
-                [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]
-            );
+            $context = $this->createLanguageContext($language);
 
             foreach ($definitions as $definition) {
                 $alias = $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId());
@@ -146,22 +128,31 @@ class EntityIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        if (!$this->enabled) {
+        if (!$this->helper->allowIndexing()) {
             return;
         }
-    }
 
-    /**
-     * Only used for unit tests because the container parameter bag is frozen and can not be changed at runtime.
-     * Therefore this function can be used to test different behaviours
-     *
-     * @internal
-     */
-    public function setEnabled(bool $enabled): self
-    {
-        $this->enabled = $enabled;
+        $languages = $this->getLanguages();
 
-        return $this;
+        /** @var EntityWrittenEvent $written */
+        foreach ($event->getEvents() as $written) {
+            $definition = $written->getDefinition();
+
+            if (!$this->helper->isSupported($definition)) {
+                continue;
+            }
+
+            /** @var LanguageEntity $language */
+            foreach ($languages as $language) {
+                $context = $this->createLanguageContext($language);
+
+                $index = $this->helper->getIndexName($definition, $language->getId());
+
+                $this->messageBus->dispatch(
+                    new IndexingMessage($written->getIds(), $index, $context, $definition->getEntityName())
+                );
+            }
+        }
     }
 
     private function indexDefinition(string $index, AbstractElasticsearchDefinition $definition, Context $context): int
@@ -246,5 +237,29 @@ class EntityIndexer implements IndexerInterface
         $mapping['_source']['includes'][] = 'fullTextBoosted';
 
         return $mapping;
+    }
+
+    private function getLanguages(): EntityCollection
+    {
+        $context = Context::createDefaultContext();
+
+        return $context->disableCache(
+            function (Context $uncached) {
+                return $this
+                    ->languageRepository
+                    ->search(new Criteria(), $uncached)
+                    ->getEntities();
+            }
+        );
+    }
+
+    private function createLanguageContext(LanguageEntity $language): Context
+    {
+        return new Context(
+            new SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]
+        );
     }
 }

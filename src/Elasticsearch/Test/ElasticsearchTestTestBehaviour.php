@@ -28,10 +28,6 @@ trait ElasticsearchTestTestBehaviour
         $this->getDiContainer()
             ->get(ElasticsearchHelper::class)
             ->setEnabled(true);
-
-        $this->getDiContainer()
-            ->get(EntityIndexer::class)
-            ->setEnabled(true);
     }
 
     /**
@@ -41,10 +37,6 @@ trait ElasticsearchTestTestBehaviour
     {
         $this->getDiContainer()
             ->get(ElasticsearchHelper::class)
-            ->setEnabled(false);
-
-        $this->getDiContainer()
-            ->get(EntityIndexer::class)
             ->setEnabled(false);
     }
 
@@ -88,8 +80,7 @@ trait ElasticsearchTestTestBehaviour
         return new ElasticsearchEntitySearcher(
             $this->getDiContainer()->get(Client::class),
             $decorated,
-            $this->getDiContainer()->get(ElasticsearchHelper::class),
-            $this->getDiContainer()->get('logger')
+            $this->getDiContainer()->get(ElasticsearchHelper::class)
         );
     }
 

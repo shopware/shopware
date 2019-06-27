@@ -16,11 +16,13 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" public="true">
+            <argument>%kernel.environment%</argument>
             <argument>%shopware.ses.enabled%</argument>
             <argument>%shopware.ses.indexing.enabled%</argument>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
+            <argument type="service" id="logger" />
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
@@ -32,7 +34,6 @@
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer" public="true">
             <tag name="shopware.dal_indexing.indexer" priority="-50000"/>
-            <argument>%shopware.ses.indexing.enabled%</argument>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
@@ -61,7 +62,6 @@
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator"

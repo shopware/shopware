@@ -4,7 +4,6 @@ namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Search;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -29,21 +28,14 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
      */
     private $helper;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     public function __construct(
         Client $client,
         EntitySearcherInterface $searcher,
-        ElasticsearchHelper $helper,
-        LoggerInterface $logger
+        ElasticsearchHelper $helper
     ) {
         $this->client = $client;
         $this->decorated = $searcher;
         $this->helper = $helper;
-        $this->logger = $logger;
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
@@ -61,7 +53,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
                 'body' => $search->toArray(),
             ]);
         } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
+            $this->helper->logOrThrowException($e);
 
             return $this->decorated->search($definition, $criteria, $context);
         }

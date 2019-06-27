@@ -7,11 +7,14 @@ use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MultiMatchQuery;
 use ONGR\ElasticsearchDSL\Search;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
+use Shopware\Elasticsearch\Framework\Exception\NoIndexedDocumentsException;
+use Shopware\Elasticsearch\Framework\Exception\ServerNotAvailableException;
 
 class ElasticsearchHelper
 {
@@ -40,18 +43,43 @@ class ElasticsearchHelper
      */
     private $indexingEnabled;
 
+    /**
+     * @var string
+     */
+    private $environment;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
+        string $environment,
         bool $searchEnabled,
         bool $indexingEnabled,
         Client $client,
         ElasticsearchRegistry $registry,
-        CriteriaParser $parser
+        CriteriaParser $parser,
+        LoggerInterface $logger
     ) {
         $this->client = $client;
         $this->registry = $registry;
         $this->parser = $parser;
         $this->searchEnabled = $searchEnabled;
         $this->indexingEnabled = $indexingEnabled;
+        $this->environment = $environment;
+        $this->logger = $logger;
+    }
+
+    public function logOrThrowException(\Throwable $exception): bool
+    {
+        if ($this->environment !== 'prod') {
+            throw new \RuntimeException($exception->getMessage());
+        }
+
+        $this->logger->error($exception->getMessage());
+
+        return false;
     }
 
     public function getIndexName(EntityDefinition $definition, string $languageId): string
@@ -61,7 +89,15 @@ class ElasticsearchHelper
 
     public function allowIndexing(): bool
     {
-        return $this->indexingEnabled;
+        if (!$this->indexingEnabled) {
+            return false;
+        }
+
+        if (!$this->client->ping()) {
+            return $this->logOrThrowException(new ServerNotAvailableException());
+        }
+
+        return true;
     }
 
     /**
@@ -82,11 +118,15 @@ class ElasticsearchHelper
             return false;
         }
 
-        if (!$this->hasIndexDocuments($definition, $context)) {
-            throw new \RuntimeException(sprintf('No indexed documents found for entity %s', $definition->getEntityName()));
+        if (!$this->client->ping()) {
+            return $this->logOrThrowException(new ServerNotAvailableException());
         }
 
-        return true;
+        if ($this->hasIndexDocuments($definition, $context)) {
+            return true;
+        }
+
+        return $this->logOrThrowException(new NoIndexedDocumentsException($definition->getEntityName()));
     }
 
     public function addFilters(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
@@ -211,11 +251,12 @@ class ElasticsearchHelper
     public function setEnabled(bool $enabled): self
     {
         $this->searchEnabled = $enabled;
+        $this->indexingEnabled = $enabled;
 
         return $this;
     }
 
-    private function isSupported(EntityDefinition $definition): bool
+    public function isSupported(EntityDefinition $definition): bool
     {
         foreach ($this->registry->getDefinitions() as $def) {
             if ($def->getEntityDefinition()->getEntityName() === $definition->getEntityName()) {

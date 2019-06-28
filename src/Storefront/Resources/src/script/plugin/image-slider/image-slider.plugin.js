@@ -1,8 +1,8 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import { tns } from 'tiny-slider/src/tiny-slider.module';
 import ViewportDetection from 'src/script/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/script/plugin/image-slider/helper/image-slider-settings.helper';
-import PluginManager from 'src/script/helper/plugin/plugin.manager';
+import PluginManager from 'src/script/plugin-system/plugin.manager';
 import Iterator from 'src/script/helper/iterator.helper';
 
 /**

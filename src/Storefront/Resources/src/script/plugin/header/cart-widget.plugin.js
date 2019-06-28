@@ -1,4 +1,4 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import HttpClient from 'src/script/service/http-client.service';
 import Storage from 'src/script/helper/storage/storage.helper';
 

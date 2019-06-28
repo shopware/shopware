@@ -1,4 +1,4 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import OffCanvas from 'src/script/plugin/offcanvas/offcanvas.plugin';
 import LoadingIndicator from 'src/script/utility/loading-indicator/loading-indicator.util';
 import HttpClient from 'src/script/service/http-client.service';

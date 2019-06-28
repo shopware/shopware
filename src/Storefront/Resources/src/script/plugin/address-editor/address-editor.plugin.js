@@ -1,10 +1,10 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import HttpClient from 'src/script/service/http-client.service';
 import PageLoadingIndicatorUtil from 'src/script/utility/loading-indicator/page-loading-indicator.util';
 import PseudoModalUtil from 'src/script/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import Iterator from 'src/script/helper/iterator.helper';
-import PluginManager from 'src/script/helper/plugin/plugin.manager';
+import PluginManager from 'src/script/plugin-system/plugin.manager';
 
 /**
  * this plugins opens a modal

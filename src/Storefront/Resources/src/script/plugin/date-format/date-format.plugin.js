@@ -1,4 +1,4 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import DateFormatHelper from 'src/script/helper/date.helper.js';
 
 /**

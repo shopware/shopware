@@ -1,6 +1,6 @@
 import DomAccess from 'src/script/helper/dom-access.helper';
 import ButtonLoadingIndicator from 'src/script/utility/loading-indicator/button-loading-indicator.util';
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 
 /**
  * this plugin shows a loading indicator on the

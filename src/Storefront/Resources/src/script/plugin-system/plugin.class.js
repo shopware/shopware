@@ -7,7 +7,6 @@ import NativeEventEmitter from 'src/script/helper/emitter.helper';
  * Plugin Base class
  */
 export default class Plugin {
-
     /**
      * plugin constructor
      *
@@ -100,9 +99,10 @@ export default class Plugin {
             if (dataAttributeOptions) merge.push(JSON.parse(dataAttributeOptions));
         } catch (e) {
             console.error(this.el);
-            throw new Error(`The data attribute "data-${dashedPluginName}-options" could not be parsed to json: ${e.message}`);
+            throw new Error(
+                `The data attribute "data-${dashedPluginName}-options" could not be parsed to json: ${e.message}`
+            );
         }
-
 
         return deepmerge.all(merge.map(config => config || {}));
     }

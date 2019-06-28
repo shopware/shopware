@@ -1,4 +1,4 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import FormSerializeUtil from 'src/script/utility/form/form-serialize.util';
 import HttpClient from 'src/script/service/http-client.service';
 import DomAccess from 'src/script/helper/dom-access.helper';

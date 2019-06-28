@@ -17,7 +17,7 @@ import 'src/style/base.scss';
 /*
 import helpers
  */
-import PluginManager from 'src/script/helper/plugin/plugin.manager';
+import PluginManager from 'src/script/plugin-system/plugin.manager';
 import ViewportDetection from 'src/script/helper/viewport-detection.helper';
 
 /*
@@ -92,8 +92,6 @@ register plugins
 // PluginManager.register('OverrideSimple', SimplePlugin, 'body', { plugin: 'simple' });
 // PluginManager.extend('OverrideSimple', 'OverrideSimple', OverriddenPlugin, 'body', { plugin: 'simple override' });
 // example plugin end (remove before release)
-
-
 PluginManager.register('DateFormat', DateFormat, '[data-date-format]');
 PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');

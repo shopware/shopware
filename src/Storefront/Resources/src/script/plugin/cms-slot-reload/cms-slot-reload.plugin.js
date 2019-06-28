@@ -1,4 +1,4 @@
-import Plugin from 'src/script/helper/plugin/plugin.class';
+import Plugin from 'src/script/plugin-system/plugin.class';
 import CmsSlotReloadService from 'src/script/plugin/cms-slot-reload/service/cms-slot-reload.service';
 import FormSerializeUtil from 'src/script/utility/form/form-serialize.util';
 import CmsSlotOptionValidatorHelper from 'src/script/plugin/cms-slot-reload/helper/cms-slot-option-validator.helper';

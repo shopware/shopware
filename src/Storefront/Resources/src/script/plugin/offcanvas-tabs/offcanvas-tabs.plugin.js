@@ -1,8 +1,7 @@
 import DomAccess from 'src/script/helper/dom-access.helper';
 import OffCanvas from 'src/script/plugin/offcanvas/offcanvas.plugin';
 import ViewportDetection from 'src/script/helper/viewport-detection.helper';
-import Plugin from 'src/script/helper/plugin/plugin.class';
-
+import Plugin from 'src/script/plugin-system/plugin.class';
 
 export default class OffCanvasTabs extends Plugin {
 
@@ -12,7 +11,7 @@ export default class OffCanvasTabs extends Plugin {
          * from which direction the
          * offcanvas opens
          */
-        offcanvasPostion: 'right',
+        offcanvasPostion: 'right'
     };
 
     init() {

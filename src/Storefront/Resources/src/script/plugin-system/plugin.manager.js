@@ -1,7 +1,7 @@
 import deepmerge from 'deepmerge';
-import PluginRegistry from 'src/script/helper/plugin/plugin.registry';
+import PluginRegistry from 'src/script/plugin-system/plugin.registry';
 import DomAccess from 'src/script/helper/dom-access.helper';
-import 'src/script/helper/plugin/plugin.config.manager';
+import 'src/script//plugin-system/plugin.config.manager';
 import Iterator from 'src/script/helper/iterator.helper';
 
 /**
@@ -373,6 +373,10 @@ export default class PluginManager {
      */
     static extend(fromName, newName, pluginClass, selector, options = {}) {
         return PluginManagerInstance.extend(fromName, newName, pluginClass, selector, options);
+    }
+
+    static override(overrideName, pluginClass, selector, options = {}) {
+        return PluginManagerInstance.extend(overrideName, overrideName, pluginClass, selector, options);
     }
 
     /**

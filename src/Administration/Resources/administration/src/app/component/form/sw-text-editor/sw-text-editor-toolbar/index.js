@@ -270,12 +270,7 @@ export default {
             }
 
             if (button.handler) {
-                this.keepSelection(true);
-
-                if (!this.selection || this.selection.rangeCount < 1) {
-                    button.expanded = false;
-                    return;
-                }
+                this.keepSelection();
 
                 button.handler(button, parent);
 

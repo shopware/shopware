@@ -99,11 +99,7 @@ export default {
     watch: {
         value(value) {
             if (value !== this.editor.getValue()) {
-                if (value !== null) {
-                    this.editor.setValue(value);
-                } else {
-                    this.editor.setValue('');
-                }
+                this.editor.setValue(value);
             }
         },
 

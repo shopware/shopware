@@ -20,6 +20,7 @@
   "sw-seo-url": {
     "titleCard": "Canonical urls",
     "labelSalesChannelSelect": "Sales channel",
-    "labelSeoPathInfo": "SEO path"
+    "labelSeoPathInfo": "SEO path",
+    "textEmptySeoUrls": "There are no canonical urls yet."
   }
 }

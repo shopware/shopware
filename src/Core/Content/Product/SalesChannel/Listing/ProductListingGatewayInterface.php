@@ -8,5 +8,5 @@ use Symfony\Component\HttpFoundation\Request;
 
 interface ProductListingGatewayInterface
 {
-    public function search(Request $request, SalesChannelContext $context): EntitySearchResult;
+    public function search(Request $request, SalesChannelContext $salesChannelContext): EntitySearchResult;
 }

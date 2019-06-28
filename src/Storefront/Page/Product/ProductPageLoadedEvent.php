@@ -19,17 +19,17 @@ class ProductPageLoadedEvent extends NestedEvent
     /**
      * @var SalesChannelContext
      */
-    protected $context;
+    protected $salesChannelContext;
 
     /**
      * @var Request
      */
     protected $request;
 
-    public function __construct(ProductPage $page, SalesChannelContext $context, Request $request)
+    public function __construct(ProductPage $page, SalesChannelContext $salesChannelContext, Request $request)
     {
         $this->page = $page;
-        $this->context = $context;
+        $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
     }
 
@@ -38,19 +38,19 @@ class ProductPageLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): Context
+    public function getPage(): ProductPage
     {
-        return $this->context->getContext();
+        return $this->page;
     }
 
     public function getSalesChannelContext(): SalesChannelContext
     {
-        return $this->context;
+        return $this->salesChannelContext;
     }
 
-    public function getPage(): ProductPage
+    public function getContext(): Context
     {
-        return $this->page;
+        return $this->salesChannelContext->getContext();
     }
 
     public function getRequest(): Request

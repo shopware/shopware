@@ -2,9 +2,10 @@
 
 namespace Shopware\Storefront\Pagelet\Menu\Offcanvas;
 
-use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Category\Tree\Tree;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -28,18 +29,23 @@ class MenuOffcanvasPageletLoader
         $this->navigationLoader = $navigationLoader;
     }
 
-    public function load(Request $request, SalesChannelContext $context): MenuOffcanvasPagelet
+    /**
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
+     */
+    public function load(Request $request, SalesChannelContext $salesChannelContext): MenuOffcanvasPagelet
     {
-        $navigationId = $request->query->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
+        $navigationId = $request->query->get('navigationId', $salesChannelContext->getSalesChannel()->getNavigationCategoryId());
         if (!$navigationId) {
             throw new MissingRequestParameterException('navigationId');
         }
 
-        $navigation = $this->getCategoryTree((string) $navigationId, $context);
+        $navigation = $this->getCategoryTree((string) $navigationId, $salesChannelContext);
         $page = new MenuOffcanvasPagelet($navigation);
 
         $this->eventDispatcher->dispatch(
-            new MenuOffcanvasPageletLoadedEvent($page, $context, $request),
+            new MenuOffcanvasPageletLoadedEvent($page, $salesChannelContext, $request),
             MenuOffcanvasPageletLoadedEvent::NAME
         );
 
@@ -47,17 +53,15 @@ class MenuOffcanvasPageletLoader
     }
 
     /**
-     * returns the category tree for the passed
-     * navigation id
-     * if the category has no children,
-     * the parent category will be used
+     * Returns the category tree for the passed navigation id.
+     * If the category has no children, the parent category will be used
+     *
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
      */
-    private function getCategoryTree(string $navigationId, SalesChannelContext $context)
+    private function getCategoryTree(string $navigationId, SalesChannelContext $context): Tree
     {
-        /** @var Tree $category */
         $category = $this->navigationLoader->loadLevel($navigationId, $context);
-
-        /** @var CategoryEntity $active */
         $active = $category->getActive();
 
         if ($active->getChildCount() > 0 || $active->getParentId() === null) {

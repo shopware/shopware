@@ -9,6 +9,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -33,19 +34,24 @@ class ProductPageConfiguratorLoader
         $this->configuratorRepository = $configuratorRepository;
     }
 
-    public function load(SalesChannelProductEntity $product, SalesChannelContext $context): PropertyGroupCollection
-    {
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function load(
+        SalesChannelProductEntity $product,
+        SalesChannelContext $salesChannelContext
+    ): PropertyGroupCollection {
         if (!$product->getParentId()) {
             return new PropertyGroupCollection();
         }
 
-        $groups = $this->loadSettings($product, $context);
+        $groups = $this->loadSettings($product, $salesChannelContext);
 
         $groups = $this->sortSettings($product, $groups);
 
         $combinations = $this->combinationLoader->load(
             $product->getParentId(),
-            $context->getContext()
+            $salesChannelContext->getContext()
         );
 
         $current = $this->buildCurrentOptions($product, $groups);
@@ -71,10 +77,12 @@ class ProductPageConfiguratorLoader
         return $groups;
     }
 
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
     private function loadSettings(SalesChannelProductEntity $product, SalesChannelContext $context): ?array
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
+        $criteria = (new Criteria())->addFilter(
             new EqualsFilter('product_configurator_setting.productId', $product->getParentId() ?? $product->getId())
         );
 
@@ -91,21 +99,31 @@ class ProductPageConfiguratorLoader
 
         /** @var ProductConfiguratorSettingEntity $setting */
         foreach ($settings as $setting) {
-            $group = $setting->getOption()->getGroup();
-
-            if (isset($groups[$group->getId()])) {
-                $group = $groups[$group->getId()];
+            $option = $setting->getOption();
+            if ($option === null) {
+                continue;
             }
 
-            $groups[$group->getId()] = $group;
+            $group = $option->getGroup();
+            if ($group === null) {
+                continue;
+            }
+
+            $groupId = $group->getId();
+
+            if (isset($groups[$groupId])) {
+                $group = $groups[$groupId];
+            }
+
+            $groups[$groupId] = $group;
 
             if (!$group->getOptions()) {
                 $group->setOptions(new PropertyGroupOptionCollection());
             }
 
-            $group->getOptions()->add($setting->getOption());
+            $group->getOptions()->add($option);
 
-            $setting->getOption()->setConfiguratorSetting($setting);
+            $option->setConfiguratorSetting($setting);
         }
 
         return $groups;
@@ -140,7 +158,7 @@ class ProductPageConfiguratorLoader
 
             /* @var PropertyGroupEntity $group */
             $group->getOptions()->sort(
-                function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) {
+                static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) {
                     return $a->getConfiguratorSetting()->getPosition() <=> $b->getConfiguratorSetting()->getPosition();
                 }
             );
@@ -149,8 +167,11 @@ class ProductPageConfiguratorLoader
         return new PropertyGroupCollection($sorted);
     }
 
-    private function isCombinable(PropertyGroupOptionEntity $option, array $current, AvailableCombinationResult $combinations): ?bool
-    {
+    private function isCombinable(
+        PropertyGroupOptionEntity $option,
+        array $current,
+        AvailableCombinationResult $combinations
+    ): ?bool {
         unset($current[$option->getGroupId()]);
         $current[] = $option->getId();
 

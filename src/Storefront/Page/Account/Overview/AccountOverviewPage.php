@@ -7,15 +7,17 @@ use Shopware\Storefront\Page\Page;
 
 class AccountOverviewPage extends Page
 {
-    /** @var OrderEntity|null */
+    /**
+     * @var OrderEntity
+     */
     private $newestOrder;
 
-    public function setNewestOrder(OrderEntity $order)
+    public function setNewestOrder(OrderEntity $order): void
     {
         $this->newestOrder = $order;
     }
 
-    public function getNewestOrder(): ?OrderEntity
+    public function getNewestOrder(): OrderEntity
     {
         return $this->newestOrder;
     }

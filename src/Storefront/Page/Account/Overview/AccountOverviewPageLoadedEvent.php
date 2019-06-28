@@ -19,17 +19,17 @@ class AccountOverviewPageLoadedEvent extends NestedEvent
     /**
      * @var SalesChannelContext
      */
-    protected $context;
+    protected $salesChannelContext;
 
     /**
      * @var Request
      */
     protected $request;
 
-    public function __construct(AccountOverviewPage $page, SalesChannelContext $context, Request $request)
+    public function __construct(AccountOverviewPage $page, SalesChannelContext $salesChannelContext, Request $request)
     {
         $this->page = $page;
-        $this->context = $context;
+        $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
     }
 
@@ -38,19 +38,19 @@ class AccountOverviewPageLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): Context
+    public function getPage(): AccountOverviewPage
     {
-        return $this->context->getContext();
+        return $this->page;
     }
 
     public function getSalesChannelContext(): SalesChannelContext
     {
-        return $this->context;
+        return $this->salesChannelContext;
     }
 
-    public function getPage(): AccountOverviewPage
+    public function getContext(): Context
     {
-        return $this->page;
+        return $this->salesChannelContext->getContext();
     }
 
     public function getRequest(): Request

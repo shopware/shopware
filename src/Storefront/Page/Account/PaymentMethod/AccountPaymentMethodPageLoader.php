@@ -3,9 +3,14 @@
 namespace Shopware\Storefront\Page\Account\PaymentMethod;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -13,6 +18,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AccountPaymentMethodPageLoader
 {
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
+    private $paymentMethodRepository;
+
     /**
      * @var GenericPageLoader
      */
@@ -23,57 +33,50 @@ class AccountPaymentMethodPageLoader
      */
     private $eventDispatcher;
 
-    /**
-     * @var SalesChannelRepository
-     */
-    private $paymentMethodRepository;
-
     public function __construct(
-        SalesChannelRepository $paymentMethodRepository,
+        SalesChannelRepositoryInterface $paymentMethodRepository,
         GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->genericLoader = $genericLoader;
         $this->paymentMethodRepository = $paymentMethodRepository;
+        $this->genericLoader = $genericLoader;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
+     * @throws CategoryNotFoundException
      * @throws CustomerNotLoggedInException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
      */
-    public function load(Request $request, SalesChannelContext $context): AccountPaymentMethodPage
+    public function load(Request $request, SalesChannelContext $salesChannelContext): AccountPaymentMethodPage
     {
-        if (!$context->getCustomer()) {
+        if (!$salesChannelContext->getCustomer()) {
             throw new CustomerNotLoggedInException();
         }
 
-        $page = $this->genericLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = AccountPaymentMethodPage::createFrom($page);
 
-        $criteria = $this->createCriteria($request);
-
-        $page->setPaymentMethods(
-            $this->paymentMethodRepository->search($criteria, $context)
-        );
+        $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new AccountPaymentMethodPageLoadedEvent($page, $context, $request),
+            new AccountPaymentMethodPageLoadedEvent($page, $salesChannelContext, $request),
             AccountPaymentMethodPageLoadedEvent::NAME
         );
 
         return $page;
     }
 
-    private function createCriteria(Request $request): Criteria
+    private function getPaymentMethods(SalesChannelContext $salesChannelContext): PaymentMethodCollection
     {
-        $limit = $request->query->get('limit', 10);
-        $page = $request->query->get('p', 1);
-
-        return (new Criteria())
-            ->setOffset(($page - 1) * $limit)
-            ->setLimit($limit)
-            ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT)
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('position'));
+        /** @var PaymentMethodCollection $paymentMethods */
+        $paymentMethods = $this->paymentMethodRepository->search($criteria, $salesChannelContext)->getEntities();
+
+        return $paymentMethods->filterByActiveRules($salesChannelContext);
     }
 }

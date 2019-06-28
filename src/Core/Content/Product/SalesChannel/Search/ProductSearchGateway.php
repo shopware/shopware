@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductSearchGateway implements ProductSearchGatewayInterface
 {
     /**
-     * @var SalesChannelRepository
+     * @var SalesChannelRepositoryInterface
      */
     private $repository;
 
@@ -36,7 +37,7 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
     private $eventDispatcher;
 
     public function __construct(
-        SalesChannelRepository $repository,
+        SalesChannelRepositoryInterface $repository,
         ProductSearchTermInterpreterInterface $interpreter,
         EventDispatcherInterface $eventDispatcher
     ) {
@@ -45,7 +46,11 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function search(Request $request, SalesChannelContext $context): EntitySearchResult
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
+     */
+    public function search(Request $request, SalesChannelContext $salesChannelContext): EntitySearchResult
     {
         $criteria = new Criteria();
 
@@ -59,7 +64,7 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
             throw new MissingRequestParameterException('search');
         }
 
-        $pattern = $this->interpreter->interpret($term, $context->getContext());
+        $pattern = $this->interpreter->interpret($term, $salesChannelContext->getContext());
 
         foreach ($pattern->getTerms() as $searchTerm) {
             $criteria->addQuery(
@@ -79,17 +84,17 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
         );
 
         $criteria->addFilter(new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())));
-        $criteria->addFilter(new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()));
+        $criteria->addFilter(new EqualsFilter('product.searchKeywords.languageId', $salesChannelContext->getContext()->getLanguageId()));
 
         $this->eventDispatcher->dispatch(
-            new ProductSearchCriteriaEvent($request, $criteria, $context),
+            new ProductSearchCriteriaEvent($request, $criteria, $salesChannelContext),
             ProductEvents::PRODUCT_SEARCH_CRITERIA
         );
 
-        $result = $this->repository->search($criteria, $context);
+        $result = $this->repository->search($criteria, $salesChannelContext);
 
         $this->eventDispatcher->dispatch(
-            new ProductSearchResultEvent($request, $result, $context),
+            new ProductSearchResultEvent($request, $result, $salesChannelContext),
             ProductEvents::PRODUCT_SEARCH_RESULT
         );
 

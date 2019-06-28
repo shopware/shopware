@@ -8,7 +8,7 @@
         <defaults autowire="true"/>
 
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
-            <argument type="service" id="Shopware\Storefront\Framework\Routing\Router.inner" />
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\Router.inner"/>
             <argument type="service" id="request_stack"/>
         </service>
 
@@ -69,13 +69,13 @@
 
         <service id="Shopware\Storefront\Page\Suggest\SuggestPageLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway" />
-            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader" />
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="currency.repository"/>
+            <argument type="service" id="sales_channel.language.repository"/>
+            <argument type="service" id="sales_channel.currency.repository"/>
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
             <argument type="service" id="event_dispatcher"/>
@@ -122,8 +122,8 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader">
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="sales_channel.shipping_method.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
@@ -132,9 +132,9 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="country.repository"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="sales_channel.shipping_method.repository"/>
+            <argument type="service" id="sales_channel.country.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader">
@@ -146,11 +146,11 @@
         <service id="Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="sales_channel.salutation.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader">
-            <argument type="service" id="sales_channel.payment_method.repository" />
+            <argument type="service" id="sales_channel.payment_method.repository"/>
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
@@ -164,14 +164,14 @@
         <service id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="order.repository" />
+            <argument type="service" id="order.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="sales_channel.salutation.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader" public="true">
@@ -179,13 +179,13 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="sales_channel.salutation.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="sales_channel.salutation.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader">
@@ -199,20 +199,19 @@
 
         <service id="Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="sales_channel.country.repository"/>
+            <argument type="service" id="sales_channel.salutation.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="sales_channel.country.repository"/>
+            <argument type="service" id="sales_channel.salutation.repository"/>
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
-
     </services>
 </container>

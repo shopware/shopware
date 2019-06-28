@@ -31,8 +31,13 @@ class SalesChannelCmsPageLoader
         $this->slotDataResolver = $slotDataResolver;
     }
 
-    public function load(Request $request, Criteria $criteria, SalesChannelContext $context, ?array $config = null, ?ResolverContext $resolverContext = null): EntitySearchResult
-    {
+    public function load(
+        Request $request,
+        Criteria $criteria,
+        SalesChannelContext $context,
+        ?array $config = null,
+        ?ResolverContext $resolverContext = null
+    ): EntitySearchResult {
         $config = $config ?? [];
 
         // ensure blocks and slots are loaded, slots and blocks can be restricted by caller

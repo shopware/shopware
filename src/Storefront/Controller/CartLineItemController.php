@@ -3,17 +3,21 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,13 +36,13 @@ class CartLineItemController extends StorefrontController
     private $promotionItemBuilder;
 
     /**
-     * @var SalesChannelRepository
+     * @var SalesChannelRepositoryInterface
      */
     private $productRepository;
 
     public function __construct(
         CartService $cartService,
-        SalesChannelRepository $productRepository,
+        SalesChannelRepositoryInterface $productRepository,
         PromotionItemBuilder $promotionItemBuilder
     ) {
         $this->cartService = $cartService;
@@ -49,14 +53,14 @@ class CartLineItemController extends StorefrontController
     /**
      * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", methods={"POST", "DELETE"}, defaults={"XmlHttpRequest": true})
      */
-    public function deleteLineItem(Cart $cart, string $id, Request $request, SalesChannelContext $context): Response
+    public function deleteLineItem(Cart $cart, string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         try {
             if (!$cart->has($id)) {
                 throw new LineItemNotFoundException($id);
             }
 
-            $this->cartService->remove($cart, $id, $context);
+            $this->cartService->remove($cart, $id, $salesChannelContext);
 
             $this->addFlash('success', $this->trans('checkout.cartUpdateSuccess'));
         } catch (\Exception $exception) {
@@ -69,7 +73,7 @@ class CartLineItemController extends StorefrontController
     /**
      * @Route("/checkout/promotion/add", name="frontend.checkout.promotion.add", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
-    public function addPromotion(Cart $cart, Request $request, SalesChannelContext $context): Response
+    public function addPromotion(Cart $cart, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         try {
             /** @var string|null $code */
@@ -80,12 +84,12 @@ class CartLineItemController extends StorefrontController
             }
             $lineItem = $this->promotionItemBuilder->buildPlaceholderItem(
                 $code,
-                $context->getContext()->getCurrencyPrecision()
+                $salesChannelContext->getContext()->getCurrencyPrecision()
             );
 
             $initialCartState = md5(json_encode($cart));
 
-            $cart = $this->cartService->add($cart, $lineItem, $context);
+            $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
             $cart->getErrors();
             if (!$this->hasPromotion($cart, $code)) {
                 throw new LineItemNotFoundException($code);
@@ -111,8 +115,12 @@ class CartLineItemController extends StorefrontController
     /**
      * @Route("/checkout/line-item/change-quantity/{id}", name="frontend.checkout.line-item.change-quantity", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
-    public function changeQuantity(Cart $cart, string $id, Request $request, SalesChannelContext $context): Response
-    {
+    public function changeQuantity(
+        Cart $cart,
+        string $id,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): Response {
         try {
             $quantity = $request->get('quantity');
 
@@ -124,7 +132,7 @@ class CartLineItemController extends StorefrontController
                 throw new LineItemNotFoundException($id);
             }
 
-            $this->cartService->changeQuantity($cart, $id, (int) $quantity, $context);
+            $this->cartService->changeQuantity($cart, $id, (int) $quantity, $salesChannelContext);
 
             $this->addFlash('success', $this->trans('checkout.cartUpdateSuccess'));
         } catch (\Exception $exception) {
@@ -136,8 +144,11 @@ class CartLineItemController extends StorefrontController
 
     /**
      * @Route("/checkout/product/add-by-number", name="frontend.checkout.product.add-by-number", methods={"POST"})
+     *
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
      */
-    public function addProductByNumber(Request $request, SalesChannelContext $context): Response
+    public function addProductByNumber(Request $request, SalesChannelContext $salesChannelContext): Response
     {
         $number = $request->request->getAlnum('number');
         if (!$number) {
@@ -148,7 +159,7 @@ class CartLineItemController extends StorefrontController
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('productNumber', $number));
 
-        $idSearchResult = $this->productRepository->searchIds($criteria, $context);
+        $idSearchResult = $this->productRepository->searchIds($criteria, $salesChannelContext);
         $data = $idSearchResult->getIds();
 
         if (empty($data)) {
@@ -183,9 +194,18 @@ class CartLineItemController extends StorefrontController
      *         'type' => 'otherType'
      *     ]
      * ]
+     *
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MissingRequestParameterException
+     * @throws MixedLineItemTypeException
      */
-    public function addLineItems(Cart $cart, RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context): Response
-    {
+    public function addLineItems(
+        Cart $cart,
+        RequestDataBag $requestDataBag,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): Response {
         /** @var RequestDataBag|null $lineItems */
         $lineItems = $requestDataBag->get('lineItems');
         if (!$lineItems) {
@@ -209,7 +229,7 @@ class CartLineItemController extends StorefrontController
 
                 $count += $lineItem->getQuantity();
 
-                $this->cartService->add($cart, $lineItem, $context);
+                $this->cartService->add($cart, $lineItem, $salesChannelContext);
             }
 
             $this->addFlash('success', $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
@@ -229,7 +249,7 @@ class CartLineItemController extends StorefrontController
 
             $payload = $lineItem->getPayload();
 
-            if (!array_key_exists('code', $payload)) {
+            if (!\array_key_exists('code', $payload)) {
                 continue;
             }
 

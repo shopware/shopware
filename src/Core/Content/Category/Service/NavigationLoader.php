@@ -13,13 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class NavigationLoader
 {
     /**
-     * @var SalesChannelRepository
+     * @var SalesChannelRepositoryInterface
      */
     private $categoryRepository;
 
@@ -28,7 +28,7 @@ class NavigationLoader
      */
     private $treeItem;
 
-    public function __construct(SalesChannelRepository $repository)
+    public function __construct(SalesChannelRepositoryInterface $repository)
     {
         $this->categoryRepository = $repository;
         $this->treeItem = new TreeItem(null, []);
@@ -36,11 +36,14 @@ class NavigationLoader
 
     /**
      * Returns the full category tree. The provided active id will be marked as selected
+     *
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
      */
-    public function load(string $activeId, SalesChannelContext $context, string $rootId): ?Tree
+    public function load(string $activeId, SalesChannelContext $salesChannelContext, string $rootId): Tree
     {
         /** @var CategoryEntity $active */
-        $active = $this->loadActive($activeId, $context);
+        $active = $this->loadActive($activeId, $salesChannelContext);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.visible', true));
@@ -54,7 +57,7 @@ class NavigationLoader
         $criteria->addAssociation('media');
 
         /** @var CategoryCollection $categories */
-        $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
+        $categories = $this->categoryRepository->search($criteria, $salesChannelContext)->getEntities();
 
         return $this->getTree($rootId, $categories, $active);
     }
@@ -65,10 +68,10 @@ class NavigationLoader
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
-    public function loadLevel(string $categoryId, SalesChannelContext $context): ?Tree
+    public function loadLevel(string $categoryId, SalesChannelContext $salesChannelContext): Tree
     {
         /** @var CategoryEntity $active */
-        $active = $this->loadActive($categoryId, $context);
+        $active = $this->loadActive($categoryId, $salesChannelContext);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('visible', true));
@@ -81,7 +84,7 @@ class NavigationLoader
         ));
 
         /** @var CategoryCollection $categories */
-        $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
+        $categories = $this->categoryRepository->search($criteria, $salesChannelContext)->getEntities();
         $parentId = $categories->get($categoryId)->getParentId();
 
         return $this->getTree($parentId, $categories, $active);

@@ -86,6 +86,9 @@ class Criteria extends Struct
      */
     protected $inherited = false;
 
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
     public function __construct(array $ids = [])
     {
         if (\count($ids) > \count(array_filter($ids))) {

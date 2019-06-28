@@ -17,6 +17,15 @@
 
             {% block page_checkout_confirm_payment_current %}
                 <p class="confirm-payment-current{% if paymentMethodInvalid %} is-invalid{% endif %}">
+                    {% block page_checkout_confirm_payment_current_image %}
+                        {% if context.paymentMethod.media %}
+                            <img src="{{ context.paymentMethod.media.url }}"
+                                 class="payment-method-image"
+                                 alt="{{ context.paymentMethod.media.alt ?: context.paymentMethod.media.fileName }}"
+                                    {{ context.paymentMethod.media.title ? 'title="#{context.paymentMethod.media.title}"' }}>
+                        {% endif %}
+                    {% endblock %}
+
                     {% block page_checkout_confirm_payment_current_text %}
                         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
                         {{ context.paymentMethod.translated.name }}

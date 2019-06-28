@@ -88,7 +88,8 @@ module.exports = {
         override: ComponentFactory.override,
         build: ComponentFactory.build,
         getTemplate: ComponentFactory.getComponentTemplate,
-        getComponentRegistry: ComponentFactory.getComponentRegistry
+        getComponentRegistry: ComponentFactory.getComponentRegistry,
+        getComponentHelper: ComponentFactory.getComponentHelper
     },
 
     /**

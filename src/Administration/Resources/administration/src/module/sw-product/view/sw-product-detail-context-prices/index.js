@@ -1,8 +1,9 @@
 import { Component, Mixin } from 'src/core/shopware';
-import { mapState, mapGetters } from 'vuex';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-detail-context-prices.html.twig';
 import './sw-product-detail-context-prices.scss';
+
+const { mapState, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-product-detail-context-prices', {
     template,

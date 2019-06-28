@@ -22,7 +22,8 @@ export const Component = {
     override: Shopware.Component.override,
     build: Shopware.Component.build,
     getTemplate: Shopware.Component.getTemplate,
-    getComponentRegistry: Shopware.Component.getComponentRegistry
+    getComponentRegistry: Shopware.Component.getComponentRegistry,
+    getComponentHelper: Shopware.Component.getComponentHelper
 };
 
 export const Template = {

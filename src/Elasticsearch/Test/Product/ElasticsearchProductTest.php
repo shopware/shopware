@@ -65,6 +65,7 @@ class ElasticsearchProductTest extends TestCase
         $data = $this->createData();
 
         $this->indexElasticSearch();
+
         $data->setContext($context);
 
         $languages = $this->languageRepository->searchIds(new Criteria(), $context);

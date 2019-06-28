@@ -59,6 +59,10 @@ class IndexingMessageHandler extends AbstractMessageHandler
 
     private function indexEntities(string $index, array $ids, string $entityName, Context $context): void
     {
+        if (!$this->client->indices()->exists(['index' => $index])) {
+            return;
+        }
+
         $definition = $this->registry->get($entityName);
 
         if (!$definition) {

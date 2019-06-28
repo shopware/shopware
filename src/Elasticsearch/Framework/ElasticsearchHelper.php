@@ -12,9 +12,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Elasticsearch\Exception\NoIndexedDocumentsException;
+use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
-use Shopware\Elasticsearch\Framework\Exception\NoIndexedDocumentsException;
-use Shopware\Elasticsearch\Framework\Exception\ServerNotAvailableException;
 
 class ElasticsearchHelper
 {

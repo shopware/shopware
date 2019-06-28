@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Elasticsearch\Framework\Exception;
+namespace Shopware\Elasticsearch\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 

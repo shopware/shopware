@@ -79,11 +79,16 @@
       "placeholderEan": "Enter EAN number...",
       "placeholderManufacturerNumber": "Enter original manufacturer product number..."
     },
+    "packagingForm": {
+      "placeholderUnit": "Select ...",
+      "labelUnit": "Unit"
+    },
     "detailBase": {
       "cardTitleProductInfo": "General information",
       "cardTitleAssignment": "Assignment",
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Settings",
+      "cardTitlePackaging": "Dimensions & Packaging",
       "linkAdvancedPrices": "Advanced pricing options",
       "linkMaintainCurrencyPrices": "Maintain currencies",
       "cardTitleMedia": "Media",

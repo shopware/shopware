@@ -12,15 +12,21 @@ exports[`components/base/sw-alert should render correctly 1`] = `
     size="20px"
   />
    
-  <!---->
-   
   <div
-    class="sw-alert__message"
+    class="sw-alert__body"
   >
-    <p>
-      Alert message
-    </p>
+    <!---->
+     
+    <div
+      class="sw-alert__message"
+    >
+      <p>
+        Alert message
+      </p>
+    </div>
   </div>
+   
+  <!---->
    
   <!---->
 </div>

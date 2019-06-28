@@ -363,7 +363,7 @@
       "messageNoTypeResults": "No type found.",
       "placeholderSearchField": "Find products, customers, orders...",
       "placeholderTypeSearchField": "Search \"{entity}\"...",
-      "placeholderShortcutInfo": "Tip: Press the \"s\" key to get to the search bar faster.",
+      "placeholderShortcutInfo": "Tip: Press the \"f\" key to get to the search bar faster.",
       "labelShowResultsInModule": "Show results in module({count})"
     },
     "sw-search-bar-item": {
@@ -701,7 +701,7 @@
     "functionGoToPlugins": "Go to Plugins",
     "keyboardShortcutGoToPlugins": "G A",
     "functionSpecialShortcutFocusSearch": "Focus Search",
-    "keyboardShortcutSpecialShortcutFocusSearch": "s",
+    "keyboardShortcutSpecialShortcutFocusSearch": "f",
     "functionSpecialShortcutShortcutListing": "Shortcut Listing",
     "keyboardShortcutSpecialShortcutShortcutListing": "?",
     "functionSpecialShortcutSaveDetailView": "Save Detail View",

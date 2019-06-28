@@ -23,7 +23,9 @@
         "categories": "Kategorien",
         "showCategory": "%category% anzeigen",
         "required": "*",
-        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld"
+        "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld",
+        "privacyTitle": "Datenschutz",
+        "privacyNotice": "Ich habe die <a data-toggle='modal' data-url='%tosUrl%' href='%tosUrl%' title='Datenschutzbestimmungen'>Datenschutzbestimmungen</a> zur Kenntnis genommen."
     },
     "header": {
         "logoLink": "zur Startseite wechseln",

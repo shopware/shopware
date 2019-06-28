@@ -273,18 +273,18 @@
 						</div>
 					{% endblock %}
 
-					{% block component_account_register_required_fields %}
+                    {% block component_account_register_captcha %}
+                        {#TODO: NEXT-2002 - captcha#}
+                    {% endblock %}
+
+                    {% block component_account_register_privacy %}
+                        {% sw_include '@Storefront/component/privacy-notice.html.twig' %}
+                    {% endblock %}
+
+                    {% block component_account_register_required_fields %}
 						<p class="register-required-info">
 							{{ "general.requiredFields"|trans }}
 						</p>
-					{% endblock %}
-
-					{% block component_account_register_captcha %}
-						{#TODO: NEXT-2002 - captcha#}
-					{% endblock %}
-
-					{% block component_account_register_privacy %}
-						{#TODO: NEXT-1951 - optins#}
 					{% endblock %}
 
 					{% block component_account_register_submit %}

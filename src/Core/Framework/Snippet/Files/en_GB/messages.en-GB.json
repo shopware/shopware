@@ -23,7 +23,9 @@
         "categories": "Categories",
         "showCategory": "Show %category%",
         "required": "*",
-        "requiredFields": "The fields marked with * are required"
+        "requiredFields": "The fields marked with * are required",
+        "privacyTitle": "Privacy",
+        "privacyNotice": "I have read the <a data-toggle='modal' data-url='%tosUrl%' href='%tosUrl%' title='Data protection information'>data protection information</a>."
     },
     "header": {
         "logoLink": "Go to homepage",

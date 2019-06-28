@@ -95,7 +95,8 @@
         "labelEnclosure": "Enclosure",
         "placeholderName": "Enter a name",
         "placeholderDelimiter": "Choose a delimiter...",
-        "placeholderEnclosure": "Choose an enclosure..."
+        "placeholderEnclosure": "Choose an enclosure...",
+        "fieldMappingButton": "Map fields"
       },
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
@@ -104,6 +105,17 @@
       "titleResult": "Profiles",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "The profile \"{name}\" has been saved successfully."
+    },
+    "mapping": {
+      "modal": {
+        "title": "Field mapping for object type \"{entity}\""
+      },
+      "columnFileField": "File column",
+      "columnEntityField": "Internal field",
+      "columnValueSubstitution": "Value substitution",
+      "addCsvMappingItem": "Add item",
+      "deleteCsvMappingItem": "Delete item",
+      "saveButton": "Save"
     }
   },
   "sw-import-export-log": {

@@ -17,6 +17,7 @@ Component.register('sw-import-export-profile-detail', {
             importExportProfile: false,
             importExportProfileId: null,
             isLoading: false,
+            selectedItem: null,
             isSaveSuccessful: false,
             features: {
                 entities: [],
@@ -83,6 +84,10 @@ Component.register('sw-import-export-profile-detail', {
 
         translateEntity(name) {
             return this.$tc(`global.entities.${name}`);
+        },
+
+        onOpenCsvMappingModal() {
+            this.selectedItem = this.importExportProfile;
         },
 
         formatFileType(mimeType) {

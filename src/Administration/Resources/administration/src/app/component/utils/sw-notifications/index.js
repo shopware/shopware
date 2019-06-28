@@ -72,9 +72,6 @@ export default {
         handleAction(action, notification) {
             if (action.route) {
                 this.$router.push(action.route);
-                this.onClose(notification);
-
-                return;
             }
 
             this.onClose(notification);

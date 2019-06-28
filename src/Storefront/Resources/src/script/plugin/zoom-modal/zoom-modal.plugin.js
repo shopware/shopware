@@ -58,6 +58,8 @@ export default class ZoomModalPlugin extends Plugin {
     _onClick(event) {
         ZoomModalPlugin._stopEvent(event);
         this._openModal();
+
+        this.$emitter.publish('onClick');
     }
 
     /**
@@ -71,10 +73,14 @@ export default class ZoomModalPlugin extends Plugin {
             $(modal).on('shown.bs.modal', () => {
                 this._initSlider(modal);
                 setTimeout(() => this._initZoom(modal), 100);
+
+                this.$emitter.publish('modalShown', { modal });
             });
 
             $(modal).modal('show');
         }
+
+        this.$emitter.publish('onClick', { modal });
     }
 
     /**
@@ -129,6 +135,8 @@ export default class ZoomModalPlugin extends Plugin {
                 },
             });
         }
+
+        this.$emitter.publish('initSlider');
     }
 
     /**
@@ -139,6 +147,8 @@ export default class ZoomModalPlugin extends Plugin {
         Iterator.iterate(elements, el => {
             new ImageZoomPlugin(el, {}, 'ImageZoom');
         });
+
+        this.$emitter.publish('initZoom');
     }
 
     /**
@@ -150,7 +160,6 @@ export default class ZoomModalPlugin extends Plugin {
      */
     _getParentSliderIndex() {
         let sliderIndex = 1;
-
 
         this._parentSliderElement = this._getParentSliderElement();
 

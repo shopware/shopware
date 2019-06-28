@@ -84,5 +84,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
         const loader = new ButtonLoadingIndicator(this._submitButton);
 
         loader.create();
+
+        this.$emitter.publish('onFormSubmit');
     }
 }

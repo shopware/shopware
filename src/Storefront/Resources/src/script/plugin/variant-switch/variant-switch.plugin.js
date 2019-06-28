@@ -60,6 +60,9 @@ export default class VariantSwitchPlugin extends Plugin {
         const switchedOptionId = this._getSwitchedOptionId(event.target);
         const selectedOptions = this._getFormValue();
         this._preserveCurrentValues();
+
+        this.$emitter.publish('onChange');
+
         this._submitForm({
             switched: switchedOptionId,
             options: selectedOptions,
@@ -138,6 +141,11 @@ export default class VariantSwitchPlugin extends Plugin {
         this.el.insertAdjacentHTML('beforeend', `<input type="hidden" name="switched" value="${data.switched}">`);
         this.el.insertAdjacentHTML('beforeend', `<input type="hidden" name="options" value='${JSON.stringify(data.options)}'>`);
         PageLoadingIndicatorUtil.create();
+
+        this.$emitter.publish('beforeSubmitForm');
+
         this.el.submit();
+
+        this.$emitter.publish('afterSubmitForm');
     }
 }

@@ -69,6 +69,8 @@ export default class FormAutoSubmitPlugin extends Plugin {
      * @private
      */
     _onChange() {
+        this.$emitter.publish('beforeChange');
+
         this._form.submit();
         PageLoadingIndicatorUtil.create();
     }
@@ -86,6 +88,8 @@ export default class FormAutoSubmitPlugin extends Plugin {
         const data = FormSerializeUtil.serialize(this._form);
         const action = DomAccess.getAttribute(this._form, 'action');
 
+        this.$emitter.publish('beforeSubmit');
+
         this._client.post(action, data, this._onAfterAjaxSubmit.bind(this));
     }
 
@@ -102,6 +106,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
         const replaceContainer = DomAccess.querySelector(document, this.options.ajaxContainerSelector);
         replaceContainer.innerHTML = response;
         window.PluginManager.initializePlugins();
-    }
 
+        this.$emitter.publish('onAfterAjaxSubmit');
+    }
 }

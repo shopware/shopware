@@ -83,6 +83,8 @@ export default class SearchWidgetPlugin extends Plugin {
         }
 
         this._search(value);
+
+        this.$emitter.publish('handleInputEvent');
     }
 
     /**
@@ -97,6 +99,8 @@ export default class SearchWidgetPlugin extends Plugin {
         const indicator = new ButtonLoadingIndicator(this._submitButton);
         indicator.create();
 
+        this.$emitter.publish('beforeSearch');
+
         this._client.get(url, (response) => {
             // remove existing search results popover first
             this._clearSearchResults();
@@ -106,6 +110,8 @@ export default class SearchWidgetPlugin extends Plugin {
 
             // attach search results to the DOM
             this.el.insertAdjacentHTML('beforeend', response);
+
+            this.$emitter.publish('afterSearch');
         });
     }
 
@@ -120,6 +126,8 @@ export default class SearchWidgetPlugin extends Plugin {
         // remove all result popovers
         const results = document.querySelectorAll(this.options.searchWidgetResultSelector);
         Iterator.iterate(results, result => result.remove());
+
+        this.$emitter.publish('clearSearchResults');
     }
 
     /**
@@ -140,6 +148,8 @@ export default class SearchWidgetPlugin extends Plugin {
         }
         // remove existing search results popover
         this._clearSearchResults();
+
+        this.$emitter.publish('onBodyClick');
     }
 
     /**
@@ -170,5 +180,7 @@ export default class SearchWidgetPlugin extends Plugin {
             this._inputField.setAttribute('tabindex', '-1');
             this._inputField.focus();
         }
+
+        this.$emitter.publish('focusInput');
     }
 }

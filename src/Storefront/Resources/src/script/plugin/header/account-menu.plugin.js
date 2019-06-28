@@ -62,6 +62,8 @@ export default class OffCanvasAccountMenu extends Plugin {
 
         OffCanvas.open(this._dropdown.innerHTML, null, this.options.offcanvasPostion, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY());
         OffCanvas.setAdditionalClassName(this.options.additionalClass);
+
+        this.$emitter.publish('onClickAccountMenuTrigger');
     }
 
     /**
@@ -81,6 +83,8 @@ export default class OffCanvasAccountMenu extends Plugin {
                 this._dropdown.classList.add(this.options.hiddenClass);
             }
         }
+
+        this.$emitter.publish('onViewportHasChanged');
     }
 
     /**

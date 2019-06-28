@@ -23,6 +23,9 @@ export default class CmsSlotReloadService {
         this._prevData = prevData;
 
         this._loadFromHistory = false;
+
+        document.$emitter.publish('CmsSlot/beforeReload');
+
         this._reload();
     }
 
@@ -74,6 +77,9 @@ export default class CmsSlotReloadService {
 
         this._updateHistory();
         this._createLoadingIndicators();
+
+        document.$emitter.publish('CmsSlot/beforeRequestSlot');
+
         this._client.abort();
         this._client.post(url, JSON.stringify(data), this._onLoaded.bind(this));
     }
@@ -85,6 +91,8 @@ export default class CmsSlotReloadService {
      */
     _createLoadingIndicators() {
         this._handleLoadingIndicators(ElementLoadingIndicatorUtil.create);
+
+        document.$emitter.publish('CmsSlot/createLoadingIndicators');
     }
 
     /**
@@ -94,6 +102,8 @@ export default class CmsSlotReloadService {
      */
     _removeLoadingIndicators() {
         this._handleLoadingIndicators(ElementLoadingIndicatorUtil.remove);
+
+        document.$emitter.publish('CmsSlot/removeLoadingIndicators');
     }
     
     /**
@@ -134,6 +144,8 @@ export default class CmsSlotReloadService {
             options: this._options,
             hiddenParams: params.hiddenParams,
         });
+
+        document.$emitter.publish('CmsSlot/updateHistory');
     }
 
     /**
@@ -208,6 +220,8 @@ export default class CmsSlotReloadService {
         ElementReplaceHelper.replaceFromMarkup(response, preparedSelectors);
         window.PluginManager.initializePlugins();
         this._removeLoadingIndicators();
+
+        document.$emitter.publish('CmsSlot/onLoaded', { response });
     }
 
     /**

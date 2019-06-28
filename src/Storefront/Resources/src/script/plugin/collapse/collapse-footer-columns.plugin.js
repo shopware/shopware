@@ -23,6 +23,9 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
+        // register event listeners for the first time
+        this._onViewportHasChanged();
+
         document.addEventListener(ViewportDetection.EVENT_VIEWPORT_HAS_CHANGED(), this._onViewportHasChanged.bind(this));
     }
 
@@ -45,6 +48,8 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
                 trigger.addEventListener(event, this._onClickCollapseTrigger.bind(this));
             }
         });
+
+        this.$emitter.publish('onViewportHasChanged');
     }
 
     /**
@@ -61,13 +66,19 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
 
         $collapse.collapse('toggle');
 
-        $collapse.on('shown.bs.collapse', function () {
+        $collapse.on('shown.bs.collapse', () => {
             trigger.classList.add(collapseShowClass);
+
+            this.$emitter.publish('onCollapseShown');
         });
 
-        $collapse.on('hidden.bs.collapse', function () {
+        $collapse.on('hidden.bs.collapse', () => {
             trigger.classList.remove(collapseShowClass);
+
+            this.$emitter.publish('onCollapseHidden');
         });
+
+        this.$emitter.publish('onClickCollapseTrigger');
     }
 
     /**
@@ -78,5 +89,4 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
     _isInAllowedViewports() {
         return (ViewportDetection.isXS() || ViewportDetection.isSM());
     }
-
 }

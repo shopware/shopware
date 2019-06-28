@@ -42,5 +42,7 @@ export default class RemoteClickPlugin extends Plugin {
 
         const passEvent = new MouseEvent('click', { target });
         target.dispatchEvent(passEvent);
+
+        this.$emitter.publish('onClick');
     }
 }

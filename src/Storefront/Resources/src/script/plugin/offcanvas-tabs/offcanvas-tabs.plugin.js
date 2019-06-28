@@ -35,7 +35,6 @@ export default class OffCanvasTabs extends Plugin {
      * @private
      */
     _onClickOffCanvasTab(event) {
-
         // if the current viewport is not allowed return
         if (this._isInAllowedViewports() === false) return;
 
@@ -47,6 +46,8 @@ export default class OffCanvasTabs extends Plugin {
             const pane = DomAccess.querySelector(document, tabTarget);
             OffCanvas.open(pane.innerHTML, null, this.options.offcanvasPostion, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY(), true);
         }
+
+        this.$emitter.publish('onClickOffCanvasTab');
     }
 
     /**
@@ -57,5 +58,4 @@ export default class OffCanvasTabs extends Plugin {
     _isInAllowedViewports() {
         return (ViewportDetection.isXS());
     }
-
 }

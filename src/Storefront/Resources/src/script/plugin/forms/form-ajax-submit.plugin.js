@@ -128,6 +128,8 @@ export default class FormAjaxSubmitPlugin extends Plugin {
             return;
         }
 
+        this.$emitter.publish('beforeSubmit');
+
         if (event.type === 'change' && Array.isArray(this.options.submitOnChange)) {
             const target = event.currentTarget;
             Iterator.iterate(this.options.submitOnChange, selector => {
@@ -149,6 +151,8 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         this._createLoadingIndicators();
         const action = DomAccess.getAttribute(this._form, 'action');
         const method = DomAccess.getAttribute(this._form, 'method');
+
+        this.$emitter.publish('beforeFireRequest');
 
         if (method === 'get') {
             this._client.get(action, this._onAfterAjaxSubmit.bind(this));
@@ -196,6 +200,8 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         this._executeCallbacks();
 
         this.loaded = true;
+
+        this.$emitter.publish('onAfterAjaxSubmit', { response });
     }
 
     /**
@@ -210,6 +216,8 @@ export default class FormAjaxSubmitPlugin extends Plugin {
                 Iterator.iterate(elements, ElementLoadingIndicatorUtil.create);
             });
         }
+
+        this.$emitter.publish('createLoadingIndicators');
     }
 
     /**
@@ -222,6 +230,8 @@ export default class FormAjaxSubmitPlugin extends Plugin {
             const elements = DomAccess.querySelectorAll(document, selector);
             Iterator.iterate(elements, ElementLoadingIndicatorUtil.remove);
         });
+
+        this.$emitter.publish('createLoadingIndicators');
     }
 
     /**
@@ -234,5 +244,7 @@ export default class FormAjaxSubmitPlugin extends Plugin {
             if (typeof callback !== 'function') throw new Error('The callback must be a function!');
             callback.apply(this);
         });
+
+        this.$emitter.publish('executeCallbacks');
     }
 }

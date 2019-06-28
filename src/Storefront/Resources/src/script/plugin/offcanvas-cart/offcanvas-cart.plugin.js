@@ -107,6 +107,8 @@ export default class OffCanvasCartPlugin extends Plugin {
         this._registerRemoveProductTriggerEvents();
         this._registerChangeQuantityProductTriggerEvents();
         this._registeraddPromotionTriggerEvents();
+
+        this.$emitter.publish('registerEvents');
     }
 
     /**
@@ -119,6 +121,9 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     _onOffCanvasOpened(callback, response) {
         if (typeof callback === 'function') callback(response);
+
+        this.$emitter.publish('offCanvasOpened', { response });
+
         this._fetchCartWidgets();
         this._registerEvents();
     }
@@ -137,6 +142,8 @@ export default class OffCanvasCartPlugin extends Plugin {
         const requestUrl = DomAccess.getAttribute(form, 'action');
         const data = FormSerializeUtil.serialize(form);
 
+        this.$emitter.publish('beforeFireRequest');
+
         this.client.post(requestUrl.toLowerCase(), data, this._onOffCanvasOpened.bind(this, this._updateOffCanvasContent.bind(this)));
     }
 
@@ -152,6 +159,8 @@ export default class OffCanvasCartPlugin extends Plugin {
         const form = event.target;
         const selector = this.options.cartItemSelector;
 
+        this.$emitter.publish('onRemoveProductFromCart');
+
         this._fireRequest(form, selector);
     }
 
@@ -166,6 +175,8 @@ export default class OffCanvasCartPlugin extends Plugin {
         const select = event.target;
         const form = select.closest('form');
         const selector = this.options.cartItemSelector;
+
+        this.$emitter.publish('onChangeProductQuantity');
 
         this._fireRequest(form, selector);
     }
@@ -183,6 +194,8 @@ export default class OffCanvasCartPlugin extends Plugin {
         const form = event.target;
         const selector = this.options.cartPromotionSelector;
 
+        this.$emitter.publish('onAddPromotionToCart');
+
         this._fireRequest(form, selector);
     }
 
@@ -194,6 +207,8 @@ export default class OffCanvasCartPlugin extends Plugin {
     _fetchCartWidgets() {
         const CartWidgetPluginInstances = PluginManager.getPluginInstances('CartWidget');
         Iterator.iterate(CartWidgetPluginInstances, instance => instance.fetch());
+
+        this.$emitter.publish('fetchCartWidgets');
     }
 
     /**

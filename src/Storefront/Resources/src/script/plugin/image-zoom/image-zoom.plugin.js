@@ -143,6 +143,8 @@ export default class ImageZoomPlugin extends Plugin {
                     const imageZoomElement = activeSlide.querySelector('[data-image-zoom]');
                     const imageZoomPlugin = PluginManager.getPluginInstanceFromElement(imageZoomElement, 'ImageZoom');
                     imageZoomPlugin._setActionButtonState();
+
+                    this.$emitter.publish('imageZoomButtonUpdate');
                 });
             }
         }
@@ -174,6 +176,8 @@ export default class ImageZoomPlugin extends Plugin {
             this._updateTransform();
             this._setCursor('move');
         }
+
+        this.$emitter.publish('onPan');
     }
 
     /**
@@ -193,6 +197,8 @@ export default class ImageZoomPlugin extends Plugin {
             this._updateTransform();
             this._setCursor('move');
         }
+
+        this.$emitter.publish('onPinch');
     }
 
     /**
@@ -209,6 +215,8 @@ export default class ImageZoomPlugin extends Plugin {
             this._setTransition();
             this._updateTransform(true);
         }
+
+        this.$emitter.publish('onDoubleTap');
     }
 
     /**
@@ -223,6 +231,8 @@ export default class ImageZoomPlugin extends Plugin {
             this._setTransition();
             this._updateTransform(true);
         }
+
+        this.$emitter.publish('onZoomIn');
     }
 
     /**
@@ -236,6 +246,8 @@ export default class ImageZoomPlugin extends Plugin {
             this._setTransition();
             this._updateTransform(true);
         }
+
+        this.$emitter.publish('onResetZoom');
     }
 
     /**
@@ -250,6 +262,8 @@ export default class ImageZoomPlugin extends Plugin {
             this._setTransition();
             this._updateTransform(true);
         }
+
+        this.$emitter.publish('onZoomOut');
     }
 
     /**
@@ -264,6 +278,8 @@ export default class ImageZoomPlugin extends Plugin {
             this._unsetTransition();
             this._updateTransform(true);
         }
+
+        this.$emitter.publish('onMouseWheel');
     }
 
     /**
@@ -276,6 +292,8 @@ export default class ImageZoomPlugin extends Plugin {
             this._updateTransform(true);
             this._setCursor('default');
         }
+
+        this.$emitter.publish('onInteractionEnd');
     }
 
     /**
@@ -287,6 +305,8 @@ export default class ImageZoomPlugin extends Plugin {
     _onResize() {
         this._getElementSizes();
         this._updateTransform(true);
+
+        this.$emitter.publish('onResize');
     }
 
     /**
@@ -298,6 +318,8 @@ export default class ImageZoomPlugin extends Plugin {
     _getElementSizes() {
         this._imageSize = new Vector2(this._image.offsetWidth, this._image.offsetHeight);
         this._containerSize = new Vector2(this.el.offsetWidth, this.el.offsetHeight);
+
+        this.$emitter.publish('getElementSizes');
     }
 
     /**
@@ -323,6 +345,8 @@ export default class ImageZoomPlugin extends Plugin {
         if (updateStoredTransform) {
             this._updateStoredTransformVector();
         }
+
+        this.$emitter.publish('updateTransform');
     }
 
     _setActionButtonState() {
@@ -343,6 +367,8 @@ export default class ImageZoomPlugin extends Plugin {
             this._unsetButtonDisabledState(this._zoomOutActionElement);
             this._unsetButtonDisabledState(this._zoomInActionElement);
         }
+
+        this.$emitter.publish('setActionButtonState');
     }
 
     /**
@@ -352,6 +378,8 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _setButtonDisabledState(el) {
         el.classList.add('disabled');
+
+        this.$emitter.publish('setButtonDisabledState');
     }
 
     /**
@@ -361,6 +389,8 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _unsetButtonDisabledState(el) {
         el.classList.remove('disabled');
+
+        this.$emitter.publish('unsetButtonDisabledState');
     }
 
     /**
@@ -408,6 +438,8 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _setCursor(type) {
         this.el.style.cursor = type;
+
+        this.$emitter.publish('setCursor');
     }
 
     /**
@@ -421,6 +453,8 @@ export default class ImageZoomPlugin extends Plugin {
         this._image.style.transition = transition;
         this._image.style.WebkitTransition = transition;
         this._image.style.msTransition = transition;
+
+        this.$emitter.publish('setTransition');
     }
 
     /**
@@ -434,6 +468,8 @@ export default class ImageZoomPlugin extends Plugin {
         this._image.style.transition = transition;
         this._image.style.WebkitTransition = transition;
         this._image.style.msTransition = transition;
+
+        this.$emitter.publish('unsetTransition');
     }
 
     /**

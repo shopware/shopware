@@ -72,6 +72,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
         OffcanvasMenuPlugin._stopEvent(event);
         OffCanvas.open(this._content, this._registerEvents.bind(this), this.options.position);
         OffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
+
+        this.$emitter.publish('openMenu');
     }
 
     /**
@@ -108,6 +110,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
         if (link.classList.contains(this.options.homeBtnClass) || link.classList.contains(this.options.backBtnClass)) {
             animationType = this.options.backwardAnimationType;
         }
+
+        this.$emitter.publish('getLinkEventHandler');
 
         this._fetchMenu(url, this._updateOverlay.bind(this, animationType));
     }
@@ -169,6 +173,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
             this._replaceOffcanvasMenuContent(animationType, menuContent, currentContent);
             this._registerEvents();
         }
+
+        this.$emitter.publish('updateOverlay');
     }
 
     /**
@@ -194,6 +200,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
         }
 
         this._animateInstant(menuContent, currentContent);
+
+        this.$emitter.publish('replaceOffcanvasMenuContent');
     }
 
     /**
@@ -204,6 +212,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
      */
     _animateInstant(menuContent) {
         this._overlay.innerHTML = menuContent;
+
+        this.$emitter.publish('animateInstant');
     }
 
     /**
@@ -225,6 +235,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
             this._overlay.classList.add(this.options.transitionClass);
             this._overlay.style.left = '0%';
         }, 1);
+
+        this.$emitter.publish('animateForward');
     }
 
     /**
@@ -246,6 +258,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
             this._overlay.classList.add(this.options.transitionClass);
             this._overlay.style.left = '100%';
         }, 1);
+
+        this.$emitter.publish('animateBackward');
     }
 
     /**
@@ -295,6 +309,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
             this._placeholder = OffcanvasMenuPlugin._createPlaceholder(offcanvasMenu);
             this._overlay = OffcanvasMenuPlugin._createNavigationOverlay(offcanvasMenu);
         }
+
+        this.$emitter.publish('createOverlayElements');
     }
 
     /**
@@ -358,6 +374,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
             }
         }
 
+        this.$emitter.publish('beforeFetchMenu');
+
         this._client.get(link, (res) => {
             this._cache[link] = res;
             if (typeof cb === 'function') {
@@ -376,6 +394,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
         this._content = content;
         OffCanvas.setContent(this._content);
         this._registerEvents();
+
+        this.$emitter.publish('replaceOffcanvasContent');
     }
 
     /**
@@ -408,6 +428,4 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
         return offcanvas.querySelector(this.options.menuSelector);
     }
-
 }
-

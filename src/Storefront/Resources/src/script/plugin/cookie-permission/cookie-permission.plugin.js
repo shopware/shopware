@@ -53,6 +53,8 @@ export default class CookiePermissionPlugin extends Plugin {
      */
     _showCookieBar() {
         this.el.style.display = 'block';
+
+        this.$emitter.publish('showCookieBar');
     }
 
     /**
@@ -60,6 +62,8 @@ export default class CookiePermissionPlugin extends Plugin {
      */
     _hideCookieBar() {
         this.el.style.display = 'none';
+
+        this.$emitter.publish('hideCookieBar');
     }
 
 
@@ -76,6 +80,8 @@ export default class CookiePermissionPlugin extends Plugin {
                 this._hideCookieBar();
                 this._removeBodyPadding();
                 CookieStorage.setItem('allowCookie', '1', this.options.cookieExpiration);
+
+                this.$emitter.publish('onClickButton');
             });
         }
 
@@ -97,6 +103,8 @@ export default class CookiePermissionPlugin extends Plugin {
      */
     _setBodyPadding() {
         document.body.style.paddingBottom = this._calculateCookieBarHeight() + 'px';
+
+        this.$emitter.publish('setBodyPadding');
     }
 
     /**
@@ -104,5 +112,7 @@ export default class CookiePermissionPlugin extends Plugin {
      */
     _removeBodyPadding() {
         document.body.style.paddingBottom = '0';
+
+        this.$emitter.publish('removeBodyPadding');
     }
 }

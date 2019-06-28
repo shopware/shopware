@@ -19,6 +19,8 @@ export default class AddressEditorPlugin extends Plugin {
         addressId: false,
         changeShipping: false,
         changeBilling: false,
+        editorModalClass: 'address-editor-modal',
+        closeEditorClass: 'js-close-address-editor',
     };
 
     init() {
@@ -36,7 +38,8 @@ export default class AddressEditorPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        const onClick = this._onClick.bind(this);
+        const onClick = this._getModal.bind(this);
+
         this.el.removeEventListener('click', onClick);
         this.el.addEventListener('click', onClick);
     }
@@ -48,11 +51,13 @@ export default class AddressEditorPlugin extends Plugin {
      *
      * @private
      */
-    _onClick(event) {
+    _getModal(event) {
         event.preventDefault();
         PageLoadingIndicatorUtil.create();
 
         const data = this._getRequestData();
+
+        this.$emitter.publish('beforeGetModal');
 
         this._client.abort();
         this._client.post(this.options.url, JSON.stringify(data), content => this._openModal(content));
@@ -87,6 +92,7 @@ export default class AddressEditorPlugin extends Plugin {
      */
     _openModal(response) {
         const pseudoModal = new PseudoModalUtil(response);
+
         PageLoadingIndicatorUtil.remove();
         pseudoModal.open(this._onOpen.bind(this, pseudoModal));
     }
@@ -100,9 +106,13 @@ export default class AddressEditorPlugin extends Plugin {
      */
     _onOpen(pseudoModal) {
         const modal = pseudoModal.getModal();
-        modal.classList.add('address-editor-modal');
+
+        modal.classList.add(this.options.editorModalClass);
         window.PluginManager.initializePlugins();
+
         this._registerModalEvents(pseudoModal);
+
+        this.$emitter.publish('onOpen', { pseudoModal });
     }
 
     /**
@@ -116,6 +126,8 @@ export default class AddressEditorPlugin extends Plugin {
     _registerModalEvents(pseudoModal) {
         this._registerCollapseCallback(pseudoModal);
         this._registerAjaxSubmitCallback(pseudoModal);
+
+        this.$emitter.publish('registerModalEvents', { pseudoModal });
     }
 
     /**
@@ -129,6 +141,7 @@ export default class AddressEditorPlugin extends Plugin {
     _registerCollapseCallback(pseudoModal) {
         const modal = pseudoModal.getModal();
         const collapseTriggers = DomAccess.querySelectorAll(modal, '[data-toggle="collapse"]', false);
+
         if (collapseTriggers) {
             Iterator.iterate(collapseTriggers, collapseTrigger => {
                 const targetSelector = DomAccess.getDataAttribute(collapseTrigger, 'data-target');
@@ -139,9 +152,13 @@ export default class AddressEditorPlugin extends Plugin {
 
                 $parent.on('hidden.bs.collapse', () => {
                     pseudoModal.updatePosition();
+
+                    this.$emitter.publish('collapseHidden', { pseudoModal });
                 });
             });
         }
+
+        this.$emitter.publish('registerCollapseCallback', { pseudoModal });
     }
 
     /**
@@ -155,16 +172,21 @@ export default class AddressEditorPlugin extends Plugin {
     _registerAjaxSubmitCallback(pseudoModal) {
         const modal = pseudoModal.getModal();
         const ajaxForms = DomAccess.querySelectorAll(modal, '[data-form-ajax-submit]', false);
+
         if (ajaxForms) {
             Iterator.iterate(ajaxForms, ajaxForm => {
 
                 /** @type FormAjaxSubmitPlugin **/
                 const instance = PluginManager.getPluginInstanceFromElement(ajaxForm, 'FormAjaxSubmit');
+
                 if (instance) {
-                    const shouldBeClosed = ajaxForm.classList.contains('js-close-address-editor');
+                    const shouldBeClosed = ajaxForm.classList.contains(this.options.closeEditorClass);
+
                     if (shouldBeClosed) {
                         instance.addCallback(() => {
                             pseudoModal.close();
+
+                            this.$emitter.publish('modalClose', { pseudoModal });
                         });
                     }
 
@@ -172,6 +194,7 @@ export default class AddressEditorPlugin extends Plugin {
                 }
             });
         }
-    }
 
+        this.$emitter.publish('registerAjaxSubmitCallback', { pseudoModal });
+    }
 }

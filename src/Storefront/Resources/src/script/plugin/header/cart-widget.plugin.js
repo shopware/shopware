@@ -28,6 +28,8 @@ export default class CartWidgetPlugin extends Plugin {
                 this.el.innerHTML = storedContent;
             }
         }
+
+        this.$emitter.publish('insertStoredContent');
     }
 
     /**
@@ -39,6 +41,8 @@ export default class CartWidgetPlugin extends Plugin {
 
             Storage.setItem(this.options.cartWidgetStorageKey, response);
             this.el.innerHTML = response;
+
+            this.$emitter.publish('fetch', { response });
         });
     }
 }

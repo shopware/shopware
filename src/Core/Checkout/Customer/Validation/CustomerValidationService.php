@@ -5,7 +5,9 @@ namespace Shopware\Core\Checkout\Customer\Validation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -17,10 +19,17 @@ class CustomerValidationService implements ValidationServiceInterface
      * @var CustomerProfileValidationService
      */
     private $profileValidation;
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
 
-    public function __construct(CustomerProfileValidationService $profileValidation)
-    {
+    public function __construct(
+        CustomerProfileValidationService $profileValidation,
+        SystemConfigService $systemConfigService
+    ) {
         $this->profileValidation = $profileValidation;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function buildCreateValidation(Context $context): DataValidationDefinition
@@ -28,6 +37,18 @@ class CustomerValidationService implements ValidationServiceInterface
         $definition = new DataValidationDefinition('customer.create');
 
         $this->addConstraints($definition, $context);
+
+        if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation')) {
+            $definition->add('emailConfirmation', new EqualTo([
+                'propertyPath' => 'email',
+            ]));
+        }
+
+        if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation')) {
+            $definition->add('passwordConfirmation', new EqualTo([
+                'propertyPath' => 'password',
+            ]));
+        }
 
         $profileDefinition = $this->profileValidation->buildCreateValidation($context);
 

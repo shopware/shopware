@@ -57,6 +57,7 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService">
@@ -78,6 +79,7 @@
 
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService">
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator">

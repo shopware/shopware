@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -53,6 +54,10 @@ class AccountRegistrationService
      * @var ValidationServiceInterface
      */
     private $accountValidationService;
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
 
     public function __construct(
         EntityRepositoryInterface $customerRepository,
@@ -60,7 +65,8 @@ class AccountRegistrationService
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         DataValidator $validator,
         ValidationServiceInterface $accountValidationService,
-        ValidationServiceInterface $addressValidationService
+        ValidationServiceInterface $addressValidationService,
+        SystemConfigService $systemConfigService
     ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
@@ -68,6 +74,7 @@ class AccountRegistrationService
         $this->validator = $validator;
         $this->accountValidationService = $accountValidationService;
         $this->addressValidationService = $addressValidationService;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function register(DataBag $data, bool $isGuest, SalesChannelContext $context): string
@@ -254,7 +261,7 @@ class AccountRegistrationService
         $validation = $this->accountValidationService->buildCreateValidation($context);
 
         if (!$isGuest) {
-            $validation->add('password', new NotBlank(), new Length(['min' => 8])); //todo get the minLength value via DI (backend config when available)
+            $validation->add('password', new NotBlank(), new Length(['min' => $this->systemConfigService->get('core.loginRegistration.passwordMinLength')]));
             $validation->add('email', new CustomerEmailUnique(['context' => $context]));
         }
 

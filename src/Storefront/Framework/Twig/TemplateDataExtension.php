@@ -97,7 +97,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
     private function getDefaultConfiguration(): array
     {
         return [
-            'shopName' => 'Shopware Storefront',
             'seo' => [
                 'descriptionMaxLength' => 150,
             ],
@@ -106,20 +105,11 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'taxCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
                 'tosCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
             ],
-            'register' => [
-                'titleField' => true,
-                'emailConfirmation' => false,
-                'passwordConfirmation' => false,
-            ],
             'address' => [
                 'zipBeforeCity' => true,
             ],
             'confirm' => [
                 'revocationNotice' => true,
-            ],
-            'checkout' => [
-                'instockinfo' => false,
-                'maxQuantity' => 100,
             ],
             'listing' => [
                 'allowBuyInListing' => true,

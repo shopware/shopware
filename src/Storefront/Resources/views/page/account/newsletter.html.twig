@@ -32,7 +32,7 @@
                     {% block page_account_overview_newsletter_content_form_label %}
                         <label class="form-check-label custom-control-label"
                                for="newsletterRegister">
-                            {{ "account.newsletterSettings"|trans({'%shopname%': shopware.config.shopName}) }}
+                            {{ "account.newsletterSettings"|trans({'%shopname%': shopware.config.core.basicInformation.shopName}) }}
                         </label>
                     {% endblock %}
                 </div>

@@ -178,19 +178,19 @@
 											{{ formGroupMail }}
 										</div>
 										<div class="form-group col-sm-6">
-											{% if shopware.config.register.emailConfirmation %}
+											{% if shopware.config.core.loginRegistration.requireEmailConfirmation %}
 												{{ formGroupMailConfirmation }}
-											{% elseif not shopware.config.register.passwordConfirmation %}
+											{% elseif not shopware.config.core.loginRegistration.requirePasswordConfirmation %}
 												{{ formGroupPassword }}
 											{% endif %}
 										</div>
 										<div class="form-group col-sm-6">
-											{% if shopware.config.register.emailConfirmation or shopware.config.register.passwordConfirmation %}
+											{% if shopware.config.core.loginRegistration.requireEmailConfirmation or shopware.config.core.loginRegistration.requirePasswordConfirmation %}
 												{{ formGroupPassword }}
 											{% endif %}
 										</div>
 										<div class="form-group col-sm-6">
-											{% if shopware.config.register.passwordConfirmation %}
+											{% if shopware.config.core.loginRegistration.requirePasswordConfirmation %}
 												{{ formGroupPasswordConfirmation }}
 											{% endif %}
 										</div>

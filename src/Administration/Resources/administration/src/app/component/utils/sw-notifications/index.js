@@ -70,21 +70,14 @@ export default {
         },
 
         handleAction(action, notification) {
-            if (action.method) {
-                this.callMethod(action.method, notification);
+            if (action.route) {
+                this.$router.push(action.route);
                 this.onClose(notification);
 
                 return;
             }
 
             this.onClose(notification);
-        },
-
-        callMethod(method) {
-            if (typeof method !== 'function') {
-                return;
-            }
-            method.call();
         }
     }
 };

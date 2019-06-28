@@ -7,13 +7,13 @@ Single action example:
 ```
 {
     label: 'Button label',
-    method: this.myMethod
+    route: { name: 'sw.settings.index' }
 }
 ```
-- The method will get called when the action button was clicked.
-- By default the notification will be closed when the method has run.
-- When no method is given the notification will close on click by default.
-- When `actions` is used a button bar with the actions will appear automatically in the notification.
+- `$router.push()` will get called when the action button was clicked.
+- By default the notification will be closed when the route change is run.
+- When no route is given the notification will close on click by default.
+- When actions are in use, a button bar with the defined actions will appear automatically inside the notification.
 
 Full example for notification actions:
 ```
@@ -25,11 +25,8 @@ this.$store.dispatch('notification/createNotification', {
     actions: [{
         label: 'Cancel'
     }, {
-        label: 'Remind me later',
-        method: this.setReminder
-    }, {
         label: 'Update now',
-        method: () => this.updateNow('someArgument') // With args please use arrow function
+        route: { name: 'sw.settings.index' }
     }],
     autoClose: false
 });

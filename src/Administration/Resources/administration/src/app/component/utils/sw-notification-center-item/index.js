@@ -54,6 +54,13 @@ export default {
 
         onDelete() {
             this.$store.commit('notification/removeNotification', this.notification);
+        },
+
+        handleAction(action) {
+            if (!action.route) {
+                return;
+            }
+            this.$router.push(action.route);
         }
     }
 };

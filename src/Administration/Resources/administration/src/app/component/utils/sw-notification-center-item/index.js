@@ -40,6 +40,11 @@ export default {
                     minute: '2-digit'
                 }
             );
+        },
+        notificationActions() {
+            return this.notification.actions.filter((action) => {
+                return action.route;
+            });
         }
     },
 

@@ -41,7 +41,7 @@
         {% block sw_notification_center_item_actions %}
             <div v-if="notification.actions" class="sw-notification-center-item__actions">
                 {% block sw_notification_center_item_actions_inner %}
-                    <template v-for="action in notification.actions">
+                    <template v-for="action in notificationActions">
                         {% block sw_notification_center_item_actions_item_container %}
                             <div class="sw-notification-center-item__actions-item-container">
                                 {% block sw_notification_center_item_actions_item %}

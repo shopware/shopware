@@ -220,7 +220,10 @@
         "cityLabel": "Ort",
         "cityPlaceholder": "Ort",
         "countryLabel": "Land",
-        "countryPlaceholder": "Land"
+        "countryPlaceholder": "Land",
+        "phoneNumberLabel": "Telefonnummer",
+        "phoneNumberPlaceholder": "Telefonnummer"
+
     },
     "checkout": {
         "itemCounter": "%count% Artikel",

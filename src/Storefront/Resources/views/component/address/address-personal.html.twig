@@ -141,7 +141,7 @@
 		{% if showBirthdayField %}
 			{% block component_address_personal_fields_birthday_label %}
 				<label for="{{ prefix }}personalBirthday">
-					{{ "account.personalBirthdayLabel"|trans }}{{ "general.required"|trans }}
+					{{ "account.personalBirthdayLabel"|trans }}{{ birthdayFieldRequired ? "general.required"|trans }}
 				</label>
 			{% endblock %}
 
@@ -152,7 +152,7 @@
 							<select id="{{ prefix }}personalBirthday"
 									name="{% if prefix %}{{ prefix }}[birthdayDay]{% else %}birthdayDay{% endif %}"
 									class="custom-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
-									required="required">
+									{{ birthdayFieldRequired ? 'required="required"' }}>
 								{% if not data.get('birthdayDay') %}
 									<option selected="selected"
 											value="">
@@ -181,7 +181,7 @@
 						<div class="form-group col-md-2 col-4">
 							<select name="{% if prefix %}{{ prefix }}[birthdayMonth]{% else %}birthdayMonth{% endif %}"
 									class="custom-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
-									required="required">
+                                    {{ birthdayFieldRequired ? 'required="required"' }}>
 								{% if not data.get('birthdayMonth') %}
 									<option selected="selected"
 											value="">
@@ -213,7 +213,7 @@
 
 							<select name="{% if prefix %}{{ prefix }}[birthdayYear]{% else %}birthdayYear{% endif %}"
 									class="custom-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
-									required="required">
+                                    {{ birthdayFieldRequired ? 'required="required"' }}>
 								{% if not data.get('birthdayYear') %}
 									<option selected="selected"
 											value="">

@@ -20,6 +20,9 @@ run storefront-related tests
 
 ##  Running tests
 
+If you use docker, Cypress is shipped in an own container. In this case, please keep in mind that you need to run Cypress 
+commands from your local machine, as you cannot run docker commands in docker containers.
+
 At first, you need to set up your environment for running E2E tests:
 ```bash
 ./psh.phar e2e:init

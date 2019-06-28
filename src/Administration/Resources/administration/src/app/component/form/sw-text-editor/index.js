@@ -5,24 +5,25 @@ import './sw-text-editor.scss';
  * @public
  * @status ready
  * @example-type static
- * @description A simple text editor which uses the browsers api.
+ * @description <p>A simple text editor which uses the browsers api.
  *              Pass a buttonConfig array to configure the buttons you desire.
  *              Each Button needs to be an object with a type (this will be the executed Command as well),
  *              a name or an icon which will be displayed as the button and
  *              the created HTML-Tag (this is needed to set actives states in the Toolbar).
  *              If the type requires a value you can set the value prop,
- *              which will be passed in the execCommand function.
- *              To read more about the execCommand function see
- *              https://developer.mozilla.org/de/docs/Web/API/Document/execCommand.
+ *              which will be passed in the execCommand function.</p>
+ *              <p>To read more about the execCommand function see</p>
+ *              <a href="https://developer.mozilla.org/de/docs/Web/API/Document/execCommand" target="_blank">
+ *              https://developer.mozilla.org/de/docs/Web/API/Document/execCommand</a>
  *
- *              If you want to generate a sub-menu you can set a children prop in the button-object which,
- *              holds the buttonConfig of the children (Button syntax is the same as explained above).
+ *              <p>If you want to generate a sub-menu you can set a children prop in the button-object which,
+ *              holds the buttonConfig of the children (Button syntax is the same as explained above).</p>
  *
- *              If you need to call a custom callback instead you can pass your handler with a handler prop
- *              e.g. handler: (button, parent = null) => { callback(button, parent) }
+ *              <p>If you need to call a custom callback instead you can pass your handler with a handler prop
+ *              e.g. handler: (button, parent = null) => { callback(button, parent) }</p>
  *
- *              Furthermore you can pass the position prop [left (default), middle and right]
- *              to set the buttons position in the toolbar.
+ *              <p>Furthermore you can pass the position prop [left (default), middle and right]
+ *              to set the buttons position in the toolbar.</p>
  * @component-example
  *  <sw-text-editor value="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" :isInlineEdit="true">
  *
@@ -224,7 +225,15 @@ export default {
             content: '',
             placeholderHeight: null,
             placeholderVisible: false,
-            isCodeEdit: false
+            isCodeEdit: false,
+            tableData: {
+                pageX: null,
+                curCol: null,
+                nextCol: null,
+                curColWidth: null,
+                nextColWidth: null
+            },
+            isTableEdit: false
         };
     },
 
@@ -250,6 +259,7 @@ export default {
 
                 this.$nextTick(() => {
                     this.setWordCount();
+                    this.setTablesResizable();
                 });
             }
         },
@@ -279,14 +289,24 @@ export default {
         createdComponent() {
             this.content = this.value;
 
-            if (!this.isInlineEdit && !this.$options.buttonConfig) {
+            if (!this.$options.buttonConfig) {
                 this.buttonConfig.push({
-                    type: 'codeSwitch',
-                    icon: 'default-text-editor-code',
-                    expanded: this.isCodeEdit,
-                    handler: this.toggleCodeEditor,
-                    position: 'right'
+                    type: 'table',
+                    icon: 'default-text-editor-table',
+                    tag: 'table',
+                    expanded: false,
+                    handler: this.handleInsertTable
                 });
+
+                if (!this.isInlineEdit) {
+                    this.buttonConfig.push({
+                        type: 'codeSwitch',
+                        icon: 'default-text-editor-code',
+                        expanded: this.isCodeEdit,
+                        handler: this.toggleCodeEditor,
+                        position: 'right'
+                    });
+                }
             }
 
             document.addEventListener('mouseup', this.onSelectionChange);
@@ -305,6 +325,7 @@ export default {
 
             this.$nextTick(() => {
                 this.setWordCount();
+                this.setTablesResizable();
             });
         },
 
@@ -343,6 +364,7 @@ export default {
         getPath(event) {
             const path = [];
             let source = event.target;
+
             while (source) {
                 path.push(source);
                 source = source.parentNode;
@@ -372,6 +394,81 @@ export default {
         onTextStyleChange(type, value) {
             document.execCommand(type, false, value);
             this.emitContent();
+        },
+
+        handleInsertTable(button) {
+            this.onTextStyleChange('insertHTML', button.value);
+            this.selection = document.getSelection();
+
+            this.$nextTick(() => {
+                this.setTablesResizable();
+                this.isTableEdit = true;
+            });
+        },
+
+        setTablesResizable() {
+            const tables = this.$el.querySelectorAll('.sw-text-editor-table');
+
+            if (tables) {
+                tables.forEach((table) => {
+                    this.setTableResizable(table);
+                });
+            }
+        },
+
+        setTableResizable(table) {
+            const row = table.getElementsByTagName('tr')[0];
+            const cols = row ? row.children : undefined;
+
+            if (!cols) {
+                return;
+            }
+
+            const resizeSelectors = table.querySelectorAll('.sw-text-editor-table__col-selector');
+
+            if (resizeSelectors.length > 0) {
+                resizeSelectors.forEach((selector) => {
+                    selector.style.height = `${table.offsetHeight}px`;
+                    selector.contentEditable = false;
+                    this.setTableSelectorListeners(selector);
+                });
+
+                this.setTableListeners();
+            }
+        },
+
+        setTableSelectorListeners(selector) {
+            selector.addEventListener('mousedown', (e) => {
+                this.tableData.curCol = e.target.parentElement;
+                this.tableData.nextCol = this.tableData.curCol.nextElementSibling;
+                this.tableData.pageX = e.pageX;
+                this.tableData.curColWidth = this.tableData.curCol.offsetWidth;
+                if (this.tableData.nextCol) {
+                    this.tableData.nextColWidth = this.tableData.nextCol.offsetWidth;
+                }
+            });
+        },
+
+        setTableListeners() {
+            this.$el.addEventListener('mousemove', (e) => {
+                if (this.tableData.curCol) {
+                    const diffX = e.pageX - this.tableData.pageX;
+
+                    if (this.tableData.nextCol) {
+                        this.tableData.nextCol.style.width = `${this.tableData.nextColWidth - (diffX)}px`;
+                    }
+
+                    this.tableData.curCol.style.width = `${this.tableData.curColWidth + diffX}px`;
+                }
+            });
+
+            this.$el.addEventListener('mouseup', () => {
+                this.tableData.curCol = null;
+                this.tableData.nextCol = null;
+                this.tableData.pageX = null;
+                this.tableData.nextColWidth = null;
+                this.tableData.curColWidth = null;
+            });
         },
 
         onSetLink(value, target) {
@@ -470,6 +567,21 @@ export default {
             if (this.$refs.textEditor) {
                 this.textLength = this.$refs.textEditor.innerText.length;
             }
+        },
+
+        onTableEdit(toggle) {
+            this.isTableEdit = toggle;
+        },
+
+        onTableModify(table) {
+            this.$nextTick(() => {
+                this.setTableResizable(table);
+            });
+        },
+
+        onTableDelete(event) {
+            event.stopPropagation();
+            this.isTableEdit = false;
         }
     }
 };

@@ -534,6 +534,12 @@
       "placeholder": "URL eingeben",
       "linkTo": "Link zu",
       "insert": "Einfügen"
+    },
+    "table": {
+      "addHeading": "Tabellenkopf hinzufügen",
+      "cols": "Spalten",
+      "rows": "Zeilen",
+      "editInfo": "Tabelle kann nachträglich erweitert werden."
     }
   },
   "sw-tree": {

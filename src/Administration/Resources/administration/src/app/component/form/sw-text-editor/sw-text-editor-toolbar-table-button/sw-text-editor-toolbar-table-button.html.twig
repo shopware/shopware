@@ -1,0 +1,89 @@
+{% block sw_text_editor_toolbar_table_button %}
+    <div class="sw-text-editor-toolbar-table-button">
+
+        {% block sw_text_editor_toolbar_table_button_table_head_switch %}
+            <sw-field type="switch" v-model="addTableHead" :label="$tc('sw-text-editor-toolbar.table.addHeading')"></sw-field>
+        {% endblock %}
+
+        {% block sw_text_editor_toolbar_table_button_table_grid_input %}
+            <div class="sw-text-editor-toolbar-table-button__grid-input">
+                <sw-field type="number"
+                          numberType="int"
+                          v-model="selectedCols"
+                          :min="0"
+                          :max="colMaxLimit"
+                          :label="$tc('sw-text-editor-toolbar.table.cols')"
+                          @input-change="setSelectedCols"
+                          @change="setSelectedCols">
+                </sw-field>
+                <sw-icon class="sw-text-editor-toolbar-table-button__grid-input-icon"
+                         name="default-basic-x-line"
+                         size="12">
+                </sw-icon>
+                <sw-field type="number"
+                          numberType="int"
+                          v-model="selectedRows"
+                          :min="0"
+                          :max="rowMaxLimit"
+                          :label="$tc('sw-text-editor-toolbar.table.rows')"
+                          @input-change="setSelectedRows"
+                          @change="setSelectedRows">
+                </sw-field>
+            </div>
+        {% endblock %}
+
+        <p class="sw-text-editor-toolbar-table-button__grid-info">{{ $tc('sw-text-editor-toolbar.table.editInfo') }}</p>
+
+        {% block sw_text_editor_toolbar_table_button_table %}
+            <table class="sw-text-editor-toolbar-table-button__table" @click="emitTable">
+
+                {% block sw_text_editor_toolbar_table_button_table_head %}
+                    <thead v-if="addTableHead" class="sw-text-editor-toolbar-table-button__table-head">
+
+                    {% block sw_text_editor_toolbar_table_button_table_head_row %}
+                        <tr class="sw-text-editor-toolbar-table-button__row">
+
+                            {% block sw_text_editor_toolbar_table_button_table_head_col %}
+                                <td class="sw-text-editor-toolbar-table-button__col"
+                                    v-for="colIndex in tableCols"
+                                    :key="colIndex">
+                                    <div class="sw-text-editor-toolbar-table-button__col-placeholder"></div>
+                                </td>
+                            {% endblock %}
+                        </tr>
+                    {% endblock %}
+                    </thead>
+                {% endblock %}
+
+                {% block sw_text_editor_toolbar_table_button_table_body %}
+                    <tbody class="sw-text-editor-toolbar-table-button__table-body">
+
+                        {% block sw_text_editor_toolbar_table_button_table_body_row %}
+                            <tr class="sw-text-editor-toolbar-table-button__row"
+                                v-for="rowIndex in tableRows"
+                                v-on="rowIndex === tableRows ? { mouseleave: (event) => onLastRowMouseOut(event) } : null"
+                                :key="rowIndex">
+
+                                {% block sw_text_editor_toolbar_table_button_table_body_col %}
+                                    <td class="sw-text-editor-toolbar-table-button__col"
+                                        v-for="colIndex in tableCols"
+                                        v-on="colIndex === tableCols ? { mouseleave: (event) => onLastColMouseOut(event) } : null"
+                                        @mouseover="onMouseOverColumn($event, { rows: rowIndex, cols: colIndex })"
+                                        :key="colIndex">
+                                        <div class="sw-text-editor-toolbar-table-button__col-placeholder"></div>
+                                    </td>
+                                {% endblock %}
+                            </tr>
+                        {% endblock %}
+                    </tbody>
+                {% endblock %}
+            </table>
+        {% endblock %}
+
+        {% block sw_text_editor_toolbar_table_button_table_insert %}
+            <div class="sw-text-editor-toolbar-table-button__insert">
+                <sw-button size="small" variant="primary" @click="emitTable">{{ $tc('sw-text-editor-toolbar.link.insert') }}</sw-button>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

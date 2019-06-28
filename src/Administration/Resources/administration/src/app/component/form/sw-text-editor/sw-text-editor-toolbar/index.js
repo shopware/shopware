@@ -36,7 +36,14 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        isTableEdit: {
+            type: Boolean,
+            required: false,
+            default: false
         }
+
     },
 
     data() {
@@ -51,8 +58,28 @@ export default {
             currentLink: null,
             leftButtons: [],
             middleButtons: [],
-            rightButtons: []
+            rightButtons: [],
+            tableEdit: false
         };
+    },
+
+    computed: {
+        classes() {
+            return {
+                'is--boxedEdit': !this.isInlineEdit
+            };
+        }
+    },
+
+    watch: {
+        isTableEdit: {
+            handler() {
+                this.tableEdit = this.isTableEdit;
+                this.$nextTick(() => {
+                    this.setActiveTags();
+                });
+            }
+        }
     },
 
     created() {
@@ -67,14 +94,6 @@ export default {
         this.destroyedComponent();
     },
 
-    computed: {
-        classes() {
-            return {
-                'is--boxedEdit': !this.isInlineEdit
-            };
-        }
-    },
-
     methods: {
         createdComponent() {
             this.setButtonPositions();
@@ -86,6 +105,7 @@ export default {
                 const body = document.querySelector('body');
                 body.appendChild(this.$el);
             }
+
             document.addEventListener('mouseup', this.onMouseUp);
             this.setToolbarPosition();
 
@@ -136,7 +156,7 @@ export default {
             }
 
             if (!path.includes(this.$el)) {
-                if (!this.isInlineEdit && this.selection && this.selection.toString() !== '') {
+                if (!this.isInlineEdit && this.selection) {
                     this.setActiveTags();
                 } else if (this.activeTags.length > 0) {
                     this.activeTags = [];
@@ -181,7 +201,7 @@ export default {
         },
 
         setSelectionRange() {
-            if (this.selection.anchorNode) {
+            if (this.selection.anchorNode && this.selection.rangeCount > 0) {
                 this.range = this.selection.getRangeAt(0);
             }
         },
@@ -243,8 +263,6 @@ export default {
                 this.closeExpandedMenu();
             }
 
-            this.keepSelection();
-
             if (parent) {
                 parent.children.forEach((child) => {
                     child.active = false;
@@ -252,9 +270,23 @@ export default {
             }
 
             if (button.handler) {
+                this.keepSelection(true);
+
+                if (!this.selection || this.selection.rangeCount < 1) {
+                    button.expanded = false;
+                    return;
+                }
+
                 button.handler(button, parent);
+
+                this.range = document.getSelection().getRangeAt(0);
+                this.range.setStart(this.range.startContainer, 0);
+                button.expanded = false;
+
                 return;
             }
+
+            this.keepSelection();
 
             this.$emit('text-style-change', button.type, button.value);
 
@@ -278,7 +310,7 @@ export default {
             this.currentColor = null;
             this.currentLink = null;
 
-            if (!this.selection) {
+            if (!this.selection || !this.selection.baseNode) {
                 return;
             }
 
@@ -294,8 +326,21 @@ export default {
                     this.currentLink = { url: parentNode.href, newTab: parentNode.target === '_blank' };
                 }
 
+                if (parentNode.tagName === 'TABLE') {
+                    if (!this.tableEdit) {
+                        this.tableEdit = true;
+                        this.$emit('table-edit', this.tableEdit);
+                    }
+                }
+
                 this.activeTags.push(parentNode.tagName.toLowerCase());
+
                 parentNode = parentNode.parentNode;
+            }
+
+            if (this.tableEdit && !this.activeTags.includes('table')) {
+                this.tableEdit = false;
+                this.$emit('table-edit', this.tableEdit);
             }
         },
 
@@ -320,8 +365,12 @@ export default {
             this.keepSelection(true);
 
             if (button.value) {
-                this.$emit('on-set-link', this.prepareLink(button.value), target);
+                if (!this.selection || this.selection.rangeCount < 1) {
+                    button.expanded = false;
+                    return;
+                }
 
+                this.$emit('on-set-link', this.prepareLink(button.value), target);
                 this.range = document.getSelection().getRangeAt(0);
                 this.range.setStart(this.range.startContainer, 0);
                 button.expanded = false;

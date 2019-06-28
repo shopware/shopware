@@ -1,0 +1,27 @@
+@import "~scss/variables";
+
+.sw-text-editor-table-toolbar {
+    .sw-text-editor-table-toolbar__buttons {
+        padding: 0 6px;
+        background: $color-white;
+        color: $color-gray-900;
+        display: grid;
+        grid-auto-flow: column dense;
+        height: 36px;
+        user-select: none;
+        border-bottom: 1px solid $color-gray-300;
+        grid-auto-columns: 32px;
+
+        .sw-text-editor-table-toolbar__button {
+            display: flex;
+            width: 32px;
+            cursor: pointer;
+            justify-content: center;
+            align-self: center;
+
+            &:hover {
+                color: $color-shopware-brand-500;
+            }
+        }
+    }
+}

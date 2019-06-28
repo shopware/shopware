@@ -101,12 +101,14 @@
                                                                             <label class="custom-control-label shipping-method-label"
                                                                                    for="shippingMethod{{ loop.index }}">
 
-                                                                                {% if shipping.media %}
-                                                                                    <img src="{{ shipping.media.url }}"
-                                                                                         class="shipping-image"
-                                                                                         alt="{{ shipping.media.alt ?: shipping.media.fileName }}"
-                                                                                         {{ shipping.media.title ? 'title="#{shipping.media.title}"' }}>
-                                                                                {% endif %}
+                                                                                {% block page_checkout_confirm_shipping_form_image %}
+                                                                                    {% if shipping.media %}
+                                                                                        <img src="{{ shipping.media.url }}"
+                                                                                             class="confirm-shipping-method-image"
+                                                                                             alt="{{ shipping.media.alt ?: shipping.media.fileName }}"
+                                                                                             {{ shipping.media.title ? 'title="#{shipping.media.title}"' }}>
+                                                                                    {% endif %}
+                                                                                {% endblock %}
 
                                                                                 {% block page_checkout_confirm_shipping_form_description %}
                                                                                         <div class="shipping-method-description">

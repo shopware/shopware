@@ -35,8 +35,7 @@
 							{% block component_account_register_personal_fields %}
 								{% block component_account_register_personal_address_fields %}
 									{% sw_include '@Storefront/component/address/address-personal.html.twig' with {
-										'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField,
-                                        'birthdayFieldRequired': shopware.config.core.loginRegistration.birthdayFieldRequired,
+										'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField
 									} %}
 								{% endblock %}
 

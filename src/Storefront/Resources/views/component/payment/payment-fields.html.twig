@@ -20,12 +20,14 @@
                                         <label class="custom-control-label payment-method-label"
                                                for="paymentMethod{{ loop.index }}">
 
-                                            {% if payment.media %}
-                                                <img src="{{ payment.media.url }}"
-                                                     class="payment-image"
-                                                     alt="{{ payment.media.alt ?: payment.media.fileName }}"
-                                                        {{ payment.media.title ? 'title="#{payment.media.title}"' }}>
-                                            {% endif %}
+                                            {% block component_payment_method_image %}
+                                                {% if payment.media %}
+                                                    <img src="{{ payment.media.url }}"
+                                                         class="payment-method-image"
+                                                         alt="{{ payment.media.alt ?: payment.media.fileName }}"
+                                                            {{ payment.media.title ? 'title="#{payment.media.title}"' }}>
+                                                {% endif %}
+                                            {% endblock %}
 
                                             {% block component_payment_method_description %}
                                                     <div class="payment-method-description">

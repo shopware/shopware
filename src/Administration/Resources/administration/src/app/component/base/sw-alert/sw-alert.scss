@@ -8,11 +8,14 @@ $sw-alert-size-close: 40px;
     border-radius: $border-radius-default;
     color: $color-darkgray-200;
     background-color: $color-white;
-    padding: 15px 15px 15px 55px;
     text-align: left;
     position: relative;
     margin: 0 auto 20px;
     font-size: $font-size-small;
+
+    .sw-alert__body {
+        padding: 15px 15px 15px 55px;
+    }
 
     &.sw-alert--no-icon {
         padding: 15px 30px;
@@ -54,14 +57,45 @@ $sw-alert-size-close: 40px;
         font-size: $font-size-small;
     }
 
+    .sw-alert__actions {
+        border-top: 1px solid $color-gray-300;
+        display: flex;
+        flex-wrap: wrap;
+
+        .sw-button {
+            border: 0;
+            height: 40px;
+            background: none;
+            border-radius: 0;
+            flex-basis: 0;
+            flex-grow: 1;
+            max-width: 100%;
+            font-weight: 500;
+
+            &:not(:last-child) {
+                border-right: 1px solid $color-gray-300;
+            }
+
+            &:hover {
+                background-color: $color-white;
+            }
+        }
+    }
+
     &.sw-alert--closable {
-        padding-right: $sw-alert-size-close;
+        .sw-alert__body {
+            padding-right: $sw-alert-size-close;
+        }
     }
 
     &.sw-alert--notification {
         box-shadow: $sw-alert-box-shadow;
         border: 1px solid $color-gray-300;
         border-left: 4px solid $color-gray-300;
+
+        .sw-alert__actions .sw-button {
+            color: $color-shopware-brand-500;
+        }
     }
 
     &.sw-alert--warning {
@@ -77,6 +111,18 @@ $sw-alert-size-close: 40px;
         .sw-alert__icon,
         .sw-alert__close {
             color: $color-pumpkin-spice-500;
+        }
+
+        .sw-alert__actions {
+            border-color: $color-pumpkin-spice-200;
+
+            .sw-button {
+                border-color: $color-pumpkin-spice-200;
+
+                &:hover {
+                    background-color: $color-pumpkin-spice-100;
+                }
+            }
         }
     }
 
@@ -94,6 +140,18 @@ $sw-alert-size-close: 40px;
         .sw-alert__close {
             color: $color-crimson-500;
         }
+
+        .sw-alert__actions {
+            border-color: $color-crimson-200;
+
+            .sw-button {
+                border-color: $color-crimson-200;
+
+                &:hover {
+                    background-color: $color-crimson-100;
+                }
+            }
+        }
     }
 
     &.sw-alert--success {
@@ -109,6 +167,18 @@ $sw-alert-size-close: 40px;
         .sw-alert__icon,
         .sw-alert__close {
             color: $color-emerald-500;
+        }
+
+        .sw-alert__actions {
+            border-color: $color-emerald-200;
+
+            .sw-button {
+                border-color: $color-emerald-200;
+
+                &:hover {
+                    background-color: $color-emerald-100;
+                }
+            }
         }
     }
 
@@ -126,6 +196,34 @@ $sw-alert-size-close: 40px;
         .sw-alert__close {
             color: $color-shopware-brand-500;
         }
+
+        .sw-alert__actions {
+            border-color: $color-shopware-brand-200;
+
+            .sw-button {
+                border-color: $color-shopware-brand-200;
+
+                &:hover {
+                    background-color: $color-shopware-brand-100;
+                }
+            }
+        }
+    }
+
+    &.sw-alert--notification {
+        background-color: $color-gray-100;
+
+        .sw-alert__actions {
+            border-color: $color-gray-300;
+
+            .sw-button {
+                border-color: $color-gray-300;
+
+                &:hover {
+                    background-color: $color-gray-100;
+                }
+            }
+        }
     }
 
     &.sw-alert--system {
@@ -133,5 +231,22 @@ $sw-alert-size-close: 40px;
         background: $color-deep-cove;
         border: 1px solid $color-darkgray-200;
         box-shadow: none;
+
+        .sw-alert__actions {
+            border-color: $color-darkgray-50;
+
+            .sw-button {
+                color: $color-gray-300;
+                border-color: $color-darkgray-50;
+
+                &:hover {
+                    background-color: lighten($color-deep-cove, 6%);
+                }
+
+                &:active {
+                    background-color: lighten($color-deep-cove, 8%);
+                }
+            }
+        }
     }
 }

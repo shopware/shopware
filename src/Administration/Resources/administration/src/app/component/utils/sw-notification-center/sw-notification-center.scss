@@ -1,7 +1,11 @@
 @import "~scss/variables";
 
-.sw-notification-center__context-button.is--active {
-    color: $color-shopware-blue;
+.sw-notification-center__context-button {
+    cursor: pointer;
+
+    &.is--active {
+        color: $color-shopware-blue;
+    }
 }
 
 .sw-notification-center__context-button--new-available::after {
@@ -18,6 +22,7 @@
 
 .sw-notification-center__context-container {
     .sw-context-menu__content {
+        cursor: default;
         padding: 0;
     }
 

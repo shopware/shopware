@@ -40,6 +40,11 @@ export default {
                     minute: '2-digit'
                 }
             );
+        },
+        notificationActions() {
+            return this.notification.actions.filter((action) => {
+                return action.route;
+            });
         }
     },
 
@@ -54,6 +59,13 @@ export default {
 
         onDelete() {
             this.$store.commit('notification/removeNotification', this.notification);
+        },
+
+        handleAction(action) {
+            if (!action.route) {
+                return;
+            }
+            this.$router.push(action.route);
         }
     }
 };

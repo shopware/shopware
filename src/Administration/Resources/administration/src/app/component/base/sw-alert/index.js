@@ -61,7 +61,8 @@ export default {
                 `sw-alert--${this.appearance}`,
                 {
                     'sw-alert--no-icon': !this.showIcon,
-                    'sw-alert--closable': this.closable
+                    'sw-alert--closable': this.closable,
+                    'sw-alert--actions': this.hasActionSlot
                 }
             ];
         },
@@ -75,6 +76,10 @@ export default {
             };
 
             return iconConfig[this.variant] || 'default-bell-bell';
+        },
+
+        hasActionSlot() {
+            return !!this.$slots.actions;
         }
     }
 };

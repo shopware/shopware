@@ -1,25 +1,11 @@
 @import "~scss/variables";
 
 .sw-notification-center-item {
-
-    .sw-notification-center-item__wrapper {
-        padding: 24px 24px 0 24px;
-    }
-
-    &::after {
-        content: '';
-        display: block;
-        height: 1px;
-        margin-top: 24px;
-        border-bottom: 1px solid $color-steam-cloud;
-    }
+    padding: 24px;
+    border-bottom: 1px solid $color-gray-300;
 
     &:last-child {
-        padding-bottom: 16px;
-
-        &::after {
-            display: none;
-        }
+        border-bottom: 0 none;
     }
 
     .sw-notification-center-item__header {
@@ -49,6 +35,7 @@
     }
 
     .sw-notification-center-item__delete {
+        cursor: pointer;
         display: none;
     }
 
@@ -87,6 +74,25 @@
         .sw-loader__container {
             top: 0;
             transform: translateX(-50%);
+        }
+    }
+
+    .sw-notification-center-item__actions {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -10px -10px -10px;
+    }
+
+    .sw-notification-center-item__actions-item-container {
+        flex-basis: 0;
+        flex-grow: 1;
+        max-width: 100%;
+        padding: 10px;
+
+        .sw-button {
+            flex-basis: 0;
+            flex-grow: 1;
+            max-width: 100%;
         }
     }
 }

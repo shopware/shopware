@@ -51,7 +51,7 @@ describe('Product: Test crud operations', () => {
         });
     });
 
-    it.skip('@p update and read product', () => {
+    it('@p update and read product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -79,7 +79,7 @@ describe('Product: Test crud operations', () => {
         });
     });
 
-    it.skip('@p delete product', () => {
+    it('@p delete product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

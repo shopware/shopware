@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CartTransformer;
@@ -27,7 +26,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -54,8 +52,6 @@ class OrderConverter
     public const ORIGINAL_ID = 'originalId';
 
     public const ORIGINAL_ORDER_NUMBER = 'originalOrderNumber';
-
-    private const LINE_ITEM_PLACEHOLDER = 'lineItemPlaceholder';
 
     /**
      * @var EntityRepositoryInterface
@@ -209,35 +205,11 @@ class OrderConverter
             - transactions
         */
 
-        $index = [];
-        $root = new LineItemCollection();
+        $lineItems = LineItemTransformer::transformFlatToNested($order->getLineItems());
 
-        /** @var OrderLineItemEntity $lineItem */
-        foreach ($order->getLineItems() as $id => $lineItem) {
-            if (!array_key_exists($id, $index)) {
-                $index[$id] = new LineItem($lineItem->getIdentifier(), self::LINE_ITEM_PLACEHOLDER);
-            }
-
-            /** @var LineItem $currentLineItem */
-            $currentLineItem = $index[$id];
-
-            $this->updateLineItem($currentLineItem, $lineItem, $id);
-
-            if ($lineItem->getParentId() === null) {
-                $root->add($currentLineItem);
-                continue;
-            }
-
-            if (!array_key_exists($lineItem->getParentId(), $index)) {
-                $index[$lineItem->getParentId()] = new LineItem($lineItem->getParentId(), self::LINE_ITEM_PLACEHOLDER);
-            }
-
-            $index[$lineItem->getParentId()]->addChild($currentLineItem);
-        }
-
-        $cart->addLineItems($root);
+        $cart->addLineItems($lineItems);
         $cart->setDeliveries(
-            $this->convertDeliveries($order->getDeliveries(), $root)
+            $this->convertDeliveries($order->getDeliveries(), $lineItems)
         );
 
         $event = new OrderConvertedEvent($order, $cart, $context);
@@ -322,37 +294,5 @@ class OrderConverter
         }
 
         return $cartDeliveries;
-    }
-
-    /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws InvalidPayloadException
-     */
-    private function updateLineItem(LineItem $lineItem, OrderLineItemEntity $entity, string $id): void
-    {
-        $lineItem->setId($entity->getIdentifier())
-            ->setType($entity->getType())
-            ->setReferencedId($entity->getReferencedId())
-            ->setStackable(true)
-            ->setQuantity($entity->getQuantity())
-            ->setStackable($entity->getStackable())
-            ->setLabel($entity->getLabel())
-            ->setGood($entity->getGood())
-            ->setRemovable($entity->getRemovable())
-            ->setStackable($entity->getStackable())
-            ->addExtension(self::ORIGINAL_ID, new IdStruct($id));
-
-        if ($entity->getPayload() !== null) {
-            $lineItem->setPayload($entity->getPayload());
-        }
-
-        if ($entity->getPrice() !== null) {
-            $lineItem->setPrice($entity->getPrice());
-        }
-
-        if ($entity->getPriceDefinition() !== null) {
-            $lineItem->setPriceDefinition($entity->getPriceDefinition());
-        }
     }
 }

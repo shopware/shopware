@@ -79,9 +79,8 @@ class CheckoutFinishPageLoader
             throw new MissingRequestParameterException('orderId', '/orderId');
         }
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$orderId]);
         $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
-        $criteria->addFilter(new EqualsFilter('order.id', $orderId));
         $criteria->addAssociationPath('lineItems.cover');
 
         try {
@@ -90,10 +89,13 @@ class CheckoutFinishPageLoader
             throw new OrderNotFoundException($orderId);
         }
 
-        if ($searchResult->count() !== 1) {
+        /** @var OrderEntity|null $order */
+        $order = $searchResult->get($orderId);
+
+        if (!$order) {
             throw new OrderNotFoundException($orderId);
         }
 
-        return $searchResult->first();
+        return $order;
     }
 }

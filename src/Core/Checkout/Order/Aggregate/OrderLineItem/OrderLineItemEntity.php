@@ -118,6 +118,13 @@ class OrderLineItemEntity extends Entity
      */
     protected $cover;
 
+    /**
+     * @var OrderLineItemCollection|null
+     *
+     * @internal
+     */
+    protected $children;
+
     public function getOrderId(): string
     {
         return $this->orderId;
@@ -326,5 +333,15 @@ class OrderLineItemEntity extends Entity
     public function setCover(?MediaEntity $cover): void
     {
         $this->cover = $cover;
+    }
+
+    public function getChildren(): ?OrderLineItemCollection
+    {
+        return $this->children;
+    }
+
+    public function setChildren(?OrderLineItemCollection $children): void
+    {
+        $this->children = $children;
     }
 }

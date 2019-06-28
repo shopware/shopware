@@ -424,4 +424,29 @@ class OrderEntity extends Entity
     {
         $this->tags = $tags;
     }
+
+    public function getNestedLineItems(): ?OrderLineItemCollection
+    {
+        $lineItems = $this->getLineItems();
+
+        if (!$lineItems) {
+            return null;
+        }
+
+        $roots = $lineItems->filterByProperty('parentId', null);
+        $this->addChildren($lineItems, $roots);
+
+        return $roots;
+    }
+
+    private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void
+    {
+        foreach ($parents as $parent) {
+            $children = $lineItems->filterByProperty('parentId', $parent->getId());
+
+            $parent->setChildren($children);
+
+            $this->addChildren($lineItems, $children);
+        }
+    }
 }

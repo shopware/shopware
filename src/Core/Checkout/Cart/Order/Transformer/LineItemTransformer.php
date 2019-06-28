@@ -6,10 +6,14 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class LineItemTransformer
 {
+    private const LINE_ITEM_PLACEHOLDER = 'lineItemPlaceholder';
+
     public static function transformCollection(LineItemCollection $lineItems, ?string $parentId = null): array
     {
         $output = [];
@@ -58,5 +62,63 @@ class LineItemTransformer
         }
 
         return $output;
+    }
+
+    public static function transformFlatToNested(OrderLineItemCollection $lineItems): LineItemCollection
+    {
+        $index = [];
+        $root = new LineItemCollection();
+
+        /** @var OrderLineItemEntity $lineItem */
+        foreach ($lineItems as $id => $lineItem) {
+            if (!array_key_exists($id, $index)) {
+                $index[$id] = new LineItem($lineItem->getIdentifier(), self::LINE_ITEM_PLACEHOLDER);
+            }
+
+            /** @var LineItem $currentLineItem */
+            $currentLineItem = $index[$id];
+
+            self::updateLineItem($currentLineItem, $lineItem, $id);
+
+            if ($lineItem->getParentId() === null) {
+                $root->add($currentLineItem);
+                continue;
+            }
+
+            if (!array_key_exists($lineItem->getParentId(), $index)) {
+                $index[$lineItem->getParentId()] = new LineItem($lineItem->getParentId(), self::LINE_ITEM_PLACEHOLDER);
+            }
+
+            $index[$lineItem->getParentId()]->addChild($currentLineItem);
+        }
+
+        return $root;
+    }
+
+    private static function updateLineItem(LineItem $lineItem, OrderLineItemEntity $entity, string $id): void
+    {
+        $lineItem->setId($entity->getIdentifier())
+            ->setType($entity->getType())
+            ->setReferencedId($entity->getReferencedId())
+            ->setStackable(true)
+            ->setQuantity($entity->getQuantity())
+            ->setStackable($entity->getStackable())
+            ->setLabel($entity->getLabel())
+            ->setGood($entity->getGood())
+            ->setRemovable($entity->getRemovable())
+            ->setStackable($entity->getStackable())
+            ->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct($id));
+
+        if ($entity->getPayload() !== null) {
+            $lineItem->setPayload($entity->getPayload());
+        }
+
+        if ($entity->getPrice() !== null) {
+            $lineItem->setPrice($entity->getPrice());
+        }
+
+        if ($entity->getPriceDefinition() !== null) {
+            $lineItem->setPriceDefinition($entity->getPriceDefinition());
+        }
     }
 }

@@ -43,17 +43,17 @@ Include this token as an HTTP header for all future requests.
 required
 **Parameter:**
 
-| Name        | Type    | Notes                                                                                                           | Required |
-| ----------- | ------- | --------------------------------------------------------------------------------------------------------------- | :------: |
-| type        | string  |                                                                                                                 |    ✔     |
-| payload     | array   |                                                                                                                 |          |
-| quantity    | int     | Default: 1                                                                                                      |          |
-| stackable   | boolean | Default: false, if set to true, quantity cannot be changed                                                      |          |
-| removable   | boolean | Default: false, if set to true, line items cannot be removed from cart                                          |          |
-| priority    | int     | Order in which the line items will be processed and calculated. The default is 100. Lower priority comes first. |          |
-| label       | string  |                                                                                                                 |          |
-| description | string  |                                                                                                                 |          |
-| coverId     | uuid    | UUID of a media entity                                                                                          |          |
+| Name        | Type    | Notes                                                                       | Required |
+| ----------- | ------- | --------------------------------------------------------------------------- | :------: |
+| type        | string  |                                                                             |    ✔     |
+| payload     | array   |                                                                             |          |
+| quantity    | int     | Default: 1                                                                  |          |
+| stackable   | boolean | Default: false, if set to true, quantity cannot be changed                  |          |
+| removable   | boolean | Default: false, if set to true, line items cannot be removed from the cart  |          |
+| label       | string  |                                                                             |          |
+| description | string  |                                                                             |          |
+| coverId     | uuid    | UUID of a media entity                                                      |          |
+| referencedId| uuid    | UUID of the entity represented by this line item, e.g. the product id       |          |
 
 **Header:** sw-context-token is required
 
@@ -67,15 +67,6 @@ required
 
 **Response:** If successful, the calculated cart will be returned.
 
-## Update line item quantity
-
-**PATCH 
-/sales-channel-api/v1/checkout/cart/line-item/{id}/quantity/{quantity}**
-
-**Header:** sw-context-token is required
-
-**Response:** If successful, the calculated cart will be returned.
-
 ## Update line item
 
 **PATCH  /sales-channel-api/v1/checkout/cart/line-item/{id}**
@@ -84,16 +75,16 @@ required
 
 **Parameter:**
 
-| Name        | Type    | Notes                                                                                                           | Required |
-| :---------- | ------- | --------------------------------------------------------------------------------------------------------------- | -------- |
-| payload     | array   |                                                                                                                 |          |
-| quantity    | int     | Default: 1                                                                                                      |          |
-| stackable   | boolean | Default: false, if set to true, quantity cannot be changed                                                      |          |
-| removable   | boolean | Default: false, if set to true, line items cannot be removed from the cart                                      |          |
-| priority    | int     | Order in which the line items will be processed and calculated. The default is 100. Lower priority comes first. |          |
-| label       | string  |                                                                                                                 |          |
-| description | string  |                                                                                                                 |          |
-| coverId     | uuid    | UUID of a media entity                                                                                          |          |
+| Name        | Type    | Notes                                                                       | Required |
+| :---------- | ------- | --------------------------------------------------------------------------- | -------- |
+| payload     | array   |                                                                             |          |
+| quantity    | int     | Default: 1                                                                  |          |
+| stackable   | boolean | Default: false, if set to true, quantity cannot be changed                  |          |
+| removable   | boolean | Default: false, if set to true, line items cannot be removed from the cart  |          |
+| label       | string  |                                                                             |          |
+| description | string  |                                                                             |          |
+| coverId     | uuid    | UUID of a media entity                                                      |          |
+| referencedId| uuid    | UUID of the entity represented by this line item, e.g. the product id       |          |
 
 **Response:** If successful, the calculated cart will be returned.
 
@@ -142,7 +133,7 @@ If the payment process is completed or the payment processor use an external pay
 ```javascript
     const accessKey = '{insert your storefront access key}';
     const baseUrl = '{insert your url}';
-    
+
     let customer = {
         firstName: 'Max',
         lastName: 'Mustermann',
@@ -151,11 +142,12 @@ If the payment process is completed or the payment processor use an external pay
         billingZipcode: '33602',
         billingCity: 'Bielefeld'
     };
+
     let headers = {
         "Content-Type": "application/json",
         "SW-Access-Key": accessKey
     };
-    
+
     function initCart() {
         const init = { method: 'POST', headers };
         return fetch(baseUrl + '/sales-channel-api/v1/checkout/cart', init)
@@ -164,13 +156,13 @@ If the payment process is completed or the payment processor use an external pay
                 headers['sw-context-token'] = contextToken;
             });
     }
-    
+
     function getCart() {
         const init = { method: 'GET', headers };
         return fetch(baseUrl + '/sales-channel-api/v1/checkout/cart', init)
             .then((resp) => resp.json());
     }
-    
+
     function addProductToCart(productId) {
         const url = `${baseUrl}/sales-channel-api/v1/checkout/cart/product/${productId}`;
         return fetch(url, { method: 'POST', headers })
@@ -182,20 +174,21 @@ If the payment process is completed or the payment processor use an external pay
             .then((resp) => resp.json())
             .then(({ data }) => data)
     }
-    
+
     function changeLineItemQuantity(id, quantity) {
-        const url = `${baseUrl}/sales-channel-api/v1/checkout/cart/line-item/${id}/quantity/${quantity}`;
-        return fetch(url, { method: 'PATCH', headers })
+        const url = `${baseUrl}/sales-channel-api/v1/checkout/cart/line-item/${id}`;
+        const body = JSON.stringify({ quantity: quantity });
+        return fetch(url, { method: 'PATCH', headers, body })
             .then((resp) => resp.json());
     }
-    
+
     function getCountry(iso3) {
         const url = `${baseUrl}/sales-channel-api/v1/sales-channel/countries?filter[iso3]=${iso3}`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then(({ data }) => data[0]);
     }
-    
+
     function guestOrder(customer) {
         const url = `${baseUrl}/sales-channel-api/v1/checkout/guest-order`;
         const body = JSON.stringify(customer);
@@ -203,7 +196,7 @@ If the payment process is completed or the payment processor use an external pay
             .then((resp) => resp.json())
             .then(({ data }) => data);
     }
-    
+
     function getGuestOrder(orderId, accessCode) {
         const url = new URL(`${baseUrl}/sales-channel-api/v1/checkout/guest-order/${orderId}`);
         url.searchParams.append('accessCode', accessCode);
@@ -212,7 +205,7 @@ If the payment process is completed or the payment processor use an external pay
             .then((resp) => resp.json())
             .then(({ data }) => data);
     }
-    
+
     async function checkoutExample() {
         await initCart();
         console.log('Cart', await getCart());
@@ -235,7 +228,7 @@ If the payment process is completed or the payment processor use an external pay
     
         console.log('Order by access code', await getGuestOrder(order.id, order.deepLinkCode))
     }
-    
+
     checkoutExample().then(() => {
         console.log('Checkout completed');
     });

@@ -21,7 +21,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@p add variant to product', () => {
+    it.skip('@p add variant to product', () => {
         const page = new ProductPageObject();
 
         // Navigate to variant generator listing and start

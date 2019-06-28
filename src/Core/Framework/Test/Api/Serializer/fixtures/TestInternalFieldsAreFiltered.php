@@ -121,4 +121,38 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
             ],
         ];
     }
+
+    protected function removeProtectedSalesChannelJsonApiData(array $fixtures): array
+    {
+        unset(
+            $fixtures['data'][0]['relationships']['productPrices'],
+            $fixtures['data'][0]['relationships']['shippingMethods'],
+            $fixtures['data'][0]['relationships']['paymentMethods'],
+            $fixtures['data'][0]['relationships']['shippingMethodPrices'],
+            $fixtures['data'][0]['relationships']['promotionDiscounts'],
+            $fixtures['data'][0]['relationships']['shippingMethodPriceCalculations'],
+            $fixtures['data'][0]['relationships']['personaPromotions'],
+            $fixtures['data'][0]['relationships']['orderPromotions'],
+            $fixtures['data'][0]['relationships']['cartPromotions']
+        );
+
+        return $fixtures;
+    }
+
+    protected function removeProtectedSalesChannelJsonData(array $fixtures): array
+    {
+        unset(
+            $fixtures[0]['productPrices'],
+            $fixtures[0]['shippingMethods'],
+            $fixtures[0]['paymentMethods'],
+            $fixtures[0]['shippingMethodPrices'],
+            $fixtures[0]['promotionDiscounts'],
+            $fixtures[0]['shippingMethodPriceCalculations'],
+            $fixtures[0]['personaPromotions'],
+            $fixtures[0]['orderPromotions'],
+            $fixtures[0]['cartPromotions']
+        );
+
+        return $fixtures;
+    }
 }

@@ -222,8 +222,25 @@ class TestBasicStruct extends SerializationFixture
     {
         unset(
             $fixtures['data']['attributes']['userId'],
+            $fixtures['data']['attributes']['mediaType'],
+            $fixtures['data']['attributes']['mediaFolderId'],
             $fixtures['data']['relationships']['user'],
-            $fixtures['data']['relationships']['avatarUser']
+            $fixtures['data']['relationships']['avatarUser'],
+            $fixtures['data']['relationships']['categories'],
+            $fixtures['data']['relationships']['productManufacturers'],
+            $fixtures['data']['relationships']['productMedia'],
+            $fixtures['data']['relationships']['mediaFolder'],
+            $fixtures['data']['relationships']['propertyGroupOptions'],
+            $fixtures['data']['relationships']['mailTemplateMedia'],
+            $fixtures['data']['relationships']['documentBaseConfigs'],
+            $fixtures['data']['relationships']['shippingMethods'],
+            $fixtures['data']['relationships']['paymentMethods'],
+            $fixtures['data']['relationships']['productConfiguratorSettings'],
+            $fixtures['data']['relationships']['orderLineItems'],
+            $fixtures['data']['relationships']['cmsBlocks'],
+            $fixtures['data']['relationships']['cmsPages'],
+            $fixtures['data']['relationships']['documents'],
+            $fixtures['data']['relationships']['mediaFolderId']
         );
 
         return $fixtures;
@@ -234,7 +251,23 @@ class TestBasicStruct extends SerializationFixture
         unset(
             $fixtures['userId'],
             $fixtures['user'],
-            $fixtures['avatarUser']
+            $fixtures['avatarUser'],
+            $fixtures['mediaType'],
+            $fixtures['categories'],
+            $fixtures['productManufacturers'],
+            $fixtures['productMedia'],
+            $fixtures['mediaFolder'],
+            $fixtures['propertyGroupOptions'],
+            $fixtures['mailTemplateMedia'],
+            $fixtures['documentBaseConfigs'],
+            $fixtures['shippingMethods'],
+            $fixtures['paymentMethods'],
+            $fixtures['productConfiguratorSettings'],
+            $fixtures['orderLineItems'],
+            $fixtures['cmsBlocks'],
+            $fixtures['cmsPages'],
+            $fixtures['documents'],
+            $fixtures['mediaFolderId']
         );
 
         return $fixtures;

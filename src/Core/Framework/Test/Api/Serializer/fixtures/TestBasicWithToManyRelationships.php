@@ -49,7 +49,6 @@ class TestBasicWithToManyRelationships extends SerializationFixture
                     'localeId' => null,
                     'avatarId' => null,
                     'username' => 'user1',
-                    'password' => 'password',
                     'firstName' => 'Manufacturer',
                     'lastName' => '',
                     'email' => 'user1@shop.de',
@@ -271,7 +270,6 @@ class TestBasicWithToManyRelationships extends SerializationFixture
             'localeId' => null,
             'avatarId' => null,
             'username' => 'user1',
-            'password' => 'password',
             'firstName' => 'Manufacturer',
             'lastName' => '',
             'email' => 'user1@shop.de',
@@ -305,7 +303,6 @@ class TestBasicWithToManyRelationships extends SerializationFixture
                         'localeId' => null,
                         'avatarId' => null,
                         'username' => 'user1',
-                        'password' => 'password',
                         'firstName' => 'Manufacturer',
                         'lastName' => '',
                         'email' => 'user1@shop.de',
@@ -365,8 +362,25 @@ class TestBasicWithToManyRelationships extends SerializationFixture
     {
         unset(
             $fixtures['included'][0]['attributes']['userId'],
+            $fixtures['included'][0]['attributes']['mediaType'],
+            $fixtures['included'][0]['attributes']['mediaFolderId'],
+
             $fixtures['included'][0]['relationships']['user'],
-            $fixtures['included'][0]['relationships']['avatarUser']
+            $fixtures['included'][0]['relationships']['avatarUser'],
+            $fixtures['included'][0]['relationships']['categories'],
+            $fixtures['included'][0]['relationships']['productManufacturers'],
+            $fixtures['included'][0]['relationships']['productMedia'],
+            $fixtures['included'][0]['relationships']['mediaFolder'],
+            $fixtures['included'][0]['relationships']['propertyGroupOptions'],
+            $fixtures['included'][0]['relationships']['mailTemplateMedia'],
+            $fixtures['included'][0]['relationships']['documentBaseConfigs'],
+            $fixtures['included'][0]['relationships']['shippingMethods'],
+            $fixtures['included'][0]['relationships']['paymentMethods'],
+            $fixtures['included'][0]['relationships']['productConfiguratorSettings'],
+            $fixtures['included'][0]['relationships']['orderLineItems'],
+            $fixtures['included'][0]['relationships']['cmsBlocks'],
+            $fixtures['included'][0]['relationships']['cmsPages'],
+            $fixtures['included'][0]['relationships']['documents']
         );
 
         return $fixtures;
@@ -377,7 +391,23 @@ class TestBasicWithToManyRelationships extends SerializationFixture
         unset(
             $fixtures['media'][0]['userId'],
             $fixtures['media'][0]['user'],
-            $fixtures['media'][0]['avatarUser']
+            $fixtures['media'][0]['avatarUser'],
+            $fixtures['media'][0]['mediaType'],
+            $fixtures['media'][0]['categories'],
+            $fixtures['media'][0]['productManufacturers'],
+            $fixtures['media'][0]['productMedia'],
+            $fixtures['media'][0]['mediaFolderId'],
+            $fixtures['media'][0]['mediaFolder'],
+            $fixtures['media'][0]['propertyGroupOptions'],
+            $fixtures['media'][0]['mailTemplateMedia'],
+            $fixtures['media'][0]['documentBaseConfigs'],
+            $fixtures['media'][0]['shippingMethods'],
+            $fixtures['media'][0]['paymentMethods'],
+            $fixtures['media'][0]['productConfiguratorSettings'],
+            $fixtures['media'][0]['orderLineItems'],
+            $fixtures['media'][0]['cmsBlocks'],
+            $fixtures['media'][0]['cmsPages'],
+            $fixtures['media'][0]['documents']
         );
 
         return $fixtures;

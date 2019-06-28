@@ -4,10 +4,16 @@ namespace Shopware\Core\Content\Test\ImportExport\Mapping;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Mapping\ImportMapper;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class ImportMapperTest extends TestCase
 {
     use CustomerDefinition;
+    use IntegrationTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var ImportMapper
@@ -16,7 +22,15 @@ class ImportMapperTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mapper = new ImportMapper($this->buildDefinitionCollection());
+        $definitionRegistry = new DefinitionInstanceRegistry(
+            $this->getContainer(),
+            ['simple' => SimpleDefinition::class],
+            ['simple' => 'simple.repository']
+        );
+
+        $customerDefinition = new \Shopware\Core\Checkout\Customer\CustomerDefinition();
+        $customerDefinition->compile($definitionRegistry);
+        $this->mapper = new ImportMapper($this->buildDefinitionCollection(), $customerDefinition);
     }
 
     public function testMappingCustomer(): void

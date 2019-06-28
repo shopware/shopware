@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Iterator;
 
-class CsvFileIterator implements RecordIterator
+class CsvFileIterator implements RecordIterator, \SeekableIterator
 {
     /**
      * @var int
@@ -60,12 +60,19 @@ class CsvFileIterator implements RecordIterator
 
     public function next(): void
     {
-        $line = $this->readLine();
-        if (is_array($line) && count($line) !== $this->columns) {
-            throw new \RuntimeException('Invalid CSV file. Number of columns mismatch in line ' . ($this->index + 2));
-        }
-        $this->currentRow = is_array($line) ? array_combine($this->header, $line) : $line;
         ++$this->index;
+
+        $line = $this->parseLine();
+        if (!is_array($line)) {
+            $this->currentRow = null;
+
+            return;
+        }
+
+        if (count($line) !== $this->columns) {
+            throw new \RuntimeException('Invalid CSV file. Number of columns mismatch in line ' . ($this->index + 1));
+        }
+        $this->currentRow = array_combine($this->header, $line);
     }
 
     public function key(): int
@@ -75,21 +82,36 @@ class CsvFileIterator implements RecordIterator
 
     public function valid(): bool
     {
-        return is_array($this->currentRow);
+        return !feof($this->resource) && is_array($this->currentRow);
     }
 
     public function rewind(): void
     {
         rewind($this->resource);
-        $this->header = $this->readLine();
-        if (is_array($this->header)) {
-            $this->columns = count($this->header);
-        } else {
+        $line = $this->parseLine();
+        if (!is_array($line)) {
             throw new \RuntimeException('Invalid CSV file. Missing header');
         }
-        $this->index = 0;
-        $line = $this->readLine();
-        $this->currentRow = is_array($line) ? array_combine($this->header, $line) : $line;
+
+        $this->header = $line;
+        $this->columns = count($this->header);
+        $this->index = -1;
+        $this->next();
+    }
+
+    public function seek($position): void
+    {
+        if ($this->index === $position) {
+            return;
+        }
+
+        if ($this->index > $position - 1) {
+            $this->rewind();
+        }
+        while ($this->index < $position - 1) {
+            $this->skip();
+        }
+        $this->next();
     }
 
     /**
@@ -114,13 +136,22 @@ class CsvFileIterator implements RecordIterator
         return $count > 0 ? $count - 1 : $count;
     }
 
-    private function readLine(): ?array
+    private function parseLine(): ?array
     {
         $line = fgetcsv($this->resource, 0, $this->delimiter, $this->enclosure);
-        if (!$line) {
+        if (!is_array($line)) {
             return null;
         }
 
-        return $line;
+        return $line[0] !== null ? $line : [];
+    }
+
+    private function skip(): void
+    {
+        if (!$this->valid()) {
+            throw new \OverflowException(sprintf('Cannot leave position %d. Reached end of file.', $this->index));
+        }
+        fgets($this->resource);
+        ++$this->index;
     }
 }

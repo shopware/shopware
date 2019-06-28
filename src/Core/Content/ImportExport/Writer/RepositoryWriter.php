@@ -29,7 +29,7 @@ class RepositoryWriter implements WriterInterface
         $this->buffer = [];
     }
 
-    public function append(array $data): void
+    public function append(array $data, int $index): void
     {
         $this->buffer[] = $data;
     }
@@ -40,5 +40,10 @@ class RepositoryWriter implements WriterInterface
             $this->repository->create($this->buffer, $this->context);
         }
         $this->buffer = [];
+    }
+
+    public function finish(): void
+    {
+        $this->flush();
     }
 }

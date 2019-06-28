@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\ImportExport\Mapping;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Util\ArrayNormalizer;
+
 class ImportMapper implements MapperInterface
 {
     /**
@@ -9,14 +12,20 @@ class ImportMapper implements MapperInterface
      */
     private $definitions;
 
-    public function __construct(FieldDefinitionCollection $definitions)
+    /**
+     * @var EntityDefinition
+     */
+    private $entityDefinition;
+
+    public function __construct(FieldDefinitionCollection $definitions, EntityDefinition $entityDefinition)
     {
         $this->definitions = $definitions;
+        $this->entityDefinition = $entityDefinition;
     }
 
     public function map(array $fileData): array
     {
-        $result = [];
+        $flattened = [];
 
         /** @var FieldDefinition $definition */
         foreach ($this->definitions as $definition) {
@@ -31,29 +40,17 @@ class ImportMapper implements MapperInterface
                 $substitutionValue = $substitutions[$inputValue] ?? null;
             }
 
-            $result[$definition->getEntityField()] = $substitutionValue ?? $inputValue;
+            $flattened[$definition->getEntityField()] = $substitutionValue ?? $inputValue;
         }
 
-        return self::expand($result);
-    }
+        $nestedData = ArrayNormalizer::expand($flattened);
 
-    private static function expand(array $input): array
-    {
-        $result = [];
-        foreach ($input as $key => $value) {
-            if (strpos($key, '.') !== false) {
-                $first = strstr($key, '.', true);
-                $rest = strstr($key, '.');
-                if (isset($result[$first])) {
-                    $result[$first] = array_merge($result[$first], self::expand([substr($rest, 1) => $value]));
-                } else {
-                    $result[$first] = self::expand([substr($rest, 1) => $value]);
-                }
-            } else {
-                $result[$key] = $value;
-            }
+        $parser = new FieldValueParser($this->entityDefinition);
+        foreach ($nestedData as $key => $value) {
+            $field = $this->entityDefinition->getFields()->get($key);
+            $nestedData[$key] = $parser->parse($field, $value);
         }
 
-        return $result;
+        return $nestedData;
     }
 }

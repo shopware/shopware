@@ -55,13 +55,19 @@ class ImportExportActionController extends AbstractController
      */
     private $dataValidator;
 
+    /**
+     * @var int
+     */
+    private $processingBatchSize;
+
     public function __construct(
         SupportedFeaturesService $supportedFeaturesService,
         InitiationService $initiationService,
         ProcessingService $processingService,
         DownloadService $downloadService,
         EntityRepositoryInterface $profileRepository,
-        DataValidator $dataValidator
+        DataValidator $dataValidator,
+        int $processingBatchSize
     ) {
         $this->supportedFeaturesService = $supportedFeaturesService;
         $this->initiationService = $initiationService;
@@ -69,6 +75,7 @@ class ImportExportActionController extends AbstractController
         $this->downloadService = $downloadService;
         $this->profileRepository = $profileRepository;
         $this->dataValidator = $dataValidator;
+        $this->processingBatchSize = $processingBatchSize;
     }
 
     /**
@@ -134,7 +141,7 @@ class ImportExportActionController extends AbstractController
 
         $log = $this->processingService->findLog($context, $params['logId']);
         $recordIterator = $this->processingService->createRecordIterator($context, $log->getActivity(), $log->getFile(), $log->getProfile());
-        $outer = new \LimitIterator($recordIterator, $params['offset'], 100);
+        $outer = new \LimitIterator($recordIterator, $params['offset'], $this->processingBatchSize);
 
         $processed = $this->processingService->process($context, $log, $outer);
 

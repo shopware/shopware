@@ -42,7 +42,7 @@ Component.register('sw-import-export-progress', {
             this.importExportService.process(logId, offset).then((response) => {
                 offset += response.processed;
 
-                if (!this.cancelled && response.processed > 0) {
+                if (!this.cancelled && offset < this.log.records) {
                     this.process(logId, offset, total);
                     return;
                 }

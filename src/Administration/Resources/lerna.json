@@ -1,8 +1,7 @@
 {
   "packages": [
     "common/*",
-    "administration",
-    "e2e"
+    "administration"
   ],
   "version": "independent"
 }

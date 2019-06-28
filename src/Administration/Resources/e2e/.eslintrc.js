@@ -1,6 +1,5 @@
 module.exports = {
     extends: [
-        '@shopware/eslint-config-base',
         'plugin:cypress/recommended'
     ],
     plugins: [

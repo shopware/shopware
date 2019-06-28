@@ -1,6 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import { mapState } from 'vuex';
-import { mapFormErrors } from 'src/app/service/map-errors.service';
+import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-product-basic-form.html.twig';
 
 Component.register('sw-product-basic-form', {
@@ -23,7 +23,7 @@ Component.register('sw-product-basic-form', {
             'loading'
         ]),
 
-        ...mapFormErrors('product', ['name', 'active', 'description', 'productNumber', 'manufacturerId', 'tags']),
+        ...mapApiErrors('product', ['name', 'active', 'description', 'productNumber', 'manufacturerId', 'tags']),
 
         languageStore() {
             return State.getStore('language');

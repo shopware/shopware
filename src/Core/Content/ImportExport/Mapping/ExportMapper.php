@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Mapping;
 
-use Shopware\Core\Framework\Util\ArrayConverter;
+use Shopware\Core\Framework\Util\ArrayNormalizer;
 
 class ExportMapper implements MapperInterface
 {
@@ -19,7 +19,7 @@ class ExportMapper implements MapperInterface
     public function map(array $entityData): array
     {
         $result = [];
-        $entityData = ArrayConverter::flatten($entityData);
+        $entityData = ArrayNormalizer::flatten($entityData);
 
         /** @var FieldDefinition $definition */
         foreach ($this->definitions as $definition) {

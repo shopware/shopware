@@ -3,16 +3,16 @@
 namespace Shopware\Core\Framework\Test\Util;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Util\ArrayConverter;
+use Shopware\Core\Framework\Util\ArrayNormalizer;
 
-class ArrayConverterTest extends TestCase
+class ArrayNormalizerTest extends TestCase
 {
     /**
      * @dataProvider provideTestData
      */
     public function testFlattening(array $nested, array $flattened): void
     {
-        static::assertSame($flattened, ArrayConverter::flatten($nested));
+        static::assertSame($flattened, ArrayNormalizer::flatten($nested));
     }
 
     /**
@@ -20,7 +20,7 @@ class ArrayConverterTest extends TestCase
      */
     public function testExpanding(array $nested, array $flattened): void
     {
-        static::assertSame($nested, ArrayConverter::expand($flattened));
+        static::assertSame($nested, ArrayNormalizer::expand($flattened));
     }
 
     public function provideTestData(): array

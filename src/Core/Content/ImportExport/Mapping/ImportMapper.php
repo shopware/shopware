@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Mapping;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Util\ArrayConverter;
+use Shopware\Core\Framework\Util\ArrayNormalizer;
 
 class ImportMapper implements MapperInterface
 {
@@ -43,7 +43,7 @@ class ImportMapper implements MapperInterface
             $flattened[$definition->getEntityField()] = $substitutionValue ?? $inputValue;
         }
 
-        $nestedData = ArrayConverter::expand($flattened);
+        $nestedData = ArrayNormalizer::expand($flattened);
 
         $parser = new FieldValueParser($this->entityDefinition);
         foreach ($nestedData as $key => $value) {

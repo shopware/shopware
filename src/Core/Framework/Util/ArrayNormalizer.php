@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Util;
 /**
  * Flattens or expands arrays by concatenating string keys
  */
-class ArrayConverter
+class ArrayNormalizer
 {
     public static function flatten(array $input): array
     {

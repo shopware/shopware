@@ -48,7 +48,9 @@ abstract class AbstractElasticsearchDefinition
         foreach ($this->getEntityDefinition()->getFields() as $field) {
             $real = $field;
 
-            if ($field instanceof TranslatedField) {
+            $isTranslated = $field instanceof TranslatedField;
+
+            if ($isTranslated) {
                 $real = EntityDefinitionQueryHelper::getTranslatedField($this->getEntityDefinition(), $field);
             }
 
@@ -57,14 +59,18 @@ abstract class AbstractElasticsearchDefinition
             }
 
             try {
-                $value = $entity->get($real->getPropertyName());
+                if ($isTranslated) {
+                    $value = $entity->getTranslation($real->getPropertyName());
+                } else {
+                    $value = $entity->get($real->getPropertyName());
+                }
             } catch (\Exception $e) {
                 continue;
             }
 
             $fullText[] = $value;
 
-            if ($field instanceof TranslatedField || $field instanceof NumberRangeField) {
+            if ($isTranslated || $field instanceof NumberRangeField) {
                 $boosted[] = $value;
             }
         }

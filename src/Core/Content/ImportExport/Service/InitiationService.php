@@ -8,7 +8,8 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
-use Shopware\Core\Content\ImportExport\Iterator\IteratorFactory;
+use Shopware\Core\Content\ImportExport\Iterator\IteratorFactoryInterface;
+use Shopware\Core\Content\ImportExport\Iterator\RecordIterator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -34,9 +35,9 @@ class InitiationService
     private $logRepository;
 
     /**
-     * @var IteratorFactory
+     * @var IteratorFactoryInterface[]
      */
-    private $iteratorFactory;
+    private $iteratorFactories;
 
     /**
      * @var EntityRepositoryInterface
@@ -47,13 +48,13 @@ class InitiationService
         FilesystemInterface $filesystem,
         EntityRepositoryInterface $fileRepository,
         EntityRepositoryInterface $logRepository,
-        IteratorFactory $iteratorFactory,
+        iterable $iteratorFactories,
         EntityRepositoryInterface $userRepository
     ) {
         $this->filesystem = $filesystem;
         $this->fileRepository = $fileRepository;
         $this->logRepository = $logRepository;
-        $this->iteratorFactory = $iteratorFactory;
+        $this->iteratorFactories = $iteratorFactories;
         $this->userRepository = $userRepository;
     }
 
@@ -72,11 +73,12 @@ class InitiationService
             $originalFileName = $this->generateFilename($profileEntity);
         }
         $fileEntity = $this->storeFile($context, $expireDate, $filePath, $originalFileName);
-        $iterator = $this->iteratorFactory->create($context, $activity, $fileEntity, $profileEntity);
-        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $iterator->count());
-
+        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity);
         $logEntity->setProfile($profileEntity);
         $logEntity->setFile($fileEntity);
+
+        $iterator = $this->createIterator($context, $logEntity);
+        $logEntity = $this->updateLog($context, $logEntity, $iterator->count());
 
         return $logEntity;
     }
@@ -119,13 +121,13 @@ class InitiationService
         return $fileEntity;
     }
 
-    private function createLog(Context $context, string $activity, ImportExportFileEntity $file, ImportExportProfileEntity $profile, int $records): ImportExportLogEntity
+    private function createLog(Context $context, string $activity, ImportExportFileEntity $file, ImportExportProfileEntity $profile): ImportExportLogEntity
     {
         $logEntity = new ImportExportLogEntity();
         $logEntity->setId(Uuid::randomHex());
         $logEntity->setActivity($activity);
         $logEntity->setState(ImportExportLogEntity::STATE_PROGRESS);
-        $logEntity->setRecords($records);
+        $logEntity->setRecords(0);
         $logEntity->setProfileId($profile->getId());
         $logEntity->setProfileName($profile->getName());
         $logEntity->setFileId($file->getId());
@@ -147,6 +149,17 @@ class InitiationService
         return $logEntity;
     }
 
+    private function updateLog(Context $context, ImportExportLogEntity $logEntity, int $records): ImportExportLogEntity
+    {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity, $records) {
+            $data = ['id' => $logEntity->getId(), 'records' => $records];
+            $this->logRepository->update([$data], $context);
+        });
+        $logEntity->setRecords($records);
+
+        return $logEntity;
+    }
+
     private function generateFilename(ImportExportProfileEntity $profile): string
     {
         $extension = $profile->getFileType() === 'text/xml' ? 'xml' : 'csv';
@@ -158,5 +171,16 @@ class InitiationService
     private function findUser(Context $context, string $userId): UserEntity
     {
         return $this->userRepository->search(new Criteria([$userId]), $context)->first();
+    }
+
+    private function createIterator(Context $context, ImportExportLogEntity $logEntity): RecordIterator
+    {
+        foreach ($this->iteratorFactories as $iteratorFactory) {
+            if ($iteratorFactory->supports($logEntity)) {
+                return $iteratorFactory->create($context, $logEntity);
+            }
+        }
+
+        throw new \RuntimeException('Cannot find supported iterator factory');
     }
 }

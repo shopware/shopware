@@ -75,9 +75,7 @@ class ImportEntityCommand extends Command
 
         $startTime = time();
 
-        $recordIterator = $this->processingService->createRecordIterator(
-            $context, $log->getActivity(), $log->getFile(), $log->getProfile()
-        );
+        $recordIterator = $this->processingService->createRecordIterator($context, $log);
 
         $outer = new ProgressBarIterator($recordIterator, $io->createProgressBar($log->getRecords()));
 

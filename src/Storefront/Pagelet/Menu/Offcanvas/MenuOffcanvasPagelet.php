@@ -7,7 +7,9 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class MenuOffcanvasPagelet extends Struct
 {
-    /** @var Tree $navigation */
+    /**
+     * @var Tree
+     */
     protected $navigation;
 
     public function __construct(Tree $navigation)

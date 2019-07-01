@@ -3,6 +3,9 @@
 namespace Shopware\Storefront\Page\Checkout\Offcanvas;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -16,14 +19,14 @@ class OffcanvasCartPageLoader
     private $eventDispatcher;
 
     /**
-     * @var GenericPageLoader
-     */
-    private $genericLoader;
-
-    /**
      * @var CartService
      */
     private $cartService;
+
+    /**
+     * @var GenericPageLoader
+     */
+    private $genericLoader;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
@@ -31,22 +34,25 @@ class OffcanvasCartPageLoader
         GenericPageLoader $genericLoader
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->genericLoader = $genericLoader;
         $this->cartService = $cartService;
+        $this->genericLoader = $genericLoader;
     }
 
-    public function load(Request $request, SalesChannelContext $context): OffcanvasCartPage
+    /**
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
+     */
+    public function load(Request $request, SalesChannelContext $salesChannelContext): OffcanvasCartPage
     {
-        $page = $this->genericLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = OffcanvasCartPage::createFrom($page);
 
-        $page->setCart(
-            $this->cartService->getCart($context->getToken(), $context)
-        );
+        $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new OffcanvasCartPageLoadedEvent($page, $context, $request),
+            new OffcanvasCartPageLoadedEvent($page, $salesChannelContext, $request),
             OffcanvasCartPageLoadedEvent::NAME
         );
 

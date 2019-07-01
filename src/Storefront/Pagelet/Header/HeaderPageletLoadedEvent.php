@@ -19,17 +19,17 @@ class HeaderPageletLoadedEvent extends NestedEvent
     /**
      * @var SalesChannelContext
      */
-    protected $context;
+    protected $salesChannelContext;
 
     /**
      * @var Request
      */
     protected $request;
 
-    public function __construct(HeaderPagelet $page, SalesChannelContext $context, Request $request)
+    public function __construct(HeaderPagelet $page, SalesChannelContext $salesChannelContext, Request $request)
     {
         $this->pagelet = $page;
-        $this->context = $context;
+        $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
     }
 
@@ -38,19 +38,19 @@ class HeaderPageletLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): Context
+    public function getPagelet(): HeaderPagelet
     {
-        return $this->context->getContext();
+        return $this->pagelet;
     }
 
     public function getSalesChannelContext(): SalesChannelContext
     {
-        return $this->context;
+        return $this->salesChannelContext;
     }
 
-    public function getPagelet(): HeaderPagelet
+    public function getContext(): Context
     {
-        return $this->pagelet;
+        return $this->salesChannelContext->getContext();
     }
 
     public function getRequest(): Request

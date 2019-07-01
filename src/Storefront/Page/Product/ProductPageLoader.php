@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Product;
 
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
@@ -14,11 +15,12 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader;
@@ -28,7 +30,12 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductPageLoader
 {
     /**
-     * @var SalesChannelRepository
+     * @var GenericPageLoader
+     */
+    private $genericLoader;
+
+    /**
+     * @var SalesChannelRepositoryInterface
      */
     private $productRepository;
 
@@ -36,11 +43,6 @@ class ProductPageLoader
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
-
-    /**
-     * @var GenericPageLoader
-     */
-    private $genericLoader;
 
     /**
      * @var SalesChannelCmsPageRepository
@@ -53,36 +55,42 @@ class ProductPageLoader
     private $slotDataResolver;
 
     /**
-     * @var ProductDefinition
-     */
-    private $productDefinition;
-
-    /**
      * @var ProductPageConfiguratorLoader
      */
     private $configuratorLoader;
 
+    /**
+     * @var ProductDefinition
+     */
+    private $productDefinition;
+
     public function __construct(
         GenericPageLoader $genericLoader,
-        SalesChannelRepository $productRepository,
+        SalesChannelRepositoryInterface $productRepository,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelCmsPageRepository $cmsPageRepository,
         CmsSlotsDataResolver $slotDataResolver,
         ProductPageConfiguratorLoader $configuratorLoader,
         ProductDefinition $productDefinition
     ) {
-        $this->eventDispatcher = $eventDispatcher;
         $this->genericLoader = $genericLoader;
         $this->productRepository = $productRepository;
+        $this->eventDispatcher = $eventDispatcher;
         $this->cmsPageRepository = $cmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;
         $this->configuratorLoader = $configuratorLoader;
         $this->productDefinition = $productDefinition;
     }
 
-    public function load(Request $request, SalesChannelContext $context): ProductPage
+    /**
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
+     * @throws ProductNotFoundException
+     */
+    public function load(Request $request, SalesChannelContext $salesChannelContext): ProductPage
     {
-        $page = $this->genericLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $salesChannelContext);
         $page = ProductPage::createFrom($page);
 
         $productId = $request->attributes->get('productId');
@@ -90,30 +98,33 @@ class ProductPageLoader
             throw new MissingRequestParameterException('productId', '/productId');
         }
 
-        $productId = $this->findBestVariant($productId, $context);
+        $productId = $this->findBestVariant($productId, $salesChannelContext);
 
-        $product = $this->loadProduct($productId, $context);
+        $product = $this->loadProduct($productId, $salesChannelContext);
         $page->setProduct($product);
 
         $page->setConfiguratorSettings(
-            $this->configuratorLoader->load($product, $context)
+            $this->configuratorLoader->load($product, $salesChannelContext)
         );
 
-        if ($cmsPage = $this->getCmsPage($context)) {
-            $this->loadSlotData($cmsPage, $context, $product);
+        if ($cmsPage = $this->getCmsPage($salesChannelContext)) {
+            $this->loadSlotData($cmsPage, $salesChannelContext, $product);
             $page->setCmsPage($cmsPage);
         }
 
         $this->eventDispatcher->dispatch(
-            new ProductPageLoadedEvent($page, $context, $request),
+            new ProductPageLoadedEvent($page, $salesChannelContext, $request),
             ProductPageLoadedEvent::NAME
         );
 
         return $page;
     }
 
-    private function loadSlotData(CmsPageEntity $page, SalesChannelContext $context, SalesChannelProductEntity $product): void
-    {
+    private function loadSlotData(
+        CmsPageEntity $page,
+        SalesChannelContext $salesChannelContext,
+        SalesChannelProductEntity $product
+    ): void {
         if (!$page->getBlocks()) {
             return;
         }
@@ -121,7 +132,7 @@ class ProductPageLoader
         // replace actual request in NEXT-1539
         $request = new Request();
 
-        $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, $product);
+        $resolverContext = new EntityResolverContext($salesChannelContext, $request, $this->productDefinition, $product);
         $slots = $this->slotDataResolver->resolve($page->getBlocks()->getSlots(), $resolverContext);
 
         $page->getBlocks()->setSlots($slots);
@@ -141,22 +152,26 @@ class ProductPageLoader
         return $page;
     }
 
-    private function loadProduct(string $productId, SalesChannelContext $context): SalesChannelProductEntity
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws ProductNotFoundException
+     */
+    private function loadProduct(string $productId, SalesChannelContext $salesChannelContext): SalesChannelProductEntity
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $productId));
-        $criteria->addAssociation('media');
-        $criteria->addAssociation('prices');
-        $criteria->addAssociation('cover');
-        $criteria->addAssociationPath('properties.group');
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('id', $productId))
+            ->addAssociation('media')
+            ->addAssociation('prices')
+            ->addAssociation('cover')
+            ->addAssociationPath('properties.group');
 
         $this->eventDispatcher->dispatch(
-            new ProductPageCriteriaEvent($criteria, $context),
+            new ProductPageCriteriaEvent($criteria, $salesChannelContext),
             ProductPageCriteriaEvent::NAME
         );
 
         /** @var SalesChannelProductEntity|null $product */
-        $product = $this->productRepository->search($criteria, $context)->get($productId);
+        $product = $this->productRepository->search($criteria, $salesChannelContext)->get($productId);
 
         if (!$product) {
             throw new ProductNotFoundException($productId);
@@ -171,8 +186,13 @@ class ProductPageLoader
 
     private function sortProperties(SalesChannelProductEntity $product): PropertyGroupCollection
     {
+        $properties = $product->getProperties();
+        if ($properties === null) {
+            return new PropertyGroupCollection();
+        }
+
         $sorted = [];
-        foreach ($product->getProperties() as $option) {
+        foreach ($properties as $option) {
             $group = $option->getGroup();
 
             if (!$group) {
@@ -215,16 +235,19 @@ class ProductPageLoader
         return new PropertyGroupCollection($sorted);
     }
 
-    private function findBestVariant(string $productId, SalesChannelContext $context)
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function findBestVariant(string $productId, SalesChannelContext $salesChannelContext)
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.parentId', $productId));
-        $criteria->addSorting(new FieldSorting('product.price'));
-        $criteria->setLimit(1);
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('product.parentId', $productId))
+            ->addSorting(new FieldSorting('product.price'))
+            ->setLimit(1);
 
-        $variantId = $this->productRepository->searchIds($criteria, $context);
+        $variantId = $this->productRepository->searchIds($criteria, $salesChannelContext);
 
-        if (count($variantId->getIds()) > 0) {
+        if (\count($variantId->getIds()) > 0) {
             return $variantId->getIds()[0];
         }
 

@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Page;
 
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoader;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
@@ -25,17 +28,22 @@ class GenericPageLoader
         $this->footerLoader = $footerLoader;
     }
 
-    public function load(Request $request, SalesChannelContext $context): Page
+    /**
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
+     */
+    public function load(Request $request, SalesChannelContext $salesChannelContext): Page
     {
         $page = new Page();
 
         if (!$request->isXmlHttpRequest()) {
             $page->setHeader(
-                $this->headerLoader->load($request, $context)
+                $this->headerLoader->load($request, $salesChannelContext)
             );
 
             $page->setFooter(
-                $this->footerLoader->load($request, $context)
+                $this->footerLoader->load($request, $salesChannelContext)
             );
         }
 

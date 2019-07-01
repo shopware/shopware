@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositorySearchDetector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
@@ -20,8 +21,13 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class SalesChannelRepository
+class SalesChannelRepository implements SalesChannelRepositoryInterface
 {
+    /**
+     * @var EntityDefinition|SalesChannelDefinitionInterface
+     */
+    protected $definition;
+
     /**
      * @var EntityReaderInterface
      */
@@ -42,11 +48,6 @@ class SalesChannelRepository
      */
     protected $eventDispatcher;
 
-    /**
-     * @var EntityDefinition|SalesChannelDefinitionInterface
-     */
-    protected $definition;
-
     public function __construct(
         EntityDefinition $definition,
         EntityReaderInterface $reader,
@@ -54,44 +55,53 @@ class SalesChannelRepository
         EntityAggregatorInterface $aggregator,
         EventDispatcherInterface $eventDispatcher
     ) {
+        $this->definition = $definition;
         $this->reader = $reader;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
         $this->eventDispatcher = $eventDispatcher;
-        $this->definition = $definition;
     }
 
-    public function search(Criteria $criteria, SalesChannelContext $context): EntitySearchResult
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult
     {
         if ($this->definition instanceof SalesChannelDefinitionInterface) {
-            $this->definition->processCriteria($criteria, $context);
+            $this->definition->processCriteria($criteria, $salesChannelContext);
         }
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
-            $aggregations = $this->aggregate($criteria, $context)->getAggregations();
+            $aggregations = $this->aggregate($criteria, $salesChannelContext)->getAggregations();
         }
 
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
-            $entities = $this->read($criteria, $context);
+            $entities = $this->read($criteria, $salesChannelContext);
 
-            return new EntitySearchResult($entities->count(), $entities, $aggregations, $criteria, $context->getContext());
+            return new EntitySearchResult(
+                $entities->count(),
+                $entities,
+                $aggregations,
+                $criteria,
+                $salesChannelContext->getContext()
+            );
         }
 
-        $ids = $this->doSearch($criteria, $context);
+        $ids = $this->doSearch($criteria, $salesChannelContext);
 
         $readCriteria = new Criteria($ids->getIds());
         foreach ($criteria->getAssociations() as $key => $associationCriteria) {
             $readCriteria->addAssociation($key, $associationCriteria);
         }
 
-        $entities = $this->read($readCriteria, $context);
+        $entities = $this->read($readCriteria, $salesChannelContext);
 
         $search = $ids->getData();
 
         /** @var Entity $element */
         foreach ($entities as $element) {
-            if (!array_key_exists($element->getUniqueIdentifier(), $search)) {
+            if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
                 continue;
             }
 
@@ -105,24 +115,30 @@ class SalesChannelRepository
             $element->addExtension('search', new ArrayEntity($data));
         }
 
-        $result = new EntitySearchResult($ids->getTotal(), $entities, $aggregations, $criteria, $context->getContext());
+        $result = new EntitySearchResult(
+            $ids->getTotal(),
+            $entities,
+            $aggregations,
+            $criteria,
+            $salesChannelContext->getContext()
+        );
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
         $this->eventDispatcher->dispatch($event, $event->getName());
 
-        $event = new SalesChannelEntitySearchResultLoadedEvent($this->definition, $result, $context);
+        $event = new SalesChannelEntitySearchResultLoadedEvent($this->definition, $result, $salesChannelContext);
         $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, SalesChannelContext $context): AggregatorResult
+    public function aggregate(Criteria $criteria, SalesChannelContext $salesChannelContext): AggregatorResult
     {
         if ($this->definition instanceof SalesChannelDefinitionInterface) {
-            $this->definition->processCriteria($criteria, $context);
+            $this->definition->processCriteria($criteria, $salesChannelContext);
         }
 
-        $result = $this->aggregator->aggregate($this->definition, $criteria, $context->getContext());
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $salesChannelContext->getContext());
 
         $event = new EntityAggregationResultLoadedEvent($this->definition, $result);
         $this->eventDispatcher->dispatch($event, $event->getName());
@@ -130,34 +146,34 @@ class SalesChannelRepository
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
+    public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
         if ($this->definition instanceof SalesChannelDefinitionInterface) {
-            $this->definition->processCriteria($criteria, $context);
+            $this->definition->processCriteria($criteria, $salesChannelContext);
         }
 
-        return $this->doSearch($criteria, $context);
+        return $this->doSearch($criteria, $salesChannelContext);
     }
 
-    private function read(Criteria $criteria, SalesChannelContext $context): EntityCollection
+    private function read(Criteria $criteria, SalesChannelContext $salesChannelContext): EntityCollection
     {
         /** @var EntityCollection $entities */
-        $entities = $this->reader->read($this->definition, $criteria, $context->getContext());
+        $entities = $this->reader->read($this->definition, $criteria, $salesChannelContext->getContext());
 
-        $event = new EntityLoadedEvent($this->definition, $entities->getElements(), $context->getContext());
+        $event = new EntityLoadedEvent($this->definition, $entities->getElements(), $salesChannelContext->getContext());
         $this->eventDispatcher->dispatch($event, $event->getName());
 
-        $event = new SalesChannelEntityLoadedEvent($this->definition, $entities->getElements(), $context);
+        $event = new SalesChannelEntityLoadedEvent($this->definition, $entities->getElements(), $salesChannelContext);
         $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $entities;
     }
 
-    private function doSearch(Criteria $criteria, SalesChannelContext $context): IdSearchResult
+    private function doSearch(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
-        $result = $this->searcher->search($this->definition, $criteria, $context->getContext());
+        $result = $this->searcher->search($this->definition, $criteria, $salesChannelContext->getContext());
 
-        $event = new SalesChannelEntityIdSearchResultLoadedEvent($this->definition, $result, $context);
+        $event = new SalesChannelEntityIdSearchResultLoadedEvent($this->definition, $result, $salesChannelContext);
         $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;

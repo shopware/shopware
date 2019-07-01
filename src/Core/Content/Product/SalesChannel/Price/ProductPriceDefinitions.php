@@ -21,17 +21,17 @@ class ProductPriceDefinitions extends Struct
     /**
      * @var QuantityPriceDefinition
      */
-    protected $quantityPrice;
-
-    /**
-     * @var QuantityPriceDefinition
-     */
     protected $from;
 
     /**
      * @var QuantityPriceDefinition
      */
     protected $to;
+
+    /**
+     * @var QuantityPriceDefinition
+     */
+    protected $quantityPrice;
 
     public function __construct(
         QuantityPriceDefinition $price,
@@ -42,9 +42,9 @@ class ProductPriceDefinitions extends Struct
     ) {
         $this->price = $price;
         $this->prices = $prices;
-        $this->quantityPrice = $quantityPrice;
         $this->from = $from;
         $this->to = $to;
+        $this->quantityPrice = $quantityPrice;
     }
 
     public function getPrice(): QuantityPriceDefinition
@@ -67,16 +67,6 @@ class ProductPriceDefinitions extends Struct
         $this->prices = $prices;
     }
 
-    public function getQuantityPrice(): QuantityPriceDefinition
-    {
-        return $this->quantityPrice;
-    }
-
-    public function setQuantityPrice(QuantityPriceDefinition $quantityPrice): void
-    {
-        $this->quantityPrice = $quantityPrice;
-    }
-
     public function getFrom(): QuantityPriceDefinition
     {
         return $this->from;
@@ -95,5 +85,15 @@ class ProductPriceDefinitions extends Struct
     public function setTo(QuantityPriceDefinition $to): void
     {
         $this->to = $to;
+    }
+
+    public function getQuantityPrice(): QuantityPriceDefinition
+    {
+        return $this->quantityPrice;
+    }
+
+    public function setQuantityPrice(QuantityPriceDefinition $quantityPrice): void
+    {
+        $this->quantityPrice = $quantityPrice;
     }
 }

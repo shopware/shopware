@@ -2,7 +2,10 @@
 
 namespace Shopware\Storefront\Page\Suggest;
 
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -35,22 +38,23 @@ class SuggestPageLoader
         $this->genericLoader = $genericLoader;
     }
 
-    public function load(Request $request, SalesChannelContext $context): SuggestPage
+    /**
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
+     */
+    public function load(Request $request, SalesChannelContext $salesChannelContext): SuggestPage
     {
-        $page = $this->genericLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = SuggestPage::createFrom($page);
 
-        $page->setSearchResult(
-            $this->suggestGateway->suggest($request, $context)
-        );
+        $page->setSearchResult($this->suggestGateway->suggest($request, $salesChannelContext));
 
-        $page->setSearchTerm(
-            $request->query->get('search')
-        );
+        $page->setSearchTerm($request->query->get('search'));
 
         $this->eventDispatcher->dispatch(
-            new SuggestPageLoadedEvent($page, $context, $request),
+            new SuggestPageLoadedEvent($page, $salesChannelContext, $request),
             SuggestPageLoadedEvent::NAME
         );
 

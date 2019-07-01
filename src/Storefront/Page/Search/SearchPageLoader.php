@@ -2,7 +2,9 @@
 
 namespace Shopware\Storefront\Page\Search;
 
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
@@ -13,11 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 class SearchPageLoader
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @var GenericPageLoader
      */
     private $genericLoader;
@@ -27,26 +24,36 @@ class SearchPageLoader
      */
     private $searchGateway;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         GenericPageLoader $genericLoader,
         ProductSearchGatewayInterface $searchGateway,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
         $this->searchGateway = $searchGateway;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(Request $request, SalesChannelContext $context): SearchPage
+    /**
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
+     */
+    public function load(Request $request, SalesChannelContext $salesChannelContext): SearchPage
     {
-        $page = $this->genericLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $salesChannelContext);
         $page = SearchPage::createFrom($page);
 
         if (!$request->query->has('search')) {
             throw new MissingRequestParameterException('search');
         }
 
-        $result = $this->searchGateway->search($request, $context);
+        $result = $this->searchGateway->search($request, $salesChannelContext);
 
         $page->setSearchResult(StorefrontSearchResult::createFrom($result));
 
@@ -55,7 +62,7 @@ class SearchPageLoader
         );
 
         $this->eventDispatcher->dispatch(
-            new SearchPageLoadedEvent($page, $context, $request),
+            new SearchPageLoadedEvent($page, $salesChannelContext, $request),
             SearchPageLoadedEvent::NAME
         );
 

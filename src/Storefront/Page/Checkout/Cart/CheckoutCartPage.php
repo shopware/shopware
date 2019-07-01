@@ -50,16 +50,6 @@ class CheckoutCartPage extends Page
         return $this->countries;
     }
 
-    public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
-    {
-        $this->shippingMethods = $shippingMethods;
-    }
-
-    public function getShippingMethods(): ShippingMethodCollection
-    {
-        return $this->shippingMethods;
-    }
-
     public function setPaymentMethods(PaymentMethodCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
@@ -68,5 +58,15 @@ class CheckoutCartPage extends Page
     public function getPaymentMethods(): PaymentMethodCollection
     {
         return $this->paymentMethods;
+    }
+
+    public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
+    {
+        $this->shippingMethods = $shippingMethods;
+    }
+
+    public function getShippingMethods(): ShippingMethodCollection
+    {
+        return $this->shippingMethods;
     }
 }

@@ -3,10 +3,15 @@
 namespace Shopware\Storefront\Page\Checkout\Register;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -21,14 +26,14 @@ class CheckoutRegisterPageLoader
     private $genericLoader;
 
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @var AddressService
      */
     private $addressService;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
     /**
      * @var CartService
@@ -36,7 +41,7 @@ class CheckoutRegisterPageLoader
     private $cartService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var SalesChannelRepositoryInterface
      */
     private $salutationRepository;
 
@@ -45,54 +50,57 @@ class CheckoutRegisterPageLoader
         AddressService $addressService,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService,
-        EntityRepositoryInterface $salutationRepository
+        SalesChannelRepositoryInterface $salutationRepository
     ) {
         $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
         $this->addressService = $addressService;
+        $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
         $this->salutationRepository = $salutationRepository;
     }
 
-    public function load(Request $request, SalesChannelContext $context): CheckoutRegisterPage
+    /**
+     * @throws AddressNotFoundException
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws InvalidUuidException
+     * @throws MissingRequestParameterException
+     */
+    public function load(Request $request, SalesChannelContext $salesChannelContext): CheckoutRegisterPage
     {
-        $page = $this->genericLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = CheckoutRegisterPage::createFrom($page);
 
-        $page->setCountries(
-            $this->addressService->getCountryList($context)
-        );
+        $page->setCountries($this->addressService->getCountryList($salesChannelContext));
 
-        $page->setCart(
-            $this->cartService->getCart($context->getToken(), $context)
-        );
+        $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
 
-        $page->setSalutations($this->getSalutations($context));
+        $page->setSalutations($this->getSalutations($salesChannelContext));
 
         $addressId = $request->attributes->get('addressId');
         if ($addressId) {
-            $address = $this->addressService->getById((string) $addressId, $context);
+            $address = $this->addressService->getById((string) $addressId, $salesChannelContext);
             $page->setAddress($address);
         }
 
         $this->eventDispatcher->dispatch(
-            new CheckoutRegisterPageLoadedEvent($page, $context, $request),
+            new CheckoutRegisterPageLoadedEvent($page, $salesChannelContext, $request),
             CheckoutRegisterPageLoadedEvent::NAME
         );
 
         return $page;
     }
 
-    private function getSalutations(SalesChannelContext $context): SalutationCollection
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
     {
-        $criteria = (new Criteria([]))
-            ->addSorting(new FieldSorting('salutationKey', 'DESC'));
+        $criteria = (new Criteria([]))->addSorting(new FieldSorting('salutationKey', 'DESC'));
 
         /** @var SalutationCollection $salutations */
-        $salutations = $this->salutationRepository
-            ->search($criteria, $context->getContext())
-            ->getEntities();
+        $salutations = $this->salutationRepository->search($criteria, $salesChannelContext)->getEntities();
 
         return $salutations;
     }

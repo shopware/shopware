@@ -5,10 +5,11 @@ namespace Shopware\Storefront\Page\Checkout\Confirm;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,12 +17,12 @@ use Symfony\Component\HttpFoundation\Request;
 class CheckoutConfirmPageLoader
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var SalesChannelRepositoryInterface
      */
     private $paymentMethodRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var SalesChannelRepositoryInterface
      */
     private $shippingMethodRepository;
 
@@ -36,8 +37,8 @@ class CheckoutConfirmPageLoader
     private $cartService;
 
     public function __construct(
-        EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository,
+        SalesChannelRepositoryInterface $paymentMethodRepository,
+        SalesChannelRepositoryInterface $shippingMethodRepository,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService
     ) {
@@ -47,37 +48,49 @@ class CheckoutConfirmPageLoader
         $this->cartService = $cartService;
     }
 
-    public function load(Request $request, SalesChannelContext $context): CheckoutConfirmPage
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function load(Request $request, SalesChannelContext $salesChannelContext): CheckoutConfirmPage
     {
-        $page = new CheckoutConfirmPage($this->getPaymentMethods($context), $this->getShippingMethods($context));
+        $page = new CheckoutConfirmPage(
+            $this->getPaymentMethods($salesChannelContext),
+            $this->getShippingMethods($salesChannelContext)
+        );
 
-        $page->setCart($this->cartService->getCart($context->getToken(), $context));
+        $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new CheckoutConfirmPageLoadedEvent($page, $context, $request),
+            new CheckoutConfirmPageLoadedEvent($page, $salesChannelContext, $request),
             CheckoutConfirmPageLoadedEvent::NAME
         );
 
         return $page;
     }
 
-    private function getPaymentMethods(SalesChannelContext $context): PaymentMethodCollection
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function getPaymentMethods(SalesChannelContext $salesChannelContext): PaymentMethodCollection
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('active', true))
             ->addSorting(new FieldSorting('position'));
         /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $this->paymentMethodRepository->search($criteria, $context->getContext())->getEntities();
+        $paymentMethods = $this->paymentMethodRepository->search($criteria, $salesChannelContext)->getEntities();
 
-        return $paymentMethods->filterByActiveRules($context);
+        return $paymentMethods->filterByActiveRules($salesChannelContext);
     }
 
-    private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
         $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
         /** @var ShippingMethodCollection $shippingMethods */
-        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext())->getEntities();
+        $shippingMethods = $this->shippingMethodRepository->search($criteria, $salesChannelContext)->getEntities();
 
-        return $shippingMethods->filterByActiveRules($context);
+        return $shippingMethods->filterByActiveRules($salesChannelContext);
     }
 }

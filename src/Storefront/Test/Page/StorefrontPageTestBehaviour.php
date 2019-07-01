@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,15 +44,6 @@ trait StorefrontPageTestBehaviour
 
     abstract protected function getPageLoader();
 
-    protected function assertFailsWithoutNavigation(): void
-    {
-        $request = new Request();
-        $context = $this->createSalesChannelContextWithLoggedInCustomer();
-
-        $this->expectNavigationMissingException();
-        $this->getPageLoader()->load($request, $context);
-    }
-
     protected function assertLoginRequirement(array $queryParams = []): void
     {
         $request = new Request($queryParams);
@@ -61,15 +52,10 @@ trait StorefrontPageTestBehaviour
         $this->getPageLoader()->load($request, $context);
     }
 
-    protected function expectNavigationMissingException()
+    protected function expectParamMissingException(string $paramName): void
     {
-        $this->expectParamMissingException('navigationId');
-    }
-
-    protected function expectParamMissingException(string $paramName)
-    {
-        TestCase::expectException(MissingRequestParameterException::class);
-        TestCase::expectExceptionMessage('Parameter "' . $paramName . '" is missing');
+        $this->expectException(MissingRequestParameterException::class);
+        $this->expectExceptionMessage('Parameter "' . $paramName . '" is missing');
     }
 
     protected function placeRandomOrder(SalesChannelContext $context): string
@@ -112,7 +98,7 @@ trait StorefrontPageTestBehaviour
 
         $productRepository->create([$data], $context->getContext());
 
-        /** @var SalesChannelRepository $storefrontProductRepository */
+        /** @var SalesChannelRepositoryInterface $storefrontProductRepository */
         $storefrontProductRepository = $this->getContainer()->get('sales_channel.product.repository');
         $searchResult = $storefrontProductRepository->search(new Criteria([$id]), $context);
 
@@ -283,8 +269,7 @@ trait StorefrontPageTestBehaviour
 
         $salesChannelRepository->create([$salesChannel], Context::createDefaultContext());
 
-        $context = $factory
-            ->create(Uuid::randomHex(), $salesChannelId, $options);
+        $context = $factory->create(Uuid::randomHex(), $salesChannelId, $options);
 
         $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
         $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');

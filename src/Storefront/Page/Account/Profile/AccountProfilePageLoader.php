@@ -3,9 +3,12 @@
 namespace Shopware\Storefront\Page\Account\Profile;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -15,59 +18,65 @@ use Symfony\Component\HttpFoundation\Request;
 class AccountProfilePageLoader
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @var GenericPageLoader
      */
     private $genericLoader;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var SalesChannelRepositoryInterface
      */
     private $salutationRepository;
 
     public function __construct(
         GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $salutationRepository
+        SalesChannelRepositoryInterface $salutationRepository
     ) {
-        $this->eventDispatcher = $eventDispatcher;
         $this->genericLoader = $genericLoader;
+        $this->eventDispatcher = $eventDispatcher;
         $this->salutationRepository = $salutationRepository;
     }
 
-    public function load(Request $request, SalesChannelContext $context): AccountProfilePage
+    /**
+     * @throws CategoryNotFoundException
+     * @throws CustomerNotLoggedInException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
+     */
+    public function load(Request $request, SalesChannelContext $salesChannelContext): AccountProfilePage
     {
-        if ($context->getCustomer() === null) {
+        if ($salesChannelContext->getCustomer() === null) {
             throw new CustomerNotLoggedInException();
         }
 
-        $page = $this->genericLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = AccountProfilePage::createFrom($page);
 
-        $page->setSalutations($this->getSalutations($context));
+        $page->setSalutations($this->getSalutations($salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new AccountProfilePageLoadedEvent($page, $context, $request),
+            new AccountProfilePageLoadedEvent($page, $salesChannelContext, $request),
             AccountProfilePageLoadedEvent::NAME
         );
 
         return $page;
     }
 
-    private function getSalutations(SalesChannelContext $context): SalutationCollection
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
     {
-        $criteria = (new Criteria([]))
-            ->addSorting(new FieldSorting('salutationKey', 'DESC'));
+        $criteria = (new Criteria([]))->addSorting(new FieldSorting('salutationKey', 'DESC'));
 
         /** @var SalutationCollection $salutations */
-        $salutations = $this->salutationRepository
-            ->search($criteria, $context->getContext())
-            ->getEntities();
+        $salutations = $this->salutationRepository->search($criteria, $salesChannelContext)->getEntities();
 
         return $salutations;
     }

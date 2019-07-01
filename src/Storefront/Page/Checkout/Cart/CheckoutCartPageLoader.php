@@ -5,11 +5,14 @@ namespace Shopware\Storefront\Page\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -33,17 +36,17 @@ class CheckoutCartPageLoader
     private $cartService;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var SalesChannelRepositoryInterface
      */
     private $paymentMethodRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var SalesChannelRepositoryInterface
      */
     private $shippingMethodRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var SalesChannelRepositoryInterface
      */
     private $countryRepository;
 
@@ -51,9 +54,9 @@ class CheckoutCartPageLoader
         GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService,
-        EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository,
-        EntityRepositoryInterface $countryRepository
+        SalesChannelRepositoryInterface $paymentMethodRepository,
+        SalesChannelRepositoryInterface $shippingMethodRepository,
+        SalesChannelRepositoryInterface $countryRepository
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
@@ -63,68 +66,70 @@ class CheckoutCartPageLoader
         $this->countryRepository = $countryRepository;
     }
 
-    public function load(Request $request, SalesChannelContext $context)
+    /**
+     * @throws CategoryNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     * @throws MissingRequestParameterException
+     */
+    public function load(Request $request, SalesChannelContext $salesChannelContext): CheckoutCartPage
     {
-        $page = $this->genericLoader->load($request, $context);
+        $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = CheckoutCartPage::createFrom($page);
 
-        $page->setCountries($this->getCountries($context));
+        $page->setCountries($this->getCountries($salesChannelContext));
 
-        $page->setPaymentMethods($this->getPaymentMethods($context));
+        $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext));
 
-        $page->setShippingMethods($this->getShippingMethods($context));
+        $page->setShippingMethods($this->getShippingMethods($salesChannelContext));
 
-        $page->setCart($this->cartService->getCart($context->getToken(), $context));
+        $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new CheckoutCartPageLoadedEvent($page, $context, $request),
+            new CheckoutCartPageLoadedEvent($page, $salesChannelContext, $request),
             CheckoutCartPageLoadedEvent::NAME
         );
 
         return $page;
     }
 
-    private function getPaymentMethods(SalesChannelContext $context): PaymentMethodCollection
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function getPaymentMethods(SalesChannelContext $salesChannelContext): PaymentMethodCollection
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('payment_method.salesChannels.id', $context->getSalesChannel()->getId()))
             ->addSorting(new FieldSorting('position'));
 
         /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $this->paymentMethodRepository
-            ->search($criteria, $context->getContext())
-            ->getEntities();
+        $paymentMethods = $this->paymentMethodRepository->search($criteria, $salesChannelContext)->getEntities();
 
-        return $paymentMethods->filterByActiveRules($context);
+        return $paymentMethods->filterByActiveRules($salesChannelContext);
     }
 
-    private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('shipping_method.salesChannels.id', $context->getSalesChannel()->getId()));
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
 
         /** @var ShippingMethodCollection $shippingMethods */
-        $shippingMethods = $this->shippingMethodRepository
-            ->search($criteria, $context->getContext())
-            ->getEntities();
+        $shippingMethods = $this->shippingMethodRepository->search($criteria, $salesChannelContext)->getEntities();
 
-        return $shippingMethods->filterByActiveRules($context);
+        return $shippingMethods->filterByActiveRules($salesChannelContext);
     }
 
-    private function getCountries(SalesChannelContext $context): CountryCollection
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection
     {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('country.salesChannels.id', $context->getSalesChannel()->getId()))
-        ;
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
 
         /** @var CountryCollection $countries */
-        $countries = $this->countryRepository
-            ->search($criteria, $context->getContext())
-            ->getEntities();
+        $countries = $this->countryRepository->search($criteria, $salesChannelContext)->getEntities();
 
         return $countries;
     }

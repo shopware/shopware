@@ -8,5 +8,5 @@ use Symfony\Component\HttpFoundation\Request;
 
 interface ProductSuggestGatewayInterface
 {
-    public function suggest(Request $request, SalesChannelContext $context): EntitySearchResult;
+    public function suggest(Request $request, SalesChannelContext $salesChannelContext): EntitySearchResult;
 }

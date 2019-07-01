@@ -19,17 +19,17 @@ class NavigationPageLoadedEvent extends NestedEvent
     /**
      * @var SalesChannelContext
      */
-    protected $context;
+    protected $salesChannelContext;
 
     /**
      * @var Request
      */
     protected $request;
 
-    public function __construct(NavigationPage $page, SalesChannelContext $context, Request $request)
+    public function __construct(NavigationPage $page, SalesChannelContext $salesChannelContext, Request $request)
     {
         $this->page = $page;
-        $this->context = $context;
+        $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
     }
 
@@ -38,19 +38,19 @@ class NavigationPageLoadedEvent extends NestedEvent
         return self::NAME;
     }
 
-    public function getContext(): Context
+    public function getPage(): NavigationPage
     {
-        return $this->context->getContext();
+        return $this->page;
     }
 
     public function getSalesChannelContext(): SalesChannelContext
     {
-        return $this->context;
+        return $this->salesChannelContext;
     }
 
-    public function getPage(): NavigationPage
+    public function getContext(): Context
     {
-        return $this->page;
+        return $this->salesChannelContext->getContext();
     }
 
     public function getRequest(): Request

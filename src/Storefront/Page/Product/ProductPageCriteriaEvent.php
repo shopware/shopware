@@ -19,11 +19,11 @@ class ProductPageCriteriaEvent extends NestedEvent
     /**
      * @var SalesChannelContext
      */
-    protected $context;
+    protected $salesChannelContext;
 
-    public function __construct(Criteria $criteria, SalesChannelContext $context)
+    public function __construct(Criteria $criteria, SalesChannelContext $salesChannelContext)
     {
-        $this->context = $context;
+        $this->salesChannelContext = $salesChannelContext;
         $this->criteria = $criteria;
     }
 
@@ -37,13 +37,13 @@ class ProductPageCriteriaEvent extends NestedEvent
         return $this->criteria;
     }
 
-    public function getContext(): Context
-    {
-        return $this->context->getContext();
-    }
-
     public function getSalesChannelContext(): SalesChannelContext
     {
-        return $this->context;
+        return $this->salesChannelContext;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->salesChannelContext->getContext();
     }
 }

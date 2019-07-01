@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 
 class SalesChannelDefinitionTest extends TestCase
 {
@@ -35,7 +36,7 @@ class SalesChannelDefinitionTest extends TestCase
     private $apiRepository;
 
     /**
-     * @var SalesChannelRepository
+     * @var SalesChannelRepositoryInterface
      */
     private $salesChannelProductRepository;
 
@@ -52,7 +53,7 @@ class SalesChannelDefinitionTest extends TestCase
         $this->factory = $this->getContainer()->get(SalesChannelContextFactory::class);
     }
 
-    public function testAssociationReplacement()
+    public function testAssociationReplacement(): void
     {
         $fields = $this->getContainer()->get(SalesChannelProductDefinition::class)->getFields();
 
@@ -73,15 +74,21 @@ class SalesChannelDefinitionTest extends TestCase
         $categories = $fields->get('categories');
 
         /** @var ManyToManyAssociationField $categories */
-        static::assertSame($this->getContainer()->get(CategoryDefinition::class), $categories->getToManyReferenceDefinition());
+        static::assertSame(
+            $this->getContainer()->get(CategoryDefinition::class),
+            $categories->getToManyReferenceDefinition()
+        );
     }
 
-    public function testDefinitionRegistry()
+    public function testDefinitionRegistry(): void
     {
-        static::assertSame($this->getContainer()->get(SalesChannelProductDefinition::class), $this->registry->getByEntityName('product'));
+        static::assertSame(
+            $this->getContainer()->get(SalesChannelProductDefinition::class),
+            $this->registry->getByEntityName('product')
+        );
     }
 
-    public function testRepositoryCompilerPass()
+    public function testRepositoryCompilerPass(): void
     {
         static::assertInstanceOf(
             SalesChannelRepository::class,
@@ -89,7 +96,7 @@ class SalesChannelDefinitionTest extends TestCase
         );
     }
 
-    public function testLoadEntities()
+    public function testLoadEntities(): void
     {
         $id = Uuid::randomHex();
 
@@ -105,7 +112,10 @@ class SalesChannelDefinitionTest extends TestCase
                 ['id' => $id, 'name' => 'asd'],
             ],
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                [
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
             ],
         ];
 

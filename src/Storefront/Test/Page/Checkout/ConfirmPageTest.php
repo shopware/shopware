@@ -30,7 +30,6 @@ class ConfirmPageTest extends TestCase
         $event = null;
         $this->catchEvent(CheckoutConfirmPageLoadedEvent::NAME, $event);
 
-        /** @var CheckoutConfirmPage $page */
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(CheckoutConfirmPage::class, $page);
@@ -70,7 +69,6 @@ class ConfirmPageTest extends TestCase
         $event = null;
         $this->catchEvent(CheckoutConfirmPageLoadedEvent::NAME, $event);
 
-        /** @var CheckoutConfirmPage $page */
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(CheckoutConfirmPage::class, $page);
@@ -102,7 +100,6 @@ class ConfirmPageTest extends TestCase
 
         $context = $this->createSalesChannelContextWithNavigation();
 
-        /** @var CheckoutConfirmPage $page */
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(CheckoutConfirmPage::class, $page);
@@ -110,10 +107,7 @@ class ConfirmPageTest extends TestCase
         self::assertPageEvent(CheckoutConfirmPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
-    /**
-     * @return CheckoutConfirmPageLoader
-     */
-    protected function getPageLoader()
+    protected function getPageLoader(): CheckoutConfirmPageLoader
     {
         return $this->getContainer()->get(CheckoutConfirmPageLoader::class);
     }

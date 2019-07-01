@@ -24,9 +24,9 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
         $this->prefix = $prefix;
     }
 
-    public function getSalesChannelRepository(string $entityName): SalesChannelRepository
+    public function getSalesChannelRepository(string $entityName): SalesChannelRepositoryInterface
     {
-        /** @var SalesChannelRepository $salesChannelRepository */
+        /** @var SalesChannelRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->container->get($this->repositoryMap[$entityName]);
 
         return $salesChannelRepository;

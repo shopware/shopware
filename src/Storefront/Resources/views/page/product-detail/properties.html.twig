@@ -14,12 +14,14 @@
                                             <th class="properties-label">{{ group.translated.name|e }}:</th>
                                         {% endblock %}
                                         {% block page_product_detail_properties_item_value %}
-                                            <td class="properties-value">{% spaceless %}
+                                            <td class="properties-value">
+                                                {% apply spaceless %}
                                                     {% for option in group.options %}
                                                         {% set i = ( i | default(0) ) + 1 %}
                                                         <span>{% if i > 1 %}, {% endif %}{{ option.translated.name|e }}</span>
                                                     {% endfor %}
-                                                {% endspaceless %}</td>
+                                                {% endapply %}
+                                            </td>
                                         {% endblock %}
                                     </tr>
                                 {% endblock %}

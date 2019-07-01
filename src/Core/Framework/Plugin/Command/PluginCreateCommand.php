@@ -33,7 +33,7 @@ class PluginCreateCommand extends Command
 EOL;
 
     private $bootstrapTemplate = <<<EOL
-<?php
+<?php declare(strict_types=1);
 
 namespace #namespace#;
 

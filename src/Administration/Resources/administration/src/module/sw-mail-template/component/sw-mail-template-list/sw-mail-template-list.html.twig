@@ -1,118 +1,28 @@
 {% block sw_mail_template_list_grid %}
     <sw-card :isLoading="isLoading"
         :title="$tc('sw-mail-template.list.titleMailTemplateList')">
-        <sw-grid slot="grid"
-                 :selectable="false"
-                 :items="mailTemplates"
-                 :sortBy="sortBy"
-                 :sortDirection="sortDirection"
-                 @edit="onEdit"
-                 @sort-column="onSortColumn"
-                 table>
-            <template slot="columns" slot-scope="{ item }">
-                {% block sw_mail_template_list_grid_columns %}
-                    {% block sw_mail_template_list_grid_columns_name %}
-                        <sw-grid-column flex="minmax(200px, 1fr)"
-                                        class="sw-mail-template-list__column-mail-type"
-                                        :label="$tc('sw-mail-template.list.columnMailType')"
-                                        dataIndex="mailTemplateType"
-                                        truncate>
-                            {% block sw_mail_template_list_grid_columns_mail_type_link %}
-                                <router-link v-if="item.mailTemplateType"
-                                             :to="{ name: 'sw.mail.template.detail', params: { id: item.id } }">
-                                    {% block sw_mail_template_list_grid_columns_mail_type_label %}
-                                        {{ item.mailTemplateType.translated.name }}
-                                    {% endblock %}
-                                </router-link>
-                            {% endblock %}
-                        </sw-grid-column>
-                    {% endblock %}
-
-                    {% block sw_mail_template_list_grid_columns_description %}
-                        <sw-grid-column flex="minmax(200px, 1fr)"
-                                        class="sw-mail-template-list__column-description"
-                                        :label="$tc('sw-mail-template.list.columnDescription')"
-                                        dataIndex="description"
-                                        truncate>
-                            {% block sw_mail_template_list_grid_columns_description_label %}
-                                <span>{{ item.translated.description }}</span>
-                            {% endblock %}
-                        </sw-grid-column>
-                    {% endblock %}
-
-                    {% block sw_mail_template_list_columns_sales_channels %}
-                        <sw-grid-column flex="minmax(200px, 1fr)"
-                                        class="sw-mail-template-list__column-date-sales-channels"
-                                        :label="$tc('sw-mail-template.list.columnSalesChannels')"
-                                        dataIndex="salesChannels">
-                            {% block sw_mail_template_list_columns_sales_channels %}
-                                {% block sw_mail_template_list_columns_sales_channels_label %}
-                                    <span>
-                                        {{  getSalesChannelsString(item) }}
-                                    </span>
-                                {% endblock %}
-                            {% endblock %}
-                        </sw-grid-column>
-                    {% endblock %}
-
-                    {% block sw_mail_template_list_grid_columns_actions %}
-                        <sw-grid-column flex="100px" align="center">
-                            <sw-context-button>
-                                {% block sw_mail_template_list_grid_columns_actions_edit %}
-                                    <sw-context-menu-item class="sw_mail_template_list__edit-action"
-                                                          :routerLink="{ name: 'sw.mail.template.detail', params: { id: item.id } }">
-                                        {{ $tc('sw-mail-template.list.contextMenuEdit') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_mail_template_list_grid_columns_actions_duplicate %}
-                                    <sw-context-menu-item @click="onDuplicate(item.id)">
-                                        {{ $tc('sw-mail-template.list.contextMenuDuplicate') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_mail_template_list_grid_columns_actions_delete %}
-                                    <sw-context-menu-item @click="onDeleteMailTemplate(item.id)" variant="danger">
-                                        {{ $tc('sw-mail-template.list.contextMenuDelete') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-                            </sw-context-button>
-                        </sw-grid-column>
-                    {% endblock %}
-
-                    {% block sw_mail_template_list_delete_modal %}
-                        <sw-modal v-if="showDeleteModal === item.id"
-                                  @modal-close="onCloseDeleteModal"
-                                  :title="$tc('sw-mail-template.list.modalTitleDelete')"
-                                  variant="small">
-                            {% block sw_mail_template_list_delete_modal_confirm_delete_text %}
-                                <p class="sw-mail-template-list__confirm-delete-text">
-                                    {{ $tc('sw-mail-template.list.textDeleteConfirm', 0, { subject: item.translated.subject }) }}
-                                </p>
-                            {% endblock %}
-
-                            {% block sw_mail_template_list_delete_modal_footer %}
-                                <template slot="modal-footer">
-                                    {% block sw_mail_template_list_delete_modal_cancel %}
-                                        <sw-button @click="onCloseDeleteModal"
-                                                   size="small">
-                                            {{ $tc('sw-mail-template.list.buttonCancel') }}
-                                        </sw-button>
-                                    {% endblock %}
-
-                                    {% block sw_mail_template_list_delete_modal_confirm %}
-                                        <sw-button @click="onConfirmDelete(item.id)"
-                                                   variant="primary"
-                                                   size="small">
-                                            {{ $tc('sw-mail-template.list.buttonDelete') }}
-                                        </sw-button>
-                                    {% endblock %}
-                                </template>
-                            {% endblock %}
-                        </sw-modal>
-                    {% endblock %}
+        <sw-entity-listing
+            v-if="mailTemplates"
+            class="sw-mail-templates-list-grid"
+            :items="mailTemplates"
+            :columns="getListColumns()"
+            :repository="mailTemplateRepository"
+            detailRoute="sw.mail.template.detail"
+            :fullPage="false"
+            :isLoading="isLoading">
+            <template #column-salesChannels.salesChannel.name="{ item}">
+                {% block sw_mail_template_list_columns_sales_channels_label %}
+                    {{  getSalesChannelsString(item) }}
                 {% endblock %}
             </template>
-        </sw-grid>
+
+            <template #more-actions="{ item }">
+                {% block sw_mail_template_list_grid_columns_actions_duplicate %}
+                    <sw-context-menu-item @click="onDuplicate(item.id)">
+                        {{ $tc('sw-mail-template.list.contextMenuDuplicate') }}
+                    </sw-context-menu-item>
+                {% endblock %}
+            </template>
+        </sw-entity-listing>
     </sw-card>
 {% endblock %}

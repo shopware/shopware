@@ -1,8 +1,14 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-mail-header-footer-list.html.twig';
 
 Component.register('sw-mail-header-footer-list', {
     template,
+
+    inject: [
+        'repositoryFactory',
+        'context'
+    ],
 
     mixins: [
         Mixin.getByName('listing')
@@ -10,15 +16,15 @@ Component.register('sw-mail-header-footer-list', {
 
     data() {
         return {
-            mailHeaderFooters: [],
+            mailHeaderFooters: null,
             showDeleteModal: null,
             isLoading: false
         };
     },
 
     computed: {
-        mailHeaderFooterStore() {
-            return State.getStore('mail_header_footer');
+        mailHeaderFooterRepository() {
+            return this.repositoryFactory.create('mail_header_footer');
         }
     },
 
@@ -34,48 +40,59 @@ Component.register('sw-mail-header-footer-list', {
             }
         },
 
-        onDeleteMailHeaderFooter(id) {
-            this.showDeleteModal = id;
-        },
-
-        onCloseDeleteModal() {
-            this.showDeleteModal = null;
-        },
-
-        onConfirmDelete(id) {
-            this.showDeleteModal = null;
-
-            return this.mailHeaderFooterStore.store[id].delete(true).then(() => {
-                this.getList();
-            });
-        },
-
         getList() {
             this.isLoading = true;
-            const params = this.getListingParams();
+            this.mailHeaderFooters = null;
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.addAssociation('salesChannels');
 
-            // Default sorting
-            if (!params.sortBy && !params.sortDirection) {
-                params.sortBy = 'name';
-                params.sortDirection = 'ASC';
-            }
-
-            params.associations = {
-                salesChannels: {
-                    page: 1,
-                    limit: 5
-                }
-            };
-
-            this.mailHeaderFooters = [];
-
-            return this.mailHeaderFooterStore.getList(params, true).then((response) => {
-                this.total = response.total;
-                this.mailHeaderFooters = response.items;
+            this.mailHeaderFooterRepository.search(criteria, this.context).then((items) => {
+                this.total = items.total;
+                this.mailHeaderFooters = items;
                 this.isLoading = false;
-
                 return this.mailHeaderFooters;
             });
+        },
+
+        getListColumns() {
+            return [{
+                property: 'name',
+                dataIndex: 'name',
+                label: this.$tc('sw-mail-header-footer.list.columnName'),
+                allowResize: true,
+                primary: true
+            }, {
+                property: 'description',
+                dataIndex: 'description',
+                label: this.$tc('sw-mail-header-footer.list.columnDescription'),
+                allowResize: true
+            }, {
+                property: 'salesChannels.name',
+                dataIndex: 'salesChannels.name',
+                label: this.$tc('sw-mail-header-footer.list.columnSalesChannels'),
+                allowResize: true,
+                sortable: false
+            }];
+        },
+
+        getSalesChannelsString(item) {
+            if (typeof item.salesChannels === 'undefined') {
+                return '';
+            }
+            let salesChannels = '';
+
+            item.salesChannels.forEach((salesChannel) => {
+                if (salesChannels !== '') {
+                    salesChannels += ', ';
+                }
+                salesChannels += `${salesChannel.translated.name}`;
+            });
+
+            if (item.salesChannels.length >= 5) {
+                salesChannels += '...';
+            }
+
+            return salesChannels;
         },
 
         onDuplicate(id) {

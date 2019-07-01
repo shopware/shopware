@@ -56,9 +56,6 @@ class MailTemplateSalesChannelEntity extends Entity
         return $this->salesChannelId;
     }
 
-    /**
-     * @param string $salesChannelId
-     */
     public function setSalesChannelId(?string $salesChannelId): void
     {
         $this->salesChannelId = $salesChannelId;

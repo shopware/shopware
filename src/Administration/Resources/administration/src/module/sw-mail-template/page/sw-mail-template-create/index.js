@@ -20,8 +20,15 @@ Component.extend('sw-mail-template-create', 'sw-mail-template-detail', {
             }
 
             if (this.$route.params.id) {
-                this.mailTemplate = this.mailTemplateStore.create(this.$route.params.id);
+                this.mailTemplate = this.mailTemplateRepository.create(this.context, this.$route.params.id);
+            } else {
+                this.mailTemplate = this.mailTemplateRepository.create(this.context);
             }
+
+            this.mailTemplateId = this.mailTemplate.id;
+            this.mailTemplateSalesChannels = [];
+
+            this.getPossibleSalesChannels([]);
         },
 
         saveFinish() {

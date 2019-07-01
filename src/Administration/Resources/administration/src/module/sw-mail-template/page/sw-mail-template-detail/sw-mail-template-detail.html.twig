@@ -44,31 +44,29 @@
                 {% block sw_mail_template_detail_basic_info %}
                     <sw-card :title="$tc('sw-mail-template.detail.basic.titleCard')">
                         {% block sw_mail_template_basic_form_mail_type_field %}
-                            <sw-select id="mailTemplateTypes"
-                                :store="mailTemplateTypeStore"
+                            <sw-entity-single-select
+                                id="mailTemplateTypes"
+                                entity="mail_template_type"
                                 v-model="mailTemplate.mailTemplateTypeId"
                                 :label="$tc('sw-mail-template.detail.basic.labelMailType')"
                                 :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
-                                @input="onChangeType"
                                 validation="required"
+                                @input="onChangeType"
                                 required>
-                            </sw-select>
+                            </sw-entity-single-select>
                         {% endblock %}
 
                         {% block sw_mail_template_basic_form_sales_channels_field %}
-                            <sw-select id="salesChannels"
-                                       multi
-                                       :store="salesChannelStore"
-                                       :associationStore="mailTemplateSalesChannelsStore"
-                                       :criteria="salesChannelTypeCriteria"
-                                       :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
-                                       :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')"
-                                       ref="mailTemplateSalesChannel"
-                                       :disabled="selectedType.id === undefined"
-                                       v-if="mailTemplate"
-                                       :showSearch="false"
-                                       v-model="mailTemplateSalesChannels">
-                            </sw-select>
+                            <sw-entity-multi-select
+                                :selectedEntities="mailTemplateSalesChannels"
+                                v-if="mailTemplateSalesChannels !== null"
+                                ref="mailTemplateSalesChannel"
+                                labelProperty="name"
+                                :criteria="salesChannelTypeCriteria"
+                                :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
+                                :placeholder="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
+                                entity="sales_channel">
+                            </sw-entity-multi-select>
                         {% endblock %}
 
                         {% block sw_mail_template_basic_form_description_field %}
@@ -113,7 +111,7 @@
                                 :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
                                 :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-mail-template.detail.mailText.placeholderPlain'))"
                                 name="content_plain"
-                                :completerFunction="completerFunction"
+                                :completerFunction="outerCompleterFunction"
                                 :editorConfig="editorConfig"
                                 completionMode="entity"
                                 ref="plainEditor"
@@ -127,7 +125,7 @@
                                     :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
                                     :placeholder="placeholder(mailTemplate, 'contentHtml', $tc('sw-mail-template.detail.mailText.placeholderHtml'))"
                                     name="content_html"
-                                    :completerFunction="completerFunction"
+                                    :completerFunction="outerCompleterFunction"
                                     :editorConfig="editorConfig"
                                     completionMode="entity"
                                     :key="`${mailTemplate.mailTemplateTypeId}html`"

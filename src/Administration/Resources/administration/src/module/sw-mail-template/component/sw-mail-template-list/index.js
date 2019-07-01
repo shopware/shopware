@@ -1,8 +1,14 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-mail-template-list.html.twig';
 
 Component.register('sw-mail-template-list', {
     template,
+
+    inject: [
+        'repositoryFactory',
+        'context'
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -11,47 +17,68 @@ Component.register('sw-mail-template-list', {
 
     data() {
         return {
-            mailTemplates: [],
+            mailTemplates: null,
             showDeleteModal: null,
             isLoading: false
         };
     },
 
     computed: {
-        mailTemplateStore() {
-            return State.getStore('mail_template');
+        mailTemplateRepository() {
+            return this.repositoryFactory.create('mail_template');
         }
     },
 
     methods: {
         getList() {
             this.isLoading = true;
-            const params = this.getListingParams();
-            params.associations = {
-                salesChannels: {
-                    associations: {
-                        salesChannel: {}
-                    }
-                },
-                mailTemplateType: {}
-            };
+            this.mailTemplates = null;
 
-            this.mailTemplates = [];
-            this.mailTemplateStore.getList(params, true).then((response) => {
-                this.total = response.total;
-                this.mailTemplates = response.items;
+            const criteria = new Criteria(this.page, this.limit);
+            const mailTemplateSalesChannelCriteria = new Criteria();
+
+            mailTemplateSalesChannelCriteria.setLimit(10);
+            mailTemplateSalesChannelCriteria.addAssociation('salesChannel');
+
+            criteria.addAssociation('salesChannels', mailTemplateSalesChannelCriteria);
+            criteria.addAssociation('mailTemplateType');
+
+            this.mailTemplateRepository.search(criteria, this.context).then((items) => {
+                this.total = items.total;
+                this.mailTemplates = items;
                 this.isLoading = false;
-
                 return this.mailTemplates;
             });
+        },
+
+        getListColumns() {
+            return [{
+                property: 'mailTemplateType.name',
+                dataIndex: 'mailTemplateType.name',
+                label: this.$tc('sw-mail-template.list.columnMailType'),
+                allowResize: true,
+                primary: true
+            }, {
+                property: 'description',
+                dataIndex: 'description',
+                label: this.$tc('sw-mail-template.list.columnDescription'),
+                allowResize: true
+            }, {
+                property: 'salesChannels.salesChannel.name',
+                dataIndex: 'salesChannels.salesChannel.name',
+                label: this.$tc('sw-mail-template.list.columnSalesChannels'),
+                allowResize: true,
+                sortable: false
+            }];
         },
 
         getSalesChannelsString(item) {
             if (typeof item.salesChannels === 'undefined') {
                 return '';
             }
+
             let salesChannels = '';
-            item.salesChannels.slice(0, 4).forEach((mailTemplateSalesChannel) => {
+            item.salesChannels.forEach((mailTemplateSalesChannel) => {
                 if (salesChannels !== '') {
                     salesChannels += ', ';
                 }
@@ -65,39 +92,12 @@ Component.register('sw-mail-template-list', {
             return salesChannels;
         },
 
-        onEdit(mailTemplate) {
-            if (mailTemplate && mailTemplate.id) {
-                this.$router.push({
-                    name: 'sw.mail.template.detail',
-                    params: {
-                        id: mailTemplate.id
-                    }
-                });
-            }
-        },
-
         onChangeLanguage(languageId) {
             this.getList(languageId);
         },
 
-        onDeleteMailTemplate(id) {
-            this.showDeleteModal = id;
-        },
-
-        onCloseDeleteModal() {
-            this.showDeleteModal = null;
-        },
-
-        onConfirmDelete(id) {
-            this.showDeleteModal = false;
-
-            return this.mailTemplateStore.store[id].delete(true).then(() => {
-                this.getList();
-            });
-        },
-
         onDuplicate(id) {
-            this.mailTemplateStore.apiService.clone(id).then((mailTemplate) => {
+            this.mailTemplateRepository.clone(id).then((mailTemplate) => {
                 this.$router.push(
                     {
                         name: 'sw.mail.template.detail',

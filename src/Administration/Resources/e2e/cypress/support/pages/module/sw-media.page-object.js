@@ -28,15 +28,32 @@ export default class MediaPageObject extends GeneralPageObject {
     }
 
     uploadImageUsingUrl(path) {
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v1/media?_response=true',
+            method: 'post'
+        }).as('seeMedium');
+
         cy.get('.sw-media-url-form').should('be.visible');
         cy.get('input[name=sw-field--url]').should('be.visible')
             .type(path);
         cy.get('.sw-media-url-form__submit-button').click();
-        cy.get('.sw-media-preview__placeholder').should('not.exist');
+        cy.wait('@seeMedium').then(() => {
+            cy.get('.sw-media-preview__placeholder').should('not.exist');
+            cy.get('.sw-media-preview__item').should('be.visible');
+        });
         return this;
     }
 
     uploadImageUsingFileUpload(path, name) {
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v1/media/*',
+            method: 'get'
+        }).as('seeMedium');
+
         cy.fixture(path).then(fileContent => {
             cy.get(this.elements.uploadInput).upload(
                 {
@@ -48,7 +65,11 @@ export default class MediaPageObject extends GeneralPageObject {
                 }
             );
         });
-        cy.get('.sw-media-preview__placeholder').should('not.exist');
+        cy.wait('@seeMedium').then(() => {
+            cy.get('.sw-media-preview__placeholder').should('not.exist');
+            cy.get('.sw-media-preview__item').should('be.visible');
+        });
+
         return this;
     }
 

@@ -31,7 +31,7 @@ class AdministrationController extends AbstractController
         return $this->render($template, [
             'features' => FeatureConfig::getAll(),
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
-            'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM_DE],
+            'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
             'liveVersionId' => Defaults::LIVE_VERSION,
         ]);
     }

@@ -56,12 +56,18 @@ class EntityReaderTest extends TestCase
      */
     private $taxRepository;
 
+    /**
+     * @var string
+     */
+    private $deLanguageId;
+
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->languageRepository = $this->getContainer()->get('language.repository');
+        $this->deLanguageId = $this->getDeDeLanguageId();
     }
 
     public function testTranslated()
@@ -80,7 +86,7 @@ class EntityReaderTest extends TestCase
             Defaults::CURRENCY,
             [
                 Defaults::LANGUAGE_SYSTEM,
-                Defaults::LANGUAGE_SYSTEM_DE,
+                $this->deLanguageId,
             ]
         );
 
@@ -96,7 +102,7 @@ class EntityReaderTest extends TestCase
             [],
             Defaults::CURRENCY,
             [
-                Defaults::LANGUAGE_SYSTEM_DE,
+                $this->deLanguageId,
                 Defaults::LANGUAGE_SYSTEM,
             ]
         );
@@ -113,7 +119,7 @@ class EntityReaderTest extends TestCase
             [],
             Defaults::CURRENCY,
             [
-                Defaults::LANGUAGE_SYSTEM_DE,
+                $this->deLanguageId,
             ]
         );
 
@@ -151,7 +157,7 @@ class EntityReaderTest extends TestCase
             'tax' => ['taxRate' => 13, 'name' => 'green'],
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => ['name' => 'EN'],
-                Defaults::LANGUAGE_SYSTEM_DE => ['name' => 'DE'],
+                $this->deLanguageId => ['name' => 'DE'],
                 $subLanguageId => ['description' => 'test'],
             ],
         ];
@@ -198,7 +204,7 @@ class EntityReaderTest extends TestCase
             'tax' => ['taxRate' => 13, 'name' => 'green'],
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => ['name' => 'EN'],
-                Defaults::LANGUAGE_SYSTEM_DE => ['name' => 'DE'],
+                $this->deLanguageId => ['name' => 'DE'],
                 $subLanguageId => ['description' => 'test'],
             ],
         ];
@@ -1681,7 +1687,7 @@ class EntityReaderTest extends TestCase
         static::assertCount(2, $cat->getTranslations());
 
         /** @var CategoryTranslationEntity $transDe */
-        $transDe = $cat->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM_DE)->first();
+        $transDe = $cat->getTranslations()->filterByLanguageId($this->deLanguageId)->first();
         static::assertEquals('deutsch', $transDe->getName());
 
         /** @var CategoryTranslationEntity $transSystem */

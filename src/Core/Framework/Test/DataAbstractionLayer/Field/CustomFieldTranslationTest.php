@@ -92,7 +92,7 @@ class CustomFieldTranslationTest extends TestCase
             ],
         ];
 
-        $chain = [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM];
+        $chain = [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM];
         $repo = $this->getTestRepository();
 
         $context = Context::createDefaultContext();
@@ -174,7 +174,7 @@ class CustomFieldTranslationTest extends TestCase
         $expectedViewData = $expected;
         static::assertEquals($expectedViewData, $result->getTranslated()['customTranslated']);
 
-        $chain = [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM];
+        $chain = [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
         $result = $repo->search(new Criteria([$id]), $context)->first();
 

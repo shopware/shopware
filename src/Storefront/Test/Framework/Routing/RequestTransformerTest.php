@@ -27,9 +27,16 @@ class RequestTransformerTest extends TestCase
      */
     private $requestBuilder;
 
+    /**
+     * @var string
+     */
+    private $deLanguageId;
+
     protected function setUp(): void
     {
         $this->requestBuilder = new RequestTransformer($this->getContainer()->get(Connection::class));
+
+        $this->deLanguageId = $this->getDeDeLanguageId();
     }
 
     /**
@@ -75,14 +82,15 @@ class RequestTransformerTest extends TestCase
 
         $snippetSetDE = $this->getSnippetSetIdForLocale(self::LOCALE_DE_DE_ISO);
         $snippetSetEN = $this->getSnippetSetIdForLocale(self::LOCALE_EN_GB_ISO);
+        $this->deLanguageId = $this->getDeDeLanguageId();
 
         return [
             'single' => [
                 [$this->getGermanSalesChannel($germanId, $gerDomainId, 'http://german.test')],
                 [
-                    new ExpectedRequest('http://german.test', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://german.test/', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://german.test/foobar', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://german.test', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://german.test/', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://german.test/foobar', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
                 ],
             ],
             'two' => [
@@ -91,16 +99,16 @@ class RequestTransformerTest extends TestCase
                     $this->getEnglishSalesChannel($englishId, $ukDomainId, 'http://english.test'),
                 ],
                 [
-                    new ExpectedRequest('http://german.test', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://german.test/', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://german.test/foobar', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://german.test', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://german.test/', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://german.test/foobar', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
 
                     new ExpectedRequest('http://english.test', '', $ukDomainId, $englishId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
                     new ExpectedRequest('http://english.test/', '', $ukDomainId, $englishId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
                     new ExpectedRequest('http://english.test/foobar', '', $ukDomainId, $englishId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
 
                     new ExpectedRequest('http://english.test/navigation/1', '', $ukDomainId, $englishId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
-                    new ExpectedRequest('http://german.test/navigation/1', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://german.test/navigation/1', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
                 ],
             ],
             'single-with-ger-and-uk-domain' => [
@@ -108,9 +116,9 @@ class RequestTransformerTest extends TestCase
                     $this->getSalesChannelWithGerAndUkDomain($gerUkId, $gerDomainId, 'http://german.test', $ukDomainId, 'http://english.test'),
                 ],
                 [
-                    new ExpectedRequest('http://german.test', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://german.test/', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://german.test/foobar', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://german.test', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://german.test/', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://german.test/foobar', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
 
                     new ExpectedRequest('http://english.test', '', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
                     new ExpectedRequest('http://english.test/', '', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
@@ -122,9 +130,9 @@ class RequestTransformerTest extends TestCase
                     $this->getSalesChannelWithGerAndUkDomain($gerUkId, $gerDomainId, 'http://base.test:1337', $ukDomainId, 'http://base.test:31337'),
                 ],
                 [
-                    new ExpectedRequest('http://base.test:1337', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://base.test:1337/', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://base.test:1337/foobar', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://base.test:1337', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://base.test:1337/', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://base.test:1337/foobar', '', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
 
                     new ExpectedRequest('http://base.test:31337', '', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
                     new ExpectedRequest('http://base.test:31337/', '', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
@@ -137,9 +145,9 @@ class RequestTransformerTest extends TestCase
                     $this->getSalesChannelWithGerAndUkDomain($gerUkId, $gerDomainId, 'http://base.test:1337/foo', $ukDomainId, 'http://base.test:1337/bar'),
                 ],
                 [
-                    new ExpectedRequest('http://base.test:1337/foo', '/foo', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://base.test:1337/foo/', '/foo', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://base.test:1337/foo/foobar', '/foo', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://base.test:1337/foo', '/foo', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://base.test:1337/foo/', '/foo', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://base.test:1337/foo/foobar', '/foo', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
 
                     new ExpectedRequest('http://base.test:1337/bar', '/bar', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
                     new ExpectedRequest('http://base.test:1337/bar/', '/bar', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
@@ -152,18 +160,18 @@ class RequestTransformerTest extends TestCase
                     $this->getSalesChannelWithGerAndUkDomain($gerUkId, $gerDomainId, 'http://saleschannel.test/de', $ukDomainId, 'http://saleschannel.test/en'),
                 ],
                 [
-                    new ExpectedRequest('http://saleschannel.test/de', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://saleschannel.test/de/', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://saleschannel.test/de/foobar', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://saleschannel.test/de', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://saleschannel.test/de/', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://saleschannel.test/de/foobar', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
 
                     new ExpectedRequest('http://saleschannel.test/en', '/en', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
                     new ExpectedRequest('http://saleschannel.test/en/', '/en', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
                     new ExpectedRequest('http://saleschannel.test/en/foobar', '/en', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
 
-                    new ExpectedRequest('http://saleschannel.test/de/navigation/1', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://saleschannel.test/de/navigation/1', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
                     new ExpectedRequest('http://saleschannel.test/en/navigation/1', '/en', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
 
-                    new ExpectedRequest('http://saleschannel.test/de/de/navigation/1', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://saleschannel.test/de/de/navigation/1', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
                     new ExpectedRequest('http://saleschannel.test/en/en/navigation/1', '/en', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
                 ],
             ],
@@ -172,9 +180,9 @@ class RequestTransformerTest extends TestCase
                     $this->getSalesChannelWithGerAndUkDomain($gerUkId, $gerDomainId, 'http://saleschannel.test/de', $ukDomainId, 'http://saleschannel.test'),
                 ],
                 [
-                    new ExpectedRequest('http://saleschannel.test/de', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://saleschannel.test/de/', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
-                    new ExpectedRequest('http://saleschannel.test/de/foobar', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM_DE, $snippetSetDE),
+                    new ExpectedRequest('http://saleschannel.test/de', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://saleschannel.test/de/', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://saleschannel.test/de/foobar', '/de', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
 
                     new ExpectedRequest('http://saleschannel.test', '', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
                     new ExpectedRequest('http://saleschannel.test/', '', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, $snippetSetEN),
@@ -220,13 +228,13 @@ class RequestTransformerTest extends TestCase
             'id' => $salesChannelId,
             'name' => 'german',
             'languages' => [
-                ['id' => Defaults::LANGUAGE_SYSTEM_DE],
+                ['id' => $this->deLanguageId],
             ],
             'domains' => [
                 [
                     'id' => $domainId,
                     'url' => $url,
-                    'languageId' => Defaults::LANGUAGE_SYSTEM_DE,
+                    'languageId' => $this->deLanguageId,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale(self::LOCALE_DE_DE_ISO),
                 ],
@@ -241,13 +249,13 @@ class RequestTransformerTest extends TestCase
             'name' => 'english',
             'languages' => [
                 ['id' => Defaults::LANGUAGE_SYSTEM],
-                ['id' => Defaults::LANGUAGE_SYSTEM_DE],
+                ['id' => $this->deLanguageId],
             ],
             'domains' => [
                 [
                     'id' => $gerDomainId,
                     'url' => $gerUrl,
-                    'languageId' => Defaults::LANGUAGE_SYSTEM_DE,
+                    'languageId' => $this->deLanguageId,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale(self::LOCALE_DE_DE_ISO),
                 ],
@@ -269,13 +277,13 @@ class RequestTransformerTest extends TestCase
             'name' => 'inactive sales channel',
             'active' => false,
             'languages' => [
-                ['id' => Defaults::LANGUAGE_SYSTEM_DE],
+                ['id' => $this->deLanguageId],
             ],
             'domains' => [
                 [
                     'id' => $domainId,
                     'url' => $url,
-                    'languageId' => Defaults::LANGUAGE_SYSTEM_DE,
+                    'languageId' => $this->deLanguageId,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale(self::LOCALE_DE_DE_ISO),
                 ],

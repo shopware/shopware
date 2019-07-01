@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Framework\Seo;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -138,7 +137,7 @@ class SeoUrlPersisterTest extends TestCase
     public function testSameSeoPathDifferentLanguage(): void
     {
         $defaultContext = Context::createDefaultContext();
-        $deContext = new Context($defaultContext->getSource(), [], $defaultContext->getCurrencyId(), [Defaults::LANGUAGE_SYSTEM_DE]);
+        $deContext = new Context($defaultContext->getSource(), [], $defaultContext->getCurrencyId(), [$this->getDeDeLanguageId()]);
 
         $fk = Uuid::randomHex();
         $seoUrlUpdates = [

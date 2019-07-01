@@ -60,6 +60,11 @@ class TranslationTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var string
+     */
+    private $deLanguageId;
+
     protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
@@ -67,6 +72,8 @@ class TranslationTest extends TestCase
         $this->languageRepository = $this->getContainer()->get('language.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
+
+        $this->deLanguageId = $this->getDeDeLanguageId();
     }
 
     public function testCurrencyWithTranslationViaLocale(): void
@@ -505,7 +512,7 @@ class TranslationTest extends TestCase
         static::assertEquals('system', $catSystem->getName());
         static::assertEquals('system', $catSystem->getTranslated()['name']);
 
-        $deDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]);
+        $deDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->deLanguageId, Defaults::LANGUAGE_SYSTEM]);
         /** @var CategoryEntity $catDeDe */
         $catDeDe = $categoryRepository->search(new Criteria([$category['id']]), $deDeContext)->first();
 
@@ -702,7 +709,7 @@ class TranslationTest extends TestCase
                             'slot' => 'bar',
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['config' => []],
-                                Defaults::LANGUAGE_SYSTEM_DE => ['config' => []],
+                                $this->deLanguageId => ['config' => []],
                             ],
                         ],
                         [
@@ -711,7 +718,7 @@ class TranslationTest extends TestCase
                             'slot' => 'bar',
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['config' => ['var1' => ['source' => FieldConfig::SOURCE_MAPPED, 'value' => 'en']]],
-                                Defaults::LANGUAGE_SYSTEM_DE => ['config' => ['var1' => ['source' => FieldConfig::SOURCE_MAPPED, 'value' => 'de']]],
+                                $this->deLanguageId => ['config' => ['var1' => ['source' => FieldConfig::SOURCE_MAPPED, 'value' => 'de']]],
                             ],
                         ],
                         [
@@ -749,7 +756,7 @@ class TranslationTest extends TestCase
 
         // validate german translations
 
-        $germanContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]);
+        $germanContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->deLanguageId, Defaults::LANGUAGE_SYSTEM]);
         $searchResult = $slotRepository->search(new Criteria($ids), $germanContext);
 
         /** @var CmsSlotEntity $slot */

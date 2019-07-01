@@ -1,5 +1,5 @@
 import { cloneDeep } from 'src/core/service/utils/object.utils';
-import { setReactive } from 'src/app/adapter/view/vue.adapter';
+import { ObservationApi } from 'src/core/shopware';
 
 export default class Entity {
     constructor(id, entityName, data) {
@@ -21,7 +21,7 @@ export default class Entity {
             },
 
             set(target, property, value) {
-                setReactive(that._draft, property, value);
+                ObservationApi.setReactive(that._draft, property, value);
                 that._isDirty = true;
 
                 return true;

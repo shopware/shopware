@@ -7,7 +7,7 @@ import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import VuePlugins from 'src/app/plugin';
-import { Component, State, Mixin } from 'src/core/shopware';
+import { ObservationApi, Component, State, Mixin } from 'src/core/shopware';
 import EntityStore from 'src/core/data/EntityStore';
 import { warn } from 'src/core/service/utils/debug.utils';
 
@@ -16,27 +16,6 @@ import { warn } from 'src/core/service/utils/debug.utils';
  * @type {{}}
  */
 const vueComponents = {};
-
-/**
- * Allows to set a object property over Vue
- * @param {Object} object
- * @param {String} property
- * @param {*} value
- * @returns {*}
- */
-export function setReactive(object, property, value) {
-    return Vue.set(object, property, value);
-}
-
-/**
- * Allows to delete a object property over Vue
- * @param {Object} object
- * @param {String} key
- * @returns {*}
- */
-export function deleteReactive(object, key) {
-    return Vue.delete(object, key);
-}
 
 /**
  * @method VueAdapter
@@ -71,6 +50,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @returns {Vue}
      */
     function createInstance(renderElement, router, providers) {
+        ObservationApi.setObservationApiFunctions(Vue.set, Vue.delete);
+
         initPlugins();
         initDirectives();
         initFilters();

@@ -8,7 +8,7 @@ use Shopware\Storefront\Page\Page;
 class AccountOverviewPage extends Page
 {
     /**
-     * @var OrderEntity
+     * @var OrderEntity|null
      */
     private $newestOrder;
 
@@ -17,7 +17,7 @@ class AccountOverviewPage extends Page
         $this->newestOrder = $order;
     }
 
-    public function getNewestOrder(): OrderEntity
+    public function getNewestOrder(): ?OrderEntity
     {
         return $this->newestOrder;
     }

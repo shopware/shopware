@@ -21,10 +21,17 @@ class BreadcrumbIndexerTest extends TestCase
      */
     private $repository;
 
+    /**
+     * @var string
+     */
+    private $deLanguageId;
+
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('category.repository');
         parent::setUp();
+
+        $this->deLanguageId = $this->getDeDeLanguageId();
     }
 
     public function testBreadcrumbAfterCreate()
@@ -55,7 +62,7 @@ class BreadcrumbIndexerTest extends TestCase
             new SystemSource(),
             [],
             Defaults::CURRENCY,
-            [Defaults::LANGUAGE_SYSTEM_DE]
+            [$this->deLanguageId]
         );
 
         /** @var CategoryCollection $categories */
@@ -125,7 +132,7 @@ class BreadcrumbIndexerTest extends TestCase
             new SystemSource(),
             [],
             Defaults::CURRENCY,
-            [Defaults::LANGUAGE_SYSTEM_DE]
+            [$this->deLanguageId]
         );
 
         /** @var CategoryCollection $categories */
@@ -157,19 +164,19 @@ class BreadcrumbIndexerTest extends TestCase
             [
                 'id' => $ids->level1,
                 'translations' => [
-                    ['name' => null, 'languageId' => Defaults::LANGUAGE_SYSTEM_DE],
+                    ['name' => null, 'languageId' => $this->deLanguageId],
                 ],
                 'children' => [
                     [
                         'id' => $ids->level2,
                         'translations' => [
-                            ['name' => null, 'languageId' => Defaults::LANGUAGE_SYSTEM_DE],
+                            ['name' => null, 'languageId' => $this->deLanguageId],
                         ],
                         'children' => [
                             [
                                 'id' => $ids->level3,
                                 'translations' => [
-                                    ['name' => null, 'languageId' => Defaults::LANGUAGE_SYSTEM_DE],
+                                    ['name' => null, 'languageId' => $this->deLanguageId],
                                 ],
                             ],
                         ],
@@ -195,7 +202,7 @@ class BreadcrumbIndexerTest extends TestCase
             new SystemSource(),
             [],
             Defaults::CURRENCY,
-            [Defaults::LANGUAGE_SYSTEM_DE]
+            [$this->deLanguageId]
         );
 
         /** @var CategoryCollection $categories */
@@ -215,14 +222,14 @@ class BreadcrumbIndexerTest extends TestCase
             new SystemSource(),
             [],
             Defaults::CURRENCY,
-            [Defaults::LANGUAGE_SYSTEM_DE]
+            [$this->deLanguageId]
         );
 
         $this->repository->update([
             [
                 'id' => $ids->level2,
                 'translations' => [
-                    ['name' => 'DE-B', 'languageId' => Defaults::LANGUAGE_SYSTEM_DE],
+                    ['name' => 'DE-B', 'languageId' => $this->deLanguageId],
                 ],
             ],
         ], $context);
@@ -252,21 +259,21 @@ class BreadcrumbIndexerTest extends TestCase
                 'id' => $level1,
                 'translations' => [
                     ['name' => 'EN-A', 'languageId' => Defaults::LANGUAGE_SYSTEM],
-                    ['name' => 'DE-A', 'languageId' => Defaults::LANGUAGE_SYSTEM_DE],
+                    ['name' => 'DE-A', 'languageId' => $this->deLanguageId],
                 ],
                 'children' => [
                     [
                         'id' => $level2,
                         'translations' => [
                             ['name' => 'EN-B', 'languageId' => Defaults::LANGUAGE_SYSTEM],
-                            ['name' => 'DE-B', 'languageId' => Defaults::LANGUAGE_SYSTEM_DE],
+                            ['name' => 'DE-B', 'languageId' => $this->deLanguageId],
                         ],
                         'children' => [
                             [
                                 'id' => $level3,
                                 'translations' => [
                                     ['name' => 'EN-C', 'languageId' => Defaults::LANGUAGE_SYSTEM],
-                                    ['name' => 'DE-C', 'languageId' => Defaults::LANGUAGE_SYSTEM_DE],
+                                    ['name' => 'DE-C', 'languageId' => $this->deLanguageId],
                                 ],
                                 'children' => [],
                             ],

@@ -84,12 +84,10 @@ class CustomerGenerator implements DemodataGeneratorInterface
             'id' => $id,
             'displayGross' => false,
             'translations' => [
-                [
-                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'en-GB' => [
                     'name' => 'Net price customer group',
                 ],
-                [
-                    'languageId' => Defaults::LANGUAGE_SYSTEM_DE,
+                'de-DE' => [
                     'name' => 'Nettopreis-Kundengruppe',
                 ],
             ],

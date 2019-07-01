@@ -102,7 +102,7 @@ export const EntityDefinition = {
 
 export const Defaults = {
     systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-    defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b', '00e84bd18c574a6ca748ac0db17654dc'],
+    defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
     versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425'
 };
 

@@ -14,6 +14,20 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait BasicTestDataBehaviour
 {
+    public function getDeDeLanguageId(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('language.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('language.translationCode.code', 'de-DE'));
+
+        /** @var LanguageEntity $language */
+        $language = $repository->search($criteria, Context::createDefaultContext())->first();
+
+        return $language->getId();
+    }
+
     abstract protected function getContainer(): ContainerInterface;
 
     protected function getValidPaymentMethodId(): string

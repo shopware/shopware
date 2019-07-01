@@ -44,7 +44,7 @@ class TranslationTest extends TestCase
             [
                 'name' => 'not translated',
                 'translations' => [
-                    Defaults::LANGUAGE_SYSTEM_DE => ['name' => 'german'],
+                    $this->getDeDeLanguageId() => ['name' => 'german'],
                 ],
             ]
         );

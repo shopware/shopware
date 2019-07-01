@@ -26,7 +26,7 @@ class LanguageValidator implements EventSubscriberInterface
 
     public const VIOLATION_DELETE_DEFAULT_LANGUAGE = 'delete_default_language_violation';
 
-    public const DEFAULT_LANGUAGES = [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM_DE];
+    public const DEFAULT_LANGUAGES = [Defaults::LANGUAGE_SYSTEM];
 
     /**
      * @var Connection
@@ -75,7 +75,7 @@ class LanguageValidator implements EventSubscriberInterface
 
             $pk = $command->getPrimaryKey();
             $id = \strtolower(Uuid::fromBytesToHex($pk['id']));
-            if (!\in_array($id, [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM_DE], true)) {
+            if ($id !== Defaults::LANGUAGE_SYSTEM) {
                 continue;
             }
 

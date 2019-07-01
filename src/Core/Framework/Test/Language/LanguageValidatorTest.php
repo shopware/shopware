@@ -741,19 +741,6 @@ class LanguageValidatorTest extends TestCase
         );
     }
 
-    public function testDeleteGermanViolation(): void
-    {
-        // -de
-        $deDe = ['id' => Defaults::LANGUAGE_SYSTEM_DE];
-
-        $this->assertDeleteViolations(
-            [$deDe],
-            [
-                [LanguageValidator::VIOLATION_DELETE_DEFAULT_LANGUAGE, '/' . $deDe['id']],
-            ]
-        );
-    }
-
     public function testMultipleInsertViolations(): void
     {
         // +a1 +> +b +> +c, +a2 +> b
@@ -767,21 +754,6 @@ class LanguageValidatorTest extends TestCase
             [
                 [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $a1['id'] . '/parentId'],
                 [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $a2['id'] . '/parentId'],
-            ]
-        );
-    }
-
-    public function testMultipleDeleteViolations(): void
-    {
-        // -en, -de
-        $enGb = ['id' => Defaults::LANGUAGE_SYSTEM];
-        $deDe = ['id' => Defaults::LANGUAGE_SYSTEM_DE];
-
-        $this->assertDeleteViolations(
-            [$enGb, $deDe],
-            [
-                [LanguageValidator::VIOLATION_DELETE_DEFAULT_LANGUAGE, '/' . $enGb['id']],
-                [LanguageValidator::VIOLATION_DELETE_DEFAULT_LANGUAGE, '/' . $deDe['id']],
             ]
         );
     }

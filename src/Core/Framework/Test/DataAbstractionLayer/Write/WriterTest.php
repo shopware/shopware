@@ -709,7 +709,7 @@ class WriterTest extends TestCase
             $context->getSource(),
             $context->getRuleIds(),
             $context->getCurrencyId(),
-            [Defaults::LANGUAGE_SYSTEM_DE, Defaults::LANGUAGE_SYSTEM]
+            [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]
         );
 
         $mediaRepo->create([

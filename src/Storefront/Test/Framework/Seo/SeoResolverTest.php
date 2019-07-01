@@ -27,6 +27,11 @@ class SeoResolverTest extends TestCase
      */
     private $seoResolver;
 
+    /**
+     * @var string
+     */
+    private $deLanguageId;
+
     public function setUp(): void
     {
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
@@ -34,6 +39,8 @@ class SeoResolverTest extends TestCase
 
         $connection = $this->getContainer()->get(Connection::class);
         $connection->exec('DELETE FROM `sales_channel`');
+
+        $this->deLanguageId = $this->getDeDeLanguageId();
     }
 
     public function testResolveEmpty(): void
@@ -136,8 +143,8 @@ class SeoResolverTest extends TestCase
         $this->createStorefrontSalesChannelContext(
             $salesChannelDeId,
             'de',
-            Defaults::LANGUAGE_SYSTEM_DE,
-            [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM_DE]
+            $this->deLanguageId,
+            [Defaults::LANGUAGE_SYSTEM, $this->deLanguageId]
         );
 
         $deId = Uuid::randomHex();
@@ -147,7 +154,7 @@ class SeoResolverTest extends TestCase
             [
                 'id' => $deId,
                 'salesChannelId' => $salesChannelDeId,
-                'languageId' => Defaults::LANGUAGE_SYSTEM_DE,
+                'languageId' => $this->deLanguageId,
                 'routeName' => 'r',
                 'pathInfo' => '/detail/1234',
                 'seoPathInfo' => 'awesome-product-de',
@@ -166,7 +173,7 @@ class SeoResolverTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $actual = $this->seoResolver->resolveSeoPath(Defaults::LANGUAGE_SYSTEM_DE, $salesChannelDeId, 'awesome-product-de');
+        $actual = $this->seoResolver->resolveSeoPath($this->deLanguageId, $salesChannelDeId, 'awesome-product-de');
         static::assertEquals($deId, Uuid::fromBytesToHex($actual['id']));
 
         $actual = $this->seoResolver->resolveSeoPath(Defaults::LANGUAGE_SYSTEM, $salesChannelDeId, 'awesome-product-en');
@@ -179,8 +186,8 @@ class SeoResolverTest extends TestCase
         $this->createStorefrontSalesChannelContext(
             $otherSalesChannelId,
             'de',
-            Defaults::LANGUAGE_SYSTEM_DE,
-            [Defaults::LANGUAGE_SYSTEM, Defaults::LANGUAGE_SYSTEM_DE]
+            $this->deLanguageId,
+            [Defaults::LANGUAGE_SYSTEM, $this->deLanguageId]
         );
 
         $defaultId = Uuid::randomHex();

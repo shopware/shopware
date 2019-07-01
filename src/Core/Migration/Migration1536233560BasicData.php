@@ -35,6 +35,10 @@ class Migration1536233560BasicData extends MigrationStep
      * @var array
      */
     private $mailTypes;
+    /**
+     * @var string
+     */
+    private $deDeLanguageId;
 
     public function getCreationTimestamp(): int
     {
@@ -86,12 +90,21 @@ class Migration1536233560BasicData extends MigrationStep
         // implement update destructive
     }
 
+    private function getDeDeLanguageId(): string
+    {
+        if (!$this->deDeLanguageId) {
+            $this->deDeLanguageId = Uuid::randomHex();
+        }
+
+        return $this->deDeLanguageId;
+    }
+
     private function createLanguage(Connection $connection): void
     {
         $localeEn = Uuid::randomBytes();
         $localeDe = Uuid::randomBytes();
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
+        $languageDe = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         // first locales
         $connection->insert('locale', ['id' => $localeEn, 'code' => 'en-GB', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -151,7 +164,7 @@ class Migration1536233560BasicData extends MigrationStep
 
         $queue = new MultiInsertQueryQueue($connection);
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
+        $languageDe = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         foreach ($localeData as $locale) {
             if (\in_array($locale['locale'], ['en-GB', 'de-DE'], true)) {
@@ -195,7 +208,7 @@ class Migration1536233560BasicData extends MigrationStep
     {
         $languageDE = function (string $countryId, string $name) {
             return [
-                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE),
+                'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
                 'name' => $name,
                 'country_id' => $countryId,
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -726,7 +739,7 @@ class Migration1536233560BasicData extends MigrationStep
 
             if (isset($germanTranslations[$countryCode])) {
                 $connection->insert('country_state_translation', [
-                    'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE),
+                    'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
                     'country_state_id' => $id,
                     'name' => $name,
                     'created_at' => $storageDate,
@@ -757,7 +770,7 @@ class Migration1536233560BasicData extends MigrationStep
     {
         $connection->insert('customer_group', ['id' => Uuid::fromHexToBytes(Defaults::FALLBACK_CUSTOMER_GROUP), 'display_gross' => 1, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('customer_group_translation', ['customer_group_id' => Uuid::fromHexToBytes(Defaults::FALLBACK_CUSTOMER_GROUP), 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), 'name' => 'Standard customer group', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('customer_group_translation', ['customer_group_id' => Uuid::fromHexToBytes(Defaults::FALLBACK_CUSTOMER_GROUP), 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE), 'name' => 'Standard-Kundengruppe', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('customer_group_translation', ['customer_group_id' => Uuid::fromHexToBytes(Defaults::FALLBACK_CUSTOMER_GROUP), 'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()), 'name' => 'Standard-Kundengruppe', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
     }
 
     private function createPaymentMethod(Connection $connection): void
@@ -998,7 +1011,7 @@ class Migration1536233560BasicData extends MigrationStep
         $inProgressId = Uuid::randomBytes();
         $canceledId = Uuid::randomBytes();
 
-        $germanId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
+        $germanId = Uuid::fromHexToBytes($this->getDeDeLanguageId());
         $englishId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $translationDE = ['language_id' => $germanId, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)];
@@ -1065,7 +1078,7 @@ class Migration1536233560BasicData extends MigrationStep
         $returnedId = Uuid::randomBytes();
         $returnedPartiallyId = Uuid::randomBytes();
 
-        $germanId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
+        $germanId = Uuid::fromHexToBytes($this->getDeDeLanguageId());
         $englishId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $translationDE = ['language_id' => $germanId, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)];
@@ -1149,7 +1162,7 @@ class Migration1536233560BasicData extends MigrationStep
         $refundedId = Uuid::randomBytes();
         $refundedPartiallyId = Uuid::randomBytes();
 
-        $germanId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
+        $germanId = Uuid::fromHexToBytes($this->getDeDeLanguageId());
         $englishId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $translationDE = ['language_id' => $germanId, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)];
@@ -1259,7 +1272,7 @@ class Migration1536233560BasicData extends MigrationStep
     private function createSalutation(Connection $connection): void
     {
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
+        $languageDe = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         $mr = Uuid::randomBytes();
         $connection->insert('salutation', [
@@ -1328,7 +1341,7 @@ class Migration1536233560BasicData extends MigrationStep
     private function createDeliveryTimes(Connection $connection): string
     {
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
+        $languageDe = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         $oneToThree = Uuid::randomBytes();
         $twoToFive = Uuid::randomBytes();
@@ -1400,13 +1413,13 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert('document_type', ['id' => $deliveryNoteId, 'technical_name' => DeliveryNoteGenerator::DELIVERY_NOTE, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('document_type', ['id' => $creditNoteId, 'technical_name' => CreditNoteGenerator::CREDIT_NOTE, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
-        $connection->insert('document_type_translation', ['document_type_id' => $invoiceId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE), 'name' => 'Rechnung', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_type_translation', ['document_type_id' => $invoiceId, 'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()), 'name' => 'Rechnung', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('document_type_translation', ['document_type_id' => $invoiceId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), 'name' => 'Invoice', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
-        $connection->insert('document_type_translation', ['document_type_id' => $deliveryNoteId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE), 'name' => 'Lieferschein', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_type_translation', ['document_type_id' => $deliveryNoteId, 'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()), 'name' => 'Lieferschein', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('document_type_translation', ['document_type_id' => $deliveryNoteId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), 'name' => 'Delivery note', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
-        $connection->insert('document_type_translation', ['document_type_id' => $creditNoteId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE), 'name' => 'Gutschrift', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_type_translation', ['document_type_id' => $creditNoteId, 'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()), 'name' => 'Gutschrift', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('document_type_translation', ['document_type_id' => $creditNoteId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), 'name' => 'Credit note', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
     }
 
@@ -1416,7 +1429,7 @@ class Migration1536233560BasicData extends MigrationStep
         $confirmMailId = Uuid::randomBytes();
 
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
+        $languageDe = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         $connection->insert(
             'mail_template',
@@ -1813,7 +1826,7 @@ class Migration1536233560BasicData extends MigrationStep
         $definitionMailTypes = $this->getMailTypeMapping();
 
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
+        $languageDe = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         foreach ($definitionMailTypes as $typeName => $mailType) {
             $availableEntities = null;
@@ -1856,7 +1869,7 @@ class Migration1536233560BasicData extends MigrationStep
         $stornoId = Uuid::randomBytes();
 
         $connection->insert('document_type', ['id' => $stornoId, 'technical_name' => StornoGenerator::STORNO, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('document_type_translation', ['document_type_id' => $stornoId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE), 'name' => 'Stornorechnung', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('document_type_translation', ['document_type_id' => $stornoId, 'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()), 'name' => 'Stornorechnung', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('document_type_translation', ['document_type_id' => $stornoId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), 'name' => 'Storno bill', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $stornoConfigId = Uuid::randomBytes();
@@ -1980,7 +1993,7 @@ class Migration1536233560BasicData extends MigrationStep
         ];
 
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
+        $languageDe = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         foreach ($definitionNumberRangeTypes as $typeName => $numberRangeType) {
             $connection->insert(
@@ -2077,7 +2090,7 @@ class Migration1536233560BasicData extends MigrationStep
             'mail_template_translation',
             [
                 'mail_template_id' => $orderCofirmationTemplateId,
-                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE),
+                'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
                 'subject' => 'Bestellbestätigung',
                 'description' => '',
                 'sender_name' => 'Shop',
@@ -2130,7 +2143,7 @@ class Migration1536233560BasicData extends MigrationStep
             'mail_template_translation',
             [
                 'mail_template_id' => $customerRegistrationTemplateId,
-                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE),
+                'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
                 'subject' => 'Deine Registrierung bei {{ salesChannel.name }}',
                 'description' => 'Registrierungsbestätigung',
                 'sender_name' => '{{ salesChannel.name }}',
@@ -2176,7 +2189,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'content_plain' => $this->getPasswordChangePlainTemplateDe(),
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'mail_template_id' => $passwordChangeTemplateId,
-                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE),
+                'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
             ]
         );
 
@@ -2216,7 +2229,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'content_plain' => $this->getCustomerGroupChangeAcceptedPlainTemplateDe(),
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'mail_template_id' => $customerGroupChangeAcceptedTemplateId,
-                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE),
+                'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
             ]
         );
 
@@ -2256,7 +2269,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'content_plain' => $this->getCustomerGroupChangeRejectedPlainTemplateDe(),
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'mail_template_id' => $customerGroupChangeRejectedTemplateId,
-                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE),
+                'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
             ]
         );
 
@@ -2841,7 +2854,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ];
 
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        $languageDe = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM_DE);
+        $languageDe = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
         foreach ($definitionNumberRangeTypes as $typeName => $numberRangeType) {
             $connection->insert(

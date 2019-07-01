@@ -212,7 +212,7 @@
                                                                placeholder="{{ "address.cityPlaceholder"|trans }}"
                                                                value="{{ data.get('city') }}">
                                                     {% endset %}
-                                                    {% if shopware.config.address.zipBeforeCity %}
+                                                    {% if shopware.config.core.address.showZipcodeInFrontOfCity %}
                                                         <div class="form-group col-md-4 address-zip">
                                                             {{ zipcodeField }}
                                                         </div>

@@ -23,7 +23,7 @@
             {% if address.phoneNumber %}
                 {{ address.phoneNumber }}<br/>
             {% endif %}
-            {% if shopware.config.address.zipBeforeCity %}
+            {% if shopware.config.core.address.showZipcodeInFrontOfCity %}
                 {{ address.zipcode }} {{ address.city }}<br/>
             {% else %}
                 {{ address.zipcode }} {{ address.city }}<br/>

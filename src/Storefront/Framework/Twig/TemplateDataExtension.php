@@ -105,9 +105,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                 'taxCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
                 'tosCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
             ],
-            'address' => [
-                'zipBeforeCity' => true,
-            ],
             'confirm' => [
                 'revocationNotice' => true,
             ],

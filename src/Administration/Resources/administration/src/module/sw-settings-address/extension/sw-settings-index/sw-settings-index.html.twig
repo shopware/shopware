@@ -1,0 +1,11 @@
+{% block sw_settings_content_card_slot_shop %}
+    {% parent %}
+
+    {% block sw_settings_address_item %}
+        <sw-settings-item id="sw-settings-address" :label="$tc('sw-settings-address.general.mainMenuItemGeneral')" :to="{ name: 'sw.settings.address.index' }">
+            <template slot="icon">
+                <sw-icon name="default-object-address"></sw-icon>
+            </template>
+        </sw-settings-item>
+    {% endblock %}
+{% endblock %}

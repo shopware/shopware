@@ -37,6 +37,20 @@ class Migration1561712450NewSystemConfigsAndDefaultValues extends MigrationStep
                 'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
             ]);
         }
+
+        $builder = $connection->createQueryBuilder()->select('id')
+            ->from('system_config')
+            ->where('configuration_key = "core.address.showZipcodeInFrontOfCity"');
+
+        $configId = $builder->execute()->fetchColumn();
+        if (!$configId) {
+            $connection->insert('system_config', [
+                'id' => Uuid::randomBytes(),
+                'configuration_key' => 'core.address.showZipcodeInFrontOfCity',
+                'configuration_value' => '{"_value": true}',
+                'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+            ]);
+        }
     }
 
     public function updateDestructive(Connection $connection): void

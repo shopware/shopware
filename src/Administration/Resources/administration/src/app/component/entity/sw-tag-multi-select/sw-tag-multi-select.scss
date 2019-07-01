@@ -112,8 +112,8 @@ $sw-tag-multi-select-transition-result-icon: all ease-in-out .15s;
 
     .sw-tag-multi-select__selection-item-holder {
         max-width: 220px;
-        padding-right: 6px;
-        padding-bottom: 6px;
+        margin-right: 6px;
+        margin-bottom: 6px;
         line-height: 0;
 
         .sw-label {
@@ -291,6 +291,10 @@ $sw-tag-multi-select-transition-result-icon: all ease-in-out .15s;
 
         .sw-tag-multi-select__selection-item-input {
             display: none;
+        }
+
+        .sw-tag-multi-select__selection-item-holder {
+            background-color: $color-gray-50;
         }
     }
 

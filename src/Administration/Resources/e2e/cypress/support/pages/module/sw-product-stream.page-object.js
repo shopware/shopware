@@ -22,7 +22,7 @@ export default class ProductStreamPageObject extends GeneralPageObject {
             `${this.elements.dataGridRow}--0`
         );
         cy.get(`${this.elements.modal}__body`)
-            .contains(`Are you sure you want to delete the product group "${productStreamName}"?`);
+            .contains(`Are you sure you want to delete the dynamic product group "${productStreamName}"?`);
 
         cy.get(`${this.elements.modal}__footer button${this.elements.primaryButton}`).click();
         cy.get(this.elements.modal).should('not.exist');

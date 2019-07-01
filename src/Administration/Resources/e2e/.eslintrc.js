@@ -15,6 +15,12 @@ module.exports = {
         Shopware: true,
         localStorage: true
     },
+    parserOptions: {
+        ecmaVersion: 6,
+        ecmaFeatures: {
+            experimentalObjectRestSpread: true
+        }
+    },
 
     rules: {
         // Enable dynamic imports

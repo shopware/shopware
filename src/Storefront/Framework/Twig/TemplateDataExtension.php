@@ -108,9 +108,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'confirm' => [
                 'revocationNotice' => true,
             ],
-            'listing' => [
-                'allowBuyInListing' => true,
-            ],
         ];
     }
 

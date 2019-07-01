@@ -14,7 +14,10 @@
 
         <sw-base-field v-bind="$attrs"
                        :disabled="disabled"
-                       :name="identification">
+                       :isInheritanceField="isInheritanceField"
+                       :isInherited="isInherited"
+                       :name="identification"
+                       @inheritance-restore="restoreInheritance">
         </sw-base-field>
     </div>
     <sw-field-error :error="error"></sw-field-error>

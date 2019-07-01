@@ -51,5 +51,12 @@ export default {
                 `sw-field--${this.size}`
             ];
         }
+    },
+
+    methods: {
+        onInheritanceRestore(event) {
+            this.restoreInheritance();
+            this.$emit('inheritance-restore', event);
+        }
     }
 };

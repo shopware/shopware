@@ -2,7 +2,7 @@
 
 import ProductStreamObject from '../../support/pages/module/sw-product-stream.page-object';
 
-describe('Product Group: Test crud operations', () => {
+describe('Dynamic product group: Test crud operations', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -16,7 +16,7 @@ describe('Product Group: Test crud operations', () => {
             });
     });
 
-    it('@p create and read product group', () => {
+    it('@p create and read dynamic product group', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -41,7 +41,7 @@ describe('Product Group: Test crud operations', () => {
         });
     });
 
-    it('@p update and read product group', () => {
+    it('@p update and read dynamic product group', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -70,7 +70,7 @@ describe('Product Group: Test crud operations', () => {
         });
     });
 
-    it('@p delete product group', () => {
+    it('@p delete dynamic product group', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -83,7 +83,7 @@ describe('Product Group: Test crud operations', () => {
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('1st Productstream');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('1st Productstream');
 
-        // Delete product group
+        // Delete dynamic product group
         page.deleteProductStream('1st Productstream');
 
         // Verify property in listing

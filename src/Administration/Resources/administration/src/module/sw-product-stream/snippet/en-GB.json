@@ -1,18 +1,18 @@
 {
   "sw-product-stream": {
     "general": {
-      "mainMenuItemGeneral": "Product groups",
-      "placeholderSearchBar": "Search product groups",
-      "descriptionTextModule": "Manage product groups here."
+      "mainMenuItemGeneral": "Dynamic product groups",
+      "placeholderSearchBar": "Search dynamic product groups",
+      "descriptionTextModule": "Manage dynamic product groups here."
     },
     "list": {
-      "textProductStreamOverview": "Product groups",
+      "textProductStreamOverview": "Dynamic product groups",
       "columnName": "Name",
       "columnDescription": "Description",
       "columnDateUpdated": "Last updated",
       "columnStatus": "Status",
       "titleSidebarItemRefresh": "Refresh",
-      "buttonAddProductStream": "Add product group",
+      "buttonAddProductStream": "Add dynamic product group",
       "status": {
         "valid": "Valid",
         "invalid": "Invalid"
@@ -20,14 +20,14 @@
       "contextMenuEdit": "Edit",
       "contextMenuDuplicate": "Duplicate",
       "contextMenuDelete": "Delete",
-      "messageEmpty": "No product groups yet",
-      "modalTitleDelete": "Delete product group",
-      "textDeleteConfirm": "Are you sure you want to delete the product group \"{name}\"?",
+      "messageEmpty": "No dynamic product groups yet",
+      "modalTitleDelete": "Delete dynamic product groups",
+      "textDeleteConfirm": "Are you sure you want to delete the dynamic product group \"{name}\"?",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
     "filter": {
-      "valid": "Show valid product groups only",
+      "valid": "Show valid dynamic product groups only",
       "type": {
       "equals": "Is equal to",
       "equalsAny": "Is equal to any of",
@@ -103,14 +103,14 @@
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "labelName": "Name",
-      "placeholderName": "Enter product group title...",
+      "placeholderName": "Enter dynamic product group title...",
       "labelDescription": "Description",
       "placeholderDescription": "Enter a description...",
-      "textHeadline": "New product group",
+      "textHeadline": "New dynamic product group",
       "titleFilter": "Conditions",
       "titleResult": "Product group",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The product group \"{name}\" has successfully been saved.",
+      "messageSaveSuccess": "The dynamic product group \"{name}\" has successfully been saved.",
       "buttonOpenPreview": "Preview"
     },
     "previewModal": {

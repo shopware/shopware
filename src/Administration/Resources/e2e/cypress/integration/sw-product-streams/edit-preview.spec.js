@@ -2,7 +2,7 @@
 
 import ProductStreamObject from '../../support/pages/module/sw-product-stream.page-object';
 
-describe('Product group: Test product group preview', () => {
+describe('Dynamic product groups: Test dynamic product group preview', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -22,7 +22,7 @@ describe('Product group: Test product group preview', () => {
     it('check preview while editing', () => {
         const page = new ProductStreamObject();
 
-        cy.get(page.elements.smartBarHeader).contains('Product groups');
+        cy.get(page.elements.smartBarHeader).contains('Dynamic product groups');
 
         // Verify product stream details
         cy.clickContextMenuItem(

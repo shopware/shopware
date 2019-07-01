@@ -2,7 +2,7 @@
 
 import ProductStreamObject from '../../support/pages/module/sw-product-stream.page-object';
 
-describe('Product group: Test various filters', () => {
+describe('Dynamic product group: Test various filters', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {

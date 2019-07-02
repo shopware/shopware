@@ -29,6 +29,38 @@ class RequirementsValidatorTest extends TestCase
         static::assertTrue(true);
     }
 
+    public function testValidateRequirementsSubpackageValid(): void
+    {
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $path = __DIR__ . '/_fixture/SwagRequirementValidSubpackageTest';
+        $path = str_replace($projectDir, '', $path);
+
+        $plugin = $this->createPlugin($path);
+
+        try {
+            $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
+        } catch (\Exception $e) {
+            static::fail('This test should not throw an exception, but threw: ' . $e->getMessage());
+        }
+        static::assertTrue(true);
+    }
+
+    public function testValidateRequirementsSubpackageWithWildcardValid(): void
+    {
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $path = __DIR__ . '/_fixture/SwagRequirementValidSubpackageWildcardTest';
+        $path = str_replace($projectDir, '', $path);
+
+        $plugin = $this->createPlugin($path);
+
+        try {
+            $this->createValidator()->validateRequirements($plugin, Context::createDefaultContext(), 'test');
+        } catch (\Exception $e) {
+            static::fail('This test should not throw an exception, but threw: ' . $e->getMessage());
+        }
+        static::assertTrue(true);
+    }
+
     public function testValidateRequirementsDoNotMatch(): void
     {
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');

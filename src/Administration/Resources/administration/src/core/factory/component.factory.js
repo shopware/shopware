@@ -11,7 +11,8 @@ export default {
     build,
     getComponentTemplate,
     getComponentRegistry,
-    getOverrideRegistry
+    getOverrideRegistry,
+    getComponentHelper
 };
 
 /**
@@ -29,6 +30,12 @@ const componentRegistry = new Map();
 const overrideRegistry = new Map();
 
 /**
+ * Registry for globally registered helper functions like src/app/service/map-error.service.js
+ * @type {Map<any, any>}
+ */
+const componentHelper = {};
+
+/**
  * Returns the map with all registered components.
  *
  * @returns {Map}
@@ -44,6 +51,15 @@ function getComponentRegistry() {
  */
 function getOverrideRegistry() {
     return overrideRegistry;
+}
+
+/**
+ * Returns the map of component helper functions
+ *
+ * @returns {Map<any, any>}
+ */
+function getComponentHelper() {
+    return componentHelper;
 }
 
 /**

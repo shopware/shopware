@@ -1,6 +1,7 @@
 import { Component } from 'src/core/shopware';
-import { mapState, mapGetters } from 'vuex';
 import template from './sw-product-category-form.html.twig';
+
+const { mapState, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-product-category-form', {
     template,

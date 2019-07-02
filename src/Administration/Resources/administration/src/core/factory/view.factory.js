@@ -5,7 +5,7 @@
 /**
  * Creates the view factory based on the provided ViewAdapter
  * @method createViewFactory
- * @param {VueAdapter} viewAdapter
+ * @param {ViewAdapter} viewAdapter
  * @memberOf module:core/factory/view
  * @returns {{}}
  */

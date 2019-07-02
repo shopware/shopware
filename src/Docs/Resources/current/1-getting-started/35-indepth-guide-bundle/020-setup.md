@@ -206,7 +206,7 @@ Try to install your new plugin in the Pluginmanager in the Administration. You c
 If you're more into using the CLI, you can also execute the following command from inside your
 development template root.
 ```bash
-./bin/console plugin:install --activate BundleExample
+./bin/console plugin:install --activate --clearCache BundleExample
 ```
 
 If everything was done right, it should install without any issues.

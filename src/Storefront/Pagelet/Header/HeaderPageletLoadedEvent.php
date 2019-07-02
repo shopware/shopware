@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class HeaderPageletLoadedEvent extends NestedEvent
 {
-    public const NAME = 'header.pagelet.loaded.event';
-
     /**
      * @var HeaderPagelet
      */
@@ -31,11 +29,6 @@ class HeaderPageletLoadedEvent extends NestedEvent
         $this->pagelet = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPagelet(): HeaderPagelet

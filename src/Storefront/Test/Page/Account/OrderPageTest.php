@@ -27,7 +27,7 @@ class OrderPageTest extends TestCase
 
         /** @var AccountOrderPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(AccountOrderPageLoadedEvent::NAME, $event);
+        $this->catchEvent(AccountOrderPageLoadedEvent::class, $event);
 
         $page = $this->getPageLoader()->load($request, $context);
 

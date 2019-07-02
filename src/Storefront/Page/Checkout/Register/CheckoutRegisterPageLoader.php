@@ -85,8 +85,7 @@ class CheckoutRegisterPageLoader
         }
 
         $this->eventDispatcher->dispatch(
-            new CheckoutRegisterPageLoadedEvent($page, $salesChannelContext, $request),
-            CheckoutRegisterPageLoadedEvent::NAME
+            new CheckoutRegisterPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

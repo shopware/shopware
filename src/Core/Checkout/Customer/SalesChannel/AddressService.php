@@ -143,8 +143,8 @@ class AddressService
             'additionalAddressLine2' => $data->get('additionalAddressLine2'),
         ];
 
-        $mappingEvent = new DataMappingEvent(CustomerEvents::MAPPING_ADDRESS_CREATE, $data, $addressData, $context->getContext());
-        $this->eventDispatcher->dispatch($mappingEvent, $mappingEvent->getName());
+        $mappingEvent = new DataMappingEvent($data, $addressData, $context->getContext());
+        $this->eventDispatcher->dispatch($mappingEvent, CustomerEvents::MAPPING_ADDRESS_CREATE);
 
         $addressData = $mappingEvent->getOutput();
         $addressData['id'] = $id;

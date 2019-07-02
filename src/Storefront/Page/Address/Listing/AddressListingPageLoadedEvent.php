@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AddressListingPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'address-listing.page.loaded';
-
     /**
      * @var AddressListingPage
      */
@@ -31,11 +29,6 @@ class AddressListingPageLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPage(): AddressListingPage

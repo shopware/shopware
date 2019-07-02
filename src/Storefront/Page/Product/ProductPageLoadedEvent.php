@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'product.page.loaded';
-
     /**
      * @var ProductPage
      */
@@ -31,11 +29,6 @@ class ProductPageLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPage(): ProductPage

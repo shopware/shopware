@@ -48,7 +48,7 @@ class FinishPageTest extends TestCase
 
         /** @var CheckoutFinishPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(CheckoutFinishPageLoadedEvent::NAME, $event);
+        $this->catchEvent(CheckoutFinishPageLoadedEvent::class, $event);
 
         /** @var CheckoutFinishPage $page */
         $page = $this->getPageLoader()->load($request, $context);

@@ -56,8 +56,7 @@ class NewsletterRegisterPageLoader
         $page->setSalutations($salutationCollection);
 
         $this->eventDispatcher->dispatch(
-            new NewsletterRegisterPageLoadedEvent($page, $salesChannelContext, $request),
-            NewsletterRegisterPageLoadedEvent::NAME
+            new NewsletterRegisterPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

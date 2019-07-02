@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutRegisterPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'checkout-register.page.loaded';
-
     /**
      * @var CheckoutRegisterPage
      */
@@ -31,11 +29,6 @@ class CheckoutRegisterPageLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPage(): CheckoutRegisterPage

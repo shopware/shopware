@@ -206,7 +206,7 @@ class CartService
             $context->getSalesChannel()->getId()
         );
 
-        $this->eventDispatcher->dispatch($orderPlacedEvent, CheckoutOrderPlacedEvent::EVENT_NAME);
+        $this->eventDispatcher->dispatch($orderPlacedEvent);
 
         $this->persister->delete($context->getToken(), $context);
         unset($this->cart[$calculatedCart->getToken()]);

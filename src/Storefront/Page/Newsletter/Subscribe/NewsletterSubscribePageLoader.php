@@ -41,8 +41,7 @@ class NewsletterSubscribePageLoader
         $page = NewsletterSubscribePage::createFrom($page);
 
         $this->eventDispatcher->dispatch(
-            new NewsletterSubscribePageLoadedEvent($page, $salesChannelContext, $request),
-            NewsletterSubscribePageLoadedEvent::NAME
+            new NewsletterSubscribePageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

@@ -166,8 +166,8 @@ class AccountService
             $customer['birthday'] = $birthday;
         }
 
-        $mappingEvent = new DataMappingEvent(CustomerEvents::MAPPING_CUSTOMER_PROFILE_SAVE, $data, $customer, $context->getContext());
-        $this->eventDispatcher->dispatch($mappingEvent, $mappingEvent->getName());
+        $mappingEvent = new DataMappingEvent($data, $customer, $context->getContext());
+        $this->eventDispatcher->dispatch($mappingEvent, CustomerEvents::MAPPING_CUSTOMER_PROFILE_SAVE);
 
         $customer = $mappingEvent->getOutput();
         $customer['id'] = $context->getCustomer()->getId();
@@ -264,7 +264,7 @@ class AccountService
         );
 
         $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event, $event->getName());
+        $this->eventDispatcher->dispatch($event);
 
         return $newToken;
     }
@@ -307,7 +307,7 @@ class AccountService
         ], $context->getContext());
 
         $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event, $event->getName());
+        $this->eventDispatcher->dispatch($event);
 
         return $newToken;
     }
@@ -324,7 +324,7 @@ class AccountService
         );
 
         $event = new CustomerLogoutEvent($context->getContext(), $context->getCustomer(), $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event, $event->getName());
+        $this->eventDispatcher->dispatch($event);
     }
 
     public function setNewsletterFlag(CustomerEntity $customer, bool $newsletter, SalesChannelContext $context): void
@@ -353,7 +353,7 @@ class AccountService
         ], $context->getContext());
 
         $event = new CustomerChangedPaymentMethodEvent($context->getContext(), $customer, $requestDataBag, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event, $event->getName());
+        $this->eventDispatcher->dispatch($event);
     }
 
     /**

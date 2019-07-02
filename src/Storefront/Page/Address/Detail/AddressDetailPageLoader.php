@@ -81,8 +81,7 @@ class AddressDetailPageLoader
         $page->setAddress($this->getAddress($request, $salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new AddressDetailPageLoadedEvent($page, $salesChannelContext, $request),
-            AddressDetailPageLoadedEvent::NAME
+            new AddressDetailPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

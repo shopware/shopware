@@ -61,8 +61,7 @@ class AccountProfilePageLoader
         $page->setSalutations($this->getSalutations($salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new AccountProfilePageLoadedEvent($page, $salesChannelContext, $request),
-            AccountProfilePageLoadedEvent::NAME
+            new AccountProfilePageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

@@ -28,7 +28,7 @@ class ConfirmPageTest extends TestCase
 
         /** @var CheckoutConfirmPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(CheckoutConfirmPageLoadedEvent::NAME, $event);
+        $this->catchEvent(CheckoutConfirmPageLoadedEvent::class, $event);
 
         $page = $this->getPageLoader()->load($request, $context);
 
@@ -67,7 +67,7 @@ class ConfirmPageTest extends TestCase
 
         /** @var CheckoutConfirmPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(CheckoutConfirmPageLoadedEvent::NAME, $event);
+        $this->catchEvent(CheckoutConfirmPageLoadedEvent::class, $event);
 
         $page = $this->getPageLoader()->load($request, $context);
 
@@ -96,7 +96,7 @@ class ConfirmPageTest extends TestCase
 
         /** @var CheckoutConfirmPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(CheckoutConfirmPageLoadedEvent::NAME, $event);
+        $this->catchEvent(CheckoutConfirmPageLoadedEvent::class, $event);
 
         $context = $this->createSalesChannelContextWithNavigation();
 

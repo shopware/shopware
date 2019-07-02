@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class NavigationPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'navigation.page.loaded';
-
     /**
      * @var NavigationPage
      */
@@ -31,11 +29,6 @@ class NavigationPageLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPage(): NavigationPage

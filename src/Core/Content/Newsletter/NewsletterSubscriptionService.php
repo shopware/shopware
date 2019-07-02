@@ -92,7 +92,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         $recipient = $this->getNewsletterRecipient('id', $data['id'], $context->getContext());
 
         $event = new NewsletterUpdateEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event, NewsletterUpdateEvent::EVENT_NAME);
+        $this->eventDispatcher->dispatch($event);
     }
 
     public function subscribe(DataBag $dataBag, SalesChannelContext $context): void
@@ -123,7 +123,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
 
         if ($data['status'] === self::STATUS_DIRECT) {
             $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
-            $this->eventDispatcher->dispatch($event, NewsletterConfirmEvent::EVENT_NAME);
+            $this->eventDispatcher->dispatch($event);
 
             return;
         }
@@ -131,7 +131,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         $url = $this->getSubscribeUrl($context, $data);
 
         $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event, NewsletterRegisterEvent::EVENT_NAME);
+        $this->eventDispatcher->dispatch($event);
     }
 
     public function confirm(DataBag $dataBag, SalesChannelContext $context): void
@@ -153,7 +153,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
         $this->newsletterRecipientRepository->update([$data], $context->getContext());
 
         $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event, NewsletterConfirmEvent::EVENT_NAME);
+        $this->eventDispatcher->dispatch($event);
     }
 
     public function unsubscribe(DataBag $dataBag, SalesChannelContext $context): void

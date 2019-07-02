@@ -9,8 +9,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SalesChannelContextSwitchEvent extends NestedEvent
 {
-    public const EVENT_NAME = 'sales-channel.context.switched';
-
     /**
      * @var SalesChannelContext
      */
@@ -25,11 +23,6 @@ class SalesChannelContextSwitchEvent extends NestedEvent
     {
         $this->salesChannelContext = $context;
         $this->requestDataBag = $requestDataBag;
-    }
-
-    public function getName(): string
-    {
-        return self::EVENT_NAME;
     }
 
     public function getContext(): Context

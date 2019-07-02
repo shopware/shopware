@@ -67,8 +67,7 @@ class AccountOverviewPageLoader
         }
 
         $this->eventDispatcher->dispatch(
-            new AccountOverviewPageLoadedEvent($page, $salesChannelContext, $request),
-            AccountOverviewPageLoadedEvent::NAME
+            new AccountOverviewPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

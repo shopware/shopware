@@ -9,8 +9,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductPageCriteriaEvent extends NestedEvent
 {
-    public const NAME = 'product.page.criteria';
-
     /**
      * @var Criteria
      */
@@ -25,11 +23,6 @@ class ProductPageCriteriaEvent extends NestedEvent
     {
         $this->salesChannelContext = $salesChannelContext;
         $this->criteria = $criteria;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getCriteria(): Criteria

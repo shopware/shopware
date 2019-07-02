@@ -23,7 +23,7 @@ class LoginPageTest extends TestCase
 
         /** @var AccountLoginPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(AccountLoginPageLoadedEvent::NAME, $event);
+        $this->catchEvent(AccountLoginPageLoadedEvent::class, $event);
 
         $page = $this->getPageLoader()->load($request, $context);
 

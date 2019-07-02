@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Event\NestedEvent;
 
 class OrderConvertedEvent extends NestedEvent
 {
-    public const NAME = 'order.converted-to-cart.event';
-
     /**
      * @var Context
      */
@@ -37,11 +35,6 @@ class OrderConvertedEvent extends NestedEvent
         $this->order = $order;
         $this->cart = $cart;
         $this->convertedCart = clone $cart;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getContext(): Context

@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
-use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -40,15 +39,13 @@ class ProductListingGateway implements ProductListingGatewayInterface
         $this->handleCategoryFilter($request, $criteria, $salesChannelContext);
 
         $this->eventDispatcher->dispatch(
-            new ProductListingCriteriaEvent($request, $criteria, $salesChannelContext),
-            ProductEvents::PRODUCT_LISTING_CRITERIA
+            new ProductListingCriteriaEvent($request, $criteria, $salesChannelContext)
         );
 
         $result = $this->productRepository->search($criteria, $salesChannelContext);
 
         $this->eventDispatcher->dispatch(
-            new ProductListingResultEvent($request, $result, $salesChannelContext),
-            ProductEvents::PRODUCT_LISTING_RESULT
+            new ProductListingResultEvent($request, $result, $salesChannelContext)
         );
 
         return $result;

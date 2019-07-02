@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Product\SalesChannel\Suggest;
 
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
-use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -89,15 +88,13 @@ class ProductSuggestGateway implements ProductSuggestGatewayInterface
         $criteria->addFilter(new EqualsFilter('product.searchKeywords.languageId', $salesChannelContext->getContext()->getLanguageId()));
 
         $this->eventDispatcher->dispatch(
-            new ProductSuggestCriteriaEvent($request, $criteria, $salesChannelContext),
-            ProductEvents::PRODUCT_SUGGEST_CRITERIA
+            new ProductSuggestCriteriaEvent($request, $criteria, $salesChannelContext)
         );
 
         $result = $this->repository->search($criteria, $salesChannelContext);
 
         $this->eventDispatcher->dispatch(
-            new ProductSuggestResultEvent($request, $result, $salesChannelContext),
-            ProductEvents::PRODUCT_SUGGEST_RESULT
+            new ProductSuggestResultEvent($request, $result, $salesChannelContext)
         );
 
         return $result;

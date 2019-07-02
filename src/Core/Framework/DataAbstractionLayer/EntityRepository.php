@@ -146,7 +146,7 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $affected = $this->versionManager->update($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
+        $this->eventDispatcher->dispatch($event);
 
         return $event;
     }
@@ -155,7 +155,7 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $affected = $this->versionManager->upsert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
+        $this->eventDispatcher->dispatch($event);
 
         return $event;
     }
@@ -164,7 +164,7 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $affected = $this->versionManager->insert($this->definition, $data, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
+        $this->eventDispatcher->dispatch($event);
 
         return $event;
     }
@@ -173,7 +173,7 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $affected = $this->versionManager->delete($this->definition, $ids, WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithDeletedEvents($affected->getDeleted(), $context, $affected->getNotFound());
-        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
+        $this->eventDispatcher->dispatch($event);
 
         return $event;
     }
@@ -204,7 +204,7 @@ class EntityRepository implements EntityRepositoryInterface
 
         $affected = $this->versionManager->clone($this->definition, $id, $newId, $context->getVersionId(), WriteContext::createFromContext($context));
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
-        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
+        $this->eventDispatcher->dispatch($event);
 
         return $event;
     }

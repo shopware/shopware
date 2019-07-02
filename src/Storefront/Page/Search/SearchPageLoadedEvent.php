@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SearchPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'search.page.loaded';
-
     /**
      * @var SearchPage
      */
@@ -31,11 +29,6 @@ class SearchPageLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPage(): SearchPage

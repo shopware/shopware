@@ -21,7 +21,7 @@ class NavigationPageTest extends TestCase
 
         /** @var NavigationPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(NavigationPageLoadedEvent::NAME, $event);
+        $this->catchEvent(NavigationPageLoadedEvent::class, $event);
 
         $page = $this->getPageLoader()->load($request, $context);
 

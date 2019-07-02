@@ -61,7 +61,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             KernelEvents::RESPONSE => [
                 ['setCanonicalUrl'],
             ],
-            CustomerLoginEvent::EVENT_NAME => [
+            CustomerLoginEvent::class => [
                 'updateSession',
             ],
         ];

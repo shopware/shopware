@@ -62,8 +62,7 @@ class AccountPaymentMethodPageLoader
         $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new AccountPaymentMethodPageLoadedEvent($page, $salesChannelContext, $request),
-            AccountPaymentMethodPageLoadedEvent::NAME
+            new AccountPaymentMethodPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

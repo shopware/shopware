@@ -178,7 +178,7 @@ class VersionManager
         $versionContext = $context->createWithVersionId($versionId);
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $versionContext->getContext(), []);
-        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
+        $this->eventDispatcher->dispatch($event);
 
         $this->writeAuditLog($affected, $context, 'clone', $versionId);
 
@@ -292,12 +292,12 @@ class VersionManager
         }
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($writtenEvents, $liveContext->getContext(), []);
-        $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
+        $this->eventDispatcher->dispatch($event);
 
         /** @var DeleteResult[] $deletedEvents */
         foreach ($deletedEvents as $deletedEvent) {
             $event = EntityWrittenContainerEvent::createWithDeletedEvents($deletedEvent->getDeleted(), $liveContext->getContext(), $deletedEvent->getNotFound());
-            $this->eventDispatcher->dispatch($event, EntityWrittenContainerEvent::NAME);
+            $this->eventDispatcher->dispatch($event);
         }
     }
 

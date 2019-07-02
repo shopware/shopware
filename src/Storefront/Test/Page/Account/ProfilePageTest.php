@@ -27,7 +27,7 @@ class ProfilePageTest extends TestCase
 
         /** @var AccountProfilePageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(AccountProfilePageLoadedEvent::NAME, $event);
+        $this->catchEvent(AccountProfilePageLoadedEvent::class, $event);
 
         $page = $this->getPageLoader()->load($request, $context);
 

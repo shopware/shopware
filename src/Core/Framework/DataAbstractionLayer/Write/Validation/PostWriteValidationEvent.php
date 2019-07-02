@@ -27,11 +27,6 @@ class PostWriteValidationEvent extends Event implements ShopwareEvent
         $this->commands = $commands;
     }
 
-    public function getName(): string
-    {
-        return 'framework.write.validation.post';
-    }
-
     public function getContext(): Context
     {
         return $this->writeContext->getContext();

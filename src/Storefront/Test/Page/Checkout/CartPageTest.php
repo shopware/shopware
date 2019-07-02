@@ -22,7 +22,7 @@ class CartPageTest extends TestCase
 
         /** @var CheckoutCartPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(CheckoutCartPageLoadedEvent::NAME, $event);
+        $this->catchEvent(CheckoutCartPageLoadedEvent::class, $event);
 
         $page = $this->getPageLoader()->load($request, $context);
 

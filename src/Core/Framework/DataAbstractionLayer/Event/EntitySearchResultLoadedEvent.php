@@ -5,9 +5,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 
-class EntitySearchResultLoadedEvent extends NestedEvent
+class EntitySearchResultLoadedEvent extends NestedEvent implements GenericEvent
 {
     /**
      * @var EntitySearchResult

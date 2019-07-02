@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
-use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -87,15 +86,13 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
         $criteria->addFilter(new EqualsFilter('product.searchKeywords.languageId', $salesChannelContext->getContext()->getLanguageId()));
 
         $this->eventDispatcher->dispatch(
-            new ProductSearchCriteriaEvent($request, $criteria, $salesChannelContext),
-            ProductEvents::PRODUCT_SEARCH_CRITERIA
+            new ProductSearchCriteriaEvent($request, $criteria, $salesChannelContext)
         );
 
         $result = $this->repository->search($criteria, $salesChannelContext);
 
         $this->eventDispatcher->dispatch(
-            new ProductSearchResultEvent($request, $result, $salesChannelContext),
-            ProductEvents::PRODUCT_SEARCH_RESULT
+            new ProductSearchResultEvent($request, $result, $salesChannelContext)
         );
 
         return $result;

@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class MenuOffcanvasPageletLoadedEvent extends NestedEvent
 {
-    public const NAME = 'widgets.menu.offcanvas';
-
     /**
      * @var MenuOffcanvasPagelet
      */
@@ -31,11 +29,6 @@ class MenuOffcanvasPageletLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPagelet(): MenuOffcanvasPagelet

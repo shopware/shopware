@@ -45,8 +45,7 @@ class FooterPageletLoader
         $page = new FooterPagelet($tree);
 
         $this->eventDispatcher->dispatch(
-            new FooterPageletLoadedEvent($page, $salesChannelContext, $request),
-            FooterPageletLoadedEvent::NAME
+            new FooterPageletLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

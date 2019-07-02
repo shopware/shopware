@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class OffcanvasCartPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'checkout-offcanvas-cart.page.loaded';
-
     /**
      * @var OffcanvasCartPage
      */
@@ -31,11 +29,6 @@ class OffcanvasCartPageLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPage(): OffcanvasCartPage

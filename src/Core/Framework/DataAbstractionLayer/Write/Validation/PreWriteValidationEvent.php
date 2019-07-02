@@ -27,11 +27,6 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
         $this->commands = $commands;
     }
 
-    public function getName(): string
-    {
-        return 'framework.write.validation.pre';
-    }
-
     public function getContext(): Context
     {
         return $this->writeContext->getContext();

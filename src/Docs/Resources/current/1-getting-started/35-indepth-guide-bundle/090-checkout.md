@@ -1,25 +1,37 @@
 [titleEn]: <>(Step 9: Checkout logic)
 
+You're already putting a bundle into the cart, or at least you created a new line item with a custom type `swagbundle`.
+And that's the scenario given for this chapter, which will be all about properly handling this new line item type and therefore changing the cart's behavior.
+
 ## Creating a cart processor/collector
 
 To implement an extension for the cart you have to implement two interfaces:
-1. `\Shopware\Core\Checkout\Cart\CartDataCollectorInterface`
-2. `\Shopware\Core\Checkout\Cart\CartProcessorInterface`
+- `\Shopware\Core\Checkout\Cart\CartDataCollectorInterface`
+- `\Shopware\Core\Checkout\Cart\CartProcessorInterface`
 
 What are these classes for?
 
-With the `\Shopware\Core\Checkout\Cart\CartDataCollectorInterface` you can enrich your cart with further data. So far you have only one generic line item of type `swagbundle` into the cart, but does not define what price it has or what products are in it.
-Implementing the `\Shopware\Core\Checkout\Cart\CartProcessorInterface`, you can intervene in the calculation process of the cart. Here you have for example the possibility to access subtotals.
+With the `CartDataCollectorInterface` you can enrich your cart with further data. This interface's `collect` method is the right spot to fetch data using the DAL repositories.
+Implementing the `CartProcessorInterface`, you can intervene in the calculation process of the cart. For example, you can access subtotals here.
+This is where you're going to calculate the price for your bundle, using the prices of the products of your bundle.
 
 Why are these two processes separated from each other?
 
-As you will notice later, the separation of these two processes offers a serious advantage. But first of all the information is sufficient that you can control more precisely when you want to enrich data and when you want to calculate prices.
+As you will notice later, the separation of these two processes offers a serious advantage.
+For example, you can control more precisely when you want to enrich data and when you want to calculate prices, you don't have to do all this in just one class.
+
+Those classes affect the cart process, hence they will reside in the directory `<plugin root>/src/Core/Checkout/Bundle/Cart/`.
+This is up for change and only dependant on the namespace you're using and the way you registered those classes.
+The latter will be explained later in this tutorial as well, don't worry.
 
 ### Implementing the `collect` function
 
-As described above, your task here is to enrich the bundle line items in the cart with information. 
-Below is the complete source code for implementing your `\Shopware\Core\Checkout\Cart\CartDataCollectorInterface` for your bundle plugin.
-This is explained in more detail below.
+Create a new file `BundleCartProcessor.php` in the directory mentioned above, create the respective class `BundleCartProcessor`,
+and have it implement the `CartDataCollectorInterface`.
+
+As described above, your task here is to enrich the bundle line items in the cart with information, since right now there's only a generic empty line item in the cart with the type `swagbundle`.
+Below is the complete source code for implementing your `CartDataCollectorInterface` for your bundle plugin.
+It is explained in detail below the sourcecode.
 
 ```php
 <?php declare(strict_types=1);
@@ -173,6 +185,7 @@ class BundleCartProcessor implements CartDataCollectorInterface
 
     private function createDiscount(BundleEntity $bundleData, SalesChannelContext $context): ?LineItem
     {
+        // The bundle has no discount, no need to add anything then
         if ($bundleData->getDiscount() === 0) {
             return null;
         }
@@ -207,13 +220,13 @@ class BundleCartProcessor implements CartDataCollectorInterface
 }
 ```
 
-First you should check if there is a bundle in your cart. For this you can use the `filterType` method of the `LineItemCollection`.
+First you check if there is a bundle in your cart. For this you can use the `filterType` method of the `LineItemCollection`.
 ```php
 // collect all bundle in cart
 $bundleLineItems = $original->getLineItems()->filterType('swagbundle');
 ``` 
 
-If there are no bundles in your cart, you can already exit here:
+If there are no bundles in your cart, you can already exit here, there's nothing to do for your plugin.
 ```php
 // no bundles in cart? exit
 if (\count($bundleLineItems) === 0) {
@@ -221,7 +234,8 @@ if (\count($bundleLineItems) === 0) {
 }
 ```
 
-For the cart bundles you have to fetch the corresponding information from the database and add the information into the `\Shopware\Core\Checkout\Cart\LineItem\CartDataCollection`. Each bundle gets its own entry here:
+For the cart bundles you have to fetch the corresponding information from the database and add the information into the `CartDataCollection`.
+Each bundle in the cart gets its own entry in the `CartDataCollection`:
 
 ```php
 // fetch missing bundle information from database
@@ -236,13 +250,12 @@ foreach ($bundles as $bundle) {
 
 <p class="alert is--error">
 IMPORTANT: Please note that the `collect` method is called several times. 
-So that you do not fetch the data unnecessarily often from the database, you must check whether the data is not already in the `\Shopware\Core\Checkout\Cart\LineItem\CartDataCollection`.
+In order to prevent fetching the data unnecessarily often from the database, you must check whether the data is not already set in the `CartDataCollection`.
 </p>
-
 
 ```php
 /**
- * Fetches all Bundles that are not already stored in data
+ * Fetches all Bundles that are not already stored in the CartDataCollection
  */
 private function fetchBundles(LineItemCollection $bundleLineItems, CartDataCollection $data, SalesChannelContext $context): BundleCollection
 {
@@ -250,7 +263,7 @@ private function fetchBundles(LineItemCollection $bundleLineItems, CartDataColle
 
     $filtered = [];
     foreach ($bundleIds as $bundleId) {
-        // If data already contains the bundle we don't need to fetch it again
+        // If data already contains the bundle, we don't need to fetch it again
         if ($data->has(self::DATA_KEY . $bundleId)) {
             continue;
         }
@@ -265,7 +278,8 @@ private function fetchBundles(LineItemCollection $bundleLineItems, CartDataColle
 ```
 
 Once you have filtered the missing bundles, you can use the bundle repository to select the information from the database. 
-Since the bundle line items may not yet contain the products, they must also be fetched from the database:
+The `Criteria` object takes an optional parameter, an array of IDs, which is quite helpful here.
+Since the bundle line items may not yet contain the bundle's assigned products, they must also be fetched from the database:
 ```php
 /**
  * Fetches all Bundles that are not already stored in data
@@ -307,9 +321,15 @@ public function collect(CartDataCollection $data, Cart $original, SalesChannelCo
 ```
 
 In this loop you enrich the bundle with three different information:
-* `enrichBundle` Here you enrich the bundle line item itself with information (label, description, etc.)
-* `addMissingProducts` Here you add missing products to the bundle
-* `addDiscount` Lastly the discount is added to the bundle
+* `enrichBundle` Here you enrich the bundle line item itself with information (label, quantity, delivery, etc.).
+* `addMissingProducts` Here you add the missing products of the bundle, as a child line item.
+* `addDiscount` Lastly the discount item is added to the bundle, again as a child line item.
+
+Those method names are freely chosen and implemented to structure the code a little bit better.
+
+The `swagbundle` line item is the "parent" line item in this plugin, and all assigned products and the discount itself
+are added as child items. This will be important when it comes to the price calculation, since the bundle's price is just
+a sum of all child prices.
 
 Let's first have a look at the `enrichBundle` function:
 
@@ -336,13 +356,13 @@ private function enrichBundle(LineItem $bundleLineItem, BundleEntity $bundle): v
 ```
 
 The following information is now added to the bundle itself:
-* `$bundleLineItem->setLabel(...)` Here the label for the bundle is set
-* `$bundleLineItem->setRemovable(true)` About this you define that the customer can remove the bundle from the cart by himself
-* `$bundleLineItem->setStackable(true)` By marking it as `stackable` you define that the customer may change the quantity in the cart.
+* `$bundleLineItem->setLabel(...)` The label for the bundle is set
+* `$bundleLineItem->setRemovable(true)` Using `setRemovable`, you define that the customer can remove the bundle from the cart by himself
+* `$bundleLineItem->setStackable(true)` By marking it as `stackable`, you define that the customer may change the quantity in the cart.
 * `$bundleLineItem->setDeliveryInformation(...)` Here you set the information for distribution into a delivery. For the sake of simplicity, the information of the first product is simply used here.
 * `$bundleLineIten->setQuantityInformation()` You can use the `Shopware\Core\Checkout\Cart\LineItem\QuantityInformation` to define minimum and maximum orders.
 
-Now that you have added all the information to the bundle line item, the products must be placed in the bundle using the `addMissingProducts` function:
+Now that you have added all the information to the bundle line item, the bundle's products must be added to the bundle using the `addMissingProducts` method:
 ```php
 private function addMissingProducts(LineItem $bundleLineItem, BundleEntity $bundle): void
 {
@@ -360,8 +380,7 @@ private function addMissingProducts(LineItem $bundleLineItem, BundleEntity $bund
 }
 ```
 
-For this you simply iterate over all products of the `BundleEntity $bundle` and check if it is not yet in.
-Here is an interesting place. The Shopware cart already provides that there may be nested items in the cart. Therefore each line item has the function `getChildren` which returns a `LineItemCollection`.
+In order to add the products now, you iterate over all products of the `BundleEntity $bundle` and check if it is a child already.
 
 ```php
 foreach ($bundle->getProducts()->getIds() as $productId) {
@@ -374,7 +393,7 @@ foreach ($bundle->getProducts()->getIds() as $productId) {
 }
 ``` 
 
-If the product was not added as a child, you can simply add a new `LineItem` with the type `\Shopware\Core\Checkout\Cart\LineItem\LineItem::PRODUCT_LINE_ITEM_TYPE`.
+If the product was not added as a child yet, you can simply add a new `LineItem` with the type `\Shopware\Core\Checkout\Cart\LineItem\LineItem::PRODUCT_LINE_ITEM_TYPE`.
 
 ```php
 private function addMissingProducts(LineItem $bundleLineItem, BundleEntity $bundle): void
@@ -392,12 +411,11 @@ private function addMissingProducts(LineItem $bundleLineItem, BundleEntity $bund
 
 This is now the place where the differentiation between `processor` and `collector` comes to bear. 
 
-If you register your `\Shopware\Core\Checkout\Cart\CartDataCollectorInterface` before the `\Shopware\Core\Content\Product\Product\Cart\ProductCartProcessor`, it will take care
-that the `LineItem` of type `\Shopware\Core\Checkout\Cart\LineItem\LineItem::PRODUCT_LINE_ITEM_TYPE`, added by you, is enriched with the required information.
-
-So you don't have to take care of all the information like: price, label, cover, delivery information, quantity information.
-The `\Shopware\Core\Content\Product\Product\Cart\ProductCartProcessor` does the work for you.
-Now that the line item has been enriched with the bundle information and the product information, the discount has to be added. This happens in the function `addDiscount`:
+If you register your `CartDataCollectorInterface` **before** the core `ProductCartProcessor`, the core will take care
+that the `LineItem` of type `LineItem::PRODUCT_LINE_ITEM_TYPE`, added by you, is enriched with the required information.
+You don't have to take care of all the product information like: price, label, cover, delivery information, quantity information.
+The `ProductCartProcessor` does the work for you, just make sure your plugin's processor runs prior to it.
+Now that the line item has been enriched with the bundle information and will receive the product information later, the discount has to be added. This happens in the method `addDiscount`:
 
 ```php
 private function addDiscount(LineItem $bundleLineItem, BundleEntity $bundle, SalesChannelContext $context): void
@@ -419,12 +437,13 @@ private function getDiscount(LineItem $bundle): ?LineItem
 }
 ```
 
-Here we first check via `getDiscount` if the discount is already in the bundle as a child. 
-If the discount has not yet been added, you can create it using the `createDiscount` function:
+Here we first check via `getDiscount` if the discount is already a child of the bundle.
+If the discount has not yet been added, it is created using the `createDiscount` method:
 
 ```php
 private function createDiscount(BundleEntity $bundleData, SalesChannelContext $context): ?LineItem
 {
+    // The bundle has no discount, no need to add anything then
     if ($bundleData->getDiscount() === 0) {
         return null;
     }
@@ -467,7 +486,7 @@ private function createDiscount(BundleEntity $bundleData, SalesChannelContext $c
 }
 ```
 
-In this function you have to distinguish whether your bundle discount is a percentage or absolute discount.
+In this method you have to distinguish whether your bundle discount is a percentage or an absolute discount.
 ```php
 
 switch ($bundleData->getDiscountType()) {
@@ -481,7 +500,7 @@ switch ($bundleData->getDiscountType()) {
 ```
 
 Depending on the type of discount, either a `\Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition` or `\Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition` is generated.
-Then a new line item is created for the discount and provided with the corresponding information such as `->setPriceDefinition()`, `->setLabel()` and `->setGood()`:
+Then a new line item is created for the discount and provided with the corresponding information, using the methods `setPriceDefinition`, `setLabel` and `setGood`:
 
 ```php
 $discount = new LineItem(
@@ -497,17 +516,33 @@ $discount->setPriceDefinition($priceDefinition)
 return $discount;
 ```
 
-Now all bundle line items are provided with all necessary information and can be processed afterwards in the `process`.
+For those of you wondering about the method `setGood`:
+The method `setGood` marks a line item as a `good` if it's set to `true`. This is necessary for properly filtering the line items
+for e.g. a rule of the rule system.
+Imagine a rule "Cart discount", which applies a 10€ discount if the cart's sum is more than 100.
+Now imagine you'd have a cart sum of 102€, the discount would be applied and substract 10€.
+In a next iteration, the rule's validity would be checked again and the rule system would notice, that the discount is no longer valid,
+since the cart's sum is only 92€. The discount would be removed, which raises the sum to 102€ again.
+This way, the discount would be added, only to then invalidate it's own rule.
+The solution is to only consider goods for this calculation.
+And no, you can't use `LineItem::PRODUCT_LINE_ITEM_TYPE` for this, since there might be custom line item types, which are to be considered
+a good as well. Such as the bundle itself.
 
+Now all bundle line items are enriched with all necessary information and can be processed afterwards in the `process`.
 
 ### Implementing the `process`
 
 Implementing the `\Shopware\Core\Checkout\Cart\CartProcessorInterface` requires to implement the `process` function.
 
-In this function it is your task to calculate the prices of the bundle and move the bundle from the previous cart to a new cart.
-Moving the bundle into the new cart should prevent line items from sneaking through the cart process that were not considered by anyone.
+In this method, it is your task to calculate the prices of the bundle and move the bundle from the previous cart to a new cart.
+But what does that even mean? The `process` method receives to instances of an cart.
+The first one `Cart $original` contains all the original information, such as your bundle line item and all its children.
+The second instance, `Cart $toCalculate`, is actually an empty cart instance, only containing line items that were added from previous **processors**, not collectors, already. It is the one, which will be used when all the calculating is done.
+This prevents line items from sneaking through the cart process that were not considered by any processor and thus will be automatically dropped.
 
-As before, this is the entire source code for implementing the `\Shopware\Core\Checkout\Cart\CartProcessorInterface` in your bundle plugin and will be explained in more detail below.
+Of course, this also means, that you have to add your bundle line item to the `$toCalculate` cart again.
+
+As before, this is the entire source code for implementing the `CartProcessorInterface` in your bundle plugin and will be explained in more detail below.
 ```php
 <?php declare(strict_types=1);
 
@@ -655,14 +690,14 @@ class BundleCartProcessor implements CartProcessorInterface, CartDataCollectorIn
 }
 ```
 
-First look at the function signature of the `process` function:
+First look at the method signature of the `process` function:
 
 ```php
 public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
-``
+```
 The following data is transferred here:
 
-* `CartDataCollection $data` - This is the data collection you have enriched with data. 
+* `CartDataCollection $data` - This is the data collection you have enriched with data previously in the `collect` method.
 * `Cart $original` - This is the basket containing the bundle line items you have enriched. This cart will be destroyed after the calculation process. 
 * `Cart $toCalculate` - This cart is to be regarded as workspace. It contains all already calculated elements, which were calculated by processors running before your processor. 
 * `SalesChannelContext $context` - The known SalesChannelContext where the current global state is located (currency, language, sales channel, customer, etc.) 
@@ -673,11 +708,11 @@ First of all you have to filter the bundle line items out of the cart again:
 
 ```php
 
-// collect all bundle in cart
+// collect all bundles of the cart
 $bundleLineItems = $original->getLineItems()->filterType(self::TYPE);
 ```
 
-If there are no bundles in your cart again, you can exit the function early.
+If there are no bundles in your cart, you can exit the method early.
 ```php
 if (\count($bundleLineItems) === 0) {
     return;
@@ -695,16 +730,16 @@ foreach ($bundleLineItems as $bundleLineItem) {
 ```
 
 In order to calculate the bundle completely, the following calculations must take place:
-1. first the products of the bundle must be calculated (`calculateChildProductPrices`)
-2. then the discount of the bundle can be calculated (`calculateDiscountPrice`)
-3. last the total price of the bundle must be given to the bundle line item (`$bundleLineItem->setPrice(...)`)
+1st: The products of the bundle must be calculated (`calculateChildProductPrices`)
+2nd: Then the discount of the bundle can be calculated (`calculateDiscountPrice`)
+3rd: Last the total price of the bundle must be given to the bundle line item (`$bundleLineItem->setPrice(...)`)
 
 ```php
 foreach ($bundleLineItems as $bundleLineItem) {
     // first calculate all bundle product prices
     $this->calculateChildProductPrices($bundleLineItem, $context);
 
-    // after the product prices calculated, we can calculate the discount
+    // after the product prices are calculated, we can calculate the discount
     $this->calculateDiscountPrice($bundleLineItem, $context);
 
     // at last we have to set the total price for the root line item (the bundle)
@@ -735,16 +770,15 @@ private function calculateChildProductPrices(LineItem $bundleLineItem, SalesChan
 }
 ```
 
-Here you first filter the children of the bundle line item to the type `\Shopware\Core\Checkout\Cart\LineItem\LineItem::PRODUCT_LINE_ITEM_TYPE`.
+First, you filter the children of the bundle line item to the type `LineItem::PRODUCT_LINE_ITEM_TYPE`.
+Since these line items were enriched with data by the `ProductCartProcessor` already, you can now use `getPriceDefinition()` to access the price definition of the product.
 
-Since these line items were enriched with data by the `\Shopware\Core\Content\Product\Product\Product\Cart\ProductCartProcessor` you can now use `getPriceDefinition()` to access the price definition of the product.
-
-The return value contains now a `\Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition`, which can be easily calculated using the corresponding `\Shopware\Core\Checkout\Cart\Cart\Price\QuantityPriceCalculator`.
+The return value now contains a `\Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition`, which can be easily calculated using the corresponding `\Shopware\Core\Checkout\Cart\Cart\Price\QuantityPriceCalculator`.
 ```
 $this->quantityPriceCalculator->calculate($priceDefinition, $context)
 ```
 
-Now that the products have been calculated, you can calculate the discount using the `calculateDiscountPrice()` function.
+Now that the products have been calculated, you can calculate the discount's value using the `calculateDiscountPrice()` method.
 
 ```php
 private function calculateDiscountPrice(LineItem $bundleLineItem, SalesChannelContext $context): void
@@ -796,7 +830,7 @@ If you do not want to do this yourself, you can simply use one of the two calcul
 * `\Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator` Calculates prices based on a percentage value relative to the discounting prices.
 * `\Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator` Calculates prices based on an absolute price relative to the discounting prices.
 
-However, in order to calculate the taxes proportionately, both calculators need to transfer a `\Shopware\Core\Framework\Pricing\PriceCollection` in which the prices to be discounted are located.
+However, in order to calculate the taxes proportionately, both calculators need to have a `\Shopware\Core\Framework\Pricing\PriceCollection` in which the prices to be discounted are located.
 In your case it is the prices of the products that are in the bundle line item stored as children. 
 You can easily extract them by first filtering on the product type and then calling `getPrices()`:
 
@@ -834,7 +868,7 @@ switch (\get_class($priceDefinition)) {
 $discount->setPrice($price);
 ```
 
-If it is a `\Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition`, you call the `\Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator`:
+If it is a `PercentagePriceDefinition`, you call the `PercentagePriceCalculator`:
 ```php
 $price = $this->percentagePriceCalculator->calculate(
     $priceDefinition->getPercentage(), 
@@ -843,7 +877,7 @@ $price = $this->percentagePriceCalculator->calculate(
 );
 ```
 
-If it is a `\Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition`, you call the `\Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator`.
+If it is a `AbsolutePriceDefinition`, you call the `AbsolutePriceCalculator`.
 This even allows you to pass a `quantity` as a fourth parameter to define how often this discount should be fended off. 
 ```php
 $price = $this->absolutePriceCalculator->calculate(
@@ -854,7 +888,8 @@ $price = $this->absolutePriceCalculator->calculate(
 );
 ```
 
-Now that all product prices and the discount have been calculated, you only have to calculate the total price of the bundle and then transfer the bundle to the new shopping cart:
+Now that all product prices and the discount have been calculated, you only have to calculate the total price of the bundle and then transfer the bundle to the new shopping cart.
+The bundle's price is just a sum of all of it's children.
 ```php
 public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
 {
@@ -872,5 +907,36 @@ public function process(CartDataCollection $data, Cart $original, Cart $toCalcul
     }
 }
 ```
+
+## Registering your processor
+
+That's a lot of theory and a lot of code - but you didn't register your new processor yet.
+Let's quickly add them in the `services.xml` again:
+```xml
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    
+    <services>
+        ...
+
+        <service id="Swag\BundleExample\Core\Checkout\Bundle\Cart\BundleCartProcessor">
+            <argument type="service" id="swag_bundle.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+
+            <!-- inject before product processor (5000) -->
+            <tag name="shopware.cart.processor" priority="6000" />
+            <tag name="shopware.cart.processor" priority="6000" />
+        </service>
+    </services>
+</container>
+```
+
+The necessary calculators are injected into your processor. Note the tags though, `shopware.cart.processor` and `shopware.cart.processor`.
+The `priority` defines the order they are executed and as you might remember, your processor has to run before the `ProductCartProcessor`.
 
 Your plugin is almost done, just some last polishing is necessary. Head over to the [next step](./100-final-preparation.md) for the last few changes necessary.

@@ -57,6 +57,7 @@
                                                                            :label="$tc('sw-customer.card.labelFirstName')"
                                                                            validation="required"
                                                                            required
+                                                                           :error="customerFirstNameError"
                                                                            :placeholder="$tc('sw-customer.card.placeholderFirstName')">
                                                             </sw-text-field>
                                                         {% endblock %}
@@ -66,6 +67,7 @@
                                                                            :label="$tc('sw-customer.card.labelLastName')"
                                                                            validation="required"
                                                                            required
+                                                                           :error="customerLastNameError"
                                                                            :placeholder="$tc('sw-customer.card.placeholderLastName')">
                                                             </sw-text-field>
                                                         {% endblock %}

@@ -2,6 +2,8 @@ import { Component } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-customer-base-form.html.twig';
 
+const { mapApiErrors } = Component.getComponentHelper();
+
 Component.register('sw-customer-base-form', {
     template,
 
@@ -48,7 +50,18 @@ Component.register('sw-customer-base-form', {
     computed: {
         salutationRepository() {
             return this.repositoryFactory.create('salutation');
-        }
+        },
+
+        ...mapApiErrors('customer', [
+            'salutationId',
+            'firstName',
+            'lastName',
+            'email',
+            'groupId',
+            'salesChannelId',
+            'defaultPaymentMethodId',
+            'customerNumber'
+        ])
     },
 
     created() {

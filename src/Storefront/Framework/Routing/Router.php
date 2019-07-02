@@ -73,45 +73,55 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     public function generate($name, $parameters = [], $referenceType = self::ABSOLUTE_PATH)
     {
-        $generated = $this->decorated->generate($name, $parameters, $referenceType);
-
         if (!$this->isStorefrontRoute($name)) {
-            return $generated;
+            return $this->decorated->generate($name, $parameters, $referenceType);
         }
 
-        $url = $this->getBaseUrl();
+        $salesChannelBaseUrl = $this->getSalesChannelBaseUrl();
+        $basePath = $this->getBasePath();
 
-        $path = $this->getBasePath();
-
+        // we need to insert the sales channel base url between the baseUrl and the infoPath
         switch ($referenceType) {
             case self::NETWORK_PATH:
             case self::ABSOLUTE_URL:
-                $host = $this->getContext()->getHost();
 
-                // remove base path from generated url, base path: /shopware/public
-                $generated = str_replace($path, '', $generated);
+                $schema = '';
+                if ($referenceType === self::ABSOLUTE_URL) {
+                    $schema = $this->getContext()->getScheme() . ':';
+                }
+                $schemaAuthority = $schema . '//' . $this->getContext()->getHost();
 
-                // url in installation with base path: /shopware/public/de
-                // url without base path: /de
-                $rewrite = str_replace($host, $host . rtrim($url, '/'), $generated);
+                if ($this->getContext()->getHttpPort() !== 80) {
+                    $schemaAuthority = $schemaAuthority . ':' . $this->getContext()->getHttpPort();
+                } elseif ($this->getContext()->getHttpsPort() !== 443) {
+                    $schemaAuthority = $schemaAuthority . ':' . $this->getContext()->getHttpsPort();
+                }
+                $generated = $this->decorated->generate($name, $parameters);
+                $pathInfo = $this->removePrefix($generated, $basePath);
+
+                $rewrite = $schemaAuthority . rtrim($salesChannelBaseUrl, '/') . $pathInfo;
                 break;
 
             case self::RELATIVE_PATH:
-                // remove base path from url /shopware/public
-                $generated = str_replace($path, '', $generated);
+                // remove base path from generated url (/shopware/public or /)
+                $generated = $this->removePrefix(
+                    $this->decorated->generate($name, $parameters, self::RELATIVE_PATH),
+                    $basePath
+                );
 
                 // url contains the base path and the base url
                     // base url /shopware/public/de
-                $rewrite = ltrim($url, '/') . $generated;
+                $rewrite = ltrim($salesChannelBaseUrl, '/') . $generated;
                 break;
 
             case self::ABSOLUTE_PATH:
             default:
-                // remove base path from generated url (/shopware/public or /)
-                $generated = str_replace($path, '', $generated);
+                $generated = $this->removePrefix(
+                    $this->decorated->generate($name, $parameters),
+                    $basePath
+                );
 
-                // now add base path (/shopware/public) and base url (/de) add the beginning
-                $rewrite = $path . rtrim($url, '/') . $generated;
+                $rewrite = $basePath . rtrim($salesChannelBaseUrl, '/') . $generated;
                 break;
         }
 
@@ -123,7 +133,16 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $this->decorated->match($pathinfo);
     }
 
-    private function getBaseUrl(): string
+    private function removePrefix(string $subject, string $prefix): string
+    {
+        if (!$prefix || strpos($subject, $prefix) !== 0) {
+            return $subject;
+        }
+
+        return substr($subject, strlen($prefix));
+    }
+
+    private function getSalesChannelBaseUrl(): string
     {
         $request = $this->requestStack->getMasterRequest();
         if (!$request) {
@@ -151,6 +170,8 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function isStorefrontRoute(string $name): bool
     {
-        return strncmp($name, 'frontend.', 9) === 0 || strncmp($name, 'widgets.', 8) === 0;
+        return strncmp($name, 'frontend.', 9) === 0
+            || strncmp($name, 'widgets.', 8) === 0
+            || strncmp($name, 'payment.', 8) === 0;
     }
 }

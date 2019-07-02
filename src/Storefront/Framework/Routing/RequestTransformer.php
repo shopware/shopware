@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 class RequestTransformer
 {
     public const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
+    public const SALES_CHANNEL_ABSOLUTE_BASE_URL = 'sw-sales-channel-absolute-base-url';
     public const SALES_CHANNEL_RESOLVED_URI = 'resolved-uri';
 
     /**
@@ -52,7 +53,8 @@ class RequestTransformer
             throw new SalesChannelMappingException($request->getUri());
         }
 
-        $baseUrl = str_replace($request->getSchemeAndHttpHost() . $request->getBaseUrl(), '', $salesChannel['url']);
+        $absoluteBaseUrl = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
+        $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
 
         $resolved = $this->resolveSeoUrl($request, $baseUrl, $salesChannel['languageId'], $salesChannel['salesChannelId']);
 
@@ -96,6 +98,7 @@ class RequestTransformer
         $clone = $request->duplicate(null, null, null, null, null, $server);
 
         $clone->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
+        $clone->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
         $clone->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
         $clone->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
         $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);

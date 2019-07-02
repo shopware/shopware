@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlField;
 use Shopware\Storefront\Framework\Seo\SeoUrl\CanonicalUrlCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
@@ -96,8 +97,8 @@ class SeoUrlLoaderSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $basePath = rtrim($request->getSchemeAndHttpHost() . $request->getBasePath(), '/');
-        $seoUrlEntity->setUrl($basePath . '/' . trim($seoUrlEntity->getSeoPathInfo(), '/'));
+        $scBasePath = $request->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL);
+        $seoUrlEntity->setUrl($scBasePath . '/' . trim($seoUrlEntity->getSeoPathInfo(), '/'));
     }
 
     private function addCanonicalsForField(CanonicalUrlField $canonicalUrlField, string $salesChannelId, EntityLoadedEvent $event): void

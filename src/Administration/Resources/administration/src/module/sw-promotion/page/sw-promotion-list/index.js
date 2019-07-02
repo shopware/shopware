@@ -1,9 +1,12 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-list.html.twig';
 import './sw-promotion-list.scss';
 
 Component.register('sw-promotion-list', {
     template,
+
+    inject: ['repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('listing')
@@ -11,9 +14,10 @@ Component.register('sw-promotion-list', {
 
     data() {
         return {
-            promotions: [],
+            promotions: null,
             showDeleteModal: false,
-            isLoading: false
+            sortBy: 'name',
+            isLoading: true
         };
     },
 
@@ -24,8 +28,8 @@ Component.register('sw-promotion-list', {
     },
 
     computed: {
-        promotionStore() {
-            return State.getStore('promotion');
+        promotionRepository() {
+            return this.repositoryFactory.create('promotion');
         },
 
         promotionColumns() {
@@ -34,34 +38,15 @@ Component.register('sw-promotion-list', {
     },
 
     methods: {
-        onEdit(promotion) {
-            if (promotion && promotion.id) {
-                this.$router.push({
-                    name: 'sw.promotion.detail',
-                    params: {
-                        id: promotion.id
-                    }
-                });
-            }
-        },
-
-        onInlineEditSave(promotion) {
-            promotion.save();
-        },
-
-        onInlineEditCancel(promotion) {
-            promotion.discardChanges();
-        },
-
         getList() {
             this.isLoading = true;
-            const params = this.getListingParams();
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.setTerm(this.term);
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            this.promotions = [];
-
-            return this.promotionStore.getList(params).then((response) => {
-                this.total = response.total;
-                this.promotions = response.items;
+            return this.promotionRepository.search(criteria, this.context).then((searchResult) => {
+                this.total = searchResult.total;
+                this.promotions = searchResult;
                 this.isLoading = false;
 
                 return this.promotions;
@@ -70,22 +55,6 @@ Component.register('sw-promotion-list', {
 
         onChangeLanguage() {
             this.getList();
-        },
-
-        onDeletePromotion(id) {
-            this.showDeleteModal = id;
-        },
-
-        onCloseDeleteModal() {
-            this.showDeleteModal = false;
-        },
-
-        onConfirmDelete(id) {
-            this.showDeleteModal = false;
-
-            return this.promotionStore.getById(id).delete(true).then(() => {
-                this.getList();
-            });
         },
 
         getPromotionColumns() {

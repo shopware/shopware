@@ -1,0 +1,71 @@
+{
+  "sw-settings-shopware-updates": {
+    "general": {
+      "menuTitle": "Shopware Updates",
+      "title": "Shopware Update ({version})",
+      "emptyTitle": "Shopware Updates",
+      "emptyState": "You are already on the latest version",
+      "checkForUpdates": "Check for updates",
+      "currentVersion": "aktuelle Version:"
+    },
+    "cards": {
+      "info": "What's New",
+      "requirements": "System requirements",
+      "plugins": "Plugin-Compability",
+      "updating": "Updating"
+    },
+    "notifications": {
+      "title": "Shopware-Updates",
+      "updateStarted": "Update process started",
+      "downloadFailed": "Download process is failed",
+      "unpackFailed": "Unpack process is failed",
+      "alreadyUpToDate": "You are already on the latest version"
+    },
+    "infos": {
+      "backupCheckboxLabel": "I created a backup and want to execute the update.",
+      "startUpdate": "Start update",
+      "requirementsNotMet": "Not all system requirements are met for this update",
+      "progress": {
+        "download": "Update file is being downloaded",
+        "unpack": "Update file is unpacked"
+      }
+    },
+    "requirements": {
+      "columns": {
+        "message": "Requirement",
+        "status": "Status"
+      },
+      "message": {
+        "phpVersion": "Minimum PHP Version: {minVersion}. Installed PHP Version: {currentVersion}.",
+        "mysqlVersion": "Minimum MySQL Version: {minVersion}. Installed MySQL Version {currentVersion}.",
+        "writeableCheckValid": "The following directories and files are writable:<br/>{checkedDirectories}",
+        "writeableCheckFailed": "The following directories and files are not writable:<br>{failedDirectories}",
+        "noShopwareLicense": "The used Shopware version allows an update"
+      },
+      "ready": "Ready",
+      "notReady": "Not ready"
+    },
+    "plugins": {
+      "columns": {
+        "name": "Plugin",
+        "available": "Compatible"
+      },
+      "actions": {
+        "openPluginManager": "Open plugin manager"
+      },
+      "pluginNotInStore": "The plugin is not available in the store. Please contact the author"
+    },
+    "updateModal": {
+      "actions": {
+        "cancel": "Cancel",
+        "install": "Install",
+        "goToUpdate": "Open update wizard"
+      },
+      "messageOkay": "All prerequisites are fulfilled. You should create a backup before updating.",
+      "messageUpdatableNow": "You have some plugins, which needs an update before the Shopware update. You should also create a backup before updating.",
+      "messageNotInStore": "You have some plugins that could not be tested for compatibility. Please contact the plugin author for more information. You should also create a backup before updating.",
+      "messageUpdateCheck": "Your current version can be updated to version {version}. What do you want to do?",
+      "backupLabel": "Yes, I've created a backup"
+    }
+  }
+}

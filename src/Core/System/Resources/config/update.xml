@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Shopware Updates</title>
+        <title lang="de-DE">Shopware Updates</title>
+
+        <input-field>
+            <name>code</name>
+            <label>Update-Code</label>
+            <label lang="de-DE">Update-Code</label>
+        </input-field>
+        <input-field type="single-select">
+            <name>channel</name>
+            <required>true</required>
+            <label>Update-Channel</label>
+            <label lang="de-DE">Update-Channel</label>
+            <options>
+                <option>
+                    <id>beta</id>
+                    <name>Beta</name>
+                </option>
+                <option>
+                    <id>ea</id>
+                    <name>Early Access</name>
+                </option>
+                <option>
+                    <id>rc</id>
+                    <name>Release candidate</name>
+                </option>
+                <option>
+                    <id>stable</id>
+                    <name>Stable</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
+</config>

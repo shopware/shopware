@@ -1,0 +1,31 @@
+.sw-settings-shopware-updates-wizard {
+    .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
+        height: initial;
+        min-height: 42px;
+    }
+
+    .sw-shopware-updates-progressbar {
+        .progress-title {
+            text-align: center;
+        }
+    }
+}
+
+.sw-modal.sw-settings-shopware-updates-check__start-update {
+    .sw-modal__footer {
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-field--checkbox {
+        margin-bottom: 0;
+    }
+
+    .sw-settings-shopware-updates-check__start-update-actions {
+        margin-left: auto;
+
+        .sw-button:not(:last-child) {
+            margin-right: 6px;
+        }
+    }
+}

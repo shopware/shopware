@@ -22,6 +22,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createStoreSection())
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createCacheSection())
+                ->append($this->createAutoUpdateSection())
             ->end()
         ;
 
@@ -150,6 +151,21 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('enabled')->end()
                     ->end()
                 ->end()
+            ->end()
+        ;
+
+        return $rootNode;
+    }
+
+    private function createAutoUpdateSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('auto_update');
+
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->booleanNode('enabled')->end()
             ->end()
         ;
 

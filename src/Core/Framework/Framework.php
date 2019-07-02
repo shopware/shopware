@@ -57,6 +57,7 @@ class Framework extends Bundle
         $loader->load('scheduled-task.xml');
         $loader->load('store.xml');
         $loader->load('language.xml');
+        $loader->load('update.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');

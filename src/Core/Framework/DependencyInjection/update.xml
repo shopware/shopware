@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Framework\Update\Api\UpdateController" public="true">
+            <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Update\Services\ApiClient" />
+            <argument type="service" id="Shopware\Core\Framework\Update\Services\RequirementsValidator" />
+            <argument type="service" id="Shopware\Core\Framework\Update\Services\PluginCompatibility" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Update\Services\ApiClient">
+            <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
+            <argument>%shopware.auto_update.enabled%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Update\Services\PluginCompatibility">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Update\Services\Filesystem"/>
+
+        <service id="Shopware\Core\Framework\Update\Services\RequirementsValidator">
+            <argument type="tagged" tag="shopware.update_api.checker"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Update\Checkers\PhpVersionCheck">
+            <tag name="shopware.update_api.checker" priority="500"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Update\Checkers\MysqlVersionCheck">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.update_api.checker" priority="2"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Update\Checkers\WriteableCheck">
+            <argument type="service" id="Shopware\Core\Framework\Update\Services\Filesystem"/>
+            <argument>%kernel.project_dir%</argument>
+            <tag name="shopware.update_api.checker" priority="3"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Update\Checkers\LicenseCheck">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.update_api.checker" priority="4"/>
+        </service>
+    </services>
+</container>

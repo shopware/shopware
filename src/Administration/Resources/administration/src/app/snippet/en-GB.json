@@ -26,6 +26,12 @@
       "plugin-updates-listener": {
         "updatesAvailableTitle": "Plugin-Updates available.",
         "updatesAvailableMessage": "For some Plugins are updates available."
+      },
+      "shopware-updates-listener": {
+        "updatesAvailableTitle": "A new Shopware version {version} is available",
+        "updatesAvailableMessage": "Start the auto-updater to begin the update",
+        "cancel": "Cancel",
+        "updateNow": "Open update"
       }
     },
     "sw-admin-menu": {

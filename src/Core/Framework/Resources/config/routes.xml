@@ -9,6 +9,7 @@
     <import resource="../../CustomField/**/*Controller.php" type="annotation" />
     <import resource="../../Plugin/**/*Controller.php" type="annotation" />
     <import resource="../../Store/**/*Controller.php" type="annotation" />
+    <import resource="../../Update/**/*Controller.php" type="annotation" />
     <import resource="../../MessageQueue/**/*Controller.php" type="annotation" />
     <import resource="../../Migration/**/*Controller.php" type="annotation" />
     <import resource="../../ScheduledTask/**/*Controller.php" type="annotation" />

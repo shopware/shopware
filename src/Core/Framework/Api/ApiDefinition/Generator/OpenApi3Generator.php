@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -337,8 +336,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         foreach ($definition->getFields() as $field) {
             if ($field->getPropertyName() === 'translations'
                 || $field->getPropertyName() === 'id'
-                || preg_match('#translations$#i', $field->getPropertyName())
-                || $field->is(Internal::class)) {
+                || preg_match('#translations$#i', $field->getPropertyName())) {
                 continue;
             }
 

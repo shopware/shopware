@@ -3,13 +3,15 @@
 namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -53,7 +55,7 @@ class DeadMessageDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
 
             (new LongTextField('original_message_class', 'originalMessageClass'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new BlobField('serialized_original_message', 'serializedOriginalMessage'))->addFlags(new Required(), new Internal(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new BlobField('serialized_original_message', 'serializedOriginalMessage'))->addFlags(new Required(), new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new LongTextField('handler_class', 'handlerClass'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new BoolField('encrypted', 'encrypted'))->setFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
 

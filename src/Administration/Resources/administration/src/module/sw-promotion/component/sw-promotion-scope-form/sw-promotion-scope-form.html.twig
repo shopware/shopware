@@ -13,7 +13,7 @@
                    :label="$tc('sw-promotion.detail.main.preconditions.cart.rulesCaption')"
                    :placeholder="$tc('sw-promotion.detail.main.preconditions.cart.rulesPlaceholder')"
                    :criteria="ruleFilter"
-                   @sw-select-option-clicked="onSelectRule"
+                   @option-click="onSelectRule"
                    :associationStore="cartRulesAssociationStore">
             <template slot="sw_select_list_before">
                 <sw-select-option :index="-1"

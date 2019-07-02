@@ -10,16 +10,16 @@ import utils from 'src/core/service/util.service';
  */
 export default class ShopwareError {
     constructor({
-        code = 0,
-        title = '',
-        detail = '',
+        code,
         parameters = {},
         status = ''
     } = {}) {
+        if (typeof code !== 'string' || code === '') {
+            throw new Error('[ShopwareError] can not identify error by code');
+        }
+
         this._id = utils.createId();
         this._code = code;
-        this._title = title;
-        this._detail = detail;
         this._parameters = parameters;
         this._status = status;
     }
@@ -34,22 +34,6 @@ export default class ShopwareError {
 
     set code(value) {
         this._code = value;
-    }
-
-    get title() {
-        return this._title;
-    }
-
-    set title(value) {
-        this._title = value;
-    }
-
-    get detail() {
-        return this._detail;
-    }
-
-    set detail(value) {
-        this._detail = value;
     }
 
     get parameters() {

@@ -46,6 +46,14 @@ export default {
             return this.urlObject === null && this.url !== '';
         },
 
+        invalidUrlError() {
+            if (this.hasInvalidInput) {
+                return { code: 'INVALID_MEDIA_URL' };
+            }
+
+            return null;
+        },
+
         missingFileExtension() {
             return this.urlObject !== null && !this.extensionFromUrl;
         },

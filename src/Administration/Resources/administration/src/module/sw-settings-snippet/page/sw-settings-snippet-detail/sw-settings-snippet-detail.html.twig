@@ -58,7 +58,7 @@
                                                   v-model="translationKey"
                                                   @input="onChange"
                                                   :disabled="!(isCreate || isAddedSnippet)"
-                                                  :errorMessage="invalidKeyErrorMessage">
+                                                  :error="invalidKeyError">
                                         </sw-field>
                                     {% endblock %}
                                 </div>

@@ -97,8 +97,6 @@ Component.register('sw-settings-logging-list', {
                 return x === Math.min(...distances);
             })];
 
-            console.log(stringLevel);
-
             return this.$tc(`sw-settings-logging.list.level${stringLevel}`);
         },
 

@@ -1,4 +1,9 @@
 {
+    "global": {
+        "error-codes": {
+            "DUPLICATED_SALUTATION_KEY": "Technical name already in use. Please choose a different one."
+        }
+    },
     "sw-settings-salutation": {
         "general": {
             "mainMenuItemGeneral": "Salutations",
@@ -36,7 +41,6 @@
             "fieldSalutationKeyTooltip": "Choose a unique technical name that is required to include the salutations, e.g. in email templates.",
             "fieldSalutationKeyLabel": "Technical name",
             "fieldSalutationKeyPlaceholder": "Please choose a technical name",
-            "invalidKeyMessage": "Technical name already in use. Please choose a different one.",
             "messageSaveError": "Salutation could not be saved.",
             "messageSaveSuccess": "Salutation \"{key}\" has successfully been saved.",
             "placeholderNewSalutation": "New Salutation"

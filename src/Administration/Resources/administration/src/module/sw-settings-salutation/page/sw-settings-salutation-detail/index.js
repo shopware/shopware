@@ -1,6 +1,7 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
+import ShopwareError from 'src/core/data/ShopwareError';
 import template from './sw-settings-salutation-detail.html.twig';
 
 Component.register('sw-settings-salutation-detail', {
@@ -51,11 +52,11 @@ Component.register('sw-settings-salutation-detail', {
             );
         },
 
-        invalidKeyErrorMessage() {
+        invalidKeyError() {
             if (this.invalidKey && !this.isKeyChecking) {
-                return this.$tc('sw-settings-salutation.detail.invalidKeyMessage');
+                return new ShopwareError({ code: 'DUPLICATED_SALUTATION_KEY' });
             }
-            return '';
+            return null;
         },
 
         tooltipSave() {
@@ -120,9 +121,8 @@ Component.register('sw-settings-salutation-detail', {
         },
 
         onChangeDebounce: utils.debounce(function executeChange() {
-            if (this.salutation.salutationKey === null ||
-                this.salutation.salutationKey.trim() === '' ||
-                this.salutation.salutationKey.trim() === this.salutation.salutationKey
+            if (typeof this.salutation.salutationKey !== 'string' ||
+                this.salutation.salutationKey.trim() === ''
             ) {
                 this.invalidKey = false;
                 this.isKeyChecking = false;
@@ -131,7 +131,7 @@ Component.register('sw-settings-salutation-detail', {
 
             const criteria = CriteriaFactory.equals('salutationKey', this.salutation.salutationKey);
             this.salutationStore.getList({ page: 1, limit: 1, criteria }).then((response) => {
-                this.invalidKey = !!response.total;
+                this.invalidKey = response.total > 0;
             }).catch(() => {
                 this.invalidKey = true;
             }).finally(() => {

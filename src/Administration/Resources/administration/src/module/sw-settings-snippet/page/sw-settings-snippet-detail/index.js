@@ -1,5 +1,6 @@
 import { Component, State, Mixin } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
+import ShopwareError from 'src/core/data/ShopwareError';
 import template from './sw-settings-snippet-detail.html.twig';
 
 Component.register('sw-settings-snippet-detail', {
@@ -60,18 +61,11 @@ Component.register('sw-settings-snippet-detail', {
             return { name: 'sw.settings.snippet.index' };
         },
 
-        invalidKeyErrorMessage() {
+        invalidKeyError() {
             if (this.isInvalidKey) {
-                return this.$tc(
-                    'sw-settings-snippet.detail.messageKeyExists',
-                    (this.translationKey !== null && this.translationKey.trim().length > 0) + 1,
-                    {
-                        key: this.translationKey
-                    }
-                );
+                return new ShopwareError({ code: 'DUPLICATED_SNIPPET_KEY', parameters: { key: this.translationKey } });
             }
-
-            return '';
+            return null;
         }
     },
 

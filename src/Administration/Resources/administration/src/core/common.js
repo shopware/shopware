@@ -17,6 +17,7 @@ const LocaleFactory = require('src/core/factory/locale.factory').default;
 const ShortcutFactory = require('src/core/factory/shortcut.factory').default;
 const ApiServiceFactory = require('src/core/factory/api-service.factory').default;
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
+const WorkerNotificationFactory = require('src/core/factory/worker-notification.factory').default;
 const FeatureConfig = require('src/core/feature-config').default;
 
 const utils = require('src/core/service/util.service').default;
@@ -65,6 +66,9 @@ application
     })
     .addFactory('entityDefinition', () => {
         return EntityDefinitionFactory;
+    })
+    .addFactory('workerNotification', () => {
+        return WorkerNotificationFactory;
     });
 
 module.exports = {
@@ -214,6 +218,10 @@ module.exports = {
         has: ApiServiceFactory.has
     },
 
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
     EntityDefinition: {
         getScalarTypes: EntityDefinitionFactory.getScalarTypes,
         getJsonTypes: EntityDefinitionFactory.getJsonTypes,
@@ -224,5 +232,17 @@ module.exports = {
         getTranslatedFields: EntityDefinitionFactory.getTranslatedFields,
         getAssociationFields: EntityDefinitionFactory.getAssociationFields,
         getRequiredFields: EntityDefinitionFactory.getRequiredFields
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    WorkerNotification: {
+        register: WorkerNotificationFactory.register,
+        getRegistry: WorkerNotificationFactory.getRegistry,
+        override: WorkerNotificationFactory.override,
+        remove: WorkerNotificationFactory.remove,
+        initialize: WorkerNotificationFactory.initialize
     }
 };

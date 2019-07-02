@@ -31,6 +31,10 @@ class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
+        if ($plugins === null) {
+            return null;
+        }
+
         $deactivatedPluginCount = 0;
         /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {

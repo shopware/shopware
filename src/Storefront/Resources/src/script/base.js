@@ -30,11 +30,6 @@ import TooltipUtil from 'src/script/utility/tooltip/tooltip.util.js';
 /*
 import plugins
  */
-// import SimplePlugin from 'src/script/plugin/_example/simple.plugin';
-// import VanillaExtendPlugin from 'src/script/plugin/_example/vanilla-extended.plugin';
-// import ExtendedPlugin from 'src/script/plugin/_example/extended.plugin';
-// import OverriddenPlugin from 'src/script/plugin/_example/overridden.plugin';
-
 import CartWidgetPlugin from 'src/script/plugin/header/cart-widget.plugin';
 import SearchWidgetPlugin from 'src/script/plugin/header/search-widget.plugin';
 import AccountMenuPlugin from 'src/script/plugin/header/account-menu.plugin';
@@ -79,19 +74,6 @@ if (module.hot) {
 /*
 register plugins
 */
-
-// example plugin (remove before release)
-// PluginManager.register('Simple', SimplePlugin, 'body', { plugin: 'simple' });
-// PluginManager.initializePlugin('Simple', 'body');
-// PluginManager.register('VanillaExtendSimple', SimplePlugin, 'body', { plugin: 'simple' });
-// PluginManager.extend('VanillaExtendSimple', 'VanillaExtendSimple', VanillaExtendPlugin, 'body', { plugin: 'simple vanilla extend' });
-//
-// PluginManager.register('ExtendSimple', SimplePlugin, 'body', { plugin: 'simple' });
-// PluginManager.extend('ExtendSimple', 'NewExtendSimple', ExtendedPlugin, 'body', { plugin: 'simple extend' });
-//
-// PluginManager.register('OverrideSimple', SimplePlugin, 'body', { plugin: 'simple' });
-// PluginManager.extend('OverrideSimple', 'OverrideSimple', OverriddenPlugin, 'body', { plugin: 'simple override' });
-// example plugin end (remove before release)
 PluginManager.register('DateFormat', DateFormat, '[data-date-format]');
 PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
@@ -119,14 +101,6 @@ PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, docum
 PluginManager.register('RemoteClick', RemoteClickPlugin, '[data-remote-click]');
 PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-editor]');
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
-
-/*
-add configurations
-*/
-// // applicable via data-simple-plugin-config="myConfig"
-// window.PluginConfigManager.add('SimplePlugin', 'myConfig', { some: 'options' });
-// import ExtendedSimplePluginConfig from 'src/script/config/_example/extended-simple-plugin.config';
-// window.PluginConfigManager.add('SimplePlugin', 'extendedConfig', ExtendedSimplePluginConfig);
 
 /*
 run plugins

@@ -34,14 +34,13 @@ If you like Shopware 6, give us a star on Github ★
 - [Roadmap](#roadmap)
 - [Community](#community)
 - [Ecosystem](#ecosystem)
-- [Academy](#academy)
 - [Contribution](#contribution)
 - [License](#license)
 - [Authors](#authors)
 
 ## Take a glimpse
 
-The **Shopware 6 storefront** is based on [Twig](https://twig.symfony.com/doc/2.x/templates.html)
+The **Shopware 6 Storefront** is based on [Twig](https://twig.symfony.com/doc/2.x/templates.html)
 and [Bootstrap](https://getbootstrap.com/docs/4.3/getting-started/introduction/). Two well known and easy
 to learn frameworks, making the creation of templates a breeze! 
 
@@ -52,7 +51,7 @@ making the creation of new modules fast and easy. Get started with the [design d
 
 [![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilderT.png)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilder.png)
 
-The Rulebuilder makes the Implementation of business processes easy.
+The Rulebuilder makes the implementation of business processes easy.
 
 ---
 
@@ -74,7 +73,7 @@ More information can be found [in the documentation](https://docs.shopware.com/e
 
 ## Shopware 6 repository structure
 
-Shopware 6 consists of multiple repositories, two of them are important to you
+Shopware 6 consists of multiple repositories, two of them are important to you:
 
 - `shopware/platform` is a [mono repository](https://www.atlassian.com/git/tutorials/monorepos)
   - This is where the shopware core is developed. You need it as dependency in your projects
@@ -88,7 +87,7 @@ Shopware 6 consists of multiple repositories, two of them are important to you
 
 A full installation guide covering different dev environments is available in the [docs](https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/installation-guide).
 
-*For the impatient reader, here is a tl;dr using docker*
+*For the impatient reader, here is a tl;dr using docker.*
 
 Let's start by cloning the development template:
 
@@ -106,14 +105,12 @@ and clone the platform repository into its default directory `platform`. *Note T
 
 ```bash
 > git clone git@github.com:shopware/platform.git
-
 ```
 
 Build and start the containers:
 
 ```bash
 > ./psh.phar docker:start
-
 ```
 
 Access the application container:
@@ -165,7 +162,7 @@ Whether you're writing plugins, proposing code changes via pull requests, or exc
     <td>
       <strong>Moritz Naczenski</strong><br>
       Community Manager<br>
-      <a href="https://twitter.com/m_naczenski">@m_naczenski</a>
+      Twitter: <a href="https://twitter.com/m_naczenski">@m_naczenski</a>
     </td>
     <td width="250"><img src="https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/ndzoesch.png" /></td>  
     <td>

@@ -1,6 +1,6 @@
 {% block sw_shortcut_overview_item %}
-    <tr>
-        <td>{{ title }}</td>
-        <td><kbd v-html="keys"></kbd></td>
-    </tr>
+    <div class="sw-shortcut-overview-item">
+        <kbd v-for="key in keys"><span>{{ key }}</span></kbd>
+        <span class="sw-shortcut-overview-item__title">{{ title }}</span>
+    </div>
 {% endblock %}

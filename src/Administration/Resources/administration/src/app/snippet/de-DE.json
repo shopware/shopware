@@ -644,8 +644,9 @@
     "addNewRule": "Neue Regel erstellen"
   },
   "sw-shortcut-overview": {
+    "title": "Tastenkürzel",
     "iconTooltip": "Drücke die `{key}` Taste für die Tastenkürzel-Übersicht",
-    "modalTitle": "Tastenkürzel Übersicht",
+    "modalTitle": "Tastenkürzel",
     "sectionAddingItems": "Hinzufügen von Elementen",
     "sectionNavigation": "Navigation",
     "sectionSpecialShortcuts": "Spezielle Tastenkürzel",
@@ -706,9 +707,13 @@
     "functionSpecialShortcutFocusSearch": "Fokusiere Suche",
     "keyboardShortcutSpecialShortcutFocusSearch": "f",
     "functionSpecialShortcutShortcutListing": "Tastenkürzel Übersicht",
-    "keyboardShortcutSpecialShortcutShortcutListing": "?",
-    "functionSpecialShortcutSaveDetailView": "Speichern in Detailansicht",
-    "keyboardShortcutSpecialShortcutSaveDetailView": "Windows: alt + s / Mac: control + s / Unix: alt + s",
+    "keyboardShortcutSpecialShortcutShortcutListing": "Shift ?",
+    "functionSpecialShortcutSaveDetailViewWindows": "Windows: Speichern in Detailansicht",
+    "keyboardShortcutSpecialShortcutSaveDetailViewWindows": "alt s",
+    "functionSpecialShortcutSaveDetailViewMac": "Mac: Speichern in Detailansicht",
+    "keyboardShortcutSpecialShortcutSaveDetailViewMac": "control s",
+    "functionSpecialShortcutSaveDetailViewLinux": "Linux: Speichern in Detailansicht",
+    "keyboardShortcutSpecialShortcutSaveDetailViewLinux": "alt s",
     "functionSpecialShortcutCancelDetailView": "Abbrechen in Detailansicht",
     "keyboardShortcutSpecialShortcutCancelDetailView": "Esc"
   }

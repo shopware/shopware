@@ -1,34 +1,21 @@
 @import "~scss/variables";
 
-$sw-shortcut-overview-key-background-color : #F3F3F3;
+.sw-modal.sw-shortcut-overview--modal {
+    .sw-modal__dialog {
+        max-width: 1200px;
+    }
 
-.sw-shortcut-overview {
-    margin-right: 15px;
-}
+    .sw-modal__body {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+    }
 
-.sw-shortcut-overview--modal {
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 25px;
+    h3 {
+        margin: 20px 0 10px 0;
 
-        th {
-            background-color: $color-gray-300;
-            border: 1px solid $color-gray-700;
-        }
-
-        td {
-            width: 50%;
-            border: 1px solid $color-gray-700;
-            padding: 5px 10px;
-        }
-
-        kbd span {
-            color: $color-crimson-600;
-            border: 3px outset $sw-shortcut-overview-key-background-color;
-            background-color: $sw-shortcut-overview-key-background-color;
-            padding: 0px 2px;
-            cursor: default;
+        &:first-child {
+            margin-top: 0;
         }
     }
 }

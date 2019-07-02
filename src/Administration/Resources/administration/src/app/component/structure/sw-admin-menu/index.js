@@ -269,6 +269,10 @@ export default {
             });
         },
 
+        openKeyboardShortcutOverview() {
+            this.$refs.swShortcutOverview.onOpenShortcutOverviewModal();
+        },
+
         addScrollbarOffset() {
             const offset = dom.getScrollbarWidth(this.$refs.swAdminMenuBody);
 

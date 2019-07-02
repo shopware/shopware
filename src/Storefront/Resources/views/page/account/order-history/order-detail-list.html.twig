@@ -2,133 +2,9 @@
     <div class="order-detail-content-body js-order-detail-container-{{ orderId }}">
         {% block page_account_order_item_detail_line_items %}
             {% for lineItem in orderDetails %}
-                <div class="row order-detail-content-row">
-                    {% block page_account_order_item_detail_image %}
-                        <div class="col-12 col-md-2 order-item order-item-image">
-                            {% block page_account_order_item_detail_image_value %}
-                                <div class="order-item-product-image">
-                                    {% if lineItem.type == 'product' %}
-                                        <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.identifier})) }}"
-                                           title="{{ lineItem.label }}"
-                                           class="product-image-link">
-                                            {% if lineItem.cover.media.url %}
-                                                <img class="product-image is-{{ displayMode }}"
-                                                     src="{{ lineItem.cover.media.url }}"
-                                                     alt="{{ lineItem.cover.media.alt }}">
-                                            {% else %}
-                                                <div class="product-image-placeholder">
-                                                    {% sw_icon 'placeholder' style {
-                                                        'size': 'fluid'
-                                                    } %}
-                                                </div>
-                                            {% endif %}
-                                        </a>
-                                    {% elseif lineItem.type == 'promotion' %}
-                                        <div class="order-item-promotion-icon">
-                                            {% sw_icon 'marketing' %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-
-                    {% block page_account_order_item_detail_name %}
-                        <div class="col-12 col-md-4 order-item order-item-name">
-                            {% block page_account_order_item_detail_name_value %}
-                                <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.identifier})) }}"
-                                   class="order-item-product-name"
-                                   title="{{ lineItem.label }}"> <strong class="name-value">
-                                        {{ lineItem.label }}
-                                    </strong> </a>
-                            {% endblock %}
-
-                            {% block page_account_order_item_detail_unitprice %}
-                                {#TODO: NEXT-2695 - purchaseunit, referenceunit, referencePrice, packUnit#}
-                                {% if lineItem.purchaseunit %}
-                                    <div class="order-price-unit">
-                                        {% block page_account_order_item_detail_purchaseunit %}
-                                            <p>
-                                                {{ "account.orderItemInfoContent"|trans }}: {{ lineItem.purchaseunit }} {{ lineItem.packUnit }}
-                                            </p>
-                                        {% endblock %}
-
-                                        {% block page_account_order_item_detail_referenceunit %}
-                                            {% if lineItem.purchaseunit != lineItem.referenceunit %}
-                                                <p>
-                                                    {% if lineItem.referenceunit %}
-                                                        <span class="order-base-price">
-                                                                    {{ "account.orderItemInfoBaseprice"|trans }}:
-                                                                </span>
-                                                        {{ lineItem.referenceunit }} {{ lineItem.packUnit }} = {{ lineItem.referencePrice|currency }}{{ "general.star"|trans }}
-                                                    {% endif %}
-                                                </p>
-                                            {% endif %}
-                                        {% endblock %}
-                                    </div>
-                                {% endif %}
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-
-                    {% block page_account_order_item_detail_quantity %}
-                        <div class="col-12 col-md-2 order-item order-item-quantity">
-                            {% block page_account_order_item_detail_quantity_label %}
-                                <strong class="order-item-label order-item-quantity-label">
-                                    {{ "account.orderItemColumnQuantity"|trans }}
-                                </strong>
-                            {% endblock %}
-
-                            {% block page_account_order_item_detail_quantity_value %}
-                                <span class="order-item-value order-item-quantity-value">
-                                            {{ lineItem.quantity }}
-                                        </span>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-
-                    {% block page_account_order_item_detail_price %}
-                        <div class="col-12 col-md-2 order-item order-item-price">
-                            {% block page_account_order_item_detail_price_label %}
-                                <strong class="order-item-label order-item-price-label">
-                                    {{ "account.orderItemColumnPrice"|trans }}
-                                </strong>
-                            {% endblock %}
-
-                            {% block page_account_order_item_detail_price_value %}
-                                <span class="order-item-value order-item-price-value">
-                                            {% if lineItem.unitPrice and lineItem.type == 'product' %}
-                                                {{ lineItem.unitPrice|currency }}{{ "general.star"|trans }}
-                                            {% elseif lineItem.type == 'promotion' %}
-                                                /
-                                            {% else %}
-                                                {{ "account.orderItemInfoFree"|trans }}
-                                            {% endif %}
-                                        </span>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-
-                    {% block page_account_order_item_detail_total %}
-                        <div class="col-12 col-md-2 order-item order-item-total">
-                            {% block page_account_order_item_detail_total_label %}
-                                <strong class="order-item-label order-item-total-label">
-                                    {{ "account.orderItemColumnTotal"|trans }}
-                                </strong>
-                            {% endblock %}
-
-                            {% block page_account_order_item_detail_total_value %}
-                                <span class="order-item-value order-item-total-value">
-                                    {% if lineItem.totalPrice %}
-                                        {{ lineItem.totalPrice|currency }}{{ "general.star"|trans }}
-                                    {% else %}
-                                        {{ "account.orderItemInfoFree"|trans }}
-                                    {% endif %}
-                                </span>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
-                </div>
+                {% block page_account_order_item_detail_line_item %}
+                    {% sw_include '@Storefront/page/account/order-history/order-detail-list-item.html.twig' %}
+                {% endblock %}
             {% endfor %}
         {% endblock %}
 
@@ -140,11 +16,11 @@
                               method="post"
                               class="buy-widget order-item-reorder-value"
                               data-add-to-cart="true">
-    
+
                             {% block page_account_order_item_detail_reorder_redirect_input %}
                                 <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas"/>
                             {% endblock %}
-    
+
                             {% block page_account_order_item_detail_reorder_button %}
                                 {% for lineItem in orderDetails %}
                                     {% if lineItem.type == 'product' %}
@@ -169,7 +45,7 @@
                                     {% endif %}
                                 {% endfor %}
                             {% endblock %}
-    
+
                             <button class="btn btn-buy order-item-detail-reorder-btn"
                                     title="{{ "account.orderLinkRepeat"|trans }}">
                                 {{ "account.orderLinkRepeat"|trans }}

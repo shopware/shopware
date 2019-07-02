@@ -27,6 +27,18 @@
     text-decoration: line-through;
 }
 
+.order-item-detail-list-item {
+    margin: 0;
+
+    &.is-child {
+        background-color: $gray-100;
+    }
+}
+
+.order-item-nested-icon {
+    background-color: $gray-600;
+}
+
 .order-item-detail-footer {
     background-color: $gray-100;
 }

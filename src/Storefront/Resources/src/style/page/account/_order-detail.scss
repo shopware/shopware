@@ -30,6 +30,44 @@
     border-bottom: 1px solid $border-color;
 }
 
+.order-item-detail-list-item {
+    margin-bottom: $spacer;
+
+    &.is-nested,
+    &.is-child {
+        border-left: 3px solid $border-color;
+        border-bottom-color: transparent;
+        margin: 0 $grid-gutter-width/-2;
+        padding: 0 $grid-gutter-width/2;
+    }
+
+    &.is-discount {
+        .cart-item-total-price {
+            color: $success;
+        }
+    }
+}
+
+.order-item-discount-icon {
+    text-align: center;
+}
+
+.order-item-nested-icon {
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    display: flex;
+    margin: 0 auto;
+    width: 50px;
+    height: 50px;
+
+    .icon {
+        > svg {
+            top: 0;
+        }
+    }
+}
+
 .order-item-reorder {
     display: flex;
     justify-content: center;

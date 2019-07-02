@@ -73,7 +73,7 @@ class AccountOrderController extends StorefrontController
         if (!$order instanceof OrderEntity) {
             throw new NotFoundHttpException();
         }
-        $lineItems = $order->getLineItems();
+        $lineItems = $order->getNestedLineItems();
 
         return $this->renderStorefront('@Storefront/page/account/order-history/order-detail-list.html.twig', ['orderDetails' => $lineItems, 'orderId' => $orderId]);
     }

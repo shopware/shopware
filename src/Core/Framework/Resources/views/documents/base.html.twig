@@ -54,7 +54,7 @@
                 {% if config.displayPageCount %}
                     <div class="page-count">
                         {% block document_page_count %}
-                            {% trans with {'%pageNumber%': '<span class="pagenum"></span>'} %}document.page{% endtrans %}
+                            {{ 'document.page'|trans({'%pageNumber%': '<span class="pagenum"></span>'})|raw }}
                         {% endblock %}
                     </div>
                 {% endif %}
@@ -65,13 +65,13 @@
                                 <li class="bold">{{ config.companyName }}</li>
                             {% endblock %}
                             {% block document_footer_tax_number %}
-                                <li>{% trans with {'%taxNumber%': config.taxNumber} %}document.taxNumber{% endtrans %}</li>
+                                <li>{{ 'document.taxNumber'|trans({'%taxNumber%': config.taxNumber}) }}</li>
                             {% endblock %}
                             {% block document_footer_vat_id %}
-                                <li>{% trans with {'%vatId%': config.vatId} %}document.vatId{% endtrans %}</li>
+                                <li>{{ 'document.vatId'|trans({'%vatId%': config.vatId}) }}</li>
                             {% endblock %}
                             {% block document_footer_tax_office %}
-                                <li>{% trans with {'%taxOffice%': config.taxOffice} %}document.taxOffice{% endtrans %}</li>
+                                <li>{{ 'document.taxOffice'|trans({'%taxOffice%': config.taxOffice}) }}</li>
                             {% endblock %}
                         </ul>
                     {% endblock %}
@@ -79,16 +79,16 @@
                     {% block document_footer_second_column %}
                         <ul>
                             {% block document_footer_bank_account %}
-                                <li class="bold">{% trans %}document.bankAccount{% endtrans %}</li>
+                                <li class="bold">{{ 'document.bankAccount'|trans }}</li>
                             {% endblock %}
                             {% block document_footer_bank_name %}
                                 <li>{{ config.bankName }}</li>
                             {% endblock %}
                             {% block document_footer_bank_iban %}
-                                <li>{% trans with {'%bankIban%': config.bankIban} %}document.bankIban{% endtrans %}</li>
+                                <li>{{ 'document.bankIban'|trans({'%bankIban%': config.bankIban}) }}</li>
                             {% endblock %}
                             {% block document_footer_bank_bic %}
-                                <li>{% trans with {'%bankBic%': config.bankBic} %}document.bankBic{% endtrans %}</li>
+                                <li>{{ 'document.bankBic'|trans({'%bankBic%': config.bankBic}) }}</li>
                             {% endblock %}
                         </ul>
                     {% endblock %}
@@ -97,13 +97,13 @@
                         <ul>
                             <li>&nbsp;</li>
                             {% block document_footer_place_of_jurisdiction %}
-                                <li>{% trans with {'%placeOfJurisdiction%': config.placeOfJurisdiction} %}document.placeOfJurisdiction{% endtrans %}</li>
+                                <li>{{ 'document.placeOfJurisdiction'|trans({'%placeOfJurisdiction%': config.placeOfJurisdiction}) }}</li>
                             {% endblock %}
                             {% block document_footer_place_of_fulfillment %}
-                                <li>{% trans with {'%placeOfFulfillment%': config.placeOfFulfillment} %}document.placeOfFulfillment{% endtrans %} Schöppingen</li>
+                                <li>{{ 'document.placeOfFulfillment'|trans({'%placeOfFulfillment%': config.placeOfFulfillment}) }}</li>
                             {% endblock %}
                             {% block document_footer_payment_shipping_additional_info %}
-                                <li>{% trans %}document.paymentShippingInfo.additionalInfo{% endtrans %}</li>
+                                <li>{{ 'document.paymentShippingInfo.additionalInfo'|trans }}</li>
                             {% endblock %}
                         </ul>
                     {% endblock %}
@@ -111,7 +111,7 @@
                     {% block document_footer_fourth_column %}
                         <ul>
                             {% block document_footer_ceo %}
-                                <li class="bold">{% trans %}document.ceo{% endtrans %}</li>
+                                <li class="bold">{{ 'document.ceo'|trans }}</li>
                             {% endblock %}
                             {% block document_footer_ceo_name %}
                                 <li>{{ config.executiveDirector }}</li>
@@ -154,16 +154,32 @@
                     <table>
                         {% block document_side_info_contents %}
                             {% block document_side_info_date %}
-                                <tr><td>{% trans with {'%date%': config.documentDate|localizeddate('medium', 'none', locale)} %}document.date{% endtrans %}</td></tr>
+                                <tr>
+                                    <td>
+                                        {{ 'document.date'|trans({'%date%': config.documentDate|localizeddate('medium', 'none', locale)}) }}
+                                    </td>
+                                </tr>
                             {% endblock %}
                             {% block document_side_info_customer_number %}
-                                <tr><td>{% trans with {'%customerNumber%': customer.customerNumber} %}document.customerNumber{% endtrans %}</td></tr>
+                                <tr>
+                                    <td>
+                                        {{ 'document.customerNumber'|trans({'%customerNumber%': customer.customerNumber}) }}
+                                    </td>
+                                </tr>
                             {% endblock %}
                             {% block document_side_info_order_number %}
-                                <tr><td>{% trans with {'%orderNumber%': order.orderNumber | truncate(10)} %}document.orderNumber{% endtrans %}</td></tr>
+                                <tr>
+                                    <td>
+                                        {{ 'document.orderNumber'|trans({'%orderNumber%': order.orderNumber | truncate(10)}) }}
+                                    </td>
+                                </tr>
                             {% endblock %}
                             {% block document_side_info_order_date %}
-                                <tr><td>{% trans with {'%orderDate%': order.date|localizeddate('medium', 'none', locale)} %}document.orderDate{% endtrans %}</td></tr>
+                                <tr>
+                                    <td>
+                                        {{ 'document.orderDate'|trans({'%orderDate%': order.date|localizeddate('medium', 'none', locale)}) }}
+                                    </td>
+                                </tr>
                             {% endblock %}
                         {% endblock %}
                     </table><br/>
@@ -185,32 +201,32 @@
                                     {% block document_line_item_table_head %}
                                         {% block document_line_item_table_head_position %}
                                             {% if config.displayLineItemPosition %}
-                                                <th>{% trans %}document.lineItems.header.position{% endtrans %}</th>
+                                                <th>{{ 'document.lineItems.header.position'|trans }}</th>
                                             {% endif %}
                                         {% endblock %}
 
                                         {% block document_line_item_table_head_article_number %}
-                                            <th>{% trans %}document.lineItems.header.articleNumber{% endtrans %}</th>
+                                            <th>{{ 'document.lineItems.header.articleNumber'|trans }}</th>
                                         {% endblock %}
 
                                         {% block document_line_item_table_head_label %}
-                                            <th>{% trans %}document.lineItems.header.label{% endtrans %}</th>
+                                            <th>{{ 'document.lineItems.header.label'|trans }}</th>
                                         {% endblock %}
 
                                         {% block document_line_item_table_head_quantity %}
-                                            <th class="numbers">{% trans %}document.lineItems.header.quantity{% endtrans %}</th>
+                                            <th class="numbers">{{ 'document.lineItems.header.quantity'|trans }}</th>
                                         {% endblock %}
 
                                         {% block document_line_item_table_head_prices %}
                                             {% if config.displayPrices %}
                                                 {% block document_line_item_table_head_tax_rate %}
-                                                    <th class="numbers">{% trans %}document.lineItems.header.tax{% endtrans %}</th>
+                                                    <th class="numbers">{{ 'document.lineItems.header.tax'|trans }}</th>
                                                 {% endblock %}
                                                 {% block document_line_item_table_head_unit_price %}
-                                                    <th class="numbers">{% trans %}document.lineItems.header.unitPrice{% endtrans %}</th>
+                                                    <th class="numbers">{{ 'document.lineItems.header.unitPrice'|trans }}</th>
                                                 {% endblock %}
                                                 {% block document_line_item_table_head_total_price %}
-                                                    <th class="numbers">{% trans %}document.lineItems.header.total{% endtrans %}</th>
+                                                    <th class="numbers">{{ 'document.lineItems.header.total'|trans }}</th>
                                                 {% endblock %}
                                             {% endif %}
                                         {% endblock %}
@@ -273,7 +289,7 @@
                                 {% block document_sum_total_net %}
                                     <tr>
                                         {% block document_sum_total_net_label %}
-                                            <td class="align-right">{% trans %}document.lineItems.totalNet{% endtrans %}</td>
+                                            <td class="align-right">{{ 'document.lineItems.totalNet'|trans }}</td>
                                         {% endblock %}
                                         {% block document_sum_total_net_price %}
                                             <td class="align-right">{{ order.amountNet|currency(currencyIsoCode) }}</td>
@@ -285,7 +301,7 @@
                                     {% for calculatedTax in order.price.calculatedTaxes.sortByTax %}
                                         <tr>
                                             {% block document_sum_tax_label %}
-                                                <td class="align-right">{% trans with {'%taxRate%': calculatedTax.taxRate} %}document.lineItems.tax{% endtrans %}</td>
+                                                <td class="align-right">{{ 'document.lineItems.tax'|trans({'%taxRate%': calculatedTax.taxRate}) }}</td>
                                             {% endblock %}
                                             {% block document_sum_tax_rate %}
                                                 <td class="align-right">{{ calculatedTax.tax|currency(currencyIsoCode) }}</td>
@@ -297,7 +313,7 @@
                                 {% block document_sum_total %}
                                     <tr class="bold">
                                         {% block document_sum_total_label %}
-                                            <td class="align-right">{% trans %}document.lineItems.total{% endtrans %}</td>
+                                            <td class="align-right">{{ 'document.lineItems.total'|trans }}</td>
                                         {% endblock %}
                                         {% block document_sum_total_price %}
                                             <td class="align-right">{{ order.amountTotal|currency(currencyIsoCode) }}</td>
@@ -314,13 +330,13 @@
                 <div class="payment-shipping-container">
                     {% block document_payment_shipping_inner %}
                         {% block document_payment %}
-                            {% trans with {'%paymentMethod%': order.transactions.first.paymentMethod.name} %}document.paymentShippingInfo.paymentMethod{% endtrans %}<br>
+                            {{ 'document.paymentShippingInfo.paymentMethod'|trans({'%paymentMethod%': order.transactions.first.paymentMethod.name}) }}
                         {% endblock %}
                         {% block document_shipping %}
-                            {% trans with {'%shippingMethod%': order.deliveries.first.shippingMethod.name} %}document.paymentShippingInfo.shippingMethod{% endtrans %}<br>
+                            {{ 'document.paymentShippingInfo.shippingMethod'|trans({'%shippingMethod%': order.deliveries.first.shippingMethod.name}) }}<br>
                         {% endblock %}
                         {% block document_payment_shipping_additional %}
-                            {% trans %}document.paymentShippingInfo.additionalInfo{% endtrans %}<br>
+                            {{ 'document.paymentShippingInfo.additionalInfo'|trans }}<br>
                         {% endblock %}
                     {% endblock %}
                 </div>

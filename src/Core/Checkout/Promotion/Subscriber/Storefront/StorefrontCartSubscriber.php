@@ -136,8 +136,8 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             if (!in_array($sessionCode, $codesInCart, true)) {
                 /** @var LineItem $lineItem */
                 $lineItem = $builder->buildPlaceholderItem($sessionCode, $context->getContext()->getCurrencyPrecision());
-                /** @var Cart $cart */
-                $cart = $this->cartService->add($cart, $lineItem, $context);
+                /* @var Cart $cart */
+                $cart->add($lineItem);
             }
         }
     }

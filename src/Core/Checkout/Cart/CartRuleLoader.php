@@ -78,7 +78,7 @@ class CartRuleLoader
 
         $iteration = 1;
 
-        $valid = true;
+        $recalculate = false;
         do {
             if ($iteration > self::MAX_ITERATION) {
                 break;
@@ -94,13 +94,13 @@ class CartRuleLoader
             $new = $this->processor->process($cart, $context, $behaviorContext);
 
             if ($this->cartChanged($cart, $new)) {
-                $valid = false;
+                $recalculate = true;
             }
 
             $cart = $new;
 
             ++$iteration;
-        } while ($valid);
+        } while ($recalculate);
 
         $index = 0;
         foreach ($this->rules as $rule) {

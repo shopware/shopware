@@ -232,18 +232,19 @@
                                         </div>
                                     {% endblock %}
     
+                                    {#TODO: NEXT-2002 - add captcha#}
+                                    {% block page_newsletter_form_captcha %}{% endblock %}
+    
+                                    {% block page_newsletter_form_privacy %}
+                                        {% sw_include '@Storefront/component/privacy-notice.html.twig' %}
+                                    {% endblock %}
+
                                     {% block page_newsletter_form_required %}
                                         <p class="form-text newsletter-required-info">
                                             {{ "general.requiredFields"|trans }}
                                         </p>
                                     {% endblock %}
-    
-                                    {#TODO: NEXT-2002 - add captcha#}
-                                    {% block page_newsletter_form_captcha %}{% endblock %}
-    
-                                    {#TODO: NEXT-2832 - add privacy info/checkbox#}
-                                    {% block page_newsletter_form_privacy %}{% endblock %}
-    
+
                                     {% block page_newsletter_form_submit %}
                                         <div class="newsletter-action">
                                             <button type="submit"

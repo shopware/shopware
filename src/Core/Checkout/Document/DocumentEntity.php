@@ -43,7 +43,7 @@ class DocumentEntity extends Entity
     protected $order;
 
     /**
-     * @var array|null
+     * @var array
      */
     protected $config;
 
@@ -132,12 +132,12 @@ class DocumentEntity extends Entity
         $this->orderId = $orderId;
     }
 
-    public function getConfig(): ?array
+    public function getConfig(): array
     {
         return $this->config;
     }
 
-    public function setConfig(?array $config): void
+    public function setConfig(array $config): void
     {
         $this->config = $config;
     }

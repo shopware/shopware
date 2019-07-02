@@ -101,6 +101,7 @@ class MediaRepositoryDecoratorTest extends TestCase
                     'id' => $documentId,
                     'order' => $this->getOrderData($orderId, $this->context),
                     'fileType' => 'pdf',
+                    'config' => [],
                     'deepLinkCode' => 'deeplink',
 
                     'documentMediaFile' => [

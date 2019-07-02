@@ -4,23 +4,21 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
-use Shopware\Core\Checkout\Promotion\PromotionGatewayInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInterface
+class PromotionProcessor implements CartProcessorInterface
 {
     public const DATA_KEY = 'promotions';
     public const LINE_ITEM_TYPE = 'promotion';
+    public const CART_EXTENSION_KEY = 'cart-promotion-codes';
 
     /**
      * @var PromotionCalculator
@@ -28,67 +26,14 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
     private $promotionCalculator;
 
     /**
-     * @var PromotionGatewayInterface
-     */
-    private $gateway;
-
-    /**
      * @var PromotionItemBuilder
      */
     private $itemBuilder;
 
-    public function __construct(PromotionCalculator $promotionCalculator, PromotionGatewayInterface $gateway, PromotionItemBuilder $itemBuilder)
+    public function __construct(PromotionCalculator $promotionCalculator, PromotionItemBuilder $itemBuilder)
     {
         $this->promotionCalculator = $promotionCalculator;
         $this->itemBuilder = $itemBuilder;
-        $this->gateway = $gateway;
-    }
-
-    /**
-     * This function is used to collect our promotion data for our cart.
-     * It queries the database for all promotions with codes from placeholders and existing promotion line items
-     * along with all non-code promotions that are applied automatically if conditions are met.
-     * The eligible promotions will then be passed on to the enrichment function.
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
-     */
-    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
-    {
-        /** @var array $autoPromotions */
-        $autoPromotions = $this->searchPromotionsAuto($data, $context);
-
-        /** @var array $allCodes */
-        $allCodes = $original
-            ->getLineItems()
-            ->filterType(self::LINE_ITEM_TYPE)
-            ->getReferenceIds();
-
-        /** @var array $codePromotions */
-        $codePromotions = $this->searchPromotionsByCodes($data, $allCodes, $context);
-
-        /** @var array $allPromotions */
-        $allPromotions = array_merge($autoPromotions, $codePromotions);
-
-        if (count($allPromotions) === 0) {
-            return;
-        }
-
-        // check if max allowed redemption of promotion have been reached or not
-        // if max redemption has been reached promotion will not be added
-        /** @var PromotionEntity[] $eligiblePromotions */
-        $eligiblePromotions = $this->getEligiblePromotionsWithDiscounts(
-            $allPromotions,
-            $context->getCustomer()
-        );
-
-        // if we do have promotions, set them to be processed
-        // otherwise make sure to remove the entry to avoid any processing
-        // within our promotions scope
-        if (count($eligiblePromotions) >= 0) {
-            $data->set(self::DATA_KEY, new PromotionCollection($eligiblePromotions));
-        } else {
-            $data->remove(self::DATA_KEY);
-        }
     }
 
     /**
@@ -145,109 +90,6 @@ class PromotionProcessor implements CartProcessorInterface, CartDataCollectorInt
             $context,
             $behavior
         );
-    }
-
-    /**
-     * Gets either the cached list of auto-promotions that
-     * are valid, or loads them from the database.
-     */
-    private function searchPromotionsAuto(CartDataCollection $data, SalesChannelContext $context): array
-    {
-        if ($data->has('promotions-auto')) {
-            return $data->get('promotions-auto');
-        }
-
-        /** @var PromotionCollection $automaticPromotions */
-        $automaticPromotions = $this->gateway->getAutomaticPromotions($context);
-
-        $data->set('promotions-auto', $automaticPromotions->getElements());
-
-        return $automaticPromotions->getElements();
-    }
-
-    /**
-     * Gets all promotions by using the provided list of codes.
-     * The promotions will be either taken from a cached list of a previous call,
-     * or are loaded directly from the database if a certain code is new
-     * and has not yet been fetched.
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
-     */
-    private function searchPromotionsByCodes(CartDataCollection $data, array $allCodes, SalesChannelContext $context): array
-    {
-        $keyPrefixProcessedCode = 'promotions-code-processed-';
-        $keyCacheList = 'promotions-code';
-
-        // create a new cached list that is empty at first
-        if (!$data->has($keyCacheList)) {
-            $data->set($keyCacheList, []);
-        }
-
-        $newCodes = [];
-
-        // let's find out what promotions we
-        // really need to fetch from our database.
-        /* @var string $code */
-        foreach ($allCodes as $code) {
-            $key = $keyPrefixProcessedCode . $code;
-
-            if ($data->has($key)) {
-                continue;
-            }
-
-            $newCodes[] = $code;
-            $data->set($key, null);
-        }
-
-        if (count($newCodes) <= 0) {
-            return $data->get($keyCacheList);
-        }
-
-        /* @var PromotionCollection $newPromotions */
-        $newPromotions = $this->gateway->getByCodes($newCodes, $context);
-
-        /** @var array $newPromotionsArray */
-        $newPromotionsArray = $newPromotions->getElements();
-
-        // add our new promotions to the cache for upcoming calls.
-        /** @var array $existingPromotions */
-        $existingPromotions = $data->get($keyCacheList);
-        $existingPromotions = array_merge($existingPromotions, $newPromotionsArray);
-        $data->set($keyCacheList, $existingPromotions);
-
-        return $existingPromotions;
-    }
-
-    /**
-     * function returns all promotions that have discounts and that are eligible
-     * (function validates that max usage or customer max usage hasn't exceeded)
-     */
-    private function getEligiblePromotionsWithDiscounts(array $promotions, ?CustomerEntity $customer): array
-    {
-        $eligiblePromotions = [];
-
-        /** @var PromotionEntity $promotion */
-        foreach ($promotions as $promotion) {
-            if (!$promotion->isOrderCountValid()) {
-                continue;
-            }
-
-            if ($customer !== null && !$promotion->isOrderCountPerCustomerCountValid($customer->getId())) {
-                continue;
-            }
-
-            /** @var PromotionDiscountCollection|null $collection */
-            $collection = $promotion->getDiscounts();
-
-            // check if no discounts have been set
-            if (!$collection instanceof PromotionDiscountCollection || count($collection->getElements()) <= 0) {
-                continue;
-            }
-
-            $eligiblePromotions[] = $promotion;
-        }
-
-        return $eligiblePromotions;
     }
 
     /**

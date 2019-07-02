@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Promotion;
+namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionGateway;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Fakes\FakePromotionRepository;
+use Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeServiceInterface;
+use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakePromotionDateTimeService;
+use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakePromotionRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -27,10 +29,16 @@ class PromotionGatewayTest extends TestCase
     private $salesChannel = null;
 
     /**
+     * @var PromotionDateTimeServiceInterface
+     */
+    private $promotionDateTimeService = null;
+
+    /**
      * @throws \ReflectionException
      */
     public function setUp(): void
     {
+        $this->promotionDateTimeService = new FakePromotionDateTimeService();
         $this->salesChannel = new SalesChannelEntity();
         $this->salesChannel->setId('CH1');
 
@@ -50,7 +58,7 @@ class PromotionGatewayTest extends TestCase
     public function testGetAutomaticPromotionsCriteria()
     {
         $fakeRepo = new FakePromotionRepository();
-        $gateway = new PromotionGateway($fakeRepo);
+        $gateway = new PromotionGateway($fakeRepo, $this->promotionDateTimeService);
 
         /* @var SalesChannelContext $checkoutContext */
         $gateway->getAutomaticPromotions($this->checkoutContext);
@@ -87,7 +95,7 @@ class PromotionGatewayTest extends TestCase
     public function testGetByCodes()
     {
         $fakeRepo = new FakePromotionRepository();
-        $gateway = new PromotionGateway($fakeRepo);
+        $gateway = new PromotionGateway($fakeRepo, $this->promotionDateTimeService);
 
         /* @var SalesChannelContext $checkoutContext */
         $gateway->getByCodes(['CODE-1', 'CODE-2'], $this->checkoutContext);
@@ -114,17 +122,10 @@ class PromotionGatewayTest extends TestCase
      * Gets the expected filter structure.
      * Our original Shopware filter should look like this
      * and must not be touched without recognizing it.
-     *
-     * @throws \Exception
      */
     private function getExpectedDateRangeFilter(): Filter
     {
-        $today = new \DateTime();
-        $today = $today->setTimezone(new \DateTimeZone('UTC'));
-
-        $todayStart = $today->format('Y-m-d H:i:s 0:0:0');
-        $todayEnd = $today->format('Y-m-d H:i:s 23:59:59');
-
+        $now = $this->promotionDateTimeService->getNow();
         $filterNoDateRange = new MultiFilter(
             MultiFilter::CONNECTION_AND,
             [
@@ -136,7 +137,7 @@ class PromotionGatewayTest extends TestCase
         $filterStartedNoEndDate = new MultiFilter(
             MultiFilter::CONNECTION_AND,
             [
-                new RangeFilter('validFrom', ['lte' => $todayStart]),
+                new RangeFilter('validFrom', ['lte' => $now]),
                 new EqualsFilter('validUntil', null),
             ]
         );
@@ -145,15 +146,15 @@ class PromotionGatewayTest extends TestCase
             MultiFilter::CONNECTION_AND,
             [
                 new EqualsFilter('validFrom', null),
-                new RangeFilter('validUntil', ['gte' => $todayEnd]),
+                new RangeFilter('validUntil', ['gte' => $now]),
             ]
         );
 
         $activeDateRangeFilter = new MultiFilter(
             MultiFilter::CONNECTION_AND,
             [
-                new RangeFilter('validFrom', ['lte' => $todayStart]),
-                new RangeFilter('validUntil', ['gte' => $todayEnd]),
+                new RangeFilter('validFrom', ['lte' => $now]),
+                new RangeFilter('validUntil', ['gte' => $now]),
             ]
         );
 

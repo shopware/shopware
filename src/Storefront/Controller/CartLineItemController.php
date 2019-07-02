@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -71,40 +72,56 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
+     * This is the storefront controller action for adding a promotion.
+     * It has some individual code for the storefront layouts, like visual
+     * error and success messages.
+     *
      * @Route("/checkout/promotion/add", name="frontend.checkout.promotion.add", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
     public function addPromotion(Cart $cart, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         try {
             /** @var string|null $code */
-            $code = $request->request->getAlnum('code');
+            $code = $request->request->get('code');
 
             if ($code === null) {
                 throw new \InvalidArgumentException('Code is required');
             }
-            $lineItem = $this->promotionItemBuilder->buildPlaceholderItem(
-                $code,
-                $salesChannelContext->getContext()->getCurrencyPrecision()
-            );
+
+            /** @var LineItem $lineItem */
+            $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code, $salesChannelContext->getContext()->getCurrencyPrecision());
 
             $initialCartState = md5(json_encode($cart));
 
+            /** @var Cart $cart */
             $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
             $cart->getErrors();
-            if (!$this->hasPromotion($cart, $code)) {
-                throw new LineItemNotFoundException($code);
-            }
+
             $changedCartState = md5(json_encode($cart));
 
-            if ($initialCartState !== $changedCartState) {
-                $this->addFlash('success', $this->trans('checkout.codeAddedSuccessful'));
-            } else {
-                $this->addFlash('info', $this->trans('checkout.promotionAlreadyExistsInfo'));
+            // if we do not a valid promotion line item
+            // but the cart has been added, let the user know...
+            // IMPORTANT: this has to be always shown, even if the cart changes!!!
+            if ($this->codeExistsInCart($code) && !$this->hasPromotion($cart, $code)) {
+                $this->addFlash('info', $this->trans('checkout.promotionExistsButRulesDoNotMatch'));
+
+                return $this->createActionResponse($request);
             }
-        } catch (LineItemNotFoundException $exception) {
-            // todo this could have a multitude of reasons - imagine a code is valid but cannot be added because of restrictions
-            // wouldn't it be the appropriate way to display the reason what avoided the promotion to be added
-            $this->addFlash('warning', $this->trans('error.message-default'));
+
+            if ($initialCartState !== $changedCartState) {
+                // cart has really changed, so lets show a success
+                $this->addFlash('success', $this->trans('checkout.codeAddedSuccessful'));
+            } elseif ($this->codeExistsInCart($code) && !$this->hasPromotion($cart, $code)) {
+                // if we do not a valid promotion line item
+                // but the cart has been added, let the user know...
+                $this->addFlash('info', $this->trans('checkout.promotionExistsButRulesDoNotMatch'));
+            } elseif ($this->hasPromotion($cart, $code)) {
+                // if cart has not changed and we have that promotion
+                // then its added one more time
+                $this->addFlash('info', $this->trans('checkout.promotionAlreadyExistsInfo'));
+            } else {
+                $this->addFlash('warning', $this->trans('error.message-default'));
+            }
         } catch (\Exception $exception) {
             $this->addFlash('danger', $this->trans('error.message-default'));
         }
@@ -115,12 +132,8 @@ class CartLineItemController extends StorefrontController
     /**
      * @Route("/checkout/line-item/change-quantity/{id}", name="frontend.checkout.line-item.change-quantity", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
-    public function changeQuantity(
-        Cart $cart,
-        string $id,
-        Request $request,
-        SalesChannelContext $salesChannelContext
-    ): Response {
+    public function changeQuantity(Cart $cart, string $id, Request $request, SalesChannelContext $salesChannelContext): Response
+    {
         try {
             $quantity = $request->get('quantity');
 
@@ -200,12 +213,8 @@ class CartLineItemController extends StorefrontController
      * @throws MissingRequestParameterException
      * @throws MixedLineItemTypeException
      */
-    public function addLineItems(
-        Cart $cart,
-        RequestDataBag $requestDataBag,
-        Request $request,
-        SalesChannelContext $salesChannelContext
-    ): Response {
+    public function addLineItems(Cart $cart, RequestDataBag $requestDataBag, Request $request, SalesChannelContext $salesChannelContext): Response
+    {
         /** @var RequestDataBag|null $lineItems */
         $lineItems = $requestDataBag->get('lineItems');
         if (!$lineItems) {
@@ -240,6 +249,10 @@ class CartLineItemController extends StorefrontController
         return $this->createActionResponse($request);
     }
 
+    /**
+     * This function verifies if our cart has the provided promotion.
+     * This is necessary to see if adding the code did work in the end.
+     */
     private function hasPromotion(Cart $cart, string $code): bool
     {
         foreach ($cart->getLineItems() as $lineItem) {
@@ -247,17 +260,23 @@ class CartLineItemController extends StorefrontController
                 continue;
             }
 
-            $payload = $lineItem->getPayload();
-
-            if (!\array_key_exists('code', $payload)) {
-                continue;
-            }
-
-            if ($code === $payload['code']) {
+            if ($code === $lineItem->getReferencedId()) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * function validates if a code has at least been added
+     * to our cart.
+     */
+    private function codeExistsInCart(string $code): bool
+    {
+        /** @var array $allCodes */
+        $allCodes = $this->container->get('session')->get(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES);
+
+        return in_array($code, $allCodes, true);
     }
 }

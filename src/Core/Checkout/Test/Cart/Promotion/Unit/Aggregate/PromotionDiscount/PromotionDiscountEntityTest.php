@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Promotion\Aggregate\PromotionDiscount;
+namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit\Aggregate\PromotionDiscount;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;

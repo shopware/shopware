@@ -427,6 +427,14 @@ class PromotionEntity extends Entity
         return $requirements;
     }
 
+    /**
+     * Gets if the promotion has at least 1 discount.
+     */
+    public function hasDiscount(): bool
+    {
+        return $this->discounts instanceof PromotionDiscountCollection && $this->discounts->count() > 0;
+    }
+
     public function isOrderCountValid(): bool
     {
         return $this->getMaxRedemptionsGlobal() <= 0

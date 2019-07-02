@@ -250,6 +250,7 @@
         "addPromotionLabel": "Gutschein-Code eingeben",
         "addPromotionPlaceholder": "Gutschein-Code",
         "promotionAlreadyExistsInfo": "Der Gutschein-Code wurde nicht auf den Warenkorb angewendet, da er bereits hinzugefügt wurde.",
+        "promotionExistsButRulesDoNotMatch": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Vorraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
         "addProductLabel": "Artikelnummer eingeben",
         "addProductPlaceholder": "Artikelnummer",
         "summaryPositionPrice": "Summe",

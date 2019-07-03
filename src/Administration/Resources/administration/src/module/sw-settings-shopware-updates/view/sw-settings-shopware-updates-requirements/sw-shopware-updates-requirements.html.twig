@@ -1,23 +1,30 @@
+{% block sw_shopware_updates_requirements %}
 <sw-card :title="$t('sw-settings-shopware-updates.cards.requirements')" :isLoading="isLoading">
     <sw-data-grid
             :showActions="false"
             :showSelection="false"
             :columns="columns"
             :dataSource="requirements">
-        <template slot="column-result" slot-scope="{ item, isInlineEdit }">
-            <template v-if="item.result">
-                <sw-color-badge v-if="item.result" variant="success" :rounded="true"></sw-color-badge>&nbsp;
-                {{ $t('sw-settings-shopware-updates.requirements.ready') }}
-            </template>
 
-            <template v-else>
-                <sw-color-badge v-if="item.result" variant="error"></sw-color-badge>&nbsp;
-                {{ $t('sw-settings-shopware-updates.requirements.notReady') }}
-            </template>
-        </template>
+        {% block sw_shopware_updates_requirements_column_result %}
+            <template slot="column-result" slot-scope="{ item, isInlineEdit }">
+                <template v-if="item.result">
+                    <sw-color-badge variant="success" :rounded="true"></sw-color-badge>&nbsp;
+                    {{ $t('sw-settings-shopware-updates.requirements.ready') }}
+                </template>
 
-        <template slot="column-message" slot-scope="{ item, isInlineEdit }">
-            <span v-html="$t('sw-settings-shopware-updates.requirements.message.' + item.message, item.vars)"></span>
-        </template>
+                <template v-else>
+                    <sw-color-badge variant="error" :rounded="true"></sw-color-badge>&nbsp;
+                    {{ $t('sw-settings-shopware-updates.requirements.notReady') }}
+                </template>
+            </template>
+        {% endblock %}
+
+        {% block sw_shopware_updates_requirements_column_message %}
+            <template slot="column-message" slot-scope="{ item, isInlineEdit }">
+                <span v-html="$t('sw-settings-shopware-updates.requirements.message.' + item.message, item.vars)"></span>
+            </template>
+        {% endblock %}
     </sw-data-grid>
 </sw-card>
+{% endblock %}

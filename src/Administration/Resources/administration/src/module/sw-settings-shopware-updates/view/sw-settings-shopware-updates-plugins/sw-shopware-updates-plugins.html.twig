@@ -1,25 +1,31 @@
+{% block sw_shopware_updates_plugins %}
 <sw-card :title="$t('sw-settings-shopware-updates.cards.plugins')" :isLoading="isLoading">
     <sw-data-grid
             :showSelection="false"
             :dataSource="plugins"
             :columns="columns">
 
-        <template slot="column-icon" slot-scope="{ item, isInlineEdit }">
-            <sw-color-badge v-if="item.statusVariant" :variant="item.statusVariant" :rounded="true"></sw-color-badge>
-            <sw-color-badge v-else :color="item.statusColor" :rounded="true"></sw-color-badge>&nbsp;
+        {% block sw_shopware_updates_plugins_column_icon %}
+            <template slot="column-icon" slot-scope="{ item, isInlineEdit }">
+                <sw-color-badge v-if="item.statusVariant" :variant="item.statusVariant" :rounded="true"></sw-color-badge>
+                <sw-color-badge v-else :color="item.statusColor" :rounded="true"></sw-color-badge>&nbsp;
 
-            <template v-if="item.statusMessage">
-                {{ item.statusMessage }}
+                <template v-if="item.statusMessage">
+                    {{ item.statusMessage }}
+                </template>
+                <template v-else>
+                    {{ $t('sw-settings-shopware-updates.plugins.pluginNotInStore') }}
+                </template>
             </template>
-            <template v-else>
-                {{ $t('sw-settings-shopware-updates.plugins.pluginNotInStore') }}
-            </template>
-        </template>
+        {% endblock %}
 
-        <template slot="actions" slot-scope="{ item }">
-            <sw-context-menu-item @click="openPluginManager()">
-                {{ $t('sw-settings-shopware-updates.plugins.actions.openPluginManager') }}
-            </sw-context-menu-item>
-        </template>
+        {% block sw_shopware_updates_plugins_column_action %}
+            <template slot="actions" slot-scope="{ item }">
+                <sw-context-menu-item @click="openPluginManager()">
+                    {{ $t('sw-settings-shopware-updates.plugins.actions.openPluginManager') }}
+                </sw-context-menu-item>
+            </template>
+        {% endblock %}
     </sw-data-grid>
 </sw-card>
+{% endblock %}

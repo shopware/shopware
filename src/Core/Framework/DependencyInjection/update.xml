@@ -48,6 +48,7 @@
 
         <service id="Shopware\Core\Framework\Update\Checkers\LicenseCheck">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <tag name="shopware.update_api.checker" priority="4"/>
         </service>
     </services>

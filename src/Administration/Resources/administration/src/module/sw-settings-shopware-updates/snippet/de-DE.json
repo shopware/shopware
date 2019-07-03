@@ -6,7 +6,7 @@
       "emptyTitle": "Shopware Update",
       "emptyState": "Du bist auf dem aktuellsten Stand",
       "checkForUpdates": "Nach Updates suchen",
-      "currentVersion": "Current Version:"
+      "currentVersion": "aktuelle Version:"
     },
     "cards": {
       "info": "Was ist neu?",
@@ -40,7 +40,8 @@
         "mysqlVersion": "Erforderliche MySQL Version: {minVersion}. Installierte MySQL Version: {currentVersion}.",
         "writeableCheckValid": "Die folgenden Verzeichnisse und Dateien sind beschreibbar:<br/>{checkedDirectories}",
         "writeableCheckFailed": "Die folgenden Verzeichnisse und Dateien sind beschreibbar:<br>{failedDirectories}",
-        "noShopwareLicense": "Die eingesetzte Shopware Version erlaubt ein Update"
+        "validShopwareLicense": "Die eingesetzte Shopware Version erlaubt ein Update",
+        "invalidShopwareLicense": "Für ihre eingesetzte Shopware Version konnte keine aktive Software-Subscription ermittelt werden.<br>Das Auto-Update kann aktuell nicht durchgeführt werden.<br>Eine Shopware Software-Subscription können Sie bequem über den <a href=\"https://account.shopware.com\" target=\"_blank\">Shopware Account buchen.</a>"
       },
       "ready": "Bereit",
       "notReady": "Nicht Bereit"

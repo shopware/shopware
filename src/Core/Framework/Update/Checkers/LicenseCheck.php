@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Update\Checkers;
 
+use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -12,9 +13,15 @@ class LicenseCheck implements CheckerInterface
      */
     private $systemConfigService;
 
-    public function __construct(SystemConfigService $systemConfigService)
+    /**
+     * @var StoreClient
+     */
+    private $storeClient;
+
+    public function __construct(SystemConfigService $systemConfigService, StoreClient $storeClient)
     {
         $this->systemConfigService = $systemConfigService;
+        $this->storeClient = $storeClient;
     }
 
     public function supports(string $check): bool
@@ -29,10 +36,10 @@ class LicenseCheck implements CheckerInterface
     {
         $licenseHost = $this->systemConfigService->get('core.store.licenseHost');
 
-        if (empty($licenseHost)) {
-            return new ValidationResult('noShopwareLicense', self::VALIDATION_SUCCESS, 'noShopwareLicense', []);
+        if (empty($licenseHost) || $this->storeClient->isShopUpgradeable()) {
+            return new ValidationResult('validShopwareLicense', self::VALIDATION_SUCCESS, 'validShopwareLicense', []);
         }
 
-        return new ValidationResult('noShopwareLicense', self::VALIDATION_SUCCESS, 'noShopwareLicense', []);
+        return new ValidationResult('invalidShopwareLicense', self::VALIDATION_ERROR, 'invalidShopwareLicense', []);
     }
 }

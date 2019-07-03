@@ -299,6 +299,16 @@ final class StoreClient
         return json_decode((string) $response->getBody(), true);
     }
 
+    public function isShopUpgradeable(): bool
+    {
+        $response = $this->client->get('/swplatform/autoupdate/permission', [
+            'query' => $this->getDefaultQueryParameters('en-GB', false),
+            'headers' => $this->client->getConfig('headers'),
+        ]);
+
+        return json_decode((string) $response->getBody(), true)['updateAllowed'];
+    }
+
     private function getDefaultQueryParameters(string $language, $validateHost = true): array
     {
         $licenseHost = $this->configService->get(self::CONFIG_KEY_STORE_LICENSE_HOST);

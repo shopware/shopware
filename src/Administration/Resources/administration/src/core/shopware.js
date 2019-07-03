@@ -101,6 +101,15 @@ export const EntityDefinition = {
     getRequiredFields: Shopware.EntityDefinition.getRequiredFields
 };
 
+export const WorkerNotification = {
+    register: Shopware.WorkerNotification.register,
+    getRegistry: Shopware.WorkerNotification.getRegistry,
+    add: Shopware.WorkerNotification.add,
+    remove: Shopware.WorkerNotification.remove,
+    override: Shopware.WorkerNotification.override,
+    initialize: Shopware.WorkerNotification.initialize
+};
+
 export const Defaults = {
     systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
     defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
@@ -128,5 +137,6 @@ export default {
     ApiService,
     EntityDefinition,
     Defaults,
-    ObservationApi
+    ObservationApi,
+    WorkerNotification
 };

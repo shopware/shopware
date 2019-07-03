@@ -9,6 +9,9 @@ let enabled = false;
 export default function initializeWorker() {
     const loginService = this.getContainer('service').loginService;
     const context = this.getContainer('init').contextService;
+    const workerNotificationFactory = this.getContainer('factory').workerNotification;
+
+    registerThumbnailMiddleware(workerNotificationFactory);
 
     return function configureWorker() {
         if (context.config.adminWorker.enableAdminWorker && !enabled) {
@@ -79,4 +82,56 @@ function enableWorkerNotificationListener(loginService, context) {
         workerNotificationListener.terminate();
         workerNotificationListener = new WorkerNotificationListener(loginService, context);
     });
+}
+
+function registerThumbnailMiddleware(factory) {
+    let notificationId = null;
+    factory.register('generateThumbnailsMessage', {
+        name: 'Shopware\\Core\\Content\\Media\\Message\\GenerateThumbnailsMessage',
+        fn: function middleware(next, { entry, $root, notification }) {
+            // Create notification config object
+            const config = {
+                title: $root.$t('global.notification-center.worker-listener.thumbnailGeneration.title'),
+                message: $root.$tc(
+                    'global.notification-center.worker-listener.thumbnailGeneration.message',
+                    entry.size
+                ),
+                variant: 'info',
+                metadata: {
+                    size: entry.size
+                },
+                growl: false,
+                isLoading: true
+            };
+
+            // Create new notification
+            if (entry.size && notificationId === null) {
+                notification.create(config).then((uuid) => {
+                    notificationId = uuid;
+                });
+                next();
+            }
+
+            // Update existing notification
+            if (notificationId !== null) {
+                config.uuid = notificationId;
+
+                if (entry.size === 0) {
+                    config.title = $root.$t(
+                        'global.notification-center.worker-listener.thumbnailGeneration.titleSuccess'
+                    );
+                    config.message = $root.$t(
+                        'global.notification-center.worker-listener.thumbnailGeneration.messageSuccess'
+                    );
+                    config.isLoading = false;
+                }
+                notification.update(config);
+            }
+
+            // do your stuff and call next then
+            next();
+        }
+    });
+
+    return true;
 }

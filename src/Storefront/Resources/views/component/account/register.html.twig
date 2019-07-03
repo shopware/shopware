@@ -80,7 +80,7 @@
 
 										{% block component_account_register_personal_mail_confirmation_input %}
 											<input type="email"
-												   class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
+												   class="form-control{% if formViolations.getViolations('/email') is not empty or formViolations.getViolations('/emailConfirmation') is not empty %} is-invalid{% endif %}"
 												   autocomplete="section-personal email"
 												   id="personalMailConfirmation"
 												   placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "general.required"|trans }}"
@@ -93,6 +93,12 @@
 											{% if formViolations.getViolations('/email') is not empty %}
 												{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
 													violationPath: '/email'
+												} %}
+											{% endif %}
+
+											{% if formViolations.getViolations('/emailConfirmation') is not empty %}
+												{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
+													violationPath: '/emailConfirmation'
 												} %}
 											{% endif %}
 										{% endblock %}
@@ -151,7 +157,7 @@
 
 											{% block component_account_register_personal_password_confirmation_input %}
 												<input type="password"
-													   class="form-control{% if formViolations.getViolations('/password') is not empty %} is-invalid{% endif %}"
+													   class="form-control{% if formViolations.getViolations('/password') is not empty or formViolations.getViolations('/passwordConfirmation') is not empty %} is-invalid{% endif %}"
 													   autocomplete="new-password"
 													   id="personalPasswordConfirmation"
 													   placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans }}{{ "general.required"|trans }}"
@@ -164,6 +170,12 @@
 												{% if formViolations.getViolations('/password') is not empty %}
 													{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
 														violationPath: '/password'
+													} %}
+												{% endif %}
+
+												{% if formViolations.getViolations('/passwordConfirmation') is not empty %}
+													{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
+														violationPath: '/passwordConfirmation'
 													} %}
 												{% endif %}
 											{% endblock %}

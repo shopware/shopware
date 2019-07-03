@@ -6,14 +6,19 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\EqualTo;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class RegisterController extends StorefrontController
 {
@@ -41,19 +46,25 @@ class RegisterController extends StorefrontController
      * @var CheckoutRegisterPageLoader
      */
     private $registerPageLoader;
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
 
     public function __construct(
         AccountLoginPageLoader $loginPageLoader,
         AccountService $accountService,
         AccountRegistrationService $accountRegistrationService,
         CartService $cartService,
-        CheckoutRegisterPageLoader $registerPageLoader
+        CheckoutRegisterPageLoader $registerPageLoader,
+        SystemConfigService $systemConfigService
     ) {
         $this->loginPageLoader = $loginPageLoader;
         $this->accountService = $accountService;
         $this->accountRegistrationService = $accountRegistrationService;
         $this->cartService = $cartService;
         $this->registerPageLoader = $registerPageLoader;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -119,7 +130,7 @@ class RegisterController extends StorefrontController
                 $data->remove('shippingAddress');
             }
 
-            $this->accountRegistrationService->register($data, $data->has('guest'), $context);
+            $this->accountRegistrationService->register($data, $data->has('guest'), $context, $this->getAdditionalRegisterValidationDefinitions($data));
         } catch (ConstraintViolationException $formViolations) {
             if (!$request->request->has('errorRoute')) {
                 throw new MissingRequestParameterException('errorRoute');
@@ -132,5 +143,24 @@ class RegisterController extends StorefrontController
         $this->accountService->login($data->get('email'), $context, $data->has('guest'));
 
         return $this->createActionResponse($request);
+    }
+
+    private function getAdditionalRegisterValidationDefinitions(DataBag $data): DataValidationDefinition
+    {
+        $definition = new DataValidationDefinition('storefront.confirmation');
+
+        if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation')) {
+            $definition->add('emailConfirmation', new NotBlank(), new EqualTo([
+                'value' => $data->get('email'),
+            ]));
+        }
+
+        if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation')) {
+            $definition->add('passwordConfirmation', new NotBlank(), new EqualTo([
+                'value' => $data->get('password'),
+            ]));
+        }
+
+        return $definition;
     }
 }

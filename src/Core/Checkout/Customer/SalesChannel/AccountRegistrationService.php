@@ -77,9 +77,9 @@ class AccountRegistrationService
         $this->systemConfigService = $systemConfigService;
     }
 
-    public function register(DataBag $data, bool $isGuest, SalesChannelContext $context): string
+    public function register(DataBag $data, bool $isGuest, SalesChannelContext $context, ?DataValidationDefinition $additionalValidationDefinitions = null): string
     {
-        $this->validateRegistrationData($data, $isGuest, $context->getContext());
+        $this->validateRegistrationData($data, $isGuest, $context->getContext(), $additionalValidationDefinitions);
 
         $customer = $this->mapCustomerData($data, $isGuest, $context);
 
@@ -121,7 +121,7 @@ class AccountRegistrationService
         return $customer['id'];
     }
 
-    private function validateRegistrationData(DataBag $data, bool $isGuest, Context $context): void
+    private function validateRegistrationData(DataBag $data, bool $isGuest, Context $context, ?DataValidationDefinition $additionalValidations = null): void
     {
         /** @var DataBag $addressData */
         $addressData = $data->get('billingAddress');
@@ -130,6 +130,12 @@ class AccountRegistrationService
         $addressData->set('salutationId', $data->get('salutationId'));
 
         $definition = $this->getCustomerCreateValidationDefinition($isGuest, $context);
+
+        if ($additionalValidations) {
+            foreach ($additionalValidations->getProperties() as $key => $validation) {
+                $definition->add($key, ...$validation);
+            }
+        }
 
         $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($context));
 

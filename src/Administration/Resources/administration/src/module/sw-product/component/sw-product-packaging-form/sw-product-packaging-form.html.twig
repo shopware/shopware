@@ -118,28 +118,7 @@
                                   :label="$tc('sw-product.priceForm.labelPurchaseUnit')"
                                   :disabled="props.isInherited"
                                   :placeholder="$tc('sw-product.priceForm.placeholderPurchaseUnit')"
-                                  :value="props.currentValue"
-                                  @change="props.updateCurrentValue">
-                        </sw-field>
-
-                    </template>
-                </sw-inherit-wrapper>
-            {% endblock %}
-
-            {% block sw_product_price_form_reference_unit_field %}
-                <sw-inherit-wrapper v-model="product.referenceUnit"
-                                    :hasParent="!!parentProduct.id"
-                                    :inheritedValue="parentProduct.referenceUnit">
-                    <template #content="props">
-
-                        <sw-field type="number"
-                                  :mapInheritance="props"
-                                  numberType="float"
-                                  :min="0"
-                                  :error="productReferenceUnitError"
-                                  :disabled="props.isInherited"
-                                  :placeholder="$tc('sw-product.priceForm.placeholderReferenceUnit')"
-                                  :label="$tc('sw-product.priceForm.labelReferenceUnit')"
+                                  :helpText="$tc('sw-product.packagingForm.purchaseUnitHelpText')"
                                   :value="props.currentValue"
                                   @change="props.updateCurrentValue">
                         </sw-field>
@@ -181,8 +160,32 @@
                                   :label="$tc('sw-product.priceForm.labelPackUnit')"
                                   :placeholder="placeholder(product, 'packUnit', $tc('sw-product.priceForm.placeholderPackUnit'))"
                                   :disabled="props.isInherited"
+                                  :helpText="$tc('sw-product.packagingForm.packUnitHelpText')"
                                   :value="props.currentValue"
                                   @input="props.updateCurrentValue">
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+
+            {% block sw_product_price_form_reference_unit_field %}
+                <sw-inherit-wrapper v-model="product.referenceUnit"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.referenceUnit">
+                    <template #content="props">
+
+                        <sw-field type="number"
+                                  :mapInheritance="props"
+                                  numberType="float"
+                                  :min="0"
+                                  :error="productReferenceUnitError"
+                                  :disabled="props.isInherited"
+                                  :placeholder="$tc('sw-product.priceForm.placeholderReferenceUnit')"
+                                  :label="$tc('sw-product.priceForm.labelReferenceUnit')"
+                                  :value="props.currentValue"
+                                  :helpText="$tc('sw-product.packagingForm.referenceUnitHelpText')"
+                                  @change="props.updateCurrentValue">
                         </sw-field>
 
                     </template>

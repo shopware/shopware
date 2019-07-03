@@ -27,7 +27,13 @@ class PasswordFieldSerializer extends AbstractFieldSerializer
 
         $value = $data->getValue();
         if ($value) {
-            $value = password_hash($value, $field->getAlgorithm(), $field->getHashOptions());
+            $info = password_get_info($value);
+
+            // if no password algorithm is detected, it might be plain text which needs to be encoded.
+            // otherwise, passthrough the possibly encoded string
+            if ($info['algo'] === 0) {
+                $value = password_hash($value, $field->getAlgorithm(), $field->getHashOptions());
+            }
         }
 
         yield $field->getStorageName() => $value;

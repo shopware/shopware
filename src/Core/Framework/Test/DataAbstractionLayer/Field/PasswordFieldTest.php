@@ -128,4 +128,27 @@ class PasswordFieldTest extends TestCase
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
         static::assertNotNull($exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
     }
+
+    public function testAlreadyEncodedValueIsPassedThrough(): void
+    {
+        $password = password_hash('shopware', PASSWORD_DEFAULT);
+
+        $field = new PasswordField('password', 'password');
+        $existence = new EntityExistence($this->getContainer()->get(UserDefinition::class), [], false, false, false, []);
+        $kvPair = new KeyValuePair('password', $password, true);
+
+        $passwordFieldHandler = new PasswordFieldSerializer(
+            $this->getContainer()->get('validator')
+        );
+
+        $payload = $passwordFieldHandler->encode($field, $existence, $kvPair, new WriteParameterBag(
+            $this->getContainer()->get(UserDefinition::class),
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            '',
+            new WriteCommandQueue()
+        ));
+
+        $payload = iterator_to_array($payload);
+        static::assertEquals($kvPair->getValue(), $payload['password']);
+    }
 }

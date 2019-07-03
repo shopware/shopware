@@ -266,7 +266,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         });
 
         const lastKnownLocale = localeFactory.getLastKnownLocale();
-        store.commit('setAdminLocale', lastKnownLocale);
+        store.dispatch('setAdminLocale', lastKnownLocale);
         store.commit('setAdminFallbackLocale', systemFallbackLocale);
 
         /* queue localeToLanguageService */

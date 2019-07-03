@@ -126,15 +126,20 @@ class MediaGenerator implements DemodataGeneratorInterface
 
     private function getRandomFile(DemodataContext $context): string
     {
-        $images = array_values(
-            iterator_to_array(
-                (new Finder())
-                    ->files()
-                    ->in($context->getProjectDir() . '/build/media')
-                    ->name('/\.(jpg|png)$/')
-                    ->getIterator()
-            )
-        );
+        $fixtureDir = $context->getProjectDir() . '/build/media';
+        $images = [];
+
+        if (is_dir($fixtureDir)) {
+            $images = \array_values(
+                \iterator_to_array(
+                    (new Finder())
+                        ->files()
+                        ->in($fixtureDir)
+                        ->name('/\.(jpg|png)$/')
+                        ->getIterator()
+                )
+            );
+        }
 
         if (\count($images)) {
             return $images[array_rand($images)]->getPathname();

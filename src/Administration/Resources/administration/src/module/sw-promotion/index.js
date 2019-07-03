@@ -90,6 +90,13 @@ Module.register('sw-promotion', {
                         parentPath: 'sw.promotion.index'
                     }
                 }
+            },
+            props: {
+                default: (route) => {
+                    return {
+                        promotionId: route.params.id
+                    };
+                }
             }
         }
     },

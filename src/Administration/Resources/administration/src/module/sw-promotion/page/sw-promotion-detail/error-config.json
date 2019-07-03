@@ -1,0 +1,8 @@
+{
+    "sw.promotion.detail.base": {
+        "promotion": [
+            "name",
+            "validUntil"
+        ]
+    }
+}

@@ -7,8 +7,8 @@ Component.register('sw-promotion-detail-base', {
     props: {
         promotion: {
             type: Object,
-            required: true,
-            default: {}
+            required: false,
+            default: null
         }
     }
 });

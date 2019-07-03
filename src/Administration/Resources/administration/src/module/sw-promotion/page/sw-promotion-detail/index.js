@@ -1,9 +1,14 @@
-import { Component, Mixin, State } from 'src/core/shopware';
-import { warn } from 'src/core/service/utils/debug.utils';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-detail.html.twig';
+import errorConfig from './error-config.json';
+
+const { mapPageErrors } = Component.getComponentHelper();
 
 Component.register('sw-promotion-detail', {
     template,
+
+    inject: ['repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -16,9 +21,17 @@ Component.register('sw-promotion-detail', {
         ESCAPE: 'onCancel'
     },
 
+    props: {
+        promotionId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
+
     data() {
         return {
-            promotion: {},
+            promotion: null,
             isLoading: false,
             isSaveSuccessful: false
         };
@@ -34,8 +47,8 @@ Component.register('sw-promotion-detail', {
         identifier() {
             return this.placeholder(this.promotion, 'name');
         },
-        promotionStore() {
-            return State.getStore('promotion');
+        promotionRepository() {
+            return this.repositoryFactory.create('promotion');
         },
         tooltipSave() {
             const systemKey = this.$device.getSystemKey();
@@ -50,7 +63,9 @@ Component.register('sw-promotion-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
-        }
+        },
+
+        ...mapPageErrors(errorConfig)
 
     },
 
@@ -59,25 +74,34 @@ Component.register('sw-promotion-detail', {
     },
 
     watch: {
-        '$route.params.id'() {
+        promotionId() {
             this.createdComponent();
         }
     },
 
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
-                this.promotionId = this.$route.params.id;
+            if (!this.promotionId) {
+                this.promotion = this.promotionRepository.create(this.context);
+
+                // TODO check if numberrange is configured
+                // if not show modal and link to settings!
+            } else {
                 this.loadEntityData();
             }
         },
 
         loadEntityData() {
-            this.promotion = this.promotionStore.getById(this.promotionId);
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('salesChannels');
+
+            this.promotionRepository.get(this.promotionId, this.context, criteria).then((promotion) => {
+                this.promotion = promotion;
+            });
         },
 
         abortOnLanguageChange() {
-            return this.promotion.hasChanges();
+            return this.promotionRepository.hasChanges(this.promotion);
         },
 
         saveOnLanguageChange() {
@@ -94,31 +118,21 @@ Component.register('sw-promotion-detail', {
 
         onSave() {
             this.$emit('save');
-            const promotionName = this.promotion.name;
-            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
-            const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessage', 0, { entityName: promotionName }
-            );
-            this.isSaveSuccessful = false;
             this.isLoading = true;
 
-
-            return this.promotion.save().then(() => {
+            return this.promotionRepository.save(this.promotion, this.context).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
-            }).catch((exception) => {
-                let customMessage = `${messageSaveError} <br />`;
-                this.promotion.errors.forEach((promotionError) => {
-                    customMessage += `${promotionError.detail} <br />`;
-                });
-                this.promotion.errors = [];
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: customMessage
-                });
-                warn(this._name, exception.message, exception.response);
+            }).catch(() => {
                 this.isLoading = false;
-                throw exception;
+                this.createNotificationError({
+                    title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                    message: this.$tc(
+                        'global.notification.notificationSaveErrorMessage',
+                        0,
+                        { entityName: this.promotion.name }
+                    )
+                });
             });
         },
 

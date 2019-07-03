@@ -277,18 +277,23 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
     function initLocales(store) {
         const registry = localeFactory.getLocaleRegistry();
         const messages = {};
+        const systemFallbackLocale = 'en-GB';
 
         registry.forEach((localeMessages, key) => {
             store.commit('registerAdminLocale', key);
             messages[key] = localeMessages;
         });
 
-        store.dispatch('setAdminLocale', localeFactory.getLastKnownLocale());
-        store.commit('setAdminFallbackLocale', 'en-GB');
+        const lastKnownLocale = localeFactory.getLastKnownLocale();
+        store.commit('setAdminLocale', lastKnownLocale);
+        store.commit('setAdminFallbackLocale', systemFallbackLocale);
+
+        /* queue localeToLanguageService */
+        store.dispatch('setAdminLocale', lastKnownLocale);
 
         const i18n = new VueI18n({
-            locale: store.state.adminLocale.currentLocale,
-            fallbackLocale: store.state.adminLocale.fallbackLocale,
+            locale: lastKnownLocale,
+            fallbackLocale: systemFallbackLocale,
             silentFallbackWarn: true,
             sync: true,
             messages

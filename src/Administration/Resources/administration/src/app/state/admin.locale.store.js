@@ -5,7 +5,7 @@ export default {
     state: {
         languageId: '',
         locales: [],
-        currentLocale: Application.getContainer('factory').locale.getLastKnownLocale(),
+        currentLocale: null,
         fallbackLocale: null
     },
 
@@ -42,9 +42,6 @@ export default {
             }
 
             state.locales.push(locale);
-            if (state.locales.length === 1) {
-                state.currentLocale = locale;
-            }
         },
 
         setAdminLocale(state, { locale, languageId }) {

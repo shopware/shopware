@@ -135,14 +135,14 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
 });
 
 /**
- * Types in an swSelect field and checks if the content was correctly typed
+ * Types in an swSelect field
  * @memberOf Cypress.Chainable#
- * @name typeSingleSelectAndCheck
+ * @name typeSingleSelect
  * @function
  * @param {String} value - Desired value of the element
  * @param {Object} [options={}] - Options concerning swSelect usage
  */
-Cypress.Commands.add('typeSingleSelectAndCheck', {
+Cypress.Commands.add('typeSingleSelect', {
     prevSubject: 'element'
 }, (subject, value, options = {}) => {
     const resultPrefix = '.sw-single-select';
@@ -175,17 +175,38 @@ Cypress.Commands.add('typeSingleSelectAndCheck', {
         }
 
         cy.wait('@filteredResultCall').then(() => {
+            cy.get(`${subject.selector} ${resultPrefix}-option--${position}.is--disabled`)
+                .should('not.exist');
+
             cy.get(`${subject.selector} ${resultPrefix}-option--${position} ${resultPrefix}-option__result-item-text`)
-                .should('be.visible')
+                .should('be.visible');
+
+            cy.get(`${subject.selector} ${resultPrefix}-option--${position} ${resultPrefix}-option__result-item-text`)
                 .contains(value);
         });
     }
 
     cy.get(`${resultPrefix}-option--${position}`).click({ force: true });
 
+    return this;
+});
+
+/**
+ * Types in an swSelect field and checks if the content was correctly typed
+ * @memberOf Cypress.Chainable#
+ * @name typeSingleSelectAndCheck
+ * @function
+ * @param {String} value - Desired value of the element
+ * @param {Object} [options={}] - Options concerning swSelect usage
+ */
+Cypress.Commands.add('typeSingleSelectAndCheck', {
+    prevSubject: 'element'
+}, (subject, value, options = {}) => {
+    cy.get(subject).typeSingleSelect(value);
+
     // expect the placeholder for an empty select field not be shown and search for the value
     cy.get(`${subject.selector} .sw-select__placeholder`).should('not.exist');
-    cy.get(`${subject.selector} ${resultPrefix}__single-selection`).contains(value);
+    cy.get(`${subject.selector} .sw-single-select__single-selection`).contains(value);
 
     return this;
 });

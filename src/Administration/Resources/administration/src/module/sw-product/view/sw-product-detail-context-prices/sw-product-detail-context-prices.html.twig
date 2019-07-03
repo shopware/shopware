@@ -12,15 +12,16 @@
         {% block sw_product_detail_prices_price_card %}
             <sw-container v-else-if="priceRuleGroupsExists">
                 <sw-card :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-product.prices.cardTitlePriceRule')"
-                         v-for="priceGroup in priceRuleGroups"
+                         v-for="(priceGroup, key, index) in priceRuleGroups"
                          :key="priceGroup.ruleId"
                          class="context-price"
+                         :class="getPriceRuleGroupClass(index)"
                          :isLoading="isLoading"
                          :large="true">
 
                     {% block sw_product_detail_prices_price_card_toolbar %}
                         <div class="sw-product-detail-context-prices__toolbar">
-                            <sw-container columns="1fr minmax(50px, max-content) minmax(50px, max-content) minmax(250px, 300px)" gap="0 10px">
+                            <sw-container columns="1fr minmax(50px, max-content) minmax(50px, max-content)" gap="0 10px">
 
                                 {% block sw_product_detail_prices_price_card_toolbar_rule_selection %}
                                     <sw-entity-single-select
@@ -51,18 +52,10 @@
                                 {% block sw_product_detail_prices_price_card_toolbar_add_price_rule %}
                                     <sw-button v-if="canAddPriceRule"
                                                size="small"
+                                               class="sw-product-detail-context-prices__toolbar-duplicate"
                                                @click="onPriceGroupDuplicate(priceGroup)"
                                                :disabled="priceGroup.ruleId === null">
                                         {{ $tc('sw-product.prices.buttonPriceRuleDuplicate') }}
-                                    </sw-button>
-                                {% endblock %}
-
-                                {% block sw_product_detail_prices_price_card_toolbar_create_price_rule %}
-                                    <sw-button @click="createPriceRule(priceGroup)"
-                                               :disabled="canCreatePriceRule(priceGroup)"
-                                               variant="ghost"
-                                               size="small">
-                                        {{ $tc('sw-product.prices.buttonAddAdditionalPriceRule') }}
                                     </sw-button>
                                 {% endblock %}
 
@@ -98,7 +91,7 @@
                                         <sw-field type="number"
                                                   v-model="item.quantityEnd"
                                                   :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
-                                                  placeholder="..."
+                                                  placeholder="∞"
                                                   @change="onQuantityEndChange(item, priceGroup)"
                                                   :min="item.quantityStart"
                                                   :max="priceGroup.prices[itemIndex + 1] ? priceGroup.prices[itemIndex + 1].quantityStart - 1 : null"
@@ -139,14 +132,9 @@
                             {% block sw_product_detail_prices_price_card_price_group_grid_actions %}
                                 <template slot="actions" slot-scope="{ item }">
 
-                                    {% block sw_product_detail_prices_price_card_price_group_grid_actions_duplicate %}
-                                        <sw-context-menu-item @click="onPriceRuleDuplicate(item)">
-                                            {{ $tc('sw-product.prices.contextMenuDuplicate') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-
                                     {% block sw_product_detail_prices_price_card_price_group_grid_actions_delete %}
                                         <sw-context-menu-item variant="danger"
+                                                              class="product-detail-context-prices__context-delete"
                                                               @click="onPriceRuleDelete(item)">
                                             {{ $tc('sw-product.prices.contextMenuDelete') }}
                                         </sw-context-menu-item>
@@ -167,6 +155,7 @@
                             {% block sw_product_detail_prices_price_card_price_group_empty_state_rule_select %}
                                 <sw-entity-single-select v-if="rules.entity"
                                                          id="rule"
+                                                         class="sw-product-detail-context-prices__empty-state-select-rule"
                                                          :value="priceGroup.ruleId"
                                                          :placeholder="$tc('sw-product.advancedPrices.selectRule')"
                                                          @input="onRuleChange($event, priceGroup.ruleId)"
@@ -211,9 +200,10 @@
 
                         {% block sw_product_detail_prices_price_empty_state_select_rule %}
                             <sw-entity-single-select v-if="rules.entity"
+                                                     class="sw-product-detail-context-prices__empty-state-select-rule"
                                                      id="rule"
                                                      value=""
-                                                     placeholder="Regel auswählen"
+                                                     :placeholder="$tc('sw-product.advancedPrices.selectRule')"
                                                      @input="onAddNewPriceGroup($event)"
                                                      :entity="rules.entity">
                                 <template slot="result_items" slot-scope="{ item, index }">

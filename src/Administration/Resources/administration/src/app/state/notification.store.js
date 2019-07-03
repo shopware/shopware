@@ -1,6 +1,5 @@
 import utils, { debug } from 'src/core/service/util.service';
-import { setReactive, deleteReactive } from 'src/app/adapter/view/vue.adapter';
-import { Application, State } from 'src/core/shopware';
+import { Application, State, ObservationApi } from 'src/core/shopware';
 import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 const NOTIFICATION_LOAD_LIMIT = 50;
@@ -166,7 +165,7 @@ export default {
 
         setNotifications(state, notifications) {
             Object.keys(notifications).forEach((id) => {
-                setReactive(state.notifications, notifications[id].uuid, notifications[id]);
+                ObservationApi.setReactive(state.notifications, notifications[id].uuid, notifications[id]);
             });
         },
 
@@ -177,12 +176,12 @@ export default {
                 return;
             }
 
-            setReactive(state.notifications, notificationUpdate.uuid, notificationUpdate);
+            ObservationApi.setReactive(state.notifications, notificationUpdate.uuid, notificationUpdate);
             _saveNotifications(state.notifications);
         },
 
         removeNotification(state, notification) {
-            deleteReactive(state.notifications, notification.uuid);
+            ObservationApi.deleteReactive(state.notifications, notification.uuid);
             _saveNotifications(state.notifications);
         },
 
@@ -201,16 +200,16 @@ export default {
                 return;
             }
 
-            setReactive(state.growlNotifications, notificationUpdate.uuid, notificationUpdate);
+            ObservationApi.setReactive(state.growlNotifications, notificationUpdate.uuid, notificationUpdate);
 
             const growlKeys = Object.keys(state.growlNotifications);
             if (growlKeys.length > state.threshold) {
-                deleteReactive(state.growlNotifications, growlKeys[0]);
+                ObservationApi.deleteReactive(state.growlNotifications, growlKeys[0]);
             }
         },
 
         removeGrowlNotification(state, notification) {
-            deleteReactive(state.growlNotifications, notification.uuid);
+            ObservationApi.deleteReactive(state.growlNotifications, notification.uuid);
         }
     },
 

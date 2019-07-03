@@ -4,12 +4,15 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\CallableClass;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -94,6 +97,60 @@ class PromotionSessionCodesTest extends TestCase
         $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
 
         static::assertEquals($promotionCode, $this->getSessionCodes()[0]);
+    }
+
+    /**
+     * @group promotions
+     */
+    public function testAddMultiplePromotionCodes()
+    {
+        $productId = Uuid::randomHex();
+        $promotions = [];
+        // If we add more than two promotions we could encounter an infinite recursion if a promotion is added
+        // via the cart service in the StorefrontCartSubscriber. For good measure, we add more than three promotions
+        // to the cart in this case.
+        foreach ([100, 1, 42, 13, 19] as $percentage) {
+            $promotion = [];
+            $promotion['code'] = strval($percentage);
+            $promotion['id'] = Uuid::randomHex();
+            $promotion['percentage'] = $percentage;
+            $promotions[] = $promotion;
+        }
+
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        // For every promotion we expect exactly one LineItemAddedEvent (plus one for the product)
+        $addListener = $this->getMockBuilder(CallableClass::class)->setMethods(['__invoke'])->getMock();
+        $addListener->expects(static::exactly(1 + count($promotions)))->method('__invoke');
+        $dispatcher->addListener(LineItemAddedEvent::class, $addListener);
+
+        // The promotions should not fire a line item removed event
+        $removeListener = $this->getMockBuilder(CallableClass::class)->setMethods(['__invoke'])->getMock();
+        $removeListener->expects(static::once())->method('__invoke');
+        $dispatcher->addListener(LineItemRemovedEvent::class, $removeListener);
+
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
+
+        /** @var Cart $cart */
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        foreach ($promotions as $promotion) {
+            $this->createTestFixturePercentagePromotion($promotion['id'], $promotion['code'], $promotion['percentage'], $this->getContainer());
+            $cart = $this->addPromotionCode($promotion['code'], $cart, $this->cartService, $this->context);
+
+            static::assertContains($promotion['code'], $this->getSessionCodes());
+        }
+
+        //assert that all promotions have been added to the session but not to the cart yet
+        static::assertCount(0, $cart->getLineItems());
+        static::assertCount(count($promotions), $this->getSessionCodes());
+
+        // LineItemAdded events should be fired here
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        // ... and one LineItemRemovedEvent should follow
+        $cart = $this->cartService->remove($cart, $productId, $this->context);
+        static::assertCount(0, $cart->getLineItems());
     }
 
     /**

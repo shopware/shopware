@@ -93,9 +93,7 @@ class CartRuleLoader
             //recalculate cart for new context rules
             $new = $this->processor->process($cart, $context, $behaviorContext);
 
-            if ($this->cartChanged($cart, $new)) {
-                $recalculate = true;
-            }
+            $recalculate = $this->cartChanged($cart, $new);
 
             $cart = $new;
 

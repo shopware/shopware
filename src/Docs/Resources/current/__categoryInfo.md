@@ -50,7 +50,7 @@
         <div class="section--inner">
             <div class="row justify--center align--center is--reverse-l">
                 <div class="col col-12 col-l-6">
-                    <div class="col-inner"><img class="has--no-border" src="https://sbp-testingmachine.s3.eu-west-1.amazonaws.com/1558440671/Group%2010.png"></div>
+                    <div class="col-inner"><img class="has--no-border" src="https://s3.eu-central-1.amazonaws.com/wiki-assets.shopware.com/1562139879/group.png"></div>
                 </div>
                 <div class="col col-12 col-l-6">
                     <div class="col-inner"><h3 class="h5 is--uppercase is--subhead">getting started</h3>

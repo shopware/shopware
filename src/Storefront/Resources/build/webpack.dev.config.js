@@ -1,5 +1,6 @@
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { join } = require('path');
 
 /**
  * -------------------------------------------------------
@@ -27,7 +28,12 @@ const modules = {
                     loader: 'css-loader'
                 },
                 {
-                    loader: 'postcss-loader' // needs to be AFTER css/style-loader and BEFORE sass-loader
+                    loader: 'postcss-loader', // needs to be AFTER css/style-loader and BEFORE sass-loader
+                    options: {
+                        config: {
+                            path: join(__dirname, '..'),
+                        },
+                    },
                 },
                 {
                     loader: 'sass-loader'

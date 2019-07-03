@@ -12,6 +12,7 @@
                      :key="index"
                      :isLoading="isLoading"
                      :title="getInlineSnippet(card.title)">
+                <slot name="beforeElements" v-bind="{ card, config: actualConfigData[currentSalesChannelId] }"></slot>
                 <template #toolbar
                           v-if="salesChannelSwitchable && config.length === 1">
                     <sw-sales-channel-switch
@@ -21,7 +22,7 @@
                 </template>
                 <template v-if="!isLoading">
                     <template v-for="element in card.elements">
-                        <slot name="card-element" v-bind="{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId] }">
+                        <slot name="card-element" v-bind="{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId], card }">
                             {% block sw_system_config_content_card_field %}
                                 <sw-form-field-renderer v-bind="getElementBind(element)"
                                                         v-model="actualConfigData[currentSalesChannelId][element.name]">
@@ -30,6 +31,7 @@
                         </slot>
                     </template>
                 </template>
+                <slot name="afterElements" v-bind="{ card, config: actualConfigData[currentSalesChannelId] }"></slot>
             </sw-card>
         {% endblock %}
     </div>

@@ -14,6 +14,7 @@
     <xs:complexType name="card">
         <xs:sequence>
             <xs:element name="title" type="translatableString" maxOccurs="unbounded"/>
+            <xs:element name="name" type="xs:string" minOccurs="0"/>
             <xs:element name="input-field" type="input-field" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="component" type="component" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>

@@ -78,6 +78,7 @@ class ConfigurationServiceTest extends TestCase
                     'en-GB' => 'Basic configuration',
                     'de-DE' => 'Grundeinstellungen',
                 ],
+                'name' => null,
                 'elements' => [
                     0 => [
                         'type' => 'text',

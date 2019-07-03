@@ -46,6 +46,16 @@ export default {
             default: false
         },
 
+        verticalAlign: {
+            type: String,
+            required: false,
+            default: '',
+            validValues: ['', 'center', 'flex-start', 'flex-end'],
+            validator(value) {
+                return ['', 'center', 'flex-start', 'flex-end'].includes(value);
+            }
+        },
+
         label: {
             type: String,
             required: false,
@@ -244,6 +254,16 @@ export default {
                 'is--disabled': this.disabled,
                 'is--boxed': !this.isInlineEdit,
                 'is--empty': this.isEmpty
+            };
+        },
+
+        verticalAlignStyle() {
+            if (!this.verticalAlign) {
+                return null;
+            }
+
+            return {
+                'justify-content': this.verticalAlign
             };
         }
     },

@@ -6,6 +6,14 @@
         <title lang="de-DE">Stammdaten</title>
 
         <input-field>
+            <name>shopName</name>
+            <label>Name of the shop</label>
+            <label lang="de-DE">Name des Shops</label>
+            <placeholder>Name of the shop...</placeholder>
+            <placeholder lang="de-DE">Name des Shops ...</placeholder>
+        </input-field>
+
+        <input-field>
             <name>email</name>
             <label>Shop owner email address</label>
             <label lang="de-DE">Shopbetreiber-E-Mail-Adresse</label>

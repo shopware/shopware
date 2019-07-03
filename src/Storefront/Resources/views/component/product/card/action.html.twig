@@ -1,5 +1,5 @@
 {% block component_product_box_action_inner %}
-    {% if shopware.config.listing.allowBuyInListing %}
+    {% if shopware.config.core.listing.allowBuyInListing %}
         <div class="product-action">
             {% if not product.variantRestrictions %}
                 {% block component_product_box_action_buy %}

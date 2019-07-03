@@ -1,5 +1,5 @@
 /*
-Payment form
+Payment method
 ==============================================
 Skin styling for payment form used e.g. on account and checkout pages.
 */
@@ -12,4 +12,9 @@ Skin styling for payment form used e.g. on account and checkout pages.
         border-bottom: 0;
         margin-bottom: 0;
     }
+}
+
+.payment-method-image{
+    max-height: 35px;
+    margin-right: $spacer-xs;
 }

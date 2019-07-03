@@ -1,0 +1,11 @@
+{% block sw_settings_content_card_slot_shop %}
+    {% parent %}
+
+    {% block sw_settings_listing_item %}
+        <sw-settings-item id="sw-settings-listing" :label="$tc('sw-settings-listing.general.mainMenuItemGeneral')" :to="{ name: 'sw.settings.listing.index' }">
+            <template slot="icon">
+                <sw-icon name="default-symbol-products"></sw-icon>
+            </template>
+        </sw-settings-item>
+    {% endblock %}
+{% endblock %}

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
@@ -58,6 +59,11 @@ class SalesChannelCustomerControllerTest extends TestCase
      */
     private $customerAddressRepository;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     protected function setUp(): void
     {
         $this->serializer = $this->getContainer()->get('serializer');
@@ -67,6 +73,7 @@ class SalesChannelCustomerControllerTest extends TestCase
         $this->customerAddressRepository = $this->getContainer()->get('customer_address.repository');
         $this->countryStateRepository = $this->getContainer()->get('country_state.repository');
         $this->context = Context::createDefaultContext();
+        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
 
         // reset rules
         $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
@@ -453,6 +460,8 @@ class SalesChannelCustomerControllerTest extends TestCase
 
     public function testChangePassword(): void
     {
+        $this->systemConfigService->set('core.loginRegistration.passwordMinLength', 8);
+
         $customerId = $this->createCustomerAndLogin();
         $password = '12345678';
 

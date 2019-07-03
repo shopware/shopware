@@ -12,6 +12,28 @@
         </input-field>
 
         <input-field type="bool">
+            <name>showTitleField</name>
+            <label>Show title</label>
+            <label lang="de-DE">Titel anzeigen</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>requireEmailConfirmation</name>
+            <label>Email address must be entered twice</label>
+            <label lang="de-DE">E-Mail-Adresse muss zweimal eingegeben werden</label>
+            <helpText>Email address is queried twice to avoid input errors.</helpText>
+            <helpText lang="de-DE">E-Mail-Adresse wird zweimal abgefragt, um Fehler bei der Eingabe zu vermeiden.</helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>requirePasswordConfirmation</name>
+            <label>Password must be entered twice</label>
+            <label lang="de-DE">Passwort muss zweimal eingegeben werden</label>
+            <helpText>Password is queried twice to avoid input errors.</helpText>
+            <helpText lang="de-DE">Passwort wird zweimal abgefragt, um Fehler bei der Eingabe zu vermeiden.</helpText>
+        </input-field>
+
+        <input-field type="bool">
             <name>showPhoneNumberField</name>
             <label>Show phone number</label>
             <label lang="de-DE">Telefonnummer anzeigen</label>

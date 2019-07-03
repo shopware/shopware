@@ -29,7 +29,7 @@
             {% endblock %}
 
             {#TODO: NEXT-2898 - check "cart item type" and "quantity" #}
-        {% elseif shopware.config.checkout.instockinfo and page.product.stock > 0 %}
+        {% elseif shopware.config.core.cart.showInstockInfo and page.product.stock > 0 %}
             {% block component_delivery_information_partial_stock %}
                 <link itemprop="availability"
                       href="http://schema.org/LimitedAvailability"/>

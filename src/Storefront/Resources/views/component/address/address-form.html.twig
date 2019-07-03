@@ -109,7 +109,7 @@
 					{% endblock %}
 				{% endset %}
 
-				{% if shopware.config.address.zipBeforeCity %}
+				{% if shopware.config.core.address.showZipcodeInFrontOfCity %}
 					<div class="form-group col-md-2 col-4">
 						{{ zipcodeField }}
 					</div>
@@ -129,12 +129,12 @@
 			{% endblock %}
 
 			{% block component_address_form_additional_field1 %}
-				{% if shopware.config.address.additionalField1 %}
+				{% if shopware.config.core.loginRegistration.showAdditionalAddressField1 %}
 					<div class="form-group col-md-6">
 						{% block component_address_form_additional_field1_label %}
 							<label class="form-label"
 								   for="{{ prefix }}AdditionalField1">
-								{{ "address.additionalField1Label"|trans }}
+								{{ "address.additionalField1Label"|trans }}{{ shopware.config.core.loginRegistration.additionalAddressField1Required ? "general.required"|trans }}
 							</label>
 						{% endblock %}
 
@@ -142,21 +142,22 @@
 							<input type="text"
 								   class="form-control"
 								   id="{{ prefix }}AdditionalField1"
-								   placeholder="{{ "address.additionalField1Placeholder"|trans }}"
+								   placeholder="{{ "address.additionalField1Placeholder"|trans }}{{ shopware.config.core.loginRegistration.additionalAddressField1Required ? "general.required"|trans }}"
 								   name="{{ prefix }}[additionalAddressLine1]"
-								   value="{{ data.get('additionalAddressLine1') }}">
+								   value="{{ data.get('additionalAddressLine1') }}"
+                                    {{ shopware.config.core.loginRegistration.additionalAddressField1Required ? 'required="true"' }}>
 						{% endblock %}
 					</div>
 				{% endif %}
 			{% endblock %}
 
 			{% block component_address_form_additional_field2 %}
-				{% if shopware.config.address.additionalField2 %}
+				{% if shopware.config.core.loginRegistration.showAdditionalAddressField2 %}
 					<div class="form-group col-md-6">
 						{% block component_address_form_additional_field2_label %}
 							<label class="form-label"
 								   for="{{ prefix }}AdditionalField2">
-								{{ "address.additionalField2Label"|trans }}
+								{{ "address.additionalField2Label"|trans }}{{ shopware.config.core.loginRegistration.additionalAddressField2Required ? "general.required"|trans }}
 							</label>
 						{% endblock %}
 
@@ -164,9 +165,10 @@
 							<input type="text"
 								   class="form-control"
 								   id="{{ prefix }}AdditionalField2"
-								   placeholder="{{ "address.additionalField2Placeholder"|trans }}"
+								   placeholder="{{ "address.additionalField2Placeholder"|trans }}{{ shopware.config.core.loginRegistration.additionalAddressField2Required ? "general.required"|trans }}"
 								   name="{{ prefix }}[additionalAddressLine2]"
-								   value="{{ data.get('additionalAddressLine2') }}">
+								   value="{{ data.get('additionalAddressLine2') }}"
+                                    {{ shopware.config.core.loginRegistration.additionalAddressField2Required ? 'required="true"' }}>
 						{% endblock %}
 					</div>
 				{% endif %}
@@ -217,6 +219,39 @@
 					{% endblock %}
 				</div>
 			{% endblock %}
+
+            {% block component_address_form_phone_number %}
+                <div class="form-group col-md-6">
+                    {% if formViolations.getViolations("/phoneNumber") is not empty %}
+                        {% set violationPath = "/phoneNumber" %}
+                    {% elseif formViolations.getViolations("/#{prefix}/phoneNumber") is not empty %}
+                        {% set violationPath = "/#{prefix}/phoneNumber" %}
+                    {% endif %}
+
+                    {% block component_address_form_phone_number_label %}
+                        <label class="form-label"
+                               for="{{ prefix }}AddressPhoneNumber">
+                            {{ "address.phoneNumberLabel"|trans }}{{ "general.required"|trans }}
+                        </label>
+                    {% endblock %}
+
+                    {% block component_address_form_phone_number_input %}
+                        <input type="text"
+                               class="form-control"
+                               id="{{ prefix }}AddressPhoneNumber"
+                               placeholder="{{ "address.phoneNumberPlaceholder"|trans }}{{ shopware.config.core.loginRegistration.showPhoneNumberField ? "general.required"|trans }}"
+                               name="{{ prefix }}[phoneNumber]"
+                               value="{{ data.get('phoneNumber') }}"
+                                {{ shopware.config.core.loginRegistration.phoneNumberFieldRequired ? 'required="true"' }}>
+                    {% endblock %}
+
+                    {% block component_address_form_phone_error %}
+                        {% if violationPath %}
+                            {% sw_include '@Storefront/utilities/form-violation.html.twig' %}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
 		</div>
 	{% endblock %}
 

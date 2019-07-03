@@ -35,7 +35,7 @@
 							{% block component_account_register_personal_fields %}
 								{% block component_account_register_personal_address_fields %}
 									{% sw_include '@Storefront/component/address/address-personal.html.twig' with {
-										'showBirthdayField': shopware.config.register.birthdayField
+										'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField
 									} %}
 								{% endblock %}
 
@@ -80,7 +80,7 @@
 
 										{% block component_account_register_personal_mail_confirmation_input %}
 											<input type="email"
-												   class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
+												   class="form-control{% if formViolations.getViolations('/email') is not empty or formViolations.getViolations('/emailConfirmation') is not empty %} is-invalid{% endif %}"
 												   autocomplete="section-personal email"
 												   id="personalMailConfirmation"
 												   placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "general.required"|trans }}"
@@ -93,6 +93,12 @@
 											{% if formViolations.getViolations('/email') is not empty %}
 												{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
 													violationPath: '/email'
+												} %}
+											{% endif %}
+
+											{% if formViolations.getViolations('/emailConfirmation') is not empty %}
+												{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
+													violationPath: '/emailConfirmation'
 												} %}
 											{% endif %}
 										{% endblock %}
@@ -116,13 +122,14 @@
 													   id="personalPassword"
 													   placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "general.required"|trans }}"
 													   name="password"
+													   minlength="shopware.config.core.loginRegistration.passwordMinLength"
 													   required="required">
 											{% endblock %}
 
 											{% block component_account_register_personal_password_description %}
 												<small class="form-text text-muted">
                                                     {{ "account.personalPasswordDescription"|trans({
-														'%minLength%': shopware.config.register.minPasswordLength
+														'%minLength%': shopware.config.core.loginRegistration.passwordMinLength
 													}) }}
                                                 </small>
 											{% endblock %}
@@ -150,11 +157,12 @@
 
 											{% block component_account_register_personal_password_confirmation_input %}
 												<input type="password"
-													   class="form-control{% if formViolations.getViolations('/password') is not empty %} is-invalid{% endif %}"
+													   class="form-control{% if formViolations.getViolations('/password') is not empty or formViolations.getViolations('/passwordConfirmation') is not empty %} is-invalid{% endif %}"
 													   autocomplete="new-password"
 													   id="personalPasswordConfirmation"
 													   placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans }}{{ "general.required"|trans }}"
 													   name="passwordConfirmation"
+													   minlength="shopware.config.core.loginRegistration.passwordMinLength"
 													   required="required">
 											{% endblock %}
 
@@ -162,6 +170,12 @@
 												{% if formViolations.getViolations('/password') is not empty %}
 													{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
 														violationPath: '/password'
+													} %}
+												{% endif %}
+
+												{% if formViolations.getViolations('/passwordConfirmation') is not empty %}
+													{% sw_include '@Storefront/utilities/form-violation.html.twig' with {
+														violationPath: '/passwordConfirmation'
 													} %}
 												{% endif %}
 											{% endblock %}
@@ -175,19 +189,19 @@
 											{{ formGroupMail }}
 										</div>
 										<div class="form-group col-sm-6">
-											{% if shopware.config.register.emailConfirmation %}
+											{% if shopware.config.core.loginRegistration.requireEmailConfirmation %}
 												{{ formGroupMailConfirmation }}
-											{% elseif not shopware.config.register.passwordConfirmation %}
+											{% elseif not shopware.config.core.loginRegistration.requirePasswordConfirmation %}
 												{{ formGroupPassword }}
 											{% endif %}
 										</div>
 										<div class="form-group col-sm-6">
-											{% if shopware.config.register.emailConfirmation or shopware.config.register.passwordConfirmation %}
+											{% if shopware.config.core.loginRegistration.requireEmailConfirmation or shopware.config.core.loginRegistration.requirePasswordConfirmation %}
 												{{ formGroupPassword }}
 											{% endif %}
 										</div>
 										<div class="form-group col-sm-6">
-											{% if shopware.config.register.passwordConfirmation %}
+											{% if shopware.config.core.loginRegistration.requirePasswordConfirmation %}
 												{{ formGroupPasswordConfirmation }}
 											{% endif %}
 										</div>

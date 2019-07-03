@@ -17,6 +17,15 @@
 
             {% block page_checkout_confirm_shipping_current %}
                 <p class="confirm-shipping-current{% if shippingMethodInvalid %} is-invalid{% endif %}">
+                    {% block page_checkout_confirm_shipping_current_image %}
+                        {% if context.shippingMethod.media %}
+                            <img src="{{ context.shippingMethod.media.url }}"
+                                 class="confirm-shipping-method-image"
+                                 alt="{{ context.shippingMethod.media.alt ?: context.shippingMethod.media.fileName }}"
+                                    {{ context.shippingMethod.media.title ? 'title="#{context.shippingMethod.media.title}"' }}>
+                        {% endif %}
+                    {% endblock %}
+
                     {% block page_checkout_confirm_shipping_current_text %}
                         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans }}</strong>
                         {{ context.shippingMethod.translated.name }}
@@ -100,14 +109,23 @@
                                                                         {% block page_checkout_confirm_shipping_form_label %}
                                                                             <label class="custom-control-label shipping-method-label"
                                                                                    for="shippingMethod{{ loop.index }}">
-                                                                                <strong>{{ shipping.translated.name }}</strong>
+
+                                                                                {% block page_checkout_confirm_shipping_form_image %}
+                                                                                    {% if shipping.media %}
+                                                                                        <img src="{{ shipping.media.url }}"
+                                                                                             class="confirm-shipping-method-image"
+                                                                                             alt="{{ shipping.media.alt ?: shipping.media.fileName }}"
+                                                                                             {{ shipping.media.title ? 'title="#{shipping.media.title}"' }}>
+                                                                                    {% endif %}
+                                                                                {% endblock %}
 
                                                                                 {% block page_checkout_confirm_shipping_form_description %}
-                                                                                    {% if shipping.description %}
                                                                                         <div class="shipping-method-description">
-                                                                                            {{ shipping.description|raw }}
+                                                                                            <strong>{{ shipping.translated.name }}</strong>
+                                                                                            {% if shipping.description %}
+                                                                                                <p>{{ shipping.description|raw }}</p>
+                                                                                            {% endif %}
                                                                                         </div>
-                                                                                    {% endif %}
                                                                                 {% endblock %}
                                                                             </label>
                                                                         {% endblock %}

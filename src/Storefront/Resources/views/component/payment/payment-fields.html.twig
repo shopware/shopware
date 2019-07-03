@@ -19,14 +19,23 @@
                                     {% block component_payment_method_label %}
                                         <label class="custom-control-label payment-method-label"
                                                for="paymentMethod{{ loop.index }}">
-                                            <strong>{{ payment.translated.name }}</strong>
+
+                                            {% block component_payment_method_image %}
+                                                {% if payment.media %}
+                                                    <img src="{{ payment.media.url }}"
+                                                         class="payment-method-image"
+                                                         alt="{{ payment.media.alt ?: payment.media.fileName }}"
+                                                            {{ payment.media.title ? 'title="#{payment.media.title}"' }}>
+                                                {% endif %}
+                                            {% endblock %}
 
                                             {% block component_payment_method_description %}
-                                                {% if payment.description %}
                                                     <div class="payment-method-description">
-                                                        {{ payment.translated.description|raw }}
+                                                        <strong>{{ payment.translated.name }}</strong>
+                                                        {% if payment.description %}
+                                                            <p>{{ payment.translated.description|raw }}</p>
+                                                        {% endif %}
                                                     </div>
-                                                {% endif %}
                                             {% endblock %}
                                         </label>
                                     {% endblock %}

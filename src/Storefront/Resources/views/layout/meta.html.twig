@@ -28,9 +28,9 @@
                 <meta property="og:type"
                       content="website"/>
                 <meta property="og:site_name"
-                      content="{{ shopware.config.shopName }}"/>
+                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
                 <meta property="og:title"
-                      content="{{ shopware.config.shopName }}"/>
+                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
                 <meta property="og:description"
                       content="{% block layout_head_meta_tags_description_og %}{{ "meta.descriptionDefault"|trans|truncate(shopware.config.seo.descriptionMaxLength) }}{% endblock %}"/>
                 <meta property="og:image"
@@ -39,9 +39,9 @@
                 <meta name="twitter:card"
                       content="website"/>
                 <meta name="twitter:site"
-                      content="{{ shopware.config.shopName }}"/>
+                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
                 <meta name="twitter:title"
-                      content="{{ shopware.config.shopName }}"/>
+                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
                 <meta name="twitter:description"
                       content="{% block layout_head_meta_tags_description_twitter %}{{ "meta.descriptionDefault"|trans|truncate(shopware.config.seo.descriptionMaxLength) }}{% endblock %}"/>
                 <meta name="twitter:image"
@@ -50,11 +50,11 @@
 
             {% block layout_head_meta_tags_schema_webpage %}
                 <meta itemprop="copyrightHolder"
-                      content="{{ shopware.config.shopName }}"/>
+                      content="{{ shopware.config.core.basicInformation.shopName }}"/>
                 <meta itemprop="copyrightYear"
                       content="{{ "meta.copyrightYear"|trans }}"/>
                 <meta itemprop="isFamilyFriendly"
-                      content="{% if shopware.config.metaIsFamilyFriendly %}true{% else %}false{% endif %}"/>
+                      content="{% if shopware.config.core.basicInformation.familyFriendly %}true{% else %}false{% endif %}"/>
                 <meta itemprop="image"
                       content="{{ asset(shopware.theme.logo.desktop) }}"/>
             {% endblock %}
@@ -86,7 +86,7 @@
         {% block layout_head_canonical %}{% endblock %}
 
         {% block layout_head_title %}
-            <title itemprop="name">{% block layout_head_title_inner %}{{ shopware.config.shopName }}{% endblock %}</title>
+            <title itemprop="name">{% block layout_head_title_inner %}{{ shopware.config.core.basicInformation.shopName }}{% endblock %}</title>
         {% endblock %}
 
         {% block layout_head_stylesheet %}

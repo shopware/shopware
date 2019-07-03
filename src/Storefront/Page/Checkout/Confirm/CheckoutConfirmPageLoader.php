@@ -75,7 +75,9 @@ class CheckoutConfirmPageLoader
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('active', true))
-            ->addSorting(new FieldSorting('position'));
+            ->addSorting(new FieldSorting('position'))
+            ->addAssociation('media');
+
         /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $salesChannelContext)->getEntities();
 
@@ -87,7 +89,10 @@ class CheckoutConfirmPageLoader
      */
     private function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true))
+            ->addAssociation('media');
+
         /** @var ShippingMethodCollection $shippingMethods */
         $shippingMethods = $this->shippingMethodRepository->search($criteria, $salesChannelContext)->getEntities();
 

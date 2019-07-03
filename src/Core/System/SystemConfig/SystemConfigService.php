@@ -59,6 +59,31 @@ class SystemConfigService
     }
 
     /**
+     * gets all available shop configs and returns them as an array
+     */
+    public function getConfigArray(?string $salesChannelId = null, bool $inherit = true): array
+    {
+        $criteria = new Criteria();
+
+        $filter = [new EqualsFilter('salesChannelId', $salesChannelId)];
+        if ($inherit) {
+            $filter[] = new EqualsFilter('salesChannelId', null);
+        }
+
+        $criteria->addFilter(new MultiFilter(
+            MultiFilter::CONNECTION_OR,
+            $filter
+        ));
+
+        $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::ASCENDING));
+
+        /** @var SystemConfigCollection $systemConfigs */
+        $systemConfigs = $this->systemConfigRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        return $this->buildSystemConfigArray($systemConfigs);
+    }
+
+    /**
      * @throws InvalidDomainException
      * @throws InvalidUuidException
      * @throws InconsistentCriteriaIdsException
@@ -140,6 +165,54 @@ class SystemConfigService
     public function delete(string $key, ?string $salesChannel = null): void
     {
         $this->set($key, null, $salesChannel);
+    }
+
+    /**
+     * the keys of the systemconfigs look like core.loginRegistration.showPhoneNumberField
+     * this method splits those strings and builds an array structur
+     *
+     * ```
+     * Array
+     * (
+     *     [core] => Array
+     *         (
+     *             [loginRegistration] => Array
+     *                 (
+     *                     [showPhoneNumberField] => 'somevalue'
+     *                 )
+     *         )
+     * )
+     * ```
+     */
+    private function buildSystemConfigArray(SystemConfigCollection $systemConfigs): array
+    {
+        $configValues = [];
+
+        /** @var SystemConfigEntity $systemConfig */
+        foreach ($systemConfigs as $systemConfig) {
+            $keys = explode('.', $systemConfig->getConfigurationKey());
+
+            $configValues = $this->getSubArray($configValues, $keys, $systemConfig->getConfigurationValue());
+        }
+
+        return $configValues;
+    }
+
+    private function getSubArray(array $configValues, array $keys, $value): array
+    {
+        $key = array_shift($keys);
+
+        if (empty($keys)) {
+            $configValues[$key] = $value;
+        } else {
+            if (!array_key_exists($key, $configValues)) {
+                $configValues[$key] = [];
+            }
+
+            $configValues[$key] = $this->getSubArray($configValues[$key], $keys, $value);
+        }
+
+        return $configValues;
     }
 
     private function validate(string $key, ?string $salesChannelId): void

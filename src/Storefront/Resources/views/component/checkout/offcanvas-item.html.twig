@@ -83,7 +83,7 @@
                                                                     {% set maxQuantity = lineItem.quantityInformation.maxPurchase %}
                                                                 {% endif %}
                                                             {% else %}
-                                                                {% set maxQuantity = shopware.config.checkout.maxQuantity %}
+                                                                {% set maxQuantity = shopware.config.core.cart.maxQuantity %}
                                                             {% endif %}
 
                                                             {% block component_offcanvas_product_buy_quantity %}

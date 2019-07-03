@@ -640,8 +640,9 @@
     "addNewRule": "Neue Regel erstellen"
   },
   "sw-shortcut-overview": {
+    "title": "Keyboard shortcuts",
     "iconTooltip": "Press the `{key}` key to show a shortcut overview",
-    "modalTitle": "Shortcut overview",
+    "modalTitle": "Keyboard shortcuts",
     "sectionAddingItems": "Adding Items",
     "sectionNavigation": "Navigation",
     "sectionSpecialShortcuts": "Special Shortcuts",
@@ -702,9 +703,13 @@
     "functionSpecialShortcutFocusSearch": "Focus Search",
     "keyboardShortcutSpecialShortcutFocusSearch": "f",
     "functionSpecialShortcutShortcutListing": "Shortcut Listing",
-    "keyboardShortcutSpecialShortcutShortcutListing": "?",
-    "functionSpecialShortcutSaveDetailView": "Save Detail View",
-    "keyboardShortcutSpecialShortcutSaveDetailView": "Windows: alt + s / Mac: control + s / Unix: alt + s",
+    "keyboardShortcutSpecialShortcutShortcutListing": "Shift ?",
+    "functionSpecialShortcutSaveDetailViewWindows": "Windows: Save Detail View",
+    "keyboardShortcutSpecialShortcutSaveDetailViewWindows": "alt s",
+    "functionSpecialShortcutSaveDetailViewMac": "Mac: Save Detail View",
+    "keyboardShortcutSpecialShortcutSaveDetailViewMac": "control s",
+    "functionSpecialShortcutSaveDetailViewLinux": "Linux: Save Detail View",
+    "keyboardShortcutSpecialShortcutSaveDetailViewLinux": "alt s",
     "functionSpecialShortcutCancelDetailView": "Cancel Detail View",
     "keyboardShortcutSpecialShortcutCancelDetailView": "Esc"
   }

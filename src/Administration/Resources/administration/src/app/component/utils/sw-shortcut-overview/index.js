@@ -1,5 +1,4 @@
 import utils from 'src/core/service/util.service';
-
 import template from './sw-shortcut-overview.html.twig';
 import './sw-shortcut-overview.scss';
 
@@ -13,8 +12,13 @@ export default {
 
     data() {
         return {
-            showShortcutOverviewModal: false,
-            sections: {
+            showShortcutOverviewModal: false
+        };
+    },
+
+    computed: {
+        sections() {
+            return {
                 addingItems: [
                     {
                         id: utils.createId(),
@@ -149,16 +153,40 @@ export default {
                         content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToPlugins')
                     }
 
-                ]
-            }
-        };
-    },
+                ],
 
-    computed: {
-        tooltipOpenModal() {
-            return {
-                message: this.$tc('sw-shortcut-overview.iconTooltip', 0, { key: '?' }),
-                appearance: 'light'
+                specialShortcuts: [
+                    {
+                        id: utils.createId(),
+                        title: this.$tc('sw-shortcut-overview.functionSpecialShortcutFocusSearch'),
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutFocusSearch')
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$tc('sw-shortcut-overview.functionSpecialShortcutShortcutListing'),
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutShortcutListing')
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$tc('sw-shortcut-overview.functionSpecialShortcutSaveDetailViewWindows'),
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailViewWindows')
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$tc('sw-shortcut-overview.functionSpecialShortcutSaveDetailViewMac'),
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailViewMac')
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$tc('sw-shortcut-overview.functionSpecialShortcutSaveDetailViewLinux'),
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailViewLinux')
+                    },
+                    {
+                        id: utils.createId(),
+                        title: this.$tc('sw-shortcut-overview.functionSpecialShortcutCancelDetailView'),
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutCancelDetailView')
+                    }
+                ]
             };
         }
     },

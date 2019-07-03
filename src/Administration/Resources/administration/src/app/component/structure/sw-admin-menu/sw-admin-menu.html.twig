@@ -107,6 +107,27 @@
                             <ul class="sw-admin-menu__navigation-list">
 
                                 {% block sw_admin_menu_user_actions_items %}
+
+                                    {% block sw_admin_menu_user_actions_items_keyboard_shortcuts_overview %}
+                                        <li class="sw-admin-menu__navigation-list-item">
+                                            <sw-shortcut-overview ref="swShortcutOverview"></sw-shortcut-overview>
+                                            <a href="#"
+                                               class="sw-admin-menu__navigation-link"
+                                               @click.prevent="openKeyboardShortcutOverview"
+                                               v-tooltip="{
+                                                   message: this.$tc('sw-shortcut-overview.iconTooltip', 0, { key: 'Shift + ?' }),
+                                                   appearance: 'light',
+                                                   position: 'right'
+                                               }">
+                                                <sw-icon class="sw-admin-menu__navigation-link-icon"
+                                                         name="default-device-keyboard"
+                                                         small>
+                                                </sw-icon>
+                                                {{ $tc('sw-shortcut-overview.title') }}
+                                            </a>
+                                        </li>
+                                    {% endblock %}
+
                                     {% block sw_admin_menu_user_actions_items_logout_user %}
                                         <li class="sw-admin-menu__navigation-list-item">
                                             <a href="#" class="sw-admin-menu__navigation-link sw-admin-menu__logout-action" @click.prevent="onLogoutUser">

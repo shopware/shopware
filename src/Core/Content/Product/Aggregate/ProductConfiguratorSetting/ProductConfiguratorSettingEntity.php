@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting;
 
-use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -43,7 +43,7 @@ class ProductConfiguratorSettingEntity extends Entity
     protected $option;
 
     /**
-     * @var MediaDefinition|null
+     * @var MediaEntity|null
      */
     protected $media;
 
@@ -122,12 +122,12 @@ class ProductConfiguratorSettingEntity extends Entity
         $this->position = $position;
     }
 
-    public function getMedia(): ?MediaDefinition
+    public function getMedia(): ?MediaEntity
     {
         return $this->media;
     }
 
-    public function setMedia(?MediaDefinition $media): void
+    public function setMedia(?MediaEntity $media): void
     {
         $this->media = $media;
     }

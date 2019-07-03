@@ -17,40 +17,68 @@
                                 {% endblock %}
 
                                 {% block page_product_detail_configurator_options %}
-                                    {% for option in group.options %}
+                                    <div class="product-detail-configurator-options">
+                                        {% for option in group.options %}
 
-                                        {% set optionIdentifier = [group.id, option.id]|join('-') %}
-                                        {% set isActive = false %}
-                                        {% set isCombinableCls = 'is-combinable' %}
+                                            {% set optionIdentifier = [group.id, option.id]|join('-') %}
+                                            {% set isActive = false %}
+                                            {% set isCombinableCls = 'is-combinable' %}
 
-                                        {% if option.id in page.product.optionIds %}
-                                            {% set isActive = true %}
-                                        {% endif %}
+                                            {% if option.id in page.product.optionIds %}
+                                                {% set isActive = true %}
+                                            {% endif %}
 
-                                        {% if not option.combinable %}
-                                            {% set isCombinableCls = false %}
-                                        {% endif %}
+                                            {% if not option.combinable %}
+                                                {% set isCombinableCls = false %}
+                                            {% endif %}
 
-                                        {% block page_product_detail_configurator_option %}
-                                            <div class="product-detail-configurator-option">
-                                                {% block page_product_detail_configurator_option_radio %}
-                                                    <input type="radio"
-                                                           name="{{ group.id }}"
-                                                           value="{{ option.id }}"
-                                                           class="product-detail-configurator-option-input{% if isCombinableCls %} {{ isCombinableCls }}{% endif %}"
-                                                           title="{{ optionIdentifier }}"
-                                                           id="{{ optionIdentifier }}"
-                                                           {% if isActive %}checked="checked"{% endif %}>
-                                                    {% block page_product_detail_configurator_option_radio_label %}
-                                                        <label class="product-detail-configurator-option-label{% if isCombinableCls %} {{ isCombinableCls }}{% endif %}"
-                                                               for="{{ optionIdentifier }}">
-                                                            {{ option.translated.name }}
-                                                        </label>
+                                            {% if option.configuratorSetting.media %}
+                                                {% set displayType = 'media' %}
+                                                {% set mediaUrl = option.configuratorSetting.media.url %}
+                                            {% else %}
+                                                {% set displayType = group.displayType %}
+                                                {% if option.media %}
+                                                    {% set mediaUrl = option.media.url %}
+                                                {% endif %}
+                                            {% endif %}
+
+                                            {% block page_product_detail_configurator_option %}
+                                                <div class="product-detail-configurator-option">
+                                                    {% block page_product_detail_configurator_option_radio %}
+                                                        <input type="radio"
+                                                               name="{{ group.id }}"
+                                                               value="{{ option.id }}"
+                                                               class="product-detail-configurator-option-input{% if isCombinableCls %} {{ isCombinableCls }}{% endif %}"
+                                                               title="{{ optionIdentifier }}"
+                                                               id="{{ optionIdentifier }}"
+                                                               {% if isActive %}checked="checked"{% endif %}>
+                                                        {% block page_product_detail_configurator_option_radio_label %}
+                                                            <label class="product-detail-configurator-option-label{% if isCombinableCls %} {{ isCombinableCls }}{% endif %} is-display-{{ displayType }}"
+                                                                   {% if displayType == "color" %}
+                                                                   style="background-color:{% if option.colorHexCode %}{{ option.colorHexCode }}{% else %}transparent{% endif %}"
+                                                                   {% endif %}
+                                                                   title="{{ option.translated.name }}"
+                                                                   for="{{ optionIdentifier }}">
+                                                                {% if displayType == 'media' %}
+                                                                    {% if mediaUrl %}
+                                                                        <img src="{{ mediaUrl }}"
+                                                                             class="product-detail-configurator-option-image"
+                                                                             alt="{{ option.translated.name }}"/>
+                                                                    {% else %}
+                                                                        {% sw_icon 'placeholder' style {
+                                                                            'size': 'lg'
+                                                                        } %}
+                                                                    {% endif %}
+                                                                {% elseif displayType == "text" %}
+                                                                    {{ option.translated.name }}
+                                                                {% endif %}
+                                                            </label>
+                                                        {% endblock %}
                                                     {% endblock %}
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
-                                    {% endfor %}
+                                                </div>
+                                            {% endblock %}
+                                        {% endfor %}
+                                    </div>
                                 {% endblock %}
                             </div>
                         {% endblock %}

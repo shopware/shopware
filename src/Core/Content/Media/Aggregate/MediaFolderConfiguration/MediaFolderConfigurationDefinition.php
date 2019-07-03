@@ -5,13 +5,15 @@ namespace Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfigurationMediaThumbnailSize\MediaFolderConfigurationMediaThumbnailSizeDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition;
+use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -78,7 +80,7 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
                 'media_thumbnail_size_id'
             ),
 
-            (new BlobField('media_thumbnail_sizes_ro', 'mediaThumbnailSizesRo'))->addFlags(new Computed(), new Internal()),
+            (new BlobField('media_thumbnail_sizes_ro', 'mediaThumbnailSizesRo'))->addFlags(new Computed(), new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
 
             new CustomFields(),
         ]);

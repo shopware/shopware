@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Internal;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -140,7 +139,7 @@ class JsonApiEncoder
         $serialized->setType($definition->getEntityName());
 
         foreach ($definition->getFields() as $propertyName => $field) {
-            if ($propertyName === 'id' || $field->is(Internal::class)) {
+            if ($propertyName === 'id') {
                 continue;
             }
 

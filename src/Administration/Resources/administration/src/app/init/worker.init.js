@@ -14,12 +14,14 @@ export default function initializeWorker() {
     registerThumbnailMiddleware(workerNotificationFactory);
 
     return function configureWorker() {
+        // Enable worker notification listener regardless of the config
+        enableWorkerNotificationListener(
+            loginService,
+            context
+        );
+
         if (context.config.adminWorker.enableAdminWorker && !enabled) {
             enableAdminWorker(loginService, context, context.config.adminWorker);
-            enableWorkerNotificationListener(
-                loginService,
-                context
-            );
         }
     };
 }

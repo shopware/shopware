@@ -118,6 +118,21 @@ class RequirementsValidator
                 $package->getVersion(),
                 $exceptionStack
             );
+
+            foreach ($package->getReplaces() as $replace) {
+                $replaceVersion = $replace->getPrettyConstraint();
+
+                if ($replaceVersion === 'self.version') {
+                    $replaceVersion = $package->getVersion();
+                }
+
+                $pluginRequirements = $this->checkRequirement(
+                    $pluginRequirements,
+                    $replace->getTarget(),
+                    $replaceVersion,
+                    $exceptionStack
+                );
+            }
         }
 
         return $pluginRequirements;
@@ -219,7 +234,6 @@ class RequirementsValidator
         if (!is_dir($vendorDir)) {
             return $pluginRequirements;
         }
-
         $pluginRequirements = $this->checkComposerDependencies(
             $pluginRequirements,
             $exceptionStack,

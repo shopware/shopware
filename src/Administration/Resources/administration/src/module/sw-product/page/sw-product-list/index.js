@@ -159,7 +159,7 @@ Component.register('sw-product-list', {
 
             // find price from product with currency id
             if (foundProduct) {
-                const priceForProduct = Object.values(foundProduct.price).find((price) => {
+                const priceForProduct = foundProduct.price.find((price) => {
                     return price.currencyId === currencyId;
                 });
 

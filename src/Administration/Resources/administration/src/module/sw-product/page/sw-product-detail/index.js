@@ -65,7 +65,7 @@ Component.register('sw-product-detail', {
             // when product is variant
             if (this.isChild && this.product && this.product.options && this.product.options.items) {
                 // return each option
-                return Object.values(this.product.options.items).map(option => {
+                return this.product.options.map(option => {
                     return option.translated.name || option.name;
                 }).join(' – ');
             }
@@ -531,7 +531,7 @@ Component.register('sw-product-detail', {
         },
 
         _checkIfMediaIsAlreadyUsed(mediaId) {
-            return Object.values(this.product.media).some((productMedia) => {
+            return this.product.media.some((productMedia) => {
                 return productMedia.mediaId === mediaId;
             });
         }

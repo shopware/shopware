@@ -1,0 +1,30 @@
+{% block sw_line_chart %}
+    <div class="sw-chart">
+        {% block sw_line_chart_multiple %}
+            <template v-if="needOneDimensionalArray">
+                {% block sw_line_chart_multiple_chart %}
+                    <apexchart v-for="(serie, index) in optimizedSeries"
+                               v-bind="$attrs"
+                               v-on="$listeners"
+                               :key="index"
+                               :type="type"
+                               :options="mergedOptions"
+                               :series="serie.data"
+                               :height="height">
+                    </apexchart>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_line_chart_single %}
+            <apexchart v-else
+                       v-bind="$attrs"
+                       v-on="$listeners"
+                       :type="type"
+                       :options="mergedOptions"
+                       :series="optimizedSeries"
+                       :height="height">
+            </apexchart>
+        {% endblock %}
+    </div>
+{% endblock %}

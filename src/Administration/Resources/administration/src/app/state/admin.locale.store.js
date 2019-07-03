@@ -11,10 +11,17 @@ export default {
 
     getters: {
         adminLocaleLanguage(state) {
+            if (!state || !state.currentLocale) {
+                return null;
+            }
+
             return state.currentLocale.split('-')[0];
         },
 
         adminLocaleRegion(state) {
+            if (!state || !state.currentLocale) {
+                return null;
+            }
             return state.currentLocale.split('-')[1];
         }
     },

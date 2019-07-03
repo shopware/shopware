@@ -2,36 +2,80 @@
 
 import CustomerPageObject from '../../support/pages/module/sw-customer.page-object';
 
+let product;
+let storefrontCustomer;
+
 describe('Dashboard: Test first sight of the Administration', () => {
     beforeEach(() => {
-        cy.loginViaApi()
+        cy.setToInitialState()
+            .then(() => {
+                cy.loginViaApi();
+            })
             .then(() => {
                 cy.setLocaleToEnGb();
             })
             .then(() => {
-                cy.openInitialPage(Cypress.env('admin'));
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                return cy.searchViaAdminApi({
+                    endpoint: 'product',
+                    data: {
+                        field: 'name',
+                        value: 'Product name'
+                    }
+                });
+            })
+            .then((result) => {
+                return cy.createGuestOrder(result.id);
+            })
+            .then(() => {
+                return cy.fixture('product')
+            })
+            .then((result) => {
+                product = result;
+            })
+            .then(() => {
+                return cy.fixture('storefront-customer')
+            })
+            .then((result) => {
+                storefrontCustomer = result;
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}`);
             });
     });
 
     it('@p read dashboard', () => {
         const page = new CustomerPageObject();
 
-        // Check dashboard in general
-        cy.get('.sw-dashboard-card-headline').contains('Welcome');
-        cy.get('.sw-dashboard__welcome-content img')
+        // Check today stats
+        cy.get('.sw-dashboard-intro-stats-today').contains('What is happening today?');
+        cy.get('.sw-dashboard-intro-image img')
             .should(
                 'have.attr',
                 'src',
                 `${Cypress.config('baseUrl')}/bundles//administration/static/img/dashboard-logo.svg`
             );
-        cy.get('.sw-dashboard__documentation').should('be.visible');
+        cy.get('.sw-dashboard-intro-stats-today__single-stat-number').should('be.visible');
+        cy.get('.sw-dashboard-intro-stats-today__single-stat-number').contains('1');
+        cy.get('.sw-dashboard-intro-stats-today__single-stat-number').contains(product.price[0].gross);
 
-        // Check PayPal reference
-        cy.get('.sw-dashboard__paypal-icon').should('be.visible');
-        cy.get(`.sw-dashboard__paypal ${page.elements.primaryButton}`).should('be.visible');
+        // check today orders
+        cy.get('.sw-data-grid__row--0').should('be.visible');
+        cy.get('.sw-data-grid__row--0').contains(`${storefrontCustomer.firstName} ${storefrontCustomer.lastName}`);
 
-        // Check Migration reference
-        cy.get('.sw-dashboard__migration-content').scrollIntoView();
-        cy.get(`.sw-dashboard__migration-content ${page.elements.primaryButton}`).should('be.visible');
+        // check if chart is visible
+        cy.get('.apexcharts-canvas .apexcharts-title-text').should('be.visible');
+        cy.get('.apexcharts-canvas .apexcharts-title-text').contains('Number of orders');
+        cy.get('.apexcharts-canvas .apexcharts-title-text').contains('Turnover');
+
+        // Check link in grid
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__actions-menu').should('be.visible');
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__actions-menu').click();
+        cy.get('.sw-context-menu-item.sw-order-list__order-view-action').should('be.visible');
+        cy.get('.sw-context-menu-item.sw-order-list__order-view-action').click();
+        cy.get('.sw-order-user-card__metadata-user-name').should('be.visible');
+        cy.get('.sw-order-user-card__metadata-user-name').contains(`${storefrontCustomer.firstName} ${storefrontCustomer.lastName}`);
     });
 });

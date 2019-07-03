@@ -76,13 +76,13 @@
                                         {% endblock %}
     
                                         {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
-                                            <sw-select-field :label="$tc('sw-cms.elements.labelMediaVerticalAlign')"
+                                            <sw-select-field :label="$tc('sw-cms.elements.labelVerticalAlign')"
                                                              v-model="element.config.verticalAlign.value"
-                                                             :placeholder="$tc('sw-cms.elements.labelMediaVerticalAlign')"
+                                                             :placeholder="$tc('sw-cms.elements.labelVerticalAlign')"
                                                              :disabled="element.config.displayMode.value === 'cover'">
-                                                <option value="flex-start">{{ $tc('sw-cms.elements.labelMediaVerticalAlignTop') }}</option>
-                                                <option value="center">{{ $tc('sw-cms.elements.labelMediaVerticalAlignCenter') }}</option>
-                                                <option value="flex-end">{{ $tc('sw-cms.elements.labelMediaVerticalAlignBottom') }}</option>
+                                                <option value="flex-start">{{ $tc('sw-cms.elements.labelVerticalAlignTop') }}</option>
+                                                <option value="center">{{ $tc('sw-cms.elements.labelVerticalAlignCenter') }}</option>
+                                                <option value="flex-end">{{ $tc('sw-cms.elements.labelVerticalAlignBottom') }}</option>
                                             </sw-select-field>
                                         {% endblock %}
                                     </div>

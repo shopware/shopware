@@ -72,10 +72,6 @@ Component.extend('sw-product-visibility-select', 'sw-multi-select', {
 
             this.$on('scroll', this.paginate);
 
-            if (this.localMode) {
-                return Promise.resolve();
-            }
-
             this.displayAssigned(this.collection);
 
             return Promise.resolve();

@@ -104,6 +104,13 @@
             "confirmText": "Möchtest Du diesen Rabatt wirklich aus der Rabattaktion entfernen?",
             "buttonCancel": "Abbrechen",
             "buttonDelete": "Rabatt entfernen"
+          },
+          "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
+          "pricesModal": {
+            "advancedPricesHeader": "Erweiterte Preise",
+            "closeModal": "Schliessen",
+            "labelCurrency": "Währung",
+            "labelPrice": "Wert"
           }
         }
       }

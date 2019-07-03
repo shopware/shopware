@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
@@ -208,6 +209,40 @@ class PromotionCalculationTest extends TestCase
     }
 
     /**
+     * This test verifies that our promotion components are really involved in our checkout.
+     * We add a product to the cart and apply a code for a promotion with a currency dependent discount.
+     * The standard value of discount would be 15, but our currency price value is 30
+     * Our cart should have a total value of 70,00 (and not 85 as standard) in the end.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testAbsoluteDiscountWithCurrencyPriceValues(): void
+    {
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $code = 'BF19';
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
+
+        $this->createAdvancedCurrencyPriceValuePromotion($promotionId, $code, 15, 30);
+
+        /** @var Cart $cart */
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // create product and add to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        // create promotion and add to cart
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        static::assertEquals(70, $cart->getPrice()->getPositionPrice());
+        static::assertEquals(70, $cart->getPrice()->getTotalPrice());
+        static::assertEquals(58.82, $cart->getPrice()->getNetPrice());
+    }
+
+    /**
      * This test verifies that we can successfully remove an added
      * promotion by code and get the original price again.
      *
@@ -246,5 +281,45 @@ class PromotionCalculationTest extends TestCase
         static::assertEquals(119.0, $cart->getPrice()->getTotalPrice());
         static::assertEquals(119.0, $cart->getPrice()->getPositionPrice());
         static::assertEquals(100.0, $cart->getPrice()->getNetPrice());
+    }
+
+    /**
+     * create a promotion with a currency based price value discount.
+     */
+    private function createAdvancedCurrencyPriceValuePromotion(string $promotionId, string $code, float $discountPrice, float $advancedPrice)
+    {
+        $discountId = Uuid::randomHex();
+
+        $this->promotionRepository->create(
+            [
+                [
+                    'id' => $promotionId,
+                    'name' => 'Black Friday',
+                    'active' => true,
+                    'code' => $code,
+                    'useCodes' => true,
+                    'salesChannels' => [
+                        ['salesChannelId' => Defaults::SALES_CHANNEL, 'priority' => 1],
+                    ],
+                    'discounts' => [
+                        [
+                            'id' => $discountId,
+                            'scope' => PromotionDiscountEntity::SCOPE_CART,
+                            'type' => PromotionDiscountEntity::TYPE_ABSOLUTE,
+                            'value' => $discountPrice,
+                            'considerAdvancedRules' => false,
+                            'promotionDiscountPrices' => [
+                                [
+                                    'currencyId' => Defaults::CURRENCY,
+                                    'discountId' => $discountId,
+                                    'price' => $advancedPrice,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            $this->context->getContext()
+        );
     }
 }

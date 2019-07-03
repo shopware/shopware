@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount;
 
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule\PromotionDiscountRuleDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -50,6 +52,7 @@ class PromotionDiscountDefinition extends EntityDefinition
 
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
             (new ManyToManyAssociationField('discountRules', RuleDefinition::class, PromotionDiscountRuleDefinition::class, 'discount_id', 'rule_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('promotionDiscountPrices', PromotionDiscountPriceDefinition::class, 'discount_id', 'id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

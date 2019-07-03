@@ -2,28 +2,47 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit\Cart\Builder;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Rule\Container\OrRule;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionItemBuilderTest extends TestCase
 {
     /** @var PromotionEntity */
     private $promotion = null;
 
+    /** @var MockObject */
+    private $salesChannelContext = null;
+
+    /** @var MockObject */
+    private $context = null;
+
     public function setUp(): void
     {
         $this->promotion = new PromotionEntity();
         $this->promotion->setId('PR-1');
         $this->promotion->setUseCodes(false);
+
+        $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
+        $this->context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
+        $this->context->method('getCurrencyPrecision')->willReturn(3);
+
+        $this->salesChannelContext->method('getContext')->willReturn($this->context);
     }
 
     /**
@@ -45,7 +64,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(50);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, $this->salesChannelContext);
 
         static::assertEquals(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
     }
@@ -72,7 +91,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(50);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, $this->salesChannelContext);
 
         static::assertEquals('D5', $item->getId());
     }
@@ -97,9 +116,11 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(10);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
+        $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
 
-        $expectedPriceDefinition = new PercentagePriceDefinition(-10, 1, null);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, $this->salesChannelContext);
+
+        $expectedPriceDefinition = new PercentagePriceDefinition(-10, $precision, null);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }
@@ -124,9 +145,12 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
         $discount->setValue(50);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
+        /** @var int $precision */
+        $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
 
-        $expectedPriceDefinition = new AbsolutePriceDefinition(-50, 1, null);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, $this->salesChannelContext);
+
+        $expectedPriceDefinition = new AbsolutePriceDefinition(-50, $precision, null);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }
@@ -164,7 +188,7 @@ class PromotionItemBuilderTest extends TestCase
         $expectedRule = new OrRule();
         $expectedRule->addRule($discountFilter);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, $this->salesChannelContext);
 
         static::assertEquals($expectedRule, $item->getPriceDefinition()->getFilter());
     }
@@ -199,7 +223,7 @@ class PromotionItemBuilderTest extends TestCase
         $ruleCollection->add($discountRuleEntity);
         $discount->setDiscountRules($ruleCollection);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, $this->salesChannelContext);
 
         static::assertNull($item->getPriceDefinition()->getFilter());
     }
@@ -224,9 +248,56 @@ class PromotionItemBuilderTest extends TestCase
         $ruleCollection = new RuleCollection();
         $discount->setDiscountRules($ruleCollection);
 
-        $item = $builder->buildDiscountLineItem($this->promotion, $discount, 1);
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, $this->salesChannelContext);
 
         static::assertNull($item->getPriceDefinition()->getFilter());
+    }
+
+    /**
+     * This test verifies that the correct currency price value is applied to
+     * discount
+     *
+     * @test
+     * @group promotions
+     */
+    public function testDiscountCurrencyCustomPrices()
+    {
+        $builder = new PromotionItemBuilder('My-TYPE');
+
+        $standardDiscountValue = 50;
+        $currencyDiscountValue = 10;
+
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $discount->setValue($standardDiscountValue);
+
+        $currency = new CurrencyEntity();
+        $currency->setId('currency');
+
+        $advancedPrice = new PromotionDiscountPriceEntity();
+        $advancedPrice->setUniqueIdentifier(Uuid::randomHex());
+        $advancedPrice->setCurrency($currency);
+        $advancedPrice->setCurrencyId($currency->getId());
+        $advancedPrice->setPrice($currencyDiscountValue);
+
+        $advancedPricesCollection = new PromotionDiscountPriceCollection([]);
+        $advancedPricesCollection->add($advancedPrice);
+
+        $discount->setPromotionDiscountPrices($advancedPricesCollection);
+
+        $this->salesChannelContext->method('getCurrency')->willReturn($currency);
+
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, $this->salesChannelContext);
+
+        $expectedPrice = -1 * $currencyDiscountValue;
+
+        /** @var int $precision */
+        $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
+
+        $expectedPriceDefinition = new AbsolutePriceDefinition($expectedPrice, $precision, null);
+
+        static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }
 
     /**

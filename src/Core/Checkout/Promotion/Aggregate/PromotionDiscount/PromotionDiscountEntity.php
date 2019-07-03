@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount;
 
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -65,6 +66,11 @@ class PromotionDiscountEntity extends Entity
      * @var bool
      */
     protected $considerAdvancedRules;
+
+    /**
+     * @var PromotionDiscountPriceCollection
+     */
+    protected $promotionDiscountPrices;
 
     public function getPromotionId(): string
     {
@@ -133,6 +139,22 @@ class PromotionDiscountEntity extends Entity
     public function setDiscountRules(?RuleCollection $discountRules): void
     {
         $this->discountRules = $discountRules;
+    }
+
+    /**
+     * if a promotionDiscountPrice has a value for a currency this value should be
+     * taken for the discount value and not the value of this entity
+     *
+     * @return PromotionDiscountPriceCollection
+     */
+    public function getPromotionDiscountPrices(): ?PromotionDiscountPriceCollection
+    {
+        return $this->promotionDiscountPrices;
+    }
+
+    public function setPromotionDiscountPrices(?PromotionDiscountPriceCollection $promotionDiscountPrices): void
+    {
+        $this->promotionDiscountPrices = $promotionDiscountPrices;
     }
 
     public function isConsiderAdvancedRules(): bool

@@ -19,7 +19,6 @@
                           v-model="discount.considerAdvancedRules">
                 </sw-field>
             {% endblock %}
-
         </sw-container>
 
         {% block sw_promotion_discount_condition_rules_form %}
@@ -40,7 +39,6 @@
                         </sw-multi-select-option>
                     </template>
                 </sw-many-to-many-select>
-
             </template>
         {% endblock %}
 
@@ -68,6 +66,57 @@
                 </sw-field>
             {% endblock %}
         </sw-container>
+
+        {% block sw_promotion_discount_advanced_prices_link %}
+            <sw-container columns="1fr" justify="end">
+                <template v-if="this.displayAdvancedPricesLink === true">
+                    <a @click="onClickAdvancedPrices" class="sw-card__quick-link advanced-prices">
+                        {#<a @click="openAdvancedPricesModal" class="sw-card__quick-link advanced-prices">#}
+                        {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
+                        <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                    </a>
+                </template>
+            </sw-container>
+        {% endblock %}
+
+        {% block sw_promotion_discount_advanced_prices_modal %}
+            <sw-modal v-if="displayAdvancedPrices"
+                      @modal-close="onCloseAdvancedPricesModal"
+                      :title="$tc('sw-promotion.detail.main.discounts.pricesModal.advancedPricesHeader')"
+                      class="sw-promotion-discount-form__advanced-prices-modal">
+
+                <sw-one-to-many-grid :collection="discount.promotionDiscountPrices"
+                                     ref="advancedPricesGrid"
+                                     :localMode="true"
+                                     :columns="currencyPriceColumns"
+                                     :showSelection="false"
+                                     :isLoading="isLoading"
+                                     enableInlineEdit="true">
+
+                    <template #column-currency.translated.name="{ item }">
+                        <p>{{ item.currency.translated.name  }}</p>
+                    </template>
+
+                    <template #column-price="{ item }">
+                        <sw-number-field type="text"
+                                         v-model="item.price"
+                                         small>
+
+                            <template #suffix>
+                                {{ item.currency.symbol }}
+                            </template>
+                        </sw-number-field>
+                    </template>
+                </sw-one-to-many-grid>
+
+                <template slot="modal-footer">
+                    <sw-button variant="primary" size="small" @click="onCloseAdvancedPricesModal">
+                        {{ $tc('sw-promotion.detail.main.discounts.pricesModal.closeModal') }}
+                    </sw-button>
+                </template>
+            </sw-modal>
+        {% endblock %}
+
         {% block sw_select_rule_create_rule_modal %}
             {#todo next-2945 change allowedRuleScope if rule types may be addressed correctly #}
             <sw-rule-modal v-if="showRuleModal"
@@ -77,5 +126,4 @@
             </sw-rule-modal>
         {% endblock %}
     </div>
-
 {% endblock %}

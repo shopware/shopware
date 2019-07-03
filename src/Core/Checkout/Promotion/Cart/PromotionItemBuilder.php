@@ -8,12 +8,15 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceEntity;
 use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionItemBuilder
 {
@@ -57,9 +60,13 @@ class PromotionItemBuilder
      *
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
+     * @throws UnknownPromotionDiscountTypeException
      */
-    public function buildDiscountLineItem(PromotionEntity $promotion, PromotionDiscountEntity $discount, int $currencyPrecision): LineItem
+    public function buildDiscountLineItem(PromotionEntity $promotion, PromotionDiscountEntity $discount, SalesChannelContext $context): LineItem
     {
+        /** @var int $currencyPrecision */
+        $currencyPrecision = $context->getContext()->getCurrencyPrecision();
+
         //get the rules collection of discount
         /** @var RuleCollection|null $discountRuleCollection */
         $discountRuleCollection = $discount->getDiscountRules();
@@ -90,6 +97,7 @@ class PromotionItemBuilder
 
         switch ($discount->getType()) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
+                $promotionValue = $this->getDiscountValueBySalesChannelContext($discount, $context);
                 $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
                 break;
 
@@ -150,5 +158,41 @@ class PromotionItemBuilder
         $payload['discountType'] = $discountType;
 
         return $payload;
+    }
+
+    /**
+     * get the absolute price from collection if there is a price defined for the SalesChannelContext currency
+     * if no price is defined return standard discount price
+     */
+    private function getDiscountValueBySalesChannelContext(PromotionDiscountEntity $discount, SalesChannelContext $context): float
+    {
+        /** @var float $discountValue */
+        $discountValue = $discount->getValue();
+
+        /** @var PromotionDiscountPriceCollection|null $currencyPrices */
+        $currencyPrices = $discount->getPromotionDiscountPrices();
+
+        // if there is no special defined price return standard value
+        if (!$currencyPrices instanceof PromotionDiscountPriceCollection || $currencyPrices->count() === 0) {
+            return -1 * $discountValue;
+        }
+
+        // there are defined special prices, let's look if we may find one in collection for sales channel currency
+        // if there is one we want to return this otherwise we return standard value
+
+        /** @var string $currencyId */
+        $currencyId = $context->getCurrency()->getId();
+
+        /** @var PromotionDiscountPriceEntity $currencyPrice */
+        foreach ($currencyPrices as $currencyPrice) {
+            if ($currencyPrice->getCurrencyId() === $currencyId) {
+                // we have found a defined price, we overwrite standard value and break loop
+                $discountValue = $currencyPrice->getPrice();
+                break;
+            }
+        }
+
+        // return the value
+        return -1 * $discountValue;
     }
 }

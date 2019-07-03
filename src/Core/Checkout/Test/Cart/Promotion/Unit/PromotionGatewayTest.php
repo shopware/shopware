@@ -79,6 +79,7 @@ class PromotionGatewayTest extends TestCase
         $expectedCriteria->addAssociation('cartRules');
         $expectedCriteria->addAssociation('orderRules');
         $expectedCriteria->addAssociationPath('discounts.discountRules');
+        $expectedCriteria->addAssociationPath('discounts.promotionDiscountPrices');
 
         static::assertEquals($expectedCriteria, $fakeRepo->getSearchedCriteria());
     }
@@ -114,6 +115,7 @@ class PromotionGatewayTest extends TestCase
         $expectedCriteria->addAssociation('cartRules');
         $expectedCriteria->addAssociation('orderRules');
         $expectedCriteria->addAssociationPath('discounts.discountRules');
+        $expectedCriteria->addAssociationPath('discounts.promotionDiscountPrices');
 
         static::assertEquals($expectedCriteria, $fakeRepo->getSearchedCriteria());
     }

@@ -10,6 +10,10 @@
       "columnShortCode": "Kurzform",
       "contextMenuDelete": "Löschen"
     },
+    "empty-state": {
+      "title": "Keine Einheiten vorhanden",
+      "subline": "Hier können Sie Einheiten verwalten"
+    },
     "notification": {
       "successTitle": "Einheit gespeichert",
       "successMessage": "Die Einheit wurde erfolgreich gespeichert.",

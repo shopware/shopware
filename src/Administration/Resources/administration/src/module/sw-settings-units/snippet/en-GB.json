@@ -10,6 +10,10 @@
       "columnShortCode": "Short code",
       "contextMenuDelete": "Delete"
     },
+    "empty-state": {
+      "title": "No units available",
+      "subline": "Manage units here"
+    },
     "notification": {
       "successTitle": "Unit saved",
       "successMessage": "The unit was successfully saved.",

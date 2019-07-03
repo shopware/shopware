@@ -3,6 +3,8 @@ import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 
+const { mapApiErrors } = Component.getComponentHelper();
+
 Component.register('sw-customer-card', {
     template,
 
@@ -73,7 +75,9 @@ Component.register('sw-customer-card', {
 
         salutationRepository() {
             return this.repositoryFactory.create('salutation');
-        }
+        },
+
+        ...mapApiErrors('customer', ['firstName', 'lastName'])
     },
 
     created() {

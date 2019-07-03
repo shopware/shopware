@@ -55,7 +55,8 @@
                             {% block sw_customer_detail_content_tab_general %}
                                 <sw-tabs-item class="sw-customer-detail__tab-general"
                                               :route="{ name: 'sw.customer.detail.base', params: { id: $route.params.id } }"
-                                              :title="$tc('sw-customer.detail.tabGeneral')">
+                                              :title="$tc('sw-customer.detail.tabGeneral')"
+                                              :hasError="swCustomerDetailBaseError">
                                     {{ $tc('sw-customer.detail.tabGeneral') }}
                                 </sw-tabs-item>
                             {% endblock %}

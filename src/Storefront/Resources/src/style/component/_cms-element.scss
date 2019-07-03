@@ -48,3 +48,10 @@ General styling for cms elements
 .cms-element-product-box {
     width: 100%;
 }
+
+.cms-element-text {
+    &.has-vertical-alignment {
+        display: flex;
+        height: 100%;
+    }
+}

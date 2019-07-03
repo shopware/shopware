@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 abstract class AbstractPluginLifecycleCommand extends Command
@@ -78,10 +80,14 @@ abstract class AbstractPluginLifecycleCommand extends Command
         SymfonyStyle $io,
         InputInterface $input,
         Context $context
-    ): PluginCollection {
+    ): ?PluginCollection {
         $io->title('Shopware Plugin Lifecycle Service');
 
-        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $context);
+        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $lifecycleMethod, $io, $context);
+
+        if ($plugins === null) {
+            return null;
+        }
 
         if ($plugins->count() === 0) {
             $io->warning('No plugins found');
@@ -132,7 +138,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
         );
     }
 
-    private function parsePluginArgument(array $arguments, Context $context): PluginCollection
+    private function parsePluginArgument(array $arguments, string $lifecycleMethod, SymfonyStyle $io, Context $context): ?PluginCollection
     {
         $plugins = array_unique($arguments);
         $filter = [];
@@ -145,6 +151,49 @@ abstract class AbstractPluginLifecycleCommand extends Command
 
         /** @var PluginCollection $pluginCollection */
         $pluginCollection = $this->pluginRepo->search($criteria, $context)->getEntities();
+
+        if ($pluginCollection->count() <= 1) {
+            return $pluginCollection;
+        }
+
+        $choiceAbort = 'Cancel.';
+        $choiceSelect = sprintf('Select one Plugin to %s.', $lifecycleMethod);
+
+        $choice = $io->askQuestion(
+            new ChoiceQuestion(
+                sprintf(
+                    '%d plugins were found. How do you want to continue?',
+                    $pluginCollection->count()
+                ),
+                [
+                    sprintf('%s all of them.', $lifecycleMethod),
+                    $choiceSelect,
+                    $choiceAbort,
+                ]
+            )
+        );
+
+        if ($choice === $choiceAbort) {
+            $io->note('Aborting due to user input.');
+
+            return null;
+        }
+
+        if ($choice === $choiceSelect) {
+            $id = $io->askQuestion(
+                new ChoiceQuestion(
+                    sprintf(
+                        'Which plugin do you want to %s?',
+                        $lifecycleMethod
+                    ),
+                    $pluginCollection->map(function (PluginEntity $plugin) {
+                        return $plugin->getName();
+                    })
+                )
+            );
+
+            return new PluginCollection([$pluginCollection->get($id)]);
+        }
 
         return $pluginCollection;
     }

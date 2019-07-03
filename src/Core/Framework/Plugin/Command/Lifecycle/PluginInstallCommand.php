@@ -31,6 +31,11 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         $io = new ShopwareStyle($input, $output);
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
+
+        if ($plugins === null) {
+            return null;
+        }
+
         $activatePlugins = $input->getOption('activate');
 
         $installedPluginCount = 0;

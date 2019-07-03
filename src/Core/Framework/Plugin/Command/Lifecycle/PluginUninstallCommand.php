@@ -31,6 +31,10 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
+        if ($plugins === null) {
+            return null;
+        }
+
         $keepUserData = (bool) $input->getOption('keep-user-data');
 
         $uninstalledPluginCount = 0;

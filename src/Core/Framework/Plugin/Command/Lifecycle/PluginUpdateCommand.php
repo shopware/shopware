@@ -26,6 +26,10 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
         $context = Context::createDefaultContext();
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
+        if ($plugins === null) {
+            return null;
+        }
+
         $updatedPluginCount = 0;
         /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {

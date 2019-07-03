@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -54,7 +55,8 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
                 $taxRules,
                 $salesChannelContext->getContext()->getCurrencyPrecision(),
                 $quantity,
-                true
+                true,
+                $this->buildReferencePriceDefinition($product)
             );
         }
 
@@ -75,7 +77,8 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
             $product->getTaxRuleCollection(),
             $salesChannelContext->getContext()->getCurrencyPrecision(),
             1,
-            true
+            true,
+            $this->buildReferencePriceDefinition($product)
         );
     }
 
@@ -99,8 +102,8 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
                 $to = $this->getPriceForTaxState($listingPrice->getTo(), $salesChannelContext);
 
                 return [
-                    'from' => new QuantityPriceDefinition($from, $taxRules, $currencyPrecision, 1, true),
-                    'to' => new QuantityPriceDefinition($to, $taxRules, $currencyPrecision, 1, true),
+                    'from' => new QuantityPriceDefinition($from, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product)),
+                    'to' => new QuantityPriceDefinition($to, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product)),
                 ];
             }
         }
@@ -110,7 +113,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         if (!$prices || $prices->count() <= 0) {
             $price = $this->getPriceForTaxState($product->getCurrencyPrice($currencyId), $salesChannelContext);
 
-            $definition = new QuantityPriceDefinition($price * $factor, $taxRules, $currencyPrecision, 1, true);
+            $definition = new QuantityPriceDefinition($price * $factor, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product));
 
             return ['from' => $definition, 'to' => $definition];
         }
@@ -126,8 +129,8 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         }
 
         return [
-            'from' => new QuantityPriceDefinition($lowest, $taxRules, $currencyPrecision, 1, true),
-            'to' => new QuantityPriceDefinition($highest, $taxRules, $currencyPrecision, 1, true),
+            'from' => new QuantityPriceDefinition($lowest, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product)),
+            'to' => new QuantityPriceDefinition($highest, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product)),
         ];
     }
 
@@ -152,7 +155,8 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
                 $taxRules,
                 $salesChannelContext->getContext()->getCurrencyPrecision(),
                 $quantity,
-                true
+                true,
+                $this->buildReferencePriceDefinition($product)
             );
         }
 
@@ -163,7 +167,8 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
             $taxRules,
             $salesChannelContext->getContext()->getCurrencyPrecision(),
             $quantity,
-            true
+            true,
+            $this->buildReferencePriceDefinition($product)
         );
     }
 
@@ -203,5 +208,19 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         }
 
         return $price->getNet();
+    }
+
+    private function buildReferencePriceDefinition(ProductEntity $product): ?ReferencePriceDefinition
+    {
+        $referencePrice = null;
+        if ($product->getPurchaseUnit() && $product->getReferenceUnit() && $product->getPurchaseUnit() !== $product->getReferenceUnit()) {
+            $referencePrice = new ReferencePriceDefinition(
+                $product->getPurchaseUnit(),
+                $product->getReferenceUnit(),
+                $product->getUnit()->getTranslation('name')
+            );
+        }
+
+        return $referencePrice;
     }
 }

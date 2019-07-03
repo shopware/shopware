@@ -75,6 +75,14 @@
                                                         </div>
                                                     {% endif %}
                                                 {% endblock %}
+
+                                                {% if lineItem.type == 'product' and lineItem.price.referencePrice is not null %}
+                                                    {% set price = lineItem.price %}
+                                                    {{ "checkout.priceUnitName"|trans }}
+                                                    <span class="price-unit-reference">
+                                                        {{ price.referencePrice.price|currency }}{{ "general.star"|trans }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
+                                                    </span>
+                                                {% endif %}
                                             </div>
                                         {% endblock %}
                                     </div>

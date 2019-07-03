@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Price;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 
@@ -20,21 +18,19 @@ class GrossPriceCalculator
      */
     private $priceRounding;
 
-    public function __construct(TaxCalculator $taxCalculator, PriceRoundingInterface $priceRounding)
-    {
+    /**
+     * @var ReferencePriceCalculator
+     */
+    private $referencePriceCalculator;
+
+    public function __construct(
+        TaxCalculator $taxCalculator,
+        PriceRoundingInterface $priceRounding,
+        ReferencePriceCalculator $referencePriceCalculator
+    ) {
         $this->taxCalculator = $taxCalculator;
         $this->priceRounding = $priceRounding;
-    }
-
-    public function calculateCollection(PriceDefinitionCollection $collection): PriceCollection
-    {
-        $prices = $collection->map(
-            function (QuantityPriceDefinition $definition) {
-                return $this->calculate($definition);
-            }
-        );
-
-        return new PriceCollection($prices);
+        $this->referencePriceCalculator = $referencePriceCalculator;
     }
 
     public function calculate(QuantityPriceDefinition $definition): CalculatedPrice
@@ -62,7 +58,8 @@ class GrossPriceCalculator
             $price,
             $unitTaxes,
             $definition->getTaxRules(),
-            $definition->getQuantity()
+            $definition->getQuantity(),
+            $this->referencePriceCalculator->calculate($price, $definition)
         );
     }
 

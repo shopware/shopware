@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
@@ -36,11 +37,14 @@ class AbsolutePriceCalculatorTest extends TestCase
             new TaxRuleCalculator($rounding)
         );
 
+        $referencePriceCalculator = new ReferencePriceCalculator($rounding);
+
         $calculator = new AbsolutePriceCalculator(
             new QuantityPriceCalculator(
-                new GrossPriceCalculator($taxCalculator, $rounding),
-                new NetPriceCalculator($taxCalculator, $rounding),
-                Generator::createGrossPriceDetector()
+                new GrossPriceCalculator($taxCalculator, $rounding, $referencePriceCalculator),
+                new NetPriceCalculator($taxCalculator, $rounding, $referencePriceCalculator),
+                Generator::createGrossPriceDetector(),
+                $referencePriceCalculator
             ),
             new PercentageTaxRuleBuilder()
         );

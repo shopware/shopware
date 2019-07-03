@@ -31,7 +31,8 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         $criteria
             ->addState('sales-channel-product-condition')
             ->addFilter(new EqualsFilter('product.active', true))
-            ->addAssociation('prices');
+            ->addAssociation('prices')
+            ->addAssociation('unit');
 
         $criteria->addFilter(
             new MultiFilter(

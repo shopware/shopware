@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -47,11 +48,14 @@ class StockDeliverySeparatorTest extends TestCase
             new TaxRuleCalculator(new PriceRounding())
         );
 
+        $referencePriceCalculator = new ReferencePriceCalculator(new PriceRounding());
+
         $this->separator = new DeliveryBuilder(
             new QuantityPriceCalculator(
-                new GrossPriceCalculator($taxCalculator, new PriceRounding()),
-                new NetPriceCalculator($taxCalculator, new PriceRounding()),
-                Generator::createGrossPriceDetector()
+                new GrossPriceCalculator($taxCalculator, new PriceRounding(), $referencePriceCalculator),
+                new NetPriceCalculator($taxCalculator, new PriceRounding(), $referencePriceCalculator),
+                Generator::createGrossPriceDetector(),
+                $referencePriceCalculator
             )
         );
     }

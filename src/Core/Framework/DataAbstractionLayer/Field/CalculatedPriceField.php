@@ -15,6 +15,7 @@ class CalculatedPriceField extends JsonField
             (new IntField('quantity', 'quantity'))->addFlags(new Required()),
             (new JsonField('calculatedTaxes', 'calculatedTaxes'))->addFlags(new Required()),
             (new JsonField('taxRules', 'taxRules'))->addFlags(new Required()),
+            new JsonField('referencePrice', 'referencePrice'),
         ];
 
         parent::__construct($storageName, $propertyName, $propertyMapping);

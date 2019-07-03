@@ -31,20 +31,27 @@
 
         <service id="Shopware\Core\Checkout\Cart\Price\PriceRounding" />
 
+        <service id="Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding" />
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator" />
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator" />
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator" />
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator">

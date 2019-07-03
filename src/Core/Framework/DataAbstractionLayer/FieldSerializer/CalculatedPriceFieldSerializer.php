@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -57,12 +58,25 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
             $value['calculatedTaxes']
         );
 
+        $referencePriceDefinition = null;
+        if (isset($value['referencePrice'])) {
+            $refPrice = $value['referencePrice'];
+
+            $referencePriceDefinition = new ReferencePrice(
+                $refPrice['price'],
+                $refPrice['purchaseUnit'],
+                $refPrice['referenceUnit'],
+                $refPrice['unitName']
+            );
+        }
+
         return new CalculatedPrice(
             (float) $value['unitPrice'],
             (float) $value['totalPrice'],
             new CalculatedTaxCollection($calculatedTaxes),
             new TaxRuleCollection($taxRules),
-            (int) $value['quantity']
+            (int) $value['quantity'],
+            $referencePriceDefinition
         );
     }
 }

@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Price;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -27,26 +25,21 @@ class QuantityPriceCalculator
      * @var TaxDetector
      */
     private $taxDetector;
+    /**
+     * @var ReferencePriceCalculator
+     */
+    private $referencePriceCalculator;
 
     public function __construct(
         GrossPriceCalculator $grossPriceCalculator,
         NetPriceCalculator $netPriceCalculator,
-        TaxDetector $taxDetector
+        TaxDetector $taxDetector,
+        ReferencePriceCalculator $referencePriceCalculator
     ) {
         $this->grossPriceCalculator = $grossPriceCalculator;
         $this->netPriceCalculator = $netPriceCalculator;
         $this->taxDetector = $taxDetector;
-    }
-
-    public function calculateCollection(PriceDefinitionCollection $collection, SalesChannelContext $context): PriceCollection
-    {
-        $prices = $collection->map(
-            function (QuantityPriceDefinition $definition) use ($context) {
-                return $this->calculate($definition, $context);
-            }
-        );
-
-        return new PriceCollection($prices);
+        $this->referencePriceCalculator = $referencePriceCalculator;
     }
 
     public function calculate(QuantityPriceDefinition $definition, SalesChannelContext $context): CalculatedPrice
@@ -70,7 +63,8 @@ class QuantityPriceCalculator
             $price->getTotalPrice(),
             $calculatedTaxes,
             $taxRules,
-            $price->getQuantity()
+            $price->getQuantity(),
+            $this->referencePriceCalculator->calculate($price->getUnitPrice(), $definition)
         );
     }
 }

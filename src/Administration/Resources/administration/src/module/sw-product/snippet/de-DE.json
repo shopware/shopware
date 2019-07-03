@@ -80,7 +80,10 @@
     },
     "packagingForm": {
       "labelUnit": "Einheit",
-      "placeholderUnit": "Wählen ..."
+      "placeholderUnit": "Wählen ...",
+      "referenceUnitHelpText": "Füge den gewünschten Betrag hinzu, der zur Berechnung des Basispreises verwendet wird. Wenn z.B. eine Flasche 0,7 Liter beinhaltet und der Grundpreis mit ganzen Litern berechnet werden soll, füge 1 ein.",
+      "packUnitHelpText": "Füge die Art der Verpackung hinzu. Wie z.B. eine Flasche, ein Beutel oder eine Box.",
+      "purchaseUnitHelpText": "Gib die Menge des Produktes an. Wenn z.B. eine Flasche 0,7 Liter beinhaltet, füge 0.7 ein. "
     },
     "detailBase": {
       "cardTitleProductInfo": "Informationen",

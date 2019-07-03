@@ -15,7 +15,6 @@ import template from './sw-inherit-wrapper.html.twig';
  *     :customRemoveInheritanceFunction="function(value) => {return null;}"
  *     :disabled="false"
  *     label="Your label"
- *     :toggle="false"
  *     :isAssociation="false"
  *     :hasParent="false"
  *     :required="true">
@@ -51,12 +50,6 @@ export default {
         },
 
         label: {
-            type: String,
-            required: false,
-            default: null
-        },
-
-        toggle: {
             type: String,
             required: false,
             default: null

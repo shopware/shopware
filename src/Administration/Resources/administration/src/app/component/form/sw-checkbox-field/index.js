@@ -88,6 +88,20 @@ export default {
             }
 
             return this.currentValue || false;
+        },
+
+        isInheritanceField() {
+            if (this.$attrs.isInheritanceField) {
+                return true;
+            }
+            return this.inheritedValue !== null;
+        },
+
+        isInherited() {
+            if (this.$attrs.isInherited) {
+                return true;
+            }
+            return this.isInheritanceField && this.currentValue === null;
         }
     },
 

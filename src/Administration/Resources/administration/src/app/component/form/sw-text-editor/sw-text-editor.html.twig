@@ -43,6 +43,7 @@
                         <div class="sw-text-editor__content-editor"
                              ref="textEditor"
                              :contenteditable="!disabled"
+                             :style="verticalAlignStyle"
                              spellcheck="false"
                              @focus="onFocus"
                              @paste="onPaste"

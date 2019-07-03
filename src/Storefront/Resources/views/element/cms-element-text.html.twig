@@ -1,7 +1,13 @@
 {% block element_text %}
-    <div class="cms-element-{{ element.type }}">
-        {% block element_text_inner %}
-            {{ element.data.content|raw }}
+    {%  set config = element.fieldConfig.elements %}
+
+    <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}">
+        {% block element_text_alignment %}
+            <div class="cms-element-alignment{% if config.verticalAlign.value == "center" %} align-self-center{% elseif config.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+                {% block element_text_inner %}
+                    {{ element.data.content|raw }}
+                {% endblock %}
+            </div>
         {% endblock %}
     </div>
 {% endblock %}

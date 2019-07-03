@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtu
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
@@ -19,6 +20,7 @@ class PromotionSessionCodesTest extends TestCase
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
+    use SessionTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -49,18 +51,6 @@ class PromotionSessionCodesTest extends TestCase
         $this->cartService = $this->getContainer()->get(CartService::class);
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-
-        // clear our session before each test
-        $this->clearSession();
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        // clear after each test again
-        // to avoid interferences
-        $this->clearSession();
     }
 
     /**

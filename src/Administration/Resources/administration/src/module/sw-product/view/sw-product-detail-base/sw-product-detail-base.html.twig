@@ -64,7 +64,6 @@
         {% endblock %}
 
         {% block sw_product_detail_base_price_card %}
-            {# TODO: Add inheritation after adding currencies with Ticket NEXT-2055 #}
             <sw-card :title="$tc('sw-product.detailBase.cardTitlePrices')" :isLoading="loading.product">
                 {% block sw_product_detail_base_price_form %}
                     <sw-product-price-form></sw-product-price-form>

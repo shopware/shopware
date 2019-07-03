@@ -23,25 +23,25 @@ const modules = {
             test: /\.scss$/,
             use: [
                 {
-                    loader: MiniCssExtractPlugin.loader // extract css files from the js code
+                    loader: MiniCssExtractPlugin.loader, // extract css files from the js code
                 },
                 {
-                    loader: 'css-loader'
+                    loader: 'css-loader',
                 },
                 {
                     loader: 'postcss-loader', // needs to be AFTER css/style-loader and BEFORE sass-loader
                     options: {
                         config: {
-                            path: path.join(__dirname, '..')
-                        }
-                    }
+                            path: path.join(__dirname, '..'),
+                        },
+                    },
                 },
                 {
-                    loader: 'sass-loader'
-                }
-            ]
-        }
-    ]
+                    loader: 'sass-loader',
+                },
+            ],
+        },
+    ],
 };
 
 /**
@@ -54,14 +54,14 @@ const optimization = {
         new TerserPlugin({
             terserOptions: {
                 ecma: 6,
-                warnings: false
+                warnings: false,
             },
             cache: true,
             parallel: true,
-            sourceMap: true
+            sourceMap: true,
         }),
-        new OptimizeCSSAssetsPlugin({})
-    ]
+        new OptimizeCSSAssetsPlugin({}),
+    ],
 };
 
 /**
@@ -71,5 +71,5 @@ module.exports = {
     devtool: 'source-map',
     mode: 'production',
     module: modules,
-    optimization: optimization
+    optimization: optimization,
 };

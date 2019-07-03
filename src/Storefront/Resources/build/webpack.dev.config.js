@@ -22,10 +22,10 @@ const modules = {
             test: /\.scss$/,
             use: [
                 {
-                    loader: MiniCssExtractPlugin.loader // compiles a CSS file
+                    loader: MiniCssExtractPlugin.loader, // compiles a CSS file
                 },
                 {
-                    loader: 'css-loader'
+                    loader: 'css-loader',
                 },
                 {
                     loader: 'postcss-loader', // needs to be AFTER css/style-loader and BEFORE sass-loader
@@ -36,11 +36,11 @@ const modules = {
                     },
                 },
                 {
-                    loader: 'sass-loader'
-                }
-            ]
-        }
-    ]
+                    loader: 'sass-loader',
+                },
+            ],
+        },
+    ],
 };
 
 /**
@@ -49,7 +49,7 @@ const modules = {
  * @type {*[]}
  */
 const plugins = [
-    new FriendlyErrorsWebpackPlugin()
+    new FriendlyErrorsWebpackPlugin(),
 ];
 
 /**
@@ -59,5 +59,5 @@ module.exports = {
     devtool: 'cheap-module-eval-source-map',
     mode: 'development',
     module: modules,
-    plugins: plugins
+    plugins: plugins,
 };

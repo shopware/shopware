@@ -31,7 +31,7 @@ const context = utils.getPath('src/script');
  * @type {{main: string}}
  */
 const entries = {
-    app: './base.js'
+    app: './base.js',
 };
 
 /**
@@ -43,7 +43,7 @@ const output = {
     path: buildDirectory,
     filename: `${outputFolder}/js/[name].js`,
     publicPath: utils.getPublicPath(),
-    chunkFilename: `${outputFolder}/js/[name].js`
+    chunkFilename: `${outputFolder}/js/[name].js`,
 };
 
 /**
@@ -59,21 +59,21 @@ const modules = {
             use: [
                 {
                     loader: 'babel-loader',
-                    options: babelrc
+                    options: babelrc,
                 },
                 {
                     loader: 'eslint-loader',
                     options: {
                         configFile: utils.getPath('.eslintrc.js'),
-                        fix: true
-                    }
-                }
-            ]
+                        fix: true,
+                    },
+                },
+            ],
         },
         {
             test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
             include: [
-                utils.getPath('assets/font')
+                utils.getPath('assets/font'),
             ],
             use: [
                 {
@@ -81,15 +81,15 @@ const modules = {
                     options: {
                         name: '[name].[ext]',
                         outputPath: `${assetOutPutFolder}/font`,
-                        publicPath: '../assets/font'
-                    }
-                }
-            ]
+                        publicPath: '../assets/font',
+                    },
+                },
+            ],
         },
         {
             test: /\.(jp(e)g|png|gif|svg)(\?v=\d+\.\d+\.\d+)?$/,
             exclude: [
-                utils.getPath('assets/font')
+                utils.getPath('assets/font'),
             ],
             use: [
                 {
@@ -97,12 +97,12 @@ const modules = {
                     options: {
                         name: '[name].[ext]',
                         outputPath: `${assetOutPutFolder}/img`,
-                        publicPath: '../assets/img'
-                    }
-                }
-            ]
-        }
-    ]
+                        publicPath: '../assets/img',
+                    },
+                },
+            ],
+        },
+    ],
 };
 
 /**
@@ -115,26 +115,26 @@ const plugins = [
     new webpack.ProvidePlugin({
         $: require.resolve('jquery/dist/jquery.slim'),
         jQuery: require.resolve('jquery/dist/jquery.slim'),
-        'window.jQuery': require.resolve('jquery/dist/jquery.slim')
+        'window.jQuery': require.resolve('jquery/dist/jquery.slim'),
     }),
     new WebpackBar({
-        name: 'Shopware 6 Storefront'
+        name: 'Shopware 6 Storefront',
     }),
     new StyleLintPlugin({
         context: utils.getPath('src/style'),
         syntax: 'scss',
-        fix: true
+        fix: true,
     }),
     new CopyPlugin([
         {
             from: utils.getPath('assets'),
-            to: assetOutPutFolder
-        }
+            to: assetOutPutFolder,
+        },
     ]),
     new MiniCssExtractPlugin({
         filename: `${outputFolder}/css/[name].css`,
-        chunkFilename: `${outputFolder}/css/[name].css`
-    })
+        chunkFilename: `${outputFolder}/css/[name].css`,
+    }),
 ];
 
 /**
@@ -166,8 +166,8 @@ const resolve = {
         src: utils.getPath('src'),
         assets: utils.getPath('assets'),
         jquery: 'jquery/dist/jquery.slim',
-        scss: utils.getPath('src/style')
-    }
+        scss: utils.getPath('src/style'),
+    },
 };
 
 /**
@@ -185,10 +185,10 @@ module.exports = {
     optimization: optimization,
     output: output,
     performance: {
-        hints: false
+        hints: false,
     },
     plugins: plugins,
     resolve: resolve,
     stats: 'minimal',
-    target: 'web'
+    target: 'web',
 };

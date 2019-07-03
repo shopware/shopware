@@ -23,25 +23,25 @@ const modules = {
             test: /\.scss$/,
             use: [
                 {
-                    loader: 'style-loader'
+                    loader: 'style-loader',
                 },
                 {
-                    loader: 'css-loader'
+                    loader: 'css-loader',
                 },
                 {
                     loader: 'postcss-loader', // needs to be AFTER css/style-loader and BEFORE sass-loader
                     options: {
                         config: {
-                            path: join(__dirname, '..')
-                        }
-                    }
+                            path: join(__dirname, '..'),
+                        },
+                    },
                 },
                 {
-                    loader: 'sass-loader'
-                }
-            ]
-        }
-    ]
+                    loader: 'sass-loader',
+                },
+            ],
+        },
+    ],
 };
 
 /**
@@ -51,7 +51,7 @@ const modules = {
  */
 const plugins = [
     new FriendlyErrorsWebpackPlugin(),
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
 ];
 
 /**
@@ -64,10 +64,10 @@ const devServer = {
     open: false,
     overlay: {
         warnings: false,
-        errors: true
+        errors: true,
     },
     stats: {
-        colors: true
+        colors: true,
     },
     quiet: true,
     hot: true,
@@ -77,8 +77,8 @@ const devServer = {
     host: '0.0.0.0',
     clientLogLevel: 'warning',
     headers: {
-        'Access-Control-Allow-Origin': '*'
-    }
+        'Access-Control-Allow-Origin': '*',
+    },
 };
 
 /**
@@ -89,5 +89,5 @@ module.exports = {
     devtool: 'cheap-module-eval-source-map',
     mode: 'development',
     module: modules,
-    plugins: plugins
+    plugins: plugins,
 };

@@ -45,7 +45,7 @@ export default class NativeEventEmitter {
      */
     publish(eventName, detail = {}) {
         const event = new CustomEvent(eventName, {
-            detail
+            detail,
         });
 
         this.el.dispatchEvent(event);
@@ -77,7 +77,7 @@ export default class NativeEventEmitter {
         this.listeners.push({
             splitEventName,
             opts,
-            cb
+            cb,
         });
 
         return true;

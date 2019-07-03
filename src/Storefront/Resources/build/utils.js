@@ -9,7 +9,7 @@ module.exports = {
     getOutputPath,
     isHotModuleReplacementMode,
     isDevelopmentEnvironment,
-    isProductionEnvironment
+    isProductionEnvironment,
 };
 
 /**

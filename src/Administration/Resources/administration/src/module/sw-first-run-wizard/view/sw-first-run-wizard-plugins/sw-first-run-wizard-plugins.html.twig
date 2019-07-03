@@ -4,28 +4,30 @@
         <p>Lorem ipsum dolor set amet, consetetur sadipscing elitr...</p>
 
         <div>
-            <span>Available in region</span>
+            <p>Available in region</p>
             <sw-label v-for="region in regions"
                       :key="region.name"
-                      variant="neutral"
-                      size="default"
+                      :variant="regionVariant(region)"
                       appearance="pill"
                       :ghost="false"
                       :caps="false">
-                {{ region.name }}
+                <span @click="onSelectRegion(region)">
+                    {{ region.label }}
+                </span>
             </sw-label>
         </div>
 
         <div>
-            <span>Category</span>
+            <p>Category</p>
             <sw-label v-for="category in categories"
                       :key="category.name"
-                      variant="neutral"
-                      size="default"
+                      :variant="categoryVariant(category)"
                       appearance="pill"
                       :ghost="false"
                       :caps="false">
-                {{ category.label }}
+                <span @click="onSelectCategory(category)">
+                    {{ category.label }}
+                </span>
             </sw-label>
         </div>
 

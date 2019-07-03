@@ -32,18 +32,18 @@ class LanguagePluginApiService extends ApiService {
     }
 
     /**
-     * Get recommendations-options
+     * Get recommendations-regions
      *
      * @param {Object} [additionalParams = {}]
      * @param {Object} [additionalHeaders = {}]
      * @returns {Promise<T>}
      */
-    getRecommendationOptions(additionalParams = {}, additionalHeaders = {}) {
+    getRecommendationRegions(additionalParams = {}, additionalHeaders = {}) {
         const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
-            .get('/_action/store/recommendation-options', {
+            .get('/_action/store/recommendation-regions', {
                 params,
                 headers
             })

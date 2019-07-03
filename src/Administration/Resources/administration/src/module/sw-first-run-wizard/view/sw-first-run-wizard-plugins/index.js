@@ -10,7 +10,9 @@ Component.register('sw-first-run-wizard-plugins', {
         return {
             plugins: [],
             regions: [],
-            categories: []
+            categories: [],
+            selectedRegion: null,
+            selectedCategory: null
         };
     },
 
@@ -20,29 +22,58 @@ Component.register('sw-first-run-wizard-plugins', {
 
     methods: {
         createdComponent() {
+            this.getRecommendationRegions();
+        },
+
+        regionVariant({ name }) {
+            return this.selectedRegion && this.selectedRegion.name === name
+                ? 'info'
+                : 'neutral';
+        },
+
+        categoryVariant({ name }) {
+            return this.selectedCategory && this.selectedCategory.name === name
+                ? 'info'
+                : 'neutral';
+        },
+
+        onSelectRegion(region) {
+            this.selectedRegion = region;
+            this.categories = region.categories;
+
+            this.selectedCategory = null;
+            this.plugins = [];
+        },
+
+        onSelectCategory(category) {
+            this.selectedCategory = category;
+
             this.getRecommendations();
-            this.getRecommendationOptions();
         },
 
         getRecommendations() {
             // ToDo: (mve) add param of current language
-            this.recommendationsService.getRecommendations().then((response) => {
+            const language = 'de-DE';
+            const region = this.selectedRegion.name;
+            const category = this.selectedCategory.name;
+
+            this.recommendationsService.getRecommendations({
+                language,
+                region,
+                category
+            }).then((response) => {
                 this.plugins = response.items;
             });
         },
 
-        getRecommendationOptions() {
+        getRecommendationRegions() {
             // ToDo: (mve) add param of current language
-            this.recommendationsService.getRecommendationOptions().then((response) => {
-                const { regions, categories } = response;
-                const categoryAll = {
-                    name: 'all',
-                    label: 'All', // ToDo: (mve) i18n
-                    extensions: []
-                };
+            const language = 'de-DE';
 
-                this.regions = regions;
-                this.categories = [categoryAll, ...categories];
+            this.recommendationsService.getRecommendationRegions({
+                language
+            }).then((response) => {
+                this.regions = response;
             });
         }
     }

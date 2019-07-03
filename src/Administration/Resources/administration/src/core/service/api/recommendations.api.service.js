@@ -4,7 +4,7 @@ import ApiService from '../api.service';
  * @class
  * @extends ApiService
  */
-class LanguagePluginApiService extends ApiService {
+class RecommendationsApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'recommendations') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'recommendationsService';
@@ -53,4 +53,4 @@ class LanguagePluginApiService extends ApiService {
     }
 }
 
-export default LanguagePluginApiService;
+export default RecommendationsApiService;

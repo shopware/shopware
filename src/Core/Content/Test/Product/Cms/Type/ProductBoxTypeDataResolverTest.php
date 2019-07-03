@@ -209,4 +209,21 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
     }
+
+    public function testCollectWithEmptyProductId(): void
+    {
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, null));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('product-box');
+        $slot->setFieldConfig($fieldConfig);
+
+        $criteriaCollection = $this->productBoxResolver->collect($slot, $resolverContext);
+
+        static::assertNull($criteriaCollection);
+    }
 }

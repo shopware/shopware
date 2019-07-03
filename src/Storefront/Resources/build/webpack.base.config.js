@@ -158,6 +158,10 @@ const devServer = {};
  */
 const resolve = {
     extensions: ['.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig'],
+    modules: [
+        // statically add the storefront node_modules folder, so sw plugins can resolve it
+        utils.getPath('node_modules'),
+    ],
     alias: {
         src: utils.getPath('src'),
         assets: utils.getPath('assets'),

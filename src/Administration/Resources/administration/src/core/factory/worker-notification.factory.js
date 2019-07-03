@@ -2,13 +2,16 @@
  * @module core/factory/worker-notification
  */
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+import types from 'src/core/service/utils/types.utils';
 
 export default {
     getRegistry,
     register,
     remove,
     override,
-    initialize
+    initialize,
+    resetHelper
 };
 
 /**
@@ -21,7 +24,7 @@ const registry = new Map();
  * Middleware helper instance
  * @type {MiddlewareHelper}
  */
-const helper = new MiddlewareHelper();
+let helper = new MiddlewareHelper();
 
 /**
  * Indicates if the middleware helper is initialized
@@ -52,6 +55,10 @@ function register(name, opts) {
         return false;
     }
 
+    if (!validateOpts(opts)) {
+        return false;
+    }
+
     registry.set(name, opts);
     return true;
 }
@@ -62,6 +69,10 @@ function register(name, opts) {
  * @return {boolean}
  */
 function remove(name) {
+    if (!name || !name.length) {
+        return false;
+    }
+
     if (!registry.has(name)) {
         return false;
     }
@@ -78,6 +89,10 @@ function remove(name) {
  */
 function override(name, opts) {
     if (!registry.has(name)) {
+        return false;
+    }
+
+    if (!validateOpts(opts)) {
         return false;
     }
 
@@ -120,4 +135,26 @@ function middlewareFunctionWrapper(name, fn) {
             fn.call(null, next, mergedData);
         }
     };
+}
+
+/**
+ * Validates the options object
+ * @param {Object} opts
+ * @return {Boolean|boolean}
+ */
+function validateOpts(opts) {
+    return (hasOwnProperty(opts, 'name')
+        && opts.name.length > 0
+        && hasOwnProperty(opts, 'fn')
+        && types.isFunction(opts.fn));
+}
+
+/**
+ * Helper method for unit tests
+ * @return {boolean}
+ */
+function resetHelper() {
+    helper = new MiddlewareHelper();
+    initialized = false;
+    return true;
 }

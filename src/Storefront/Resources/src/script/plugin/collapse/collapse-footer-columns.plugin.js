@@ -9,7 +9,7 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
         collapseShowClass: 'show',
         collapseColumnSelector: '.js-footer-column',
         collapseColumnTriggerSelector: '.js-collapse-footer-column-trigger',
-        collapseColumnContentSelector: '.js-footer-column-content'
+        collapseColumnContentSelector: '.js-footer-column-content',
     };
 
     init() {

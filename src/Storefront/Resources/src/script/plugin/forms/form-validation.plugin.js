@@ -44,7 +44,7 @@ export default class FormValidation extends Plugin {
 
         equalAttr: 'data-form-validation-equal',
 
-        lengthAttr: 'data-form-validation-length'
+        lengthAttr: 'data-form-validation-length',
     };
 
     init() {

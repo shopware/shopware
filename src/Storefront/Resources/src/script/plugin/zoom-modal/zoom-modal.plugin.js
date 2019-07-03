@@ -28,7 +28,7 @@ export default class ZoomModalPlugin extends Plugin {
         productIdDataAttribute: 'data-product-id',
 
         imageSliderInitSelector: '[data-image-slider]',
-        imageZoomInitSelector: '[data-image-zoom]'
+        imageZoomInitSelector: '[data-image-zoom]',
     };
 
     init() {

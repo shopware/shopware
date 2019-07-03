@@ -1,5 +1,6 @@
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { join } = require('path');
 
 /**
  * -------------------------------------------------------
@@ -21,20 +22,25 @@ const modules = {
             test: /\.scss$/,
             use: [
                 {
-                    loader: MiniCssExtractPlugin.loader // compiles a CSS file
+                    loader: MiniCssExtractPlugin.loader, // compiles a CSS file
                 },
                 {
-                    loader: 'css-loader'
+                    loader: 'css-loader',
                 },
                 {
-                    loader: 'postcss-loader' // needs to be AFTER css/style-loader and BEFORE sass-loader
+                    loader: 'postcss-loader', // needs to be AFTER css/style-loader and BEFORE sass-loader
+                    options: {
+                        config: {
+                            path: join(__dirname, '..'),
+                        },
+                    },
                 },
                 {
-                    loader: 'sass-loader'
-                }
-            ]
-        }
-    ]
+                    loader: 'sass-loader',
+                },
+            ],
+        },
+    ],
 };
 
 /**
@@ -43,7 +49,7 @@ const modules = {
  * @type {*[]}
  */
 const plugins = [
-    new FriendlyErrorsWebpackPlugin()
+    new FriendlyErrorsWebpackPlugin(),
 ];
 
 /**
@@ -53,5 +59,5 @@ module.exports = {
     devtool: 'cheap-module-eval-source-map',
     mode: 'development',
     module: modules,
-    plugins: plugins
+    plugins: plugins,
 };

@@ -1,11 +1,11 @@
 <div>
 <template>
     <template v-if="isInlineEdit">
-        <sw-checkbox-field v-model="value"></sw-checkbox-field>
+        <sw-checkbox-field v-model="currentValue"></sw-checkbox-field>
     </template>
 
     <template v-else>
-        <sw-icon v-if="value" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
+        <sw-icon v-if="currentValue" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
         <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
     </template>
 </template>

@@ -69,7 +69,7 @@ class CustomerAddressEntity extends Entity
     protected $title;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $street;
 
@@ -143,7 +143,7 @@ class CustomerAddressEntity extends Entity
         return $this->countryStateId;
     }
 
-    public function setCountryStateId(?string $countryStateId): void
+    public function setCountryStateId(string $countryStateId): void
     {
         $this->countryStateId = $countryStateId;
     }
@@ -203,7 +203,7 @@ class CustomerAddressEntity extends Entity
         return $this->company;
     }
 
-    public function setCompany(?string $company): void
+    public function setCompany(string $company): void
     {
         $this->company = $company;
     }
@@ -213,7 +213,7 @@ class CustomerAddressEntity extends Entity
         return $this->department;
     }
 
-    public function setDepartment(?string $department): void
+    public function setDepartment(string $department): void
     {
         $this->department = $department;
     }
@@ -223,17 +223,17 @@ class CustomerAddressEntity extends Entity
         return $this->title;
     }
 
-    public function setTitle(?string $title): void
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
 
-    public function getStreet(): ?string
+    public function getStreet(): string
     {
         return $this->street;
     }
 
-    public function setStreet(?string $street): void
+    public function setStreet(string $street): void
     {
         $this->street = $street;
     }
@@ -243,7 +243,7 @@ class CustomerAddressEntity extends Entity
         return $this->vatId;
     }
 
-    public function setVatId(?string $vatId): void
+    public function setVatId(string $vatId): void
     {
         $this->vatId = $vatId;
     }
@@ -253,7 +253,7 @@ class CustomerAddressEntity extends Entity
         return $this->phoneNumber;
     }
 
-    public function setPhoneNumber(?string $phoneNumber): void
+    public function setPhoneNumber(string $phoneNumber): void
     {
         $this->phoneNumber = $phoneNumber;
     }
@@ -263,7 +263,7 @@ class CustomerAddressEntity extends Entity
         return $this->additionalAddressLine1;
     }
 
-    public function setAdditionalAddressLine1(?string $additionalAddressLine1): void
+    public function setAdditionalAddressLine1(string $additionalAddressLine1): void
     {
         $this->additionalAddressLine1 = $additionalAddressLine1;
     }
@@ -273,7 +273,7 @@ class CustomerAddressEntity extends Entity
         return $this->additionalAddressLine2;
     }
 
-    public function setAdditionalAddressLine2(?string $additionalAddressLine2): void
+    public function setAdditionalAddressLine2(string $additionalAddressLine2): void
     {
         $this->additionalAddressLine2 = $additionalAddressLine2;
     }
@@ -323,7 +323,7 @@ class CustomerAddressEntity extends Entity
         return $this->customFields;
     }
 
-    public function setCustomFields(?array $customFields): void
+    public function setCustomFields(array $customFields): void
     {
         $this->customFields = $customFields;
     }

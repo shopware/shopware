@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -51,17 +50,11 @@ class OrderPersisterTest extends TestCase
      */
     private $orderConverter;
 
-    /**
-     * @var BusinessEventDispatcher
-     */
-    private $businessEventDispatcher;
-
     protected function setUp(): void
     {
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
         $this->cartProcessor = $this->getContainer()->get(Processor::class);
         $this->orderConverter = $this->getContainer()->get(OrderConverter::class);
-        $this->businessEventDispatcher = $this->getContainer()->get(BusinessEventDispatcher::class);
     }
 
     public function testSave(): void
@@ -77,7 +70,15 @@ class OrderPersisterTest extends TestCase
         $repository->expects(static::once())->method('create');
         $order = new OrderEntity();
         $order->setUniqueIdentifier(Uuid::randomHex());
-        $repository->method('search')->willReturn(new EntitySearchResult(1, new EntityCollection([$order]), null, new Criteria(), $this->getSalesChannelContext()->getContext()));
+        $repository->method('search')->willReturn(
+            new EntitySearchResult(
+                1,
+                new EntityCollection([$order]),
+                null,
+                new Criteria(),
+                $this->getSalesChannelContext()->getContext()
+            )
+        );
 
         $persister = new OrderPersister($repository, $this->orderConverter);
 
@@ -121,6 +122,7 @@ class OrderPersisterTest extends TestCase
         $billingAddress->setSalutationId($this->getValidSalutationId());
         $billingAddress->setFirstName($faker->firstName);
         $billingAddress->setLastName($faker->lastName);
+        $billingAddress->setStreet($faker->streetAddress);
         $billingAddress->setZipcode($faker->postcode);
         $billingAddress->setCity($faker->city);
         $billingAddress->setCountryId('SWAG-AREA-COUNTRY-ID-1');

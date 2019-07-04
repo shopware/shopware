@@ -33,31 +33,31 @@ abstract class Plugin extends Bundle
         return $this->active;
     }
 
-    public function install(InstallContext $context): void
+    public function install(InstallContext $installContext): void
     {
     }
 
-    public function postInstall(InstallContext $context): void
+    public function postInstall(InstallContext $installContext): void
     {
     }
 
-    public function update(UpdateContext $context): void
+    public function update(UpdateContext $updateContext): void
     {
     }
 
-    public function postUpdate(UpdateContext $context): void
+    public function postUpdate(UpdateContext $updateContext): void
     {
     }
 
-    public function activate(ActivateContext $context): void
+    public function activate(ActivateContext $activateContext): void
     {
     }
 
-    public function deactivate(DeactivateContext $context): void
+    public function deactivate(DeactivateContext $deactivateContext): void
     {
     }
 
-    public function uninstall(UninstallContext $context): void
+    public function uninstall(UninstallContext $uninstallContext): void
     {
     }
 

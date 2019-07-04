@@ -50,8 +50,7 @@ export default {
                 // check if categoriesCollection is loaded
                 if (this.categoriesCollection.entity && !this.isComponentReady && !this.isFetching) {
                     Promise.all([
-                        this.getTreeItems(),
-                        this.getSelectedCategories()
+                        this.getTreeItems()
                     ]).then(() => {
                         this.isComponentReady = true;
                     });
@@ -121,21 +120,21 @@ export default {
         },
 
         visibleTags() {
-            return this.tagLimit ? this.selectedCategories.slice(0, 5) : this.selectedCategories;
+            return this.tagLimit ? this.categoriesCollection.slice(0, 5) : this.categoriesCollection;
         },
 
         numberOfHiddenTags() {
-            const hiddenTagsLength = this.selectedCategories.length - this.visibleTags.length;
+            const hiddenTagsLength = this.categoriesCollection.length - this.visibleTags.length;
 
             return hiddenTagsLength > 0 ? hiddenTagsLength : 0;
         },
 
         selectedCategoriesItemsIds() {
-            return this.selectedCategories.getIds();
+            return this.categoriesCollection.getIds();
         },
 
         selectedCategoriesPathIds() {
-            return this.selectedCategories.reduce((acc, item) => {
+            return this.categoriesCollection.reduce((acc, item) => {
                 // get each parent id
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
@@ -162,10 +161,6 @@ export default {
         destroyedComponent() {
             document.removeEventListener('click', this.closeDropdownOnClickOutside);
             document.removeEventListener('keydown', this.handleGeneralKeyEvents);
-        },
-
-        getSelectedCategories() {
-            this.selectedCategories = this.categoriesCollection;
         },
 
         getTreeItems(parentIds = null) {
@@ -207,14 +202,14 @@ export default {
         },
 
         onCheckItem(item) {
-            const itemIsInCategories = this.selectedCategories.has(item.id);
+            const itemIsInCategories = this.categoriesCollection.has(item.id);
 
             if (item.checked && !itemIsInCategories) {
                 if (item.data) {
-                    this.selectedCategories.add(item.data);
+                    this.categoriesCollection.add(item.data);
                     this.$emit('selection-add', item.data);
                 } else {
-                    this.selectedCategories.add(item);
+                    this.categoriesCollection.add(item);
                     this.$emit('selection-add', item);
                 }
 
@@ -226,7 +221,7 @@ export default {
         },
 
         removeItem(item) {
-            this.selectedCategories.remove(item.id);
+            this.categoriesCollection.remove(item.id);
 
             if (item.data) {
                 this.$emit('selection-remove', item.data);
@@ -272,8 +267,8 @@ export default {
         },
 
         onDeleteKeyup() {
-            if (this.term.length <= 0 && this.selectedCategories) {
-                const lastItem = this.selectedCategories.last();
+            if (this.term.length <= 0 && this.categoriesCollection) {
+                const lastItem = this.categoriesCollection.last();
 
                 this.removeItem(lastItem);
             }

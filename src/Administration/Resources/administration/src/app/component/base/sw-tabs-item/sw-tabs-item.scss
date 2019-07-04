@@ -34,6 +34,11 @@ $sw-side-navigation-item-link-distance: 10px;
         }
     }
 
+    &.sw-tabs-item--is-disabled {
+        color: $color-darkgray-200;
+        pointer-events: none;
+    }
+
     &:disabled {
         color: $color-darkgray-200;
         cursor: not-allowed;

@@ -1,12 +1,20 @@
 {% block sw_promotion_discount_component %}
-    <div class="sw-promotion-discount-component">
+    <sw-card class="sw-promotion-discount-component" :title="$tc('sw-promotion.detail.main.discounts.card')">
+        <sw-context-button class="sw-promotion-discount-component__context-button">
+            {% block sw_promotion_detail_discounts_item_context_button_delete %}
+                <sw-context-menu-item variant="danger" class="sw-promotion-context-item__delete-action" @click="onShowDeleteModal">
+                    {{ $tc('sw-promotion.detail.main.discounts.buttonDeleteDiscount') }}
+                </sw-context-menu-item>
+            {% endblock %}
+        </sw-context-button>
+
         <sw-container columns="1fr 1fr" gap="0px 30px">
             {% block sw_promotion_discount_component_scope %}
                 <sw-select-field v-model="discount.scope"
                                  required
                                  validation="required"
                                  :label="$tc('sw-promotion.detail.main.discounts.labelScope')">
-                    <option v-for="scope in getScopes()" :value="scope.key">
+                    <option v-for="scope in scopes" :value="scope.key">
                         {{ scope.name }}
                     </option>
                 </sw-select-field>
@@ -26,17 +34,16 @@
                 <sw-many-to-many-select
                         class="sw-promotion-discount-component__select-discount-rules"
                         ref="productRuleSelector"
-                        localMode
+                        :localMode="discount.isNew()"
                         :criteria="ruleFilter"
                         :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
                         :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
-                        :collection="discount.discountRules"
-                        @option-click="onOptionClick">
+                        :collection="discount.discountRules">
                     <template slot="sw_multi_select_list_before">
-                        <sw-multi-select-option :index="-1"
-                                                :item="itemAddNewRule">
+                        <li class="sw-multi-select-option sw-promotion-discount-component__create-new-rule-link"
+                            @click="openCreateRuleModal">
                             {{ $tc('sw-select-rule-create.addNewRule') }}
-                        </sw-multi-select-option>
+                        </li>
                     </template>
                 </sw-many-to-many-select>
             </template>
@@ -45,8 +52,9 @@
         <sw-container columns="1fr 1fr" gap="0px 30px">
             {% block sw_promotion_discount_component_type %}
                 <sw-select-field v-model="discount.type"
-                                 :label="$tc('sw-promotion.detail.main.discounts.labelType')">
-                    <option v-for="type in getTypes()" :value="type.key">
+                                 :label="$tc('sw-promotion.detail.main.discounts.labelType')"
+                                 @change="verifyValueMax">
+                    <option v-for="type in types" :value="type.key">
                         {{ type.name }}
                     </option>
                 </sw-select-field>
@@ -55,27 +63,23 @@
                 <sw-field type="number"
                           validation="required"
                           required
-                          v-model="discount.value"
-                          :min="getValueMin()"
-                          :max="getValueMax()"
+                          :value="discount.value"
                           :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
-                          :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')">
+                          :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
+                          @change="changeValue">
                     <template #suffix>
-                        {{ getValueSuffix() }}
+                        {{ valueSuffix }}
                     </template>
                 </sw-field>
             {% endblock %}
         </sw-container>
 
         {% block sw_promotion_discount_advanced_prices_link %}
-            <sw-container columns="1fr" justify="end">
-                <template v-if="this.displayAdvancedPricesLink === true">
-                    <a @click="onClickAdvancedPrices" class="sw-card__quick-link advanced-prices">
-                        {#<a @click="openAdvancedPricesModal" class="sw-card__quick-link advanced-prices">#}
-                        {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
-                        <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                    </a>
-                </template>
+            <sw-container v-if="showAdvancedPricesLink" columns="1fr" justify="end">
+                <a @click="onClickAdvancedPrices" class="sw-card__quick-link advanced-prices">
+                    {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
+                    <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                </a>
             </sw-container>
         {% endblock %}
 
@@ -86,12 +90,10 @@
                       class="sw-promotion-discount-form__advanced-prices-modal">
 
                 <sw-one-to-many-grid :collection="discount.promotionDiscountPrices"
-                                     ref="advancedPricesGrid"
                                      :localMode="true"
                                      :columns="currencyPriceColumns"
                                      :showSelection="false"
-                                     :isLoading="isLoading"
-                                     enableInlineEdit="true">
+                                     :isLoading="isLoading">
 
                     <template #column-currency.translated.name="{ item }">
                         <p>{{ item.currency.translated.name  }}</p>
@@ -117,6 +119,36 @@
             </sw-modal>
         {% endblock %}
 
+        {% block sw_promotion_detail_discounts_modal_delete %}
+            <sw-modal v-if="showDeleteModal"
+                      @modal-close="onCloseDeleteModal"
+                      variant="small"
+                      :title="$tc('sw-promotion.detail.main.discounts.delete.confirmTitle')"
+                      class="sw-promotion-detail-discounts-modal">
+                {% block sw_promotion_detail_discounts_modal_delete_text %}
+                    <p>
+                        {{ $tc('sw-promotion.detail.main.discounts.delete.confirmText') }}
+                    </p>
+                {% endblock %}
+
+                {% block sw_promotion_detail_discounts_modal_delete_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_promotion_detail_discounts_modal_delete_action_cancel %}
+                            <sw-button @click="onCloseDeleteModal" size="small">
+                                {{ $tc('sw-promotion.detail.main.discounts.delete.buttonCancel') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_promotion_detail_discounts_modal_delete_action_delete %}
+                            <sw-button @click="onConfirmDelete" size="small" variant="danger" class="sw-promotion-discount-delete-button">
+                                {{ $tc('sw-promotion.detail.main.discounts.delete.buttonDelete') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
+
         {% block sw_select_rule_create_rule_modal %}
             {#todo next-2945 change allowedRuleScope if rule types may be addressed correctly #}
             <sw-rule-modal v-if="showRuleModal"
@@ -125,5 +157,5 @@
                            :allowedRuleScopes="['lineItem']">
             </sw-rule-modal>
         {% endblock %}
-    </div>
+    </sw-card>
 {% endblock %}

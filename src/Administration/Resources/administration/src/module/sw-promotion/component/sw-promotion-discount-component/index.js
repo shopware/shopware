@@ -19,44 +19,36 @@ Component.register('sw-promotion-discount-component', {
     props: {
         discount: {
             type: Object,
-            required: true,
-            default: {}
+            required: true
         }
     },
     data() {
         return {
-            itemAddNewRule: {
-                index: -1,
-                id: 'addNewRule'
-            },
-            showRuleModal: false,
             displayAdvancedPrices: false,
-            displayAdvancedPricesLink: this.discount.type === DiscountTypes.ABSOLUTE,
             currencies: [],
-            defaultCurrency: {},
-            isLoading: false
+            defaultCurrency: null,
+            isLoading: false,
+            showRuleModal: false,
+            showDeleteModal: false
         };
     },
     created() {
         this.createdComponent();
     },
-    watch: {
-        'discount.type': {
-            handler() {
-                this.verifyValueMax();
-                this.showAdvancedPricesLink();
-            }
-        },
-        'discount.value': {
-            handler() {
-                this.verifyValueMax();
-            }
-        }
-    },
+
     computed: {
         rulesStore() {
             return State.getStore('rule');
         },
+
+        advancedPricesRepo() {
+            return this.repositoryFactory.create('promotion_discount_prices');
+        },
+
+        currencyRepository() {
+            return this.repositoryFactory.create('currency');
+        },
+
         ruleFilter() {
             return Criteria.equalsAny(
                 'conditions.type',
@@ -66,6 +58,7 @@ Component.register('sw-promotion-discount-component', {
                 ]
             );
         },
+
         currencyPriceColumns() {
             return [{
                 property: 'currency.translated.name',
@@ -76,11 +69,29 @@ Component.register('sw-promotion-discount-component', {
                 label: this.$tc('sw-promotion.detail.main.discounts.pricesModal.labelPrice')
             }];
         },
-        advancedPricesRepo() {
-            return this.repositoryFactory.create('promotion_discount_prices');
+
+        scopes() {
+            return [
+                { key: DiscountScopes.CART, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeCart') }
+            ];
         },
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
+
+        types() {
+            return [
+                { key: DiscountTypes.ABSOLUTE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeAbsolute') },
+                { key: DiscountTypes.PERCENTAGE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypePercentage') }
+            ];
+        },
+
+        valueSuffix() {
+            return discountHandler.getValueSuffix(
+                this.discount.type,
+                this.defaultCurrency !== null ? this.defaultCurrency.suffix : null
+            );
+        },
+
+        showAdvancedPricesLink() {
+            return this.discount.type === DiscountTypes.ABSOLUTE;
         }
 
     },
@@ -88,38 +99,8 @@ Component.register('sw-promotion-discount-component', {
         createdComponent() {
             this.currencyRepository.search(new Criteria(), this.context).then((response) => {
                 this.currencies = response;
-                response.forEach((currency) => {
-                    if (currency.isDefault) {
-                        this.defaultCurrency = currency;
-                    }
-                });
+                this.defaultCurrency = this.currencies.find(currency => currency.isDefault);
             });
-        },
-        // Gets a list of all predefined scopes for the dropdown.
-        // We use a method for this, because values are not translated when switching languages.
-        // By using methods, they do get translated and reloaded correctly.
-        getScopes() {
-            return [
-                { key: DiscountScopes.CART, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeCart') }
-            ];
-        },
-        // Gets a list of all predefined types for the dropdown.
-        // We use a method for this, because values are not translated when switching languages.
-        // By using methods, they do get translated and reloaded correctly.
-        getTypes() {
-            return [
-                { key: DiscountTypes.ABSOLUTE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeAbsolute') },
-                { key: DiscountTypes.PERCENTAGE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypePercentage') }
-            ];
-        },
-        getValueSuffix() {
-            return discountHandler.getValueSuffix(this.discount.type);
-        },
-        getValueMin() {
-            return discountHandler.getMinValue();
-        },
-        getValueMax() {
-            return discountHandler.getMaxValue(this.discount.type);
         },
         // This function verifies the currently set value
         // depending on the discount type, and fixes it if
@@ -127,6 +108,11 @@ Component.register('sw-promotion-discount-component', {
         verifyValueMax() {
             this.discount.value = discountHandler.getFixedValue(this.discount.value, this.discount.type);
         },
+
+        changeValue(value) {
+            this.discount.value = discountHandler.getFixedValue(value, this.discount.type);
+        },
+
         onClickAdvancedPrices() {
             this.currencies.forEach((currency) => {
                 if (!this.isMemberOfCollection(currency)) {
@@ -167,17 +153,11 @@ Component.register('sw-promotion-discount-component', {
             });
             return foundValue;
         },
-        showAdvancedPricesLink() {
-            this.displayAdvancedPricesLink = (this.discount.type === DiscountTypes.ABSOLUTE);
-        },
+
         onSaveRule(rule) {
             this.$refs.productRuleSelector.addItem({ item: rule });
         },
-        onOptionClick(event) {
-            if (event.item.index === -1) {
-                this.openCreateRuleModal();
-            }
-        },
+
         openCreateRuleModal() {
             this.showRuleModal = true;
         },
@@ -185,9 +165,7 @@ Component.register('sw-promotion-discount-component', {
             this.$refs.productRuleSelector.remove('addNewRule');
             this.showRuleModal = false;
         },
-        openAdvancedPricesModal() {
-            this.displayAdvancedPrices = true;
-        },
+
         onCloseAdvancedPricesModal() {
             this.discount.promotionDiscountPrices.forEach((advancedPrice) => {
                 const fixedPrice = discountHandler.getFixedValue(advancedPrice.price, DiscountTypes.ABSOLUTE);
@@ -196,7 +174,21 @@ Component.register('sw-promotion-discount-component', {
                 }
             });
             this.displayAdvancedPrices = false;
+        },
+
+        onShowDeleteModal() {
+            this.showDeleteModal = true;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        onConfirmDelete() {
+            this.onCloseDeleteModal();
+            this.$nextTick(() => {
+                this.$emit('discount-delete', this.discount);
+            });
         }
     }
-
 });

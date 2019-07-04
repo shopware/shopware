@@ -4,16 +4,28 @@ import template from './sw-promotion-detail-discounts.html.twig';
 import DiscountTypes from './../../common/discount-type';
 import DiscountScopes from './../../common/discount-scope';
 
+/*
+ * TODO ADD PAGINATION FOR DISCOUNTS
+ * TODO ADD global state and remove registerSaveCall process
+ */
 Component.register('sw-promotion-detail-discounts', {
-    inject: ['repositoryFactory', 'context'],
     template,
+
+    inject: [
+        'repositoryFactory',
+        'context',
+        'registerSaveCall',
+        'removeSaveCall'
+    ],
 
     props: {
         promotion: {
             type: Object,
-            required: true
+            required: false,
+            default: null
         }
     },
+
     data() {
         return {
             discounts: [],
@@ -22,79 +34,94 @@ Component.register('sw-promotion-detail-discounts', {
             repository: null
         };
     },
+
     computed: {
         discountAssociationStore() {
             return this.promotion.getAssociation('discounts');
         },
+
         // Gets if the card view is in deleting mode.
         // If so, it will automatically render the modal view
         // for the confirmation of the delete process.
         isDeleting() {
             return (this.deleteDiscountId != null);
+        },
+
+        promotionDiscountRepository() {
+            return this.repositoryFactory.create(
+                this.promotion.discounts.entity,
+                this.promotion.discounts.source
+            );
         }
     },
+
+    watch: {
+        promotion(value) {
+            if (value) {
+                this.loadDiscounts();
+            }
+        }
+    },
+
     created() {
+        this.registerSaveCall(this.onSave);
         this.createdComponent();
     },
+
+    beforeDestroy() {
+        this.removeSaveCall(this.onSave);
+    },
+
     methods: {
         createdComponent() {
-            this.$parent.$parent.$parent.$on('save', this.onSave);
-            this.repository = this.repositoryFactory.create('promotion_discount');
+            if (this.promotion) {
+                this.loadDiscounts();
+            }
+        },
 
-            const criteria = new Criteria();
-            criteria.addFilter(
-                Criteria.equals('promotionId', this.promotion.id)
-            );
-            criteria.addAssociation('discountRules');
-
-            this.repository.search(criteria, this.context).then((searchResult) => {
+        loadDiscounts() {
+            this.isLoading = true;
+            return this.promotionDiscountRepository.search(new Criteria(), this.context).then((searchResult) => {
                 this.discounts = searchResult;
                 this.isLoading = false;
             });
         },
+
         // This function saves all discounts of our promotion.
         onSave() {
-            this.repository.sync(this.discounts, this.context);
+            this.isLoading = true;
+            return this.promotionDiscountRepository.sync(this.discounts, this.context).then(() => {
+                this.loadDiscounts().then(() => {
+                    this.isLoading = false;
+                }).catch(() => {
+                    this.isLoading = false;
+                });
+            });
         },
+
         // This function adds a new blank discount object to our promotion.
         // It will automatically trigger a rendering of the view which
         // leads to a new card that appears within our discounts area.
         onAddDiscount() {
-            const newDiscount = this.repository.create(this.context);
+            const newDiscount = this.promotionDiscountRepository.create(this.context);
             newDiscount.promotionId = this.promotion.id;
             newDiscount.scope = DiscountScopes.CART;
             newDiscount.type = DiscountTypes.PERCENTAGE;
             newDiscount.value = 0.01;
             newDiscount.considerAdvancedRules = false;
 
-            this.promotion.discounts.push(newDiscount);
             this.discounts.push(newDiscount);
         },
-        // This function triggers the modal view to be rendered.
-        // The provided discount ID will be saved to determine the discount
-        // if the user confirms the deletion process.
-        onStartDeleteDiscount(discountID) {
-            this.deleteDiscountId = discountID;
-        },
-        // This function aborts the delete process by
-        // resetting the discountId which will automatically
-        // hide the modal view.
-        onCancelDeleteDiscount() {
-            this.deleteDiscountId = null;
-        },
-        // This function is used to confirm the delete process.
-        // If a discountId has been set before, it will remove that
-        // one from our list of discounts.
-        onConfirmDeleteDiscount() {
-            if (this.deleteDiscountId === null) {
+
+        deleteDiscount(discount) {
+            if (discount.isNew()) {
+                this.discounts.remove(discount.id);
                 return;
             }
 
-            this.repository.delete(this.deleteDiscountId, this.context);
-            this.discounts = this.discounts.filter((discount) => {
-                return discount.id !== this.deleteDiscountId;
+            this.promotionDiscountRepository.delete(discount.id, this.discounts.context).then(() => {
+                this.discounts.remove(discount.id);
             });
-            this.deleteDiscountId = null;
         }
     }
 });

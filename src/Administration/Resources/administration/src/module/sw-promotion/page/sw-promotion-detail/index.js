@@ -10,6 +10,13 @@ Component.register('sw-promotion-detail', {
 
     inject: ['repositoryFactory', 'context'],
 
+    provide() {
+        return {
+            registerSaveCall: this.registerSaveCall,
+            removeSaveCall: this.removeSaveCall
+        };
+    },
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),
@@ -33,7 +40,8 @@ Component.register('sw-promotion-detail', {
         return {
             promotion: null,
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            saveCallbacks: []
         };
     },
 
@@ -112,26 +120,34 @@ Component.register('sw-promotion-detail', {
             this.loadEntityData();
         },
 
-        saveFinish() {
-            this.isSaveSuccessful = false;
+        registerSaveCall(callBack) {
+            this.saveCallbacks.push(callBack);
+        },
+
+        removeSaveCall(callback) {
+            this.saveCallbacks = this.saveCallbacks.filter((registeredCallback) => {
+                return registeredCallback !== callback;
+            });
         },
 
         onSave() {
-            this.$emit('save');
             this.isLoading = true;
-
-            return this.promotionRepository.save(this.promotion, this.context).then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-            }).catch(() => {
-                this.isLoading = false;
-                this.createNotificationError({
-                    title: this.$tc('global.notification.notificationSaveErrorTitle'),
-                    message: this.$tc(
-                        'global.notification.notificationSaveErrorMessage',
-                        0,
-                        { entityName: this.promotion.name }
-                    )
+            return Promise.all(this.saveCallbacks.map((callback) => {
+                return callback();
+            })).then(() => {
+                return this.promotionRepository.save(this.promotion, this.context).then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                }).catch(() => {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                        message: this.$tc(
+                            'global.notification.notificationSaveErrorMessage',
+                            0,
+                            { entityName: this.promotion.name }
+                        )
+                    });
                 });
             });
         },

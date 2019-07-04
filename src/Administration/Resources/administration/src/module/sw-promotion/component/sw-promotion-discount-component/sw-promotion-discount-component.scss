@@ -1,4 +1,9 @@
+@import "~scss/variables";
+
 .sw-promotion-discount-component {
+    .sw-promotion-discount-component__context-button {
+        float: right;
+    }
 
     p {
         margin-bottom: 30px;
@@ -12,6 +17,10 @@
         cursor: pointer;
     }
 
+    .sw-promotion-discount-component__create-new-rule-link:hover {
+        color: $color-shopware-brand-500;
+        background-color: lighten($color-shopware-brand-500, 40%);
+    }
 }
 
 .sw-promotion-discount-form__advanced-prices-modal.sw-modal .sw-modal__body {

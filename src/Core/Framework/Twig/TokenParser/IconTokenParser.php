@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Twig\TokenParser;
 
+use Shopware\Core\Framework\Twig\Node\SwInclude;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\IncludeNode;
 use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
@@ -16,7 +16,7 @@ final class IconTokenParser extends AbstractTokenParser
      */
     protected $parser;
 
-    public function parse(Token $token): IncludeNode
+    public function parse(Token $token): SwInclude
     {
         $expr = $this->parser->getExpressionParser()->parseExpression();
 
@@ -40,7 +40,7 @@ final class IconTokenParser extends AbstractTokenParser
             new ConstantExpression('name', $token->getLine())
         );
 
-        return new IncludeNode($expr, $variables, false, false, $token->getLine(), $this->getTag());
+        return new SwInclude($expr, $variables, false, false, $token->getLine(), $this->getTag());
     }
 
     public function getTag(): string

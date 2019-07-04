@@ -30,6 +30,7 @@
                             {% endblock %}
                         </slot>
                     </template>
+                    <slot name="card-element-last"/>
                 </template>
                 <slot name="afterElements" v-bind="{ card, config: actualConfigData[currentSalesChannelId] }"></slot>
             </sw-card>

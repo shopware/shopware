@@ -265,6 +265,50 @@ final class StoreClient
         return $dataStruct;
     }
 
+    public function getPluginCompatibilities(string $futureVersion, string $language, PluginCollection $pluginCollection): array
+    {
+        $pluginArray = [];
+
+        /** @var PluginEntity $plugin */
+        foreach ($pluginCollection as $plugin) {
+            $pluginArray[] = [
+                'name' => $plugin->getName(),
+                'version' => $plugin->getVersion(),
+            ];
+        }
+
+        $shopSecret = $this->getShopSecret();
+
+        $headers = [];
+        if ($shopSecret) {
+            $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
+        }
+
+        $response = $this->client->post('/swplatform/autoupdate', [
+            'query' => $this->getDefaultQueryParameters($language, false),
+            'headers' => array_merge(
+                $this->client->getConfig('headers'),
+                $headers
+            ),
+            'json' => [
+                'futureShopwareVersion' => $futureVersion,
+                'plugins' => $pluginArray,
+            ],
+        ]);
+
+        return json_decode((string) $response->getBody(), true);
+    }
+
+    public function isShopUpgradeable(): bool
+    {
+        $response = $this->client->get('/swplatform/autoupdate/permission', [
+            'query' => $this->getDefaultQueryParameters('en-GB', false),
+            'headers' => $this->client->getConfig('headers'),
+        ]);
+
+        return json_decode((string) $response->getBody(), true)['updateAllowed'];
+    }
+
     private function getDefaultQueryParameters(string $language, $validateHost = true): array
     {
         $licenseHost = $this->configService->get(self::CONFIG_KEY_STORE_LICENSE_HOST);

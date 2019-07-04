@@ -1,0 +1,13 @@
+{% block sw_settings_content_card_slot_system %}
+    {% parent %}
+
+    {% block sw_settings_shopware_updates %}
+        <sw-settings-item id="sw-settings-shopware-updates"
+                          :label="$tc('sw-settings-shopware-updates.general.menuTitle')"
+                          :to="{ name: 'sw.settings.shopware.updates.index' }">
+            <template slot="icon">
+                <sw-icon name="default-arrow-360-full"></sw-icon>
+            </template>
+        </sw-settings-item>
+    {% endblock %}
+{% endblock %}

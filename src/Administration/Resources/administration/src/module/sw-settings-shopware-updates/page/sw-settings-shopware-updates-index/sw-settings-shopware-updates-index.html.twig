@@ -1,0 +1,79 @@
+{% block sw_settings_showare_updates_index %}
+<sw-page class="sw-settings-shopware-updates">
+
+    {% block sw_settings_showare_updates_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_showare_updates_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_showare_updates_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon name="small-arrow-medium-right" small>
+            </sw-icon>
+            {{ $tc('sw-settings-shopware-updates.general.emptyTitle') }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_showare_updates_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_showare_updates_actions_save %}
+        <sw-button-process
+            class="sw-store-detail__save-action"
+            :isLoading="isLoading"
+            :processSuccess="isSaveSuccessful"
+            :disabled="isLoading"
+            variant="primary"
+            @process-finish="saveFinish"
+            @click="onSave()">
+            {{ $tc('sw-settings-store.general.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_showare_updates_content %}
+    <template slot="content">
+        <sw-card-view>
+            <sw-system-config
+                ref="systemConfig"
+                domain="core.update">
+                <template slot="card-element-last">
+                    <div class="sw-settings-shopware-updates-index__check-for-updates-btn">
+                        <sw-button variant="ghost" @click="searchForUpdates" :isLoading="isSearchingForUpdates">
+                            {{ $t('sw-settings-shopware-updates.general.checkForUpdates') }}
+                        </sw-button>
+                        <span class="sw-settings-shopware-updates-index__current-version">
+                            {{ $t('sw-settings-shopware-updates.general.currentVersion') }} {{ shopwareVersion }}
+                        </span>
+                    </div>
+                </template>
+            </sw-system-config>
+        </sw-card-view>
+
+        <sw-modal
+            :title="$t('sw-settings-shopware-updates.general.emptyTitle')"
+            v-if="updateModalShown"
+            variant="small"
+            @modal-close="updateModalShown = false"
+        >
+            {{ $t('sw-settings-shopware-updates.updateModal.messageUpdateCheck', {version: updateInfo.version}) }}
+
+            <template slot="modal-footer">
+                <sw-button @click="updateModalShown = false"
+                           size="small">
+                    {{ $tc('sw-settings-shopware-updates.updateModal.actions.cancel') }}
+                </sw-button>
+
+                <sw-button @click="openUpdateWizard()"
+                           variant="primary"
+                           size="small">
+                    {{ $tc('sw-settings-shopware-updates.updateModal.actions.goToUpdate') }}
+                </sw-button>
+            </template>
+        </sw-modal>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

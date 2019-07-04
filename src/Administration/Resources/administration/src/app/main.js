@@ -18,6 +18,7 @@ import SearchTypeService from 'src/app/service/search-type.service';
 import ShortcutService from 'src/app/service/shortcut.service';
 import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
+import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listener.service';
 import 'src/app/decorator';
 
 /** Import global styles */
@@ -42,6 +43,7 @@ Application
         const loginService = LoginService(initContainer.httpClient, serviceContainer.context);
 
         addPluginUpdatesListener(loginService, serviceContainer);
+        addShopwareUpdatesListener(loginService, serviceContainer);
 
         return loginService;
     })

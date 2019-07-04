@@ -24,6 +24,9 @@ shopware:
         poll_interval: 30
         transports: ["default"]
 
+    auto_update:
+        enabled: true
+
     cache:
         entity_cache:
             enabled: true

@@ -1,0 +1,72 @@
+{
+  "sw-settings-shopware-updates": {
+    "general": {
+      "menuTitle": "Shopware Updates",
+      "title": "Shopware Update ({version})",
+      "emptyTitle": "Shopware Update",
+      "emptyState": "Du bist auf dem aktuellsten Stand",
+      "checkForUpdates": "Nach Updates suchen",
+      "currentVersion": "aktuelle Version:"
+    },
+    "cards": {
+      "info": "Was ist neu?",
+      "requirements": "Systemvoraussetzungen",
+      "plugins": "Plugin-Kompatiblität",
+      "updating": "Aktualisierung"
+    },
+    "notifications": {
+      "title": "Shopware-Updater",
+      "updateStarted": "Update Prozess wurde gestartet",
+      "downloadFailed": "Download-Prozess ist fehlgeschlagen",
+      "unpackFailed": "Entpack-Prozess ist fehlgeschlagen",
+      "alreadyUpToDate": "Du bist bereits auf dem aktuellsten Stand"
+    },
+    "infos": {
+      "backupCheckboxLabel": "Ich habe ein Backup angelegt und möchte das Update durchführen.",
+      "startUpdate": "Update starten",
+      "requirementsNotMet": "Nicht alle Systemanforderungen sind für dieses Update erfüllt",
+      "progress": {
+        "download": "Update-Datei wird heruntergeladen",
+        "unpack": "Update-Datei wird entpackt"
+      }
+    },
+    "requirements": {
+      "columns": {
+        "status": "Status",
+        "message": "Voraussetzung"
+      },
+      "message": {
+        "phpVersion": "Erforderliche PHP Version: {minVersion}. Installierte PHP Version: {currentVersion}.",
+        "mysqlVersion": "Erforderliche MySQL Version: {minVersion}. Installierte MySQL Version: {currentVersion}.",
+        "writeableCheckValid": "Die folgenden Verzeichnisse und Dateien sind beschreibbar:<br/>{checkedDirectories}",
+        "writeableCheckFailed": "Die folgenden Verzeichnisse und Dateien sind beschreibbar:<br>{failedDirectories}",
+        "validShopwareLicense": "Die eingesetzte Shopware Version erlaubt ein Update",
+        "invalidShopwareLicense": "Für ihre eingesetzte Shopware Version konnte keine aktive Software-Subscription ermittelt werden.<br>Das Auto-Update kann aktuell nicht durchgeführt werden.<br>Eine Shopware Software-Subscription können Sie bequem über den <a href=\"https://account.shopware.com\" target=\"_blank\">Shopware Account buchen.</a>"
+      },
+      "ready": "Bereit",
+      "notReady": "Nicht Bereit"
+    },
+    "plugins": {
+      "columns": {
+        "name": "Plugin",
+        "available": "Kompatiblität"
+      },
+      "actions": {
+        "openPluginManager": "Plugin-Manager öffnen"
+      },
+      "pluginNotInStore": "Dieses Plugin ist im Store nicht verfügbar. Bitte kontaktieren Sie den Plugin-Autor"
+    },
+    "updateModal": {
+      "actions": {
+        "cancel": "Abbrechen",
+        "install": "Installieren",
+        "goToUpdate": "Jetzt zum Update"
+      },
+      "messageOkay": "Alle Voraussetzungen sind erfüllt. Bitte stelle Sicher, dass du ein Backup erstellt hast",
+      "messageUpdatableNow": "Du hast einige Plugins, die ein Update vor dem Shopware-Update benötigen. Bitte stelle Sicher, dass du ein Backup erstellt hast",
+      "messageNotInStore": "Du hast einige Plugins, die nicht auf Kompatiblität geprüft werden konnten. Bitte kontaktieren Sie den Plugin-Autor für weitere Informationen. Bitte stelle Sicher, dass du ein Backup erstellt hast",
+      "messageUpdateCheck": "Deine aktuelle Version kann auf Version {version} aktualisiert werden. Was möchtest du tun?",
+      "backupLabel": "Ja. Ich habe Backups erstellt"
+    }
+  }
+}

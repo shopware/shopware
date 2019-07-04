@@ -21,7 +21,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier">
-            <argument>%kernel.project_dir%/vendor/shopware/platform/src/Core/Framework/Store/public.key</argument>
+            <argument type="collection">
+                <argument>%kernel.project_dir%/vendor/shopware/platform/src/Core/Framework/Store/public.key</argument>
+                <argument>%kernel.project_dir%/vendor/shopware/core/Framework/Store/public.key</argument>
+            </argument>
         </service>
     </services>
 </container>

@@ -16,13 +16,17 @@ class OpenSSLVerifier
      */
     private $keyResource;
 
-    public function __construct(string $publicKey)
+    public function __construct(array $publicKeys)
     {
-        if (!is_readable($publicKey)) {
-            throw new StoreSignatureValidationException(sprintf('Public keyfile "%s" not readable', $publicKey));
+        foreach ($publicKeys as $publicKey) {
+            if (is_readable($publicKey)) {
+                $this->publicKeyPath = $publicKey;
+
+                return;
+            }
         }
 
-        $this->publicKeyPath = $publicKey;
+        throw new StoreSignatureValidationException(sprintf('Cannot find readable public key file in %s', implode(',', $publicKeys)));
     }
 
     public function isSystemSupported(): bool

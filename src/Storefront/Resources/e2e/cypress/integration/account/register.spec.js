@@ -22,13 +22,8 @@ describe('Account: Register via account menu', () => {
         cy.get(page.elements.registerCard).should('be.visible');
 
         cy.get('select[name="salutationId"]').select('Mr.');
-        cy.get('input[name="title"]').type('Prof. Dr.');
         cy.get('input[name="firstName"]').type('John');
         cy.get('input[name="lastName"]').type('Doe');
-
-        cy.get('select[name="birthdayDay"]').select('4');
-        cy.get('select[name="birthdayMonth"]').select('8');
-        cy.get('select[name="birthdayYear"]').select('1917');
 
         cy.get(`${page.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
         cy.get(`${page.elements.registerForm} input[name="password"]`).type('1234567890');

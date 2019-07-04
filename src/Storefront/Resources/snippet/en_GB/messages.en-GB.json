@@ -52,7 +52,7 @@
         "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% is invalid",
         "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "Email address already registered.",
         "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Password incorrect.",
-        "VIOLATION::TOO_SHORT_ERROR": "Password too short.",
+        "VIOLATION::TOO_SHORT_ERROR": "Field value is too short.",
         "message-default": "Unfortunately, something went wrong.",
         "message-404": "The requested page cannot be found.",
         "addToCartError": "An error occurred while adding item(s) to the cart.",

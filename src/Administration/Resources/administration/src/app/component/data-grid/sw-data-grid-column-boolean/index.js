@@ -17,5 +17,17 @@ export default {
         value: {
             required: true
         }
+    },
+
+    computed: {
+        currentValue: {
+            get() {
+                return this.value;
+            },
+
+            set(newValue) {
+                this.$emit('input', newValue);
+            }
+        }
     }
 };

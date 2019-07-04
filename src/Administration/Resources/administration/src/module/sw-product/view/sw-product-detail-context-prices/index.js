@@ -62,7 +62,18 @@ Component.register('sw-product-detail-context-prices', {
                 return priceRuleGroups;
             }
 
-            this.product.prices.forEach((rule) => {
+            const sortedPrices = this.product.prices.sort((a, b) => {
+                const aRule = this.findRuleById(a.ruleId);
+                const bRule = this.findRuleById(b.ruleId);
+
+                if (!aRule || !aRule.name || !bRule || !bRule.name) {
+                    return 0;
+                }
+
+                return aRule.name > bRule.name ? 1 : -1;
+            });
+
+            sortedPrices.forEach((rule) => {
                 if (!priceRuleGroups[rule.ruleId]) {
                     priceRuleGroups[rule.ruleId] = {
                         ruleId: rule.ruleId,
@@ -209,10 +220,16 @@ Component.register('sw-product-detail-context-prices', {
         },
 
         onPriceGroupDelete(ruleId) {
-            this.product.prices.forEach((item) => {
-                if (item.ruleId === ruleId) {
-                    this.product.prices.remove(item.id);
+            const allPriceRules = this.product.prices.map(priceRule => {
+                return { id: priceRule.id, ruleId: priceRule.ruleId };
+            });
+
+            allPriceRules.forEach((priceRule) => {
+                if (ruleId !== priceRule.ruleId) {
+                    return;
                 }
+
+                this.product.prices.remove(priceRule.id);
             });
         },
 
@@ -227,27 +244,40 @@ Component.register('sw-product-detail-context-prices', {
             });
         },
 
-        onPriceRuleDuplicate(priceRule) {
-            this.duplicatePriceRule(priceRule, priceRule.ruleId);
-        },
-
         onPriceRuleDelete(priceRule) {
-            // Do not delete the last price of the default currency
-            if (priceRule.currencyId === this.defaultCurrency.id) {
-                const priceRuleGroup = this.priceRuleGroups[priceRule.ruleId];
-                const defaultCurrencyPrices = priceRuleGroup.currencies[this.defaultCurrency.id].prices;
+            // get the priceRuleGroup for the priceRule
+            const matchingPriceRuleGroup = this.priceRuleGroups[priceRule.ruleId];
 
-                if (defaultCurrencyPrices.length <= 1 && priceRuleGroup.currencies.length >= 1) {
-                    this.createNotificationError({
-                        title: this.$tc('sw-product.advancedPrices.deletionNotPossibleTitle'),
-                        message: this.$tc('sw-product.advancedPrices.deletionNotPossibleMessage')
-                    });
-                    return;
-                }
+            // if it is the only item in the priceRuleGroup
+            if (matchingPriceRuleGroup.prices.length <= 1) {
+                this.createNotificationError({
+                    title: this.$tc('sw-product.advancedPrices.deletionNotPossibleTitle'),
+                    message: this.$tc('sw-product.advancedPrices.deletionNotPossibleMessage')
+                });
+
+                return;
             }
 
-            const priceRuleToDelete = this.product.prices.find((price) => price.id === priceRule.id);
-            this.product.prices.remove(priceRuleToDelete.id);
+            // get actual rule index
+            const actualRuleIndex = matchingPriceRuleGroup.prices.indexOf(priceRule);
+
+            // if it is the last item
+            if (typeof priceRule.quantityEnd === 'undefined' || priceRule.quantityEnd === null) {
+                // get previous rule
+                const previousRule = matchingPriceRuleGroup.prices[actualRuleIndex - 1];
+
+                // set the quantityEnd from the previous rule to null
+                previousRule.quantityEnd = null;
+            } else {
+                // get next rule
+                const nextRule = matchingPriceRuleGroup.prices[actualRuleIndex + 1];
+
+                // set the quantityStart from the next rule to the quantityStart from the actual rule
+                nextRule.quantityStart = priceRule.quantityStart;
+            }
+
+            // delete rule
+            this.product.prices.remove(priceRule.id);
         },
 
         onInheritanceRestore(rule, currency) {
@@ -348,6 +378,12 @@ Component.register('sw-product-detail-context-prices', {
             });
 
             this.product.prices.add(newPriceRule);
+        },
+
+        getPriceRuleGroupClass(number) {
+            return [
+                `context-price-group-${number}`
+            ];
         }
     }
 });

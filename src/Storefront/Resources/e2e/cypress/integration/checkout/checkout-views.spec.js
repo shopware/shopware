@@ -3,16 +3,16 @@ import AccountPageObject from '../../support/pages/account.page-object';
 
 const devices = [{
     model: 'macbook-15',
-    orientation: 'portrait'
+    orientation: 'portrait',
 }, {
     model: 'ipad-2',
-    orientation: 'portrait'
+    orientation: 'portrait',
 }, {
     model: 'iphone-6+',
-    orientation: 'portrait'
+    orientation: 'portrait',
 }, {
     model: 'iphone-6+',
-    orientation: 'landscape'
+    orientation: 'landscape',
 }];
 let product = {};
 
@@ -82,7 +82,7 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 // Finish checkout
                 cy.get('#confirmFormSubmit').scrollIntoView();
                 cy.get('#confirmFormSubmit').click();
-                cy.get('.finish-header').contains('Thank you for your order with Shopware Storefront!');
+                cy.get('.finish-header').contains('Thank you for your order with Demostore!');
             });
         });
     });

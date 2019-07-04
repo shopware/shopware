@@ -1,0 +1,12 @@
+<picture class="{{ name }}">
+    {% for thumbnail in thumbnails %}
+        <source srcset="{{ thumbnail.url }}" media="(max-width: {{ thumbnail.width }}px)" />
+    {% endfor %}
+
+    {% if default != '' %}
+        {% set lastThumb = default %}
+    {% else %}
+        {% set lastThumb = thumbnails.last.url %}
+    {% endif %}
+    <img src="{{ lastThumb }}" alt="{{ alt }}" />
+</picture>

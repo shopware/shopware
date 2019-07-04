@@ -92,6 +92,26 @@ trait PromotionTestFixtureBehaviour
         );
     }
 
+    /**
+     * Creates a new percentage promotion in the database.
+     */
+    public function createTestFixtureFixedPricePromotion(string $promotionId, string $code, float $fixedPrice, ContainerInterface $container)
+    {
+        /** @var EntityRepositoryInterface $promotionRepository */
+        $promotionRepository = $container->get('promotion.repository');
+
+        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $this->createPromotion(
+            $promotionId,
+            $code,
+            PromotionDiscountEntity::TYPE_FIXED,
+            $fixedPrice,
+            $promotionRepository,
+            $context
+        );
+    }
+
     private function createPromotion(string $promotionId, string $code, string $discountType, float $percentage, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context)
     {
         $promotionRepository->create(

@@ -6,7 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
@@ -177,6 +179,58 @@ class PromotionSessionCodesTest extends TestCase
 
         /** @var string $discountId */
         $discountId = array_keys($cart->getLineItems()->getElements())[1];
+
+        $this->cartService->remove($cart, $discountId, $this->context);
+
+        static::assertCount(0, $this->getSessionCodes(), json_encode($this->getSessionCodes()));
+    }
+
+    /**
+     * This test verifies that our cart services
+     * does also correctly remove the matching code
+     * within our session, if existing AND a fixed discount has been added that
+     * is discounting TWO products.
+     * We add two products and promotion code, then we grab one promotion discount
+     * line item id and remove it.
+     * After that we verify that our code array is empty in our session (both discounts on the
+     * two products are removed).
+     *
+     * @test
+     * @group promotions
+     */
+    public function testDeleteLineItemFixedDiscountByCode()
+    {
+        $productId = Uuid::randomHex();
+        $productTwoId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $promotionCode = 'BF19';
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productTwoId, 100, 7, $this->getContainer());
+
+        // add a new promotion black friday
+        $this->createTestFixtureFixedPricePromotion($promotionId, $promotionCode, 30, $this->getContainer());
+
+        /** @var Cart $cart */
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // add product to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        // add product to cart
+        $cart = $this->addProduct($productTwoId, 1, $cart, $this->cartService, $this->context);
+
+        // add promotion to cart
+        $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
+
+        /** @var LineItemCollection $promotionItems */
+        $promotionItems = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
+
+        /** @var string $discountId */
+        $discountId = array_keys($promotionItems->getElements())[0];
 
         $this->cartService->remove($cart, $discountId, $this->context);
 

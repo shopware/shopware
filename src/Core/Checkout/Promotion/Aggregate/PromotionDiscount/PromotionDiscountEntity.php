@@ -33,6 +33,12 @@ class PromotionDiscountEntity extends Entity
     public const TYPE_ABSOLUTE = 'absolute';
 
     /**
+     * This type defines an fixed price
+     * definition of the discount.
+     */
+    public const TYPE_FIXED = 'fixed';
+
+    /**
      * @var string
      */
     protected $promotionId;

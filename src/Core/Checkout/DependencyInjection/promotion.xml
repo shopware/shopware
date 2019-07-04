@@ -95,6 +95,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
         </service>
 
         <!-- SUBSCRIBERS -->

@@ -120,6 +120,7 @@
           "valueScopeCart": "Warenkorb",
           "valueTypeAbsolute": "Absolut",
           "valueTypePercentage": "Prozentual",
+          "valueTypeFixed": "Festpreis",
           "buttonAddDiscount": "Rabatt hinzufügen",
           "buttonDeleteDiscount": "Rabatt entfernen",
           "delete": {

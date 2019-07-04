@@ -119,6 +119,7 @@
           "valueScopeCart": "Cart",
           "valueTypeAbsolute" : "Absolute",
           "valueTypePercentage": "Percentage",
+          "valueTypeFixed": "Fixed price",
           "buttonAddDiscount" : "Add discount",
           "buttonDeleteDiscount" : "Delete discount",
           "delete" : {

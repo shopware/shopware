@@ -94,25 +94,28 @@ class MailService
 
         $recipients = $data['recipients'];
         $salesChannelId = $data['salesChannelId'];
+        $salesChannel = null;
 
-        $criteria = new Criteria([$salesChannelId]);
-        $criteria->addAssociation('mailHeaderFooter');
-        /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);
+        if ($salesChannelId !== null) {
+            $criteria = new Criteria([$salesChannelId]);
+            $criteria->addAssociation('mailHeaderFooter');
+            /** @var SalesChannelEntity|null $salesChannel */
+            $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);
 
-        if ($salesChannel === null) {
-            throw new SalesChannelNotFoundException($salesChannelId);
+            if ($salesChannel === null) {
+                throw new SalesChannelNotFoundException($salesChannelId);
+            }
         }
 
         $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
-
         if ($senderEmail === null) {
             // todo Create log entry, but do not throw exception
             return null;
         }
 
-        $contents = $this->buildContents($data, $salesChannel);
         $templateData['salesChannel'] = $salesChannel;
+
+        $contents = $this->buildContents($data, $salesChannel);
         foreach ($contents as $index => $template) {
             $contents[$index] = $this->templateRenderer->render($template, $templateData);
         }
@@ -142,21 +145,19 @@ class MailService
      *
      * @return array e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      */
-    public function buildContents(array $data, SalesChannelEntity $salesChannel): array
+    public function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
     {
-        $bodies = [
-            'text/html' => $data['contentHtml'],
-            'text/plain' => $data['contentPlain'],
-        ];
-        $mailHeaderFooter = $salesChannel->getMailHeaderFooter();
-        if ($mailHeaderFooter !== null) {
+        if ($salesChannel && $mailHeaderFooter = $salesChannel->getMailHeaderFooter()) {
             return [
-                'text/plain' => $mailHeaderFooter->getHeaderPlain() . $bodies['text/plain'] . $mailHeaderFooter->getFooterPlain(),
-                'text/html' => $mailHeaderFooter->getHeaderHtml() . $bodies['text/html'] . $mailHeaderFooter->getFooterHtml(),
+                'text/plain' => $mailHeaderFooter->getHeaderPlain() . $data['contentPlain'] . $mailHeaderFooter->getFooterPlain(),
+                'text/html' => $mailHeaderFooter->getHeaderHtml() . $data['contentHtml'] . $mailHeaderFooter->getFooterHtml(),
             ];
         }
 
-        return $bodies;
+        return [
+            'text/html' => $data['contentHtml'],
+            'text/plain' => $data['contentPlain'],
+        ];
     }
 
     private function getValidationDefinition(Context $context): DataValidationDefinition

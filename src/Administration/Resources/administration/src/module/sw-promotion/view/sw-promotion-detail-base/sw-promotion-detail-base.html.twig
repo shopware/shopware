@@ -1,17 +1,17 @@
 {% block sw_promotion_detail_base %}
     <div class="sw-promotion-detail-base">
         {% block sw_promotion_detail_base_basic_info_card %}
-            <sw-card :title="$tc('sw-promotion.detail.main.general.cardTitlePromotionInfo')" :isLoading="!promotion">
+            <sw-card :title="$tc('sw-promotion.detail.main.general.cardTitlePromotionInfo')" :isLoading="!$attrs.promotion">
                 {% block sw_promotion_detail_base_basic_info_form %}
-                    <sw-promotion-basic-form :promotion="promotion"></sw-promotion-basic-form>
+                    <sw-promotion-basic-form :promotion="$attrs.promotion"></sw-promotion-basic-form>
                 {% endblock %}
             </sw-card>
         {% endblock %}
 
         {% block sw_promotion_detail_base_code_card %}
-            <sw-card :title="$tc('sw-promotion.detail.main.general.codes.card')" v-if="promotion && promotion.useCodes">
+            <sw-card :title="$tc('sw-promotion.detail.main.general.codes.card')" v-if="$attrs.promotion && $attrs.promotion.useCodes">
                 {% block sw_promotion_detail_base_code_form %}
-                    <sw-promotion-code-form :promotion="promotion"></sw-promotion-code-form>
+                    <sw-promotion-code-form :promotion="$attrs.promotion"></sw-promotion-code-form>
                 {% endblock %}
             </sw-card>
         {% endblock %}

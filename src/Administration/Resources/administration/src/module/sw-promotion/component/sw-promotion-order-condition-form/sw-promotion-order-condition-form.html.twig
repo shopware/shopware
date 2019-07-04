@@ -1,41 +1,21 @@
 {% block sw_promotion_order_condition_form %}
-    <div class="promotion-order-condition-form">
+    <sw-card class="promotion-order-condition-form" :title="$tc('sw-promotion.detail.main.preconditions.order.card')">
         <h4>{{ $tc('sw-promotion.detail.main.preconditions.order.title') }}</h4>
         <p>
             {{ $tc('sw-promotion.detail.main.preconditions.order.text') }}
         </p>
 
         {% block sw_promotion_order_condition_form_rules_field %}
-            <sw-select
-                    multi
-                    ref="orderRuleSelect"
+            <sw-promotion-rule-select
+                    v-if="promotion"
                     class="sw-promotion-order-condition-form__order-rules"
+                    :localMode="promotion.isNew()"
+                    :collection="promotion.orderRules"
                     :label="$tc('sw-promotion.detail.main.preconditions.order.rulesCaption')"
                     :placeholder="$tc('sw-promotion.detail.main.preconditions.order.rulesPlaceholder')"
-                    @option-click="onSelectRule"
-                    :store="rulesStore"
                     :criteria="ruleFilter"
-                    :associationStore="orderRulesAssociationStore">
-                <template slot="sw_select_list_before">
-                    <sw-select-option :index="-1"
-                                      :item="itemAddNewRule">
-                        {{ $tc('sw-select-rule-create.addNewRule') }}
-                    </sw-select-option>
-                </template>
-                <template slot="result_items" slot-scope="{ item, index }">
-                    <sw-select-option :index="index" :item="item">
-                        {{ item.name }}
-                    </sw-select-option>
-                </template>
-            </sw-select>
+                    :ruleScope="['checkout']">
+            </sw-promotion-rule-select>
         {% endblock %}
-        {% block sw_select_rule_create_rule_modal %}
-            {#todo next-2945 change allowedRuleScope if rule types may be addressed correctly #}
-            <sw-rule-modal v-if="showRuleModal"
-                           @save="onSaveRule"
-                           @modal-close="onCloseRuleModal"
-                           :allowedRuleScopes="['checkout']">
-            </sw-rule-modal>
-        {% endblock %}
-    </div>
+    </sw-card>
 {% endblock %}

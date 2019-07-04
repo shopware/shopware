@@ -50,6 +50,12 @@ export default {
         };
     },
 
+    watch: {
+        collection() {
+            this.displayAssigned(this.collection);
+        }
+    },
+
     methods: {
         initData() {
             this.repository = this.repositoryFactory.create(this.collection.entity, this.collection.source);
@@ -192,13 +198,15 @@ export default {
         },
 
         displayAssigned(result) {
+            const visibleValues = [];
             result.forEach((item) => {
                 if (!this.selectedIds.includes(item[this.valueProperty])) {
                     this.selectedIds.push(item[this.valueProperty]);
                 }
-                this.visibleValues.push(item);
+                visibleValues.push(item);
             });
 
+            this.visibleValues = visibleValues;
             this.invisibleValueCount = result.total - this.visibleValues.length;
         },
 

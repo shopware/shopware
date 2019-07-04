@@ -5,6 +5,9 @@
       "mainMenuItemList" : "Overview",
       "description": "Promotions"
     },
+    "swPromotionRuleSelect": {
+      "labelAddNewRule": "Create new rule"
+    },
     "list": {
       "textTitle": "Promotions",
       "buttonAddPromotion": "Add Promotion",

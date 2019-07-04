@@ -5,6 +5,9 @@
       "mainMenuItemList" : "Rabatte & Aktionen",
       "description": "Rabattaktionen"
     },
+    "swPromotionRuleSelect": {
+      "labelAddNewRule": "Neue regel erstellen"
+    },
     "list": {
       "textTitle": "Rabatte & Aktionen",
       "buttonAddPromotion": "Aktion anlegen",

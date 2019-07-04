@@ -3,6 +3,7 @@ import { Module } from 'src/core/shopware';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
+import './component/sw-promotion-rule-select';
 import './component/sw-promotion-sales-channel-select';
 
 import './component/sw-promotion-basic-form';

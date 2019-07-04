@@ -1,6 +1,7 @@
 import { Component, Mixin } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-units.html.twig';
+import './sw-settings-units.scss';
 
 Component.register('sw-settings-units', {
     template,
@@ -38,6 +39,10 @@ Component.register('sw-settings-units', {
             }
 
             return this.units;
+        },
+
+        isEmpty() {
+            return this.unitList.length <= 0;
         }
     },
 

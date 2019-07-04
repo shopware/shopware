@@ -12,7 +12,7 @@ Module.register('sw-settings-units', {
     title: 'sw-settings-units.general.mainMenuItemGeneral',
     description: 'Units section in the settings module',
     color: '#9AA8B5',
-    icon: 'default-object-scale',
+    icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'units',
 

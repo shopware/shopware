@@ -112,13 +112,16 @@ export default {
     },
 
     watch: {
-        value() {
-            if (this.value === null || this.value === undefined) {
-                this.currentValue = null;
-                return;
-            }
+        value: {
+            handler() {
+                if (this.value === null || this.value === undefined) {
+                    this.currentValue = null;
+                    return;
+                }
 
-            this.computeValue(this.value.toString());
+                this.computeValue(this.value.toString());
+            },
+            immediate: true
         }
     },
 

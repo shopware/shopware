@@ -9,7 +9,7 @@ use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-final class IconTokenParser extends AbstractTokenParser
+final class ThumbnailTokenParser extends AbstractTokenParser
 {
     /**
      * @var Parser
@@ -19,16 +19,13 @@ final class IconTokenParser extends AbstractTokenParser
     public function parse(Token $token): SwInclude
     {
         $expr = $this->parser->getExpressionParser()->parseExpression();
-
-        $icon = $expr->getAttribute('value');
-
-        $expr->setAttribute('value', '@Storefront/utilities/icon.html.twig');
-
         $stream = $this->parser->getStream();
 
-        $variables = new ArrayExpression([], $token->getLine());
+        $className = $expr->getAttribute('value');
+        $expr->setAttribute('value', '@Storefront/utilities/thumbnail.html.twig');
 
-        if ($stream->nextIf(Token::NAME_TYPE, 'style')) {
+        $variables = new ArrayExpression([], $token->getLine());
+        if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
             /** @var ArrayExpression $variables */
             $variables = $this->parser->getExpressionParser()->parseExpression();
         }
@@ -36,7 +33,7 @@ final class IconTokenParser extends AbstractTokenParser
         $stream->next();
 
         $variables->addElement(
-            new ConstantExpression($icon, $token->getLine()),
+            new ConstantExpression($className, $token->getLine()),
             new ConstantExpression('name', $token->getLine())
         );
 
@@ -45,6 +42,6 @@ final class IconTokenParser extends AbstractTokenParser
 
     public function getTag(): string
     {
-        return 'sw_icon';
+        return 'sw_thumbnails';
     }
 }

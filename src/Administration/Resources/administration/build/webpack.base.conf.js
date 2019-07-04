@@ -1,4 +1,6 @@
+/* eslint-disable import/no-extraneous-dependencies */
 const path = require('path');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const utils = require('./utils');
 const config = require('../config');
 const vueLoaderConfig = require('./vue-loader.conf');
@@ -49,7 +51,7 @@ module.exports = {
     resolve: {
         extensions: ['.js', '.vue', '.json', '.less', '.twig'],
         alias: {
-            vue$: 'vue/dist/vue.esm.js',
+            vue$: require.resolve('vue/dist/vue.esm.js'),
             src: resolve('src'),
             module: resolve('src/module'),
             scss: resolve('src/app/assets/scss'),
@@ -141,5 +143,8 @@ module.exports = {
                 }
             }
         ]
-    }
+    },
+    plugins: [
+        new VueLoaderPlugin()
+    ]
 };

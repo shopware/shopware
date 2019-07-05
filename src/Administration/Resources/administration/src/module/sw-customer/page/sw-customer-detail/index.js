@@ -208,6 +208,10 @@ Component.register('sw-customer-detail', {
         },
 
         onSave() {
+            if (!this.customerEditMode) {
+                return false;
+            }
+
             this.isSaveSuccessful = false;
 
             if (!this.customer.birthday) {

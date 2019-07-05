@@ -43,6 +43,23 @@ class UuidTest extends TestCase
         Uuid::fromBytesToHex('a');
     }
 
+    public function testValidity()
+    {
+        static::assertTrue(Uuid::isValid('bd5303139e5e47c68eeda68746b73436'));
+        static::assertTrue(Uuid::isValid('1111aaabbbFFF1111111111CCC111111'));
+
+        static::assertTrue(Uuid::isValid('11111111111111111111111111111111'));
+        static::assertFalse(Uuid::isValid('G1111111111111111111111111111111'));
+        static::assertFalse(Uuid::isValid('g1111111111111111111111111111111'));
+
+        static::assertFalse(Uuid::isValid('1111111111111111111111111111111'));
+        static::assertFalse(Uuid::isValid('111111111111111111111111111111111'));
+
+        static::assertFalse(Uuid::isValid('!1111111111111111111111111111111'));
+
+        static::assertFalse(Uuid::isValid('74d25156-60e6-444c-a177-a96e67ecfc5f'));
+    }
+
     public function testUuidFormat()
     {
         for ($i = 0; $i < 100; ++$i) {

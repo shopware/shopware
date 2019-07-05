@@ -139,7 +139,7 @@ MAIL;
     private function getContentPlainEn(): string
     {
         return <<<MAIL
-        Dear {{ userRecovery.user.firstName }} {{ userRecovery.user.lastName }},<br/>
+        Dear {{ userRecovery.user.firstName }} {{ userRecovery.user.lastName }},
 
         there has been a request to reset your password.
         Please confirm the link below to specify a new password.

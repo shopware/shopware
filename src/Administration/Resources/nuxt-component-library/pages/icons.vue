@@ -19,8 +19,10 @@
 </template>
 
 <script>
+    import iconComponents from 'src/app/assets/icons/icons';
+    const iconNames = iconComponents.map((comp) => comp.name);
+
     export default {
-        inject: ['iconNames'],
 
         head() {
             return {
@@ -46,7 +48,7 @@
 
         computed: {
             icons() {
-                return this.iconNames.map((iconName) => {
+                return iconNames.map((iconName) => {
                     return iconName.replace('icons-', '');
                 });
             }

@@ -123,7 +123,7 @@ function extractSlots(content) {
             isScopedSlot: slotVariables.length > 0,
             variables: slotVariables
         };
-    })
+    });
 }
 
 function extractBlocks(file, content) {    
@@ -148,14 +148,18 @@ function extractBlocks(file, content) {
 
 function parseFile(file, importsList) {
     const fileName = extractImportFile(importsList)
+
     if (!fileName) {
-        return {}
+        return {
+            slots: [],
+            blocks: []
+        };
     }
     const content = getFileContent(getFullFilePath(file.directory, fileName));
 
     const slots = extractSlots(content).filter((obj, pos, arr) => {
         return arr.map(mapObj => mapObj.name).indexOf(obj.name) === pos;
-    });
+    }) || [];
     const blocks = extractBlocks(file, content);
 
     return {

@@ -6,7 +6,6 @@
     },
     "todayStats": {
       "headline": "What is happening today?",
-      "shopwareVersion": "Early access 1",
       "orders": "Orders",
       "turnover": "Turnover",
       "orderTime": "Time"

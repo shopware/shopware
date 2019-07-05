@@ -6,7 +6,6 @@
     },
     "todayStats": {
       "headline": "Was ist heute passiert?",
-      "shopwareVersion": "Early access 1",
       "orders": "Bestellungen",
       "turnover": "Umsatz",
       "orderTime": "Zeitpunkt"

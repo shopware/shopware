@@ -27,10 +27,10 @@
                                        class="product-image-link"
                                        title="{{ lineItem.label }}">
                                         {% block page_checkout_item_info_image_element %}
-                                            {% if lineItem.cover.media.url %}
-                                                <img src="{{ lineItem.cover.media.url }}"
+                                            {% if lineItem.cover %}
+                                                <img src="{{ lineItem.cover.url }}"
                                                      class="img-fluid order-item-img product-image is-{{ displayMode }}"
-                                                     alt="{{ lineItem.cover.media.alt }}">
+                                                     alt="{{ lineItem.cover.alt }}">
                                             {% else %}
                                                 <div class="product-image-placeholder">
                                                     {% sw_icon 'placeholder' style {

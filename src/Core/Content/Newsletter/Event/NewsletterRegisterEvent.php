@@ -91,7 +91,7 @@ class NewsletterRegisterEvent extends Event implements BusinessEventInterface, M
         );
     }
 
-    public function getSalesChannelId(): string
+    public function getSalesChannelId(): ?string
     {
         return $this->salesChannelId;
     }

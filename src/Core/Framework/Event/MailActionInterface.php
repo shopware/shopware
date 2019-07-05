@@ -8,5 +8,5 @@ interface MailActionInterface
 {
     public function getMailStruct(): MailRecipientStruct;
 
-    public function getSalesChannelId(): string;
+    public function getSalesChannelId(): ?string;
 }

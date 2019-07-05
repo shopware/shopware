@@ -77,7 +77,7 @@ class CustomerRegisterEvent extends Event implements BusinessEventInterface, Mai
         );
     }
 
-    public function getSalesChannelId(): string
+    public function getSalesChannelId(): ?string
     {
         return $this->salesChannelId;
     }

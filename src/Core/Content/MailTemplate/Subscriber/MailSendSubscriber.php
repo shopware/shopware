@@ -38,14 +38,14 @@ class MailSendSubscriber implements EventSubscriberInterface
         $this->mailTemplateRepository = $mailTemplateRepository;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             self::ACTION_NAME => 'sendMail',
         ];
     }
 
-    public function sendMail(BusinessEvent $event)
+    public function sendMail(BusinessEvent $event): void
     {
         /** @var MailActionInterface|BusinessEventInterface $mailEvent */
         $mailEvent = $event->getEvent();
@@ -62,8 +62,12 @@ class MailSendSubscriber implements EventSubscriberInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId));
-        $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.salesChannel.id', $mailEvent->getSalesChannelId()));
         $criteria->setLimit(1);
+
+        if ($mailEvent->getSalesChannelId()) {
+            $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.salesChannel.id', $mailEvent->getSalesChannelId()));
+        }
+
         /** @var MailTemplateEntity|null $mailTemplate */
         $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
 

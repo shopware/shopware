@@ -78,7 +78,7 @@ class CheckoutOrderPlacedEvent extends Event implements BusinessEventInterface, 
         );
     }
 
-    public function getSalesChannelId(): string
+    public function getSalesChannelId(): ?string
     {
         return $this->salesChannelId;
     }

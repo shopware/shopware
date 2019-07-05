@@ -59,6 +59,7 @@ class UserRecoveryService
 
         $userIdCriteria = new Criteria();
         $userIdCriteria->addFilter(new EqualsFilter('userId', $userId));
+        $userIdCriteria->addAssociation('user');
 
         if ($existingRecovery = $this->getUserRecovery($userIdCriteria, $context)) {
             $this->deleteRecoveryForUser($existingRecovery, $context);
@@ -82,7 +83,7 @@ class UserRecoveryService
         $recoveryUrl = $url . '#/login/user-recovery/' . $hash;
 
         $this->dispatcher->dispatch(
-            new UserRecoveryRequestEvent($recovery, $context),
+            new UserRecoveryRequestEvent($recovery, $recoveryUrl, $context),
             UserRecoveryRequestEvent::EVENT_NAME
         );
     }

@@ -3,15 +3,19 @@
 namespace Shopware\Core\System\User\Recovery;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\MailActionInterface;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class UserRecoveryRequestEvent extends Event
+class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, MailActionInterface
 {
-    public const EVENT_NAME = 'user.recovery.request.event';
+    public const EVENT_NAME = 'user.recovery.request';
 
     /**
      * @var UserRecoveryEntity
@@ -23,10 +27,16 @@ class UserRecoveryRequestEvent extends Event
      */
     private $context;
 
-    public function __construct(UserRecoveryEntity $userRecovery, Context $context)
+    /**
+     * @var string
+     */
+    private $resetUrl;
+
+    public function __construct(UserRecoveryEntity $userRecovery, string $resetUrl, Context $context)
     {
         $this->userRecovery = $userRecovery;
         $this->context = $context;
+        $this->resetUrl = $resetUrl;
     }
 
     public function getName(): string
@@ -47,6 +57,27 @@ class UserRecoveryRequestEvent extends Event
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('userRecovery', new EntityType(UserRecoveryDefinition::class));
+            ->add('userRecovery', new EntityType(UserRecoveryDefinition::class))
+            ->add('resetUrl', new ScalarValueType('string'))
+        ;
+    }
+
+    public function getMailStruct(): MailRecipientStruct
+    {
+        $user = $this->userRecovery->getUser();
+
+        return new MailRecipientStruct([
+            $user->getEmail() => $user->getFirstName() . ' ' . $user->getLastName(),
+        ]);
+    }
+
+    public function getSalesChannelId(): ?string
+    {
+        return null;
+    }
+
+    public function getResetUrl(): string
+    {
+        return $this->resetUrl;
     }
 }

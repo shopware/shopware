@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -117,6 +118,10 @@ EOL;
             case $field instanceof CreatedAtField:
             case $field instanceof DateTimeField:
                 $type = 'DATETIME(3)';
+                break;
+
+            case $field instanceof DateField:
+                $type = 'DATE';
                 break;
 
             case $field instanceof TranslatedField:

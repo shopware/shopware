@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -74,7 +74,7 @@ class OrderDefinition extends EntityDefinition
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
 
-            (new DateField('order_date', 'orderDate'))->addFlags(new Required()),
+            (new DateTimeField('order_date', 'orderDate'))->addFlags(new Required()),
             new CartPriceField('price', 'price'),
             (new FloatField('amount_total', 'amountTotal'))->addFlags(new WriteProtected(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new FloatField('amount_net', 'amountNet'))->addFlags(new WriteProtected()),

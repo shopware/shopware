@@ -46,7 +46,7 @@ class UuidTest extends TestCase
     public function testValidity()
     {
         static::assertTrue(Uuid::isValid('bd5303139e5e47c68eeda68746b73436'));
-        static::assertTrue(Uuid::isValid('1111aaabbbFFF1111111111CCC111111'));
+        static::assertTrue(Uuid::isValid('1111aaabbbfff1111111111ccc111111'));
 
         static::assertTrue(Uuid::isValid('11111111111111111111111111111111'));
         static::assertFalse(Uuid::isValid('G1111111111111111111111111111111'));
@@ -57,6 +57,7 @@ class UuidTest extends TestCase
 
         static::assertFalse(Uuid::isValid('!1111111111111111111111111111111'));
 
+        static::assertFalse(Uuid::isValid('1111aaabbbFFF1111111111CCC111111'));
         static::assertFalse(Uuid::isValid('74d25156-60e6-444c-a177-a96e67ecfc5f'));
     }
 

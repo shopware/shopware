@@ -15,11 +15,6 @@
             }
         }
 
-        span.sw-dashboard-intro-subline {
-            font-size: $font-size-small;
-            color: $color-gray-500;
-        }
-
         .sw-dashboard-intro-stats-today__stats {
             padding-top: 32px;
             padding-right: 32px;
@@ -71,7 +66,7 @@
 
         .sw-dashboard-headline-statistics__timerange {
             font-size: ($font-size-default * 1.5);
-            color: $color-gray-500;;
+            color: $color-gray-500;
         }
     }
 }

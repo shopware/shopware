@@ -34,7 +34,7 @@ export default {
             type: Array,
             required: false,
             default() {
-                return [25, 50, 75, 100];
+                return [10, 25, 50, 75, 100];
             }
         }
     },

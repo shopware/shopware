@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Checkout\Promotion\Validator\PromotionValidator;
+use Shopware\Core\Checkout\Test\Cart\Promotion\Fakes\FakeConnection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class PromotionValidatorTest extends TestCase
@@ -60,8 +62,10 @@ class PromotionValidatorTest extends TestCase
             $this->createMock(EntityExistence::class)
         );
 
+        $fakeConnection = new FakeConnection($this->getPromotionDbRows());
+
         $event = new PreWriteValidationEvent($this->context, $commands);
-        $validator = new PromotionValidator();
+        $validator = new PromotionValidator($fakeConnection);
         $validator->preValidate($event);
 
         try {
@@ -95,8 +99,10 @@ class PromotionValidatorTest extends TestCase
             $this->createMock(EntityExistence::class)
         );
 
+        $fakeConnection = new FakeConnection($this->getPromotionDbRows());
+
         $event = new PreWriteValidationEvent($this->context, $commands);
-        $validator = new PromotionValidator();
+        $validator = new PromotionValidator($fakeConnection);
         $validator->preValidate($event);
 
         try {
@@ -139,8 +145,10 @@ class PromotionValidatorTest extends TestCase
             $this->createMock(EntityExistence::class)
         );
 
+        $fakeConnection = new FakeConnection($this->getPromotionDbRows());
+
         $event = new PreWriteValidationEvent($this->context, $commands);
-        $validator = new PromotionValidator();
+        $validator = new PromotionValidator($fakeConnection);
         $validator->preValidate($event);
 
         try {
@@ -181,11 +189,33 @@ class PromotionValidatorTest extends TestCase
             $this->createMock(EntityExistence::class)
         );
 
+        $fakeConnection = new FakeConnection($this->getPromotionDbRows());
+
         $event = new PreWriteValidationEvent($this->context, $commands);
-        $validator = new PromotionValidator();
+        $validator = new PromotionValidator($fakeConnection);
         $validator->preValidate($event);
         $event->getExceptions()->tryToThrow();
 
         static::assertTrue(true);
+    }
+
+    /**
+     * Builds a fake database row entry that can be
+     * used to return from the DBAL connection.
+     *
+     * @return array
+     */
+    private function getPromotionDbRows()
+    {
+        return [
+            [
+                'id' => Uuid::randomHex(),
+                'valid_from' => '',
+                'valid_until' => '',
+                'use_codes' => true,
+                'use_individual_codes' => true,
+                'code' => 'ABC',
+            ],
+        ];
     }
 }

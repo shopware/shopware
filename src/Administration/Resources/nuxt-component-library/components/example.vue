@@ -213,6 +213,7 @@
 
                 const slotsString = Object.keys(slots).reduce((accumulator, slotKey) => {
                     const slotContent = slots[slotKey];
+
                     let slotDefinition = this.component.slots.filter((slot) => {
                         return slot.name === slotKey;
                     });

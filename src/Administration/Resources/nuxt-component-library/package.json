@@ -7,7 +7,7 @@
     "scripts": {
         "watch": "nuxt",
         "generate": "nuxt generate",
-        "debug": "node --inspect node_modules/.bin/nuxt"
+        "debug": "DEBUG='nuxt:*' node --inspect node_modules/.bin/nuxt"
     },
     "author": "klarstil",
     "license": "MIT",
@@ -17,7 +17,7 @@
         "glob": "7.1.3",
         "html-loader": "0.5.5",
         "node-sass": "4.11.0",
-        "nuxt": "2.3.4",
+        "nuxt": "2.8.1",
         "pretty": "2.0.0",
         "prismjs": "1.15.0",
         "sass": "1.17.2",
@@ -27,6 +27,7 @@
         "vue-codemirror": "4.0.5",
         "vue-faq-accordion": "1.2.0",
         "vue-i18n": "8.1.0",
-        "vue-prism-component": "1.0.1"
+        "vue-prism-component": "1.0.1",
+        "vuex": "3.1.1"
     }
 }

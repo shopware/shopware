@@ -1,18 +1,30 @@
 import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
+import Vuex from 'vuex';
 import VueI18n from 'vue-i18n';
 import enGBMessages from 'src/app/snippet/en-GB.json';
 import DeviceHelper from 'src/app/plugin/device-helper.plugin';
 import ValidationService from 'src/core/service/validation.service';
-
-Vue.use(VueI18n);
-Vue.use(DeviceHelper);
+import iconComponents from 'src/app/assets/icons/icons';
+import VuexModules from 'src/app/state/index';
+import EntityStore from 'src/core/data/EntityStore';
+import { State } from 'src/core/shopware';
+import ShortcutService from 'src/app/service/shortcut.service';
 
 const Shopware = require('src/core/common');
+const ContextFactory = require('src/core/factory/context.factory').default;
 
+require('src/app/mixin/index');
+require('src/app/directive/index');
+require('src/app/filter/index');
+
+// Vue plugins
+Vue.use(VueI18n);
+Vue.use(DeviceHelper);
+Vue.use(Vuex);
+
+// Expose shopware object globally
 global.Shopware = Shopware;
 window.Shopware = Shopware;
-
-const ContextFactory = require('src/core/factory/context.factory').default;
 
 Shopware.Application.$container.factory('init.context', () => {
     return {};
@@ -25,12 +37,9 @@ Shopware.Application.$container.factory('init.contextService', (container) => {
 Shopware.Application.$container.factory('service.validationService', () => {
     return ValidationService;
 });
-require('src/app/mixin/index');
-require('src/app/directive/index');
-require('src/app/filter/index');
 
 function registerBaseComponents(baseComponents, componentFactory) {
-    const filteredComponents = baseComponents.filter((item) => {
+    const filteredComponents = baseComponents().filter((item) => {
         return item !== undefined;
     });
 
@@ -62,18 +71,19 @@ directiveRegistry.forEach((directive, name) => {
     Vue.directive(name, directive);
 });
 
-import iconComponents from 'src/app/assets/icons/icons';
-
 const iconNames = [];
-
 iconComponents.forEach((component) => {
     Shopware.Component.register(component.name, component);
     iconNames.push(component.name);
 });
 
-Shopware.Application.addServiceProvider('iconNames', () => {
-    return iconNames;
-});
+Shopware.Application
+    .addServiceProvider('iconNames', () => {
+        return iconNames;
+    })
+    .addServiceProvider('shortcutService', () => {
+        return ShortcutService(factoryContainer.shortcut);
+    });
 
 Shopware.Component.override('sw-error', {
     computed: {
@@ -112,12 +122,39 @@ components.forEach((config) => {
     return vueComponent;
 });
 
+const stateFactory = Shopware.State;
+Object.keys(VuexModules).forEach((storeModule) => {
+    stateFactory.registerStore(storeModule, VuexModules[storeModule]);
+});
+
+function filterStateRegistry(registry) {
+    const storeModules = {};
+    registry.forEach((value, key) => {
+        if (value instanceof EntityStore) {
+            return;
+        }
+
+        storeModules[key] = value;
+    });
+
+    return storeModules;
+}
+
 export default ({ app }) => {
     // Apply translations to application
     const messages = { 'en-GB': enGBMessages };
+
+    const store = new Vuex.Store({
+        modules: filterStateRegistry(State.getStoreRegistry()),
+        strict: false
+    });
+    State.registerStore('vuex', store);
+
     app.provide = () => {
         return Shopware.Application.getContainer('service');
     };
+
+    app.store = store;
     app.i18n = new VueI18n({
         locale: 'en-GB',
         fallbackLocale: 'en-GB',

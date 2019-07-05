@@ -32,6 +32,7 @@ This category contains in depth descriptions of the different concerns of the Da
 * [Write](./030-write.md)  - Learn how to write entities
 * [Translations](./040-translation-handling.md) - Working with translations
 * [Custom fields](./045-custom-field.md) - Add custom data to core entities
+* [UUID](./046-uuid.md) - UUID handling explained
  
 ### Extending existing Entities
  

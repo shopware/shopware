@@ -71,7 +71,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             $themeConfig,
             [
                 'color' => [
-                    'primary' => '#007bff',
+                    'primary' => '#339999',
                 ],
                 'logo' => [
                     'favicon' => 'assets/logo/favicon.png',

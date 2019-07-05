@@ -1,10 +1,21 @@
 {% sw_extends '@Storefront/layout/meta.html.twig' %}
 
-{#TODO: NEXT-2787 - show meta title if available #}
-{% block base_head_title_inner %}{{ page.product.translated.name }} | {{ parent() }}{% endblock %}
+{% block layout_head_title_inner %}{% apply spaceless %}
+    {% if page.product.translated.metaTitle %}
+        {{ page.product.translated.metaTitle }}
+    {% else %}
+        {{ page.product.translated.name }}
+    {% endif %}{% endapply %} | {{ parent() }}
+{% endblock %}
 
-{% block base_head_meta_tags_opengraph %}
-    {% set metaDescription = page.product.descriptionLong|striptags|trim|truncate(shopware.config.seo.descriptionMaxLength) %}
+{% block layout_head_meta_tags_opengraph %}
+    {% if page.product.translated.additionalText %}
+        {% set metaDescription = page.product.translated.additionalText %}
+    {% else %}
+        {% set metaDescription = page.product.translated.description %}
+    {% endif %}
+
+    {% set metaDescription = metaDescription|striptags|trim|truncate(shopware.config.seo.descriptionMaxLength) %}
 
     <meta property="og:type"
           content="product"/>
@@ -18,7 +29,7 @@
     <meta property="og:description"
           content="{{ metaDescription }}"/>
     <meta property="og:image"
-          content="{{ asset(page.product.cover.media.url) }}"/>
+          content="{{ page.product.cover.media.url }}"/>
 
     <meta property="product:brand"
           content="{{ page.product.manufacturer.translated.name }}"/>
@@ -36,13 +47,21 @@
     <meta name="twitter:description"
           content="{{ metaDescription }}"/>
     <meta name="twitter:image"
-          content="{{ asset(page.product.cover.media.url) }}"/>
+          content="{{ page.product.cover.media.url }}"/>
 {% endblock %}
 
-{#TODO: NEXT-2787 - keywords fallback (sDescriptionKeywords)#}
-{% block base_head_meta_tags_keywords %}{{ page.product.keywords }}{% endblock %}
+{% block layout_head_meta_tags_keywords %}{{ page.product.translated.keywords }}{% endblock %}
 
-{% block base_head_meta_tags_description %}{% if page.product.description %}{{ page.product.description }}{% else %}{{ page.product.descriptionLong|striptags|trim }}{% endif %}{% endblock %}
+{% block layout_head_meta_tags_description %}{% apply spaceless %}
+    {% if page.product.translated.additionalText %}
+        {% set metaDescription = page.product.translated.additionalText %}
+    {% else %}
+        {% set metaDescription = page.product.translated.description %}
+    {% endif %}
 
-{#TODO: NEXT-2787 - canonical#}
-{% block base_head_canonical %}{% endblock %}
+    {{ metaDescription|striptags|trim|truncate(shopware.config.seo.descriptionMaxLength) }}
+{% endapply %}{% endblock %}
+
+{% block layout_head_canonical %}
+    <link rel="canonical" href="{{ productUrl(page.product) }}" />
+{% endblock %}

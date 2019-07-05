@@ -3,14 +3,15 @@
 .sw-dashboard-external-link {
     display: block;
     margin-bottom: 16px;
-    color: $color-shopware-blue;
+    color: $color-darkgray-200;
     text-decoration: none;
     font-size: 18px;
-}
 
-.sw-dashboard-external-link:hover {
-    text-decoration: underline;
     .sw-icon svg {
-        color: $color-shopware-blue;
+        color: $color-shopware-brand-500;
+    }
+
+    &:hover {
+        color: $color-shopware-brand-500;
     }
 }

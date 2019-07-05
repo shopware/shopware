@@ -50,16 +50,16 @@ describe('Dashboard: Test first sight of the Administration', () => {
         const page = new CustomerPageObject();
 
         // Check today stats
-        cy.get('.sw-dashboard-intro-stats-today').contains('What is happening today?');
+        cy.get('.sw-dashboard-intro-content').contains('Welcome to Shopware 6');
         cy.get('.sw-dashboard-intro-image img')
             .should(
                 'have.attr',
                 'src',
                 `${Cypress.config('baseUrl')}/bundles//administration/static/img/dashboard-logo.svg`
             );
-        cy.get('.sw-dashboard-intro-stats-today__single-stat-number').should('be.visible');
-        cy.get('.sw-dashboard-intro-stats-today__single-stat-number').contains('1');
-        cy.get('.sw-dashboard-intro-stats-today__single-stat-number').contains(product.price[0].gross);
+        cy.get('.sw-dashboard-intro-stats-today__single-stat-number-value').should('be.visible');
+        cy.get('.sw-dashboard-intro-stats-today__single-stat-number-value').contains('1');
+        cy.get('.sw-dashboard-intro-stats-today__single-stat-number-value').contains(product.price[0].gross);
 
         // check today orders
         cy.get('.sw-data-grid__row--0').should('be.visible');

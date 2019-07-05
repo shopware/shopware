@@ -385,9 +385,9 @@
     },
     "sw-condition": {
       "operator": {
-        "lowerThanEquals": "Kleiner gleich",
+        "lowerThanEquals": "Kleiner/gleich",
         "equals": "Gleich",
-        "greaterThanEquals": "Größer gleich",
+        "greaterThanEquals": "Größer/gleich",
         "lowerThan": "Kleiner",
         "greaterThan": "Größer",
         "notEquals": "Ungleich",
@@ -710,7 +710,7 @@
     "keyboardShortcutGoToRuleBuilder": "G S R",
     "functionGoToPlugins": "Gehe zu Plugins",
     "keyboardShortcutGoToPlugins": "G A",
-    "functionSpecialShortcutFocusSearch": "Fokusiere Suche",
+    "functionSpecialShortcutFocusSearch": "Fokussiere Suche",
     "keyboardShortcutSpecialShortcutFocusSearch": "f",
     "functionSpecialShortcutShortcutListing": "Tastenkürzel Übersicht",
     "keyboardShortcutSpecialShortcutShortcutListing": "Shift ?",

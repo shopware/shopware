@@ -18,16 +18,16 @@
       "feedbackLink": "https://issues.shopware.com"
     },
     "todayStats": {
-      "headline": "What is happening today?",
+      "headline": "Statistics today",
       "orders": "Orders",
       "turnover": "Turnover",
       "orderTime": "Time"
     },
     "monthStats": {
-      "headline": "What is happened the last 30 days",
-      "orderNumber": "Number of orders",
+      "headline": "Statistics over the last 30 days",
+      "orderNumber": "Orders",
       "turnover": "Turnover",
-      "numberOfOrders": "Number of orders"
+      "numberOfOrders": "Count"
     }
   }
 }

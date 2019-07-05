@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "Produktliste",
       "textHeadline": "Produktliste",
-      "description": "Verwalten von Einstellungen für die Produktliste.",
+      "description": "Verwaltung von Einstellungen für die Produktliste.",
       "buttonSave": "Speichern",
       "titleSaveSuccess": "Konfiguration gespeichert",
       "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",

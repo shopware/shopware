@@ -84,11 +84,11 @@ export default class MediaPageObject extends GeneralPageObject {
         cy.get('.sw-media-modal-move__confirm').click();
 
         if (itemType === 'folder') {
-            cy.awaitAndCheckNotification('Media items have successfully been moved.', {
+            cy.awaitAndCheckNotification('Media items have been moved.', {
                 position: 1
             });
         } else {
-            cy.awaitAndCheckNotification('Media items have successfully been moved.');
+            cy.awaitAndCheckNotification('Media items have been moved.');
         }
     }
 

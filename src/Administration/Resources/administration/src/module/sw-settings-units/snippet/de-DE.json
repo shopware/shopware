@@ -11,8 +11,8 @@
       "contextMenuDelete": "Löschen"
     },
     "empty-state": {
-      "title": "Keine Einheiten vorhanden",
-      "subline": "Hier können Sie Einheiten verwalten"
+      "title": "Noch keine Einheiten vorhanden",
+      "subline": "Verwaltung von Einheiten."
     },
     "notification": {
       "successTitle": "Einheit gespeichert",

@@ -9,10 +9,10 @@
     },
     "sorting": {
       "labelSort": "Sort by:",
-      "labelSortByCreatedAsc": "Creation date, ascending",
-      "labelSortByCreatedDsc": "Creation date, descending",
-      "labelSortByUpdatedAsc": "Modification date, ascending",
-      "labelSortByUpdatedDsc": "Modification date, descending",
+      "labelSortByCreatedAsc": "Creation date, asc.",
+      "labelSortByCreatedDsc": "Creation date, desc.",
+      "labelSortByUpdatedAsc": "Modification date, asc.",
+      "labelSortByUpdatedDsc": "Modification date, desc.",
       "labelSortByAllPages": "All types",
       "labelSortByShopPages": "Shop pages",
       "labelSortByLandingPages": "Landingpages",
@@ -27,7 +27,7 @@
     "detail": {
       "labelButtonSave": "Save",
       "headlineEmptyState": "Space for creativity",
-      "claimEmptyState": "Create new layouts using blocks. Simply drag & drop any type of block in and fill in your content.",
+      "claimEmptyState": "Create new layouts using blocks. Simply drag & drop blocks onto any layout and fill in your content.",
       "actionEmptyState": "Add a block",
       "sidebarTitlePageSettings": "Settings",
       "sidebarHeaderPageSettings": "Basic information",

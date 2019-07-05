@@ -15,7 +15,7 @@
       "contextMenuDelete": "Delete",
       "modalTitleDelete": "Delete payment method",
       "titleDeleteSuccess": "Success",
-      "messageDeleteSuccess": "Payment method \"{name}\" has successfully been deleted.",
+      "messageDeleteSuccess": "Payment method \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "pluginDeleteTitleText": "Plugin payment methods cannot be deleted."
@@ -24,7 +24,7 @@
       "textHeadline": "New payment method",
       "titleCard": "Payment methods",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Payment method \"{name}\" has successfully been saved.",
+      "messageSaveSuccess": "Payment method \"{name}\" has been saved.",
       "labelName": "Name",
       "labelPosition": "Position",
       "labelActive": "Payment active",

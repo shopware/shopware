@@ -48,8 +48,8 @@
       "optionLitre": "Litre",
       "optionKilogram": "Kilogram",
       "optionMetre": "Metre",
-      "closeWindow": "Close window",
-      "maintainCurrencies": "Maintain currencies",
+      "closeWindow": "Accept",
+      "maintainCurrencies": "Currency dependent pricing",
       "columnPrice": "Prices (gross / net)"
     },
     "settingsForm": {
@@ -65,8 +65,8 @@
       "labelManufacturerNumber": "Manufacturer product number",
       "labelStock": "Stock",
       "labelActive": "Active",
-      "labelShippingFree": "Activate free shipping",
-      "labelMarkAsTopseller": "Activate product promotion",
+      "labelShippingFree": "Free shipping",
+      "labelMarkAsTopseller": "Product promotion",
       "placeholderCreatedAt": "Enter creation date...",
       "placeholderReleaseDate": "Enter release date...",
       "placeholderWidth": "500...",
@@ -81,7 +81,7 @@
     },
     "packagingForm": {
       "placeholderUnit": "Select ...",
-      "labelUnit": "Unit",
+      "labelUnit": "Scale unit",
       "referenceUnitHelpText": "Add the desired amount that is used to calculate the base price. E.g. when a bottle contains 0.7 litres and the base price should be calculated with whole liters, you add 1.",
       "packUnitHelpText": "Add the type of packaging. E.g. a bottle, bag or box.",
       "purchaseUnitHelpText": "Add the amount of the product e.g. 0.7 when a bottle contains 0.7 litres."
@@ -91,9 +91,9 @@
       "cardTitleAssignment": "Assignment",
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Settings",
-      "cardTitlePackaging": "Dimensions & Packaging",
+      "cardTitlePackaging": "Measures & Packaging",
       "linkAdvancedPrices": "Advanced pricing options",
-      "linkMaintainCurrencyPrices": "Maintain currencies",
+      "linkMaintainCurrencyPrices": "Currency dependent pricing",
       "cardTitleMedia": "Media",
       "labelContextMenuAddToProduct": "Add to product",
       "cardTitleSeo": "SEO"
@@ -105,8 +105,8 @@
       "buttonPriceRuleDelete": "Delete pricing rule",
       "buttonPriceRuleDuplicate": "Duplicate pricing rule",
       "buttonPriceRuleCurrencyAdd": "Add currency",
-      "buttonAddAdditionalPriceRule": "Add pricing rule",
-      "buttonAddAdditionalPriceRuleGroup": "Add pricing rule group",
+      "buttonAddAdditionalPriceRule": "New price level",
+      "buttonAddAdditionalPriceRuleGroup": "Add pricing rule",
       "textCurrencyDefault": "(Default)",
       "textPriceRuleForCurrency": "Pricing rule applicable to currency",
       "columnQuantityStart": "Quantity from ...",
@@ -127,7 +127,7 @@
       "columnManufacturer": "Manufacturer",
       "columnActive": "Active",
       "columnPrice": "Price",
-      "columnInStock": "In Stock",
+      "columnInStock": "In stock",
       "columnActions": "Action(s)",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
@@ -137,7 +137,7 @@
       "textDeleteConfirm": "Are you sure you really want to delete the product \"{name}\"? | Are you sure you really want to delete these {count} products?",
       "titleSidebarItemRefresh": "Refresh",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Product \"{name}\" has successfully been saved."
+      "messageSaveSuccess": "Product \"{name}\" has been saved."
     },
     "detail": {
       "textHeadline": "New product",
@@ -148,23 +148,23 @@
       "tabVariation": "Variant generator",
       "tabProperties": "Property assignment",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Product \"{name}\" has successfully been saved.",
+      "messageSaveSuccess": "Product \"{name}\" has been saved.",
       "messageUploadSuccess": "{count} of {total} files saved.",
       "titleSaveWarning": "No change",
       "messageSaveWarning": "You have not made any changes."
     },
     "mediaForm": {
       "errorHeadline": "Error",
-      "errorNoImage": "\"{file}\" is not an image",
-      "errorMediaItemDuplicated": "Media item already assigned"
+      "errorNoImage": "\"{file}\" is not an image.",
+      "errorMediaItemDuplicated": "Media item already assigned."
     },
     "advancedPrices": {
       "deletionNotPossibleTitle": "Deletion is not possible",
       "deletionNotPossibleMessage": "The last price of the default currency can't get deleted.",
-      "newRuleWarning": "For a new price rule you have to select a rule.",
+      "newRuleWarning": "In order to create a new pricing rule, select a conditional rule first.",
       "advancedPricesNotExisting": "There are no advanced prices for this product yet.",
-      "columnFrom": "From",
-      "columnTo": "To",
+      "columnFrom": "Quantity from ...",
+      "columnTo": "... to ...",
       "selectRule": "Select rule…"
     },
     "properties": {
@@ -175,7 +175,7 @@
       "emptyStateNoSelectedOptionsDescription": "Please select options from the search above."
     },
     "variations": {
-      "emptyStateDescription": "There are no variants for this product yet.",
+      "emptyStateDescription": "This product has no variants yet.",
       "emptyStateButton": "Start variant generator",
       "generateVariationsButton": "Generate variants",
       "deleteVariationsButton": "Delete all product variants",
@@ -193,11 +193,11 @@
       "generationNotificationCountDeletion": "One variant will be deleted | {count} variants will be deleted",
       "generationNotificationButtonCancel": "Cancel",
       "generationNotificationButtonContinue": "Generate",
-      "generatedFilterList": "Filter list",
-      "generatedListColumnVariation": "Variant",
+      "generatedFilterList": "Filter",
+      "generatedListColumnVariation": "Name",
       "generatedListColumnPrice": "Price (gross / net)",
       "generatedListColumnProductNumber": "Product number",
-      "generatedListColumnDisplayInListing": "Listing visible?",
+      "generatedListColumnDisplayInListing": "Visible in listing?",
       "generatedListColumnActive": "Active",
       "generatedListColumnStock": "Stock",
       "generatedListContextMenuEdit": "Edit",
@@ -208,7 +208,7 @@
       "generatedListDeleteModalTitle": "Variant",
       "generatedListTitleSaveSuccess": "Saved",
       "generatedListTitleSaveError": "Error",
-      "generatedListMessageSaveSuccess": "Variant has successfully been saved.",
+      "generatedListMessageSaveSuccess": "Variant has been saved.",
       "generatedListMessageSaveError": "Variant could not be saved.",
       "generatedListTitleDeleteError": "Deleted",
       "generatedListMessageDeleteSuccess": "The variant has been deleted.",
@@ -228,7 +228,7 @@
         "defineRestrictions": "Define restriction",
         "priceOptions": "Options",
         "restrictedCombinations": "Restricted combination",
-        "searchRestrictions": "Search for combinations",
+        "searchRestrictions": "Search combinations...",
         "addNewRestriction": "Add restriction",
         "editRestriction": "Edit restriction",
         "deleteRestriction": "Delete restriction",
@@ -237,19 +237,19 @@
         "isOneFrom": "Is one of",
         "cancel": "Cancel",
         "save": "Save",
-        "searchPlaceholder": "Search for groups and properties",
+        "searchPlaceholder": "Search groups and properties...",
         "singleRestrictionAddTitle": "Add restriction"
       },
       "deliveryModal": {
         "modalHeadline": "Storefront presentation",
         "order": "Display sequence",
         "orderExplanation": "Use drag & drop to alter the display sequence of property options",
-        "media": "Assigned medium",
+        "media": "Assigned media",
         "mediaExplanation": "Upload and assign media to each individual property option.",
         "mediaOptions": "Property option",
         "cancel": "Cancel",
         "save": "Save",
-        "useForListing": "Split in listing"
+        "useForListing": "Display in listings"
       }
     }
   }

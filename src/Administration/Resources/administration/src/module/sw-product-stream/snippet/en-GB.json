@@ -110,7 +110,7 @@
       "titleFilter": "Conditions",
       "titleResult": "Product group",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The dynamic product group \"{name}\" has successfully been saved.",
+      "messageSaveSuccess": "Dynamic product group \"{name}\" has been saved.",
       "buttonOpenPreview": "Preview"
     },
     "previewModal": {

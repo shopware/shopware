@@ -18,7 +18,7 @@
       "contextMenuDelete": "Delete",
       "modalTitleDelete": "Delete currency",
       "titleDeleteSuccess": "Currency",
-      "messageDeleteSuccess": "Currency \"{name}\" has successfully been deleted.",
+      "messageDeleteSuccess": "Currency \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
@@ -28,7 +28,7 @@
       "placeholderPrecision": "Enter number of decimals to be displayed...",
       "titleCard": "Settings",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Currency \"{name}\" has successfully been saved.",
+      "messageSaveSuccess": "Currency \"{name}\" has been saved.",
       "labelName": "Name",
       "labelIsoCode": "ISO code",
       "labelShortName": "Short name",

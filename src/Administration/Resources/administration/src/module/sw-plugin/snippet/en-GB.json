@@ -15,7 +15,7 @@
       "login":"Login",
       "logout":"Logout",
       "titleDownloadSuccess":"Success",
-      "messageDownloadSuccess":"Plugin has successfully been downloaded.",
+      "messageDownloadSuccess":"Plugin has been downloaded.",
       "downloadButton":"Download",
       "storeLink": "https://store.shopware.com/en",
       "storeLabel": "Shopware Store",
@@ -38,7 +38,7 @@
     "fileUpload":{
       "buttonFileUpload":"Upload plugin",
       "titleUploadSuccess":"Success",
-      "messageUploadSuccess":"The plugin has successfully been uploaded."
+      "messageUploadSuccess":"The plugin has been uploaded."
     },
     "store-login":{
       "headline":"Shopware Account",
@@ -77,21 +77,21 @@
       "contextDelete":"Delete",
       "pluginHeader":"My plugins",
       "sortUpgradedAtAsc":"Last updated",
-      "sortPluginNameAsc":"Plugin names ascending",
-      "sortPluginNameDsc":"Plugin names descending",
+      "sortPluginNameAsc":"Plugin names, asc.",
+      "sortPluginNameDsc":"Plugin names, desc.",
       "sortLabel":"Sort by:",
       "titleActivateSuccess":"Success",
-      "messageActivateSuccess":"Plugin has successfully been activated.",
+      "messageActivateSuccess":"Plugin has been activated.",
       "titleDeactivateSuccess":"Success",
-      "messageDeactivateSuccess":"Plugin has successfully been deactivated.",
+      "messageDeactivateSuccess":"Plugin has been deactivated.",
       "titleInstallSuccess":"Success",
-      "messageInstallSuccess":"Plugin has successfully been installed.",
+      "messageInstallSuccess":"Plugin has been installed.",
       "titleUninstallSuccess":"Success",
-      "messageUninstallSuccess":"Plugin has successfully been uninstalled.",
+      "messageUninstallSuccess":"Plugin has been uninstalled.",
       "titleDeleteSuccess":"Success",
-      "messageDeleteSuccess":"Plugin has successfully been deleted.",
+      "messageDeleteSuccess":"Plugin has been deleted.",
       "titleUpdateSuccess":"Success",
-      "messageUpdateSuccess":"Plugin has successfully been updated.",
+      "messageUpdateSuccess":"Plugin has been updated.",
       "titleDeleteConfirm":"Delete plugin",
       "messageDeleteConfirm":"Are you sure you really want to delete this plugin?",
       "deactivated": "Deactivated",
@@ -121,8 +121,8 @@
       "updateHeader":"Updates",
       "lastUpdatesHeader":"Last updates",
       "titleUpdateSuccess":"Update successful",
-      "messageUpdateSuccess":"The plugin has successfully been updated.",
-      "messageUpdatesSuccess":"The plugins have successfully been updated.",
+      "messageUpdateSuccess":"The plugin has been updated.",
+      "messageUpdatesSuccess":"The plugins have been updated.",
       "cancelUpdates": "Cancel"
     }
   },
@@ -130,7 +130,7 @@
     "buttonSave": "Save",
     "buttonCancel": "Abort",
     "titleSaveSuccess": "Success",
-    "messageSaveSuccess": "Configuration has successfully been saved.",
+    "messageSaveSuccess": "Configuration has been saved.",
     "titleSaveError": "Unable to save the configuration."
   }
 }

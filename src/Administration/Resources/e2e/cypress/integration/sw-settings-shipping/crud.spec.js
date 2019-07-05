@@ -94,7 +94,7 @@ describe('Shipping: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         cy.wait('@deleteData').then(() => {
-            cy.awaitAndCheckNotification('Shipping method "Luftpost" has successfully been deleted.');
+            cy.awaitAndCheckNotification('Shipping method "Luftpost" has been deleted.');
         });
     });
 });

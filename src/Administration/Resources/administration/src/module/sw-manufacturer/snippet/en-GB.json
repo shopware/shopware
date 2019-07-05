@@ -35,7 +35,7 @@
       "placeholderDescription": "Enter description...",
       "placeholderLink": "Enter manufacturer website...",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Manufacturer \"{name}\" has successfully been saved.",
+      "messageSaveSuccess": "Manufacturer \"{name}\" has been saved.",
       "labelLogo": "Logo",
       "labelUseAsLogo": "Use as Logo"
     }

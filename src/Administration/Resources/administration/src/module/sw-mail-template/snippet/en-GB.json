@@ -8,7 +8,7 @@
       "notificationTestMailSalesChannelErrorMessage": "Please choose a sales channel",
       "notificationTestMailErrorMessage": "An error occurred while sending the test email.",
       "notificationTestMailSuccessTitle": "Success",
-      "notificationTestMailSuccessMessage": "The test email has successfully been sent."
+      "notificationTestMailSuccessMessage": "The test email has been sent."
     },
     "list": {
       "textMailTemplateOverview": "Email templates",
@@ -73,7 +73,7 @@
       "textHeadlineEdit": "Edit email template",
       "titleResult": "Email template",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The email template \"{subject}\" has successfully been saved."
+      "messageSaveSuccess": "The email template \"{subject}\" has been saved."
     }
   },
   "sw-mail-header-footer": {
@@ -127,7 +127,7 @@
       "textHeadline": "New email header/footer",
       "titleResult": "Email header/footer",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The email header/footer \"{name}\" has successfully been saved."
+      "messageSaveSuccess": "The email header/footer \"{name}\" has been saved."
     }
   }
 }

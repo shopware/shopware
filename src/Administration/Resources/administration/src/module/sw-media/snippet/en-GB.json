@@ -65,12 +65,12 @@
     },
     "sorting": {
       "labelSort": "Sort by:",
-      "labelSortByNameAsc": "Name, ascending",
-      "labelSortByNameDsc": "Name, descending",
-      "labelSortBySizeAsc": "Size, ascending",
-      "labelSortBySizeDsc": "Size, descending",
-      "labelSortByCreatedAsc": "Creation date, ascending",
-      "labelSortByCreatedDsc": "Creation date, descending"
+      "labelSortByNameAsc": "Name, asc.",
+      "labelSortByNameDsc": "Name, desc.",
+      "labelSortBySizeAsc": "Size, asc.",
+      "labelSortBySizeDsc": "Size, desc.",
+      "labelSortByCreatedAsc": "Creation date, asc.",
+      "labelSortByCreatedDsc": "Creation date, desc."
     },
     "presentation": {
       "labelPresentation": "Presentation:",

@@ -16,7 +16,7 @@
       "contextMenuEdit": "Edit",
       "modalTitleDelete": "Delete document",
       "titleDeleteSuccess": "Success",
-      "messageDeleteSuccess": "Document \"{name}\" has successfully been deleted.",
+      "messageDeleteSuccess": "Document \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "global": "Global"
@@ -27,7 +27,7 @@
       "companyCard": "Company settings",
       "assignmentCard": "Assignment",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Document \"{name}\" has successfully been saved.",
+      "messageSaveSuccess": "Document \"{name}\" has been saved.",
       "labelName": "Technical name",
       "labelFileNamePrefix": "Filename prefix",
       "labelFileNameSuffix": "Filename suffix",

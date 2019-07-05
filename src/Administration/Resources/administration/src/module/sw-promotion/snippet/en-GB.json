@@ -13,14 +13,14 @@
     "general": {
       "mainMenuItemGeneral" : "Promotions",
       "mainMenuItemList" : "Overview",
-      "description": "Promotions"
+      "description": "Manage promotions here."
     },
     "swPromotionRuleSelect": {
       "labelAddNewRule": "Create new rule"
     },
     "list": {
       "textTitle": "Promotions",
-      "buttonAddPromotion": "Add Promotion",
+      "buttonAddPromotion": "Add promotion",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "columnActive": "Active",
@@ -31,19 +31,19 @@
       "contextMenuDuplicate": "Duplicate",
       "contextMenuEdit": "Edit",
       "messageEmpty": "No promotions yet",
-      "modalTitleDelete": "Delete Promotion",
-      "placeholderSearchBar": "Search Promotions",
+      "modalTitleDelete": "Delete promotion",
+      "placeholderSearchBar": "Search promotions...",
       "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
       "titleSidebarItemRefresh": "Refresh"
     },
     "detail": {
       "header": {
-        "titleCreate": "New Promotion",
+        "titleCreate": "New promotion",
         "titleEdit": "Promotion",
         "buttonCancel": "Cancel",
         "buttonSave": "Save",
         "titleSaveSuccess": "Success",
-        "messageSaveSuccess": "Promotion \"{name}\" has successfully been saved."
+        "messageSaveSuccess": "Promotion \"{name}\" has been saved."
       },
       "tabs": {
         "tabGeneral": "General",
@@ -53,58 +53,58 @@
       "main": {
         "general": {
           "cardTitlePromotionInfo": "Settings",
-          "cardTitleCode": "Promotion Codes",
+          "cardTitleCode": "Promotion codes",
           "labelTitle": "Name",
           "placeholderName": "Name",
           "labelActive": "Active",
-          "labelSalesChannels" : "Sales Channels",
-          "placeholderSalesChannels" : "Add Sales Channel...",
+          "labelSalesChannels" : "Sales channels",
+          "placeholderSalesChannels" : "Add sales channel...",
           "labelValidFrom": "Valid from:",
           "labelValidUntil": "Valid until:",
           "labelMaxRedemptionsGlobal": "Total possible redemptions",
           "labelMaxRedemptionsPerCustomer": "Redemptions per customer",
           "codes" : {
-            "card" : "Promotion Codes",
-            "labelCode" : "General Promotion Code",
-            "placeholderCode": "Enter promotion code",
-            "switchUseCodes" : "Use Promotion Codes"
+            "card" : "Promotion codes",
+            "labelCode" : "General promotion code",
+            "placeholderCode": "Enter promotion code...",
+            "switchUseCodes" : "Promotion code required"
           }
         },
         "preconditions": {
           "ruleModuleLink": "Open rule builder",
           "persona": {
-            "card": "Target Group",
-            "title": "Determine which customers benefit from this promotion",
-            "text": "Use rules from the rule builder to narrow down the audience for this marketing action. Without a limitation, all your customers have access to this action.",
-            "labelRules": "Customer Rules",
-            "placeholderRules" : "Add Rules...",
-            "labelCustomers": "Assign to individual customers",
-            "placeholderCustomers" : "Add Customers..."
+            "card": "Targeted customers",
+            "title": "Benificiaries of this promotion",
+            "text": "Use the rule builder to narrow down this promotion's target group. Without a set limitation, the promotion will be available to all customers.",
+            "labelRules": "Customer rules",
+            "placeholderRules" : "Assign customer rules...",
+            "labelCustomers": "Individual assignment",
+            "placeholderCustomers" : "Assign customers..."
           },
           "order": {
-            "card": "Order",
-            "title": "Determine which properties an order additionally has to have for this promotion.",
-            "text": "Use order type rules to define which conditions must be met for this discount promotion to be applied.",
+            "card": "Qualified orders",
+            "title": "Order properties required for this promotion to be applicable.",
+            "text": "Use the rule builder to determine qualified orders. Without a set limitation, the promotion will be applied to all orders.",
             "rulesModuleLink": "Open rule builder",
-            "rulesCaption" : "Order Rules",
-            "rulesPlaceholder" : "Assign Order Rules..."
+            "rulesCaption" : "Order rules",
+            "rulesPlaceholder" : "Assign order rules..."
           },
           "cart": {
-            "card": "Cart",
-            "title": "Which shopping carts are affected by this discount promotion?",
-            "text": "Use rules from the rules builder to define the promotion cart for this marketing action. Without a limitation, the action will be applied to all shopping carts.",
+            "card": "Qualified shopping carts",
+            "title": "Shopping cart properties required for this promotion to be applicable.",
+            "text": "Use the rule builder to determine qualified shopping cart states. Without a set limitation, the promotion will be applied to all shopping carts.",
             "rulesModuleLink": "Open rule builder",
-            "rulesCaption": "Cart Rules",
-            "rulesPlaceholder": "Assign Cart Rules..."
+            "rulesCaption": "Cart rules",
+            "rulesPlaceholder": "Assign cart rules..."
           }
         },
         "discounts": {
           "card": "Discount",
           "labelValue": "Value",
-          "placeholderValue": "Enter the value of the promotion",
-          "labelScope" : "Discount on:",
-          "flagProductScopeLabel": "Apply discount on selected products only",
-          "labelRules": "Product Rules",
+          "placeholderValue": "Enter either a percentage or an absolute value...",
+          "labelScope" : "Apply to:",
+          "flagProductScopeLabel": "Apply to specific range of products",
+          "labelRules": "Product rules",
           "placeholder": "Assign product rules...",
           "labelType" : "Type",
           "valueScopeCart": "Cart",
@@ -113,10 +113,10 @@
           "buttonAddDiscount" : "Add discount",
           "buttonDeleteDiscount" : "Delete discount",
           "delete" : {
-            "confirmTitle" : "Delete Discount",
+            "confirmTitle" : "Delete discount",
             "confirmText" : "Do you really want to delete this discount from the promotion?",
             "buttonCancel" : "Cancel",
-            "buttonDelete" : "Delete Discount"
+            "buttonDelete" : "Delete discount"
           },
           "linkAdvancedPrices": "Open advanced price view",
           "pricesModal": {

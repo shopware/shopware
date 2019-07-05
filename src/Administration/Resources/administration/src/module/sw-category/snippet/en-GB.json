@@ -10,7 +10,7 @@
             "buttonSafeCategory": "Save",
             "descriptionLabel": "Description",
             "titleSaveSuccess": "Success",
-            "messageSaveSuccess": "Category \"{name}\" has successfully been saved.",
+            "messageSaveSuccess": "Category \"{name}\" has been saved.",
             "useAsLogo": "Use as display image",
             "treeHeadline": "Category structure",
             "treeHeadSelected": "{count} selected",

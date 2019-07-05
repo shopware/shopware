@@ -10,7 +10,7 @@
       "columnMessage": "Message",
       "columnLevel": "Priority",
       "columnContent": "Contents",
-      "actionShowInfo": "View Details ...",
+      "actionShowInfo": "View details...",
       "levelDebug":"Debug",
       "levelInfo":"Info",
       "levelNotice":"Notice",
@@ -21,7 +21,7 @@
       "levelEmergency":"Emergency"
     },
     "entryInfo": {
-      "title": "Log Information",
+      "title": "Log information",
       "tabRaw": "Raw",
       "actionClose": "Close"
     },

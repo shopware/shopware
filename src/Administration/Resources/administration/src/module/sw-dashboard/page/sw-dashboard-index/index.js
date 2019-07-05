@@ -102,7 +102,7 @@ Component.register('sw-dashboard-index', {
                 return { x: Date.parse(data.key.orderDate.date), y: data.sum };
             });
 
-            return [{ name: 'Sum of orders', data: seriesData }];
+            return [{ name: 'Total', data: seriesData }];
         },
 
         orderSumToday() {

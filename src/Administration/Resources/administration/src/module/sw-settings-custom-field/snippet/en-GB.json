@@ -17,7 +17,7 @@
         "contextMenuEdit": "Edit",
         "buttonDelete": "Delete",
         "titleDeleteSuccess": "Success",
-        "messageDeleteSuccess": "The set \"{name}\" has successfully been deleted.",
+        "messageDeleteSuccess": "The set \"{name}\" has been deleted.",
         "messageEmpty": "No custom fields yet."
       },
       "detail": {
@@ -30,7 +30,7 @@
         "placeholderName": "Enter a name...",
         "labelCheckboxTranslated": "Manage labels in all administration languages",
         "titleSaveSuccess": "Custom field set",
-        "messageSaveSuccess": "The set \"{name}\" has successfully been saved.",
+        "messageSaveSuccess": "The set \"{name}\" has been saved.",
         "messageCustomFieldsEmpty": "No custom fields yet.",
         "addCustomField": "New custom field",
         "buttonApply": "Save",

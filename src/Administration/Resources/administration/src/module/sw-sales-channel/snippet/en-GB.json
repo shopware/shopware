@@ -14,7 +14,7 @@
     },
     "detail": {
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Sales channel \"{name}\" has successfully been saved.",
+      "messageSaveSuccess": "Sales channel \"{name}\" has been saved.",
       "titleSaveError": "Error",
       "messageSaveError": "The sales channel \"{name}\" could not be saved. Please check your entries.",
       "buttonSave": "Save",

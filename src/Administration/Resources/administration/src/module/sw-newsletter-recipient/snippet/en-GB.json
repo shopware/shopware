@@ -1,7 +1,7 @@
 {
   "sw-newsletter-recipient": {
     "general": {
-      "description": "The module for managing newsletter recipients.",
+      "description": "Manage newsletter recipients here.",
       "information": "Information",
       "language": "Language",
       "salutation": "Salutation",
@@ -13,7 +13,7 @@
     },
     "detail": {
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Data for \"{key}\" has successfully been saved.",
+      "messageSaveSuccess": "Data for \"{key}\" has been saved.",
       "titleSaveError": "Error",
       "messageSaveError": "Data for \"{key}\" could not be saved."
     },

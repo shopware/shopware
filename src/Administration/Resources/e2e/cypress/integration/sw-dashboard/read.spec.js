@@ -67,7 +67,7 @@ describe('Dashboard: Test first sight of the Administration', () => {
 
         // check if chart is visible
         cy.get('.apexcharts-canvas .apexcharts-title-text').should('be.visible');
-        cy.get('.apexcharts-canvas .apexcharts-title-text').contains('Number of orders');
+        cy.get('.apexcharts-canvas .apexcharts-title-text').contains('Orders');
         cy.get('.apexcharts-canvas .apexcharts-title-text').contains('Turnover');
 
         // Check link in grid

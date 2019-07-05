@@ -29,7 +29,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('a[href="#/sw/settings/rule/create"]').click();
 
         // Create rule
-        cy.get('.field--condition').contains('Select condition...');
+        cy.get('.field--condition').contains('Search conditions...');
         page.createBasicRule('Rule 1st');
 
         // Verify rule

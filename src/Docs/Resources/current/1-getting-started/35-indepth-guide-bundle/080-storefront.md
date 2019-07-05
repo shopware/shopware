@@ -225,7 +225,7 @@ It should now look like this:
                aria-selected="false">
                 Bundles
                 <span class="nav-link-icon">
-                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
+                    {% sw_include '@Storefront/utilities/icon.html.twig' with {
                         'name': 'shopping-paper-bag-product'
                     } %}
                 </span>
@@ -337,7 +337,7 @@ For each product, you'll just include the default product box template and apply
     <div class="row">
         {% for product in bundle.products.elements %}
             <div class="col-4">
-                {% sw_include '@Storefront/component/product/widget/box-standard.html.twig' with {'product': product} %}
+                {% sw_include '@Storefront/component/product/card/box-standard.html.twig' with {'product': product} %}
             </div>
         {% endfor %}
     </div>

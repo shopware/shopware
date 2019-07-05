@@ -28,7 +28,7 @@ class PaymentMethodPageTest extends TestCase
 
         /** @var AccountPaymentMethodPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(AccountPaymentMethodPageLoadedEvent::NAME, $event);
+        $this->catchEvent(AccountPaymentMethodPageLoadedEvent::class, $event);
 
         $page = $this->getPageLoader()->load($request, $context);
 

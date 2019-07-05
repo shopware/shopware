@@ -79,7 +79,7 @@ class BusinessEventDispatcherTest extends TestCase
             'actionName' => 'unit_test_action',
         ]], $context);
 
-        $this->dispatcher->dispatch($event, $event->getName());
+        $this->dispatcher->dispatch($event);
 
         static::assertEquals(1, $this->testSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
         static::assertEquals(1, $this->testSubscriber->actions['unit_test_action'] ?? 0);
@@ -101,7 +101,7 @@ class BusinessEventDispatcherTest extends TestCase
             ],
         ], $context);
 
-        $this->dispatcher->dispatch($event, $event->getName());
+        $this->dispatcher->dispatch($event);
 
         static::assertEquals(1, $this->testSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0, 'Global action event should only be dispatched once');
         static::assertEquals(1, $this->testSubscriber->events[TestBusinessEvent::EVENT_NAME] ?? 0);
@@ -119,7 +119,7 @@ class BusinessEventDispatcherTest extends TestCase
             'actionName' => 'unit_test_action',
         ]], $context);
 
-        $this->dispatcher->dispatch($event, $event->getName());
+        $this->dispatcher->dispatch($event);
 
         static::assertIsArray($this->testSubscriber->lastActionConfig);
         static::assertEmpty($this->testSubscriber->lastActionConfig);
@@ -143,7 +143,7 @@ class BusinessEventDispatcherTest extends TestCase
             ],
         ], $context);
 
-        $this->dispatcher->dispatch($event, $event->getName());
+        $this->dispatcher->dispatch($event);
 
         static::assertEquals(1, $this->testSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0, 'Global action event should only be dispatched once');
         static::assertEquals(1, $this->testSubscriber->events[TestBusinessEvent::EVENT_NAME] ?? 0);

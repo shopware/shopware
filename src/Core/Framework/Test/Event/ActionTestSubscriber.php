@@ -15,7 +15,7 @@ class ActionTestSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            TestBusinessEvent::EVENT_NAME => 'testEvent',
+            TestBusinessEvent::class => 'testEvent',
             BusinessEvents::GLOBAL_EVENT => 'globalEvent',
             'unit_test_action' => 'actionUnit',
             '2nd_unit_test_action' => 'actionUnit',

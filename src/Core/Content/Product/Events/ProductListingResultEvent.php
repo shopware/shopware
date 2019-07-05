@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingResultEvent extends NestedEvent
 {
-    public const NAME = 'product.listing.result';
-
     /**
      * @var Request
      */
@@ -37,11 +35,6 @@ class ProductListingResultEvent extends NestedEvent
     public function getRequest(): Request
     {
         return $this->request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getContext(): Context

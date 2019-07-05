@@ -85,8 +85,7 @@ class NavigationPageLoader
         }
 
         $this->eventDispatcher->dispatch(
-            new NavigationPageLoadedEvent($page, $context, $request),
-            NavigationPageLoadedEvent::NAME
+            new NavigationPageLoadedEvent($page, $context, $request)
         );
 
         return $page;

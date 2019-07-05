@@ -31,7 +31,7 @@ class SearchPageTest extends TestCase
         $context = $this->createSalesChannelContextWithNavigation();
         /** @var SearchPageLoadedEvent $homePageLoadedEvent */
         $homePageLoadedEvent = null;
-        $this->catchEvent(SearchPageLoadedEvent::NAME, $homePageLoadedEvent);
+        $this->catchEvent(SearchPageLoadedEvent::class, $homePageLoadedEvent);
 
         $page = $this->getPageLoader()->load($request, $context);
 

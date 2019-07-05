@@ -34,7 +34,7 @@ class ProductPageCriteriaSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ProductPageCriteriaEvent::NAME => 'onProductCriteriaLoaded'
+            ProductPageCriteriaEvent::class => 'onProductCriteriaLoaded'
         ];
     }
 

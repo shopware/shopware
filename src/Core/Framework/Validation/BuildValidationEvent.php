@@ -3,10 +3,11 @@
 namespace Shopware\Core\Framework\Validation;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class BuildValidationEvent extends Event implements ShopwareEvent
+class BuildValidationEvent extends Event implements ShopwareEvent, GenericEvent
 {
     /**
      * @var DataValidationDefinition

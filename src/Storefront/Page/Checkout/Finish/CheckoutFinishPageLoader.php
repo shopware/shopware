@@ -60,8 +60,7 @@ class CheckoutFinishPageLoader
         $page->setOrder($this->getOrder($request, $salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new CheckoutFinishPageLoadedEvent($page, $salesChannelContext, $request),
-            CheckoutFinishPageLoadedEvent::NAME
+            new CheckoutFinishPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FooterPageletLoadedEvent extends NestedEvent
 {
-    public const NAME = 'footer.pagelet.loaded.event';
-
     /**
      * @var FooterPagelet
      */
@@ -31,11 +29,6 @@ class FooterPageletLoadedEvent extends NestedEvent
         $this->pagelet = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPagelet(): FooterPagelet

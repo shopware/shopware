@@ -67,8 +67,7 @@ class AccountOrderPageLoader
         $page->setOrders(StorefrontSearchResult::createFrom($orders));
 
         $this->eventDispatcher->dispatch(
-            new AccountOrderPageLoadedEvent($page, $salesChannelContext, $request),
-            AccountOrderPageLoadedEvent::NAME
+            new AccountOrderPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

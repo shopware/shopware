@@ -9,8 +9,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartConvertedEvent extends NestedEvent
 {
-    public const NAME = 'cart.converted-to-order.event';
-
     /**
      * @var SalesChannelContext
      */
@@ -47,11 +45,6 @@ class CartConvertedEvent extends NestedEvent
         $this->cart = $cart;
         $this->originalConvertedCart = $convertedCart;
         $this->convertedCart = $convertedCart;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getContext(): Context

@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class EntityWrittenContainerEvent extends NestedEvent
 {
-    public const NAME = 'entity.written';
-
     /**
      * @var Context
      */
@@ -30,11 +28,6 @@ class EntityWrittenContainerEvent extends NestedEvent
         $this->context = $context;
         $this->events = $events;
         $this->errors = $errors;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getContext(): Context

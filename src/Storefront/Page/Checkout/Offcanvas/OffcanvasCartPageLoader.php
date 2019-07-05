@@ -52,8 +52,7 @@ class OffcanvasCartPageLoader
         $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new OffcanvasCartPageLoadedEvent($page, $salesChannelContext, $request),
-            OffcanvasCartPageLoadedEvent::NAME
+            new OffcanvasCartPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

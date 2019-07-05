@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AccountProfilePageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'account-profile.page.loaded';
-
     /**
      * @var AccountProfilePage
      */
@@ -31,11 +29,6 @@ class AccountProfilePageLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPage(): AccountProfilePage

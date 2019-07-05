@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AccountPaymentMethodPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'account-payment-method.page.loaded';
-
     /**
      * @var AccountPaymentMethodPage
      */
@@ -31,11 +29,6 @@ class AccountPaymentMethodPageLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->context = $context;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getContext(): Context

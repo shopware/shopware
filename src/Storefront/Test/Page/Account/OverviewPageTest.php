@@ -27,7 +27,7 @@ class OverviewPageTest extends TestCase
 
         /** @var AccountOverviewPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(AccountOverviewPageLoadedEvent::NAME, $event);
+        $this->catchEvent(AccountOverviewPageLoadedEvent::class, $event);
 
         $page = $this->getPageLoader()->load($request, $context);
 

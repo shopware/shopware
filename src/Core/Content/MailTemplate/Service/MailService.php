@@ -130,7 +130,7 @@ class MailService
         $this->mailSender->send($message);
 
         $mailSentEvent = new MailSentEvent($data['subject'], $recipients, $contents, $context);
-        $this->eventDispatcher->dispatch($mailSentEvent, MailSentEvent::EVENT_NAME);
+        $this->eventDispatcher->dispatch($mailSentEvent);
 
         return $message;
     }

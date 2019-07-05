@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class NewsletterSubscribePageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'newsletter-subscribe.page.loaded';
-
     /**
      * @var NewsletterSubscribePage
      */
@@ -31,11 +29,6 @@ class NewsletterSubscribePageLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPage(): NewsletterSubscribePage

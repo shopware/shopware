@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class StorefrontRenderEvent extends NestedEvent
 {
-    public const NAME = 'storefront.render';
-
     /**
      * @var string
      */
@@ -37,11 +35,6 @@ class StorefrontRenderEvent extends NestedEvent
         $this->parameters = array_merge(['context' => $context], $parameters);
         $this->request = $request;
         $this->context = $context;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

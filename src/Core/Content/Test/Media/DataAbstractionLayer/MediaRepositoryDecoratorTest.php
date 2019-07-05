@@ -149,7 +149,7 @@ class MediaRepositoryDecoratorTest extends TestCase
         static::assertEquals(1, $document->count());
         static::assertEquals($mediaId, $document->get($documentId)->getDocumentMediaFile()->getId());
         static::assertEquals('', $document->get($documentId)->getDocumentMediaFile()->getUrl());
-        // currently there shouldn't be loaded any thumdnails for private media, but if, the urls should be blank
+        // currently there shouldn't be loaded any thumbnails for private media, but if, the urls should be blank
         foreach ($document->get($documentId)->getDocumentMediaFile()->getThumbnails() as $thumbnail) {
             static::assertEquals('', $thumbnail->getUrl());
         }

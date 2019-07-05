@@ -21,7 +21,11 @@ class NestedEventDispatcher implements EventDispatcherInterface
     {
         if ($event instanceof NestedEvent && $events = $event->getEvents()) {
             foreach ($events as $nested) {
-                $this->dispatch($nested, $nested->getName());
+                $name = null;
+                if ($nested instanceof GenericEvent) {
+                    $name = $nested->getName();
+                }
+                $this->dispatch($nested, $name);
             }
         }
 

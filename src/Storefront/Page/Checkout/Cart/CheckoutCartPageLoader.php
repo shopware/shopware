@@ -86,8 +86,7 @@ class CheckoutCartPageLoader
         $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
 
         $this->eventDispatcher->dispatch(
-            new CheckoutCartPageLoadedEvent($page, $salesChannelContext, $request),
-            CheckoutCartPageLoadedEvent::NAME
+            new CheckoutCartPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

@@ -6,7 +6,5 @@ use Shopware\Core\Framework\Context;
 
 interface ShopwareEvent
 {
-    public function getName(): string;
-
     public function getContext(): Context;
 }

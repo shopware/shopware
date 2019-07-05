@@ -93,8 +93,7 @@ class AddressListingPageLoader
         );
 
         $this->eventDispatcher->dispatch(
-            new AddressListingPageLoadedEvent($page, $salesChannelContext, $request),
-            AddressListingPageLoadedEvent::NAME
+            new AddressListingPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

@@ -54,8 +54,7 @@ class SuggestPageLoader
         $page->setSearchTerm($request->query->get('search'));
 
         $this->eventDispatcher->dispatch(
-            new SuggestPageLoadedEvent($page, $salesChannelContext, $request),
-            SuggestPageLoadedEvent::NAME
+            new SuggestPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

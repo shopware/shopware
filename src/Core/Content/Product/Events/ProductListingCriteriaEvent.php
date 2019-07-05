@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingCriteriaEvent extends NestedEvent
 {
-    public const NAME = 'product.listing.criteria';
-
     /**
      * @var Request
      */
@@ -42,11 +40,6 @@ class ProductListingCriteriaEvent extends NestedEvent
     public function getCriteria(): Criteria
     {
         return $this->criteria;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getContext(): Context

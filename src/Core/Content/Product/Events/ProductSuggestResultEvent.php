@@ -4,5 +4,4 @@ namespace Shopware\Core\Content\Product\Events;
 
 class ProductSuggestResultEvent extends ProductListingResultEvent
 {
-    public const NAME = 'product.suggest.result';
 }

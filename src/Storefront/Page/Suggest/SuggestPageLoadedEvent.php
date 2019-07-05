@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SuggestPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'suggest.page.loaded';
-
     /**
      * @var SuggestPage
      */
@@ -31,11 +29,6 @@ class SuggestPageLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPage(): SuggestPage

@@ -116,7 +116,7 @@ class AccountRegistrationService
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
 
         $event = new CustomerRegisterEvent($context->getContext(), $customerEntity, $context->getSalesChannel()->getId());
-        $this->eventDispatcher->dispatch($event, $event->getName());
+        $this->eventDispatcher->dispatch($event);
 
         return $customer['id'];
     }
@@ -187,8 +187,8 @@ class AccountRegistrationService
             'phoneNumber'
         );
 
-        $event = new DataMappingEvent(CustomerEvents::MAPPING_REGISTER_ADDRESS_BILLING, $billing, $billingAddress, $context);
-        $this->eventDispatcher->dispatch($event, $event->getName());
+        $event = new DataMappingEvent($billing, $billingAddress, $context);
+        $this->eventDispatcher->dispatch($event, CustomerEvents::MAPPING_REGISTER_ADDRESS_BILLING);
 
         return $event->getOutput();
     }
@@ -210,8 +210,8 @@ class AccountRegistrationService
             'phoneNumber'
         );
 
-        $event = new DataMappingEvent(CustomerEvents::MAPPING_REGISTER_ADDRESS_SHIPPING, $shipping, $shippingAddress, $context);
-        $this->eventDispatcher->dispatch($event, $event->getName());
+        $event = new DataMappingEvent($shipping, $shippingAddress, $context);
+        $this->eventDispatcher->dispatch($event, CustomerEvents::MAPPING_REGISTER_ADDRESS_SHIPPING);
 
         return $event->getOutput();
     }
@@ -243,8 +243,8 @@ class AccountRegistrationService
             $customer['password'] = $data->get('password');
         }
 
-        $event = new DataMappingEvent(CustomerEvents::MAPPING_REGISTER_CUSTOMER, $data, $customer, $context->getContext());
-        $this->eventDispatcher->dispatch($event, $event->getName());
+        $event = new DataMappingEvent($data, $customer, $context->getContext());
+        $this->eventDispatcher->dispatch($event, CustomerEvents::MAPPING_REGISTER_CUSTOMER);
 
         $customer = $event->getOutput();
         $customer['id'] = Uuid::randomHex();

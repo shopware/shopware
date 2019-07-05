@@ -14,32 +14,32 @@ class ProductEvents
     /**
      * @Event("Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent")
      */
-    public const PRODUCT_LISTING_CRITERIA = ProductListingCriteriaEvent::NAME;
+    public const PRODUCT_LISTING_CRITERIA = ProductListingCriteriaEvent::class;
 
     /**
      * @Event("Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent")
      */
-    public const PRODUCT_SUGGEST_CRITERIA = ProductSuggestCriteriaEvent::NAME;
+    public const PRODUCT_SUGGEST_CRITERIA = ProductSuggestCriteriaEvent::class;
 
     /**
      * @Event("Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent")
      */
-    public const PRODUCT_SEARCH_CRITERIA = ProductSearchCriteriaEvent::NAME;
+    public const PRODUCT_SEARCH_CRITERIA = ProductSearchCriteriaEvent::class;
 
     /**
      * @Event("Shopware\Core\Content\Product\Events\ProductListingResultEvent")
      */
-    public const PRODUCT_LISTING_RESULT = ProductListingResultEvent::NAME;
+    public const PRODUCT_LISTING_RESULT = ProductListingResultEvent::class;
 
     /**
      * @Event("Shopware\Core\Content\Product\Events\ProductSuggestResultEvent")
      */
-    public const PRODUCT_SUGGEST_RESULT = ProductSuggestResultEvent::NAME;
+    public const PRODUCT_SUGGEST_RESULT = ProductSuggestResultEvent::class;
 
     /**
      * @Event("Shopware\Core\Content\Product\Events\ProductSearchResultEvent")
      */
-    public const PRODUCT_SEARCH_RESULT = ProductSearchResultEvent::NAME;
+    public const PRODUCT_SEARCH_RESULT = ProductSearchResultEvent::class;
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")

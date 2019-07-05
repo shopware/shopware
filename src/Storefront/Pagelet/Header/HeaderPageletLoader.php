@@ -93,8 +93,7 @@ class HeaderPageletLoader
         );
 
         $this->eventDispatcher->dispatch(
-            new HeaderPageletLoadedEvent($page, $salesChannelContext, $request),
-            HeaderPageletLoadedEvent::NAME
+            new HeaderPageletLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;

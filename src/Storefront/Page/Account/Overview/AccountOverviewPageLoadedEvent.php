@@ -9,8 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AccountOverviewPageLoadedEvent extends NestedEvent
 {
-    public const NAME = 'account-overview.page.loaded';
-
     /**
      * @var AccountOverviewPage
      */
@@ -31,11 +29,6 @@ class AccountOverviewPageLoadedEvent extends NestedEvent
         $this->page = $page;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     public function getPage(): AccountOverviewPage

@@ -4,7 +4,8 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
-use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
+use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
@@ -21,9 +22,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ProductEvents::PRODUCT_LISTING_CRITERIA => 'handleRequest',
-            ProductEvents::PRODUCT_SUGGEST_CRITERIA => 'handleSuggestRequest',
-            ProductEvents::PRODUCT_SEARCH_CRITERIA => 'handleRequest',
+            ProductListingCriteriaEvent::class => 'handleRequest',
+            ProductSuggestCriteriaEvent::class => 'handleSuggestRequest',
+            ProductSearchCriteriaEvent::class => 'handleRequest',
         ];
     }
 

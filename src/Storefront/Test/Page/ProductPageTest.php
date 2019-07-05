@@ -41,7 +41,7 @@ class ProductPageTest extends TestCase
 
         /** @var ProductPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(ProductPageLoadedEvent::NAME, $event);
+        $this->catchEvent(ProductPageLoadedEvent::class, $event);
 
         $this->expectException(ProductNotFoundException::class);
         $this->getPageLoader()->load($request, $context);
@@ -56,7 +56,7 @@ class ProductPageTest extends TestCase
 
         /** @var ProductPageLoadedEvent $event */
         $event = null;
-        $this->catchEvent(ProductPageLoadedEvent::NAME, $event);
+        $this->catchEvent(ProductPageLoadedEvent::class, $event);
 
         $page = $this->getPageLoader()->load($request, $context);
 

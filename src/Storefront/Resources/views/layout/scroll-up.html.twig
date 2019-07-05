@@ -1,0 +1,15 @@
+{% block layout_scroll_up_inner %}
+    <div class="scroll-up-container"
+         data-scroll-up="true">
+        {% block layout_scroll_up_button %}
+            <div class="scroll-up-button js-scroll-up-button">
+                <button type="submit"
+                        class="btn btn-primary">
+                    {% block layout_scroll_up_button_icon %}
+                        {% sw_icon 'arrow-up' style { 'size': 'sm' } %}
+                    {% endblock %}
+                </button>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

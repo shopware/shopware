@@ -42,7 +42,7 @@ trait OrderFixture
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
-                'orderDate' => '2019-04-01 08:36:43.267',
+                'orderDateTime' => '2019-04-01 08:36:43.267',
                 'deliveries' => [
                     [
                         'stateId' => $stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId(),

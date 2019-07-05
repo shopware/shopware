@@ -57,7 +57,7 @@
 
                                 {% block sw_dashboard_index_content_grid_created_at %}
                                     <template slot="column-createdAt" slot-scope="{ item }">
-                                        {{ item.createdAt | date({
+                                        {{ item.orderDateTime | date({
                                             hour: '2-digit',
                                             minute: '2-digit',
                                             year: undefined,

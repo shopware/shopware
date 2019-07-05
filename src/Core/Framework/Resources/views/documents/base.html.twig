@@ -177,7 +177,7 @@
                             {% block document_side_info_order_date %}
                                 <tr>
                                     <td>
-                                        {{ 'document.orderDate'|trans({'%orderDate%': order.date|localizeddate('medium', 'none', locale)}) }}
+                                        {{ 'document.orderDate'|trans({'%orderDate%': order.orderDateTime|localizeddate('medium', 'none', locale)}) }}
                                     </td>
                                 </tr>
                             {% endblock %}

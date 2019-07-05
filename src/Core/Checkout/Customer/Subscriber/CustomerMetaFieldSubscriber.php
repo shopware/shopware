@@ -53,7 +53,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 
             $payload = $writeResult->getPayload();
             /** @var \DateTimeInterface $orderDate */
-            $orderDate = $payload['orderDate'];
+            $orderDate = $payload['orderDateTime'];
 
             /** @var EntitySearchResult $orderResult */
             $orderResult = $this->orderRepository->search(

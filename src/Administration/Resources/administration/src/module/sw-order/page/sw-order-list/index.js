@@ -14,7 +14,7 @@ Component.register('sw-order-list', {
     data() {
         return {
             orders: [],
-            sortBy: 'orderDate',
+            sortBy: 'orderDateTime',
             sortDirection: 'DESC',
             isLoading: false
         };
@@ -126,7 +126,7 @@ Component.register('sw-order-list', {
                 label: this.$tc('sw-order.list.columnTransactionState'),
                 allowResize: true
             }, {
-                property: 'orderDate',
+                property: 'orderDateTime',
                 label: this.$tc('sw-order.list.orderDate'),
                 allowResize: true
             }];

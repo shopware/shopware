@@ -10,7 +10,7 @@
         
                         {% block page_account_order_item_date_value %}
                             <span class="order-item-value order-item-date-value">
-                                {{ order.orderDate|localizeddate('short', 'none', app.request.locale) }}
+                                {{ order.orderDateTime|localizeddate('short', 'none', app.request.locale) }}
                             </span>
                         {% endblock %}
                     </div>

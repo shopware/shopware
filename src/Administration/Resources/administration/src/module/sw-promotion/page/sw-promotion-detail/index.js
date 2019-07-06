@@ -1,21 +1,15 @@
-import { Component, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-detail.html.twig';
 import errorConfig from './error-config.json';
+import swPromotionDetailState from './state';
 
 const { mapPageErrors } = Component.getComponentHelper();
 
 Component.register('sw-promotion-detail', {
     template,
 
-    inject: ['repositoryFactory', 'context'],
-
-    provide() {
-        return {
-            registerSaveCall: this.registerSaveCall,
-            removeSaveCall: this.removeSaveCall
-        };
-    },
+    inject: ['numberRangeService', 'repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -38,8 +32,6 @@ Component.register('sw-promotion-detail', {
 
     data() {
         return {
-            promotion: null,
-            isLoading: false,
             isSaveSuccessful: false,
             saveCallbacks: []
         };
@@ -55,9 +47,15 @@ Component.register('sw-promotion-detail', {
         identifier() {
             return this.placeholder(this.promotion, 'name');
         },
+
         promotionRepository() {
             return this.repositoryFactory.create('promotion');
         },
+
+        languageStore() {
+            return State.getStore('language');
+        },
+
         tooltipSave() {
             const systemKey = this.$device.getSystemKey();
 
@@ -73,12 +71,42 @@ Component.register('sw-promotion-detail', {
             };
         },
 
+        promotion: {
+            get() {
+                return this.$store.state.swPromotionDetail.promotion;
+            },
+            set(promotion) {
+                this.$store.commit('swPromotionDetail/setPromotion', promotion);
+            }
+        },
+
+        isLoading: {
+            get() {
+                return this.$store.state.swPromotionDetail.isLoading;
+            },
+            set(isLoading) {
+                this.$store.commit('swPromotionDetail/setIsLoading', isLoading);
+            }
+        },
+
+        discounts() {
+            return this.$store.state.swPromotionDetail.discounts;
+        },
+
         ...mapPageErrors(errorConfig)
 
     },
 
+    beforeCreate() {
+        this.$store.registerModule('swPromotionDetail', swPromotionDetailState);
+    },
+
     created() {
         this.createdComponent();
+    },
+
+    beforeDestroy() {
+        this.$store.unregisterModule('swPromotionDetail');
     },
 
     watch: {
@@ -89,14 +117,16 @@ Component.register('sw-promotion-detail', {
 
     methods: {
         createdComponent() {
+            // TODO check if numberrange is configured
+            // if not show modal and link to settings!
+            this.isLoading = true;
             if (!this.promotionId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
                 this.promotion = this.promotionRepository.create(this.context);
-
-                // TODO check if numberrange is configured
-                // if not show modal and link to settings!
-            } else {
-                this.loadEntityData();
+                this.isLoading = false;
+                return;
             }
+            this.loadEntityData();
         },
 
         loadEntityData() {
@@ -105,6 +135,7 @@ Component.register('sw-promotion-detail', {
 
             this.promotionRepository.get(this.promotionId, this.context, criteria).then((promotion) => {
                 this.promotion = promotion;
+                this.isLoading = false;
             });
         },
 
@@ -132,13 +163,38 @@ Component.register('sw-promotion-detail', {
 
         onSave() {
             this.isLoading = true;
-            return Promise.all(this.saveCallbacks.map((callback) => {
-                return callback();
-            })).then(() => {
+            if (!this.promotionId) {
+                return this.createPromotion();
+            }
+
+            return this.savePromotion();
+        },
+
+        createPromotion() {
+            this.numberRangeService.reserve('promotion').then((promotionNumber) => {
+                this.promotion.promotionNumber = promotionNumber;
+                return this.savePromotion().then(() => {
+                    this.$router.push({ name: 'sw.promotion.detail', params: { id: this.promotion.id } });
+                });
+            }).catch(() => {
+                return this.savePromotion().then(() => {
+                    this.$router.push({ name: 'sw.promotion.detail', params: { id: this.promotion.id } });
+                });
+            });
+        },
+
+        savePromotion() {
+            const discounts = this.discounts === null ? this.promotion.discounts : this.discounts;
+            const discountRepository = this.repositoryFactory.create(
+                discounts.entity,
+                discounts.source
+            );
+
+            return discountRepository.sync(discounts, discounts.context).then(() => {
                 return this.promotionRepository.save(this.promotion, this.context).then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
-                }).catch(() => {
+                }).catch((error) => {
                     this.isLoading = false;
                     this.createNotificationError({
                         title: this.$tc('global.notification.notificationSaveErrorTitle'),
@@ -148,6 +204,7 @@ Component.register('sw-promotion-detail', {
                             { entityName: this.promotion.name }
                         )
                     });
+                    throw error;
                 });
             });
         },

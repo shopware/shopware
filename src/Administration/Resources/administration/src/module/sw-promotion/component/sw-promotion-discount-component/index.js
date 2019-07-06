@@ -1,4 +1,4 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-discount-component.html.twig';
 import './sw-promotion-discount-component.scss';
@@ -37,10 +37,6 @@ Component.register('sw-promotion-discount-component', {
     },
 
     computed: {
-        rulesStore() {
-            return State.getStore('rule');
-        },
-
         advancedPricesRepo() {
             return this.repositoryFactory.create('promotion_discount_prices');
         },
@@ -102,6 +98,7 @@ Component.register('sw-promotion-discount-component', {
                 this.defaultCurrency = this.currencies.find(currency => currency.isDefault);
             });
         },
+
         // This function verifies the currently set value
         // depending on the discount type, and fixes it if
         // the min or maximum thresholds have been exceeded.
@@ -121,6 +118,7 @@ Component.register('sw-promotion-discount-component', {
             });
             this.displayAdvancedPrices = true;
         },
+
         prepareAdvancedPrices(currency, basePrice) {
             // first get the minimum value that is allowed
             let setPrice = discountHandler.getMinValue();
@@ -142,6 +140,7 @@ Component.register('sw-promotion-discount-component', {
             newAdvancedCurrencyPrices.currency = currency;
             this.discount.promotionDiscountPrices.add(newAdvancedCurrencyPrices);
         },
+
         isMemberOfCollection(currency) {
             let foundValue = false;
             const currencyID = currency.id;
@@ -152,18 +151,6 @@ Component.register('sw-promotion-discount-component', {
                 }
             });
             return foundValue;
-        },
-
-        onSaveRule(rule) {
-            this.$refs.productRuleSelector.addItem({ item: rule });
-        },
-
-        openCreateRuleModal() {
-            this.showRuleModal = true;
-        },
-        onCloseRuleModal() {
-            this.$refs.productRuleSelector.remove('addNewRule');
-            this.showRuleModal = false;
         },
 
         onCloseAdvancedPricesModal() {

@@ -31,21 +31,15 @@
 
         {% block sw_promotion_discount_condition_rules_form %}
             <template v-if="discount.considerAdvancedRules === true">
-                <sw-many-to-many-select
+                <sw-promotion-rule-select
                         class="sw-promotion-discount-component__select-discount-rules"
-                        ref="productRuleSelector"
+                        v-model="discount.discountRules"
                         :localMode="discount.isNew()"
                         :criteria="ruleFilter"
+                        :ruleScope="['lineItem']"
                         :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
-                        :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
-                        :collection="discount.discountRules">
-                    <template slot="sw_multi_select_list_before">
-                        <li class="sw-multi-select-option sw-promotion-discount-component__create-new-rule-link"
-                            @click="openCreateRuleModal">
-                            {{ $tc('sw-select-rule-create.addNewRule') }}
-                        </li>
-                    </template>
-                </sw-many-to-many-select>
+                        :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')">
+                </sw-promotion-rule-select>
             </template>
         {% endblock %}
 
@@ -147,15 +141,6 @@
                     </template>
                 {% endblock %}
             </sw-modal>
-        {% endblock %}
-
-        {% block sw_select_rule_create_rule_modal %}
-            {#todo next-2945 change allowedRuleScope if rule types may be addressed correctly #}
-            <sw-rule-modal v-if="showRuleModal"
-                           @save="onSaveRule"
-                           @modal-close="onCloseRuleModal"
-                           :allowedRuleScopes="['lineItem']">
-            </sw-rule-modal>
         {% endblock %}
     </sw-card>
 {% endblock %}

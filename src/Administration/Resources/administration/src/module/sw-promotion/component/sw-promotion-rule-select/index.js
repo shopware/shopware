@@ -20,7 +20,8 @@ Component.register('sw-promotion-rule-select', {
         },
         ruleScope: {
             type: Array,
-            required: true
+            required: false,
+            default: null
         }
     },
 
@@ -36,6 +37,12 @@ Component.register('sw-promotion-rule-select', {
                 this.collection.entity,
                 this.collection.source
             );
+
+            if (this.$attrs.localMode) {
+                this.collection.add(rule);
+                return;
+            }
+
             ruleRepository.assign(rule.id, this.collection.context).then(() => {
                 ruleRepository.search(this.collection.criteria, this.collection.context).then((searchResult) => {
                     this.$emit('collection-added-item', searchResult);

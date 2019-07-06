@@ -1,6 +1,8 @@
 import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-promotion-code-form.html.twig';
 
+const { mapApiErrors } = Component.getComponentHelper();
+
 Component.register('sw-promotion-code-form', {
     template,
 
@@ -31,11 +33,16 @@ Component.register('sw-promotion-code-form', {
                 return true;
             }
             return !this.isEmptyOrSpaces(this.promotion.code);
-        }
+        },
+
+        ...mapApiErrors('promotion', ['code'])
     },
     methods: {
         isEmptyOrSpaces(str) {
-            return str === null || str.match(/^ *$/) !== null;
+            if (typeof str !== 'string') {
+                return true;
+            }
+            return str.length >= 0;
         }
     }
 });

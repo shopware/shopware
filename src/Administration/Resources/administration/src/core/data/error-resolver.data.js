@@ -61,6 +61,14 @@ export default class ErrorResolver {
      * @param systemErrors
      */
     resolveError(error, definition, entity, changeset, systemErrors) {
+        if (!error.source || !error.source.pointer) {
+            systemErrors.push(error);
+            return;
+        }
+
+        if (!error.source.pointer.startsWith('/')) {
+            error.source.pointer = `/${error.source.pointer}`;
+        }
         const [, fieldName, subFields] = error.source.pointer.match(regExRegularPointer);
         const field = definition.getField(fieldName);
 

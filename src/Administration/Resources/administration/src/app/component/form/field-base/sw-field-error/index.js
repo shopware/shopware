@@ -14,5 +14,22 @@ export default {
             required: false,
             default: null
         }
+    },
+
+    computed: {
+        snippetKey() {
+            if (!this.error) {
+                return null;
+            }
+            return `global.error-codes.${this.error.code}`;
+        },
+
+        errorMessage() {
+            if (this.$te(this.$i18n.fallbackLocale, this.snippetKey)) {
+                return this.$t(this.snippetKey, this.error.parameters);
+            }
+
+            return this.error.detail;
+        }
     }
 };

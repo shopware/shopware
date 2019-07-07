@@ -2320,7 +2320,7 @@ class Migration1536233560BasicData extends MigrationStep
 {% set currencyIsoCode = order.currency.isoCode %}
 Dear {{order.orderCustomer.salutation.displayName }} {{order.orderCustomer.lastName}},<br>
 <br>
-Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDate|date }}.<br>
+Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.<br>
 <br>
 <strong>Information on your order:</strong><br>
 <br>
@@ -2403,7 +2403,7 @@ Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber
         return '{% set currencyIsoCode = order.currency.isoCode %}
 Dear {{order.orderCustomer.salutation.displayName }} {{order.orderCustomer.lastName}},
 
-Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDate|date }}.
+Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.
 
 Information on your order:
 
@@ -2462,7 +2462,7 @@ If you have any questions, do not hesitate to contact us.
 {% set currencyIsoCode = order.currency.isoCode %}
 Hallo {{order.orderCustomer.salutation.displayName }} {{order.orderCustomer.lastName}},<br>
 <br>
-vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDate|date }}.<br>
+vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.<br>
 <br>
 <strong>Informationen zu Ihrer Bestellung:</strong><br>
 <br>
@@ -2546,7 +2546,7 @@ vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.ord
         return '{% set currencyIsoCode = order.currency.isoCode %}
 Hallo {{order.orderCustomer.salutation.displayName }} {{order.orderCustomer.lastName}},
 
-vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDate|date }}.
+vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.
 
 Informationen zu Ihrer Bestellung:
 

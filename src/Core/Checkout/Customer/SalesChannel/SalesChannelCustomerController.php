@@ -263,7 +263,7 @@ class SalesChannelCustomerController extends AbstractController
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
-        $criteria->addSorting(new FieldSorting('order.orderDate', FieldSorting::DESCENDING));
+        $criteria->addSorting(new FieldSorting('order.orderDateTime', FieldSorting::DESCENDING));
         $criteria->setLimit($limit);
         $criteria->setOffset($page * $limit);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);

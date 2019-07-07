@@ -47,7 +47,7 @@ Component.register('sw-order-user-card', {
         },
         orderDate() {
             if (this.currentOrder && !this.currentOrder.isLoading) {
-                return format.date(this.currentOrder.orderDate);
+                return format.date(this.currentOrder.orderDateTime);
             }
             return '';
         },
@@ -70,7 +70,7 @@ Component.register('sw-order-user-card', {
                 }
 
                 return format.date(
-                    this.currentOrder.orderDate
+                    this.currentOrder.orderDateTime
                 );
             }
             return '';

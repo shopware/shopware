@@ -14,6 +14,6 @@ If you have to convert the time on the client side, you can use the DateFormatPl
 Example: 
 ```
 <span data-date-format="true">
-    {{ order.orderDate.format(shopware.dateFormat) }}
+    {{ order.orderDateTime.format(shopware.dateFormat) }}
 </span>
 ```

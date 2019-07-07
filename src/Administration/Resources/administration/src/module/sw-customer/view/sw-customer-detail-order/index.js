@@ -77,7 +77,7 @@ Component.register('sw-customer-detail-order', {
                 property: 'stateMachineState.name',
                 label: this.$tc('sw-customer.detailOrder.columnOrderState')
             }, {
-                property: 'createdAt',
+                property: 'orderDateTime',
                 label: this.$tc('sw-customer.detailOrder.columnOrderDate'),
                 align: 'center'
             }];

@@ -101,8 +101,8 @@ describe('Administration: Check module navigation in settings', () => {
     it('@p navigate to payment module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/payment-method?page=1&limit=25',
-            method: 'get'
+            url: '/api/v1/search/payment-method',
+            method: 'post'
         }).as('getData');
 
         cy.clickMainMenuItem({

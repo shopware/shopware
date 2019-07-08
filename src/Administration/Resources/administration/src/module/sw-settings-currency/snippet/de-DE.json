@@ -15,6 +15,7 @@
       "columnDecimalPrecision": "Nachkommastellen",
       "buttonAddCurrency": "Währung anlegen",
       "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
       "modalTitleDelete": "Währung löschen",
       "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Währung \"{name}\" wurde erfolgreich gelöscht.",

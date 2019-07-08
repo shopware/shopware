@@ -12,6 +12,7 @@
       "columnTaxRate": "Steuersatz",
       "buttonAddTax": "Steuer anlegen",
       "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
       "modalTitleDelete": "Steuer löschen",
       "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Steuer \"{name}\" wurde erfolgreich gelöscht.",

@@ -15,6 +15,7 @@
       "columnDecimalPrecision": "Decimal place",
       "buttonAddCurrency": "Add currency",
       "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
       "modalTitleDelete": "Delete currency",
       "titleDeleteSuccess": "Currency",
       "messageDeleteSuccess": "Currency \"{name}\" has successfully been deleted.",

@@ -32,7 +32,7 @@ describe('Payment: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-settings-payment-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--0`
+            `${page.elements.dataGridRow}--0`
         );
 
         // Open modal and create new availability rule
@@ -62,7 +62,7 @@ describe('Payment: Test crud operations', () => {
             cy.get(page.elements.smartBarBack).click();
             cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');
             cy.get(page.elements.loader).should('not.exist');
-            cy.get(`${page.elements.gridRow}--0`).contains('CredStick');
+            cy.get(`${page.elements.dataGridRow}--0`).contains('CredStick');
         });
     });
 });

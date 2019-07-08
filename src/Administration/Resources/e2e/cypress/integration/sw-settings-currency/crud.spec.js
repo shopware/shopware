@@ -40,8 +40,8 @@ describe('Currency: Test crud operations', () => {
         // Verify creation
         cy.wait('@saveData').then(() => {
             cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.gridRow}--0 ${page.elements.currencyColumnName}`).should('be.visible')
-                .contains('Dukaten');
+            cy.get('.sw-currency-list__content').should('be.visible');
+            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`).contains('Dukaten');
         });
     });
 
@@ -58,7 +58,7 @@ describe('Currency: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-currency-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--3`
+            `${page.elements.dataGridRow}--3`
         );
 
         cy.get('input[name=sw-field--currency-name]').clear();
@@ -68,7 +68,9 @@ describe('Currency: Test crud operations', () => {
         // Verify creation
         cy.wait('@saveData').then(() => {
             cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.gridRow}--1 ${page.elements.currencyColumnName}`).should('be.visible')
+            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Kreuzer');
+            cy.get('.sw-currency-list__content').should('be.visible');
+            cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
                 .contains('Kreuzer');
         });
     });
@@ -87,16 +89,16 @@ describe('Currency: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--3`
+            `${page.elements.dataGridRow}--3`
         );
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the currency "Yen"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
-        cy.get(page.elements.modal).should('not.exist');
 
         // Verify deletion
         cy.wait('@deleteData').then(() => {
-            cy.awaitAndCheckNotification('Currency "Yen" has successfully been deleted.');
+            cy.get(page.elements.modal).should('not.exist');
+            cy.get(`${page.elements.dataGridRow}--3 ${page.elements.currencyColumnName}`).should('not.exist');
         });
     });
 });

@@ -12,6 +12,7 @@
       "columnTaxRate": "Tax rate",
       "buttonAddTax": "Add tax",
       "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
       "modalTitleDelete": "Delete tax",
       "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Tax \"{name}\" has successfully been deleted.",

@@ -35,7 +35,7 @@ describe('Country: Test crud operations', () => {
         // Verify creation
         cy.wait('@saveData').then(() => {
             cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
+            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
                 .contains('01.Niemandsland');
         });
     });
@@ -53,7 +53,7 @@ describe('Country: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-country-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--0`
+            `${page.elements.dataGridRow}--0`
         );
         cy.get('input[name=sw-field--country-name]').clear();
         cy.get('input[name=sw-field--country-name]').type('1.Niemandsland x2');
@@ -62,7 +62,7 @@ describe('Country: Test crud operations', () => {
         // Verify creation
         cy.wait('@saveData').then(() => {
             cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
+            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
                 .contains('1.Niemandsland x2');
         });
     });
@@ -80,7 +80,7 @@ describe('Country: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--0`
+            `${page.elements.dataGridRow}--0`
         );
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the country "1.Niemandsland"?');
@@ -89,7 +89,7 @@ describe('Country: Test crud operations', () => {
 
         // Verify creation
         cy.wait('@deleteData').then(() => {
-            cy.get(`${page.elements.gridRow}--0 ${page.elements.countryColumnName}`)
+            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`)
                 .should('not.have.value', '1.Niemandsland');
         });
     });

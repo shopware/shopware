@@ -12,6 +12,7 @@
       "columnActive": "Aktiv",
       "buttonAddPaymentMethod": "Zahlungsart anlegen",
       "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
       "modalTitleDelete": "Zahlungsart löschen",
       "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gelöscht.",

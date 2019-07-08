@@ -1,17 +1,18 @@
 {
   "sw-settings-payment": {
     "general": {
-      "mainMenuItemGeneral": "Payment methods",
+      "mainMenuItemGeneral": "Payment",
       "placeholderSearchBar": "Search payment methods"
     },
     "list": {
-      "textHeadline": "Payment methods",
+      "textHeadline": "Payment",
       "textDeleteConfirm": "Are you sure you want to delete the payment method \"{name}\"?",
       "columnName": "Name",
       "columnDescription": "Description",
       "columnActive": "Active",
       "buttonAddPaymentMethod": "Add payment method",
       "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
       "modalTitleDelete": "Delete payment method",
       "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Payment method \"{name}\" has successfully been deleted.",

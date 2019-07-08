@@ -33,7 +33,7 @@ export default class AdminFixtureService {
     }
 
     createUuid() {
-        return uuid();
+        return uuid().replace(/-/g, '');
     }
 
     mergeFixtureWithData(...args) {

@@ -12,7 +12,8 @@ export default class ShopwareError {
     constructor({
         code,
         parameters = {},
-        status = ''
+        status = '',
+        detail = ''
     } = {}) {
         if (typeof code !== 'string' || code === '') {
             throw new Error('[ShopwareError] can not identify error by code');
@@ -22,6 +23,7 @@ export default class ShopwareError {
         this._code = code;
         this._parameters = parameters;
         this._status = status;
+        this._detail = detail;
     }
 
     get id() {
@@ -52,11 +54,11 @@ export default class ShopwareError {
         this._status = value;
     }
 
-    get trace() {
-        return this._trace;
+    get detail() {
+        return this._detail;
     }
 
-    set trace(value) {
+    set detail(value) {
         this._trace = value;
     }
 }

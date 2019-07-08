@@ -10,7 +10,7 @@ class Uuid
     /**
      * Regular expression pattern for matching a valid UUID of any variant.
      */
-    public const VALID_PATTERN = '^[0-9A-Fa-f]{8}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{4}-?[0-9A-Fa-f]{12}$';
+    public const VALID_PATTERN = '^[0-9a-f]{32}$';
 
     public static function randomHex(): string
     {
@@ -82,8 +82,7 @@ class Uuid
      */
     public static function fromHexToBytes(string $uuid): string
     {
-        $uuid = strtolower($uuid);
-        if ($bin = @hex2bin(str_replace('-', '', $uuid))) {
+        if ($bin = @hex2bin($uuid)) {
             return $bin;
         }
 

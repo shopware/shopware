@@ -318,7 +318,7 @@ export default {
                 }
 
                 if (parentNode.tagName === 'A') {
-                    this.currentLink = { url: parentNode.href, newTab: parentNode.target === '_blank' };
+                    this.currentLink = { url: parentNode.getAttribute('href'), newTab: parentNode.target === '_blank' };
                 }
 
                 if (parentNode.tagName === 'TABLE') {

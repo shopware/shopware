@@ -108,7 +108,7 @@
           "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
           "pricesModal": {
             "advancedPricesHeader": "Erweiterte Preise",
-            "closeModal": "Schliessen",
+            "closeModal": "Schließen",
             "labelCurrency": "Währung",
             "labelPrice": "Wert"
           }

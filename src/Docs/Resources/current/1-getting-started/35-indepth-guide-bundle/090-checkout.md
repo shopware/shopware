@@ -1,39 +1,37 @@
 [titleEn]: <>(Step 9: Checkout logic)
 
 You're already putting a bundle into the cart, or at least you created a new line item with a custom type `swagbundle`.
-And that's the scenario given for this chapter, which will be all about properly handling this new line item type and therefore changing the cart's behavior
+And that's the scenario given for this chapter, which will be all about properly handling this new line item type and therefore changing the cart's behavior.
 
-### Creating a cart collector
+## Creating a cart processor/collector
 
-Changing the cart's behavior is accomplished by using Shopware 6's enrichment pattern.
-You're registering a new service using the `shopware.cart.collector` tag and you'll have your class implement the `Shopware\Core\Checkout\Cart\CollectorInterface` interface.
-A `CartCollector` will be executed every time the cart changes, due to quantity changes, new items in the cart, etc.
+To implement an extension for the cart you have to implement two interfaces:
+- `\Shopware\Core\Checkout\Cart\CartDataCollectorInterface`
+- `\Shopware\Core\Checkout\Cart\CartProcessorInterface`
 
-The interface requires you to implement three methods for the enrichment process, which will be explained in short here:
-<dl>
-    <dt>prepare</dt>
-    <dd>
-        This one will be executed first. Prepare your set of line items here. The most common thing here to do, is to filter all line item's for your specific
-        type and add them into a custom `FetchDefinition`. This way, you can ensure your collector is only taking care of those line items he actually supports.
-    </dd>
-    
-    <dt>collect</dt>
-    <dd>
-        As the name suggests, collect all the necessary data for your line items here. This is the only method, where you should execute database actions!
-        You can also add new `FetchDefinitions`, such as a `ProductFetchDefinition` to have a product line item being enriched by the `ProductCollector` to be used in your collector later on.
-    </dd>
-    
-    <dt>enrich</dt>
-    <dd>
-        This is where the line item is actually enriched with previously collected data. You're also adding discounts and prices here.
-    </dd>
-</dl>
+What are these classes for?
 
-Enough of the theory, time to actually get started. 
-Just like in the core, you're going to use the the following directory structure: `<bundle source root>/Core/<Domain>/Cart/`
-For this plugin, the following structure is used: `<plugin root>/src/Core/Checkout/Bundle/Cart/BundleCollector.php`
+With the `CartDataCollectorInterface` you can enrich your cart with further data. This interface's `collect` method is the right spot to fetch data using the DAL repositories.
+Implementing the `CartProcessorInterface`, you can intervene in the calculation process of the cart. For example, you can access subtotals here.
+This is where you're going to calculate the price for your bundle, using the prices of the products of your bundle.
 
-Go ahead and create this class and, as previously mentioned, implement the interface `Shopware\Core\Checkout\Cart\CollectorInterface`.
+Why are these two processes separated from each other?
+
+As you will notice later, the separation of these two processes offers a serious advantage.
+For example, you can control more precisely when you want to enrich data and when you want to calculate prices, you don't have to do all this in just one class.
+
+Those classes affect the cart process, hence they will reside in the directory `<plugin root>/src/Core/Checkout/Bundle/Cart/`.
+This is up for change and only dependant on the namespace you're using and the way you registered those classes.
+The latter will be explained later in this tutorial as well, don't worry.
+
+### Implementing the `collect` function
+
+Create a new file `BundleCartProcessor.php` in the directory mentioned above, create the respective class `BundleCartProcessor`,
+and have it implement the `CartDataCollectorInterface`.
+
+As described above, your task here is to enrich the bundle line items in the cart with information, since right now there's only a generic empty line item in the cart with the type `swagbundle`.
+Below is the complete source code for implementing your `CartDataCollectorInterface` for your bundle plugin.
+It is explained in detail below the sourcecode.
 
 ```php
 <?php declare(strict_types=1);
@@ -42,151 +40,27 @@ namespace Swag\BundleExample\Core\Checkout\Bundle\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\CollectorInterface;
-use Shopware\Core\Framework\Struct\StructCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-
-class BundleCollector implements CollectorInterface
-{
-    public function prepare(StructCollection $definitions, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
-    {
-        
-    }
-
-    public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
-    {
-        
-    }
-
-    public function enrich(StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
-    {
-        
-    }
-}
-```
-
-### Prepare the cart
-
-Starting with the `prepare` method, what should be done here? You've added the line item using a specific type, it was `swagbundle` if you remember.
-You could now fetch all line items of this type and add only those to some kind of a custom collection, so the next method `collect` can continue working on just
-those line items. Each "cart collector" comes with a so called `FetchDefinition`, which basically only contains an array of ids.
-Therefore, each collector can make sure he's only taking care of the line items, that he actually supports.
-So, before the actual `prepare` method's code will be implemented, create your custom `FetchDefinition` the same directory.
-All it has to do is to contain an array of ID's, applied upon instantiating your `FetchDefinition`.
-
-```php
-<?php declare(strict_types=1);
-
-namespace Swag\BundleExample\Core\Checkout\Bundle\Cart;
-
-use Shopware\Core\Framework\Struct\Struct;
-
-class BundleFetchDefinition extends Struct
-{
-    /**
-     * @var string[]
-     */
-    protected $ids;
-
-    /**
-     * @param string[] $ids
-     */
-    public function __construct(array $ids)
-    {
-        $this->ids = $ids;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getIds(): array
-    {
-        return $this->ids;
-    }
-}
-```
-
-Now, how do you filter the cart for your specific line items? You might have noticed, that the `prepare` method's second parameter actually contains the current
-[cart struct](https://github.com/shopware/platform/blob/master/src/Core/Checkout/Cart/Cart.php). The cart struct contains all line items and also brings
-a method to return a [LineItemCollection](https://github.com/shopware/platform/blob/master/src/Core/Checkout/Cart/LineItem/LineItemCollection.php). 
-Having a look at this `LineItemCollection`, you'll eventually find the method `filterType`. That sounds perfect for your use-case, doesn't it?
-It also returns another `LineItemCollection`, only containing your filtered line items, so you can apply even more filtering afterwards or use any of the
-other helper methods.
-You can use this method to filter all line items by a given type, `swagbundle` in your case. Also, add this string as a constant, so a third-party collector
-could also use your type and filter for bundles themselves.
-When there's not a single line item using this type, simply do nothing. Otherwise, create a new instance of your `BundleFetchDefinition`.
-It asks for an array of IDs, so you could now iterate through all filtered bundle line items and collect the IDs in an array - or you just use
-the `LineItemCollection`'s helper method `getKeys` for it.
-*Note: If you're desperately looking for the `geyKeys` method in the `LineItemCollection` now, you'll find it in the abstract class `Collection`. The `LineItemCollection`
-extends from the `Collection` and thus also knows this method.
-
-So, you've got your custom `FetchDefinition` and it even contains only your bundle line item's keys, but where to put this data now?
-You might have noticed the first parameter `StructCollection $definitions` already. Add it to this collection using the `add` method.
-
-```php
-<?php declare(strict_types=1);
-
-namespace Swag\BundleExample\Core\Checkout\Bundle\Cart;
-
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\CollectorInterface;
-use Shopware\Core\Framework\Struct\StructCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-
-class BundleCollector implements CollectorInterface
-{
-    public const TYPE = 'swagbundle';
-    
-    public function prepare(StructCollection $definitions, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
-    {
-        $bundleLineItems = $cart->getLineItems()->filterType(self::TYPE);
-
-        if ($bundleLineItems->count() === 0) {
-            return;
-        }
-
-        $definitions->add(new BundleFetchDefinition($bundleLineItems->getKeys()));
-    }
-}
-```
-
-### Collecting the data
-
-The first thing to do, is to fetch the previously added `FetchDefinition`. Once again, the first parameter is the said `StructCollection`. It does not only
-come with an `add` method, but also with a method to get your custom `FetchDefinition`.
-
-```php
-public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
-{
-    $bundleDefinitions = $fetchDefinitions->filterInstance(BundleFetchDefinition::class);
-    
-    if ($bundleDefinitions->count() === 0) {
-        return;
-    }
-}
-```
-
-Via the method `filterInstance`, you can use your custom fetch definition's class to get all `BundleFetchDefinitions`, that were added to this collection.
-You're also checking if any `FetchDefinition` from your bundle is available at all, since the `collect` method has no idea about whether or not the `prepare` added
-something or not. Furthermore, what happens if another third party plugin's `prepare` method, which might have been executed after your own `prepare` method, removed
-your `BundleFetchDefinition` from the collection again?
-This way, you're only proceeding if there's still a `BundleFetchDefinition` available.
-
-Now you want to fulfill the `collect` method's main purpose: Collecting the necessary data. In order to collect bundle data, you will need access
-to the bundle repository, so add the bundle repository using the DI container:
-
-```php
-<?php declare(strict_types=1);
-
-namespace Swag\BundleExample\Core\Checkout\Bundle\Cart;
-
-use Shopware\Core\Checkout\Cart\CollectorInterface;
+use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Swag\BundleExample\Core\Content\Bundle\BundleCollection;
+use Swag\BundleExample\Core\Content\Bundle\BundleEntity;
 
-class BundleCollector implements CollectorInterface
+class BundleCartProcessor implements CartDataCollectorInterface
 {
-    public const TYPE = 'swagbundle';
+    private const TYPE = 'swagbundle';
+    private const DISCOUNT_TYPE = 'swagbundle-discount';
+    private const DATA_KEY = 'swag_bundle-';
+    private const DISCOUNT_TYPE_ABSOLUTE = 'absolute';
+    private const DISCOUNT_TYPE_PERCENTAGE = 'percentage';
 
     /**
      * @var EntityRepositoryInterface
@@ -197,12 +71,847 @@ class BundleCollector implements CollectorInterface
     {
         $this->bundleRepository = $bundleRepository;
     }
-    ...
+
+    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
+    {
+        $bundleLineItems = $original->getLineItems()
+            ->filterType(self::TYPE);
+
+        // no bundles in cart? exit
+        if (\count($bundleLineItems) === 0) {
+            return;
+        }
+
+        // fetch missing bundle information from database
+        $bundles = $this->fetchBundles($bundleLineItems, $data, $context);
+
+        /** @var BundleEntity $bundle */
+        foreach ($bundles as $bundle) {
+            // ensure all line items have a data entry
+            $data->set(self::DATA_KEY . $bundle->getId(), $bundle);
+        }
+
+        foreach ($bundleLineItems as $bundleLineItem) {
+            $bundle = $data->get(self::DATA_KEY . $bundleLineItem->getReferencedId());
+
+            // enrich bundle information with quantity and delivery information
+            $this->enrichBundle($bundleLineItem, $bundle);
+
+            // add bundle products which are not already assigned
+            $this->addMissingProducts($bundleLineItem, $bundle);
+
+            // add bundle discount if not already assigned
+            $this->addDiscount($bundleLineItem, $bundle, $context);
+        }
+    }
+
+    /**
+     * Fetches all Bundles that are not already stored in data
+     */
+    private function fetchBundles(LineItemCollection $bundleLineItems, CartDataCollection $data, SalesChannelContext $context): BundleCollection
+    {
+        $bundleIds = $bundleLineItems->getReferenceIds();
+
+        $filtered = [];
+        foreach ($bundleIds as $bundleId) {
+            // If data already contains the bundle we don't need to fetch it again
+            if ($data->has(self::DATA_KEY . $bundleId)) {
+                continue;
+            }
+
+            $filtered[] = $bundleId;
+        }
+
+        $criteria = new Criteria($filtered);
+        $criteria->addAssociation('products');
+        /** @var BundleCollection $bundles */
+        $bundles = $this->bundleRepository->search($criteria, $context->getContext())->getEntities();
+
+        return $bundles;
+    }
+
+    private function enrichBundle(LineItem $bundleLineItem, BundleEntity $bundle): void
+    {
+        if (!$bundleLineItem->getLabel()) {
+            $bundleLineItem->setLabel($bundle->getName());
+        }
+
+        $bundleLineItem->setRemovable(true)
+            ->setStackable(true)
+            ->setDeliveryInformation(
+                new DeliveryInformation(
+                    (int)$bundle->getProducts()->first()->getStock(),
+                    (float)$bundle->getProducts()->first()->getWeight(),
+                    $bundle->getProducts()->first()->getDeliveryDate(),
+                    $bundle->getProducts()->first()->getRestockDeliveryDate(),
+                    $bundle->getProducts()->first()->getShippingFree()
+                )
+            )
+            ->setQuantityInformation(new QuantityInformation());
+    }
+
+    private function addMissingProducts(LineItem $bundleLineItem, BundleEntity $bundle): void
+    {
+        foreach ($bundle->getProducts()->getIds() as $productId) {
+            // if the bundleLineItem already contains the product we can skip it
+            if ($bundleLineItem->getChildren()->has($productId)) {
+                continue;
+            }
+
+            // the ProductCartProcessor will enrich the product further
+            $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId);
+
+            $bundleLineItem->addChild($productLineItem);
+        }
+    }
+
+    private function addDiscount(LineItem $bundleLineItem, BundleEntity $bundle, SalesChannelContext $context): void
+    {
+        if ($this->getDiscount($bundleLineItem)) {
+            return;
+        }
+
+        $discount = $this->createDiscount($bundle, $context);
+
+        if ($discount) {
+            $bundleLineItem->addChild($discount);
+        }
+    }
+
+    private function getDiscount(LineItem $bundle): ?LineItem
+    {
+        return $bundle->getChildren()->get($bundle->getReferencedId() . '-discount');
+    }
+
+    private function createDiscount(BundleEntity $bundleData, SalesChannelContext $context): ?LineItem
+    {
+        // The bundle has no discount, no need to add anything then
+        if ($bundleData->getDiscount() === 0) {
+            return null;
+        }
+
+        switch ($bundleData->getDiscountType()) {
+            case self::DISCOUNT_TYPE_ABSOLUTE:
+                $priceDefinition = new AbsolutePriceDefinition($bundleData->getDiscount() * -1, $context->getContext()->getCurrencyPrecision());
+                $label = 'Absolute bundle voucher';
+                break;
+
+            case self::DISCOUNT_TYPE_PERCENTAGE:
+                $priceDefinition = new PercentagePriceDefinition($bundleData->getDiscount() * -1, $context->getContext()->getCurrencyPrecision());
+                $label = sprintf('Percental bundle voucher (%s%%)', $bundleData->getDiscount());
+                break;
+
+            default:
+                throw new \RuntimeException('Invalid discount type.');
+        }
+
+        $discount = new LineItem(
+            $bundleData->getId() . '-discount',
+            self::DISCOUNT_TYPE,
+            $bundleData->getId()
+        );
+
+        $discount->setPriceDefinition($priceDefinition)
+            ->setLabel($label)
+            ->setGood(false);
+
+        return $discount;
+    }
 }
 ```
 
-Talking about the DI container, good time to even define your collector in the `services.xml` using the DI tag `shopware.cart.collector`.
+First you check if there is a bundle in your cart. For this you can use the `filterType` method of the `LineItemCollection`.
+```php
+// collect all bundle in cart
+$bundleLineItems = $original->getLineItems()->filterType('swagbundle');
+``` 
 
+If there are no bundles in your cart, you can already exit here, there's nothing to do for your plugin.
+```php
+// no bundles in cart? exit
+if (\count($bundleLineItems) === 0) {
+    return;
+}
+```
+
+For the cart bundles you have to fetch the corresponding information from the database and add the information into the `CartDataCollection`.
+Each bundle in the cart gets its own entry in the `CartDataCollection`:
+
+```php
+// fetch missing bundle information from database
+$bundles = $this->fetchBundles($bundleLineItems, $data, $context);
+
+/** @var BundleEntity $bundle */
+foreach ($bundles as $bundle) {
+    // ensure all line items have a data entry
+    $data->set(self::DATA_KEY . $bundle->getId(), $bundle);
+}
+```
+
+<p class="alert is--error">
+IMPORTANT: Please note that the `collect` method is called several times. 
+In order to prevent fetching the data unnecessarily often from the database, you must check whether the data is not already set in the `CartDataCollection`.
+</p>
+
+```php
+/**
+ * Fetches all Bundles that are not already stored in the CartDataCollection
+ */
+private function fetchBundles(LineItemCollection $bundleLineItems, CartDataCollection $data, SalesChannelContext $context): BundleCollection
+{
+    $bundleIds = $bundleLineItems->getReferenceIds();
+
+    $filtered = [];
+    foreach ($bundleIds as $bundleId) {
+        // If data already contains the bundle, we don't need to fetch it again
+        if ($data->has(self::DATA_KEY . $bundleId)) {
+            continue;
+        }
+
+        $filtered[] = $bundleId;
+    }
+
+    // ...
+
+    return $bundles;
+}
+```
+
+Once you have filtered the missing bundles, you can use the bundle repository to select the information from the database. 
+The `Criteria` object takes an optional parameter, an array of IDs, which is quite helpful here.
+Since the bundle line items may not yet contain the bundle's assigned products, they must also be fetched from the database:
+```php
+/**
+ * Fetches all Bundles that are not already stored in data
+ */
+private function fetchBundles(LineItemCollection $bundleLineItems, CartDataCollection $data, SalesChannelContext $context): BundleCollection
+{
+    // ...
+
+    $criteria = new Criteria($filtered);
+    $criteria->addAssociation('products');
+
+    /** @var BundleCollection $bundles */
+    $bundles = $this->bundleRepository->search($criteria, $context->getContext())->getEntities();
+
+    return $bundles;
+}
+```
+
+Now that you have the database information for all bundles, you can enrich the line items with data:
+
+```php
+public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
+{
+    // ...
+
+    foreach ($bundleLineItems as $bundleLineItem) {
+        $bundle = $data->get(self::DATA_KEY . $bundleLineItem->getReferencedId());
+
+        // enrich bundle information with quantity and delivery information
+        $this->enrichBundle($bundleLineItem, $bundle);
+
+        // add bundle products which are not already assigned
+        $this->addMissingProducts($bundleLineItem, $bundle);
+
+        // add bundle discount if not already assigned
+        $this->addDiscount($bundleLineItem, $bundle, $context);
+    }
+}
+```
+
+In this loop you enrich the bundle with three different information:
+* `enrichBundle` Here you enrich the bundle line item itself with information (label, quantity, delivery, etc.).
+* `addMissingProducts` Here you add the missing products of the bundle, as a child line item.
+* `addDiscount` Lastly the discount item is added to the bundle, again as a child line item.
+
+Those method names are freely chosen and implemented to structure the code a little bit better.
+
+The `swagbundle` line item is the "parent" line item in this plugin, and all assigned products and the discount itself
+are added as child items. This will be important when it comes to the price calculation, since the bundle's price is just
+a sum of all child prices.
+
+Let's first have a look at the `enrichBundle` function:
+
+```php
+private function enrichBundle(LineItem $bundleLineItem, BundleEntity $bundle): void
+{
+    if (!$bundleLineItem->getLabel()) {
+        $bundleLineItem->setLabel($bundle->getName());
+    }
+
+    $bundleLineItem->setRemovable(true)
+        ->setStackable(true)
+        ->setDeliveryInformation(
+            new DeliveryInformation(
+                (int)$bundle->getProducts()->first()->getStock(),
+                (float)$bundle->getProducts()->first()->getWeight(),
+                $bundle->getProducts()->first()->getDeliveryDate(),
+                $bundle->getProducts()->first()->getRestockDeliveryDate(),
+                $bundle->getProducts()->first()->getShippingFree()
+            )
+        )
+        ->setQuantityInformation(new QuantityInformation());
+}
+```
+
+The following information is now added to the bundle itself:
+* `$bundleLineItem->setLabel(...)` The label for the bundle is set
+* `$bundleLineItem->setRemovable(true)` Using `setRemovable`, you define that the customer can remove the bundle from the cart by himself
+* `$bundleLineItem->setStackable(true)` By marking it as `stackable`, you define that the customer may change the quantity in the cart.
+* `$bundleLineItem->setDeliveryInformation(...)` Here you set the information for distribution into a delivery. For the sake of simplicity, the information of the first product is simply used here.
+* `$bundleLineIten->setQuantityInformation()` You can use the `Shopware\Core\Checkout\Cart\LineItem\QuantityInformation` to define minimum and maximum orders.
+
+Now that you have added all the information to the bundle line item, the bundle's products must be added to the bundle using the `addMissingProducts` method:
+```php
+private function addMissingProducts(LineItem $bundleLineItem, BundleEntity $bundle): void
+{
+    foreach ($bundle->getProducts()->getIds() as $productId) {
+        // if the bundleLineItem already contains the product we can skip it
+        if ($bundleLineItem->getChildren()->has($productId)) {
+            continue;
+        }
+
+        // the ProductCartProcessor will enrich the product further
+        $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId);
+
+        $bundleLineItem->addChild($productLineItem);
+    }
+}
+```
+
+In order to add the products now, you iterate over all products of the `BundleEntity $bundle` and check if it is a child already.
+
+```php
+foreach ($bundle->getProducts()->getIds() as $productId) {
+    // if the bundleLineItem already contains the product we can skip it
+    if ($bundleLineItem->getChildren()->has($productId)) {
+        continue;
+    }
+
+    // ...
+}
+``` 
+
+If the product was not added as a child yet, you can simply add a new `LineItem` with the type `\Shopware\Core\Checkout\Cart\LineItem\LineItem::PRODUCT_LINE_ITEM_TYPE`.
+
+```php
+private function addMissingProducts(LineItem $bundleLineItem, BundleEntity $bundle): void
+{
+    foreach ($bundle->getProducts()->getIds() as $productId) {
+        // ...
+
+        // the ProductCartProcessor will enrich the product further
+        $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId);
+
+        $bundleLineItem->addChild($productLineItem);
+    }
+}
+```
+
+This is now the place where the differentiation between `processor` and `collector` comes to bear. 
+
+If you register your `CartDataCollectorInterface` **before** the core `ProductCartProcessor`, the core will take care
+that the `LineItem` of type `LineItem::PRODUCT_LINE_ITEM_TYPE`, added by you, is enriched with the required information.
+You don't have to take care of all the product information like: price, label, cover, delivery information, quantity information.
+The `ProductCartProcessor` does the work for you, just make sure your plugin's processor runs prior to it.
+Now that the line item has been enriched with the bundle information and will receive the product information later, the discount has to be added. This happens in the method `addDiscount`:
+
+```php
+private function addDiscount(LineItem $bundleLineItem, BundleEntity $bundle, SalesChannelContext $context): void
+{
+    if ($this->getDiscount($bundleLineItem)) {
+        return;
+    }
+
+    $discount = $this->createDiscount($bundle, $context);
+
+    if ($discount) {
+        $bundleLineItem->addChild($discount);
+    }
+}
+
+private function getDiscount(LineItem $bundle): ?LineItem
+{
+    return $bundle->getChildren()->get($bundle->getReferencedId() . '-discount');
+}
+```
+
+Here we first check via `getDiscount` if the discount is already a child of the bundle.
+If the discount has not yet been added, it is created using the `createDiscount` method:
+
+```php
+private function createDiscount(BundleEntity $bundleData, SalesChannelContext $context): ?LineItem
+{
+    // The bundle has no discount, no need to add anything then
+    if ($bundleData->getDiscount() === 0) {
+        return null;
+    }
+
+    switch ($bundleData->getDiscountType()) {
+        case self::DISCOUNT_TYPE_ABSOLUTE:
+            $priceDefinition = new AbsolutePriceDefinition(
+                $bundleData->getDiscount() * -1, 
+                $context->getContext()->getCurrencyPrecision()
+            );
+
+            $label = 'Absolute bundle voucher';
+            break;
+
+        case self::DISCOUNT_TYPE_PERCENTAGE:
+            $priceDefinition = new PercentagePriceDefinition(
+                $bundleData->getDiscount() * -1, 
+                $context->getContext()->getCurrencyPrecision()
+            );
+
+            $label = sprintf('Percental bundle voucher (%s%%)', $bundleData->getDiscount());
+            break;
+
+        default:
+            throw new \RuntimeException('Invalid discount type.');
+    }
+
+    $discount = new LineItem(
+        $bundleData->getId() . '-discount',
+        self::DISCOUNT_TYPE,
+        $bundleData->getId()
+    );
+
+    $discount
+        ->setPriceDefinition($priceDefinition)
+        ->setLabel($label)
+        ->setGood(false);
+
+    return $discount;
+}
+```
+
+In this method you have to distinguish whether your bundle discount is a percentage or an absolute discount.
+```php
+
+switch ($bundleData->getDiscountType()) {
+    case self::DISCOUNT_TYPE_ABSOLUTE:
+        // ...
+    case self::DISCOUNT_TYPE_PERCENTAGE:
+        // ...
+    default:
+        throw new \RuntimeException('Invalid discount type.');
+}
+```
+
+Depending on the type of discount, either a `\Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition` or `\Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition` is generated.
+Then a new line item is created for the discount and provided with the corresponding information, using the methods `setPriceDefinition`, `setLabel` and `setGood`:
+
+```php
+$discount = new LineItem(
+    $bundleData->getId() . '-discount',
+    self::DISCOUNT_TYPE,
+    $bundleData->getId()
+);
+
+$discount->setPriceDefinition($priceDefinition)
+    ->setLabel($label)
+    ->setGood(false);
+
+return $discount;
+```
+
+For those of you wondering about the method `setGood`:
+The method `setGood` marks a line item as a `good` if it's set to `true`. This is necessary for properly filtering the line items
+for e.g. a rule of the rule system.
+Imagine a rule "Cart discount", which applies a 10€ discount if the cart's sum is more than 100.
+Now imagine you'd have a cart sum of 102€, the discount would be applied and substract 10€.
+In a next iteration, the rule's validity would be checked again and the rule system would notice, that the discount is no longer valid,
+since the cart's sum is only 92€. The discount would be removed, which raises the sum to 102€ again.
+This way, the discount would be added, only to then invalidate it's own rule.
+The solution is to only consider goods for this calculation.
+And no, you can't use `LineItem::PRODUCT_LINE_ITEM_TYPE` for this, since there might be custom line item types, which are to be considered
+a good as well. Such as the bundle itself.
+
+Now all bundle line items are enriched with all necessary information and can be processed afterwards in the `process`.
+
+### Implementing the `process`
+
+Implementing the `\Shopware\Core\Checkout\Cart\CartProcessorInterface` requires to implement the `process` function.
+
+In this method, it is your task to calculate the prices of the bundle and move the bundle from the previous cart to a new cart.
+But what does that even mean? The `process` method receives to instances of an cart.
+The first one `Cart $original` contains all the original information, such as your bundle line item and all its children.
+The second instance, `Cart $toCalculate`, is actually an empty cart instance, only containing line items that were added from previous **processors**, not collectors, already. It is the one, which will be used when all the calculating is done.
+This prevents line items from sneaking through the cart process that were not considered by any processor and thus will be automatically dropped.
+
+Of course, this also means, that you have to add your bundle line item to the `$toCalculate` cart again.
+
+As before, this is the entire source code for implementing the `CartProcessorInterface` in your bundle plugin and will be explained in more detail below.
+```php
+<?php declare(strict_types=1);
+
+namespace Swag\BundleExample\Core\Checkout\Bundle\Cart;
+
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
+use Shopware\Core\Checkout\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+class BundleCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
+{
+    // ...
+
+    /**
+     * @var PercentagePriceCalculator
+     */
+    private $percentagePriceCalculator;
+
+    /**
+     * @var AbsolutePriceCalculator
+     */
+    private $absolutePriceCalculator;
+    
+    /**
+     * @var QuantityPriceCalculator
+     */
+    private $quantityPriceCalculator;
+
+    public function __construct(
+        EntityRepositoryInterface $bundleRepository,
+        PercentagePriceCalculator $percentagePriceCalculator,
+        AbsolutePriceCalculator $absolutePriceCalculator,
+        QuantityPriceCalculator $quantityPriceCalculator
+    )
+    {
+        $this->percentagePriceCalculator = $percentagePriceCalculator;
+        $this->absolutePriceCalculator = $absolutePriceCalculator;
+        $this->quantityPriceCalculator = $quantityPriceCalculator;
+    }
+
+    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
+    {
+        // ...
+    }
+
+    public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
+    {
+        // collect all bundle in cart
+        $bundleLineItems = $original->getLineItems()
+            ->filterType(self::TYPE);
+
+        if (\count($bundleLineItems) === 0) {
+            return;
+        }
+
+        foreach ($bundleLineItems as $bundleLineItem) {
+            // first calculate all bundle product prices
+            $this->calculateChildProductPrices($bundleLineItem, $context);
+
+            // after the product prices calculated, we can calculate the discount
+            $this->calculateDiscountPrice($bundleLineItem, $context);
+
+            // at last we have to set the total price for the root line item (the bundle)
+            $bundleLineItem->setPrice(
+                $bundleLineItem->getChildren()->getPrices()->sum()
+            );
+
+            // afterwards we can move the bundle to the new cart
+            $toCalculate->add($bundleLineItem);
+        }
+    }
+
+    private function getDiscount(LineItem $bundle): ?LineItem
+    {
+        return $bundle->getChildren()->get($bundle->getReferencedId() . '-discount');
+    }
+
+    private function calculateChildProductPrices(LineItem $bundleLineItem, SalesChannelContext $context): void
+    {
+        $products = $bundleLineItem->getChildren()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        foreach ($products as $product) {
+            /** @var QuantityPriceDefinition $priceDefinition */
+            $priceDefinition = $product->getPriceDefinition();
+
+            $product->setPrice(
+                $this->quantityPriceCalculator->calculate($priceDefinition, $context)
+            );
+        }
+    }
+
+    private function calculateDiscountPrice(LineItem $bundleLineItem, SalesChannelContext $context): void
+    {
+        $discount = $this->getDiscount($bundleLineItem);
+
+        if (!$discount) {
+            return;
+        }
+
+        $childPrices = $bundleLineItem->getChildren()
+            ->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE)
+            ->getPrices();
+
+        $priceDefinition = $discount->getPriceDefinition();
+
+        if (!$priceDefinition) {
+            return;
+        }
+
+        switch (\get_class($priceDefinition)) {
+            case AbsolutePriceDefinition::class:
+                $price = $this->absolutePriceCalculator->calculate(
+                    $priceDefinition->getPrice(),
+                    $childPrices,
+                    $context,
+                    $bundleLineItem->getQuantity()
+                );
+                break;
+
+            case PercentagePriceDefinition::class:
+                $price = $this->percentagePriceCalculator->calculate(
+                    $priceDefinition->getPercentage(),
+                    $childPrices,
+                    $context
+                );
+                break;
+
+            default:
+                throw new \RuntimeException('Invalid discount type.');
+        }
+
+        $discount->setPrice($price);
+    }
+}
+```
+
+First look at the method signature of the `process` function:
+
+```php
+public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
+```
+The following data is transferred here:
+
+* `CartDataCollection $data` - This is the data collection you have enriched with data previously in the `collect` method.
+* `Cart $original` - This is the basket containing the bundle line items you have enriched. This cart will be destroyed after the calculation process. 
+* `Cart $toCalculate` - This cart is to be regarded as workspace. It contains all already calculated elements, which were calculated by processors running before your processor. 
+* `SalesChannelContext $context` - The known SalesChannelContext where the current global state is located (currency, language, sales channel, customer, etc.) 
+* `CartBehavior $behavior` - The `\Shopware\Core\Checkout\Cart\CartBehavior` contains further parameters for the cart. For example, it indicates whether it is a new calculation of an order that has already been placed.
+
+Now it is your task to calculate your bundle line items from the `Cart $original` and add them to the new `Cart $toCalculate` cart so that they remain in the cart.
+First of all you have to filter the bundle line items out of the cart again:
+
+```php
+
+// collect all bundles of the cart
+$bundleLineItems = $original->getLineItems()->filterType(self::TYPE);
+```
+
+If there are no bundles in your cart, you can exit the method early.
+```php
+if (\count($bundleLineItems) === 0) {
+    return;
+}
+```
+
+Next you iterate the line items to calculate them and add them to the new cart:
+```php
+foreach ($bundleLineItems as $bundleLineItem) {
+    // ...
+
+    // afterwards we can move the bundle to the new cart
+    $toCalculate->add($bundleLineItem);
+}
+```
+
+In order to calculate the bundle completely, the following calculations must take place:
+1st: The products of the bundle must be calculated (`calculateChildProductPrices`)
+2nd: Then the discount of the bundle can be calculated (`calculateDiscountPrice`)
+3rd: Last the total price of the bundle must be given to the bundle line item (`$bundleLineItem->setPrice(...)`)
+
+```php
+foreach ($bundleLineItems as $bundleLineItem) {
+    // first calculate all bundle product prices
+    $this->calculateChildProductPrices($bundleLineItem, $context);
+
+    // after the product prices are calculated, we can calculate the discount
+    $this->calculateDiscountPrice($bundleLineItem, $context);
+
+    // at last we have to set the total price for the root line item (the bundle)
+    $bundleLineItem->setPrice(
+        $bundleLineItem->getChildren()->getPrices()->sum()
+    );
+
+    // afterwards we can move the bundle to the new cart
+    $toCalculate->add($bundleLineItem);
+}
+```
+
+First have a look at how the products of the bundle are calculated:
+
+```php
+private function calculateChildProductPrices(LineItem $bundleLineItem, SalesChannelContext $context): void
+{
+    $products = $bundleLineItem->getChildren()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+    foreach ($products as $product) {
+        /** @var QuantityPriceDefinition $priceDefinition */
+        $priceDefinition = $product->getPriceDefinition();
+
+        $product->setPrice(
+            $this->quantityPriceCalculator->calculate($priceDefinition, $context)
+        );
+    }
+}
+```
+
+First, you filter the children of the bundle line item to the type `LineItem::PRODUCT_LINE_ITEM_TYPE`.
+Since these line items were enriched with data by the `ProductCartProcessor` already, you can now use `getPriceDefinition()` to access the price definition of the product.
+
+The return value now contains a `\Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition`, which can be easily calculated using the corresponding `\Shopware\Core\Checkout\Cart\Cart\Price\QuantityPriceCalculator`.
+```
+$this->quantityPriceCalculator->calculate($priceDefinition, $context)
+```
+
+Now that the products have been calculated, you can calculate the discount's value using the `calculateDiscountPrice()` method.
+
+```php
+private function calculateDiscountPrice(LineItem $bundleLineItem, SalesChannelContext $context): void
+{
+    $discount = $this->getDiscount($bundleLineItem);
+
+    if (!$discount) {
+        return;
+    }
+
+    $childPrices = $bundleLineItem->getChildren()
+        ->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE)
+        ->getPrices();
+
+    $priceDefinition = $discount->getPriceDefinition();
+
+    if (!$priceDefinition) {
+        return;
+    }
+
+    switch (\get_class($priceDefinition)) {
+        case AbsolutePriceDefinition::class:
+            $price = $this->absolutePriceCalculator->calculate(
+                $priceDefinition->getPrice(),
+                $childPrices,
+                $context,
+                $bundleLineItem->getQuantity()
+            );
+            break;
+
+        case PercentagePriceDefinition::class:
+            $price = $this->percentagePriceCalculator->calculate(
+                $priceDefinition->getPercentage(),
+                $childPrices,
+                $context
+            );
+            break;
+
+        default:
+            throw new \RuntimeException('Invalid discount type.');
+    }
+
+    $discount->setPrice($price);
+}
+```
+
+Since a discount is a price which is calculated on the basis of other prices, the taxes of such a discount must also be calculated proportionately.
+If you do not want to do this yourself, you can simply use one of the two calculators from the core:
+* `\Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator` Calculates prices based on a percentage value relative to the discounting prices.
+* `\Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator` Calculates prices based on an absolute price relative to the discounting prices.
+
+However, in order to calculate the taxes proportionately, both calculators need to have a `\Shopware\Core\Framework\Pricing\PriceCollection` in which the prices to be discounted are located.
+In your case it is the prices of the products that are in the bundle line item stored as children. 
+You can easily extract them by first filtering on the product type and then calling `getPrices()`:
+
+```php
+$childPrices = $bundleLineItem->getChildren()
+    ->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE)
+    ->getPrices();
+```
+
+The corresponding calculator is then called depending on the discount type (absolute or percentage):
+
+```php
+switch (\get_class($priceDefinition)) {
+    case AbsolutePriceDefinition::class:
+        $price = $this->absolutePriceCalculator->calculate(
+            $priceDefinition->getPrice(),
+            $childPrices,
+            $context,
+            $bundleLineItem->getQuantity()
+        );
+        break;
+
+    case PercentagePriceDefinition::class:
+        $price = $this->percentagePriceCalculator->calculate(
+            $priceDefinition->getPercentage(),
+            $childPrices,
+            $context
+        );
+        break;
+
+    default:
+        throw new \RuntimeException('Invalid discount type.');
+}
+
+$discount->setPrice($price);
+```
+
+If it is a `PercentagePriceDefinition`, you call the `PercentagePriceCalculator`:
+```php
+$price = $this->percentagePriceCalculator->calculate(
+    $priceDefinition->getPercentage(), 
+    $childPrices, 
+    $context
+);
+```
+
+If it is a `AbsolutePriceDefinition`, you call the `AbsolutePriceCalculator`.
+This even allows you to pass a `quantity` as a fourth parameter to define how often this discount should be fended off. 
+```php
+$price = $this->absolutePriceCalculator->calculate(
+    $priceDefinition->getPrice(),
+    $childPrices,
+    $context,
+    $bundleLineItem->getQuantity()
+);
+```
+
+Now that all product prices and the discount have been calculated, you only have to calculate the total price of the bundle and then transfer the bundle to the new shopping cart.
+The bundle's price is just a sum of all of it's children.
+```php
+public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
+{
+    // ... 
+    foreach ($bundleLineItems as $bundleLineItem) {
+        // ... 
+
+        // at last we have to set the total price for the root line item (the bundle)
+        $bundleLineItem->setPrice(
+            $bundleLineItem->getChildren()->getPrices()->sum()
+        );
+
+        // afterwards we can move the bundle to the new cart
+        $toCalculate->add($bundleLineItem);
+    }
+}
+```
+
+## Registering your processor
+
+That's a lot of theory and a lot of code - but you didn't register your new processor yet.
+Let's quickly add them in the `services.xml` again:
 ```xml
 <?xml version="1.0" ?>
 
@@ -212,449 +921,22 @@ Talking about the DI container, good time to even define your collector in the `
     
     <services>
         ...
-        
-        <service id="Swag\BundleExample\Core\Checkout\Bundle\Cart\BundleCollector">
+
+        <service id="Swag\BundleExample\Core\Checkout\Bundle\Cart\BundleCartProcessor">
             <argument type="service" id="swag_bundle.repository"/>
-            <tag name="shopware.cart.collector"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+
+            <!-- inject before product processor (5000) -->
+            <tag name="shopware.cart.processor" priority="6000" />
+            <tag name="shopware.cart.processor" priority="6000" />
         </service>
     </services>
 </container>
 ```
 
-Now you can use the `search` method on the repository to find the bundles by their IDs, which are inside of the `FetchDefinitions`.
-The `search` method asks for a `Criteria` object, which in return takes the IDs as a constructor parameter.
-
-In order to properly fetch all IDs, you have to iterate through all available `BundleFetchDefinitions`, even though this will most likely only be a single one,
-you can never guarantee this.
-Just iterate through the fetch definitions, create a flat unique array containg all the bundle IDs and apply them to a `Criteria` object, which will then be used
-for the `search` method of the bundle's repository. 
-
-```php
-public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
-{
-    $bundleDefinitions = $fetchDefinitions->filterInstance(BundleFetchDefinition::class);
-
-    if ($bundleDefinitions->count() === 0) {
-        return;
-    }
-
-    $ids = [[]];
-    /** @var BundleFetchDefinition $fetchDefinition */
-    foreach ($bundleDefinitions as $fetchDefinition) {
-        $ids[] = $fetchDefinition->getIds();
-    }
-
-    // Create a flattened array of unique IDs
-    $ids = array_unique(array_merge(...$ids));
-
-    $criteria = new Criteria($ids);
-    $bundles = $this->bundleRepository->search($criteria, $context->getContext())->getEntities();
-}
-```
-
-The variable `$bundles` now contains your `BundleCollection` you've created way earlier in this tutorial.
-
-So, you've collected the bundle data for all the bundle's being used in the current cart.
-
-Let's have a bit of theory on what to do next.
-The cart in Shopware 6 supports nested line items, which means, that a line item can contain multiple other line items as "childs".
-This sounds perfect for a bundle: Have a parent line item as the "bundle" item, and its childrens being all the products that are part of this bundle.
-As of now, there's only a single line item in the cart, so you have to take of adding child line item for each product assigned to the bundle.
-This also means, that you need the `products` association on the bundles again, so add this to the `Criteria` object now.
-
-```php
-$criteria = new Criteria($ids);
-$criteria->addAssociation('products');
-$bundles = $this->bundleRepository->search($criteria, $context->getContext())->getEntities();
-```
-
-In short, these are the steps you need to do now:
-- Iterate through all bundles currently being used in the cart
-- Fetch the instance of the bundle `LineItem` in the cart, so you can add child line items to it
-- Iterate through all products of a bundle and for each product, create a new line item of the type 'product' and add it to the main bundle line item
-
-This is where a big advantage of the enrichment process takes place: 
-You can make sure to have your `collect` method being executed **before** the `ProductCollector`.
-This way, you can add another `ProductFetchDefinition` at the end of your `collect` method, which will then be considered by the `ProductCollector`'s `collect´ method.
-You need to do this, so the products inside your bundle's line item will be enriched in the process as well.
-
-In order to have your collector executed earlier in the process, add a `priority` to your service's tag.
-```xml
-<service id="Swag\BundleExample\Core\Checkout\Bundle\Cart\BundleCollector">
-    <argument type="service" id="swag_bundle.repository"/>
-    <tag name="shopware.cart.collector" priority="1000"/>
-</service>
-```
-The higher the priority, the earlier this tagged service will be considered.
-
-The `ProductFetchDefinition` will also need an array of all IDs of the products being used in the cart, so make sure to collect those IDs while iterating
-through the products for your bundle.
-
-Enough text, here's some example code:
-```php
-public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
-{
-    ...
-    $bundles = $this->bundleRepository->search($criteria, $context->getContext())->getEntities();
-    $productIds = [[]];
-    /** @var BundleEntity $bundle */
-    foreach ($bundles as $bundle) {
-        $productIds[] = $bundle->getProducts()->getIds();
-    
-        $bundleLineItem = $cart->get($bundle->getId());
-    
-        if (!$bundleLineItem) {
-            continue;
-        }
-    
-        // Add line items BEFORE collect and enrich of the product entity
-        foreach ($bundle->getProducts()->getIds() as $productId) {
-            if ($bundleLineItem->getChildren()->has($productId)) {
-                continue;
-            }
-            $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId);
-            $productLineItem->setPayload(['id' => $productId]);
-            $bundleLineItem->addChild($productLineItem);
-        }
-    
-        $bundleLineItem->setRemovable(true)->setStackable(true);
-    }
-    
-    // Flatten array
-    $productIds = array_merge(...$productIds);
-}
-```
-
-So, you're iterating through each bundle. While doing that, you're immediately collecting all available product IDs to be applied to the `ProductFetchDefinition` later on.
-Then, you fetch the actual instance of the bundle line item by using the `get` method on the cart struct. If there's no bundle line item with this ID, do nothing.
-Afterwards you iterate through all products of a bundle, so you can create a new line item of type 'product' and add it as a child to the bundle line item.
-
-Two more things are added here already:
-1st: The condition if the current bundle line item already knows a child. There's no need to add a product line item as a child twice to a bundle, if it was added previously already.
-This is due to the whole enrichment process being executed each time the cart is updated. The child line item is added in the moment you add the bundle from the detail page.
-If you add another product to the cart now, the whole process is executed again. Without the condition, your bundle line item would receive more and more child line items each time the cart is updated.
-
-2nd: The product line items work by providing an ID as a payload. You can't rely on the line item's ID here, since this could be anything at this point, not just
-a product or a product's ID. Just like in this example, the bundle ID is used for the line item's ID. You can also add a line item without providing any given ID, so it is
-automatically generated. Thus, the payload is the only reliable source to provide an actual ID of the product entity.
-*Note: Yes, your `BundeCollector` does rely on the line item ID to fetch a bundle here. This is due to the fact, that you will most likely be the only one
-to add a bundle line item to the cart and you made sure to set the ID in your template. If you're unsure about this, go ahead and work with the payload as well.
-Make sure to also set this payload in your `prepare` method then.*
-
-Also, you're defining your bundle line item as "stackable" as well as "removable". If a customer puts your bundle into the cart twice, it will have a quantity of 2.
-
-Two more lines of code are still necessary here.
-First of all, you need to apply the `$productIds` to a new `ProductFetchDefinition`, so the `ProductCollector` will take care of collecting the data for your 
-bundle's child item.
-This `FetchDefinition` then has to be added to the `StructCollection` again.
-The last thing to do in your `collect` method is to make sure your collected bundle data can be used in the `enrich` method.
-For this purpose, there's the second parameter of the `prepare` method, another `StructCollection` called `$data`. This one will be available in the `enrich` method,
-so add your bundle data to this collection.
-
-This time though, don't add it to the collection using the `add` method, but the `set` method with a given key instead.
-But why's that different from how you added `BundleFetchDefinition` to the other `StructCollection` in the `prepare` method?
-
-If some third-party plugin adds bundles to the cart themselves, they can do so by simply providing a `BundleFetchDefinition` themselves and from there on,
-your `BundleCollector` will automatically take care of the rest. 
-When it comes to the next step though, you do not want the collected bundle data to be manipulated or used by some third party collector.
-This data is **only** collected for your collectors `enrich` method to be used and for no one else. Thus, you're adding this data using a unique key, that's not exposed publicly.
-Of course, someone could still use this key by looking into your code and using the same key in their custom collector, but then they messed up on intention.
-
-This is how your full `collect` method should look like now:
-```php
-public function collect(StructCollection $fetchDefinitions, StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
-{
-    $bundleDefinitions = $fetchDefinitions->filterInstance(BundleFetchDefinition::class);
-
-    if ($bundleDefinitions->count() === 0) {
-        return;
-    }
-
-    $ids = [[]];
-    /** @var BundleFetchDefinition $fetchDefinition */
-    foreach ($bundleDefinitions as $fetchDefinition) {
-        $ids[] = $fetchDefinition->getIds();
-    }
-
-    $ids = array_unique(array_merge(...$ids));
-
-    $criteria = new Criteria($ids);
-    $criteria->addAssociation('products');
-    $bundles = $this->bundleRepository->search($criteria, $context->getContext())->getEntities();
-
-    $productIds = [[]];
-    /** @var BundleEntity $bundle */
-    foreach ($bundles as $bundle) {
-        $productIds[] = $bundle->getProducts()->getIds();
-
-        $bundleLineItem = $cart->get($bundle->getId());
-
-        if (!$bundleLineItem) {
-            continue;
-        }
-
-        // Add line items BEFORE collect and enrich of the product entity
-        foreach ($bundle->getProducts()->getIds() as $productId) {
-            if ($bundleLineItem->getChildren()->has($productId)) {
-                continue;
-            }
-            $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId);
-            $productLineItem->setPayload(['id' => $productId]);
-            $bundleLineItem->addChild($productLineItem);
-        }
-
-        $bundleLineItem->setRemovable(true)->setStackable(true);
-    }
-
-    $productIds = array_merge(...$productIds);
-
-    $fetchDefinitions->add(new ProductFetchDefinition($productIds));
-    $data->set(self::DATA_KEY, $bundles);
-}
-```
-
-The constant `DATA_KEY` is a private constant, which only contains the string `swag_bundles`.
-
-### Enriching the bundle
-
-You've collected all the necessary bundle data for the cart, it's time to start actually providing a price for your bundle using this data.
-As mentioned already, the first parameter of the `enrich` method will be the `StructCollection` again, also containing your bundle data.
-Fetch it using the previously defined constant `DATA_KEY` and the method `get`.
-
-```php
-public function enrich(StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
-{
-    if (!$data->has(self::DATA_KEY)) {
-        return;
-    }
-
-    /** @var BundleCollection $bundles */
-    $bundles = $data->get(self::DATA_KEY);
-}
-```
-*Note: At this moment, the product line items, who are childs of your bundle, have been enriched already. Thus, you know all their data, including the price. 
-If you didn't make sure your collector gets executed before the `ProductCollector` is processed, you'd have no clue about the prices here.*
-
-So, what to do with this data now?
-Iterate through all bundle line items in the cart again, find their corresponding bundle entry in the `BundleCollection` and start enriching the 
-bundle line item. This means setting the bundle line item's label by using the bundle's name, as well as providing a price for your bundle.
-A parent line item inherits its price from the children, so you need to add another child line item, which represents the actual discount to be applied.
-
-Let's go through this, starting with iterating through all bundle line items in the cart.
-```php
-public function enrich(StructCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
-{
-    ...
-
-    $bundleLineItems = $cart->getLineItems()->filterType(self::TYPE);
-    if (\count($bundleLineItems) === 0) {
-        return;
-    }
-
-    /** @var LineItem $bundleLineItem */
-    foreach ($bundleLineItems as $bundleLineItem) {
-    }
-}
-```
-
-Finding the corresponding `BundleEntity` for the current bundle line item.
-```php
-foreach ($bundleLineItems as $bundleLineItem) {
-    $id = $bundleLineItem->getId();
-
-    $bundle = $bundles->get($id);
-
-    if (!$bundle) {
-        continue;
-    }
-}
-```
-
-If there's no `BundleEntity` for the current bundle line item, something went wrong. For stability reasons, do not kill the whole cart process here, just do nothing.
-
-Now start enriching the bundle line item by adding a label to the line item.
-```php
-foreach ($bundleLineItems as $bundleLineItem) {
-    $id = $bundleLineItem->getId();
-
-    $bundle = $bundles->get($id);
-
-    if (!$bundle) {
-        continue;
-    }
-    
-    if (!$bundleLineItem->getLabel()) {
-        $bundleLineItem->setLabel($bundle->getName());
-    }
-}
-```
-
-Once again, this is not necessary if this bundle line item was processed once already.
-
-Now add a new discount as a child item.
-```php
-...
-if (!$bundleLineItem->getLabel()) {
-    $bundleLineItem->setLabel($bundle->getName());
-}
-$bundleLineItem->getChildren()->add($this->calculateBundleDiscount($bundleLineItem, $bundle, $context));
-```
-
-You might have figured, that you need to create the method `calculateBundleDiscount` now and you eventually figured, that it has to
-return an instance of an line item.
-It will need the current bundle line item, to figure out the quantity of the bundle. If there's two bundles in the cart, the discount has to
-double as well, right?
-The `BundleEntity` is also applied, because it contains the mainly necessary discount data, such as the `discountType` and the actual value of the discount.
-The last parameter is the context, which contains the currency precision, that you'll also need.
-
-```php
-private function calculateBundleDiscount(LineItem $bundleLineItem, BundleEntity $bundleData, SalesChannelContext $context): ?LineItem
-{
-    
-}
-```
-
-Start of with checking if the bundle was configured properly. What if the bundle has a discount value of "0"? No need to add any discount then, right?
-```php
-private function calculateBundleDiscount(LineItem $bundleLineItem, BundleEntity $bundleData, SalesChannelContext $context): ?LineItem
-{
-    if ($bundleData->getDiscount() === 0.0) {
-        return null;
-    }
-}
-```
-
-For this reason, the return type of the method `calculateBundleDiscount` is also noted as nullable.
-
-So, how do you apply a discount now?
-A discount is also a `LineItem`, but it has to come with a custom `PriceDefinition`, hence the method `setPriceDefinition` on an line item.
-Available `PriceDefinitions` in Shopware 6 are `AbsolutePriceDefinition` as well as `PercentagePriceDefinition` - perfect!
-
-Depending on the `discountType` of the bundle, you can create or the other. Both of them require the same parameters.
-The first one being the actual discount value, the second one being the previously mentioned 'currency precision', which you can find in the provided context.
-Depending on the type, you might want to set a custom label of the discount line item, but you could also go for a more general label, such as "Bundle discount". 
-In this example, there will be a separate label for each case.
-
-So, now go ahead and create a new respective `PriceDefinition` depending on the bundle entities' `discountType`:
-```php
-switch ($bundleData->getDiscountType()) {
-    case self::DISCOUNT_TYPE_ABSOLUTE:
-        $price = new AbsolutePriceDefinition($bundleData->getDiscount() * -1, $context->getContext()->getCurrencyPrecision());
-        $label = 'Absolute bundle voucher';
-        break;
-    
-    case self::DISCOUNT_TYPE_PERCENTAGE:
-        $price = new PercentagePriceDefinition($bundleData->getDiscount() * -1, $context->getContext()->getCurrencyPrecision());
-        $label = sprintf('Percental bundle voucher (%s%%)', $bundleData->getDiscount());
-        break;
-}
-```
-
-You're checking for the type and depending on that, you create one of the two mentioned price definitions. This done using another few constants, just add them like this:
-```php
-class BundleCollector implements CollectorInterface
-{
-    public const TYPE = 'swagbundle';
-    public const DISCOUNT_TYPE_ABSOLUTE = 'absolute';
-    public const DISCOUNT_TYPE_PERCENTAGE = 'percentage';
-    private const DATA_KEY = 'swag_bundles';
-    
-    ...
-}
-```
-
-Now simply create a new line item for the discount, use the `setPriceDefinition` method to apply the previously created price definition, and apply the label to the line item.
-Also add the quantity from the original bundle line item, so the discount actually scales with the quantity.
-
-Afterwards, return the line item, so it's added as a child line item to the bundle.
-Actually calculating the price is then done by Shopware 6 again.
-
-This is how your full `calculateBundleDiscount` method should look like:
-```php
-private function calculateBundleDiscount(LineItem $bundleLineItem, BundleEntity $bundleData, SalesChannelContext $context): ?LineItem
-{
-    if ($bundleData->getDiscount() === 0.0) {
-        return null;
-    }
-
-    $price = null;
-    $label = '';
-    switch ($bundleData->getDiscountType()) {
-        case self::DISCOUNT_TYPE_ABSOLUTE:
-            $price = new AbsolutePriceDefinition($bundleData->getDiscount() * -1, $context->getContext()->getCurrencyPrecision());
-            $label = 'Absolute bundle voucher';
-            break;
-
-        case self::DISCOUNT_TYPE_PERCENTAGE:
-            $price = new PercentagePriceDefinition($bundleData->getDiscount() * -1, $context->getContext()->getCurrencyPrecision());
-            $label = sprintf('Percental bundle voucher (%s%%)', $bundleData->getDiscount());
-            break;
-    }
-
-    $discount = new LineItem(
-        $bundleData->getId() . '-discount',
-        self::TYPE . '-discount',
-        $bundleData->getId(),
-        $bundleLineItem->getQuantity()
-    );
-
-    $discount->setPriceDefinition($price)->setLabel($label);
-
-    return $discount;
-}
-```
-
-### Dealing with manual changes to the cart
-
-There's another scenario you need to consider here. A shop manager is able to edit an order afterwards, for example the discount line item of the bundle.
-This would trigger the whole calculation again, and thus, the enrich process. Your code would now collect the bundle's data and reset the
-discount again, completely ignoring the shop managers manual change to that.
-You don't want that to happen. Also, you don't want your discount to be applied twice. Once a discount line item is available, never
-apply another discount item again or change the discount's value.
-
-For this case, you'll have to add another check to the `enrich` process, if the bundle was completely handled already.
-Create a new method `isComplete`, which should return a boolean. To figure out, if a bundle line item is complete,
-you need to pass the respective bundle line item to this method.
-Then you check if the item already has a label and a discount, so it was enriched already.
-
-```php
-private function isComplete(LineItem $lineItem): bool
-{
-    // Has a label
-    return $lineItem->getLabel()
-        // Has children
-        && $lineItem->getChildren() !== null
-        // One children's key consists of the bundle key plus the string 'discount'
-        && $lineItem->getChildren()->get($lineItem->getId() . '-discount')
-        // This discount children actually knows a price definition
-        && $lineItem->getChildren()->get($lineItem->getId() . '-discount')->getPriceDefinition();
-}
-```
-
-And call this method in your `enrich` method right after iterating through the bundle line items.
-
-```php
-/** @var LineItem $bundleLineItem */
-foreach ($bundleLineItems as $bundleLineItem) {
-    if ($this->isComplete($bundleLineItem)) {
-        continue;
-    }
-    ...
-}
-```
-
-
-**But what if the shop manager increased the bundle's discount in the administration right after a customer put the bundle into the cart?
-The discount won't be updated then!**
-
-That's right, the live cart wouldn't be updated. You also need to consider the downside if this was possible:
-The customer puts a bundle with 10% discount into the cart, and right in the moment he proceeds to pay this cart, the shop manager decreased the discount.
-If you'd update your discount now, the customer would be very upset, because he didn't pay for what he last saw.
-
-Yet, Shopware 6 has this covered as well.
-When finish an order, a complete recalculation of the cart is enforced. If there's any difference found to the previous cart, the order will not be created immediately and the cart will be fully recalculated.
-Afterwards, a warning will be printed, that his cart has updated and he should re-check if he's still fine with the cart's contents.
-
-**And that's it! The checkout works now as well. You can put a bundle into the cart and have it calculated properly by Shopware 6!**
+The necessary calculators are injected into your processor. Note the tags though, `shopware.cart.processor` and `shopware.cart.processor`.
+The `priority` defines the order they are executed and as you might remember, your processor has to run before the `ProductCartProcessor`.
 
 Your plugin is almost done, just some last polishing is necessary. Head over to the [next step](./100-final-preparation.md) for the last few changes necessary.

@@ -152,8 +152,8 @@ Cypress.Commands.add('setProductFixtureVisibility', () => {
  * @function
  */
 Cypress.Commands.add('createCustomerFixture', () => {
-    const addressId = uuid();
-    const customerId = uuid();
+    const addressId = uuid().replace(/-/g, '');
+    const customerId = uuid().replace(/-/g, '');
     let customerJson = {};
     let customerAddressJson = {};
     let finalAddressRawData = {};

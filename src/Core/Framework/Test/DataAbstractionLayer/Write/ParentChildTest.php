@@ -57,7 +57,7 @@ class ParentChildTest extends TestCase
         $first = $e->getExceptions()[0];
 
         static::assertInstanceOf(ExpectedArrayException::class, $first);
-        static::assertEquals('/children', $first->getPath());
+        static::assertEquals('/0/children', $first->getPath());
     }
 
     public function testICanWriteChildren(): void

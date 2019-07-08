@@ -217,7 +217,7 @@ class TranslationTest extends TestCase
                     'code' => MissingSystemTranslationException::VIOLATION_MISSING_SYSTEM_TRANSLATION,
                     'status' => '400',
                     'source' => [
-                        'pointer' => '/translations/' . Defaults::LANGUAGE_SYSTEM,
+                        'pointer' => '/0/translations/' . Defaults::LANGUAGE_SYSTEM,
                     ],
                 ],
             ],

@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\ScheduledTask\ScheduledTaskHandler;
 
@@ -19,14 +20,22 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
      */
     private $connection;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         Client $client,
-        Connection $connection
+        Connection $connection,
+        LoggerInterface $logger
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->client = $client;
         $this->connection = $connection;
+        $this->scheduledTaskRepository = $scheduledTaskRepository;
+        $this->logger = $logger;
     }
 
     public static function getHandledMessages(): iterable
@@ -40,6 +49,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
             $this->handleQueue();
         } catch (\Throwable $e) {
             // catch exception - otherwise the task will never be called again
+            $this->logger->critical($e->getMessage());
         }
     }
 

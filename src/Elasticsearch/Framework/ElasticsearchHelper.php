@@ -53,10 +53,16 @@ class ElasticsearchHelper
      */
     private $logger;
 
+    /**
+     * @var string
+     */
+    private $prefix;
+
     public function __construct(
         string $environment,
         bool $searchEnabled,
         bool $indexingEnabled,
+        string $prefix,
         Client $client,
         ElasticsearchRegistry $registry,
         CriteriaParser $parser,
@@ -69,6 +75,7 @@ class ElasticsearchHelper
         $this->indexingEnabled = $indexingEnabled;
         $this->environment = $environment;
         $this->logger = $logger;
+        $this->prefix = $prefix;
     }
 
     public function logOrThrowException(\Throwable $exception): bool
@@ -84,7 +91,7 @@ class ElasticsearchHelper
 
     public function getIndexName(EntityDefinition $definition, string $languageId): string
     {
-        return $definition->getEntityName() . '_' . $languageId;
+        return $this->prefix . '_' . $definition->getEntityName() . '_' . $languageId;
     }
 
     public function allowIndexing(): bool
@@ -202,7 +209,7 @@ class ElasticsearchHelper
             $parsed = $this->parser->parse($query->getQuery(), $definition, $definition->getEntityName(), $context);
 
             if ($parsed instanceof MatchQuery) {
-                $score = (string) ($query->getScore() / 10);
+                $score = (string) $query->getScore();
                 /* @var MatchQuery $parsed */
                 $parsed->addParameter('boost', $score);
                 $parsed->addParameter('fuzziness', '2');

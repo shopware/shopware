@@ -50,6 +50,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
                 'type' => $definition->getEntityName(),
+                'track_total_hits' => true,
                 'body' => $search->toArray(),
             ]);
         } catch (\Throwable $e) {

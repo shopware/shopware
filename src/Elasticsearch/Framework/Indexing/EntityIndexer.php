@@ -69,6 +69,11 @@ class EntityIndexer implements IndexerInterface
      */
     private $helper;
 
+    /**
+     * @var array
+     */
+    private $config;
+
     public function __construct(
         ElasticsearchRegistry $esRegistry,
         Client $client,
@@ -77,7 +82,8 @@ class EntityIndexer implements IndexerInterface
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $languageRepository,
         MessageBusInterface $messageBus,
-        Connection $connection
+        Connection $connection,
+        array $config
     ) {
         $this->registry = $esRegistry;
         $this->client = $client;
@@ -87,6 +93,7 @@ class EntityIndexer implements IndexerInterface
         $this->messageBus = $messageBus;
         $this->connection = $connection;
         $this->helper = $helper;
+        $this->config = $config;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -198,14 +205,7 @@ class EntityIndexer implements IndexerInterface
 
         $this->client->indices()->create([
             'index' => $index,
-            'body' => [
-                'settings' => [
-                    'number_of_shards' => 3,
-                    'number_of_replicas' => 2,
-                    'mapping.total_fields.limit' => 5000,
-                    'mapping.nested_fields.limit' => 500,
-                ],
-            ],
+            'body' => $this->config,
         ]);
 
         $mapping = $definition->getMapping($context);

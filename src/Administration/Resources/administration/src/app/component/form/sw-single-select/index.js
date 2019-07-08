@@ -71,7 +71,6 @@ export default {
             isExpanded: false,
             activeResultPosition: 1,
             isLoading: false,
-            hasError: false,
             singleSelection: null,
             currentOptions: []
         };
@@ -80,15 +79,21 @@ export default {
     computed: {
         selectClasses() {
             return {
-                'has--error': !this.isValid || this.hasError,
+                'has--error': this.hasError,
                 'is--disabled': this.disabled,
                 'is--expanded': this.isExpanded,
                 'is--searchable': this.showSearch
             };
         },
+
+        hasError() {
+            return !!this.$attrs.error;
+        },
+
         selectId() {
             return `sw-single-select--${utils.createId()}`;
         },
+
         placeholderOption() {
             if (!this.required) {
                 const label = this.placeholder || this.$tc('global.sw-single-select.valuePlaceholder');

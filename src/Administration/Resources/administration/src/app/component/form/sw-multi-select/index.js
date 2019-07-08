@@ -91,13 +91,18 @@ export default {
     computed: {
         selectClasses() {
             return {
-                'has--error': !this.isValid || this.hasError,
+                'has--error': this.hasError,
                 'is--disabled': this.disabled,
                 'is--expanded': this.isExpanded,
                 'sw-multi-select--multi': true,
                 'is--searchable': this.showSearch
             };
         },
+
+        hasError() {
+            return !!this.$attrs.error;
+        },
+
         selectId() {
             return `sw-multi-select--${utils.createId()}`;
         }

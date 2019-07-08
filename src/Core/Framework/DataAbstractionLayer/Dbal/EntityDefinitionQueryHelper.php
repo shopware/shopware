@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -246,57 +245,39 @@ class EntityDefinitionQueryHelper
 
     public function buildRuleCondition(EntityDefinition $definition, QueryBuilder $query, string $alias, Context $context): ?string
     {
+        $ids = $context->getRuleIds();
+
         $conditions = [];
 
-        if ($definition->isBlacklistAware() && $context->getRuleIds()) {
-            $accessor = self::escape($alias) . '.' . self::escape('blacklist_ids');
+        if ($definition->isBlacklistAware() && $ids) {
+            $accessor = self::escape($alias) . '.`blacklist_ids`';
 
-            $wheres = [];
+            $param = '(' . implode('|', $ids) . ')';
 
-            foreach ($context->getRuleIds() as $ruleId) {
-                if (!Uuid::isValid($ruleId)) {
-                    throw new InvalidUuidException($ruleId);
-                }
-                $wheres[] = sprintf(
-                    'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
-                    'contextRule' . $ruleId
-                );
-                $query->setParameter('contextRule' . $ruleId, $ruleId);
-            }
+            $conditions[] = '(NOT (' . $accessor . ' REGEXP :rules) OR ' . $accessor . ' IS NULL)';
 
-            $conditions[] = implode(' + ', $wheres) . ' = 0';
+            $query->setParameter('rules', $param);
         }
 
-        if (!$definition->isWhitelistAware()) {
-            return empty($conditions) ? null : implode(' AND ', $conditions);
+        if ($definition->isWhitelistAware() && $ids) {
+            $accessor = self::escape($alias) . '.`whitelist_ids`';
+
+            $param = '(' . implode('|', $ids) . ')';
+
+            $conditions[] = '(' . $accessor . ' REGEXP :rules OR ' . $accessor . ' IS NULL)';
+
+            $query->setParameter('rules', $param);
+        } elseif ($definition->isWhitelistAware()) {
+            $accessor = self::escape($alias) . '.`whitelist_ids`';
+
+            $conditions[] = $accessor . ' IS NULL';
         }
 
-        $accessor = self::escape($alias) . '.' . self::escape('whitelist_ids');
-
-        $whitelistConditions = [
-            'JSON_DEPTH(' . $accessor . ') is null',
-            'JSON_DEPTH(' . $accessor . ') = 1',
-        ];
-
-        $wheres = [];
-        foreach ($context->getRuleIds() as $ruleId) {
-            if (!Uuid::isValid($ruleId)) {
-                throw new InvalidUuidException($ruleId);
-            }
-            $wheres[] = sprintf(
-                'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
-                'contextRule' . $ruleId
-            );
-            $query->setParameter('contextRule' . $ruleId, $ruleId);
+        if (empty($conditions)) {
+            return null;
         }
 
-        if (!empty($wheres)) {
-            $whitelistConditions[] = implode(' + ', $wheres) . ' >= 1';
-        }
-
-        $conditions[] = '(' . implode(' OR ', $whitelistConditions) . ')';
-
-        return empty($conditions) ? null : implode(' AND ', $conditions);
+        return implode(' AND ', $conditions);
     }
 
     /**
@@ -452,9 +433,9 @@ class EntityDefinitionQueryHelper
 
         if ($field === null || !$field instanceof StorageAware || !$field instanceof Field) {
             throw new \RuntimeException(\sprintf(
-                'Missing translated storage aware property %s in %s',
-                $translatedField->getPropertyName(),
-                $translationDefinition->getClass())
+                    'Missing translated storage aware property %s in %s',
+                    $translatedField->getPropertyName(),
+                    $translationDefinition->getClass())
             );
         }
 
@@ -510,53 +491,59 @@ class EntityDefinitionQueryHelper
      */
     private function addRuleCondition(QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
-        if ($definition->isBlacklistAware() && $context->getRuleIds()) {
-            $wheres = [];
+        $ids = $context->getRuleIds();
 
-            $accessor = $this->getFieldAccessor('blacklistIds', $definition, $definition->getEntityName(), $context);
+        if ($definition->isBlacklistAware() && $ids) {
+            $accessor = self::escape($definition->getEntityName()) . '.`blacklist_ids`';
 
-            foreach ($context->getRuleIds() as $ruleId) {
-                if (!Uuid::isValid($ruleId)) {
-                    throw new InvalidUuidException($ruleId);
-                }
-                $wheres[] = sprintf(
-                    'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
-                    'contextRule' . $ruleId
+            if ($this->isInherited($definition, $definition->getFields()->get('blacklistIds'), $context)) {
+                $accessor = sprintf(
+                    'IFNULL(%s, %s)',
+                    self::escape($definition->getEntityName()) . '.`blacklist_ids`',
+                    self::escape($definition->getEntityName() . '.parent') . '.`blacklist_ids`'
                 );
-                $query->setParameter('contextRule' . $ruleId, $ruleId);
             }
 
-            $query->andWhere(implode(' + ', $wheres) . ' = 0');
+            $param = '(' . implode('|', $ids) . ')';
+
+            $query->andWhere('NOT ' . $accessor . ' REGEXP :rules OR ' . $accessor . ' IS NULL');
+
+            $query->setParameter('rules', $param);
         }
 
-        if (!$definition->isWhitelistAware()) {
-            return;
-        }
-
-        $accessor = $this->getFieldAccessor('whitelistIds', $definition, $definition->getEntityName(), $context);
-
-        $wheres = [];
-        foreach ($context->getRuleIds() as $id) {
-            if (!Uuid::isValid($id)) {
-                throw new InvalidUuidException($id);
+        if ($definition->isWhitelistAware() && $ids) {
+            $accessor = self::escape($definition->getEntityName()) . '.`whitelist_ids`';
+            if ($this->isInherited($definition, $definition->getFields()->get('whitelistIds'), $context)) {
+                $accessor = sprintf(
+                    'IFNULL(%s, %s)',
+                    self::escape($definition->getEntityName()) . '.`whitelist_ids`',
+                    self::escape($definition->getEntityName() . '.parent') . '.`whitelist_ids`'
+                );
             }
-            $wheres[] = sprintf(
-                'JSON_CONTAINS(IFNULL(' . $accessor . ', JSON_ARRAY()), JSON_ARRAY(:%s))',
-                'contextRule' . $id
-            );
-            $query->setParameter('contextRule' . $id, $id);
+
+            $param = '(' . implode('|', $ids) . ')';
+
+            $query->andWhere($accessor . ' REGEXP :rules OR ' . $accessor . ' IS NULL');
+
+            $query->setParameter('rules', $param);
+        } elseif ($definition->isWhitelistAware()) {
+            $accessor = self::escape($definition->getEntityName()) . '.`whitelist_ids`';
+
+            if ($this->isInherited($definition, $definition->getFields()->get('whitelistIds'), $context)) {
+                $accessor = sprintf(
+                    'IFNULL(%s, %s)',
+                    self::escape($definition->getEntityName()) . '.`whitelist_ids`',
+                    self::escape($definition->getEntityName() . '.parent') . '.`whitelist_ids`'
+                );
+            }
+
+            $query->andWhere($accessor . ' IS NULL');
         }
+    }
 
-        $conditions = [
-            '(JSON_DEPTH(' . $accessor . ') is null)',
-            '(JSON_DEPTH(' . $accessor . ') = 1)',
-        ];
-
-        if (!empty($wheres)) {
-            $conditions[] = implode(' + ', $wheres) . ' >= 1';
-        }
-
-        $query->andWhere('(' . implode(' OR ', $conditions) . ')');
+    private function isInherited(EntityDefinition $definition, Field $field, Context $context): bool
+    {
+        return $definition->isInheritanceAware() && $field->is(Inherited::class) && $context->considerInheritance();
     }
 
     private function getTranslationFieldSelectExpr(StorageAware $field, array $chain): string

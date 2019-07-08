@@ -44,7 +44,7 @@ own `composer.json` as a key value pair:
         }
     ],
     "require": {
-        "shopware/platform": "dev-master",
+        "shopware/core": "*",
         "swag/plugin-quick-start": "v1.0.0"
     },
     "extra": {

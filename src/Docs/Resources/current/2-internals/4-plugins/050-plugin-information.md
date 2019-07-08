@@ -21,7 +21,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
         }
     ],
     "require": {
-        "shopware/platform": "dev-master",
+        "shopware/core": "*",
         "example-plugin": "1.0.0"
     },
     "extra": {

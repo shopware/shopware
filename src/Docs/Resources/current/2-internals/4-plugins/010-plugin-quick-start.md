@@ -93,7 +93,7 @@ Here's a brief example of how this file could look like:
         }
     ],
     "require": {
-        "shopware/platform": "dev-master"
+        "shopware/core": "*"
     },
     "extra": {
         "shopware-plugin-class": "Swag\\PluginQuickStart\\PluginQuickStart",

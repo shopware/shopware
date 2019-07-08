@@ -31,7 +31,7 @@
                         :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
                         :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
                         :collection="discount.discountRules"
-                        @sw-multi-select-option-clicked="onOptionClick">
+                        @option-click="onOptionClick">
                     <template slot="sw_multi_select_list_before">
                         <sw-multi-select-option :index="-1"
                                                 :item="itemAddNewRule">

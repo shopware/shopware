@@ -12,7 +12,7 @@
                     class="sw-promotion-order-condition-form__order-rules"
                     :label="$tc('sw-promotion.detail.main.preconditions.order.rulesCaption')"
                     :placeholder="$tc('sw-promotion.detail.main.preconditions.order.rulesPlaceholder')"
-                    @sw-select-option-clicked="onSelectRule"
+                    @option-click="onSelectRule"
                     :store="rulesStore"
                     :criteria="ruleFilter"
                     :associationStore="orderRulesAssociationStore">

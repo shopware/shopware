@@ -24,7 +24,6 @@ Component.register('sw-promotion-persona-form', {
                 id: ''
             },
             showRuleModal: false
-
         };
     },
     computed: {

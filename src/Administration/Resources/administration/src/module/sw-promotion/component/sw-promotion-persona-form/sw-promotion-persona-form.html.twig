@@ -14,7 +14,7 @@
                    :label="$tc('sw-promotion.detail.main.preconditions.persona.labelRules')"
                    :placeholder="$tc('sw-promotion.detail.main.preconditions.persona.placeholderRules')"
                    :store="ruleStore"
-                   @sw-select-option-clicked="onSelectRule"
+                   @option-click="onSelectRule"
                    :associationStore="personaRulesAssociationStore">
             <template slot="sw_select_list_before">
                 <sw-select-option :index="-1"

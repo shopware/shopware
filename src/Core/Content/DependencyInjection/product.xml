@@ -128,16 +128,15 @@
             <tag name="shopware.dal_indexing.indexer" priority="500"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\AvailableStockIndexer">
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductStockIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="event_dispatcher"/>
 
-            <tag name="shopware.dbal_indexing.indexer"/>
+            <tag name="kernel.event_subscriber"/>
             <tag name="shopware.dbal_indexing.indexer" priority="600"/>
         </service>
-
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition">
             <tag name="shopware.entity.definition" entity="product_visibility"/>

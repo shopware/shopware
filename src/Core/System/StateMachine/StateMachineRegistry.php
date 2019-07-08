@@ -4,6 +4,7 @@ namespace Shopware\Core\System\StateMachine;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\AdminApiSource;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -11,11 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
+use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateException;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class StateMachineRegistry
 {
@@ -34,10 +37,26 @@ class StateMachineRegistry
      */
     private $stateMachines;
 
-    public function __construct(EntityRepositoryInterface $stateMachineRepository, EntityRepositoryInterface $stateMachineHistoryRepository)
-    {
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionRegistry;
+
+    public function __construct(
+        EntityRepositoryInterface $stateMachineRepository,
+        EntityRepositoryInterface $stateMachineHistoryRepository,
+        EventDispatcherInterface $eventDispatcher,
+        DefinitionInstanceRegistry $definitionRegistry
+    ) {
         $this->stateMachineRepository = $stateMachineRepository;
         $this->stateMachineHistoryRepository = $stateMachineHistoryRepository;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->definitionRegistry = $definitionRegistry;
     }
 
     /**
@@ -250,5 +269,15 @@ class StateMachineRegistry
                 'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
             ],
         ], $context);
+
+        $repository = $this->definitionRegistry->getRepository($entityName);
+
+        $update = ['id' => $entityId, 'stateId' => $toPlace->getId()];
+
+        $repository->update([$update], $context);
+
+        $this->eventDispatcher->dispatch(
+            new StateMachineTransitionEvent($entityName, $entityId, $fromPlace, $toPlace, $context)
+        );
     }
 }

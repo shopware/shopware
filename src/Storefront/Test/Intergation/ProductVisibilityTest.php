@@ -118,9 +118,6 @@ class ProductVisibilityTest extends TestCase
 
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
 
-        $request = new Request();
-        $request->attributes->set('_route_params', ['navigationId' => $this->categoryId]);
-
         $data = $this->listGateway->search($request, $salesChannelContext);
 
         static::assertSame(1, $data->getTotal());

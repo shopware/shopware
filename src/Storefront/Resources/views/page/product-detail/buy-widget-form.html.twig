@@ -10,7 +10,7 @@
                     <div class="col-4">
                         {% if page.product.maxPurchase %}
                             {% if page.product.availableStock < page.product.maxPurchase %}
-                                {% set maxQuantity = page.product.stock %}
+                                {% set maxQuantity = page.product.availableStock %}
                             {% else %}
                                 {% set maxQuantity = page.product.maxPurchase %}
                             {% endif %}

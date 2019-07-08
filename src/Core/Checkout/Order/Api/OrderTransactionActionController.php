@@ -88,11 +88,6 @@ class OrderTransactionActionController extends AbstractController
             $transition
         );
 
-        $payload = [
-            ['id' => $transaction->getId(), 'stateId' => $toPlace->getId()],
-        ];
-
-        $this->orderTransactionRepository->update($payload, $context);
         $transaction->setStateMachineState($toPlace);
         $transaction->setStateId($toPlace->getId());
 

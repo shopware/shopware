@@ -2,9 +2,11 @@
 
 namespace Shopware\Storefront\Test\Intergation;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -77,6 +79,16 @@ class ProductVisibilityTest extends TestCase
      */
     private $productPageLoader;
 
+    /**
+     * @var string
+     */
+    private $categoryId;
+
+    /**
+     * @var ProductListingGateway
+     */
+    private $listGateway;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -84,6 +96,7 @@ class ProductVisibilityTest extends TestCase
         $this->searchPageLoader = $this->getContainer()->get(SearchPageLoader::class);
         $this->suggestPageLoader = $this->getContainer()->get(SuggestPageLoader::class);
         $this->productPageLoader = $this->getContainer()->get(ProductPageLoader::class);
+        $this->listGateway = $this->getContainer()->get(ProductListingGateway::class);
 
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
@@ -93,13 +106,29 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityInListing()
     {
-        static::markTestIncomplete('Will be reimplemented with NEXT-2934');
+        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
+
+        $request = new Request();
+        $request->attributes->set('_route_params', ['navigationId' => $this->categoryId]);
+
+        $data = $this->listGateway->search($request, $salesChannelContext);
+
+        static::assertSame(1, $data->getTotal());
+        static::assertTrue($data->has($this->productId3));
+
+        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
+
+        $request = new Request();
+        $request->attributes->set('_route_params', ['navigationId' => $this->categoryId]);
+
+        $data = $this->listGateway->search($request, $salesChannelContext);
+
+        static::assertSame(1, $data->getTotal());
+        static::assertTrue($data->has($this->productId1));
     }
 
     public function testVisibilityInSearch()
     {
-        static::markTestIncomplete('Will be reimplemented with NEXT-2934');
-
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new Request(['search' => 'test']);
@@ -121,8 +150,6 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityOnProductPage()
     {
-        static::markTestIncomplete('Will be reimplemented with NEXT-2934');
-
         $cases = [
             ['salesChannelId' => $this->salesChannelId1, 'productId' => $this->productId1, 'visible' => false],
             ['salesChannelId' => $this->salesChannelId1, 'productId' => $this->productId2, 'visible' => true],
@@ -157,8 +184,6 @@ class ProductVisibilityTest extends TestCase
 
     public function testVisibilityInSuggest()
     {
-        static::markTestIncomplete('Will be reimplemented with NEXT-2934');
-
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
         $request = new Request(['search' => 'test']);
@@ -182,6 +207,8 @@ class ProductVisibilityTest extends TestCase
     {
         $this->salesChannelId1 = $this->createSalesChannel();
         $this->salesChannelId2 = $this->createSalesChannel();
+
+        $this->categoryId = Uuid::randomHex();
 
         $this->productId1 = Uuid::randomHex();
         $this->productId2 = Uuid::randomHex();
@@ -226,12 +253,18 @@ class ProductVisibilityTest extends TestCase
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'visibilities' => $mapped,
+            'categories' => [
+                ['id' => $this->categoryId, 'name' => 'test'],
+            ],
         ];
     }
 
     private function createSalesChannel(): string
     {
         $id = Uuid::randomHex();
+
+        $snippetSetId = (string) $this->getContainer()->get(Connection::class)
+            ->fetchColumn('SELECT id FROM snippet_set LIMIT 1');
 
         $data = [
             'id' => $id,
@@ -256,6 +289,14 @@ class ProductVisibilityTest extends TestCase
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'url' => 'test.de/' . $id,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => Uuid::fromBytesToHex($snippetSetId),
+                ],
+            ],
         ];
 
         $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());

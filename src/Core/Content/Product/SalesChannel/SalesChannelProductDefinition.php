@@ -2,16 +2,12 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel;
 
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -24,29 +20,18 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
 
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        if ($criteria->hasState('sales-channel-product-condition')) {
-            return;
+        if (!$criteria->hasAssociation('prices')) {
+            $criteria->addAssociation('prices');
+        }
+        if (!$criteria->hasAssociation('unit')) {
+            $criteria->addAssociation('unit');
         }
 
-        $criteria
-            ->addState('sales-channel-product-condition')
-            ->addFilter(new EqualsFilter('product.active', true))
-            ->addAssociation('prices')
-            ->addAssociation('unit');
-
-        $criteria->addFilter(
-            new MultiFilter(
-                MultiFilter::CONNECTION_AND,
-                [
-                    new RangeFilter(
-                        'product.visibilities.visibility', [RangeFilter::GTE => ProductVisibilityDefinition::VISIBILITY_LINK]
-                    ),
-                    new EqualsFilter(
-                        'product.visibilities.salesChannelId', $context->getSalesChannel()->getId()
-                    ),
-                ]
-            )
-        );
+        if (!$this->hasAvailableFilter($criteria)) {
+            $criteria->addFilter(
+                new ProductAvailableFilter($context->getSalesChannel()->getId())
+            );
+        }
     }
 
     protected function defineFields(): FieldCollection
@@ -64,5 +49,16 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         );
 
         return $fields;
+    }
+
+    private function hasAvailableFilter(Criteria $criteria): bool
+    {
+        foreach ($criteria->getFilters() as $filter) {
+            if ($filter instanceof ProductAvailableFilter) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

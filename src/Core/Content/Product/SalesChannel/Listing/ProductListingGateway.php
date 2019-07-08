@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
+use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -35,6 +37,9 @@ class ProductListingGateway implements ProductListingGatewayInterface
     public function search(Request $request, SalesChannelContext $salesChannelContext): EntitySearchResult
     {
         $criteria = new Criteria();
+        $criteria->addFilter(
+            new ProductAvailableFilter($salesChannelContext->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_ALL)
+        );
 
         $this->handleCategoryFilter($request, $criteria, $salesChannelContext);
 

@@ -103,7 +103,7 @@
 
                                         {% block sw_product_list_grid_columns_stock_content %}
                                             <template v-else>
-                                                {{ item.stock }}
+                                                {{ item.availableStock }}
                                                 <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
                                             </template>
                                         {% endblock %}

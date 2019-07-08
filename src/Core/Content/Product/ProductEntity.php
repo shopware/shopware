@@ -79,9 +79,19 @@ class ProductEntity extends Entity
     protected $productNumber;
 
     /**
-     * @var int|null
+     * @var int
      */
     protected $stock;
+
+    /**
+     * @var int|null
+     */
+    protected $availableStock;
+
+    /**
+     * @var bool
+     */
+    protected $available;
 
     /**
      * @var int
@@ -442,12 +452,12 @@ class ProductEntity extends Entity
         $this->ean = $ean;
     }
 
-    public function getStock(): ?int
+    public function getStock(): int
     {
         return $this->stock;
     }
 
-    public function setStock(?int $stock): void
+    public function setStock(int $stock): void
     {
         $this->stock = $stock;
     }
@@ -1024,5 +1034,25 @@ class ProductEntity extends Entity
     public function setDisplayInListing(bool $displayInListing): void
     {
         $this->displayInListing = $displayInListing;
+    }
+
+    public function getAvailableStock(): ?int
+    {
+        return $this->availableStock;
+    }
+
+    public function setAvailableStock(int $availableStock): void
+    {
+        $this->availableStock = $availableStock;
+    }
+
+    public function getAvailable(): bool
+    {
+        return $this->available;
+    }
+
+    public function setAvailable(bool $available): void
+    {
+        $this->available = $available;
     }
 }

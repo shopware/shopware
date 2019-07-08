@@ -93,8 +93,8 @@
                                             dataIndex="stock"
                                             align="right"
                                             sortable>
-                                {{ item.stock }}
-                                <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
+                                {{ item.availableStock }}
+                                <sw-color-badge :variant="item.availableStock | stockColorVariant"></sw-color-badge>
                             </sw-grid-column>
                         {% endblock %}
                     </template>

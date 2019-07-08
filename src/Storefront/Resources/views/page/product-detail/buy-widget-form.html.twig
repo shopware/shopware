@@ -9,7 +9,7 @@
                 {% block page_product_detail_buy_quantity_container %}
                     <div class="col-4">
                         {% if page.product.maxPurchase %}
-                            {% if page.product.stock < page.product.maxPurchase %}
+                            {% if page.product.availableStock < page.product.maxPurchase %}
                                 {% set maxQuantity = page.product.stock %}
                             {% else %}
                                 {% set maxQuantity = page.product.maxPurchase %}

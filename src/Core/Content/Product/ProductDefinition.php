@@ -90,6 +90,7 @@ class ProductDefinition extends EntityDefinition
         }
 
         return [
+            'isCloseout' => false,
             'minPurchase' => 1,
             'purchaseSteps' => 1,
             'shippingFree' => false,
@@ -116,6 +117,8 @@ class ProductDefinition extends EntityDefinition
             //not inherited fields
             new BoolField('active', 'active'),
             (new IntField('stock', 'stock'))->addFlags(new Required()),
+            (new IntField('available_stock', 'availableStock'))->addFlags(new WriteProtected()),
+            (new BoolField('available', 'available'))->addFlags(new WriteProtected()),
 
             (new JsonField('variant_restrictions', 'variantRestrictions'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             new BoolField('display_in_listing', 'displayInListing'),

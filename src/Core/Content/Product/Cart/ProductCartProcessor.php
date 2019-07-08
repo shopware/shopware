@@ -120,7 +120,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         /* @var ProductEntity $product */
         $lineItem->setDeliveryInformation(
             new DeliveryInformation(
-                (int) $product->getStock(),
+                (int) $product->getAvailableStock(),
                 (float) $product->getWeight(),
                 $product->getDeliveryDate(),
                 $product->getRestockDeliveryDate(),

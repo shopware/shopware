@@ -197,8 +197,14 @@ Component.register('sw-promotion-detail', {
 
             return discountRepository.sync(discounts, discounts.context).then(() => {
                 return this.promotionRepository.save(this.promotion, this.context).then(() => {
-                    this.isLoading = false;
                     this.isSaveSuccessful = true;
+                    const criteria = new Criteria(1, 1);
+                    criteria.addAssociation('salesChannels');
+
+                    return this.promotionRepository.get(this.promotion.id, this.context, criteria).then((promotion) => {
+                        this.promotion = promotion;
+                        this.isLoading = false;
+                    });
                 }).catch((error) => {
                     this.isLoading = false;
                     this.createNotificationError({

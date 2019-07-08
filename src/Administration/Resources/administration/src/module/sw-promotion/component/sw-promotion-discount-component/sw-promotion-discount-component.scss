@@ -16,11 +16,6 @@
     .sw-card__quick-link.advanced-prices {
         cursor: pointer;
     }
-
-    .sw-promotion-discount-component__create-new-rule-link:hover {
-        color: $color-shopware-brand-500;
-        background-color: lighten($color-shopware-brand-500, 40%);
-    }
 }
 
 .sw-promotion-discount-form__advanced-prices-modal.sw-modal .sw-modal__body {
@@ -30,14 +25,5 @@
         white-space: normal;
         overflow: visible;
         text-overflow: initial;
-    }
-
-    .sw-data-grid__cell-content .sw-field input {
-        margin: 3px;
-        padding: 2px;
-    }
-
-    .sw-field__addition {
-        padding: 5px 20px;
     }
 }

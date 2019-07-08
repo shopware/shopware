@@ -1,7 +1,7 @@
 {% block sw_promotion_detail_discounts %}
     <div class="sw-promotion-detail-discounts">
         {% block sw_promotion_detail_discounts_card_add %}
-            <sw-card slot="content" :hero="true" :isLoading="isLoading">
+            <sw-card slot="content" hero :isLoading="isLoading">
                 <div>
                     {% block sw_promotion_detail_discounts_actions_add %}
                         <sw-button variant="ghost" @click="onAddDiscount">

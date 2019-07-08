@@ -52,7 +52,7 @@ export default {
 
     watch: {
         collection() {
-            this.displayAssigned(this.collection);
+            this.initData();
         }
     },
 

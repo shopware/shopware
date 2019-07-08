@@ -127,6 +127,18 @@ Component.register('sw-dashboard-index', {
             return 0;
         },
 
+        hasOrderToday() {
+            return this.todayOrderData.length > 0;
+        },
+
+        hasOrderInMonth() {
+            if (!this.historyOrderData || !this.historyOrderData.order_sum_month) {
+                return false;
+            }
+
+            return this.historyOrderData.order_sum_month.length > 0;
+        },
+
         dateAgo() {
             // get date 30 days ago
             const date = new Date();
@@ -181,6 +193,7 @@ Component.register('sw-dashboard-index', {
             criteria.addAssociation('currency');
             // add filter for last 30 days
             criteria.addFilter(Criteria.range('orderDate', { gte: this.formatDate(this.today) }));
+            criteria.addSorting(Criteria.sort('orderDateTime', 'ASC'));
 
             return this.orderRepository.search(criteria, this.context);
         },
@@ -197,8 +210,8 @@ Component.register('sw-dashboard-index', {
                 allowResize: true,
                 primary: true
             }, {
-                property: 'createdAt',
-                dataIndex: 'createdAt',
+                property: 'orderDateTime',
+                dataIndex: 'orderDateTime',
                 label: this.$tc('sw-dashboard.todayStats.orderTime'),
                 allowResize: true,
                 primary: false

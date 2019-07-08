@@ -4,6 +4,19 @@
       "mainMenuItemGeneral": "Dashboard",
       "descriptionTextModule": "Startseite, Statistiken und Systeminformationen"
     },
+    "introduction": {
+      "headline": "Willkommen bei Shopware 6",
+      "enduserDocumentation": "Endbenutzer Dokumentation",
+      "enduserDocumentationLink": "https://docs.shopware.com/de/shopware-6-de",
+      "developerDocumentation": "Entwickler Dokumentation",
+      "developerDocumentationLink": "https://docs.shopware.com/de/shopware-platform--dev-de",
+      "migrationDocumentation": "Migration Dokumentation",
+      "migrationDocumentationLink": "https://docs.shopware.com/de/migration-de",
+      "roadmap": "Roadmap für Shopware",
+      "roadmapLink": "https://www.shopware.com/de/roadmap/",
+      "feedback": "Feedback geben",
+      "feedbackLink": "https://issues.shopware.com"
+    },
     "todayStats": {
       "headline": "Was ist heute passiert?",
       "orders": "Bestellungen",

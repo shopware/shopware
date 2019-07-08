@@ -21,6 +21,7 @@ class XmlFileIteratorFactory implements IteratorFactoryInterface
     public function create(Context $context, ImportExportLogEntity $logEntity): RecordIterator
     {
         $fakePath = 'files/' . $logEntity->getFile()->getPath();
+
         return new XmlFileIterator($fakePath);
     }
 

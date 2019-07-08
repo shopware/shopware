@@ -140,7 +140,22 @@ Component.register('sw-promotion-detail', {
         },
 
         abortOnLanguageChange() {
-            return this.promotionRepository.hasChanges(this.promotion);
+            if (this.promotionRepository.hasChanges(this.promotion)) {
+                return true;
+            }
+
+            if (this.discounts !== null) {
+                const discountRepository = this.repositoryFactory.create(
+                    this.discounts.entity,
+                    this.discounts.source
+                );
+
+                return this.discounts.some((discount) => {
+                    return discount.isNew() || discountRepository.hasChanges(discount);
+                });
+            }
+
+            return false;
         },
 
         saveOnLanguageChange() {
@@ -149,16 +164,6 @@ Component.register('sw-promotion-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
-        },
-
-        registerSaveCall(callBack) {
-            this.saveCallbacks.push(callBack);
-        },
-
-        removeSaveCall(callback) {
-            this.saveCallbacks = this.saveCallbacks.filter((registeredCallback) => {
-                return registeredCallback !== callback;
-            });
         },
 
         onSave() {

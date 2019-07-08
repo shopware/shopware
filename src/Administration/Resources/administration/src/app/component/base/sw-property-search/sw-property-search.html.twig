@@ -75,7 +75,7 @@
                                 {% block sw_property_search_tree_option_grid_columns %}
                                     <template slot="columns" slot-scope="{ item }">
                                         {% block sw_property_search_tree_option_grid_columns_name %}
-                                            <sw-grid-column flex="200px" dataIndex="name">
+                                            <sw-grid-column truncate flex="200px" dataIndex="name">
                                                 {{ item.translated.name }}
                                             </sw-grid-column>
                                         {% endblock %}
@@ -84,7 +84,13 @@
 
                                 <template slot="pagination">
                                     {% block sw_property_search_tree_option_grid_pagination %}
-                                        <sw-pagination :page="optionPage" :limit="10" :total="optionTotal" :total-visible="7" @page-change="onOptionPageChange" :steps="[10]" />
+                                        <sw-pagination :page="optionPage"
+                                                       :limit="10"
+                                                       :total="optionTotal"
+                                                       :total-visible="7"
+                                                       :autoHide="false"
+                                                       @page-change="onOptionPageChange"
+                                                       :steps="[10]" />
                                     {% endblock %}
                                 </template>
 

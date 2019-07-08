@@ -6,17 +6,10 @@
     }
 
     .sw-property-search__tree-selection {
-        height: 414px;
-
         .sw-property-search__tree-selection__group_grid {
             padding-top: 10px;
             border-radius: 0 0 0 $border-radius-default;
-
-            .group_grid__column-name {
-                .sw-icon {
-                    margin-right: 8px;
-                }
-            }
+            border-right: 1px solid $color-gray-300;
         }
 
         .sw-grid-column .sw-grid__cell-content {
@@ -42,6 +35,7 @@
         .sw-grid-column {
             font-size: 14px;
         }
+
         .sw-grid-row {
             border: none;
         }
@@ -50,7 +44,8 @@
             border: none;
             box-shadow: none;
         }
-        .sw-grid-row:first-child.is--selected{
+
+        .sw-grid-row:first-child.is--selected {
             box-shadow: none;
         }
     }
@@ -76,6 +71,7 @@
         min-height: 0;
         padding: 0;
     }
+
     .sw-property-search__search-selection .sw-grid.sw-grid--table .sw-grid-row {
         padding: 8px;
     }
@@ -84,10 +80,11 @@
         border-radius: $border-radius-default;
     }
 
-    .sw-property-search__search-selection  {
+    .sw-property-search__search-selection {
         .sw-grid__row--0.is--selected {
             box-shadow: none;
         }
+
         .sw-grid-row:last-child {
             border-radius: 0;
             border-bottom: 0;
@@ -106,10 +103,6 @@
 
     .sw-property-search__search-field {
         margin-bottom: 0;
-    }
-
-    .sw-property-search__tree-selection .sw-property-search__tree-selection__group_grid {
-        border-right: 1px solid $color-gray-300;
     }
 
     .sw-property-search__toolbar {

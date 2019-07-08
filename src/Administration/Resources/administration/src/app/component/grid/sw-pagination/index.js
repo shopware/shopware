@@ -17,25 +17,35 @@ export default {
             type: Number,
             required: true
         },
+
         limit: {
             type: Number,
             required: true
         },
+
         page: {
             type: Number,
             required: true
         },
+
         totalVisible: {
             type: Number,
             required: false,
             default: 7
         },
+
         steps: {
             type: Array,
             required: false,
             default() {
                 return [10, 25, 50, 75, 100];
             }
+        },
+
+        autoHide: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -77,6 +87,10 @@ export default {
         },
 
         shouldBeVisible() {
+            if (!this.autoHide) {
+                return true;
+            }
+
             return this.total > Math.min(...this.steps);
         },
 

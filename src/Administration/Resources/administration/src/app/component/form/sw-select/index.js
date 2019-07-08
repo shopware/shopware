@@ -176,7 +176,6 @@ export default {
             activeResultPosition: 1,
             isLoading: false,
             isLoadingSelections: false,
-            hasError: false,
             deletedItems: [],
             // for a single selection
             singleSelection: {}
@@ -186,7 +185,7 @@ export default {
     computed: {
         selectClasses() {
             return {
-                'has--error': !this.isValid || this.hasError,
+                'has--error': this.hasError,
                 'is--disabled': this.disabled,
                 'is--expanded': this.isExpanded,
                 'sw-select--multi': this.multi,
@@ -194,6 +193,11 @@ export default {
                 'sw-select--small': this.size === 'small'
             };
         },
+
+        hasError() {
+            return !!this.$attrs.error;
+        },
+
         selectId() {
             const id = (this.id) ? this.id : utils.createId();
             return `sw-select--${id}`;

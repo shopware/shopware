@@ -125,5 +125,9 @@
                 {% endblock %}
             </div>
         {% endblock %}
+
+        {% block sw_single_select_error %}
+            <sw-field-error :error="$attrs.error"></sw-field-error>
+        {% endblock %}
     </div>
 {% endblock %}

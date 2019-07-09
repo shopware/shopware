@@ -10,8 +10,8 @@
                         <div class="cms-listing-col col-sm-6 col-lg-4 col-xl-3">
                             {% block element_product_listing_box %}
                                 {% sw_include '@Storefront/component/product/card/box.html.twig' with {
-                                    'layout': element.config.boxLayout.value,
-                                    'displayMode': element.config.displayMode.value
+                                    'layout': element.translated.config.boxLayout.value,
+                                    'displayMode': element.translated.config.displayMode.value
                                 } %}
                             {% endblock %}
                         </div>

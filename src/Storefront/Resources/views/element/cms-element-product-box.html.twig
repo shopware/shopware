@@ -3,8 +3,8 @@
         {% block element_product_box_inner %}
             {% sw_include '@Storefront/component/product/card/box.html.twig' with {
                 'product': element.data.product,
-                'layout': element.config.boxLayout.value,
-                'displayMode': element.config.displayMode.value
+                'layout': element.translated.config.boxLayout.value,
+                'displayMode': element.translated.config.displayMode.value
             } %}
         {% endblock %}
     </div>

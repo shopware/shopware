@@ -1,5 +1,9 @@
 {% block sw_shopware_updates_plugins %}
-<sw-card :title="$t('sw-settings-shopware-updates.cards.plugins')" :isLoading="isLoading">
+<sw-card
+    :title="$t('sw-settings-shopware-updates.cards.plugins')"
+    :isLoading="isLoading"
+    class="sw-settings-shopware-updates-plugins"
+>
     <sw-data-grid
             :showSelection="false"
             :dataSource="plugins"

@@ -1,5 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-shopware-updates-requirements.html.twig';
+import './sw-settings-shopware-updates-requirements.scss';
 
 Component.register('sw-settings-shopware-updates-requirements', {
     template,

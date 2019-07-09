@@ -3,10 +3,29 @@
         height: initial;
         min-height: 42px;
     }
+}
 
-    .sw-shopware-updates-progressbar {
-        .progress-title {
-            text-align: center;
+.sw-shopware-updates-progressbar {
+    .progress-title {
+        text-align: center;
+    }
+
+    .sw-progress-bar {
+        margin-bottom: 8px;
+    }
+
+    &.sw-modal {
+        .sw-modal__body {
+            padding: 40px 30px;
+        }
+
+        .sw-modal__close,
+        .sw-modal__footer {
+            display: none;
+        }
+
+        .sw-modal__dialog {
+            min-height: auto;
         }
     }
 }

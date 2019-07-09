@@ -24,22 +24,27 @@
     <template slot="content">
         {% block sw_settings_shopware_updates_wizard_content %}
             <sw-card-view v-if="isLoading || updateInfo.version">
-                <sw-card :title="$t('sw-settings-shopware-updates.cards.updating')" v-if="updaterIsRunning" class="sw-shopware-updates-progressbar">
+                <sw-settings-shopware-updates-info :isLoading="isLoading" :changelog="changelog"/>
+                <sw-settings-shopware-updates-requirements :isLoading="isLoading" :updateInfo="updateInfo" :requirements="requirements"/>
+                <sw-settings-shopware-updates-plugins :plugins="plugins" :isLoading="isLoading"/>
+            </sw-card-view>
+
+            <sw-empty-state v-if="!isLoading && !updateInfo.version" :title="$tc('sw-settings-shopware-updates.general.emptyState')"></sw-empty-state>
+
+            <sw-modal
+                :title="$t('sw-settings-shopware-updates.cards.updating')"
+                variant="small"
+                v-if="updaterIsRunning"
+                class="sw-shopware-updates-progressbar"
+            >
+                <div class="progress-wrapper">
                     <sw-progress-bar :value="progressbarValue" :maxValue="100"></sw-progress-bar>
                     <span class="progress-title">
                         <p v-if="step === 'download'">{{ $t('sw-settings-shopware-updates.infos.progress.download') }}</p>
                         <p v-if="step === 'unpack'">{{ $t('sw-settings-shopware-updates.infos.progress.unpack') }}</p>
                     </span>
-                </sw-card>
-
-                <div v-if="!updaterIsRunning">
-                    <sw-settings-shopware-updates-info :isLoading="isLoading" :changelog="changelog"/>
-                    <sw-settings-shopware-updates-requirements :isLoading="isLoading" :updateInfo="updateInfo" :requirements="requirements"/>
-                    <sw-settings-shopware-updates-plugins :plugins="plugins" :isLoading="isLoading"/>
                 </div>
-            </sw-card-view>
-
-            <sw-empty-state v-if="!isLoading && !updateInfo.version" :title="$tc('sw-settings-shopware-updates.general.emptyState')"></sw-empty-state>
+            </sw-modal>
 
             <sw-modal
                 class="sw-settings-shopware-updates-check__start-update"

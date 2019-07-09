@@ -5,7 +5,7 @@ import './sw-first-run-wizard-shopware-account.scss';
 Component.register('sw-first-run-wizard-shopware-account', {
     template,
 
-    inject: ['firstRunWizardService'],
+    inject: ['firstRunWizardService', 'addNextCallback'],
 
     data() {
         return {
@@ -15,20 +15,32 @@ Component.register('sw-first-run-wizard-shopware-account', {
         };
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.addNextCallback(this.testCredentials);
+        },
+
         testCredentials() {
             const { shopwareId, password } = this;
             // ToDo: (mve) use adminLang
             const language = 'de_DE';
 
-            this.firstRunWizardService.checkShopwareId({
+            return this.firstRunWizardService.checkShopwareId({
                 language,
                 shopwareId,
                 password
             }).then(() => {
                 this.accountError = false;
+
+                return false;
             }).catch(() => {
                 this.accountError = true;
+
+                return true;
             });
         }
     }

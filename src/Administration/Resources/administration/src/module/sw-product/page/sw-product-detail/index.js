@@ -1,5 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
@@ -249,7 +250,7 @@ Component.register('sw-product-detail', {
         },
 
         destroyedComponent() {
-            this.$root.$off('sw-product-media-form-open-sidebar');
+            this.$root.$off('sidebar-toggle-open');
             this.$root.$off('media-remove');
             this.$root.$off('product-reload');
         },
@@ -390,6 +391,11 @@ Component.register('sw-product-detail', {
         },
 
         openMediaSidebar() {
+            // Check if we have a reference to the component before calling a method
+            if (!hasOwnProperty(this.$refs, 'mediaSidebarItem')
+                || !this.$refs.mediaSidebarItem) {
+                return;
+            }
             this.$refs.mediaSidebarItem.openContent();
         },
 
@@ -528,6 +534,13 @@ Component.register('sw-product-detail', {
 
         removeMediaItem(state, mediaId) {
             this.product.media.remove(mediaId);
+        },
+
+        onCoverChange(mediaId) {
+            if (!mediaId || mediaId.length < 0) {
+                return;
+            }
+            this.product.coverId = mediaId;
         },
 
         _checkIfMediaIsAlreadyUsed(mediaId) {

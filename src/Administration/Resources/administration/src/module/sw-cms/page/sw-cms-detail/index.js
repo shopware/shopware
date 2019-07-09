@@ -523,7 +523,7 @@ Component.register('sw-cms-detail', {
                 newBlock.slots.add(element);
             });
 
-            this.page.blocks.addAt(newBlock, dropData.dropIndex);
+            this.page.blocks.splice(dropData.dropIndex, 0, newBlock);
             this.updateBlockPositions();
 
             this.onBlockSelection(newBlock);

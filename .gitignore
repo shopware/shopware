@@ -79,6 +79,7 @@ src/Docs/Command/wiki.secret
 # tests / ci
 /build/
 !build/artifacts/.gitkeep
+/tools/
 ###> symfony/phpunit-bridge ###
 .phpunit
 .phpunit.result.cache

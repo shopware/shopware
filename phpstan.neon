@@ -1,16 +1,16 @@
-# Start: vendor/bin/phpstan analyse
+# Start: tools/phpstan analyse
 parameters:
     inferPrivatePropertyTypeFromConstructor: true
     level: 5
     paths:
-        - %rootDir%/../../../src/
+        - %rootDir%/../src/
     excludes_analyse:
-        - %rootDir%/../../../src/Core/Flag/feature_*.php
-        - %rootDir%/../../../src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
+        - %rootDir%/../src/Core/Flag/feature_*.php
+        - %rootDir%/../src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
         # Tests
-        - %rootDir%/../../../src/Core/TestBootstrap.php
-        - %rootDir%/../../../src/**/*Test.php
-        - %rootDir%/../../../src/**/Test/**/_fixture/feature_*.php
+        - %rootDir%/../src/Core/TestBootstrap.php
+        - %rootDir%/../src/**/*Test.php
+        - %rootDir%/../src/**/Test/**/_fixture/feature_*.php
     ignoreErrors:
         # TODO Add reason
         - '#Shopware\\Core\\Framework\\DataAbstractionLayer\\CompiledFieldCollection::__construct\(\) does not call parent constructor from Shopware\\Core\\Framework\\Struct\\Collection.#'

@@ -159,8 +159,7 @@ class ProductPageLoader
      */
     private function loadProduct(string $productId, SalesChannelContext $salesChannelContext): SalesChannelProductEntity
     {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('id', $productId))
+        $criteria = (new Criteria([$productId]))
             ->addFilter(new ProductAvailableFilter($salesChannelContext->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_LINK))
             ->addAssociation('media')
             ->addAssociation('prices')

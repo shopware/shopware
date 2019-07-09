@@ -115,16 +115,27 @@ class ProductListingPriceIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $prices = $event->getEventByDefinition(ProductPriceDefinition::class);
-        if (!$prices) {
-            return;
+        $productIds = [];
+
+        $products = $event->getEventByDefinition(ProductDefinition::class);
+        if ($products) {
+            foreach ($products->getIds() as $id) {
+                $productIds[] = $id;
+            }
         }
 
-        $ids = $this->fetchProductPriceIds($prices->getIds());
+        $prices = $event->getEventByDefinition(ProductPriceDefinition::class);
+        if ($prices) {
+            $priceIds = $this->fetchProductPriceIds($prices->getIds());
 
-        $ids = array_values(array_keys(array_flip($ids)));
+            foreach ($priceIds as $id) {
+                $productIds[] = $id;
+            }
+        }
 
-        $this->update($ids);
+        $productIds = array_filter(array_keys(array_flip($productIds)));
+
+        $this->update($productIds);
     }
 
     private function update(array $ids): void
@@ -142,6 +153,12 @@ class ProductListingPriceIndexer implements IndexerInterface
         $prices = $this->fetchPrices($ids, $currencies);
 
         $tags = [];
+
+        $this->connection->executeUpdate(
+            'UPDATE product SET listing_prices = NULL WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
 
         foreach ($prices as $productId => $productPrices) {
             $ruleIds = array_keys(array_flip(array_column($productPrices, 'rule_id')));

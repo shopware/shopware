@@ -69,7 +69,7 @@
         systemLanguageId: '{{ systemLanguageId }}',
         defaultLanguageIds: {{ defaultLanguageIds|json_encode|raw }},
         liveVersionId: '{{ liveVersionId }}',
-        firstRunWizard: {{ firstRunWizard }}
+        firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }}
     };
 
     Shopware.Application.start(applicationContext);

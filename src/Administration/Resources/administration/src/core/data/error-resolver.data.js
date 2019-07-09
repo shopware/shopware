@@ -1,7 +1,6 @@
 import { State, EntityDefinition } from 'src/core/shopware';
 import ShopwareError from './ShopwareError';
 
-const regExRegularPointer = /\/([^\/]*)(.*)/;
 const regExToManyAssociation = /\/([^\/]*)\/(\d)(\/.*)/;
 const regExTranslations = /\/translations\/([a-fA-f\d]*)\/(.*)/;
 
@@ -69,7 +68,18 @@ export default class ErrorResolver {
         if (!error.source.pointer.startsWith('/')) {
             error.source.pointer = `/${error.source.pointer}`;
         }
-        const [, fieldName, subFields] = error.source.pointer.match(regExRegularPointer);
+
+        const pointer = error.source.pointer.split('/');
+
+        // remove empty part before the slash
+        pointer.shift();
+
+        // remove (yet unused) write index
+        pointer.shift();
+
+        const fieldName = pointer.shift();
+        const subFields = `/${pointer.join('/')}`;
+
         const field = definition.getField(fieldName);
 
         if (!field) {

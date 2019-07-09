@@ -70,6 +70,11 @@ class WriteParameterBag
         return $this->path;
     }
 
+    public function setPath(string $path): void
+    {
+        $this->path = $path;
+    }
+
     public function getCommandQueue(): WriteCommandQueue
     {
         return $this->commandQueue;

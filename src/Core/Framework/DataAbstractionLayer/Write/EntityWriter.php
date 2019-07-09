@@ -295,7 +295,8 @@ class EntityWriter implements EntityWriterInterface
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
 
-        foreach ($rawData as $row) {
+        foreach ($rawData as $index => $row) {
+            $parameters->setPath('/' . $index);
             $writeContext->resetPaths();
             $this->writeResource->extract($row, $parameters);
         }

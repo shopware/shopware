@@ -115,7 +115,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/protected', $fieldException->getPath());
+        static::assertEquals('/0/protected', $fieldException->getPath());
     }
 
     public function testWriteWithoutProtectedField(): void
@@ -182,7 +182,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/relation', $fieldException->getPath());
+        static::assertEquals('/0/relation', $fieldException->getPath());
     }
 
     public function testWriteManyToOneWithPermission(): void
@@ -234,7 +234,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/wp', $fieldException->getPath());
+        static::assertEquals('/0/wp', $fieldException->getPath());
     }
 
     public function testWriteOneToManyWithPermission(): void
@@ -289,7 +289,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/relations', $fieldException->getPath());
+        static::assertEquals('/0/relations', $fieldException->getPath());
     }
 
     public function testWriteManyToManyWithPermission(): void
@@ -340,7 +340,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/protected', $fieldException->getPath());
+        static::assertEquals('/0/protected', $fieldException->getPath());
     }
 
     public function testWriteTranslationWithPermission(): void
@@ -381,7 +381,7 @@ EOF;
         foreach ($ex->getExceptions() as $exception) {
             $message = $exception->getMessage();
 
-            if ($exception instanceof WriteConstraintViolationException && $exception->getPath() === '/' . $field) {
+            if ($exception instanceof WriteConstraintViolationException && $exception->getPath() === '/0/' . $field) {
                 return $exception->getViolations()[0]->getMessage();
             }
         }

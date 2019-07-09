@@ -10,18 +10,16 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 
 class WriteException extends ShopwareHttpException
 {
-    private const MESSAGE = 'There are {{ errorCount }} error(s) while writing data.';
+    private const MESSAGE = "There are {{ errorCount }} error(s) while writing data.\n\n{{ messagesString }}";
+
     /**
      * @var \Throwable[]
      */
-    private $exceptions;
+    private $exceptions = [];
 
-    public function __construct(array $exceptions = [])
+    public function __construct()
     {
         parent::__construct(self::MESSAGE, ['errorCount' => 0]);
-
-        $this->exceptions = $exceptions;
-        $this->updateMessage();
     }
 
     public function add(\Throwable $exception): void
@@ -33,6 +31,39 @@ class WriteException extends ShopwareHttpException
     public function getExceptions(): array
     {
         return $this->exceptions;
+    }
+
+    public function getExceptionsByWriteIndex(int $writeIndex): array
+    {
+        $exceptions = [];
+
+        foreach ($this->getExceptions() as $innerException) {
+            if (!$innerException instanceof WriteFieldException) {
+                continue;
+            }
+
+            if ($innerException instanceof WriteConstraintViolationException) {
+                /** @var ConstraintViolationInterface $violation */
+                foreach ($innerException->getViolations() as $violation) {
+                    $path = empty($innerException->getPath()) ? $violation->getPropertyPath() : $innerException->getPath();
+
+                    if (strpos($path, '/' . $writeIndex . '/') !== 0) {
+                        continue;
+                    }
+
+                    $exceptions[] = $innerException;
+                    continue;
+                }
+            }
+
+            if (strpos($innerException->getPath(), '/' . $writeIndex . '/') !== 0) {
+                continue;
+            }
+
+            $exceptions[] = $innerException;
+        }
+
+        return $exceptions;
     }
 
     public function tryToThrow(): void
@@ -100,7 +131,21 @@ class WriteException extends ShopwareHttpException
 
     private function updateMessage(): void
     {
-        $this->parameters = ['errorCount' => count($this->exceptions)];
+        $messages = [];
+
+        foreach ($this->getErrors() as $index => $error) {
+            $pointer = $error['source']['pointer'] ?? '/';
+            $messages[] = sprintf('%d. [%s] %s', $index + 1, $pointer, $error['detail']);
+        }
+
+        $messagesString = implode(PHP_EOL, $messages);
+
+        $this->parameters = [
+            'errorCount' => count($this->exceptions),
+            'messages' => $messages,
+            'messagesString' => $messagesString,
+        ];
+
         $this->message = $this->parse(self::MESSAGE, $this->parameters);
     }
 }

@@ -137,7 +137,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/price', $fieldException->getPath());
+        static::assertEquals('/0/price', $fieldException->getPath());
     }
 
     public function testMultipleMissingProperties(): void
@@ -216,7 +216,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/price', $fieldException->getPath());
+        static::assertEquals('/0/price', $fieldException->getPath());
     }
 
     public function testUnexpectedFieldShouldThrowException(): void
@@ -248,7 +248,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/price', $fieldException->getPath());
+        static::assertEquals('/0/price', $fieldException->getPath());
     }
 
     public function testWithoutMappingShouldAcceptAnyKey(): void
@@ -309,15 +309,15 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/data/gross', $fieldException->getPath());
+        static::assertEquals('/0/data/gross', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[1];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/data/foo/bar', $fieldException->getPath());
+        static::assertEquals('/0/data/foo/bar', $fieldException->getPath());
 
         $fieldException = $ex->getExceptions()[2];
         static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
-        static::assertEquals('/data/foo/baz/deep', $fieldException->getPath());
+        static::assertEquals('/0/data/foo/baz/deep', $fieldException->getPath());
     }
 
     public function testWriteUtf8(): void

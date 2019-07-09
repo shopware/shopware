@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Pricing\ListingPrice;
 use Shopware\Core\Framework\Pricing\ListingPriceCollection;
@@ -30,7 +31,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
     private $salesChannelContext;
 
     /**
-     * @var \Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilder
+     * @var ProductPriceDefinitionBuilder
      */
     private $priceDefinitionBuilder;
 
@@ -43,7 +44,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
     {
         $this->salesChannelContext = $this->createSalesChannelContext();
 
-        $this->priceDefinitionBuilder = new \Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilder();
+        $this->priceDefinitionBuilder = new ProductPriceDefinitionBuilder();
 
         $this->currencyId = Uuid::randomHex();
         $this->getContainer()->get('currency.repository')->create([

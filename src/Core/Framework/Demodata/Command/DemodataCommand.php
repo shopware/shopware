@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Demodata\Command;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
@@ -87,14 +86,10 @@ class DemodataCommand extends Command
         $request->add(MediaDefinition::class, (int) $input->getOption('media'));
         $request->add(CustomerDefinition::class, (int) $input->getOption('customers'));
         $request->add(PropertyGroupDefinition::class, (int) $input->getOption('properties'));
-        $request->add(ShippingMethodPriceDefinition::class, 1);
         $request->add(CategoryDefinition::class, (int) $input->getOption('categories'));
-
         $request->add(ProductManufacturerDefinition::class, (int) $input->getOption('manufacturers'));
         $request->add(ProductDefinition::class, (int) $input->getOption('products'));
-
         $request->add(ProductStreamDefinition::class, (int) $input->getOption('product-streams'));
-
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
 
         $request->add(
@@ -104,7 +99,6 @@ class DemodataCommand extends Command
         );
 
         $request->add(MailTemplateDefinition::class, (int) $input->getOption('mail-template'));
-
         $request->add(MailHeaderFooterDefinition::class, (int) $input->getOption('mail-header-footer'));
 
         $demoContext = $this->demodataService->generate($request, $context, $io);

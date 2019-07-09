@@ -7,29 +7,15 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class ListingPriceCollection extends Collection
 {
-    public function filterByCurrencyId(string $currencyId)
-    {
-        return $this->filter(function (ListingPrice $price) use ($currencyId) {
-            return $price->getCurrencyId() === $currencyId;
-        });
-    }
-
-    public function filterByRuleId(string $ruleId)
-    {
-        return $this->filter(function (ListingPrice $price) use ($ruleId) {
-            return $price->getRuleId() === $ruleId;
-        });
-    }
-
     public function getContextPrice(Context $context): ?ListingPrice
     {
         foreach ($context->getRuleIds() as $ruleId) {
-            $prices = $this->filterByRuleId($ruleId);
+            $prices = $this->filterByRuleId($this->elements, $ruleId);
 
-            if ($prices->count() > 0) {
-                return $prices
-                    ->filterByCurrencyId($context->getCurrencyId())
-                    ->first();
+            if (\count($prices) > 0) {
+                $prices = $this->filterByCurrencyId($prices, $context->getCurrencyId());
+
+                return array_shift($prices);
             }
         }
 
@@ -39,5 +25,31 @@ class ListingPriceCollection extends Collection
     protected function getExpectedClass(): ?string
     {
         return ListingPrice::class;
+    }
+
+    private function filterByCurrencyId(array $prices, string $currencyId): array
+    {
+        $filtered = [];
+        /** @var ListingPrice $price */
+        foreach ($prices as $price) {
+            if ($price->getCurrencyId() === $currencyId) {
+                $filtered[] = $price;
+            }
+        }
+
+        return $filtered;
+    }
+
+    private function filterByRuleId(array $prices, string $ruleId): array
+    {
+        $filtered = [];
+        /** @var ListingPrice $price */
+        foreach ($prices as $price) {
+            if ($price->getRuleId() === $ruleId) {
+                $filtered[] = $price;
+            }
+        }
+
+        return $filtered;
     }
 }

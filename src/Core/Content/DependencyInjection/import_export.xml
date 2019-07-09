@@ -68,7 +68,8 @@
 			<argument type="service" id="import_export_log.repository"/>
             <argument type="tagged" tag="shopware.import_export.writer_factory"/>
             <argument type="tagged" tag="shopware.import_export.iterator_factory"/>
-            <argument type="service" id="Shopware\Core\Content\ImportExport\Mapping\MapperFactory"/>
+            <argument type="tagged" tag="shopware.import_export.mapper"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument>%import_export.write_buffer_size%</argument>
 		</service>
 
@@ -97,8 +98,12 @@
             <tag name="shopware.import_export.iterator_factory"/>
         </service>
 
-		<service id="Shopware\Core\Content\ImportExport\Mapping\MapperFactory">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        <service id="Shopware\Core\Content\ImportExport\Mapping\ImportMapper">
+            <tag name="shopware.import_export.mapper"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\Mapping\ExportMapper">
+            <tag name="shopware.import_export.mapper"/>
         </service>
 
 		<service id="Shopware\Core\Content\ImportExport\Writer\CsvFileWriterFactory">

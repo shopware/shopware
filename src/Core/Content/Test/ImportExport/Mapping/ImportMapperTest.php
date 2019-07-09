@@ -3,34 +3,41 @@
 namespace Shopware\Core\Content\Test\ImportExport\Mapping;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Mapping\FieldDefinitionCollection;
 use Shopware\Core\Content\ImportExport\Mapping\ImportMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class ImportMapperTest extends TestCase
 {
     use CustomerDefinition;
-    use IntegrationTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var ImportMapper
      */
     private $mapper;
 
+    /**
+     * @var FieldDefinitionCollection
+     */
+    private $fieldDefinitions;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $entityDefinitionRegistry;
+
     protected function setUp(): void
     {
-        $definitionRegistry = new DefinitionInstanceRegistry(
+        $this->entityDefinitionRegistry = new DefinitionInstanceRegistry(
             $this->getContainer(),
-            ['simple' => SimpleDefinition::class],
-            ['simple' => 'simple.repository']
+            ['customer' => \Shopware\Core\Checkout\Customer\CustomerDefinition::class],
+            ['customer' => 'customer.repository']
         );
 
-        $customerDefinition = new \Shopware\Core\Checkout\Customer\CustomerDefinition();
-        $customerDefinition->compile($definitionRegistry);
-        $this->mapper = new ImportMapper($this->buildDefinitionCollection(), $customerDefinition);
+        $this->mapper = new ImportMapper();
+        $this->fieldDefinitions = $this->buildDefinitionCollection();
     }
 
     public function testMappingCustomer(): void
@@ -51,7 +58,11 @@ class ImportMapperTest extends TestCase
             'country' => 'DE',
             'active' => '0',
         ];
-        $entityFormat = $this->mapper->map($input);
+        $entityFormat = $this->mapper->map(
+            $input,
+            $this->fieldDefinitions,
+            $this->entityDefinitionRegistry->getByEntityName('customer')
+        );
 
         static::assertEquals($input['first_name'], $entityFormat['firstName']);
         static::assertEquals($input['last_name'], $entityFormat['lastName']);

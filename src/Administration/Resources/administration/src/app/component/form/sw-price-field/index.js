@@ -9,8 +9,9 @@ import './sw-price-field.scss';
  * @example-type static
  * @component-example
  * <sw-price-field :taxRate="{ taxRate: 19 }"
- *                 :price="{ net: 10, gross: 11.90 }"
- *                 :currency="{ symbol: '€' }">
+ *                 :price="[{ net: 10, gross: 11.90, currencyId: '...' }, ...]"
+ *                 :defaultPrice="{...}"
+ *                 :currency="{...}">
  * </sw-price-field>
  */
 export default {
@@ -104,14 +105,6 @@ export default {
             return Application.getContainer('factory').apiService.getByName('calculate-price');
         },
 
-        grossError() {
-            return this.error ? this.error.gross : null;
-        },
-
-        netError() {
-            return this.error ? this.error.net : null;
-        },
-
         priceForCurrency: {
             get() {
                 const priceForCurrency = Object.values(this.price).find((price) => {
@@ -155,6 +148,18 @@ export default {
 
         labelNet() {
             return this.label ? this.$tc('global.sw-price-field.labelPriceNet') : '';
+        },
+
+        priceError() {
+            if (!this.error) {
+                return null;
+            }
+
+            if (!this.error._id) {
+                return this.error[''];
+            }
+
+            return this.error;
         }
     },
 

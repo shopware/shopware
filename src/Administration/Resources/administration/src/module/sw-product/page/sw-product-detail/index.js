@@ -313,9 +313,9 @@ Component.register('sw-product-detail', {
                 // set default product price
                 this.product.price = [{
                     currencyId: this.defaultCurrency.id,
-                    net: null,
+                    net: 0,
                     linked: true,
-                    gross: null
+                    gross: 0
                 }];
 
                 this.$store.commit('swProductDetail/setLoading', ['product', false]);

@@ -25,6 +25,7 @@ Component.register('sw-first-run-wizard-modal', {
             stepVariant: 'info',
             currentStep: {
                 name: '',
+                navigationIndex: 0,
                 next: false,
                 skip: false,
                 back: false,
@@ -127,6 +128,10 @@ Component.register('sw-first-run-wizard-modal', {
         stepIndex() {
             const { navigationIndex } = this.currentStep;
 
+            if (navigationIndex < 1) {
+                return 0;
+            }
+
             return navigationIndex - 1;
         },
 
@@ -146,11 +151,9 @@ Component.register('sw-first-run-wizard-modal', {
     },
 
     watch: {
-        '$route'(to, from) {
-            const fromName = from.name.replace('sw.first.run.wizard.index.', '');
+        '$route'(to) {
             const toName = to.name.replace('sw.first.run.wizard.index.', '');
 
-            console.log({ fromName, toName });
             this.currentStep = this.stepper[toName];
         }
     },

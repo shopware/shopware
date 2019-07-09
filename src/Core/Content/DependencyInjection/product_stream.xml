@@ -27,7 +27,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
 
-            <tag name="shopware.dbal_indexing.indexer"/>
+            <tag name="shopware.dal_indexing.indexer"/>
         </service>
     </services>
 </container>

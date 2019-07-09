@@ -282,9 +282,10 @@ class SalesChannelCategoryControllerTest extends TestCase
         });
 
         $values = $content['aggregations']['category-names'][0]['values'];
-        static::assertContains(['key' => 'A', 'count' => '2'], $values);
-        static::assertContains(['key' => 'B', 'count' => '1'], $values);
-        static::assertContains(['key' => 'C', 'count' => '1'], $values);
+
+        static::assertContains(['key' => 'A', 'count' => '2', 'extensions' => []], $values);
+        static::assertContains(['key' => 'B', 'count' => '1', 'extensions' => []], $values);
+        static::assertContains(['key' => 'C', 'count' => '1', 'extensions' => []], $values);
     }
 
     public function testDetailWithNoneExistingCategory(): void

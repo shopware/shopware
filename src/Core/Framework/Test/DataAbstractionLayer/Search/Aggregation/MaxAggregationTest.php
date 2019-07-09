@@ -4,8 +4,9 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\MaxResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
@@ -31,10 +32,7 @@ class MaxAggregationTest extends TestCase
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
         static::assertEquals([
-            [
-                'key' => null,
-                'max' => 90,
-            ],
+            new MaxResult(null, 90),
         ], $rateAgg->getResult());
     }
 
@@ -52,7 +50,7 @@ class MaxAggregationTest extends TestCase
         /** @var AggregationResult $createdAgg */
         $createdAgg = $result->getAggregations()->get('created_agg');
         static::assertNotNull($createdAgg);
-        static::assertInstanceOf(\DateTime::class, $createdAgg->getResult()[0]['max']);
+        static::assertInstanceOf(\DateTime::class, $createdAgg->getResult()[0]->getMax());
     }
 
     public function testMaxAggregationWithGroupBy(): void
@@ -70,9 +68,9 @@ class MaxAggregationTest extends TestCase
         /** @var AggregationResult $maxAgg */
         $maxAgg = $result->getAggregations()->get('max_agg');
         static::assertCount(4, $maxAgg->getResult());
-        static::assertEquals(20, $maxAgg->getResultByKey(['product.categories.name' => 'cat1'])['max']);
-        static::assertEquals(90, $maxAgg->getResultByKey(['product.categories.name' => 'cat2'])['max']);
-        static::assertEquals(90, $maxAgg->getResultByKey(['product.categories.name' => 'cat3'])['max']);
-        static::assertEquals(20, $maxAgg->getResultByKey(['product.categories.name' => 'cat4'])['max']);
+        static::assertEquals(20, $maxAgg->get(['product.categories.name' => 'cat1'])->getMax());
+        static::assertEquals(90, $maxAgg->get(['product.categories.name' => 'cat2'])->getMax());
+        static::assertEquals(90, $maxAgg->get(['product.categories.name' => 'cat3'])->getMax());
+        static::assertEquals(20, $maxAgg->get(['product.categories.name' => 'cat4'])->getMax());
     }
 }

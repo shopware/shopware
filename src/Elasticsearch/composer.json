@@ -1,0 +1,23 @@
+{
+  "name": "shopware/elasticsearch",
+  "description": "Elasticsearch for Shopware",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Shopware\\Elasticsearch\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Test/"
+    ]
+  },
+  "minimum-stability": "dev",
+  "require": {
+    "shopware/core": "*",
+    "elasticsearch/elasticsearch": "7.0.0",
+    "ongr/elasticsearch-dsl": "6.0.3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "8.1.6"
+  }
+}

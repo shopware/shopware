@@ -12,10 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -74,19 +75,13 @@ class CachedEntityAggregatorTest extends TestCase
                             new AggregationResult(
                                 $propertiesAggregation,
                                 [
-                                    [
-                                        'key' => null,
-                                        'values' => new EntityCollection([$configGroupEntity]),
-                                    ],
+                                    new EntityResult(null, new EntityCollection([$configGroupEntity])),
                                 ]
                             ),
                             new AggregationResult(
                                 $manufacturerAggregation,
                                 [
-                                    [
-                                        'key' => null,
-                                        'values' => new EntityCollection([$manufacturerEntity]),
-                                    ],
+                                    new EntityResult(null, new EntityCollection([$manufacturerEntity])),
                                 ]
                             ),
                             new AggregationResult($priceAggregation, []),
@@ -156,10 +151,7 @@ class CachedEntityAggregatorTest extends TestCase
                                             'properties'
                                         ),
                                         [
-                                            [
-                                                'key' => null,
-                                                'values' => new EntityCollection([$configGroupEntity]),
-                                            ],
+                                            new EntityResult(null, new EntityCollection([$configGroupEntity])),
                                         ]
                                     ),
                                     new AggregationResult(
@@ -169,10 +161,7 @@ class CachedEntityAggregatorTest extends TestCase
                                             'manufacturer'
                                         ),
                                         [
-                                            [
-                                                'key' => null,
-                                                'values' => new EntityCollection([$manufacturerEntity]),
-                                            ],
+                                            new EntityResult(null, new EntityCollection([$manufacturerEntity])),
                                         ]
                                     ),
                                     new AggregationResult(
@@ -255,19 +244,13 @@ class CachedEntityAggregatorTest extends TestCase
                             new AggregationResult(
                                 $propertiesAggregation,
                                 [
-                                    [
-                                        'key' => null,
-                                        'values' => new EntityCollection([$configGroupEntity]),
-                                    ],
+                                    new EntityResult(null, new EntityCollection([$configGroupEntity])),
                                 ]
                             ),
                             new AggregationResult(
                                 $manufacturerAggregation,
                                 [
-                                    [
-                                        'key' => null,
-                                        'values' => new EntityCollection([$manufacturerEntity]),
-                                    ],
+                                    new EntityResult(null, new EntityCollection([$manufacturerEntity])),
                                 ]
                             ),
                             new AggregationResult($priceAggregation, []),

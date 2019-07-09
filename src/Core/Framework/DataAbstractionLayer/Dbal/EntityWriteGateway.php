@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -87,6 +89,14 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
                 if ($command instanceof JsonUpdateCommand) {
                     $this->executeJsonUpdate($command);
+                    continue;
+                }
+
+                /** @var InsertCommand $command */
+                if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
+                    $queue = new MultiInsertQueryQueue($this->connection, 1, false, true);
+                    $queue->addInsert($definition->getEntityName(), $command->getPayload());
+                    $queue->execute();
                     continue;
                 }
 

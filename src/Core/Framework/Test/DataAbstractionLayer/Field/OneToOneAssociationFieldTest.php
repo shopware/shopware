@@ -11,8 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\SumResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -306,7 +307,11 @@ DROP TABLE IF EXISTS `root_sub_many`;
 
         /** @var AggregationResult $sum */
         static::assertInstanceOf(AggregationResult::class, $sum);
-        static::assertEquals(11, $sum->getResult()[0]['sum']);
+
+        /** @var SumResult $sumResult */
+        $sumResult = $sum->getResult()[0];
+
+        static::assertEquals(11, $sumResult->getSum());
     }
 
     public function testCreateVersioning(): void

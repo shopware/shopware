@@ -3,23 +3,18 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Util\Random;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 
 class ProductGenerator implements DemodataGeneratorInterface
@@ -47,11 +42,6 @@ class ProductGenerator implements DemodataGeneratorInterface
     private $numberRangeValueGenerator;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
-
-    /**
      * @var ProductDefinition
      */
     private $productDefinition;
@@ -61,14 +51,12 @@ class ProductGenerator implements DemodataGeneratorInterface
         EntityRepositoryInterface $taxRepository,
         Connection $connection,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        EntityRepositoryInterface $mediaRepository,
         ProductDefinition $productDefinition
     ) {
         $this->writer = $writer;
         $this->taxRepository = $taxRepository;
         $this->connection = $connection;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
-        $this->mediaRepository = $mediaRepository;
         $this->productDefinition = $productDefinition;
     }
 
@@ -91,7 +79,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $context->getConsole()->progressStart($count);
 
-        $mediaIds = $this->getMediaIds($context->getContext());
+        $mediaIds = $context->getIds('media');
 
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
@@ -104,11 +92,15 @@ class ProductGenerator implements DemodataGeneratorInterface
                 ];
             }
 
-            $productProperties = \array_slice(
-                $properties,
-                random_int(0, max(0, count($properties) - 20)),
-                random_int(10, 30)
-            );
+            $productProperties = [];
+            foreach ($properties as $groupId => $options) {
+                $productProperties = array_merge(
+                    $productProperties,
+                    $context->getFaker()->randomElements($options, 3)
+                );
+            }
+
+            $productProperties = array_slice($productProperties, 0, 20);
 
             $product['properties'] = array_map(function ($config) {
                 return ['id' => $config];
@@ -135,36 +127,27 @@ class ProductGenerator implements DemodataGeneratorInterface
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         $this->writer->upsert($this->productDefinition, $payload, $writeContext);
-
-        $context->add(ProductDefinition::class, ...array_column($payload, 'id'));
     }
 
     private function getTaxes(Context $context)
     {
-        $this->taxRepository->create([
-            ['name' => 'High tax', 'taxRate' => 19],
-        ], $context);
+        $tax = ['name' => 'High tax', 'taxRate' => 19];
+        $this->taxRepository->create([$tax], $context);
 
         return $this->taxRepository->search(new Criteria(), $context);
-    }
-
-    private function getMediaIds(Context $context)
-    {
-        return array_values($this->mediaRepository->search(new PaginationCriteria(200), $context)->getIds());
     }
 
     private function createSimpleProduct(DemodataContext $context, EntitySearchResult $taxes): array
     {
         $price = random_int(1, 1000);
-        $manufacturer = $context->getIds(ProductManufacturerDefinition::class);
-        $categories = $context->getIds(CategoryDefinition::class);
-        $rules = $context->getIds(RuleDefinition::class);
+        $manufacturer = $context->getIds('product_manufacturer');
+        $categories = $context->getIds('category');
+        $rules = $context->getIds('rule');
         $tax = $taxes->get(array_rand($taxes->getIds()));
         $reverseTaxrate = 1 + ($tax->getTaxRate() / 100);
 
         $faker = $context->getFaker();
         $product = [
-            'id' => Uuid::randomHex(),
             'productNumber' => $this->numberRangeValueGenerator->getValue('product', $context->getContext(), null),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $reverseTaxrate, 'linked' => true]],
             'name' => $faker->productName,
@@ -233,9 +216,14 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function getProperties()
     {
-        $options = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM property_group_option LIMIT 5000');
+        $options = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id, LOWER(HEX(property_group_id)) as property_group_id FROM property_group_option LIMIT 5000');
 
-        return array_column($options, 'id');
+        $grouped = [];
+        foreach ($options as $option) {
+            $grouped[$option['property_group_id']][] = $option['id'];
+        }
+
+        return $grouped;
     }
 
     private function buildVisibilities()

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use function Flag\next741;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -67,6 +67,11 @@ class SeoUrlIndexer implements IndexerInterface
      */
     private $languageRepository;
 
+    /**
+     * @var IteratorFactory
+     */
+    private $iteratorFactory;
+
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
@@ -75,7 +80,8 @@ class SeoUrlIndexer implements IndexerInterface
         SeoUrlTemplateLoader $templateLoader,
         DefinitionInstanceRegistry $definitionRegistry,
         SeoUrlRouteRegistry $seoUrlRouteRegistry,
-        EntityRepositoryInterface $languageRepository
+        EntityRepositoryInterface $languageRepository,
+        IteratorFactory $iteratorFactory
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
@@ -85,6 +91,7 @@ class SeoUrlIndexer implements IndexerInterface
         $this->seoUrlPersister = $seoUrlPersister;
         $this->templateLoader = $templateLoader;
         $this->languageRepository = $languageRepository;
+        $this->iteratorFactory = $iteratorFactory;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -108,7 +115,7 @@ class SeoUrlIndexer implements IndexerInterface
 
                 $chain = $this->getLanguageIdChain($languageId);
                 $context = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, $chain);
-                $iterator = new RepositoryIterator($repo, $context);
+                $iterator = $this->iteratorFactory->createIterator($config->getDefinition());
 
                 $this->eventDispatcher->dispatch(
                     new ProgressStartedEvent(
@@ -117,12 +124,12 @@ class SeoUrlIndexer implements IndexerInterface
                             $config->getRouteName(),
                             $language->getName()
                         ),
-                        $iterator->getTotal()
+                        $iterator->fetchCount()
                     ),
                     ProgressStartedEvent::NAME
                 );
 
-                while ($ids = $iterator->fetchIds()) {
+                while ($ids = $iterator->fetch()) {
                     $seoUrls = $this->seoUrlGenerator->generateSeoUrls($context, $seoUrlRoute, $ids, $groups);
                     $this->seoUrlPersister->updateSeoUrls($context, $config->getRouteName(), $ids, $seoUrls);
 

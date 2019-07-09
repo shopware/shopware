@@ -34,7 +34,10 @@ class RequestTransformerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->requestBuilder = new RequestTransformer($this->getContainer()->get(Connection::class));
+        $this->requestBuilder = new RequestTransformer(
+            new \Shopware\Core\Framework\Routing\RequestTransformer(),
+            $this->getContainer()->get(Connection::class)
+        );
 
         $this->deLanguageId = $this->getDeDeLanguageId();
     }

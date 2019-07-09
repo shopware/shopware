@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\MinResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
@@ -28,14 +28,11 @@ class MinAggregationTest extends TestCase
         $taxRepository = $this->getContainer()->get('tax.repository');
         $result = $taxRepository->aggregate($criteria, $context);
 
-        /** @var AggregationResult $rateAgg */
+        /** @var \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult $rateAgg */
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
         static::assertEquals([
-            [
-                'key' => null,
-                'min' => 10,
-            ],
+            new MinResult(null, 10),
         ], $rateAgg->getResult());
     }
 
@@ -50,10 +47,10 @@ class MinAggregationTest extends TestCase
         $taxRepository = $this->getContainer()->get('tax.repository');
         $result = $taxRepository->aggregate($criteria, $context);
 
-        /** @var AggregationResult $createdAgg */
+        /** @var \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult $createdAgg */
         $createdAgg = $result->getAggregations()->get('created_agg');
         static::assertNotNull($createdAgg);
-        static::assertInstanceOf(\DateTime::class, $createdAgg->getResult()[0]['min']);
+        static::assertInstanceOf(\DateTime::class, $createdAgg->getResult()[0]->getMin());
     }
 
     public function testMinAggregationWithGroupBy(): void
@@ -68,12 +65,12 @@ class MinAggregationTest extends TestCase
         $productRepository = $this->getContainer()->get('product.repository');
         $result = $productRepository->aggregate($criteria, $context);
 
-        /** @var AggregationResult $minAgg */
+        /** @var \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult $minAgg */
         $minAgg = $result->getAggregations()->get('min_agg');
         static::assertCount(4, $minAgg->getResult());
-        static::assertEquals(10, $minAgg->getResultByKey(['product.categories.name' => 'cat1'])['min']);
-        static::assertEquals(20, $minAgg->getResultByKey(['product.categories.name' => 'cat2'])['min']);
-        static::assertEquals(10, $minAgg->getResultByKey(['product.categories.name' => 'cat3'])['min']);
-        static::assertEquals(10, $minAgg->getResultByKey(['product.categories.name' => 'cat4'])['min']);
+        static::assertEquals(10, $minAgg->get(['product.categories.name' => 'cat1'])->getMin());
+        static::assertEquals(20, $minAgg->get(['product.categories.name' => 'cat2'])->getMin());
+        static::assertEquals(10, $minAgg->get(['product.categories.name' => 'cat3'])->getMin());
+        static::assertEquals(10, $minAgg->get(['product.categories.name' => 'cat4'])->getMin());
     }
 }

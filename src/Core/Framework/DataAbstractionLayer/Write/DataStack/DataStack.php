@@ -49,16 +49,13 @@ class DataStack
 
     public function has(string $key): bool
     {
-        return array_key_exists($key, $this->data);
+        return isset($this->data[$key]);
     }
 
-    /**
-     * @throws ItemNotFoundException
-     */
-    public function pop(string $key): KeyValuePair
+    public function pop(string $key): ?KeyValuePair
     {
         if (!$this->has($key)) {
-            throw new ItemNotFoundException($key);
+            return null;
         }
 
         $pair = $this->data[$key];

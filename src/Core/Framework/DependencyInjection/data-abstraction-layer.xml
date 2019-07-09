@@ -91,8 +91,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
             <argument>%shopware.api.max_limit%</argument>
             <argument>%shopware.api.allowed_limits%</argument>
         </service>
@@ -112,7 +110,8 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface">
@@ -128,6 +127,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter">
@@ -225,7 +226,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\ChildCountIndexer">
-            <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
+            <tag name="shopware.dal_indexing.indexer" priority="1000"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -241,11 +242,11 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="shopware.cache"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <tag name="shopware.dbal_indexing.indexer" priority="1000"/>
+            <tag name="shopware.dal_indexing.indexer" priority="1000"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\DataAbstractionLayer\Indexing\BreadcrumbIndexer">
-            <tag name="shopware.dbal_indexing.indexer" priority="990"/>
+            <tag name="shopware.dal_indexing.indexer" priority="990"/>
 
             <argument type="service" id="language.repository"/>
             <argument type="service" id="category.repository"/>
@@ -258,7 +259,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"
                  class="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry">
-            <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
+            <argument type="tagged" tag="shopware.dal_indexing.indexer"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -285,7 +286,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\InheritanceIndexer">
-            <tag name="shopware.dbal_indexing.indexer" priority="1500"/>
+            <tag name="shopware.dal_indexing.indexer" priority="1500"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="event_dispatcher"/>
@@ -494,7 +495,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\ManyToManyIdFieldIndexer">
-            <tag name="shopware.dbal_indexing.indexer" priority="400"/>
+            <tag name="shopware.dal_indexing.indexer" priority="400"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>

@@ -28,6 +28,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -58,16 +60,30 @@ class EntityReader implements EntityReaderInterface
      */
     private $parser;
 
+    /**
+     * @var SearchTermInterpreter
+     */
+    private $interpreter;
+
+    /**
+     * @var EntityScoreQueryBuilder
+     */
+    private $scoreBuilder;
+
     public function __construct(
         Connection $connection,
         EntityHydrator $hydrator,
         EntityDefinitionQueryHelper $queryHelper,
-        SqlQueryParser $parser
+        SqlQueryParser $parser,
+        SearchTermInterpreter $interpreter,
+        EntityScoreQueryBuilder $scoreBuilder
     ) {
         $this->connection = $connection;
         $this->hydrator = $hydrator;
         $this->queryHelper = $queryHelper;
         $this->parser = $parser;
+        $this->interpreter = $interpreter;
+        $this->scoreBuilder = $scoreBuilder;
     }
 
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
@@ -85,6 +101,26 @@ class EntityReader implements EntityReaderInterface
             new $collectionClass(),
             $definition->getFields()->getBasicFields()
         );
+    }
+
+    protected function getParser(): SqlQueryParser
+    {
+        return $this->parser;
+    }
+
+    protected function getDefinitionHelper(): EntityDefinitionQueryHelper
+    {
+        return $this->queryHelper;
+    }
+
+    protected function getInterpreter(): SearchTermInterpreter
+    {
+        return $this->interpreter;
+    }
+
+    protected function getScoreBuilder(): EntityScoreQueryBuilder
+    {
+        return $this->scoreBuilder;
     }
 
     private function _read(
@@ -243,8 +279,6 @@ class EntityReader implements EntityReaderInterface
 
         $query = $this->buildQueryByCriteria(
             new QueryBuilder($this->connection),
-            $this->queryHelper,
-            $this->parser,
             $definition,
             $criteria,
             $context
@@ -611,8 +645,6 @@ class EntityReader implements EntityReaderInterface
         );
         $query = $this->buildQueryByCriteria(
             new QueryBuilder($this->connection),
-            $this->queryHelper,
-            $this->parser,
             $association->getToManyReferenceDefinition(),
             $fieldCriteria,
             $context
@@ -726,8 +758,6 @@ class EntityReader implements EntityReaderInterface
         //build query based on provided association criteria (sortings, search, filter)
         $query = $this->buildQueryByCriteria(
             new QueryBuilder($this->connection),
-            $this->queryHelper,
-            $this->parser,
             $association->getReferenceDefinition(),
             $fieldCriteria,
             $context

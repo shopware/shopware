@@ -14,7 +14,9 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
             <argument type="service" id="language.repository"/>
-            <tag name="shopware.dbal_indexing.indexer" priority="250"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+
+            <tag name="shopware.dal_indexing.indexer" priority="250"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlDefinition" >

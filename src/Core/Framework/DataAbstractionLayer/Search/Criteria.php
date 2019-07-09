@@ -87,6 +87,11 @@ class Criteria extends Struct
     protected $inherited = false;
 
     /**
+     * @var string|null
+     */
+    protected $term;
+
+    /**
      * @throws InconsistentCriteriaIdsException
      */
     public function __construct(array $ids = [])
@@ -363,6 +368,18 @@ class Criteria extends Struct
     public function hasState(string $state): bool
     {
         return isset($this->states[$state]);
+    }
+
+    public function getTerm(): ?string
+    {
+        return $this->term;
+    }
+
+    public function setTerm(?string $term): self
+    {
+        $this->term = $term;
+
+        return $this;
     }
 
     private function collectFields(array $parts): array

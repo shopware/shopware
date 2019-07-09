@@ -88,8 +88,6 @@ class RuleGenerator implements DemodataGeneratorInterface
         $ids = $this->ruleRepository->searchIds($criteria, $context->getContext());
 
         if (!empty($ids->getIds())) {
-            $context->add(RuleDefinition::class, ...$ids->getIds());
-
             return;
         }
 
@@ -154,8 +152,6 @@ class RuleGenerator implements DemodataGeneratorInterface
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         $this->writer->insert($this->ruleDefinition, $payload, $writeContext);
-
-        $context->add(RuleDefinition::class, ...array_column($payload, 'id'));
     }
 
     private function buildNestedRule(Rule $rule, array $pool, int $currentDepth, int $depth): Rule

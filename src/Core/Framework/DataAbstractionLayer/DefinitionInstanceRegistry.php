@@ -46,10 +46,10 @@ class DefinitionInstanceRegistry
         return $entityRepository;
     }
 
-    public function get(string $name): EntityDefinition
+    public function get(string $class): EntityDefinition
     {
         /** @var EntityDefinition $entityDefinition */
-        $entityDefinition = $this->container->get($name);
+        $entityDefinition = $this->container->get($class);
 
         return $entityDefinition;
     }

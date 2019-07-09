@@ -104,7 +104,6 @@ class MailHeaderFooterGenerator implements DemodataGeneratorInterface
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         $this->writer->upsert($this->mailHeaderFooterDefinition, $payload, $writeContext);
-        $context->add(MailHeaderFooterDefinition::class, ...array_column($payload, 'id'));
     }
 
     /**

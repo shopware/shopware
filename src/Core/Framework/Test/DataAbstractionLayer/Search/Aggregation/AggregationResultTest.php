@@ -3,9 +3,10 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\CountResult;
 
 class AggregationResultTest extends TestCase
 {
@@ -56,34 +57,22 @@ class AggregationResultTest extends TestCase
     {
         $aggregation = new CountAggregation('field', 'foo', 'foo.name');
         $aggregationResult = new AggregationResult($aggregation, [
-            [
-                'key' => [
-                    'foo.name' => 'test',
-                ],
-                'count' => 12,
-            ],
+            new CountResult(['foo.name' => 'test'], 12),
         ]);
 
-        static::assertEquals([
-            'key' => [
-                'foo.name' => 'test',
-            ],
-            'count' => 12,
-        ], $aggregationResult->getResultByKey(['foo.name' => 'test']));
+        static::assertEquals(
+            new CountResult(['foo.name' => 'test'], 12),
+            $aggregationResult->get(['foo.name' => 'test'])
+        );
     }
 
     public function testResultByKeyReturnsNull(): void
     {
         $aggregation = new CountAggregation('field', 'foo', 'foo.name');
         $aggregationResult = new AggregationResult($aggregation, [
-            [
-                'key' => [
-                    'foo.name' => 'test',
-                ],
-                'count' => 12,
-            ],
+            new CountResult(['foo.name' => 'test'], 12),
         ]);
 
-        static::assertNull($aggregationResult->getResultByKey(['foo.name' => 'notFound']));
+        static::assertNull($aggregationResult->get(['foo.name' => 'notFound']));
     }
 }

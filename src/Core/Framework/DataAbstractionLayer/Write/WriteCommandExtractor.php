@@ -15,12 +15,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\ItemNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -52,12 +52,12 @@ class WriteCommandExtractor
 
         $pkData = $this->getPrimaryKey($rawData, $parameters, $fields);
 
-        $existence = $this->entityExistenceGateway->getExistence(
-            $definition,
-            $pkData,
-            $rawData,
-            $parameters->getCommandQueue()
-        );
+        if ($definition instanceof MappingEntityDefinition) {
+            // gateway will execute always a replace into
+            $existence = new EntityExistence($definition, [], false, false, false, []);
+        } else {
+            $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $parameters->getCommandQueue());
+        }
 
         $rawData = $this->integrateDefaults($definition, $rawData, $existence);
 
@@ -99,9 +99,10 @@ class WriteCommandExtractor
         $stack = new DataStack($rawData);
 
         foreach ($fields as $field) {
-            try {
-                $kvPair = $stack->pop($field->getPropertyName());
-            } catch (ItemNotFoundException $e) {
+            $kvPair = $stack->pop($field->getPropertyName());
+
+            // not in data stack?
+            if ($kvPair === null) {
                 if ($field->is(Inherited::class) && $existence->isChild()) {
                     //inherited field of a child is never required
                     continue;

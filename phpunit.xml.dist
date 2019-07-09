@@ -50,8 +50,12 @@
             <directory>src/Core/System</directory>
         </testsuite>
 
+        <testsuite name="elasticsearch">
+            <directory>src/Elasticsearch</directory>
+        </testsuite>
+
         <testsuite name="docs">
-            <directory  suffix="example.php">src/Docs/Resources/current/</directory>
+            <directory suffix="example.php">src/Docs/Resources/current/</directory>
         </testsuite>
     </testsuites>
 

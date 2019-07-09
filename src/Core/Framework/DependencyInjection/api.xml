@@ -5,6 +5,10 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Shopware\Core\Framework\Routing\RequestTransformerInterface"
+                 class="Shopware\Core\Framework\Routing\RequestTransformer"
+                 public="true"/>
+
         <service id="Shopware\Core\Framework\Api\Controller\FallbackController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container" />
@@ -48,8 +52,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
             <argument type="tagged" tag="shopware.composite_search.definition"/>
         </service>
 

@@ -3,9 +3,8 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
@@ -20,26 +19,23 @@ class BusinessEventDispatcher implements EventDispatcherInterface
     private $dispatcher;
 
     /**
-     * @var EntitySearcherInterface
-     */
-    private $searcher;
-
-    /**
-     * @var EntityReaderInterface
-     */
-    private $reader;
-
-    /**
      * @var EventActionDefinition
      */
     private $eventActionDefinition;
 
-    public function __construct(EventDispatcherInterface $dispatcher, EntitySearcherInterface $searcher, EntityReaderInterface $reader, EventActionDefinition $eventActionDefinition)
-    {
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionRegistry;
+
+    public function __construct(
+        EventDispatcherInterface $dispatcher,
+        DefinitionInstanceRegistry $definitionRegistry,
+        EventActionDefinition $eventActionDefinition
+    ) {
         $this->dispatcher = $dispatcher;
-        $this->searcher = $searcher;
-        $this->reader = $reader;
         $this->eventActionDefinition = $eventActionDefinition;
+        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function dispatch($event, ?string $eventName = null): object
@@ -93,12 +89,13 @@ class BusinessEventDispatcher implements EventDispatcherInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('event_action.eventName', $eventName));
 
-        $actionIds = $this->searcher->search($this->eventActionDefinition, $criteria, $context);
+        /** @var EventActionCollection $events */
+        $events = $this->definitionRegistry
+            ->getRepository($this->eventActionDefinition->getEntityName())
+            ->search($criteria, $context)
+            ->getEntities();
 
-        /** @var EventActionCollection $actions */
-        $actions = $this->reader->read($this->eventActionDefinition, new Criteria($actionIds->getIds()), $context);
-
-        return $actions;
+        return $events;
     }
 
     private function callActions(BusinessEventInterface $event): void

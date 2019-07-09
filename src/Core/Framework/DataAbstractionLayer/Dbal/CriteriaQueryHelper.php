@@ -10,18 +10,34 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 
 trait CriteriaQueryHelper
 {
-    protected function buildQueryByCriteria(QueryBuilder $query, EntityDefinitionQueryHelper $queryHelper, SqlQueryParser $parser, EntityDefinition $definition, Criteria $criteria, Context $context): QueryBuilder
+    abstract protected function getParser(): SqlQueryParser;
+
+    abstract protected function getDefinitionHelper(): EntityDefinitionQueryHelper;
+
+    abstract protected function getInterpreter(): SearchTermInterpreter;
+
+    abstract protected function getScoreBuilder(): EntityScoreQueryBuilder;
+
+    protected function buildQueryByCriteria(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context): QueryBuilder
     {
         $table = $definition->getEntityName();
 
-        $query = $queryHelper->getBaseQuery($query, $definition, $context);
+        $query = $this->getDefinitionHelper()->getBaseQuery($query, $definition, $context);
 
         if ($definition->isInheritanceAware() && $context->considerInheritance()) {
             $parent = $definition->getFields()->get('parent');
-            $queryHelper->resolveField($parent, $definition, $definition->getEntityName(), $query, $context);
+            $this->getDefinitionHelper()->resolveField($parent, $definition, $definition->getEntityName(), $query, $context);
+        }
+
+        if ($criteria->getTerm()) {
+            $pattern = $this->getInterpreter()->interpret($criteria->getTerm());
+            $queries = $this->getScoreBuilder()->buildScoreQueries($pattern, $definition, $definition->getEntityName());
+            $criteria->addQuery(...$queries);
         }
 
         $fields = $this->getFieldsByCriteria($criteria);
@@ -31,19 +47,19 @@ trait CriteriaQueryHelper
             if ($fieldName === '_score') {
                 continue;
             }
-            $queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context);
+            $this->getDefinitionHelper()->resolveAccessor($fieldName, $definition, $table, $query, $context);
         }
 
-        $this->addFilters($parser, $definition, $criteria, $query, $context);
+        $this->addFilters($definition, $criteria, $query, $context);
 
-        $this->addQueries($parser, $definition, $criteria, $query, $context);
+        $this->addQueries($definition, $criteria, $query, $context);
 
-        $this->addSortings($queryHelper, $definition, $criteria, $query, $context);
+        $this->addSortings($definition, $criteria, $query, $context);
 
         return $query;
     }
 
-    protected function addFilters(SqlQueryParser $parser, EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
+    private function addFilters(EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
         $filters = new MultiFilter(
             MultiFilter::CONNECTION_AND,
@@ -53,7 +69,7 @@ trait CriteriaQueryHelper
             )
         );
 
-        $parsed = $parser->parse($filters, $definition, $context);
+        $parsed = $this->getParser()->parse($filters, $definition, $context);
 
         if (empty($parsed->getWheres())) {
             return;
@@ -65,9 +81,9 @@ trait CriteriaQueryHelper
         }
     }
 
-    protected function addQueries(SqlQueryParser $parser, EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
+    private function addQueries(EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
-        $queries = $parser->parseRanking(
+        $queries = $this->getParser()->parseRanking(
             $criteria->getQueries(),
             $definition,
             $definition->getEntityName(),
@@ -101,7 +117,7 @@ trait CriteriaQueryHelper
         }
     }
 
-    protected function addSortings(EntityDefinitionQueryHelper $queryHelper, EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
+    private function addSortings(EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
         foreach ($criteria->getSorting() as $sorting) {
             $this->validateSortingDirection($sorting->getDirection());
@@ -112,7 +128,7 @@ trait CriteriaQueryHelper
                 continue;
             }
 
-            $accessor = $queryHelper->getFieldAccessor($sorting->getField(), $definition, $definition->getEntityName(), $context);
+            $accessor = $this->getDefinitionHelper()->getFieldAccessor($sorting->getField(), $definition, $definition->getEntityName(), $context);
 
             if ($sorting->getNaturalSorting()) {
                 $query->addOrderBy('LENGTH(' . $accessor . ')', $sorting->getDirection());
@@ -125,7 +141,7 @@ trait CriteriaQueryHelper
     /**
      * @return string[]
      */
-    protected function getFieldsByCriteria(Criteria $criteria): array
+    private function getFieldsByCriteria(Criteria $criteria): array
     {
         $fields = [];
 
@@ -155,7 +171,7 @@ trait CriteriaQueryHelper
     /**
      * @throws InvalidSortingDirectionException
      */
-    private function validateSortingDirection(string $direction)
+    private function validateSortingDirection(string $direction): void
     {
         if (!in_array(strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {
             throw new InvalidSortingDirectionException($direction);

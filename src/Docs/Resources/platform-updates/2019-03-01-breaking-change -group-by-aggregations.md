@@ -62,7 +62,7 @@ $aggregationResult-&gt;getResultByKey([
 &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&#39;avg&#39; =&gt; 13.33
 &nbsp;&nbsp; &nbsp;],</pre>
 
-<p>The Aggregation result for the specific aggregations are deleted and just the generic AggregationResult exists.</p>
+<p>The Aggregation result for the specific aggregations are deleted and just the generic AbstractAggregationResult exists.</p>
 
 <p><strong>FIXING EXISTING AGGREGATIONS</strong><br />
 As existing aggregations can&#39;t use groupBy you can simply use the first array index of the returned result:</p>

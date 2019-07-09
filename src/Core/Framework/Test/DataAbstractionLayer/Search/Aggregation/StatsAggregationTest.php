@@ -4,8 +4,9 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\StatsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AggregationTestBehaviour;
@@ -48,14 +49,7 @@ class StatsAggregationTest extends TestCase
 
         static::assertEquals(
             [
-                [
-                    'key' => null,
-                    'count' => 8,
-                    'max' => 90,
-                    'min' => 10,
-                    'avg' => 32.5,
-                    'sum' => 260,
-                ],
+                new StatsResult(null, 10, 90, 8, 32.5, 260),
             ], $rateAgg->getResult()
         );
     }
@@ -76,15 +70,12 @@ class StatsAggregationTest extends TestCase
         $rateAgg = $result->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
 
-        static::assertEquals(
-            [
-                [
-                    'key' => null,
-                    'min' => 10,
-                    'avg' => 32.5,
-                ],
-            ], $rateAgg->getResult()
-        );
+        /** @var StatsResult $result */
+        $result = $rateAgg->get(null);
+
+        static::assertNull($result->getKey());
+        static::assertEquals(10, $result->getMin());
+        static::assertEquals(32.5, $result->getAvg());
     }
 
     public function testStatsAggregationWithGroupBy(): void
@@ -102,29 +93,29 @@ class StatsAggregationTest extends TestCase
         /** @var AggregationResult $statsAgg */
         $statsAgg = $result->getAggregations()->get('stats_agg');
         static::assertCount(4, $statsAgg->getResult());
-        static::assertEquals(10, $statsAgg->getResultByKey(['product.categories.name' => 'cat1'])['min']);
-        static::assertEquals(20, $statsAgg->getResultByKey(['product.categories.name' => 'cat2'])['min']);
-        static::assertEquals(10, $statsAgg->getResultByKey(['product.categories.name' => 'cat3'])['min']);
-        static::assertEquals(10, $statsAgg->getResultByKey(['product.categories.name' => 'cat4'])['min']);
+        static::assertEquals(10, $statsAgg->get(['product.categories.name' => 'cat1'])->getMin());
+        static::assertEquals(20, $statsAgg->get(['product.categories.name' => 'cat2'])->getMin());
+        static::assertEquals(10, $statsAgg->get(['product.categories.name' => 'cat3'])->getMin());
+        static::assertEquals(10, $statsAgg->get(['product.categories.name' => 'cat4'])->getMin());
 
-        static::assertEquals(20, $statsAgg->getResultByKey(['product.categories.name' => 'cat1'])['max']);
-        static::assertEquals(90, $statsAgg->getResultByKey(['product.categories.name' => 'cat2'])['max']);
-        static::assertEquals(90, $statsAgg->getResultByKey(['product.categories.name' => 'cat3'])['max']);
-        static::assertEquals(20, $statsAgg->getResultByKey(['product.categories.name' => 'cat4'])['max']);
+        static::assertEquals(20, $statsAgg->get(['product.categories.name' => 'cat1'])->getMax());
+        static::assertEquals(90, $statsAgg->get(['product.categories.name' => 'cat2'])->getMax());
+        static::assertEquals(90, $statsAgg->get(['product.categories.name' => 'cat3'])->getMax());
+        static::assertEquals(20, $statsAgg->get(['product.categories.name' => 'cat4'])->getMax());
 
-        static::assertEquals(3, $statsAgg->getResultByKey(['product.categories.name' => 'cat1'])['count']);
-        static::assertEquals(3, $statsAgg->getResultByKey(['product.categories.name' => 'cat2'])['count']);
-        static::assertEquals(3, $statsAgg->getResultByKey(['product.categories.name' => 'cat3'])['count']);
-        static::assertEquals(2, $statsAgg->getResultByKey(['product.categories.name' => 'cat4'])['count']);
+        static::assertEquals(3, $statsAgg->get(['product.categories.name' => 'cat1'])->getCount());
+        static::assertEquals(3, $statsAgg->get(['product.categories.name' => 'cat2'])->getCount());
+        static::assertEquals(3, $statsAgg->get(['product.categories.name' => 'cat3'])->getCount());
+        static::assertEquals(2, $statsAgg->get(['product.categories.name' => 'cat4'])->getCount());
 
-        static::assertEqualsWithDelta(13.33, $statsAgg->getResultByKey(['product.categories.name' => 'cat1'])['avg'], 0.01);
-        static::assertEqualsWithDelta(53.33, $statsAgg->getResultByKey(['product.categories.name' => 'cat2'])['avg'], 0.01);
-        static::assertEquals(50, $statsAgg->getResultByKey(['product.categories.name' => 'cat3'])['avg']);
-        static::assertEquals(15, $statsAgg->getResultByKey(['product.categories.name' => 'cat4'])['avg']);
+        static::assertEqualsWithDelta(13.33, $statsAgg->get(['product.categories.name' => 'cat1'])->getAvg(), 0.01);
+        static::assertEqualsWithDelta(53.33, $statsAgg->get(['product.categories.name' => 'cat2'])->getAvg(), 0.01);
+        static::assertEquals(50, $statsAgg->get(['product.categories.name' => 'cat3'])->getAvg());
+        static::assertEquals(15, $statsAgg->get(['product.categories.name' => 'cat4'])->getAvg());
 
-        static::assertEquals(40, $statsAgg->getResultByKey(['product.categories.name' => 'cat1'])['sum']);
-        static::assertEquals(160, $statsAgg->getResultByKey(['product.categories.name' => 'cat2'])['sum']);
-        static::assertEquals(150, $statsAgg->getResultByKey(['product.categories.name' => 'cat3'])['sum']);
-        static::assertEquals(30, $statsAgg->getResultByKey(['product.categories.name' => 'cat4'])['sum']);
+        static::assertEquals(40, $statsAgg->get(['product.categories.name' => 'cat1'])->getSum());
+        static::assertEquals(160, $statsAgg->get(['product.categories.name' => 'cat2'])->getSum());
+        static::assertEquals(150, $statsAgg->get(['product.categories.name' => 'cat3'])->getSum());
+        static::assertEquals(30, $statsAgg->get(['product.categories.name' => 'cat4'])->getSum());
     }
 }

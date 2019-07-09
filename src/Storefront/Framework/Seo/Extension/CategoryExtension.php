@@ -6,7 +6,6 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlField;
 use Shopware\Storefront\Framework\Seo\Entity\Field\SeoUrlAssociationField;
@@ -21,10 +20,6 @@ class CategoryExtension implements EntityExtensionInterface
         );
         $collection->add(
             (new CanonicalUrlField('canonicalUrl', NavigationPageSeoUrlRoute::ROUTE_NAME))
-                ->addFlags(new Runtime(), new WriteProtected())
-        );
-        $collection->add(
-            (new StringField('url', 'url'))
                 ->addFlags(new Runtime(), new WriteProtected())
         );
     }

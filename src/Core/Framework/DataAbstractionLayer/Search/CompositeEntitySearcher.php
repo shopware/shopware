@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 
 class CompositeEntitySearcher
 {
@@ -20,26 +18,12 @@ class CompositeEntitySearcher
      */
     private $definitions;
 
-    /**
-     * @var SearchTermInterpreter
-     */
-    private $interpreter;
-
-    /**
-     * @var EntityScoreQueryBuilder
-     */
-    private $scoreBuilder;
-
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
-        SearchTermInterpreter $interpreter,
-        EntityScoreQueryBuilder $scoreBuilder,
         iterable $definitions
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->definitions = $definitions;
-        $this->interpreter = $interpreter;
-        $this->scoreBuilder = $scoreBuilder;
     }
 
     public function search(string $term, int $limit, Context $context): array
@@ -50,12 +34,7 @@ class CompositeEntitySearcher
             $criteria = new Criteria();
             $criteria->setLimit($limit);
             $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-
-            $pattern = $this->interpreter->interpret($term);
-
-            $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName());
-
-            $criteria->addQuery(...$queries);
+            $criteria->setTerm($term);
 
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
 

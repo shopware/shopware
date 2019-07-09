@@ -31,7 +31,7 @@
 
         <service id="Shopware\Core\Profiling\Entity\EntitySearcherProfiler"
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
-                 decoration-priority="-1000">
+                 decoration-priority="-10000">
 
             <argument type="service" id="Shopware\Core\Profiling\Entity\EntitySearcherProfiler.inner"/>
             <argument type="service" id="debug.stopwatch" />

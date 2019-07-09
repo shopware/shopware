@@ -21,15 +21,8 @@ Component.register('sw-first-run-wizard-modal', {
 
     data() {
         return {
-            stepIndex: 0,
             nextCallback: null,
             stepVariant: 'info',
-            stepInitialItemVariants: [
-                'disabled',
-                'disabled',
-                'disabled',
-                'disabled'
-            ],
             currentStep: {
                 name: '',
                 next: false,
@@ -40,6 +33,7 @@ Component.register('sw-first-run-wizard-modal', {
             stepper: {
                 welcome: {
                     name: 'sw.first.run.wizard.index.welcome',
+                    navigationIndex: 0,
                     next: 'sw.first.run.wizard.index.demodata',
                     skip: false,
                     back: false,
@@ -47,6 +41,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 demodata: {
                     name: 'sw.first.run.wizard.index.demodata',
+                    navigationIndex: 1,
                     next: 'sw.first.run.wizard.index.paypal.info',
                     skip: 'sw.first.run.wizard.index.paypal.info',
                     back: false,
@@ -54,6 +49,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 'paypal.info': {
                     name: 'sw.first.run.wizard.index.paypal.info',
+                    navigationIndex: 2,
                     next: 'sw.first.run.wizard.index.paypal.install',
                     skip: 'sw.first.run.wizard.index.plugins',
                     back: false,
@@ -61,6 +57,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 'paypal.install': {
                     name: 'sw.first.run.wizard.index.paypal.install',
+                    navigationIndex: 2,
                     next: 'sw.first.run.wizard.index.paypal.credentials',
                     skip: false,
                     back: false,
@@ -68,6 +65,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 'paypal.credentials': {
                     name: 'sw.first.run.wizard.index.paypal.credentials',
+                    navigationIndex: 2,
                     next: 'sw.first.run.wizard.index.plugins',
                     skip: 'sw.first.run.wizard.index.plugins',
                     back: 'sw.first.run.wizard.index.paypal.info',
@@ -75,6 +73,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 plugins: {
                     name: 'sw.first.run.wizard.index.plugins',
+                    navigationIndex: 3,
                     next: 'sw.first.run.wizard.index.shopware.account',
                     skip: false,
                     back: 'sw.first.run.wizard.index.paypal.info',
@@ -82,6 +81,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 'shopware.account': {
                     name: 'sw.first.run.wizard.index.shopware.account',
+                    navigationIndex: 4,
                     next: 'sw.first.run.wizard.index.shopware.domain',
                     skip: false,
                     back: 'sw.first.run.wizard.index.paypal.credentials',
@@ -89,6 +89,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 'shopware.domain': {
                     name: 'sw.first.run.wizard.index.shopware.domain',
+                    navigationIndex: 4,
                     next: 'sw.first.run.wizard.index.finish',
                     skip: false,
                     back: 'sw.first.run.wizard.index.shopware.account',
@@ -96,6 +97,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 finish: {
                     name: 'sw.first.run.wizard.index.finish',
+                    navigationIndex: 5,
                     next: false,
                     skip: false,
                     back: 'sw.first.run.wizard.index.shopware.domain',
@@ -120,6 +122,26 @@ Component.register('sw-first-run-wizard-modal', {
 
         finishable() {
             return !!this.currentStep.finish;
+        },
+
+        stepIndex() {
+            const { navigationIndex } = this.currentStep;
+
+            return navigationIndex - 1;
+        },
+
+        stepInitialItemVariants() {
+            const navigationSteps = [
+                ['disabled', 'disabled', 'disabled', 'disabled'],
+                ['info', 'disabled', 'disabled', 'disabled'],
+                ['success', 'info', 'disabled', 'disabled'],
+                ['success', 'success', 'info', 'disabled'],
+                ['success', 'success', 'success', 'info'],
+                ['success', 'success', 'success', 'success']
+            ];
+            const { navigationIndex } = this.currentStep;
+
+            return navigationSteps[navigationIndex];
         }
     },
 
@@ -143,34 +165,29 @@ Component.register('sw-first-run-wizard-modal', {
         onNext() {
             const { next } = this.currentStep;
 
-            let callbackPromise = Promise.resolve(false);
+            let abort = false;
 
             if (this.nextCallback !== null && typeof this.nextCallback === 'function') {
-                callbackPromise = this.nextCallback.call();
+                abort = this.nextCallback.call();
             }
 
-            callbackPromise.then(abort => {
-                if (!abort) {
-                    this.redirect(next);
-                }
-            });
+            if (abort) {
+                return;
+            }
+
+            this.$router.push({ name: next });
         },
 
         onSkip() {
             const { skip } = this.currentStep;
 
-            this.redirect(skip);
+            this.$router.push({ name: skip });
         },
 
         onBack() {
             const { back } = this.currentStep;
 
-            this.redirect(back);
-        },
-
-        redirect(routeName) {
-            this.nextCallback = null;
-            this.$router.push({ name: routeName });
+            this.$router.push({ name: back });
         },
 
         onFinish() {

@@ -2,7 +2,7 @@
     <sw-modal variant="default"
               class="sw-media-modal-move"
               @modal-close="closeMoveModal"
-              :title="$tc('global.sw-media-modal-move.titleModal', itemsToMove.length, { mediaName: this.mediaNameFilter(itemsToMove[0]), count: itemsToMove.length }) ">
+              :title="$tc('global.sw-media-modal-move.titleModal', itemsToMove.length, { mediaName: mediaNameFilter(itemsToMove[0]), count: itemsToMove.length }) ">
 
         {% block sw_media_modal_body %}
             {% block sw_media_modal_move_breadcrumbs %}

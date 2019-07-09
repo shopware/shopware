@@ -2,7 +2,7 @@
     <div class="sw-order-state-card-entry">
         {% block sw_order_state_card_entry_headline %}
             <div>
-                <h2 v-if="title">{{this.title}}</h2>
+                <h2 v-if="title">{{ title }}</h2>
             </div>
         {% endblock %}
 
@@ -10,7 +10,6 @@
             <div v-for="(entry, index) in history"
                  class="sw-order-state-card__history-entry"
                  :class="`sw-order-state-history__entry--${index}`">
-
 
                 {% block sw_order_state_card_entry_icon %}
                     <sw-label appearance="circle" :class="getBackgroundColorFromState(entry.state.technicalName)">

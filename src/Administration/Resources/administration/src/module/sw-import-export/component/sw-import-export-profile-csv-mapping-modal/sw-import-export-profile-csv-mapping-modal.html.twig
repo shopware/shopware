@@ -4,7 +4,7 @@
               :title="title"
               @modal-close="onCloseModal">
         {% block sw_import_export_profile_csv_mapping_modal_grid %}
-            <sw-data-grid :columns="this.columns"
+            <sw-data-grid :columns="columns"
                           :data-source="selectedMapping"
                           :showSelection="false">
                 {% block sw_import_export_profile_csv_mapping_modal_grid_columns_file_field %}

@@ -4,7 +4,7 @@ import template from './sw-first-run-wizard-shopware-domain.html.twig';
 Component.register('sw-first-run-wizard-shopware-domain', {
     template,
 
-    inject: ['firstRunWizardService'],
+    inject: ['firstRunWizardService', 'addNextCallback'],
 
     data() {
         return {
@@ -12,12 +12,13 @@ Component.register('sw-first-run-wizard-shopware-domain', {
             selectedShopDomain: '',
             createShopDomain: false,
             newShopDomain: '',
-            testEnvironment: false
+            testEnvironment: false,
+            domainError: null
         };
     },
 
     computed: {
-        verifyDomain() {
+        domainToVerify() {
             return this.createShopDomain
                 ? this.newShopDomain
                 : this.selectedShopDomain;
@@ -44,21 +45,31 @@ Component.register('sw-first-run-wizard-shopware-domain', {
                 this.licenceDomains = items;
                 this.selectedShopDomain = items[0].domain;
             });
+
+            this.addNextCallback(this.verifyDomain);
         },
 
         onSelectDomain() {
-            const domain = this.verifyDomain;
+            this.verfiyDomain();
+        },
 
-            if (!domain) {
-                return;
-            }
+        verifyDomain() {
+            const { testEnvironment } = this;
+            const domain = this.domainToVerify;
 
-            this.firstRunWizardService.verifyLicenseDomain({
-                domain
-            }).then((response) => {
-                console.log(response);
+            this.domainError = null;
+
+            return this.firstRunWizardService.verifyLicenseDomain({
+                domain,
+                testEnvironment
+            }).then(() => {
+                return true;
             }).catch((error) => {
-                console.warn(error);
+                const msg = error.response.data.errors.pop();
+
+                this.domainError = msg.detail;
+
+                return true;
             });
         }
     }

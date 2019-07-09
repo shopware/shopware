@@ -26,10 +26,13 @@
                 </option>
             </sw-select-field>
         </div>
-
-        <hr>
-        <span>remove me</span>
-        <code>{{ verifyDomain }}</code>
-        <button @click="onSelectDomain">validate Domian</button>
+        <div v-if="domainError"
+             class="sw-first-run-wizard-shopware-account__error">
+            <sw-alert :title="domainError"
+             variant="error"
+             appearance="notification">
+                {{ domainError }}
+            </sw-alert>
+        </div>
     </div>
 {% endblock %}

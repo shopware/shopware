@@ -1,16 +1,25 @@
 {% block sw_first_run_wizard_finish %}
-    <div>
-        <h3>All done!</h3>
-        <p>Your Shopware 6 Professional Edition is now ready to be used.</p>
+    <div class="sw-first-run-wizard-finish">
 
-        <h3>Usefull links</h3>
-        <sw-container columns="1fr 1fr 1fr">
-            <div><a href="http://wwww.shopware.com/">www.shopware.com</a></div>
-            <div><a href="http://wwww.shopware.com/">www.shopware.com</a></div>
-            <div><a href="http://wwww.shopware.com/">www.shopware.com</a></div>
-            <div><a href="http://wwww.shopware.com/">www.shopware.com</a></div>
-            <div><a href="http://wwww.shopware.com/">www.shopware.com</a></div>
-            <div><a href="http://wwww.shopware.com/">www.shopware.com</a></div>
+        <span class="sw-first-run-wizard-finish__bubble">
+            <sw-icon class="sw-first-run-wizard-finish__icon"
+                     name="small-default-checkmark-line-medium"
+                     size="42px"
+                     small>
+            </sw-icon>
+        </span>
+        <h3 class="headline-success">All done!</h3>
+        <p class="message-success">Your Shopware 6 Professional Edition is now ready to be used.</p>
+
+        <h3 class="headline-usefull-links">Usefull links</h3>
+        <sw-container columns="1fr 1fr 1fr"
+                      class="list-usefull-links">
+            <a href="http://wwww.shopware.com/" class="external-link">www.shopware.com</a>
+            <a href="http://wwww.shopware.com/" class="external-link">www.shopware.com</a>
+            <a href="http://wwww.shopware.com/" class="external-link">www.shopware.com</a>
+            <a href="http://wwww.shopware.com/" class="external-link">www.shopware.com</a>
+            <a href="http://wwww.shopware.com/" class="external-link">www.shopware.com</a>
+            <a href="http://wwww.shopware.com/" class="external-link">www.shopware.com</a>
         </sw-container>
     </div>
 {% endblock %}

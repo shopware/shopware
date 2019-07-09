@@ -161,6 +161,7 @@ class ProductPageLoader
             ->addFilter(new EqualsFilter('id', $productId))
             ->addAssociation('media')
             ->addAssociation('prices')
+            ->addAssociation('manufacturer')
             ->addAssociation('cover')
             ->addAssociationPath('properties.group');
 

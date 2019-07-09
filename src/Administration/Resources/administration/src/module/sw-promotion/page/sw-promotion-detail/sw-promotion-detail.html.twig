@@ -1,6 +1,5 @@
 {% block sw_promotion_detail %}
     <sw-page class="sw-promotion-detail">
-
         {% block sw_promotion_detail_header %}
             <template slot="smart-bar-header">
                 <h2>{{ placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleEdit')) }}</h2>
@@ -10,7 +9,7 @@
         {% block sw_promotion_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_promotion_detail_actions_abort %}
-                    <sw-button :disabled="promotion.isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
+                    <sw-button :disabled="promotion != null && promotion.isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
                         {{ $tc('sw-promotion.detail.header.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -18,11 +17,9 @@
                 {% block sw_promotion_detail_actions_save %}
                     <sw-button-process
                         class="sw-promotion-detail__save-action"
-                        :isLoading="isLoading || promotion.isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="promotion.isLoading"
+                        v-model="isSaveSuccessful"
+                        :isLoading="isLoading"
                         variant="primary"
-                        @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"
                         @click.prevent="onSave">
                         {{ $tc('sw-promotion.detail.header.buttonSave') }}
@@ -32,51 +29,57 @@
         {% endblock %}
 
         {% block sw_promotion_detail_language_switch %}
-            <sw-language-switch slot="language-switch"
-                                @on-change="onChangeLanguage"
-                                :saveChangesFunction="saveOnLanguageChange"
-                                :abortChangeFunction="abortOnLanguageChange">
-            </sw-language-switch>
+            <template #language-switch>
+                <sw-language-switch
+                    :disabled="!promotionId"
+                    @on-change="onChangeLanguage"
+                    :saveChangesFunction="saveOnLanguageChange"
+                    :abortChangeFunction="abortOnLanguageChange">
+                </sw-language-switch>
+            </template>
         {% endblock %}
 
         {% block sw_promotion_detail_content %}
-            <sw-card-view slot="content">
+            <template #content>
+                <sw-card-view>
+                    {% block sw_promotion_detail_content_language_info %}
+                        <sw-language-info
+                            :entityDescription="placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleCreate'))"
+                            :isNewEntity="!promotionId">
+                        </sw-language-info>
+                    {% endblock %}
 
-                {% block sw_promotion_detail_content_language_info %}
-                    <sw-language-info
-                            :entityDescription="placeholder(promotion, 'name', $tc('sw-promotion.detail.header.titleEdit'))">
-                    </sw-language-info>
-                {% endblock %}
+                    {% block sw_promotion_detail_content_tabs %}
+                        <sw-tabs class="sw-promotion-detail-page__tabs" v-if="promotionId">
+                            {% block sw_promotion_detail_content_tabs_general %}
+                                <sw-tabs-item :route="{ name: 'sw.promotion.detail.base', params: { id: $route.params.id } }"
+                                              :title="$tc('sw-promotion.detail.tabs.tabGeneral')"
+                                              :hasError="swPromotionDetailBaseError">
+                                    {{ $tc('sw-promotion.detail.tabs.tabGeneral') }}
+                                </sw-tabs-item>
+                            {% endblock %}
 
-                {% block sw_promotion_detail_content_tabs %}
-                    <sw-tabs class="sw-promotion-detail-page__tabs">
-                        {% block sw_promotion_detail_content_tabs_general %}
-                            <sw-tabs-item :route="{ name: 'sw.promotion.detail.base', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-promotion.detail.tabs.tabGeneral')">
-                                {{ $tc('sw-promotion.detail.tabs.tabGeneral') }}
-                            </sw-tabs-item>
-                        {% endblock %}
+                            {% block sw_promotion_detail_content_tabs_restrictions %}
+                                <sw-tabs-item :route="{ name: 'sw.promotion.detail.restrictions', params: { id: $route.params.id } }"
+                                              :title="$tc('sw-promotion.detail.tabs.tabPreconditions')">
+                                    {{ $tc('sw-promotion.detail.tabs.tabPreconditions') }}
+                                </sw-tabs-item>
+                            {% endblock %}
 
-                        {% block sw_promotion_detail_content_tabs_restrictions %}
-                            <sw-tabs-item :route="{ name: 'sw.promotion.detail.restrictions', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-promotion.detail.tabs.tabPreconditions')">
-                                {{ $tc('sw-promotion.detail.tabs.tabPreconditions') }}
-                            </sw-tabs-item>
-                        {% endblock %}
+                            {% block sw_promotion_detail_content_tabs_rebate %}
+                                <sw-tabs-item :route="{ name: 'sw.promotion.detail.discounts', params: { id: $route.params.id } }"
+                                              :title="$tc('sw-promotion.detail.tabs.tabDiscounts')">
+                                    {{ $tc('sw-promotion.detail.tabs.tabDiscounts') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+                        </sw-tabs>
+                    {% endblock %}
 
-                        {% block sw_promotion_detail_content_tabs_rebate %}
-                            <sw-tabs-item :route="{ name: 'sw.promotion.detail.discounts', params: { id: $route.params.id } }"
-                                          :title="$tc('sw-promotion.detail.tabs.tabDiscounts')">
-                                {{ $tc('sw-promotion.detail.tabs.tabDiscounts') }}
-                            </sw-tabs-item>
-                        {% endblock %}
-                    </sw-tabs>
-                {% endblock %}
-
-                {% block sw_product_detail_content_view %}
-                <router-view :promotion="promotion"></router-view>
-                {% endblock %}
-            </sw-card-view>
+                    {% block sw_product_detail_content_view %}
+                    <router-view :promotion="promotion"></router-view>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
         {% endblock %}
     </sw-page>
 {% endblock %}

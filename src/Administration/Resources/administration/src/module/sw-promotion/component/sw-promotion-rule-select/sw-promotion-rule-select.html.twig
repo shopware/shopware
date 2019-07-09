@@ -1,0 +1,28 @@
+{% block sw_promotion_rule_select %}
+    <div class="sw-promotion-rule-select">
+        {% block a  %}
+            <sw-many-to-many-select
+                class="sw-promotion-rule-select"
+                v-bind="$attrs"
+                :collection="collection"
+                v-on="$listeners">
+
+                <template slot="sw_multi_select_list_before">
+                    <li class="sw-multi-select-option sw-promotion-rule-select__add-new-rule"
+                        @click="showRuleModal = true">
+                        {{ $tc('sw-promotion.swPromotionRuleSelect.labelAddNewRule') }}
+                    </li>
+                </template>
+            </sw-many-to-many-select>
+        {% endblock %}
+
+        {% block b %}
+            <sw-rule-modal
+                v-if="showRuleModal"
+                @save="onSaveRule"
+                @modal-close="showRuleModal = false"
+                :allowedRuleScopes="ruleScope">
+            </sw-rule-modal>
+        {% endblock%}
+    </div>
+{% endblock %}

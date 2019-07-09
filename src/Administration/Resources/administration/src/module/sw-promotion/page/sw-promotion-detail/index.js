@@ -1,9 +1,15 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import { warn } from 'src/core/service/utils/debug.utils';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-detail.html.twig';
+import errorConfig from './error-config.json';
+import swPromotionDetailState from './state';
+
+const { mapPageErrors } = Component.getComponentHelper();
 
 Component.register('sw-promotion-detail', {
     template,
+
+    inject: ['numberRangeService', 'repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -16,11 +22,18 @@ Component.register('sw-promotion-detail', {
         ESCAPE: 'onCancel'
     },
 
+    props: {
+        promotionId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
+
     data() {
         return {
-            promotion: {},
-            isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            saveCallbacks: []
         };
     },
 
@@ -34,9 +47,15 @@ Component.register('sw-promotion-detail', {
         identifier() {
             return this.placeholder(this.promotion, 'name');
         },
-        promotionStore() {
-            return State.getStore('promotion');
+
+        promotionRepository() {
+            return this.repositoryFactory.create('promotion');
         },
+
+        languageStore() {
+            return State.getStore('language');
+        },
+
         tooltipSave() {
             const systemKey = this.$device.getSystemKey();
 
@@ -50,34 +69,93 @@ Component.register('sw-promotion-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
-        }
+        },
 
+        promotion: {
+            get() {
+                return this.$store.state.swPromotionDetail.promotion;
+            },
+            set(promotion) {
+                this.$store.commit('swPromotionDetail/setPromotion', promotion);
+            }
+        },
+
+        isLoading: {
+            get() {
+                return this.$store.state.swPromotionDetail.isLoading;
+            },
+            set(isLoading) {
+                this.$store.commit('swPromotionDetail/setIsLoading', isLoading);
+            }
+        },
+
+        discounts() {
+            return this.$store.state.swPromotionDetail.discounts;
+        },
+
+        ...mapPageErrors(errorConfig)
+
+    },
+
+    beforeCreate() {
+        this.$store.registerModule('swPromotionDetail', swPromotionDetailState);
     },
 
     created() {
         this.createdComponent();
     },
 
+    beforeDestroy() {
+        this.$store.unregisterModule('swPromotionDetail');
+    },
+
     watch: {
-        '$route.params.id'() {
+        promotionId() {
             this.createdComponent();
         }
     },
 
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
-                this.promotionId = this.$route.params.id;
-                this.loadEntityData();
+            // TODO check if numberrange is configured
+            // if not show modal and link to settings!
+            this.isLoading = true;
+            if (!this.promotionId) {
+                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                this.promotion = this.promotionRepository.create(this.context);
+                this.isLoading = false;
+                return;
             }
+            this.loadEntityData();
         },
 
         loadEntityData() {
-            this.promotion = this.promotionStore.getById(this.promotionId);
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('salesChannels');
+
+            this.promotionRepository.get(this.promotionId, this.context, criteria).then((promotion) => {
+                this.promotion = promotion;
+                this.isLoading = false;
+            });
         },
 
         abortOnLanguageChange() {
-            return this.promotion.hasChanges();
+            if (this.promotionRepository.hasChanges(this.promotion)) {
+                return true;
+            }
+
+            if (this.discounts !== null) {
+                const discountRepository = this.repositoryFactory.create(
+                    this.discounts.entity,
+                    this.discounts.source
+                );
+
+                return this.discounts.some((discount) => {
+                    return discount.isNew() || discountRepository.hasChanges(discount);
+                });
+            }
+
+            return false;
         },
 
         saveOnLanguageChange() {
@@ -88,37 +166,57 @@ Component.register('sw-promotion-detail', {
             this.loadEntityData();
         },
 
-        saveFinish() {
-            this.isSaveSuccessful = false;
+        onSave() {
+            this.isLoading = true;
+            if (!this.promotionId) {
+                return this.createPromotion();
+            }
+
+            return this.savePromotion();
         },
 
-        onSave() {
-            this.$emit('save');
-            const promotionName = this.promotion.name;
-            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
-            const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessage', 0, { entityName: promotionName }
+        createPromotion() {
+            this.numberRangeService.reserve('promotion').then((promotionNumber) => {
+                this.promotion.promotionNumber = promotionNumber;
+                return this.savePromotion().then(() => {
+                    this.$router.push({ name: 'sw.promotion.detail', params: { id: this.promotion.id } });
+                });
+            }).catch(() => {
+                return this.savePromotion().then(() => {
+                    this.$router.push({ name: 'sw.promotion.detail', params: { id: this.promotion.id } });
+                });
+            });
+        },
+
+        savePromotion() {
+            const discounts = this.discounts === null ? this.promotion.discounts : this.discounts;
+            const discountRepository = this.repositoryFactory.create(
+                discounts.entity,
+                discounts.source
             );
-            this.isSaveSuccessful = false;
-            this.isLoading = true;
 
+            return discountRepository.sync(discounts, discounts.context).then(() => {
+                return this.promotionRepository.save(this.promotion, this.context).then(() => {
+                    this.isSaveSuccessful = true;
+                    const criteria = new Criteria(1, 1);
+                    criteria.addAssociation('salesChannels');
 
-            return this.promotion.save().then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-            }).catch((exception) => {
-                let customMessage = `${messageSaveError} <br />`;
-                this.promotion.errors.forEach((promotionError) => {
-                    customMessage += `${promotionError.detail} <br />`;
+                    return this.promotionRepository.get(this.promotion.id, this.context, criteria).then((promotion) => {
+                        this.promotion = promotion;
+                        this.isLoading = false;
+                    });
+                }).catch((error) => {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                        message: this.$tc(
+                            'global.notification.notificationSaveErrorMessage',
+                            0,
+                            { entityName: this.promotion.name }
+                        )
+                    });
+                    throw error;
                 });
-                this.promotion.errors = [];
-                this.createNotificationError({
-                    title: titleSaveError,
-                    message: customMessage
-                });
-                warn(this._name, exception.message, exception.response);
-                this.isLoading = false;
-                throw exception;
             });
         },
 

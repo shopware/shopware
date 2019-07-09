@@ -3,6 +3,7 @@ import { Module } from 'src/core/shopware';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
+import './component/sw-promotion-rule-select';
 import './component/sw-promotion-sales-channel-select';
 
 import './component/sw-promotion-basic-form';
@@ -11,12 +12,10 @@ import './component/sw-promotion-order-condition-form';
 import './component/sw-promotion-persona-form';
 import './component/sw-promotion-discount-component';
 import './component/sw-promotion-scope-form';
-import './view/sw-promotion-create-base';
 import './view/sw-promotion-detail-base';
 import './view/sw-promotion-detail-discounts';
 import './view/sw-promotion-detail-restrictions';
 
-import './page/sw-promotion-create';
 import './page/sw-promotion-detail';
 import './page/sw-promotion-list';
 
@@ -46,14 +45,14 @@ Module.register('sw-promotion', {
         },
 
         create: {
-            component: 'sw-promotion-create',
+            component: 'sw-promotion-detail',
             path: 'create',
             redirect: {
                 name: 'sw.promotion.create.base'
             },
             children: {
                 base: {
-                    component: 'sw-promotion-create-base',
+                    component: 'sw-promotion-detail-base',
                     path: 'base',
                     meta: {
                         parentPath: 'sw.promotion.index'
@@ -64,7 +63,7 @@ Module.register('sw-promotion', {
 
         detail: {
             component: 'sw-promotion-detail',
-            path: 'detail/:id',
+            path: 'detail/:id?',
             redirect: {
                 name: 'sw.promotion.detail.base'
             },
@@ -89,6 +88,13 @@ Module.register('sw-promotion', {
                     meta: {
                         parentPath: 'sw.promotion.index'
                     }
+                }
+            },
+            props: {
+                default: (route) => {
+                    return {
+                        promotionId: route.params.id
+                    };
                 }
             }
         }

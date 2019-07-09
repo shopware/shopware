@@ -1,103 +1,135 @@
 import { Component } from 'src/core/shopware';
-import StoreLoader from 'src/core/helper/store-loader.helper';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-sales-channel-select.html.twig';
 
-Component.extend('sw-promotion-sales-channel-select', 'sw-select', {
+Component.register('sw-promotion-sales-channel-select', {
     template,
 
+    inject: ['repositoryFactory', 'context'],
+
+    props: {
+        promotion: {
+            type: Object,
+            required: false,
+            default: null
+        }
+    },
+
+    data() {
+        return {
+            salesChannels: []
+        };
+    },
+
+    computed: {
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        promotionSalesChannelRepository() {
+            if (this.promotion) {
+                return this.repositoryFactory.create(
+                    this.promotion.salesChannels.entity,
+                    this.promotion.salesChannels.source
+                );
+            }
+
+            return null;
+        },
+
+        salesChannelIds: {
+            get() {
+                if (!this.promotion) {
+                    return [];
+                }
+
+                return this.promotion.salesChannels.map((promotionSalesChannels) => {
+                    return promotionSalesChannels.salesChannelId;
+                });
+            },
+
+            set(salesChannelsIds) {
+                salesChannelsIds = salesChannelsIds || [];
+                const { deleted, added } = this.getChangeset(salesChannelsIds);
+
+                if (this.promotion.isNew()) {
+                    this.handleLocalMode(deleted, added);
+                    return;
+                }
+
+                this.handleWithRepository(deleted, added);
+            }
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        loadSelected() {
-            this.isLoadingSelections = true;
-
-            const params = {
-
-                associations: { salesChannel: {} }
-            };
-
-            const loader = new StoreLoader();
-            loader.loadAll(this.associationStore, params).then((items) => {
-                this.selections = items;
-                this.isLoadingSelections = false;
+        createdComponent() {
+            this.salesChannelRepository.search(new Criteria(), this.context).then((searchresult) => {
+                this.salesChannels = searchresult;
             });
         },
 
-        isInSelections(item) {
-            return !this.selections.every((selection) => {
-                return selection.salesChannelId !== item.id;
-            });
-        },
+        getChangeset(salesChannelsIds) {
+            const deleted = [];
+            const added = [];
 
-        getBySalesChannelId(salesChannelId) {
-            let item = null;
 
-            this.associationStore.each((visibility) => {
-                if (visibility.salesChannelId === salesChannelId) {
-                    item = visibility;
+            salesChannelsIds.forEach((id) => {
+                if (!this.promotion.salesChannels.find((salesChannel) => {
+                    return salesChannel.salesChannelId === id;
+                })) {
+                    added.push(id);
                 }
             });
 
-            return item;
+            this.promotion.salesChannels.forEach((salesChannel) => {
+                if (!salesChannelsIds.includes(salesChannel.salesChannelId)) {
+                    deleted.push(salesChannel.salesChannelId);
+                }
+            });
+
+            return { deleted, added };
         },
 
-        addSelection({ item }) {
-            if (item === undefined || !item.id) {
-                return;
-            }
-
-
-            if (this.isInSelections(item)) {
-                let idToRemove = null;
-                this.associationStore.forEach((ine) => {
-                    if (ine.salesChannelId === item.id) {
-                        idToRemove = ine.id;
-                    }
-                });
-
-                this.dismissSelection(idToRemove);
-                return;
-            }
-
-            const salesChannelId = item.id;
-
-            if (!this.isInSelections(salesChannelId)) {
-                const newItem = this.associationStore.create();
-
-                newItem.setLocalData({
-                    salesChannelId: salesChannelId,
-                    salesChannelInternal: item,
-                    // full visible
-                    priority: 1
-                });
-
-                this.selections.push(newItem);
-                this.selected.push(item);
-            } else {
-                const visibility = this.getBySalesChannelId(salesChannelId);
-
-                // In case the entity was already created but was deleted before
-                visibility.isDeleted = false;
-            }
-
-            this.searchTerm = '';
-
-            this.setFocus();
+        getAssociationBySalesChannelId(salesChannelId) {
+            return this.promotion.salesChannels.find((association) => {
+                return association.salesChannelId === salesChannelId;
+            });
         },
 
+        handleLocalMode(deleted, added) {
+            deleted.forEach((deletedId) => {
+                const collectionEntry = this.getAssociationBySalesChannelId(deletedId);
+                this.promotion.salesChannels.remove(collectionEntry.id);
+            });
 
-        dismissSelection(id) {
-            if (!id) {
-                return;
-            }
+            added.forEach((newId) => {
+                const newAssociation = this.promotionSalesChannelRepository.create(this.promotion.salesChannels.context);
 
-            this.deletedItems.push(id);
-            this.selections = this.selections.filter((entry) => entry.id !== id);
-            this.selected = this.selected.filter((entry) => entry.id !== id);
+                newAssociation.salesChannelId = newId;
+                newAssociation.promotionId = this.promotion.id;
+                newAssociation.priority = 1;
+                this.promotion.salesChannels.add(newAssociation);
+            });
+        },
 
-            const entity = this.associationStore.store[id];
-            entity.delete();
+        handleWithRepository(deleted, added) {
+            deleted.forEach((deletedId) => {
+                const associationEntry = this.getAssociationBySalesChannelId(deletedId);
+                this.promotion.salesChannels.remove(associationEntry.id);
+            });
 
-            this.selections = Object.values(this.associationStore.store).filter((item) => {
-                return item.isDeleted === false;
+            added.forEach((addedId) => {
+                const newAssociation = this.promotionSalesChannelRepository.create(this.promotion.salesChannels.context);
+
+                newAssociation.salesChannelId = addedId;
+                newAssociation.promotionId = this.promotion.id;
+                newAssociation.priority = 1;
+                this.promotion.salesChannels.add(newAssociation);
             });
         }
     }

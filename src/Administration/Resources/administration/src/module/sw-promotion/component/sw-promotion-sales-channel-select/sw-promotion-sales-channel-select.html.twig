@@ -1,8 +1,22 @@
 {% block sw_select_selection_item_text %}
-    <span v-if="selection.salesChannelInternal" class="sw-select__selection-item">
-        {{ selection.salesChannelInternal.translated.name }}
-    </span>
-    <span v-else class="sw-select__selection-item">
-        {{ selection.salesChannel.translated.name }}
-    </span>
+    <sw-multi-select class="sw-promotion-sales-channel-select"
+                     v-bind="$attrs"
+                     :options="salesChannels"
+                     valueProperty="id"
+                     v-model="salesChannelIds">
+
+        <template #labelProperty="{ item }">
+            {{ item.name || item.translated.name }}
+        </template>
+
+        <template #result_items="{ item, index }">
+            {% block sw_multi_select_results_list_item_slot %}
+                <sw-multi-select-option :index="index" :item="item">
+                    <span>
+                        {{ item.name || item.translated.name }}
+                    </span>
+                </sw-multi-select-option>
+            {% endblock %}
+        </template>
+    </sw-multi-select>
 {% endblock %}

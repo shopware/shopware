@@ -3,8 +3,8 @@ import DiscountTypes from './../../common/discount-type';
 export default class PromotionDiscountHandler {
     // Gets the suffix of the value text field depending
     // on the currently selected type.
-    getValueSuffix(discountType) {
-        return (discountType === DiscountTypes.PERCENTAGE) ? '%' : '€';
+    getValueSuffix(discountType, currencySymbol = '€') {
+        return (discountType === DiscountTypes.PERCENTAGE) ? '%' : currencySymbol;
     }
 
     // Gets the value minimum threshold depending

@@ -6,6 +6,7 @@
                       :placeholder="placeholder(promotion, 'code', $tc('sw-promotion.detail.main.general.codes.placeholderCode'))"
                       v-model="promotion.code"
                       :disabled="isCodeFieldDisabled"
+                      :error="promotionCodeError"
                       :validation="isCodeFieldValid">
             </sw-field>
         {% endblock %}

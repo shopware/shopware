@@ -1,6 +1,8 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-promotion-basic-form.html.twig';
 import './sw-promotion-basic-form.scss';
+
+const { mapApiErrors } = Component.getComponentHelper();
 
 Component.register('sw-promotion-basic-form', {
     template,
@@ -12,18 +14,12 @@ Component.register('sw-promotion-basic-form', {
     props: {
         promotion: {
             type: Object,
-            required: true,
-            default: {}
+            required: false,
+            default: null
         }
     },
 
     computed: {
-        salesChannelStore() {
-            return State.getStore('sales_channel');
-        },
-        salesChannelAssociationStore() {
-            return this.promotion.getAssociation('salesChannels');
-        }
+        ...mapApiErrors('promotion', ['name', 'validUntil'])
     }
-
 });

@@ -1,8 +1,6 @@
 import Plugin from 'src/script/plugin-system/plugin.class';
 import PluginManager from 'src/script/plugin-system/plugin.manager';
 import DeviceDetection from 'src/script/helper/device-detection.helper';
-import DomAccess from 'src/script/helper/dom-access.helper';
-import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';
 import Iterator from 'src/script/helper/iterator.helper';
 
 /**
@@ -27,8 +25,25 @@ export default class ZoomModalPlugin extends Plugin {
          */
         productIdDataAttribute: 'data-product-id',
 
-        imageSliderInitSelector: '[data-image-slider]',
+        /**
+         * selector for the gallery slider inside the modal
+         */
+        modalGallerySliderSelector: '[data-modal-gallery-slider]',
+
+        /**
+         * selector for the initial gallery slider
+         */
+        parentGallerySliderSelector: '[data-gallery-slider]',
+
+        /**
+         * selector for gallery images which use the image zoom
+         */
         imageZoomInitSelector: '[data-image-zoom]',
+
+        /**
+         * selector for the container of the gallery and the zoom modal
+         */
+        galleryZoomModalContainerSelector: '.js-gallery-zoom-modal-container',
     };
 
     init() {
@@ -66,94 +81,91 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _openModal() {
-        const modal = DomAccess.querySelector(document, this.options.modalSelector);
+        const galleryZoomModalContainer = this.el.closest(this.options.galleryZoomModalContainerSelector);
+        const modal = galleryZoomModalContainer.querySelector(this.options.modalSelector);
 
         if (modal) {
             // execute all needed scripts for the slider
-            $(modal).on('shown.bs.modal', () => {
-                this._initSlider(modal);
-                setTimeout(() => this._initZoom(modal), 100);
+            const $modal = $(modal);
 
-                this.$emitter.publish('modalShown', { modal });
+            $modal.off('show.bs.modal');
+            $modal.on('show.bs.modal', () => {
+                this._initSlider(modal);
+
+                this.$emitter.publish('modalShow', { modal });
             });
 
-            $(modal).modal('show');
+            $modal.modal('show');
         }
 
         this.$emitter.publish('onClick', { modal });
     }
 
     /**
+     * init the gallery slider or update the position of the slider
      *
      * @private
      */
     _initSlider(modal) {
-        const slider = modal.querySelector(this.options.imageSliderInitSelector);
+        const slider = modal.querySelector(this.options.modalGallerySliderSelector);
 
-        const plugin = PluginManager.getPluginInstanceFromElement(slider, 'ImageSlider');
-
-        if (plugin) {
-            plugin.destroy();
+        if (!slider) {
+            return;
         }
 
-        if (slider) {
-            const parentSliderIndex = this._getParentSliderIndex();
+        const parentSliderIndex = this._getParentSliderIndex();
 
-            PluginManager.initializePlugin('ImageSlider', slider, {
-                slider: {
-                    startIndex: parentSliderIndex,
-                },
-                thumbnailSlider: {
-                    startIndex: parentSliderIndex,
-                    responsive: {
-                        xs: {
-                            enabled: true,
-                            center: true,
-                            axis: 'horizontal',
-                        },
-                        sm: {
-                            enabled: true,
-                            center: true,
-                            axis: 'horizontal',
-                        },
-                        md: {
-                            enabled: true,
-                            center: true,
-                            axis: 'horizontal',
-                        },
-                        lg: {
-                            enabled: true,
-                            center: true,
-                            axis: 'horizontal',
-                        },
-                        xl: {
-                            enabled: true,
-                            center: true,
-                            axis: 'horizontal',
-                        },
+        if (this.gallerySliderPlugin && this.gallerySliderPlugin._slider) {
+            this.gallerySliderPlugin._slider.goTo(parentSliderIndex - 1);
+            return;
+        }
+
+        PluginManager.initializePlugin('GallerySlider', slider, {
+            slider: {
+                startIndex: parentSliderIndex,
+            },
+            thumbnailSlider: {
+                startIndex: parentSliderIndex,
+                autoWidth: true,
+                responsive: {
+                    md: {
+                        enabled: true,
+                    },
+                    lg: {
+                        enabled: true,
+                    },
+                    xl: {
+                        enabled: true,
+                        axis: 'horizontal',
                     },
                 },
-            });
-        }
+            },
+        });
+
+        this.gallerySliderPlugin = PluginManager.getPluginInstanceFromElement(slider, 'GallerySlider');
+
+        this._registerImageZoom();
 
         this.$emitter.publish('initSlider');
     }
 
     /**
+     * register indexChanged callback to update the image zoom button state
+     *
      * @private
      */
-    _initZoom(modal) {
-        const elements = modal.querySelectorAll(this.options.imageZoomInitSelector);
-        Iterator.iterate(elements, el => {
-            new ImageZoomPlugin(el, {}, 'ImageZoom');
-        });
+    _registerImageZoom() {
+        this.gallerySliderPlugin._slider.events.on('indexChanged', () => {
+            const activeSlideElement = this.gallerySliderPlugin.getActiveSlideElement();
+            const activeImageZoomElement = activeSlideElement.querySelector(this.options.imageZoomInitSelector);
+            const imageZoomPlugin = PluginManager.getPluginInstanceFromElement(activeImageZoomElement, 'ImageZoom');
 
-        this.$emitter.publish('initZoom');
+            imageZoomPlugin._setActionButtonState();
+        });
     }
 
     /**
-     * returns the current index
-     * of the parent slider
+     * returns the current index of the parent slider
      *
      * @return {number}
      * @private
@@ -161,27 +173,17 @@ export default class ZoomModalPlugin extends Plugin {
     _getParentSliderIndex() {
         let sliderIndex = 1;
 
-        this._parentSliderElement = this._getParentSliderElement();
+        this._parentSliderElement = this.el.closest(this.options.parentGallerySliderSelector);
 
         if (this._parentSliderElement) {
-            this._parentSliderPlugin = PluginManager.getPluginInstanceFromElement(this._parentSliderElement, 'ImageSlider');
+            this._parentSliderPlugin = PluginManager.getPluginInstanceFromElement(this._parentSliderElement, 'GallerySlider');
 
             if (this._parentSliderPlugin) {
                 sliderIndex = this._parentSliderPlugin.getCurrentSliderIndex();
             }
         }
 
-        return sliderIndex;
-    }
-
-    /**
-     * returns the parent slider element if present
-     *
-     * @return {any | Element}
-     * @private
-     */
-    _getParentSliderElement() {
-        return this.el.closest(this.options.imageSliderInitSelector);
+        return sliderIndex === 0 ? 1 : sliderIndex + 1;
     }
 
     /**

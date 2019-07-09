@@ -1,0 +1,9 @@
+{% block block_image_gallery %}
+    {% set element = block.slots.getSlot('imageGallery') %}
+
+    <div class="col-12" data-cms-element-id="{{ element.id }}">
+        {% block block_image_gallery_inner %}
+            {% sw_include "@Storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+        {% endblock %}
+    </div>
+{% endblock %}

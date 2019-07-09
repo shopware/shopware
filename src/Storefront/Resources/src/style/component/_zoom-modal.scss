@@ -1,3 +1,10 @@
+/*
+Zoom modal
+==============================================
+Styling for zoom modal component.
+Displays a single image or a gallery slider in a zoom modal with zoom functions.
+*/
+
 .zoom-modal-wrapper {
     position: absolute;
     width: 0;
@@ -34,41 +41,44 @@
     }
 
     .modal-footer {
+        display: none;
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        height: 100px;
-        padding: 0;
+        padding: 0 0 $spacer;
         justify-content: center;
         background-color: $white;
     }
 
-    .image-slider {
+    .gallery-slider {
         top: 0;
-        bottom: 100px;
+        bottom: 0;
         position: absolute;
         height: auto;
         width: 100%;
     }
 
-    .image-slider-thumbnails-item {
-        width: 80px;
-        height: 80px;
+    .gallery-slider-thumbnails {
+        margin: 0 auto;
     }
 
-    .image-slider-controls-next {
+    .gallery-slider-controls-next {
         right: 0;
     }
 
-    .image-slider-controls-prev {
+    .gallery-slider-controls-prev {
         left: 0;
+    }
+
+    .gallery-slider-thumbnails-item {
+        width: auto;
     }
 
     .image-zoom-container {
         height: 100%;
         width: 100%;
-        overflow: hidden !important;
+        overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -78,16 +88,22 @@
             position: relative;
         }
     }
+
+    .image-zoom-btn {
+        &.disabled {
+            opacity: 0.3;
+        }
+    }
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-up(md) {
     .modal.zoom-modal {
-        .image-slider {
-            bottom: 0;
+        .gallery-slider {
+            bottom: 100px;
         }
 
         .modal-footer {
-            display: none;
+            display: flex;
         }
     }
 }

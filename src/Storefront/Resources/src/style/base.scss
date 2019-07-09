@@ -35,7 +35,12 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'component/alert';
 @import 'component/card';
 @import 'component/backdrop';
+@import 'component/base-slider';
 @import 'component/image-slider';
+@import 'component/product-slider';
+@import 'component/gallery-slider';
+@import 'component/magnifier';
+@import 'component/zoom-modal';
 @import 'component/offcanvas';
 @import 'component/product-box';
 @import 'component/loader';
@@ -70,11 +75,8 @@ https://sass-guidelin.es/#the-7-1-pattern
  * Page-specific styles
  * -------------------- */
 @import 'page/product-detail/product-detail';
-@import 'page/product-detail/media';
 @import 'page/product-detail/configurator';
 @import 'page/product-detail/tabs';
-@import 'page/product-detail/magnifier';
-@import 'page/product-detail/zoom-modal';
 
 @import 'page/account/account';
 @import 'page/account/aside';

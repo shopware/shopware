@@ -1,0 +1,116 @@
+/*
+Base slider
+==============================================
+Styling for base slider component.
+Contains minimal styling for a slider with arrow and/or dot navigation.
+based on: https://github.com/ganlanyuan/tiny-slider
+*/
+
+.base-slider {
+    position: relative;
+
+    // styling works both for auto generated markup by the tiny-slider and normal template markup
+    .tns-nav,
+    .base-slider-dots {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        margin: 10px 0;
+
+        .base-slider-dot,
+        button {
+            background-color: $gray-300;
+            border: 0;
+            height: 8px;
+            width: 8px;
+            padding: 8px;
+            border-radius: 50%;
+            margin: 0 8px;
+
+            &:hover,
+            &.tns-nav-active {
+                background-color: $gray-600;
+            }
+
+            &:focus {
+                outline: none;
+            }
+        }
+    }
+
+    // moves navigation dots outside the slider item
+    &.has-dots-outside {
+        margin-bottom: 35px;
+
+        .tns-nav,
+        .base-slider-dots {
+            bottom: auto;
+        }
+    }
+
+    &.has-nav-outside {
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+}
+
+.base-slider-controls {
+    margin-bottom: 0;
+}
+
+.base-slider-controls-prev,
+.base-slider-controls-next {
+    display: block;
+    width: 30px;
+    height: 65px;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $gray-600;
+    background: rgba($white, 0.5);
+    border: 1px solid rgba($white, 0.5);
+    line-height: 68px;
+    opacity: 0.5;
+    transition: opacity 0.15s ease;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover {
+        border-color: rgba($primary, 0.5);
+        color: $primary;
+        opacity: 1;
+    }
+
+    &.is-nav-prev-outside,
+    &.is-nav-next-outside {
+        border: 0;
+        background: none;
+    }
+    
+    &[disabled] {
+        opacity: 0.2;
+        cursor: default;
+    }
+}
+
+.base-slider-controls-prev {
+    border-radius: 0 $border-radius $border-radius 0;
+}
+
+.base-slider-controls-next {
+    border-radius: $border-radius 0 0 $border-radius;
+}
+
+@include media-breakpoint-up(md) {
+    .base-slider {
+        .tns-nav,
+        .base-slider-dots {
+            .base-slider-dot,
+            button {
+                margin: 0 5px;
+            }
+        }
+    }
+}

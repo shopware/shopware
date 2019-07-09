@@ -30,3 +30,25 @@
 .product-detail-ordernumber-container {
     margin-bottom: $spacer;
 }
+
+.product-detail-content {
+    .gallery-slider-container {
+        max-height: 200px;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .product-detail-content {
+        .gallery-slider-container {
+            max-height: 400px;
+        }
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .product-detail-content {
+        .gallery-slider-container {
+            max-height: 430px;
+        }
+    }
+}

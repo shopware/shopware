@@ -2,9 +2,6 @@ import Plugin from 'src/script/plugin-system/plugin.class';
 import Hammer from 'hammerjs';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import { Vector2, Vector3 } from 'src/script/helper/vector.helper';
-import PluginManager from 'src/script/plugin-system/plugin.manager';
-
-const IMAGE_SLIDER_INIT_SELECTOR = '[data-image-slider]';
 
 /**
  * ImageZoomPlugin class
@@ -28,6 +25,13 @@ export default class ImageZoomPlugin extends Plugin {
          * @type string|number
          */
         zoomSteps: 5,
+
+        /**
+         * selector for the zoom modal
+         *
+         * @type string
+         */
+        imageZoomModalSelector: '[data-image-zoom-modal=true]',
 
         /**
          * selector for the image to be zoomed
@@ -68,16 +72,24 @@ export default class ImageZoomPlugin extends Plugin {
          * @type string|boolean
          */
         activeClassSelector: '.tns-slide-active',
+
+        /**
+         * selector for the gallery slider
+         *
+         * @type string
+         */
+        gallerySliderSelector: '[data-modal-gallery-slider]',
     };
 
     /**
      * init the plugin
      */
     init() {
+        this._modal = this.el.closest(this.options.imageZoomModalSelector);
         this._image = DomAccess.querySelector(this.el, this.options.imageSelector);
-        this._zoomInActionElement = DomAccess.querySelector(document, this.options.zoomInActionSelector);
-        this._zoomResetActionElement = DomAccess.querySelector(document, this.options.zoomResetActionSelector);
-        this._zoomOutActionElement = DomAccess.querySelector(document, this.options.zoomOutActionSelector);
+        this._zoomInActionElement = DomAccess.querySelector(this._modal, this.options.zoomInActionSelector);
+        this._zoomResetActionElement = DomAccess.querySelector(this._modal, this.options.zoomResetActionSelector);
+        this._zoomOutActionElement = DomAccess.querySelector(this._modal, this.options.zoomOutActionSelector);
 
         this._imageMaxSize = new Vector2(DomAccess.getDataAttribute(this._image, 'data-max-width'), DomAccess.getDataAttribute(this._image, 'data-max-height'));
         this._imageSize = new Vector2(this._image.offsetWidth, this._image.offsetHeight);
@@ -122,32 +134,6 @@ export default class ImageZoomPlugin extends Plugin {
         this._zoomInActionElement.addEventListener('click', event => this._onZoomIn(event), false);
         this._zoomResetActionElement.addEventListener('click', event => this._onResetZoom(event), false);
         this._zoomOutActionElement.addEventListener('click', event => this._onZoomOut(event), false);
-
-        this._registerImageZoomButtonUpdate();
-    }
-
-    /**
-     * registers a callback which
-     * sets the button state when an image zoom
-     * element within a slider is active
-     *
-     * @private
-     */
-    _registerImageZoomButtonUpdate() {
-        const slider = this.el.closest(IMAGE_SLIDER_INIT_SELECTOR);
-        if (slider) {
-            const imageSliderPlugin = PluginManager.getPluginInstanceFromElement(slider, 'ImageSlider');
-            if (imageSliderPlugin) {
-                imageSliderPlugin.registerChangeListener(() => {
-                    const activeSlide = imageSliderPlugin.getActiveSlideElement();
-                    const imageZoomElement = activeSlide.querySelector('[data-image-zoom]');
-                    const imageZoomPlugin = PluginManager.getPluginInstanceFromElement(imageZoomElement, 'ImageZoom');
-                    imageZoomPlugin._setActionButtonState();
-
-                    this.$emitter.publish('imageZoomButtonUpdate');
-                });
-            }
-        }
     }
 
     /**
@@ -379,6 +365,8 @@ export default class ImageZoomPlugin extends Plugin {
     _setButtonDisabledState(el) {
         el.classList.add('disabled');
 
+        el.disabled = true;
+
         this.$emitter.publish('setButtonDisabledState');
     }
 
@@ -389,6 +377,8 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _unsetButtonDisabledState(el) {
         el.classList.remove('disabled');
+
+        el.disabled = false;
 
         this.$emitter.publish('unsetButtonDisabledState');
     }

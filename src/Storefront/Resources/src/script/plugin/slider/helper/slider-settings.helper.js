@@ -1,7 +1,7 @@
 import deepmerge from 'deepmerge';
 import Iterator from 'src/script/helper/iterator.helper';
 
-export default class ImageSliderSettingsHelper {
+export default class SliderSettingsHelper {
 
     /**
      * returns the merged object between the base options

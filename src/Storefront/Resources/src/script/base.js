@@ -47,7 +47,8 @@ import FormSubmitLoaderPlugin from 'src/script/plugin/forms/form-submit-loader.p
 import FormFieldTogglePlugin from 'src/script/plugin/forms/form-field-toggle.plugin';
 import FromScrollToInvalidFieldPlugin from 'src/script/plugin/forms/form-scroll-to-invalid-field.plugin';
 import OffCanvasTabsPlugin from 'src/script/plugin/offcanvas-tabs/offcanvas-tabs.plugin';
-import ImageSliderPlugin from 'src/script/plugin/image-slider/image-slider.plugin';
+import BaseSliderPlugin from 'src/script/plugin/slider/base-slider.plugin';
+import GallerySliderPlugin from 'src/script/plugin/slider/gallery-slider.plugin';
 import ZoomModalPlugin from 'src/script/plugin/zoom-modal/zoom-modal.plugin';
 import MagnifierPlugin from 'src/script/plugin/magnifier/magnifier.plugin';
 import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';
@@ -93,7 +94,8 @@ PluginManager.register('FormAutoSubmit', FormAutoSubmitPlugin, '[data-form-auto-
 PluginManager.register('FormAjaxSubmit', FormAjaxSubmitPlugin, '[data-form-ajax-submit]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tabs]');
-PluginManager.register('ImageSlider', ImageSliderPlugin, '[data-image-slider]');
+PluginManager.register('BaseSlider', BaseSliderPlugin, '[data-base-slider]');
+PluginManager.register('GallerySlider', GallerySliderPlugin, '[data-gallery-slider]');
 PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
 PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');
 PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-image-zoom]');

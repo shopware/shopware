@@ -200,8 +200,8 @@ class FirstRunWizardController extends AbstractController
     {
         $storeToken = $this->getUserStoreToken($context);
         $domain = $params->get('domain') ?? '';
-        $language = $params->get('language', '');
-        $testEnvironment = $params->get('testEnvironment', false);
+        $language = $params->get('language') ?? '';
+        $testEnvironment = $params->getBoolean('testEnvironment');
 
         try {
             $this->frwClient->verifyLicenseDomain($domain, $language, $storeToken, $testEnvironment);
@@ -215,9 +215,25 @@ class FirstRunWizardController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/store/frw/finish", name="api.custom.store.frw.finish", methods={"POST"})
      */
-    public function frwFinish(): JsonResponse
+    public function frwFinish(QueryDataBag $params, Context $context): JsonResponse
     {
-        $this->frwClient->finishFrw();
+        $language = $params->get('language') ?? '';
+        $failed = $params->getBoolean('failed');
+        $this->frwClient->finishFrw($failed);
+
+        $userId = null;
+        $newStoreToken = '';
+        try {
+            $userId = $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null;
+            $storeToken = $this->getUserStoreToken($context);
+            $accessToken = $this->frwClient->upgradeAccessToken($storeToken, $language);
+            $newStoreToken = $accessToken->getShopUserToken()->getToken();
+        } catch (\Exception $e) {
+        }
+
+        if ($userId) {
+            $this->userRepository->update([['id' => $userId, 'storeToken' => $newStoreToken]], $context);
+        }
 
         return new JsonResponse();
     }

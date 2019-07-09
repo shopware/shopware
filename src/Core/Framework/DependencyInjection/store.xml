@@ -32,6 +32,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="shopware.filesystem.public"/>
+            <argument>%shopware.store.frw%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreService">

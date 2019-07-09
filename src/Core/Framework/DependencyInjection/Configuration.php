@@ -105,8 +105,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
-            ->scalarNode('api_url')->end()
-            ->scalarNode('host')->end()
+            ->booleanNode('frw')->end()
             ->end()
         ;
 

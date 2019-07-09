@@ -143,29 +143,34 @@ Component.register('sw-first-run-wizard-modal', {
         onNext() {
             const { next } = this.currentStep;
 
-            let abort = false;
+            let callbackPromise = Promise.resolve(false);
 
             if (this.nextCallback !== null && typeof this.nextCallback === 'function') {
-                abort = this.nextCallback.call();
+                callbackPromise = this.nextCallback.call();
             }
 
-            if (abort) {
-                return;
-            }
-
-            this.$router.push({ name: next });
+            callbackPromise.then(abort => {
+                if (!abort) {
+                    this.redirect(next);
+                }
+            });
         },
 
         onSkip() {
             const { skip } = this.currentStep;
 
-            this.$router.push({ name: skip });
+            this.redirect(skip);
         },
 
         onBack() {
             const { back } = this.currentStep;
 
-            this.$router.push({ name: back });
+            this.redirect(back);
+        },
+
+        redirect(routeName) {
+            this.nextCallback = null;
+            this.$router.push({ name: routeName });
         },
 
         onFinish() {

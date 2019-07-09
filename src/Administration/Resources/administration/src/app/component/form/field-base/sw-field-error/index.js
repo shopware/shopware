@@ -28,7 +28,6 @@ export default {
             if (this.$te(this.$i18n.fallbackLocale, this.snippetKey)) {
                 return this.$t(this.snippetKey, this.error.parameters);
             }
-
             return this.error.detail;
         }
     }

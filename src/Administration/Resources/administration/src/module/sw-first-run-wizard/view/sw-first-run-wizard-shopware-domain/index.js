@@ -63,7 +63,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
                 domain,
                 testEnvironment
             }).then(() => {
-                return true;
+                return false;
             }).catch((error) => {
                 const msg = error.response.data.errors.pop();
 

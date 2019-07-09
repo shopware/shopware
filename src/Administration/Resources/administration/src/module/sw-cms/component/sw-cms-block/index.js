@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, Application } from 'src/core/shopware';
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
@@ -44,9 +44,21 @@ Component.register('sw-cms-block', {
         },
 
         blockStyles() {
+            const initContainer = Application.getContainer('init');
+            const context = initContainer.contextService;
+            let backgroundMedia = null;
+
+            if (this.block.backgroundMedia) {
+                if (this.block.backgroundMedia.id) {
+                    backgroundMedia = `url(${this.block.backgroundMedia.url})`;
+                } else {
+                    backgroundMedia = `url(${context.assetsPath}${this.block.backgroundMedia.url})`;
+                }
+            }
+
             return {
                 'background-color': this.block.backgroundColor || 'transparent',
-                'background-image': this.block.backgroundMedia ? `url(${this.block.backgroundMedia.url})` : null,
+                'background-image': backgroundMedia,
                 'background-size': this.block.backgroundMediaMode
             };
         },

@@ -17,7 +17,6 @@
                       content="{% block layout_head_meta_tags_robots %}{{ "meta.robots"|trans }}{% endblock %}"/>
                 <meta name="revisit-after"
                       content="{{ "meta.revisit"|trans }}"/>
-                {#TODO: NEXT-1891 - replace standard keywords with category keywords if available #}
                 <meta name="keywords"
                       content="{% block layout_head_meta_tags_keywords %}{{ "meta.keywordsDefault"|trans }}{% endblock %}"/>
                 <meta name="description"
@@ -86,7 +85,11 @@
         {% block layout_head_canonical %}{% endblock %}
 
         {% block layout_head_title %}
-            <title itemprop="name">{% block layout_head_title_inner %}{{ shopware.config.core.basicInformation.shopName }}{% endblock %}</title>
+            <title itemprop="name">
+                {% block layout_head_title_inner %}{% apply spaceless %}
+                    {{ shopware.config.core.basicInformation.shopName }}
+                {% endapply %}{% endblock %}
+            </title>
         {% endblock %}
 
         {% block layout_head_stylesheet %}

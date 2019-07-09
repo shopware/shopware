@@ -1,19 +1,13 @@
 {
     "name": "shopware/platform",
-    "description": "The Shopware e-commerce core",
     "type": "library",
+    "description": "The Shopware e-commerce core",
     "keywords": [
         "framework",
         "shopware"
     ],
     "homepage": "https://www.shopware.com",
     "license": "MIT",
-    "replace": {
-        "shopware/core": "self.version",
-        "shopware/storefront": "self.version",
-        "shopware/administration": "self.version",
-        "shopware/elasticsearch": "self.version"
-    },
     "require": {
         "php": ">=7.2.0",
         "ext-dom": "*",
@@ -93,6 +87,15 @@
         "twig/twig": "2.11.2",
         "voku/stop-words": "2.0.1"
     },
+    "replace": {
+        "shopware/administration": "self.version",
+        "shopware/core": "self.version",
+        "shopware/elasticsearch": "self.version",
+        "shopware/storefront": "self.version"
+    },
+    "conflict": {
+        "symfony/symfony": "*"
+    },
     "require-dev": {
         "ext-tokenizer": "*",
         "ext-xmlwriter": "*",
@@ -102,17 +105,14 @@
         "kubawerlos/php-cs-fixer-custom-fixers": "1.13.0",
         "league/flysystem-memory": "1.0.2",
         "mbezhanov/faker-provider-collection": "1.2.1",
+        "phpstan/phpstan-shim": "^0.11.12",
         "phpunit/phpunit": "8.2.1",
         "smalot/pdfparser": "0.14.0",
         "symfony/browser-kit": "4.3.1",
         "symfony/phpunit-bridge": "4.3.1",
         "symfony/stopwatch": "4.3.1",
         "symfony/var-dumper": "4.3.1",
-        "symfony/web-profiler-bundle": "4.3.1",
-        "phpstan/phpstan-shim": "^0.11.12"
-    },
-    "conflict": {
-        "symfony/symfony": "*"
+        "symfony/web-profiler-bundle": "4.3.1"
     },
     "autoload": {
         "psr-4": {

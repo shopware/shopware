@@ -105,7 +105,6 @@
         "kubawerlos/php-cs-fixer-custom-fixers": "1.13.0",
         "league/flysystem-memory": "1.0.2",
         "mbezhanov/faker-provider-collection": "1.2.1",
-        "phpstan/phpstan-shim": "^0.11.12",
         "phpunit/phpunit": "8.2.1",
         "smalot/pdfparser": "0.14.0",
         "symfony/browser-kit": "4.3.1",

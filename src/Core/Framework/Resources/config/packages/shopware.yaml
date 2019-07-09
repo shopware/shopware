@@ -31,3 +31,5 @@ shopware:
         entity_cache:
             enabled: true
             expiration_time: 3600
+    store:
+        frw: false

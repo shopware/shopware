@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException;
 use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\DomainVerificationRequestStruct;
+use Shopware\Core\Framework\Store\Struct\FrwState;
 use Shopware\Core\Framework\Store\Struct\LicenseDomainCollection;
 use Shopware\Core\Framework\Store\Struct\LicenseDomainStruct;
 use Shopware\Core\Framework\Store\Struct\PluginCategoryStruct;
@@ -26,6 +27,8 @@ final class FirstRunWizardClient
 
     private const TRACKING_EVENT_FRW_STARTED = 'First Run Wizard started';
     private const TRACKING_EVENT_FRW_FINISHED = 'First Run Wizard finished';
+
+    private const FRW_MAX_FAILURES = 3;
 
     /**
      * @var Client
@@ -47,13 +50,20 @@ final class FirstRunWizardClient
      */
     private $filesystem;
 
-    public function __construct(StoreService $storeService, SystemConfigService $configService, FilesystemInterface $filesystem)
+    /**
+     * @var bool
+     */
+    private $frwAutoRun;
+
+    public function __construct(StoreService $storeService, SystemConfigService $configService, FilesystemInterface $filesystem, bool $frwAutoRun = false)
     {
         $this->storeService = $storeService;
         $this->client = $this->storeService->createClient();
 
         $this->configService = $configService;
         $this->filesystem = $filesystem;
+
+        $this->frwAutoRun = $frwAutoRun;
     }
 
     public function startFrw(): void
@@ -90,12 +100,74 @@ final class FirstRunWizardClient
         return $accessTokenStruct;
     }
 
-    public function finishFrw(): void
+    public function upgradeAccessToken(string $storeToken, string $language): ?AccessTokenStruct
     {
-        $this->storeService->fireTrackingEvent(self::TRACKING_EVENT_FRW_FINISHED);
+        $headers = $this->client->getConfig('headers');
+        $headers[self::SHOPWARE_TOKEN_HEADER] = $storeToken;
 
-        $dateTime = (new \DateTimeImmutable())->format(\DateTimeImmutable::ATOM);
-        $this->configService->set('core.frw.completedAt', $dateTime);
+        $response = $this->client->get(
+            '/swplatform/login/upgrade',
+            [
+                'query' => $this->storeService->getDefaultQueryParameters($language),
+                'headers' => $headers,
+            ]
+        );
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $userToken = new ShopUserTokenStruct();
+        $userToken->assign($data['shopUserToken']);
+
+        $accessTokenStruct = new AccessTokenStruct();
+        $accessTokenStruct->assign($data);
+        $accessTokenStruct->setShopUserToken($userToken);
+
+        return $accessTokenStruct;
+    }
+
+    public function finishFrw(bool $failed): void
+    {
+        if ($failed) {
+            $this->setFrwStatus(FrwState::failedState());
+
+            return;
+        }
+
+        $this->storeService->fireTrackingEvent(self::TRACKING_EVENT_FRW_FINISHED);
+        $this->setFrwStatus(FrwState::completedState());
+    }
+
+    public function getFrwState(): FrwState
+    {
+        $completedAt = $this->configService->get('core.frw.completedAt');
+        if ($completedAt) {
+            return FrwState::completedState(new \DateTimeImmutable($completedAt));
+        }
+        $failedAt = $this->configService->get('core.frw.failedAt');
+        if ($failedAt) {
+            $failureCount = $this->configService->get('core.frw.failureCount') ?? 1;
+
+            return FrwState::failedState(new \DateTimeImmutable($failedAt), $failureCount);
+        }
+
+        return FrwState::openState();
+    }
+
+    public function frwShouldRun(): bool
+    {
+        if (!$this->frwAutoRun) {
+            return false;
+        }
+
+        $status = $this->getFrwState();
+        if ($status->isCompleted()) {
+            return false;
+        }
+
+        if ($status->isFailed() && $status->getFailureCount() > self::FRW_MAX_FAILURES) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -188,7 +260,7 @@ final class FirstRunWizardClient
 
         $domains = array_map(static function ($data) {
             return (new LicenseDomainStruct())->assign([
-                'domain' => $data['domain'],
+                'domain' => idn_to_utf8($data['domain']),
                 'edition' => $data['edition']['label'],
                 'verified' => $data['verified'] ?? false,
             ]);
@@ -203,6 +275,8 @@ final class FirstRunWizardClient
 
         $existing = $domains->get($domain);
         if ($existing && $existing->isVerified()) {
+            $this->configService->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, $domain);
+
             return;
         }
 
@@ -219,6 +293,25 @@ final class FirstRunWizardClient
         }
 
         $this->configService->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, $domain);
+    }
+
+    private function setFrwStatus(FrwState $newState): void
+    {
+        $currentState = $this->getFrwState();
+        $completedAt = null;
+        $failedAt = null;
+        $failureCount = null;
+
+        if ($newState->isCompleted()) {
+            $completedAt = $newState->getCompletedAt()->format(\DateTimeImmutable::ATOM);
+        } elseif ($newState->isFailed()) {
+            $failedAt = $newState->getFailedAt()->format(\DateTimeImmutable::ATOM);
+            $failureCount = $currentState->getFailureCount() + 1;
+        }
+
+        $this->configService->set('core.frw.completedAt', $completedAt);
+        $this->configService->set('core.frw.failedAt', $failedAt);
+        $this->configService->set('core.frw.failureCount', $failureCount);
     }
 
     private function checkVerificationSecret(string $domain, string $storeToken, bool $testEnvironment): void

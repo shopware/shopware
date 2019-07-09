@@ -61,11 +61,14 @@
 
                 {% block sw_customer_detail_addresses_grid %}
                     <template #grid>
-                        <sw-one-to-many-grid :collection="activeCustomer.addresses"
+                        <sw-one-to-many-grid :collection="sortedAddresses"
                                              ref="addressGrid"
-                                             :localMode="false"
+                                             :localMode="true"
                                              :columns="addressColumns"
                                              :showSelection="false"
+                                             @column-sort="setAddressSorting"
+                                             :sortDirection="addressSortDirection"
+                                             :sortBy="addressSortProperty"
                                              :isLoading="isLoading">
                             {% block sw_customer_detail_addresses_grid_columns %}
                                 {% block sw_customer_detail_addresses_grid_columns_default_shipping_address %}

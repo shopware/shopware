@@ -46,6 +46,8 @@ Component.register('sw-customer-detail-addresses', {
             showAddAddressModal: false,
             showEditAddressModal: false,
             showDeleteAddressModal: false,
+            addressSortProperty: null,
+            addressSortDirection: '',
             currentAddress: null
         };
     },
@@ -64,6 +66,21 @@ Component.register('sw-customer-detail-addresses', {
                 this.activeCustomer.addresses.entity,
                 this.activeCustomer.addresses.source
             );
+        },
+
+        sortedAddresses() {
+            if (this.addressSortProperty) {
+                return this.activeCustomer.addresses.sort((a, b) => {
+                    const isBigger = a[this.addressSortProperty].toUpperCase() > b[this.addressSortProperty].toUpperCase();
+
+                    if (this.addressSortDirection === 'DESC') {
+                        return isBigger ? -1 : 1;
+                    }
+                    return isBigger ? 1 : -1;
+                });
+            }
+
+            return this.activeCustomer.addresses;
         }
     },
 
@@ -123,6 +140,19 @@ Component.register('sw-customer-detail-addresses', {
             }];
         },
 
+        setAddressSorting(column) {
+            this.addressSortProperty = column.property;
+
+            let direction = 'ASC';
+            if (this.addressSortProperty === column.dataIndex) {
+                if (this.addressSortDirection === direction) {
+                    direction = 'DESC';
+                }
+            }
+            this.addressSortProperty = column.dataIndex;
+            this.addressSortDirection = direction;
+        },
+
         onCreateNewAddress() {
             this.showAddAddressModal = true;
             this.createNewCustomerAddress();
@@ -156,9 +186,8 @@ Component.register('sw-customer-detail-addresses', {
             }
 
             Object.assign(address, this.currentAddress);
-            this.addressRepository.save(address, this.context).then(() => {
-                this.refreshList();
-            });
+
+            this.customer.addresses.push(address);
             this.currentAddress = null;
         },
 
@@ -206,13 +235,17 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onConfirmDeleteAddress(id) {
-            this.addressRepository.delete(id, this.context).then(() => {
-                this.refreshList();
-            });
             this.onCloseDeleteAddressModal();
+
+            // address have to be removed after the modal is closed because otherwise
+            // the slot does not exist anymore and the modal stays open
+            this.$nextTick(() => {
+                this.customer.addresses.remove(id);
+            });
         },
 
         onCloseDeleteAddressModal() {
+            console.log('onCloseDeleteAddressModal');
             this.showDeleteAddressModal = false;
         },
 

@@ -1,4 +1,9 @@
-<picture class="{{ name }}">
+<picture class="{{ name }}"{% spaceless %}
+        {% for key,value in attributes %}
+            {{ key }}="{{ value }}"
+        {% endfor %}
+    {% endspaceless %}
+    >
     {% for thumbnail in thumbnails %}
         <source srcset="{{ thumbnail.url }}" media="(max-width: {{ thumbnail.width }}px)" />
     {% endfor %}

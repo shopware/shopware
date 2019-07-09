@@ -40,8 +40,13 @@ export default class ChangesetGenerator {
                 return;
             }
 
-            const draftValue = castValueToNullIfNecessary(draft[fieldName]);
-            const originValue = castValueToNullIfNecessary(origin[fieldName]);
+            let draftValue = castValueToNullIfNecessary(draft[fieldName]);
+            let originValue = castValueToNullIfNecessary(origin[fieldName]);
+
+            if (field.flags.extension) {
+                draftValue = castValueToNullIfNecessary(draft.extensions[fieldName]);
+                originValue = castValueToNullIfNecessary(origin.extensions[fieldName]);
+            }
 
             if (definition.isScalarField(field)) {
                 if (draftValue !== originValue) {

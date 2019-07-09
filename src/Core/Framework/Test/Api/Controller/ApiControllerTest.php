@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -969,5 +970,176 @@ EOF;
 
         $data = json_decode($response->getContent(), true);
         static::assertEquals(15, $data['data']['attributes']['taxRate']);
+    }
+
+    public function testWriteExtensionWithExtensionKey(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannel($salesChannelId);
+
+        $data = [
+            'extensions' => [
+                'seoUrls' => [
+                    [
+                        'languageId' => Defaults::LANGUAGE_SYSTEM,
+                        'foreignKey' => $salesChannelId,
+                        'routeName' => 'test',
+                        'pathInfo' => 'test',
+                        'seoPathInfo' => 'test',
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . $salesChannelId, [], [], [], json_encode($data));
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        $filter = [
+            'filter' => [
+                [
+                    'type' => 'equals',
+                    'field' => 'id',
+                    'value' => $salesChannelId,
+                ],
+            ],
+            'associations' => [
+                'seoUrls' => [],
+            ],
+        ];
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/sales-channel', [], [], [], json_encode($filter));
+        $response = $this->getBrowser()->getResponse();
+        $result = json_decode($response->getContent(), true);
+        $data = $result['data'];
+
+        static::assertCount(1, $data);
+        static::assertArrayHasKey('extensions', $data[0]['relationships']);
+
+        $included = $result['included'];
+        static::assertCount(2, $included);
+
+        // sort the included entities alphabetically by type
+        usort($included, function ($a, $b) {
+            return $a['type'] > $b['type'];
+        });
+
+        $extension = $included[0];
+        static::assertEquals('extension', $extension['type']);
+        static::assertArrayHasKey('seoUrls', $extension['relationships']);
+
+        $seoUrl = $included[1];
+        static::assertEquals('seo_url', $seoUrl['type']);
+        static::assertEquals('test', $seoUrl['attributes']['routeName']);
+
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . $salesChannelId . '/extensions/seo-urls');
+        $response = $this->getBrowser()->getResponse();
+        $result = json_decode($response->getContent(), true);
+        $data = $result['data'];
+
+        static::assertCount(1, $data);
+
+        $seoUrl = $data[0];
+        static::assertEquals('seo_url', $seoUrl['type']);
+        static::assertEquals('test', $seoUrl['attributes']['routeName']);
+    }
+
+    public function testCanWriteExtensionWithoutExtensionKey(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannel($salesChannelId);
+
+        $data = [
+            'seoUrls' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'foreignKey' => $salesChannelId,
+                    'routeName' => 'test',
+                    'pathInfo' => 'test',
+                    'seoPathInfo' => 'test',
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . $salesChannelId, [], [], [], json_encode($data));
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        $filter = [
+            'filter' => [
+                [
+                    'type' => 'equals',
+                    'field' => 'id',
+                    'value' => $salesChannelId,
+                ],
+            ],
+            'associations' => [
+                'seoUrls' => [],
+            ],
+        ];
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/sales-channel', [], [], [], json_encode($filter));
+        $response = $this->getBrowser()->getResponse();
+        $result = json_decode($response->getContent(), true);
+        $data = $result['data'];
+
+        static::assertCount(1, $data);
+        static::assertArrayHasKey('extensions', $data[0]['relationships']);
+
+        $included = $result['included'];
+        static::assertCount(2, $included);
+
+        // sort the included entities alphabetically by type
+        usort($included, function ($a, $b) {
+            return $a['type'] > $b['type'];
+        });
+
+        $extension = $included[0];
+        static::assertEquals('extension', $extension['type']);
+        static::assertArrayHasKey('seoUrls', $extension['relationships']);
+
+        $seoUrls = $included[1];
+        static::assertEquals('seo_url', $seoUrls['type']);
+        static::assertEquals('test', $seoUrls['attributes']['routeName']);
+
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . $salesChannelId . '/extensions/seo-urls');
+        $response = $this->getBrowser()->getResponse();
+        $result = json_decode($response->getContent(), true);
+        $data = $result['data'];
+
+        static::assertCount(1, $data);
+
+        $seoUrl = $data[0];
+        static::assertEquals('seo_url', $seoUrl['type']);
+        static::assertEquals('test', $seoUrl['attributes']['routeName']);
+    }
+
+    private function createSalesChannel($id): void
+    {
+        $data = [
+            'id' => $id,
+            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'currencyId' => Defaults::CURRENCY,
+            'currencyVersionId' => Defaults::LIVE_VERSION,
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'paymentMethodVersionId' => Defaults::LIVE_VERSION,
+            'shippingMethodId' => $this->getValidShippingMethodId(),
+            'shippingMethodVersionId' => Defaults::LIVE_VERSION,
+            'navigationCategoryId' => $this->getValidCategoryId(),
+            'navigationCategoryVersionId' => Defaults::LIVE_VERSION,
+            'countryId' => $this->getValidCountryId(),
+            'countryVersionId' => Defaults::LIVE_VERSION,
+            'currencies' => [['id' => Defaults::CURRENCY]],
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
+            'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
+            'countries' => [['id' => $this->getValidCountryId()]],
+            'name' => 'first sales-channel',
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+        ];
+
+        $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
     }
 }

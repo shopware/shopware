@@ -731,6 +731,7 @@ class ApiController extends AbstractController
 
     private function buildEntityPath(string $entityName, string $pathInfo): array
     {
+        $pathInfo = str_replace('/extensions/', '/', $pathInfo);
         $exploded = explode('/', $entityName . '/' . ltrim($pathInfo, '/'));
 
         $parts = [];

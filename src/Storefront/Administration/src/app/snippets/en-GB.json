@@ -14,7 +14,8 @@
       "labelSalesChannelSelect": "Sales channel"
     },
     "routeNames": {
-      "frontend-detail-page": "Product detail page"
+      "frontend-detail-page": "Product detail page",
+      "frontend-navigation-page": "Category page"
     }
   },
   "sw-seo-url": {

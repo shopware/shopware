@@ -84,6 +84,11 @@ export default class EntityHydrator {
 
         Object.keys(row.relationships).forEach((property) => {
             const value = row.relationships[property];
+
+            if (property === 'extensions') {
+                data[property] = this.hydrateExtensions(id, value, schema, response, context, criteria);
+            }
+
             const field = schema.properties[property];
 
             if (!field) {
@@ -91,7 +96,7 @@ export default class EntityHydrator {
             }
 
             if (schema.isToManyAssociation(field)) {
-                data[property] = this.hydrateToMany(criteria, property, value, field, context, response);
+                data[property] = this.hydrateToMany(criteria, property, value, field.entity, context, response);
 
                 return true;
             }
@@ -140,12 +145,12 @@ export default class EntityHydrator {
      * @param {Criteria} criteria
      * @param {string} property
      * @param {Array|null} value
-     * @param {Object} field
+     * @param {string} entity
      * @param {Object} context
      * @param {Object } response
      * @returns {EntityCollection}
      */
-    hydrateToMany(criteria, property, value, field, context, response) {
+    hydrateToMany(criteria, property, value, entity, context, response) {
         const associationCriteria = criteria.getAssociation(property);
 
         const url = value.links.related.substr(
@@ -154,7 +159,7 @@ export default class EntityHydrator {
             context.apiResourcePath.length
         );
 
-        const collection = new EntityCollection(url, field.entity, context, associationCriteria);
+        const collection = new EntityCollection(url, entity, context, associationCriteria);
 
         if (value.data === null) {
             return collection;
@@ -189,5 +194,49 @@ export default class EntityHydrator {
         return response.included.find((included) => {
             return (included.id === id && included.type === entity);
         });
+    }
+
+    /**
+     * @private
+     * @param {string} id
+     * @param {Object} relationship
+     * @param {Object} schema
+     * @param {Object} response
+     * @param {Object} context
+     * @param {Criteria} criteria
+     * @returns {*}
+     */
+    hydrateExtensions(id, relationship, schema, response, context, criteria) {
+        const extension = this.getIncluded('extension', id, response);
+
+        const data = Object.assign({}, extension.attributes);
+
+        Object.keys(extension.relationships).forEach((property) => {
+            const value = extension.relationships[property];
+
+            const field = schema.properties[property];
+
+            if (!field) {
+                return true;
+            }
+
+            if (schema.isToManyAssociation(field)) {
+                data[property] = this.hydrateToMany(criteria, property, value, field.entity, context, response);
+
+                return true;
+            }
+
+            if (schema.isToOneAssociation(field) && types.isObject(value.data)) {
+                const nestedEntity = this.hydrateToOne(criteria, property, value, response, context);
+
+                if (nestedEntity) {
+                    data[property] = nestedEntity;
+                }
+            }
+
+            return true;
+        });
+
+        return data;
     }
 }

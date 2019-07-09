@@ -20,9 +20,12 @@ class Record implements \JsonSerializable
     /**
      * @var array
      */
-    protected $attributes = [
-        'extensions' => [],
-    ];
+    protected $attributes = [];
+
+    /**
+     * @var array
+     */
+    protected $extensions = [];
 
     /**
      * @var array
@@ -117,6 +120,7 @@ class Record implements \JsonSerializable
     {
         $vars = get_object_vars($this);
 
+        unset($vars['extensions']);
         foreach ($vars['relationships'] as $i => $x) {
             unset($vars['relationships'][$i]['tmp']);
         }
@@ -126,7 +130,12 @@ class Record implements \JsonSerializable
 
     public function addExtension(string $key, $value): void
     {
-        $this->attributes['extensions'][$key] = $value;
+        $this->extensions[$key] = $value;
+    }
+
+    public function getExtensions(): array
+    {
+        return $this->extensions;
     }
 
     public function merge(Entity $entity): void
@@ -137,14 +146,6 @@ class Record implements \JsonSerializable
 
         foreach ($this->attributes as $key => $relationship) {
             $this->attributes[$key] = $data[$key] ?? null;
-        }
-
-        if (!empty($data['extensions']) && array_key_exists('extensions', $this->attributes) && is_array($this->attributes['extensions'])) {
-            foreach ($this->attributes['extensions'] as $key => $relationship) {
-                $this->attributes['extensions'][$key] = $data['extensions'][$key] ?? null;
-            }
-        } else {
-            unset($this->attributes['extensions']);
         }
 
         foreach ($this->relationships as $key => &$relationship) {

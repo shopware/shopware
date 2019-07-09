@@ -958,6 +958,10 @@ class EntityReader implements EntityReaderInterface
         }
 
         $related = $collection->map(function (Entity $entity) use ($association) {
+            if ($association->is(Extension::class)) {
+                return $entity->getExtension($association->getPropertyName());
+            }
+
             return $entity->get($association->getPropertyName());
         });
 

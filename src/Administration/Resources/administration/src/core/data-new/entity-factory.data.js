@@ -25,12 +25,25 @@ export default class EntityFactory {
             return null;
         }
 
-        const data = {};
+        const data = {
+            extensions: {}
+        };
 
         const toManyAssociations = definition.getToManyAssociations();
         Object.keys(toManyAssociations).forEach((property) => {
             const associatedProperty = toManyAssociations[property].entity;
-            data[property] = this.createCollection(entityName, id, property, associatedProperty, context);
+
+            if (toManyAssociations[property].flags.extension) {
+                data.extensions[property] = this.createCollection(
+                    entityName,
+                    `${id}/extensions`,
+                    property,
+                    associatedProperty,
+                    context
+                );
+            } else {
+                data[property] = this.createCollection(entityName, id, property, associatedProperty, context);
+            }
         });
 
         const entity = new Entity(id, entityName, data);

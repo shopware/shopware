@@ -178,6 +178,26 @@
                         </template>
                     </sw-inherit-wrapper>
                 {% endblock %}
+
+                {% block sw_product_settings_form_is_closeout_field %}
+                    <sw-inherit-wrapper v-model="product.isCloseout"
+                                        :hasParent="!!parentProduct.id"
+                                        :inheritedValue="parentProduct.isCloseout">
+                        <template #content="props">
+
+                            <sw-field type="switch"
+                                      bordered
+                                      :error="productIsCloseoutError"
+                                      :mapInheritance="props"
+                                      :label="$tc('sw-product.settingsForm.labelIsCloseout')"
+                                      :disabled="props.isInherited"
+                                      :value="props.currentValue"
+                                      @change="props.updateCurrentValue">
+                            </sw-field>
+
+                        </template>
+                    </sw-inherit-wrapper>
+                {% endblock %}
             </sw-container>
         {% endblock %}
     </div>

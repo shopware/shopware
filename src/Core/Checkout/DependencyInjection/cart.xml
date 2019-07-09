@@ -155,7 +155,6 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Processor">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Calculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Validator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>

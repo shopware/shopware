@@ -15,20 +15,21 @@ class IncompleteLineItemError extends Error
      */
     private $property;
 
-    public function __construct(string $id, string $property)
+    public function __construct(string $key, string $property)
     {
-        $this->key = $id;
+        $this->key = $key;
         $this->property = $property;
-        $this->message = sprintf(
-            'Line item "%s" incomplete. Property "%s" missing.',
-            $id,
-            $property
-        );
+        $this->message = sprintf('Line item "%s" incomplete. Property "%s" missing.', $key, $property);
 
         parent::__construct($this->message);
     }
 
-    public function getKey(): string
+    public function getParameters(): array
+    {
+        return ['key' => $this->key, 'property' => $this->property];
+    }
+
+    public function getId(): string
     {
         return $this->key;
     }

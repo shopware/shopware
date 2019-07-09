@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
@@ -61,9 +62,11 @@ class CartLineItemController extends StorefrontController
                 throw new LineItemNotFoundException($id);
             }
 
-            $this->cartService->remove($cart, $id, $salesChannelContext);
+            $cart = $this->cartService->remove($cart, $id, $salesChannelContext);
 
-            $this->addFlash('success', $this->trans('checkout.cartUpdateSuccess'));
+            if (!$this->traceErrors($cart)) {
+                $this->addFlash('success', $this->trans('checkout.cartUpdateSuccess'));
+            }
         } catch (\Exception $exception) {
             $this->addFlash('danger', $this->trans('error.message-default'));
         }
@@ -95,7 +98,8 @@ class CartLineItemController extends StorefrontController
 
             /** @var Cart $cart */
             $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
-            $cart->getErrors();
+
+            $this->traceErrors($cart);
 
             $changedCartState = md5(json_encode($cart));
 
@@ -145,9 +149,11 @@ class CartLineItemController extends StorefrontController
                 throw new LineItemNotFoundException($id);
             }
 
-            $this->cartService->changeQuantity($cart, $id, (int) $quantity, $salesChannelContext);
+            $cart = $this->cartService->changeQuantity($cart, $id, (int) $quantity, $salesChannelContext);
 
-            $this->addFlash('success', $this->trans('checkout.cartUpdateSuccess'));
+            if (!$this->traceErrors($cart)) {
+                $this->addFlash('success', $this->trans('checkout.cartUpdateSuccess'));
+            }
         } catch (\Exception $exception) {
             $this->addFlash('danger', $this->trans('error.message-default'));
         }
@@ -238,10 +244,12 @@ class CartLineItemController extends StorefrontController
 
                 $count += $lineItem->getQuantity();
 
-                $this->cartService->add($cart, $lineItem, $salesChannelContext);
+                $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
             }
 
-            $this->addFlash('success', $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
+            if (!$this->traceErrors($cart)) {
+                $this->addFlash('success', $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
+            }
         } catch (ProductNotFoundException $exception) {
             $this->addFlash('danger', $this->trans('error.addToCartError'));
         }
@@ -278,5 +286,28 @@ class CartLineItemController extends StorefrontController
         $allCodes = $this->container->get('session')->get(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES);
 
         return in_array($code, $allCodes, true);
+    }
+
+    private function traceErrors(Cart $cart): bool
+    {
+        if ($cart->getErrors()->count() <= 0) {
+            return false;
+        }
+
+        foreach ($cart->getErrors() as $error) {
+            $type = 'danger';
+
+            if ($error->getLevel() === Error::LEVEL_NOTICE) {
+                $type = 'info';
+            }
+
+            $message = $this->trans('checkout.' . $error->getMessageKey(), $error->getParameters());
+
+            $this->addFlash($type, $message);
+        }
+
+        $cart->getErrors()->clear();
+
+        return true;
     }
 }

@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Snippet\Files\en_GB;
+namespace Shopware\Storefront\Snippet\de_DE;
 
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 
-class SnippetFile_en_GB implements SnippetFileInterface
+class SnippetFile_de_DE implements SnippetFileInterface
 {
     public function getName(): string
     {
-        return 'messages.en-GB';
+        return 'messages.de-DE';
     }
 
     public function getPath(): string
     {
-        return __DIR__ . '/messages.en-GB.json';
+        return __DIR__ . '/messages.de-DE.json';
     }
 
     public function getIso(): string
     {
-        return 'en-GB';
+        return 'de-DE';
     }
 
     public function getAuthor(): string

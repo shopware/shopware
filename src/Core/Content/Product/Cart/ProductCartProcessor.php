@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
@@ -79,8 +80,27 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         foreach ($lineItems as $lineItem) {
             $definition = $lineItem->getPriceDefinition();
 
-            if (!$definition) {
+            if (!$definition instanceof QuantityPriceDefinition) {
                 throw new MissingLineItemPriceException($lineItem->getId());
+            }
+
+            if (!$behavior->isRecalculation()) {
+                $product = $data->get('product-' . $lineItem->getReferencedId());
+
+                /** @var ProductEntity $product */
+                if ($lineItem->getQuantity() > $product->getAvailableStock()) {
+                    $lineItem->setQuantity($product->getAvailableStock());
+
+                    $definition->setQuantity($product->getAvailableStock());
+
+                    $toCalculate->addErrors(
+                        new ProductStockReachedError(
+                            $product->getId(),
+                            (string) $product->getTranslation('name'),
+                            $product->getAvailableStock()
+                        )
+                    );
+                }
             }
 
             $lineItem->setPrice(
@@ -93,8 +113,12 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
     }
 
-    private function enrich(LineItem $lineItem, CartDataCollection $data, SalesChannelContext $context, CartBehavior $behavior): void
-    {
+    private function enrich(
+        LineItem $lineItem,
+        CartDataCollection $data,
+        SalesChannelContext $context,
+        CartBehavior $behavior
+    ): void {
         $id = $lineItem->getReferencedId();
 
         $key = 'product-' . $id;

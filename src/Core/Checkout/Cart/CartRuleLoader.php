@@ -135,8 +135,9 @@ class CartRuleLoader
 
         $item = $this->cache->getItem(self::CHECKOUT_RULE_LOADER_CACHE_KEY);
 
-        if ($item->isHit()) {
-            return $item->get();
+        $rules = $item->get();
+        if ($item->isHit() && $rules) {
+            return $this->rules = $rules;
         }
 
         $criteria = new Criteria();

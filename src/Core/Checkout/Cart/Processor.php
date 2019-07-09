@@ -9,11 +9,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class Processor
 {
     /**
-     * @var Calculator
-     */
-    private $calculator;
-
-    /**
      * @var Validator
      */
     private $validator;
@@ -39,14 +34,12 @@ class Processor
     private $collectors;
 
     public function __construct(
-        Calculator $calculator,
         Validator $validator,
         AmountCalculator $amountCalculator,
         TransactionProcessor $transactionProcessor,
         iterable $processors,
         iterable $collectors
     ) {
-        $this->calculator = $calculator;
         $this->validator = $validator;
         $this->amountCalculator = $amountCalculator;
         $this->transactionProcessor = $transactionProcessor;
@@ -60,6 +53,8 @@ class Processor
 
         // move data from previous calculation into new cart
         $cart->setData($original->getData());
+
+        $cart->setErrors($original->getErrors());
 
         // enrich cart with all required data
         foreach ($this->collectors as $collector) {
@@ -79,7 +74,7 @@ class Processor
         $this->calculateAmount($context, $cart);
 
         $cart->addErrors(
-            $this->validator->validate($cart, $context)
+            ...$this->validator->validate($cart, $context)
         );
 
         $cart->setTransactions(

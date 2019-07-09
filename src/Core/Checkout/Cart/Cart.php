@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
@@ -146,7 +147,7 @@ class Cart extends Struct
         }
     }
 
-    public function addErrors(ErrorCollection $errors): void
+    public function addErrors(Error ...$errors): void
     {
         foreach ($errors as $error) {
             $this->errors->add($error);

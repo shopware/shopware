@@ -19,7 +19,7 @@ class ErrorCollection extends Collection
      */
     public function add($error): void
     {
-        $this->set($error->getKey(), $error);
+        $this->set($error->getId(), $error);
     }
 
     public function blockOrder(): bool

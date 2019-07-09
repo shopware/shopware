@@ -291,7 +291,10 @@
         "shippingCosts": "Shipping costs",
         "shippingCountry": "Shipping country",
         "paymentMethod": "Payment method",
-        "shippingMethod": "Shipping method"
+        "shippingMethod": "Shipping method",
+        "product-stock-reached": "The product name is only available quantity times",
+        "shipping-method-blocked": "The shipping method name is blocked for your current cart.",
+        "payment-method-blocked": "The payment method name is blocked for your current cart."
     },
     "listing": {
         "boxUnitLabel": "Content:",

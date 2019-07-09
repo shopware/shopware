@@ -24,6 +24,11 @@ class ShippingMethodBlockedError extends Error
         parent::__construct($this->message);
     }
 
+    public function getParameters(): array
+    {
+        return ['name' => $this->name];
+    }
+
     public function getName(): string
     {
         return $this->name;
@@ -34,7 +39,7 @@ class ShippingMethodBlockedError extends Error
         return true;
     }
 
-    public function getKey(): string
+    public function getId(): string
     {
         return sprintf('%s-%s', self::KEY, $this->name);
     }

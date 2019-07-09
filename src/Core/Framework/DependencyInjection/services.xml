@@ -173,15 +173,6 @@
             <argument type="tagged" tag="shopware.snippet.filter"/>
         </service>
 
-        <!--SnippetFiles-->
-        <service id="Shopware\Core\Framework\Snippet\Files\de_DE\SnippetFile_de_DE" public="true">
-            <tag name="shopware.snippet.file" priority="100"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Snippet\Files\en_GB\SnippetFile_en_GB" public="true">
-            <tag name="shopware.snippet.file" priority="100"/>
-        </service>
-
         <!--SnippetFilters-->
         <service id="Shopware\Core\Framework\Snippet\Filter\AuthorFilter">
             <tag name="shopware.snippet.filter"/>

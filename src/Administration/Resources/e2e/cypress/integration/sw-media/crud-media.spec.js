@@ -72,7 +72,6 @@ describe('Media: Test crud operations', () => {
         }).as('deleteData');
 
         page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
-        cy.awaitAndCheckNotification('File has successfully been saved.');
 
         // Delete image
         cy.get(`${page.elements.mediaItem} ${page.elements.previewItem}`).click();

@@ -108,7 +108,8 @@
         "symfony/phpunit-bridge": "4.3.1",
         "symfony/stopwatch": "4.3.1",
         "symfony/var-dumper": "4.3.1",
-        "symfony/web-profiler-bundle": "4.3.1"
+        "symfony/web-profiler-bundle": "4.3.1",
+        "phpstan/phpstan-shim": "^0.11.12"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -124,5 +125,16 @@
         "exclude-from-classmap": [
             "src/**/Test/"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Shopware\\Core\\Migration\\": "src/Core/Migration/Test/",
+            "Shopware\\Core\\Checkout\\": "src/Core/Checkout/Test/",
+            "Shopware\\Core\\Framework\\": "src/Core/Framework/Test/",
+            "Shopware\\Core\\Content\\": "src/Core/Content/Test/",
+            "Shopware\\Core\\System\\": "src/Core/System/Test/",
+            "Shopware\\Elasticsearch\\": "src/Elasticsearch/Test/",
+            "Shopware\\Storefront\\": "src/Storefront/Test/"
+        }
     }
 }

@@ -1,15 +1,25 @@
+# Start: vendor/bin/phpstan analyse
 parameters:
-    reportUnmatchedIgnoredErrors: false
+    inferPrivatePropertyTypeFromConstructor: true
+    level: 5
+    paths:
+        - %rootDir%/../../../src/
     excludes_analyse:
-        - %rootDir%/../src/**/*Test.php
-        - %rootDir%/../src/**/Test/**/_fixture/feature_*.php
-        - %rootDir%/../src/Core/TestBootstrap.php
-        - %rootDir%/../src/Core/Flag/feature_*.php
-        - %rootDir%/../src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
+        - %rootDir%/../../../src/Core/Flag/feature_*.php
+        - %rootDir%/../../../src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
+        # Tests
+        - %rootDir%/../../../src/Core/TestBootstrap.php
+        - %rootDir%/../../../src/**/*Test.php
+        - %rootDir%/../../../src/**/Test/**/_fixture/feature_*.php
     ignoreErrors:
-        # https://github.com/phpstan/phpstan/issues/1060
-        - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::(variableNode|scalarNode|end|integerNode|booleanNode)\(\)\.#'
+        # TODO Add reason
         - '#Shopware\\Core\\Framework\\DataAbstractionLayer\\CompiledFieldCollection::__construct\(\) does not call parent constructor from Shopware\\Core\\Framework\\Struct\\Collection.#'
-        - '#[F,f]unction Flag\\.* not found\.$#'
-        - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
-        - '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required\.#'
+        # TODO Add reason
+        - '#^(Used function|Function) Flag\\\S+ not found\.$#'
+        # TODO Add reason
+        - '#^Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::(variableNode|scalarNode|end|booleanNode)\(\)\.$#'
+        # TODO Add reason
+        - '#^Access to an undefined property Faker\\Generator::\$[^.]+\.$#'
+        # For BC with Symfony 4
+        - '#^Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required\.$#'
+        # ??? https://github.com/phpstan/phpstan/issues/1060

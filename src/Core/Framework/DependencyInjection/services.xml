@@ -141,7 +141,6 @@
             <argument type="service" id="shopware.cache"/>
             <argument type="service" id="translator.formatter"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetService"/>
-            <argument type="service" id="language.repository"/>
             <tag name="monolog.logger"/>
         </service>
 

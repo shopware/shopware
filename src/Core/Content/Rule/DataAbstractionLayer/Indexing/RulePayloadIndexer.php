@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\Util\EventIdExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -185,6 +186,8 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         }
 
         $this->cache->invalidateTags($tags);
+
+        $this->cache->delete(CartRuleLoader::CHECKOUT_RULE_LOADER_CACHE_KEY);
 
         return $updated;
     }

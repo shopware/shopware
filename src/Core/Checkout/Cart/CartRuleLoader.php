@@ -11,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CartRuleLoader
 {
+    public const CHECKOUT_RULE_LOADER_CACHE_KEY = 'all-rules';
     private const MAX_ITERATION = 5;
 
     /**
@@ -41,16 +43,30 @@ class CartRuleLoader
      */
     private $logger;
 
+    /**
+     * @var TagAwareAdapterInterface
+     */
+    private $cache;
+
+    /**
+     * @var int
+     */
+    private $expirationTime;
+
     public function __construct(
         CartPersisterInterface $cartPersister,
         Processor $processor,
         EntityRepositoryInterface $repository,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        TagAwareAdapterInterface $cache,
+        int $expirationTime
     ) {
         $this->cartPersister = $cartPersister;
         $this->repository = $repository;
         $this->processor = $processor;
         $this->logger = $logger;
+        $this->cache = $cache;
+        $this->expirationTime = $expirationTime;
     }
 
     public function loadByToken(SalesChannelContext $context, string $cartToken): RuleLoaderResult
@@ -77,7 +93,6 @@ class CartRuleLoader
 
         $iteration = 1;
 
-        $recalculate = false;
         do {
             if ($iteration > self::MAX_ITERATION) {
                 break;
@@ -118,6 +133,12 @@ class CartRuleLoader
             return $this->rules;
         }
 
+        $item = $this->cache->getItem(self::CHECKOUT_RULE_LOADER_CACHE_KEY);
+
+        if ($item->isHit()) {
+            return $item->get();
+        }
+
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
 
@@ -132,6 +153,11 @@ class CartRuleLoader
                 $rules->remove($key);
             }
         }
+
+        $item->set($rules);
+        $item->expiresAfter($this->expirationTime);
+
+        $this->cache->save($item);
 
         return $this->rules = $rules;
     }

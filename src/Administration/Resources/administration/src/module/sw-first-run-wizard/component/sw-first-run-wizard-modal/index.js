@@ -5,6 +5,12 @@ import './sw-first-run-wizard-modal.scss';
 Component.register('sw-first-run-wizard-modal', {
     template,
 
+    provide() {
+        return {
+            addNextCallback: this.addNextCallback
+        };
+    },
+
     props: {
         title: {
             type: String,
@@ -16,6 +22,7 @@ Component.register('sw-first-run-wizard-modal', {
     data() {
         return {
             stepIndex: 0,
+            nextCallback: null,
             stepVariant: 'info',
             stepInitialItemVariants: [
                 'disabled',
@@ -62,7 +69,7 @@ Component.register('sw-first-run-wizard-modal', {
                 'paypal.credentials': {
                     name: 'sw.first.run.wizard.index.paypal.credentials',
                     next: 'sw.first.run.wizard.index.plugins',
-                    skip: false,
+                    skip: 'sw.first.run.wizard.index.plugins',
                     back: 'sw.first.run.wizard.index.paypal.info',
                     finish: false
                 },
@@ -136,6 +143,16 @@ Component.register('sw-first-run-wizard-modal', {
         onNext() {
             const { next } = this.currentStep;
 
+            let abort = false;
+
+            if (this.nextCallback !== null && typeof this.nextCallback === 'function') {
+                abort = this.nextCallback.call();
+            }
+
+            if (abort) {
+                return;
+            }
+
             this.$router.push({ name: next });
         },
 
@@ -153,6 +170,9 @@ Component.register('sw-first-run-wizard-modal', {
 
         onFinish() {
             document.location.href = document.location.origin;
+        },
+        addNextCallback(fs) {
+            this.nextCallback = fs;
         }
     }
 });

@@ -61,7 +61,6 @@ class NavigationLoader
 
         $ids = $rootLevel->getIds();
         $ids = array_flip($ids);
-        unset($ids[$activeId]);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('parentId', $ids));

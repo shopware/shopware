@@ -4,4 +4,70 @@
     &__icon {
         object-fit: contain;
     }
+
+    &__label {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.41px;
+        line-height: 25px;
+    }
+
+    &__manufacturer {
+        color: $color-gray-500;
+        font-size: 12px;
+        font-weight: normal;
+        letter-spacing: 0;
+        line-height: 19px;
+    }
+
+    &__short-description {
+        font-size: 12px;
+        font-weight: normal;
+        letter-spacing: 0;
+        line-height: 19px;
+    }
+
+    .plugin-status {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .button-plugin-install {
+        width: 88px;
+        height: 32px;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+        letter-spacing: 0;
+        line-height: 19px !important;
+    }
+
+    .plugin-installed {
+        height: 23px;
+        color: $color-emerald-500;
+        font-size: 14px;
+        font-weight: normal;
+        letter-spacing: 0.1px;
+        line-height: 22px;
+
+        .sw-icon {
+            margin-right: 5px;
+        }
+    }
+
+    .plugin-uninstall {
+        height: 23px;
+        color: $color-shopware-brand-500;
+        font-size: 14px;
+        font-weight: normal;
+        letter-spacing: 0.1px;
+        line-height: 22px;
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
 }

@@ -1,10 +1,10 @@
 {% block sw_first_run_wizard_modal %}
-    <sw-modal :title="title" class="sw-first-run-wizard-welcome--modal" variant="full">
+    <sw-modal :title="title" class="sw-first-run-wizard-modal" variant="full">
         {% block sw_first_run_wizard_modal_content %}
             <div class="sw-first-run-wizard-modal-content">
                 <sw-container class="sw-first-run-wizard-modal-content__two_columns" columns="1fr 4fr">
                     {% block sw_first_run_wizard_modal_content_steps %}
-                        <div class="sw-first-run-wizard-modal-content-steps">
+                        <div class="sw-first-run-wizard-modal-content__steps">
                             <sw-step-display :itemIndex="stepIndex"
                              :itemVariant="stepVariant"
                              :initialItemVariants="stepInitialItemVariants">
@@ -25,7 +25,7 @@
                     {% endblock %}
 
                     {% block sw_first_run_wizard_modal_content_page %}
-                        <div class="sw-first-run-wizard-modal-content-page">
+                        <div class="sw-first-run-wizard-modal-content__page">
                             <router-view></router-view>
                         </div>
                     {% endblock %}
@@ -35,15 +35,29 @@
 
         {% block sw_first_run_wizard_modal_footer %}
             <template v-slot:modal-footer>
-                <sw-button size="small">
-                    {{ $tc('sw-first-run-wizard.general.buttonBack') }}
-                </sw-button>
-                <sw-button size="small">
-                    {{ $tc('sw-first-run-wizard.general.buttonSkip') }}
-                </sw-button>
-                <sw-button size="small" variant="primary">
-                    {{ $tc('sw-first-run-wizard.general.buttonNext') }}
-                </sw-button>
+                <div class="sw-first-run-wizard-modal__footer">
+                    {% block sw_first_run_wizard_modal_footer_left %}
+                        <div class="footer-left">
+                            <sw-button v-if="backVisible" size="small" @click="onBack">
+                                {{ $tc('sw-first-run-wizard.general.buttonBack') }}
+                            </sw-button>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_first_run_wizard_modal_footer_right %}
+                        <div class="footer-right">
+                            <sw-button v-if="skipable" class="skip-button" size="small"cla @click="onSkip">
+                                {{ $tc('sw-first-run-wizard.general.buttonSkip') }}
+                            </sw-button>
+                            <sw-button v-if="nextVisible" size="small" variant="primary" @click="onNext">
+                                {{ $tc('sw-first-run-wizard.general.buttonNext') }}
+                            </sw-button>
+                            <sw-button v-if="finishable" size="small" variant="primary" @click="onFinish">
+                                {{ $tc('sw-first-run-wizard.general.buttonFinish') }}
+                            </sw-button>
+                        </div>
+                    {% endblock %}
+                </div>
             </template>
         {% endblock %}
     </sw-modal>

@@ -19,12 +19,17 @@
             <sw-select-field v-model="selectedShopDomain"
                              label="Shop domain"
                              placeholder="">
-                <option value="value1">Label #1</option>
-                <option value="value2">Label #2</option>
-                <option value="value3">Label #3</option>
-                <option value="value4">Label #4</option>
-                <option value="value5">Label #5</option>
+                <option v-for="domain in licenceDomains"
+                        :key="domain.domain"
+                        :value="domain.domain">
+                {{ domain.domain }}
+                </option>
             </sw-select-field>
         </div>
+
+        <hr>
+        <span>remove me</span>
+        <code>{{ verifyDomain }}</code>
+        <button @click="onSelectDomain">validate Domian</button>
     </div>
 {% endblock %}

@@ -1,10 +1,22 @@
 {
   "sw-first-run-wizard": {
     "general": {
-      "mainMenuItemIndex": "First run wizard"
+      "buttonNext": "Weiter",
+      "buttonSkip": "Überspringen",
+      "buttonBack": "Zurück",
+      "buttonInstall": "Installieren",
+      "buttonFinish": "Fertig"
     },
-    "index": {
-      "headline": "First Run Wizard"
+    "welcome": {
+      "modalTitle": "Willkommen"
+    },
+    "store-login": {
+      "registerAccountUrl": "https://account.shopware.com/register?lang=de",
+      "forgotPasswordUrl": "https://account.shopware.com/recovery?lang=de"
+    },
+    "error": {
+      "titleLoginDataInvalid": "Fehler",
+      "messageLoginDataInvalid": "Login Daten sind unvollständig."
     }
   }
 }

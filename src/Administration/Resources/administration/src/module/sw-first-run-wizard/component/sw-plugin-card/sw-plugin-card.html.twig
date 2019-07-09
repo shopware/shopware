@@ -1,28 +1,30 @@
 {% block sw_plugin_card %}
     <div class="sw-plugin-card">
-        <sw-container columns="1fr 1fr">
+        <sw-container columns="150px 1fr" justify="left" align="start">
             <img :src="plugin.iconPath" class="sw-plugin-card__icon"/>
             <div>
-                <div class="label">{{ plugin.label }}</div>
-                <div class="manufacturer">{{ plugin.manufacturer }}</div>
-                <div class="short-description">{{ plugin.shortDescription }}</div>
+                <div class="sw-plugin-card__label">{{ plugin.label }}</div>
+                <div class="sw-plugin-card__manufacturer">{{ plugin.manufacturer }}</div>
+                <div class="sw-plugin-card__short-description">{{ plugin.shortDescription | truncate(140) }}</div>
 
-                <sw-button-process
-                     v-if="pluginIsNotActive"
-                     variant="primary"
-                     :isLoading="pluginIsLoading"
-                     :disabled="pluginIsLoading"
-                     :processSuccess="pluginIsSaveSuccessful"
-                     @click="onInstall">
-                    {{ $tc('sw-first-run-wizard.general.buttonInstall') }}
-                </sw-button-process>
-                <div v-else>
-                    <span>plugin already installed</span>
-                    <sw-button
-                        variant="ghost"
-                        @click="onUninstall">
-                        Uninstall
-                    </sw-button>
+                <div v-if="pluginIsNotActive"
+                     class="bottom">
+                    <sw-button-process
+                        variant="primary"
+                        :isLoading="pluginIsLoading"
+                        :disabled="pluginIsLoading"
+                        :processSuccess="pluginIsSaveSuccessful"
+                        class="button-plugin-install"
+                        @click="onInstall">
+                        {{ $tc('sw-first-run-wizard.general.buttonInstall') }}
+                    </sw-button-process>
+                </div>
+                <div v-else class="plugin-status">
+                    <span class="plugin-installed">
+                        <sw-icon name="small-default-checkmark-circle" size="16"></sw-icon>
+                        Installed
+                    </span>
+                    <span class="plugin-uninstall" @click="onUninstall">Uninstall</span>
                 </div>
             </div>
         </sw-container>

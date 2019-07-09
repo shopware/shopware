@@ -53,7 +53,7 @@ Module.register('sw-first-run-wizard', {
                     children: {
                         info: {
                             component: 'sw-first-run-wizard-paypal-info',
-                            path: ''
+                            path: 'info'
                         },
                         install: {
                             component: 'sw-first-run-wizard-paypal-install',
@@ -73,11 +73,11 @@ Module.register('sw-first-run-wizard', {
                     component: 'sw-first-run-wizard-shopware-base',
                     path: 'shopware',
                     children: {
-                        info: {
+                        account: {
                             component: 'sw-first-run-wizard-shopware-account',
-                            path: ''
+                            path: 'account'
                         },
-                        install: {
+                        domain: {
                             component: 'sw-first-run-wizard-shopware-domain',
                             path: 'domain'
                         }

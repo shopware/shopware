@@ -1,5 +1,6 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-first-run-wizard-plugins.html.twig';
+import './sw-first-run-wizard-plugins.scss';
 
 Component.register('sw-first-run-wizard-plugins', {
     template,
@@ -14,6 +15,26 @@ Component.register('sw-first-run-wizard-plugins', {
             selectedRegion: null,
             selectedCategory: null
         };
+    },
+
+    computed: {
+        categoryLead() {
+            return this.plugins.filter((p) => {
+                return p.isCategoryLead;
+            });
+        },
+
+        notCategoryLead() {
+            return this.plugins.filter((p) => {
+                return !p.isCategoryLead;
+            });
+        },
+
+        showSpacer() {
+            return this.categoryLead.length > 0
+                && this.notCategoryLead.length > 0;
+        }
+
     },
 
     created() {
@@ -62,7 +83,10 @@ Component.register('sw-first-run-wizard-plugins', {
                 region,
                 category
             }).then((response) => {
-                this.plugins = response.items;
+                const { items } = response;
+                this.plugins = [...items, ...items, ...items];
+                // ToDo: (mve) fix me!
+                // this.plugins = response.items;
             });
         },
 
@@ -73,7 +97,7 @@ Component.register('sw-first-run-wizard-plugins', {
             this.recommendationsService.getRecommendationRegions({
                 language
             }).then((response) => {
-                this.regions = response;
+                this.regions = response.items;
             });
         }
     }

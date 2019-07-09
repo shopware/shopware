@@ -1,0 +1,67 @@
+@import "~scss/variables";
+
+.sw-first-run-wizard-plugins {
+    .recommended-plugins__headline {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.1px;
+        line-height: 25px;
+        margin-top: 20px;
+    }
+
+    .recommended-plugins__description {
+        letter-spacing: 0.1px;
+        margin-bottom: 25px;
+    }
+
+    .select-region,
+    .select-category {
+        p {
+            width: 110px;
+            height: 22px;
+            letter-spacing: 0.1px;
+            line-height: 22px;
+            margin: 10px 0;
+        }
+    }
+
+    .sw-label-region,
+    .sw-label-category {
+        &.sw-label {
+            letter-spacing: 0.1px;
+            text-align: center;
+            font-weight: 600;
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+
+        &.sw-label--neutral {
+            color: $color-gray-500;
+            border-color: $color-gray-500;
+        }
+
+        &.sw-label--info {
+            border-color: $color-shopware-brand-500;
+        }
+    }
+
+    .spacer {
+        border: none;
+        height: 1px;
+        background-color: $color-gray-300;
+        margin: 20px 0;
+    }
+
+    .plugins-category-lead {
+        .sw-plugin-card {
+            margin-bottom: 24px;
+        }
+    }
+
+    .plugins-category-lead,
+    .plugins-not-category-lead {
+        margin: 20px 0;
+    }
+}

@@ -5,10 +5,18 @@
       "buttonSkip": "Skip",
       "buttonBack": "Back",
       "buttonInstall": "Install",
-      "buttonGetAPICredentials": "Get API credentials"
+      "buttonFinish": "Finish"
     },
     "welcome": {
       "modalTitle": "Welcome"
+    },
+    "store-login": {
+      "registerAccountUrl": "https://account.shopware.com/register?lang=en",
+      "forgotPasswordUrl": "https://account.shopware.com/recovery?lang=en"
+    },
+    "error": {
+      "titleLoginDataInvalid": "Error",
+      "messageLoginDataInvalid": "Login data incomplete."
     }
   }
 }

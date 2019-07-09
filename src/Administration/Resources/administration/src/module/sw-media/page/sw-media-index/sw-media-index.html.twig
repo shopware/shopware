@@ -29,7 +29,7 @@
                             {% block sw_media_index_bread_crumb_navigation_parent%}
                                 <router-link class="sw-media-index__navigation-label"
                                              :to="{ name: 'sw.media.index', params: { folderId: currentFolder.parentId } }">
-                                    {{ this.parentFolderName }}
+                                    {{ parentFolderName }}
                                 </router-link>
                             {% endblock %}
                         </template>
@@ -41,7 +41,7 @@
                 <template slot="smart-bar-header">
                     <h2>
                         {% block sw_media_index_smart_bar_heading %}
-                            {{ this.currentFolderName }}
+                            {{ currentFolderName }}
                         {% endblock %}
                     </h2>
                 </template>

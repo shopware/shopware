@@ -28,12 +28,12 @@ export default {
                         functionName: shortcut[1],
                         instance: this
                     });
-
-                    // add event listener when one shortcut is registered
-                    if (activeShortcuts.length <= 1) {
-                        document.addEventListener('keyup', this.handleKeyUpDebounce);
-                    }
                 });
+
+                // add event listener when one shortcut is registered
+                if (activeShortcuts.length <= 1) {
+                    document.addEventListener('keyup', this.handleKeyUpDebounce);
+                }
 
                 return true;
             },
@@ -58,6 +58,10 @@ export default {
             },
             methods: {
                 handleKeyUpDebounce: util.debounce(function handleKeyUp(event) {
+                    if (event.constructor !== KeyboardEvent) {
+                        return false;
+                    }
+
                     const isModalShown = !!document.querySelector('.sw-modal__dialog');
                     const systemKey = this.$device.getSystemKey();
                     const { key, altKey, ctrlKey } = event;

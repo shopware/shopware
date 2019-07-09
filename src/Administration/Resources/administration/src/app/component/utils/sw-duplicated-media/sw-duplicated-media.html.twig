@@ -39,7 +39,7 @@
                             {% endblock %}
 
                             {% block sw_media_duplicated_media_target_name %}
-                                <span v-if="this.selectedOption !== 'Rename'"
+                                <span v-if="selectedOption !== 'Rename'"
                                       key="sw-duplicated-media__target-label"
                                       class="sw-duplicated-media__target-label">
                                     {{ `${currentTask.fileName}.${currentTask.extension}` }}

@@ -118,7 +118,7 @@ export default class EntityCollection extends Array {
         };
 
         /**
-         * Moved an item of the collection from an old index to a new index position.
+         * Move an item of the collection from an old index to a new index position.
          * @param {Number} oldIndex
          * @param {Number} newIndex
          * @return {Object}

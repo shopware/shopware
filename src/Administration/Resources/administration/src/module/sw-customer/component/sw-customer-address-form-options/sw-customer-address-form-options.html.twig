@@ -2,8 +2,8 @@
     {% block sw_customer_address_form_options %}
         {% block sw_customer_address_form_options_default_shipping_address %}
             <sw-field type="checkbox"
-                      v-model="this.isDefaultShippingAddressId"
-                      :disabled="this.isDefaultShippingAddressId"
+                      v-model="isDefaultShippingAddressId"
+                      :disabled="isDefaultShippingAddressId"
                       @change="onChangeDefaultShippingAddress"
                       :label="$tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')">
             </sw-field>
@@ -12,8 +12,8 @@
         {% block sw_customer_address_form_options_default_billing_address %}
             <sw-field class="sw-customer-address-form__set-default-billing-address-action"
                       type="checkbox"
-                      v-model="this.isDefaultBillingAddressId"
-                      :disabled="this.isDefaultBillingAddressId"
+                      v-model="isDefaultBillingAddressId"
+                      :disabled="isDefaultBillingAddressId"
                       @change="onChangeDefaultBillingAddress"
                       :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')">
             </sw-field>

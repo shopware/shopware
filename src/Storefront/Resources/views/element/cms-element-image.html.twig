@@ -4,10 +4,10 @@
             {% set imageElement %}
                 {% block element_image_container %}
                     {% if element.data.media.url %}
-                        <div class="cms-image-container is-{{ element.config.displayMode.value }}"{% if element.config.minHeight.value %} style="min-height: {{ element.config.minHeight.value }};"{% endif %}>
+                        <div class="cms-image-container is-{{ element.translated.config.displayMode.value }}"{% if element.translated.config.minHeight.value %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
                             {% block element_image_media %}
                                 <img class="cms-image"
-                                     {% if element.config.displayMode.value == 'cover' %}
+                                     {% if element.translated.config.displayMode.value == 'cover' %}
                                          data-object-fit="cover"
                                      {% endif %}
                                      src="{{ element.data.media.url }}"
@@ -18,10 +18,10 @@
                 {% endblock %}
             {% endset %}
 
-            {% if element.config.url.value %}
-                <a href="{{ element.config.url.value }}"
+            {% if element.translated.config.url.value %}
+                <a href="{{ element.translated.config.url.value }}"
                    class="cms-image-link"
-                   {% if element.config.newTab.value %}target="_blank"{% endif %}>
+                   {% if element.translated.config.newTab.value %}target="_blank"{% endif %}>
                     {{ imageElement }}
                 </a>
             {% else %}

@@ -245,7 +245,7 @@ class StoreController extends AbstractController
 
         $statusCode = $this->pluginManagementService->downloadStorePlugin($data->getLocation(), $context);
         if ($statusCode !== Response::HTTP_OK) {
-            return new JsonResponse([], $statusCode);
+            return new JsonResponse(null, $statusCode);
         }
 
         /** @var PluginEntity|null $plugin */

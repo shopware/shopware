@@ -4,15 +4,15 @@ namespace Shopware\Core\Framework\Store\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
-class StoreHostMissingException extends ShopwareHttpException
+class StoreLicenseDomainMissingException extends ShopwareHttpException
 {
     public function __construct()
     {
-        parent::__construct('Store token missing');
+        parent::__construct('Store license domain is missing');
     }
 
     public function getErrorCode(): string
     {
-        return 'FRAMEWORK__STORE_HOST_IS_MISSING';
+        return 'FRAMEWORK__STORE_LICENSE_DOMAIN_IS_MISSING';
     }
 }

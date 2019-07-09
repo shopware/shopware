@@ -143,9 +143,11 @@ class ProductCategoryTreeIndexer implements IndexerInterface
             }
         }
 
+        $productIds = Uuid::fromHexToBytesList(array_keys($categories));
+
         $this->connection->executeUpdate(
-            'DELETE FROM product_category_tree WHERE product_id IN (:ids)',
-            ['ids' => array_keys($categories)],
+            'DELETE FROM `product_category_tree` WHERE `product_id` IN (:ids)',
+            ['ids' => $productIds],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 

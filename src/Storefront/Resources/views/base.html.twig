@@ -92,6 +92,10 @@
         {% endblock %}
     {% endblock %}
 
+    {% block base_scroll_up %}
+        {% sw_include '@Storefront/layout/scroll-up.html.twig' %}
+    {% endblock %}
+
     {% block base_cookie_permission %}
         {% sw_include '@Storefront/layout/cookie-permission.html.twig' %}
     {% endblock %}

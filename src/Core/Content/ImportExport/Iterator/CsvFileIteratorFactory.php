@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\ImportExport\Iterator;
 
 use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Framework\Context;
 
 class CsvFileIteratorFactory implements IteratorFactoryInterface
@@ -18,18 +20,18 @@ class CsvFileIteratorFactory implements IteratorFactoryInterface
         $this->filesystem = $filesystem;
     }
 
-    public function create(Context $context, ImportExportLogEntity $logEntity): RecordIterator
+    public function create(Context $context, string $activity, ImportExportProfileEntity $profileEntity, ImportExportFileEntity $fileEntity): RecordIterator
     {
         return new CsvFileIterator(
-            $this->filesystem->readStream($logEntity->getFile()->getPath()),
-            $logEntity->getProfile()->getDelimiter(),
-            $logEntity->getProfile()->getEnclosure()
+            $this->filesystem->readStream($fileEntity->getPath()),
+            $profileEntity->getDelimiter(),
+            $profileEntity->getEnclosure()
         );
     }
 
-    public function supports(ImportExportLogEntity $logEntity): bool
+    public function supports(string $activity, ImportExportProfileEntity $profileEntity): bool
     {
-        return $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_IMPORT
-            && $logEntity->getProfile()->getFileType() === 'text/csv';
+        return $activity === ImportExportLogEntity::ACTIVITY_IMPORT
+            && $profileEntity->getFileType() === 'text/csv';
     }
 }

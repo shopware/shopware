@@ -73,8 +73,13 @@ class ProcessingService
     public function createRecordIterator(Context $context, ImportExportLogEntity $logEntity): RecordIterator
     {
         foreach ($this->iteratorFactories as $iteratorFactory) {
-            if ($iteratorFactory->supports($logEntity)) {
-                return $iteratorFactory->create($context, $logEntity);
+            if ($iteratorFactory->supports($logEntity->getActivity(), $logEntity->getProfile())) {
+                return $iteratorFactory->create(
+                    $context,
+                    $logEntity->getActivity(),
+                    $logEntity->getProfile(),
+                    $logEntity->getFile()
+                );
             }
         }
 

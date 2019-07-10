@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\ImportExport\Iterator;
 
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Mapping\CriteriaBuilder;
 use Shopware\Core\Content\ImportExport\Mapping\FieldDefinitionCollection;
 use Shopware\Core\Framework\Context;
@@ -26,18 +28,17 @@ class RepositoryIteratorFactory implements IteratorFactoryInterface
         $this->readBufferSize = $readBufferSize;
     }
 
-    public function create(Context $context, ImportExportLogEntity $logEntity): RecordIterator
+    public function create(Context $context, string $activity, ImportExportProfileEntity $profileEntity, ImportExportFileEntity $fileEntity): RecordIterator
     {
-        $profile = $logEntity->getProfile();
-        $entityDefinition = $this->definitionRegistry->getByEntityName($profile->getSourceEntity());
-        $criteriaBuilder = new CriteriaBuilder(FieldDefinitionCollection::fromArray($profile->getMapping()), $entityDefinition);
-        $entityRepository = $this->definitionRegistry->getRepository($profile->getSourceEntity());
+        $entityDefinition = $this->definitionRegistry->getByEntityName($profileEntity->getSourceEntity());
+        $criteriaBuilder = new CriteriaBuilder(FieldDefinitionCollection::fromArray($profileEntity->getMapping()), $entityDefinition);
+        $entityRepository = $this->definitionRegistry->getRepository($profileEntity->getSourceEntity());
 
         return new RepositoryIterator($entityRepository, $context, $criteriaBuilder, $this->readBufferSize);
     }
 
-    public function supports(ImportExportLogEntity $logEntity): bool
+    public function supports(string $activity, ImportExportProfileEntity $profileEntity): bool
     {
-        return $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_EXPORT;
+        return $activity === ImportExportLogEntity::ACTIVITY_EXPORT;
     }
 }

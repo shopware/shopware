@@ -73,12 +73,11 @@ class InitiationService
             $originalFileName = $this->generateFilename($profileEntity);
         }
         $fileEntity = $this->storeFile($context, $expireDate, $filePath, $originalFileName);
-        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity);
+        $iterator = $this->createIterator($context, $activity, $profileEntity, $fileEntity);
+
+        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $iterator->count());
         $logEntity->setProfile($profileEntity);
         $logEntity->setFile($fileEntity);
-
-        $iterator = $this->createIterator($context, $logEntity);
-        $logEntity = $this->updateLog($context, $logEntity, $iterator->count());
 
         return $logEntity;
     }
@@ -121,13 +120,13 @@ class InitiationService
         return $fileEntity;
     }
 
-    private function createLog(Context $context, string $activity, ImportExportFileEntity $file, ImportExportProfileEntity $profile): ImportExportLogEntity
+    private function createLog(Context $context, string $activity, ImportExportFileEntity $file, ImportExportProfileEntity $profile, int $records): ImportExportLogEntity
     {
         $logEntity = new ImportExportLogEntity();
         $logEntity->setId(Uuid::randomHex());
         $logEntity->setActivity($activity);
         $logEntity->setState(ImportExportLogEntity::STATE_PROGRESS);
-        $logEntity->setRecords(0);
+        $logEntity->setRecords($records);
         $logEntity->setProfileId($profile->getId());
         $logEntity->setProfileName($profile->getName());
         $logEntity->setFileId($file->getId());
@@ -149,17 +148,6 @@ class InitiationService
         return $logEntity;
     }
 
-    private function updateLog(Context $context, ImportExportLogEntity $logEntity, int $records): ImportExportLogEntity
-    {
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity, $records) {
-            $data = ['id' => $logEntity->getId(), 'records' => $records];
-            $this->logRepository->update([$data], $context);
-        });
-        $logEntity->setRecords($records);
-
-        return $logEntity;
-    }
-
     private function generateFilename(ImportExportProfileEntity $profile): string
     {
         $extension = $profile->getFileType() === 'text/xml' ? 'xml' : 'csv';
@@ -173,11 +161,11 @@ class InitiationService
         return $this->userRepository->search(new Criteria([$userId]), $context)->first();
     }
 
-    private function createIterator(Context $context, ImportExportLogEntity $logEntity): RecordIterator
+    private function createIterator(Context $context, string $activity, ImportExportProfileEntity $profileEntity, ImportExportFileEntity $fileEntity): RecordIterator
     {
         foreach ($this->iteratorFactories as $iteratorFactory) {
-            if ($iteratorFactory->supports($logEntity)) {
-                return $iteratorFactory->create($context, $logEntity);
+            if ($iteratorFactory->supports($activity, $profileEntity)) {
+                return $iteratorFactory->create($context, $activity, $profileEntity, $fileEntity);
             }
         }
 

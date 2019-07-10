@@ -755,15 +755,19 @@ class Migration1536233560BasicData extends MigrationStep
         $GBP = Uuid::randomBytes();
 
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
 
         $connection->insert('currency', ['id' => $EUR, 'iso_code' => 'EUR', 'factor' => 1, 'symbol' => '€', 'position' => 1, 'decimal_precision' => 2, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('currency_translation', ['currency_id' => $EUR, 'language_id' => $languageEN, 'short_name' => 'EUR', 'name' => 'Euro', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('currency_translation', ['currency_id' => $EUR, 'language_id' => $languageDE, 'short_name' => 'EUR', 'name' => 'Euro', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $connection->insert('currency', ['id' => $USD, 'iso_code' => 'USD', 'factor' => 1.17085, 'symbol' => '$', 'position' => 1, 'decimal_precision' => 2, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('currency_translation', ['currency_id' => $USD, 'language_id' => $languageEN, 'short_name' => 'USD', 'name' => 'US-Dollar', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('currency_translation', ['currency_id' => $USD, 'language_id' => $languageDE, 'short_name' => 'USD', 'name' => 'US-Dollar', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $connection->insert('currency', ['id' => $GBP, 'iso_code' => 'GBP', 'factor' => 0.89157, 'symbol' => '£', 'position' => 1, 'decimal_precision' => 2, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('currency_translation', ['currency_id' => $GBP, 'language_id' => $languageEN, 'short_name' => 'GBP', 'name' => 'Pound', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('currency_translation', ['currency_id' => $GBP, 'language_id' => $languageDE, 'short_name' => 'GBP', 'name' => 'Pfund', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
     }
 
     private function createCustomerGroup(Connection $connection): void
@@ -776,6 +780,7 @@ class Migration1536233560BasicData extends MigrationStep
     private function createPaymentMethod(Connection $connection): void
     {
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
 
         $ruleId = Uuid::randomBytes();
         $connection->insert('rule', ['id' => $ruleId, 'name' => 'Cart >= 0 (Payment)', 'priority' => 100, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -784,18 +789,22 @@ class Migration1536233560BasicData extends MigrationStep
         $debit = Uuid::randomBytes();
         $connection->insert('payment_method', ['id' => $debit, 'handler_identifier' => DebitPayment::class, 'position' => 4, 'active' => 0, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $debit, 'language_id' => $languageEN, 'name' => 'Direct Debit', 'description' => 'Additional text', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('payment_method_translation', ['payment_method_id' => $debit, 'language_id' => $languageDE, 'name' => 'Lastschrift', 'description' => 'Zusatztext', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $invoice = Uuid::randomBytes();
         $connection->insert('payment_method', ['id' => $invoice, 'handler_identifier' => InvoicePayment::class, 'position' => 5, 'active' => 1, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $invoice, 'language_id' => $languageEN, 'name' => 'Invoice', 'description' => 'Payment by invoice. Shopware provides automatic invoicing for all customers on orders after the first, in order to avoid defaults on payment.', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('payment_method_translation', ['payment_method_id' => $invoice, 'language_id' => $languageDE, 'name' => 'Rechnung', 'description' => 'Sie zahlen einfach und bequem auf Rechnung. Shopware bietet z.B. auch die Möglichkeit, Rechnung automatisiert erst ab der 2. Bestellung für Kunden zur Verfügung zu stellen, um Zahlungsausfälle zu vermeiden.', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $cash = Uuid::randomBytes();
         $connection->insert('payment_method', ['id' => $cash, 'handler_identifier' => CashPayment::class, 'position' => 1, 'active' => 1, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $cash, 'language_id' => $languageEN, 'name' => 'Cash on delivery', 'description' => 'Pay when you get the order', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('payment_method_translation', ['payment_method_id' => $cash, 'language_id' => $languageDE, 'name' => 'Nachnahme', 'description' => '', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $pre = Uuid::randomBytes();
         $connection->insert('payment_method', ['id' => $pre, 'handler_identifier' => PrePayment::class, 'position' => 2, 'active' => 1, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('payment_method_translation', ['payment_method_id' => $pre, 'language_id' => $languageEN, 'name' => 'Paid in advance', 'description' => 'Pay in advance and get your order afterwards', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('payment_method_translation', ['payment_method_id' => $pre, 'language_id' => $languageDE, 'name' => 'Vorkasse', 'description' => 'Sie zahlen einfach vorab und erhalten die Ware bequem und günstig bei Zahlungseingang nach Hause geliefert.', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
     }
 
     private function createShippingMethod(Connection $connection): void
@@ -810,13 +819,16 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $ruleId, 'type' => 'cartCartAmount', 'value' => json_encode(['operator' => '>=', 'amount' => 0]), 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
 
         $connection->insert('shipping_method', ['id' => $standard, 'active' => 1, 'availability_rule_id' => $ruleId, 'delivery_time_id' => $deliveryTimeId, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('shipping_method_translation', ['shipping_method_id' => $standard, 'language_id' => $languageEN, 'name' => 'Standard', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('shipping_method_translation', ['shipping_method_id' => $standard, 'language_id' => $languageDE, 'name' => 'Standard', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('shipping_method_price', ['id' => Uuid::randomBytes(), 'shipping_method_id' => $standard, 'calculation' => 1, 'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY), 'price' => 0, 'quantity_start' => 0, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $connection->insert('shipping_method', ['id' => $express, 'active' => 1, 'availability_rule_id' => $ruleId, 'delivery_time_id' => $deliveryTimeId, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('shipping_method_translation', ['shipping_method_id' => $express, 'language_id' => $languageEN, 'name' => 'Express', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('shipping_method_translation', ['shipping_method_id' => $express, 'language_id' => $languageDE, 'name' => 'Express', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('shipping_method_price', ['id' => Uuid::randomBytes(), 'shipping_method_id' => $express, 'calculation' => 1, 'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY), 'price' => 0, 'quantity_start' => 0, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
     }
 
@@ -832,35 +844,42 @@ class Migration1536233560BasicData extends MigrationStep
     private function createSalesChannelTypes(Connection $connection): void
     {
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
 
         $storefront = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
         $storefrontApi = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API);
 
         $connection->insert('sales_channel_type', ['id' => $storefront, 'icon_name' => 'default-building-shop', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefront, 'language_id' => $languageEN, 'name' => 'Storefront', 'manufacturer' => 'shopware AG', 'description' => 'Sales channel with HTML storefront', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefront, 'language_id' => $languageDE, 'name' => 'Storefront', 'manufacturer' => 'shopware AG', 'description' => 'Sales channel mit HTML storefront', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $connection->insert('sales_channel_type', ['id' => $storefrontApi, 'icon_name' => 'default-shopping-basket', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefrontApi, 'language_id' => $languageEN, 'name' => 'Headless', 'manufacturer' => 'shopware AG', 'description' => 'API only sales channel', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('sales_channel_type_translation', ['sales_channel_type_id' => $storefrontApi, 'language_id' => $languageDE, 'name' => 'Headless', 'manufacturer' => 'shopware AG', 'description' => 'API only sales channel', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
     }
 
     private function createProductManufacturer(Connection $connection): void
     {
         $id = Uuid::randomBytes();
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $connection->insert('product_manufacturer', ['id' => $id, 'version_id' => $versionId, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('product_manufacturer_translation', ['product_manufacturer_id' => $id, 'product_manufacturer_version_id' => $versionId, 'language_id' => $languageEN, 'name' => 'shopware AG', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('product_manufacturer_translation', ['product_manufacturer_id' => $id, 'product_manufacturer_version_id' => $versionId, 'language_id' => $languageDE, 'name' => 'shopware AG', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
     }
 
     private function createRootCategory(Connection $connection): void
     {
         $id = Uuid::randomBytes();
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $connection->insert('category', ['id' => $id, 'version_id' => $versionId, 'type' => CategoryDefinition::TYPE_PAGE, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('category_translation', ['category_id' => $id, 'category_version_id' => $versionId, 'language_id' => $languageEN, 'name' => 'Catalogue #1', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('category_translation', ['category_id' => $id, 'category_version_id' => $versionId, 'language_id' => $languageDE, 'name' => 'Katalog #1', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
     }
 
     private function createSalesChannel(Connection $connection): void
@@ -877,6 +896,7 @@ class Migration1536233560BasicData extends MigrationStep
 
         $id = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL);
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
 
         $connection->insert('sales_channel', [
             'id' => $id,
@@ -895,6 +915,7 @@ class Migration1536233560BasicData extends MigrationStep
         ]);
 
         $connection->insert('sales_channel_translation', ['sales_channel_id' => $id, 'language_id' => $languageEN, 'name' => 'Headless', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('sales_channel_translation', ['sales_channel_id' => $id, 'language_id' => $languageDE, 'name' => 'Headless', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         // country
         $connection->insert('sales_channel_country', ['sales_channel_id' => $id, 'country_id' => $defaultCountry]);
@@ -1403,7 +1424,7 @@ class Migration1536233560BasicData extends MigrationStep
         ]);
     }
 
-    private function createDocumentTypes(Connection $connection)
+    private function createDocumentTypes(Connection $connection): void
     {
         $invoiceId = Uuid::randomBytes();
         $deliveryNoteId = Uuid::randomBytes();
@@ -2922,14 +2943,17 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     private function createCmsPages(Connection $connection): void
     {
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $languageDe = Uuid::fromHexToBytes($this->deDeLanguageId);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         // cms page
         $page = ['id' => Uuid::randomBytes(), 'type' => 'product_list', 'locked' => 1, 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)];
         $pageEng = ['cms_page_id' => $page['id'], 'language_id' => $languageEn, 'name' => 'Default category layout', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)];
+        $pageDeu = ['cms_page_id' => $page['id'], 'language_id' => $languageDe, 'name' => 'Standard Kategorie-Layout', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)];
 
         $connection->insert('cms_page', $page);
         $connection->insert('cms_page_translation', $pageEng);
+        $connection->insert('cms_page_translation', $pageDeu);
 
         // cms blocks
         $blocks = [
@@ -2976,7 +3000,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
             ['id' => Uuid::randomBytes(), 'locked' => 1, 'cms_block_id' => $blocks[1]['id'], 'type' => 'text', 'slot' => 'right', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT), 'version_id' => $versionId],
         ];
 
-        $slotTranslations = [
+        $slotTranslationData = [
             [
                 'cms_slot_id' => $slots[0]['id'],
                 'cms_slot_version_id' => $versionId,
@@ -3009,6 +3033,15 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
                 ]),
             ],
         ];
+
+        $slotTranslations = [];
+        foreach ($slotTranslationData as $slotTranslationDatum) {
+            $slotTranslationDatum['language_id'] = $languageEn;
+            $slotTranslations[] = $slotTranslationDatum;
+
+            $slotTranslationDatum['language_id'] = $languageDe;
+            $slotTranslations[] = $slotTranslationDatum;
+        }
 
         foreach ($slots as $slot) {
             $connection->insert('cms_slot', $slot);

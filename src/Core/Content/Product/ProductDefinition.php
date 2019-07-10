@@ -164,8 +164,8 @@ class ProductDefinition extends EntityDefinition
             (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new Inherited(), new WriteProtected()),
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
 
-            new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class),
-            new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class),
+            (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
 
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
 

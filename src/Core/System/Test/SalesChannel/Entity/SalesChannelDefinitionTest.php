@@ -104,6 +104,7 @@ class SalesChannelDefinitionTest extends TestCase
             'id' => $id,
             'productNumber' => 'test',
             'stock' => 10,
+            'active' => true,
             'name' => 'test',
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],

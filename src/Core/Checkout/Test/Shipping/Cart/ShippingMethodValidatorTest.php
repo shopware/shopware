@@ -131,6 +131,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
         $shippingMethod->setName('Express');
+        $shippingMethod->addTranslated('name', 'Express');
         $shippingMethod->setDeliveryTime($deliveryTime);
         $shippingMethod->setAvailabilityRuleId(Uuid::randomHex());
         $shippingMethod->setAvailabilityRuleId('1');
@@ -164,6 +165,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
         $shippingMethod->setName('Express');
+        $shippingMethod->addTranslated('name', 'Express');
         $shippingMethod->setDeliveryTime($deliveryTime);
         $shippingMethod->setAvailabilityRuleId(Uuid::randomHex());
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());

@@ -406,9 +406,7 @@ class DocumentService
 
         $sessionLocale = $this->translator->getLocale();
 
-        $locale = $order->getOrderCustomer()->getCustomer()->getLanguage()->getLocale()->getCode();
-
-        $this->translator->setLocale($locale);
+        $this->translator->setLocale($order->getOrderCustomer()->getCustomer()->getLanguage()->getLocale()->getCode());
 
         $generatedDocument->setHtml($documentGenerator->generate($order, $config, $context));
         $generatedDocument->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());

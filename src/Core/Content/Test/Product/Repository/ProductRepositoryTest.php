@@ -302,8 +302,8 @@ class ProductRepositoryTest extends TestCase
         static::assertInstanceOf(ListingPriceCollection::class, $prices);
         static::assertCount(9, $prices);
 
-        $aPrices = ListingPriceCollection::filterByRuleId($prices, $ruleA);
-        $aPrices = ListingPriceCollection::filterByCurrencyId($aPrices, Defaults::CURRENCY);
+        $aPrices = $this->filterByRuleId($prices, $ruleA);
+        $aPrices = $this->filterByCurrencyId($aPrices, Defaults::CURRENCY);
 
         static::assertCount(1, $aPrices);
 
@@ -328,11 +328,11 @@ class ProductRepositoryTest extends TestCase
 
         $prices = $product->getListingPrices();
 
-        static::assertInstanceOf(ListingPriceCollection::class, $prices);
+        static::assertInstanceOf($this->class, $prices);
         static::assertCount(9, $prices);
 
-        $aPrices = ListingPriceCollection::filterByRuleId($prices, $ruleA);
-        $aPrices = ListingPriceCollection::filterByCurrencyId($aPrices, Defaults::CURRENCY);
+        $aPrices = $this->filterByRuleId($prices, $ruleA);
+        $aPrices = $this->filterByCurrencyId($aPrices, Defaults::CURRENCY);
 
         static::assertCount(1, $aPrices);
 
@@ -2049,8 +2049,8 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->get($id);
 
-        $price = ListingPriceCollection::filterByCurrencyId(
-            ListingPriceCollection::filterByRuleId($product->getListingPrices(), $ruleA),
+        $price = $this->filterByCurrencyId(
+            $this->filterByRuleId($product->getListingPrices(), $ruleA),
             Defaults::CURRENCY
         );
 
@@ -2332,6 +2332,32 @@ class ProductRepositoryTest extends TestCase
     private function createContext(array $ruleIds = []): Context
     {
         return new Context(new SystemSource(), $ruleIds);
+    }
+
+    private function filterByCurrencyId(iterable $prices, string $currencyId): array
+    {
+        $filtered = [];
+        /** @var ListingPrice $price */
+        foreach ($prices as $price) {
+            if ($price->getCurrencyId() === $currencyId) {
+                $filtered[] = $price;
+            }
+        }
+
+        return $filtered;
+    }
+
+    private function filterByRuleId(iterable $prices, string $ruleId): array
+    {
+        $filtered = [];
+        /** @var ListingPrice $price */
+        foreach ($prices as $price) {
+            if ($price->getRuleId() === $ruleId) {
+                $filtered[] = $price;
+            }
+        }
+
+        return $filtered;
     }
 }
 

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -17,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -175,7 +173,7 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
         $bytes = Uuid::fromHexToBytesList($ids);
 
         $sql = '
-UPDATE product SET available_stock = stock + 0 - (
+UPDATE product SET available_stock = stock + (
 	SELECT IFNULL(SUM(order_line_item.quantity), 0)
 
 	FROM order_line_item
@@ -206,7 +204,6 @@ WHERE product.id IN (:ids);
                 'states' => Connection::PARAM_STR_ARRAY,
             ]
         );
-//        $this->debug();
     }
 
     private function updateStock(array $products)
@@ -246,15 +243,11 @@ WHERE product.id IN (:ids);
             AND product.version_id = :version
         ';
 
-        try {
-            $this->connection->executeUpdate(
-                $sql,
-                ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
-                ['ids' => Connection::PARAM_STR_ARRAY]
-            );
-        } catch (\Throwable $e) {
-//            $this->debug();
-        }
+        $this->connection->executeUpdate(
+            $sql,
+            ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
     }
 
     private function getProductsOfOrder(string $orderId): array
@@ -282,23 +275,5 @@ WHERE product.id IN (:ids);
         $tags[] = $this->cacheKeyGenerator->getFieldTag($this->definition, 'stock');
 
         $this->cache->invalidateTags($tags);
-    }
-
-    private function debug(): void
-    {
-        $x = $this->connection->fetchAll(
-            '
-SELECT HEX(product.id) as id, 
-       HEX(product.parent_id) as parent_id, 
-       IFNULL(product.is_closeout, parent.is_closeout) as is_closeout, 
-       product.available_stock, 
-       product.available, 
-       IFNULL(product.min_purchase, parent.min_purchase) as min_purchase
-FROM product
-    LEFT JOIN product parent 
-        ON parent.id = product.parent_id AND parent.version_id = product.version_id
-'
-        );
-        dump($x);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel;
 
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -32,7 +33,7 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
 
         if (!$this->hasAvailableFilter($criteria)) {
             $criteria->addFilter(
-                new ProductAvailableFilter($context->getSalesChannel()->getId())
+                new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_LINK)
             );
         }
     }

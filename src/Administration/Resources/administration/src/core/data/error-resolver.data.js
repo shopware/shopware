@@ -114,7 +114,6 @@ export default class ErrorResolver {
         const associationChanges = changeset[associationName][index];
         const entity = entityCollection.get(associationChanges.id);
         error.source.pointer = `/${index}/${additionalPath.join('/')}`;
-        console.log(error.source.pointer);
 
         this.resolveError(error, definition, entity, changeset, systemErrors);
     }

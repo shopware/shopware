@@ -72,7 +72,7 @@ class PromotionValidator implements EventSubscriberInterface
         $writeCommands = $event->getCommands();
 
         /** @var WriteCommandInterface $command */
-        foreach ($writeCommands as $command) {
+        foreach ($writeCommands as $index => $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
                 continue;
             }
@@ -93,7 +93,8 @@ class PromotionValidator implements EventSubscriberInterface
                     $this->validatePromotion(
                         $promotion,
                         $command->getPayload(),
-                        $violationList
+                        $violationList,
+                        $index
                     );
                     break;
 
@@ -112,7 +113,8 @@ class PromotionValidator implements EventSubscriberInterface
                     $this->validateDiscount(
                         $discount,
                         $command->getPayload(),
-                        $violationList
+                        $violationList,
+                        $index
                     );
                     break;
             }
@@ -130,7 +132,7 @@ class PromotionValidator implements EventSubscriberInterface
      * @throws ResourceNotFoundException
      * @throws \Doctrine\DBAL\DBALException
      */
-    private function collect(array $writeCommands)
+    private function collect(array $writeCommands): void
     {
         $promotionIds = [];
         $discountIds = [];
@@ -182,10 +184,11 @@ class PromotionValidator implements EventSubscriberInterface
      * @param array                   $promotion     the current promotion from the database as array type
      * @param array                   $payload       the incoming delta-data
      * @param ConstraintViolationList $violationList the list of violations that needs to be filled
+     * @param int                     $index         the index of this promotion in the command queue
      *
      * @throws \Exception
      */
-    private function validatePromotion(array $promotion, array $payload, ConstraintViolationList $violationList)
+    private function validatePromotion(array $promotion, array $payload, ConstraintViolationList $violationList, int $index): void
     {
         /** @var string|null $validFrom */
         $validFrom = $this->getValue($payload, 'valid_from', $promotion);
@@ -216,7 +219,13 @@ class PromotionValidator implements EventSubscriberInterface
             $dateFrom = new \DateTime($validFrom);
             $dateUntil = new \DateTime($validUntil);
             if ($dateUntil < $dateFrom) {
-                $violationList->add($this->buildViolation('Expiration Date of Promotion must be after Start of Promotion', $payload['valid_until'], 'validUntil'));
+                $violationList->add($this->buildViolation(
+                    'Expiration Date of Promotion must be after Start of Promotion',
+                    $payload['valid_until'],
+                    'validUntil',
+                    'PROMOTION_VALID_UNTIL_VIOLATION',
+                    $index
+                ));
             }
         }
 
@@ -224,19 +233,37 @@ class PromotionValidator implements EventSubscriberInterface
         if ($useCodes) {
             // make sure the code is not empty
             if ($trimmedCode === '') {
-                $violationList->add($this->buildViolation('Please provide a valid code', $code, 'code'));
+                $violationList->add($this->buildViolation(
+                    'Please provide a valid code',
+                    $code,
+                    'code',
+                    'PROMOTION_EMPTY_CODE_VIOLATION',
+                    $index
+                ));
             }
 
             // if our code length is greater than the trimmed one,
             // this means we have leading or trailing whitespaces
             if (strlen($code) > strlen($trimmedCode)) {
-                $violationList->add($this->buildViolation('Code may not have any leading or ending whitespaces', $code, 'code'));
+                $violationList->add($this->buildViolation(
+                    'Code may not have any leading or ending whitespaces',
+                    $code,
+                    'code',
+                    'PROMOTION_CODE_WHITESPACE_VIOLATION',
+                    $index
+                ));
             }
         }
 
         // lookup global code if it does already exist in database
         if ($trimmedCode !== '' && !$this->isUnique($trimmedCode, $primaryKey)) {
-            $violationList->add($this->buildViolation('Code already exists in other promotion. Please provide a different code.', $trimmedCode, 'code'));
+            $violationList->add($this->buildViolation(
+                'Code already exists in other promotion. Please provide a different code.',
+                $trimmedCode,
+                'code',
+                'PROMOTION_DUPLICATED_CODE_VIOLATION',
+                $index
+            ));
         }
     }
 
@@ -248,7 +275,7 @@ class PromotionValidator implements EventSubscriberInterface
      * @param array                   $payload       the incoming delta-data
      * @param ConstraintViolationList $violationList the list of violations that needs to be filled
      */
-    private function validateDiscount(array $discount, array $payload, ConstraintViolationList $violationList)
+    private function validateDiscount(array $discount, array $payload, ConstraintViolationList $violationList, int $index): void
     {
         /** @var string $type */
         $type = $this->getValue($payload, 'type', $discount);
@@ -261,13 +288,25 @@ class PromotionValidator implements EventSubscriberInterface
         }
 
         if ($value < self::DISCOUNT_MIN_VALUE) {
-            $violationList->add($this->buildViolation('Value must not be less than ' . self::DISCOUNT_MIN_VALUE, $value, 'value'));
+            $violationList->add($this->buildViolation(
+                'Value must not be less than ' . self::DISCOUNT_MIN_VALUE,
+                $value,
+                'value',
+                'PROMOTION_DISCOUNT_MIN_VALUE_VIOLATION',
+                $index
+            ));
         }
 
         switch ($type) {
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
                 if ($value > self::DISCOUNT_PERCENTAGE_MAX_VALUE) {
-                    $violationList->add($this->buildViolation('Absolute value must not greater than ' . self::DISCOUNT_PERCENTAGE_MAX_VALUE, $value, 'value'));
+                    $violationList->add($this->buildViolation(
+                        'Absolute value must not greater than ' . self::DISCOUNT_PERCENTAGE_MAX_VALUE,
+                        $value,
+                        'value',
+                        'PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION',
+                        $index
+                    ));
                 }
                 break;
         }
@@ -337,13 +376,18 @@ class PromotionValidator implements EventSubscriberInterface
      * This helper function builds an easy violation
      * object for our validator.
      *
-     * @param string            $message      the error message
-     * @param string|float|null $invalidValue the actual invalid value
+     * @param string $message      the error message
+     * @param mixed  $invalidValue the actual invalid value
+     * @param string $propertyPath the property path from the root value to the invalid value without initial slash
+     * @param string $code         the error code of the violation
+     * @param int    $index        the position of this entity in the command queue
      *
      * @return ConstraintViolationInterface the built constraint violation
      */
-    private function buildViolation(string $message, $invalidValue, ?string $propertyPath): ConstraintViolationInterface
+    private function buildViolation(string $message, $invalidValue, string $propertyPath, string $code, int $index): ConstraintViolationInterface
     {
+        $formattedPath = "/{$index}/{$propertyPath}";
+
         return new ConstraintViolation(
             $message,
             '',
@@ -351,8 +395,10 @@ class PromotionValidator implements EventSubscriberInterface
                 'value' => $invalidValue,
             ],
             $invalidValue,
-            $propertyPath,
-            $invalidValue
+            $formattedPath,
+            $invalidValue,
+            null,
+            $code
         );
     }
 

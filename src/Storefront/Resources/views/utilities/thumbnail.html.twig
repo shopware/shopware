@@ -1,9 +1,4 @@
-<picture class="{{ name }}"{% spaceless %}
-        {% for key,value in attributes %}
-            {{ key }}="{{ value }}"
-        {% endfor %}
-    {% endspaceless %}
-    >
+<picture class="{{ name }}">
     {% for thumbnail in thumbnails %}
         <source srcset="{{ thumbnail.url }}" media="(max-width: {{ thumbnail.width }}px)" />
     {% endfor %}
@@ -13,5 +8,9 @@
     {% else %}
         {% set lastThumb = thumbnails.last.url %}
     {% endif %}
-    <img src="{{ lastThumb }}" alt="{{ alt }}" />
+    <img src="{{ lastThumb }}" alt="{{ alt }}" {% apply spaceless %}
+        {% for key,value in attributes %}
+            {{ key }}="{{ value }}"
+        {% endfor %}
+    {% endapply %} />
 </picture>

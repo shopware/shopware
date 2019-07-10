@@ -3,6 +3,11 @@
 namespace Shopware\Core\Framework\Translation;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Snippet\SnippetService;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -49,18 +54,30 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
      */
     private $snippetService;
 
+    /**
+     * @var string
+     */
+    private $fallbackLocale;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $languageRepository;
+
     public function __construct(
         TranslatorInterface $translator,
         RequestStack $requestStack,
         CacheItemPoolInterface $cache,
         MessageFormatterInterface $formatter,
-        SnippetService $snippetService
+        SnippetService $snippetService,
+        EntityRepositoryInterface $languageRepository
     ) {
         $this->translator = $translator;
         $this->requestStack = $requestStack;
         $this->cache = $cache;
         $this->formatter = $formatter;
         $this->snippetService = $snippetService;
+        $this->languageRepository = $languageRepository;
     }
 
     /**
@@ -69,6 +86,11 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     public function getCatalogue($locale = null): MessageCatalogueInterface
     {
         $catalog = $this->translator->getCatalogue($locale);
+
+        $fallbackLocale = $this->getFallbackLocale();
+        if ($catalog->getLocale() !== $fallbackLocale) {
+            $catalog->addFallbackCatalogue($this->translator->getCatalogue($fallbackLocale));
+        }
 
         return $this->getCustomizedCatalog($catalog);
     }
@@ -166,5 +188,20 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         $newCatalog->add($snippets);
 
         return $this->isCustomized[$snippetSetId] = $newCatalog;
+    }
+
+    private function getFallbackLocale(): string
+    {
+        if ($this->fallbackLocale) {
+            return $this->fallbackLocale;
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
+        $criteria->addAssociation('locale');
+
+        $defaultLanguage = $this->languageRepository->search($criteria, Context::createDefaultContext())->get(Defaults::LANGUAGE_SYSTEM);
+
+        return $this->fallbackLocale = $defaultLanguage->getLocale()->getCode();
     }
 }

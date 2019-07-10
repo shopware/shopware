@@ -68,32 +68,32 @@
             "card" : "Aktionscodes",
             "labelCode" : "Allgemeiner Aktionscode",
             "placeholderCode": "Gib einen Code für die Rabattaktion an ...",
-            "switchUseCodes" : "Aktionscodes verwenden"
+            "switchUseCodes" : "Aktionscode verwenden"
           }
         },
         "preconditions": {
           "ruleModuleLink": "Regelmodul öffnen",
           "persona": {
             "card": "Zielgruppe",
-            "title": "Bestimme welche Kunden von dieser Rabattaktion profitieren",
-            "text": "Nutze Regeln aus dem Regelmodul, um die Zielgruppe dieser Marketingaktion einzugrenzen. Ohne eine Eingrenzung haben alle deine Kunden Zugriff auf diese Aktion.",
+            "title": "Welche Kunden können von dieser Rabattaktion profitieren?",
+            "text": "Nutze Regeln aus dem Rule Builder, um die Zielgruppe dieser Marketingaktion einzugrenzen. Ohne eine Eingrenzung haben alle Deine Kunden Zugriff auf diese Aktion.",
             "labelRules": "Kundenregeln",
             "placeholderRules": "Regel hinzufügen ...",
-            "labelCustomers": "Individuellen Kunden zuweisen",
+            "labelCustomers": "Individuelle Kunden zuweisen",
             "placeholderCustomers": "Kunden hinzufügen ..."
           },
           "order": {
-            "card": "Bestellung",
-            "title": "Bestimme welche Eigenschaften eine Bestellung zusätzlich für diese Rabattaktion aufweisen muss.",
-            "text": "Nutze Regeln des Typs 'Bestellung' um zu definieren, welche Bediungen erfüllt sein müssen, damit diese Rabattaktion angewendet wird.",
+            "card": "Qualifizierte Bestellungen",
+            "title": "Definiere qualifizierte Bestellungs-Eigenschaften für diese Rabattaktion.",
+            "text": "Nutze Regeln aus dem Rule Builder, um zu definieren, welche Eigenschaften einer Bestellung vorhanden sein müssen, um die Aktionsauflagen zu erfüllen. Ohne eine Eingrenzung wird die Aktion auf alle Bestellungen angewendet.",
             "rulesModuleLink": "Regelmodul öffnen",
             "rulesCaption": "Bestellregeln",
             "rulesPlaceholder": "Bestellregel zuweisen ..."
           },
           "cart": {
-            "card": "Warenkorb",
-            "title": "Welche Warenkörbe sind von dieser Rabattaktion betroffen?",
-            "text": "Nutze Regeln aus dem Regelmodul, um die Aktionswarenkörbe dieser Marketingaktion zu definieren.\n            Ohne eine Eingrenzung wird die Aktion auf alle Warenkörbe angewendet.",
+            "card": "Warenkörbe",
+            "title": "Definiere qualifizierte Warenkörbe für diese Rabattaktion.",
+            "text": "Nutze Regeln aus dem Rule Builder, um zu definieren, welche Eigenschaften eines Warenkorbes vorhanden sein müssen, um die Aktionsauflagen zu erfüllen. Ohne eine Eingrenzung wird die Aktion auf alle Warenkörbe angewendet.",
             "rulesModuleLink": "Regelmodul öffnen",
             "rulesCaption": "Warenkorbregeln",
             "rulesPlaceholder": "Warenkorbregel zuweisen ..."
@@ -103,8 +103,8 @@
           "card": "Rabatt",
           "labelValue": "Wert",
           "placeholderValue": "Gib den Wert der Rabattaktion an ...",
-          "labelScope": "Bezieht sich auf:",
-          "flagProductScopeLabel": "Rabatt nur auf ausgewählte Produkte anwenden",
+          "labelScope": "Anwenden auf:",
+          "flagProductScopeLabel": "Nur auf ausgewählte Produkte anwenden",
           "labelRules": "Produktregeln",
           "placeholder": "Produktregeln zuweisen ...",
           "labelType": "Art",

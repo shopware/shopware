@@ -23,8 +23,8 @@
         "action": "Start import",
         "notification": {
           "initSuccess": {
-            "title": "Upload successful",
-            "message": "File has been uploaded successfully. Start processing ..."
+            "title": "Success",
+            "message": "File has been uploaded. Processing..."
           },
           "initFailed": {
             "title": "Upload failed",
@@ -48,8 +48,8 @@
         "action": "Start export",
         "notification": {
           "initSuccess": {
-            "title": "Export started successfully",
-            "message": "The export file will now be generated for you."
+            "title": "Success",
+            "message": "Export started, export file is now being generated for you."
           },
           "initFailed": {
             "title": "Export could not be started",
@@ -104,7 +104,7 @@
       "textHeadlineEdit": "Edit profile",
       "titleResult": "Profiles",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The profile \"{name}\" has been saved successfully."
+      "messageSaveSuccess": "The profile \"{name}\" has been saved."
     },
     "mapping": {
       "modal": {

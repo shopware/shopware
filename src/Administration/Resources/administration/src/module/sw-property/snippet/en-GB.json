@@ -51,7 +51,7 @@
       "contextMenuOptionResetDelete": "Restore",
       "textOptionHeadline": "New option",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Property \"{name}\" has successfully been saved.",
+      "messageSaveSuccess": "Property \"{name}\" has been saved.",
       "messageOptionsEmpty": "No options yet",
       "messageOptionsEmptySubline": "Add options here."
     }

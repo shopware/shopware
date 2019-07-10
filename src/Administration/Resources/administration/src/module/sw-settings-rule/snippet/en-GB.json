@@ -8,7 +8,7 @@
     "list": {
       "textHeadline": "Rule builder",
       "buttonAddRule": "Create rule",
-      "columnName": "Name",
+      "columnName": "Rule",
       "columnDescription": "Description",
       "columnDateCreated": "Creation date",
       "columnPriority": "Priority",
@@ -41,7 +41,7 @@
       "placeholderDescription": "Set a description for this rule...",
       "placeholderPriority": "Set a priority for this rule...",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The rule \"{name}\" has successfully been saved.",
+      "messageSaveSuccess": "The rule \"{name}\" has been saved.",
       "ruleCard": "Condition",
       "titleSaveError": "Error",
       "messageSaveError": "An error occurred while saving rule \"{name}\".",

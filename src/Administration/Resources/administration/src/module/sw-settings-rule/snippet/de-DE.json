@@ -8,7 +8,7 @@
     "list": {
       "textHeadline": "Rule Builder",
       "buttonAddRule": "Regel erstellen",
-      "columnName": "Name",
+      "columnName": "Regel",
       "columnDescription": "Beschreibung",
       "columnDateCreated": "Erstelldatum",
       "columnPriority": "Priorität",

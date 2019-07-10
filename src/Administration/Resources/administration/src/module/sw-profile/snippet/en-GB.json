@@ -23,7 +23,7 @@
       "notificationNewPasswordIsSameAsOldErrorMessage": "Your new password matches the old one. Please choose a new password.",
       "notificationInvalidEmailErrorMessage": "Please enter a valid email address.",
       "notificationSaveSuccessTitle": "Success",
-      "notificationSaveSuccessMessage": "Profile information have successfully been saved.",
+      "notificationSaveSuccessMessage": "Profile information have been saved.",
       "labelUploadAvatar": "Upload an avatar",
       "labelUseAsAvatar": "Use as avatar"
     }

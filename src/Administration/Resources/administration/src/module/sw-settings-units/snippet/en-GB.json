@@ -1,9 +1,9 @@
 {
   "sw-settings-units": {
     "general": {
-      "mainMenuItemGeneral": "Units",
+      "mainMenuItemGeneral": "Scale units",
       "placeholderSearchBar": "Search units",
-      "createNewUnit": "New unit"
+      "createNewUnit": "Create new unit"
     },
     "grid": {
       "columnName": "Unit",
@@ -11,14 +11,14 @@
       "contextMenuDelete": "Delete"
     },
     "empty-state": {
-      "title": "No units available",
-      "subline": "Manage units here"
+      "title": "No units yet",
+      "subline": "Manage units here."
     },
     "notification": {
-      "successTitle": "Unit saved",
-      "successMessage": "The unit was successfully saved.",
+      "successTitle": "Success",
+      "successMessage": "Scale unit has been saved.",
       "errorTitle": "Error",
-      "errorMessage": "The unit could not be saved. Check if all fields are filled."
+      "errorMessage": "Scale unit could not be saved. Please fill in all required fields."
     }
   }
 }

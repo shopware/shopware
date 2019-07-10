@@ -43,8 +43,8 @@
       "cardTitleLineItems": "Items",
       "columnProductName": "Item",
       "columnQuantity": "Quantity",
-      "columnPriceNet": "Net price",
-      "columnPriceGross": "Gross price",
+      "columnPriceNet": "Price (net)",
+      "columnPriceGross": "Price (gross)",
       "columnTotalPriceNet": "Total",
       "columnPrice": "Price",
       "columnTotalPrice": "Total",
@@ -68,10 +68,10 @@
       "buttonDelete" : "Delete order",
       "buttonAddProduct" :"Add product",
       "buttonAddBlankProduct" :"Add custom item",
-      "buttonAddCredit" :"Add credit item",
+      "buttonAddCredit" :"Add credit",
       "buttonEditAddress" : "Edit",
       "labelNoPhoneNumber" :"No phone number yet",
-      "labelNoEmail" : "No Email yet",
+      "labelNoEmail" : "No emails yet",
       "labelCustomerPhoneNumber":"Phone number",
       "labelLanguage" :"Order language",
       "labelPaymentMethod" : "Payment method",
@@ -84,7 +84,7 @@
       "labelNoChangesYet" : "No changes yet",
       "labelTrackingCode" : "Track and trace code",
       "buttonAddDeliveryAddress" : "Add new address",
-      "labelSameDeliveryAndBillingAddress" : "Billing and shipping address are identical",
+      "labelSameDeliveryAndBillingAddress" : "Billing and shipping address identical",
       "buttonContinueOnVersionedOrder" : "Load",
       "tax": "Included taxes:",
       "shippingCostsTax": "{taxRate}%: {tax}"
@@ -100,26 +100,26 @@
     },
     "addressSelection": {
       "modalTitleEditAddress": "Addresses",
-      "headlineTabEditAddress" : "Edit Address",
-      "headlineTabSelectAddress" :"Select Address"
+      "headlineTabEditAddress" : "Edit address",
+      "headlineTabSelectAddress" :"Select address"
     },
     "leavePageModal" : {
       "headline" : "Warning",
-      "description" : "You have unsaved changes. Are you sure you want to leave this page?",
-      "confirmButton" : "Leave Page",
-      "cancelButton" : "Stay on Page"
+      "description" : "There are unsaved changes. Are you sure you want to leave this page without saving?",
+      "confirmButton" : "Leave page",
+      "cancelButton" : "Stay on page"
     },
     "stateCard": {
-      "cardTitle": "States",
-      "headlineOrderState": "Order State",
-      "headlineTransactionState": "Payment State",
+      "cardTitle": "Statuses",
+      "headlineOrderState": "Order status",
+      "headlineTransactionState": "Payment status",
       "labelLastEditedBy":"Last edited by",
       "labelSystemUser":"System",
       "labelSelectStatePlaceholder":"Select a status...",
       "labelSelectStateButton":"Update status",
       "headlineErrorStateChange":"Error",
-      "labelErrorStateChange":"An error occured while updating the state. Additional information:",
-      "labelErrorNoAction":"No valid state selected."
+      "labelErrorStateChange":"An error occured while updating the status. Additional information:",
+      "labelErrorNoAction":"Current status invalid."
     },
     "documentCard": {
       "searchBarPlaceholder": "Search all documents...",
@@ -133,14 +133,14 @@
       "labelCreateNew": "Create new",
       "messageEmptyTitle": "No documents yet",
       "messageEmptySubline": "Manage documents here.",
-      "labelDocumentStatic": "This document was imported."
+      "labelDocumentStatic": "Unable to edit: documents from external sources are imported read-only."
     },
     "documentModal": {
       "modalTitle": "Create document",
       "labelDocumentDate": "Date",
       "labelDeliveryDate": "Delivery date",
       "labelDocumentNumber": "Number",
-      "labelDocumentStornoNumber": "Storno number",
+      "labelDocumentStornoNumber": "Cancellation number",
       "labelInvoiceNumber": "Invoice number",
       "selectInvoiceNumber": "Select invoice number",
       "labelDeliveryNoteNumber": "Delivery note number",
@@ -152,7 +152,7 @@
       "labelPreview": "Preview",
       "labelHighlightedItemsHeader":"Name",
       "labelHighlightedItemsEntry":"Total",
-      "labelNoItems":"No credit items"
+      "labelNoItems":"No credit"
     }
   }
 }

@@ -33,7 +33,7 @@ describe('Account: Login as customer', () => {
         cy.get('.address-form-submit').click();
 
         // Verify new address
-        cy.get('.alert-success .alert-content').contains('Address saved successfully');
+        cy.get('.alert-success .alert-content').contains('Address has been saved.');
         cy.get('.account-content .account-aside-item[href="/account"]').click();
         cy.get(`${page.elements.lightButton}[title="Change shipping address"]`).click();
         cy.get('.address-editor-modal .modal-dialog').should('be.visible');
@@ -42,7 +42,7 @@ describe('Account: Login as customer', () => {
 
         // Set new address as shipping address
         cy.get(`${page.elements.lightButton}[title="Set as default shipping "]`).click();
-        cy.get('.alert-success .alert-content').contains('Changed default address successfully');
+        cy.get('.alert-success .alert-content').contains('Default address has been changed.');
         cy.get('.overview-shipping-address p').contains('Sherman');
         cy.get(`${page.elements.lightButton}[title="Change shipping address"]`).click();
         cy.get('.address-editor-modal .modal-dialog').should('be.visible');
@@ -53,7 +53,7 @@ describe('Account: Login as customer', () => {
         cy.get('.address-editor-modal .modal-dialog').should('be.visible');
         cy.get(`${page.elements.lightButton}[title="Set as default billing"]`).click();
         cy.get('.address-editor-modal .modal-dialog').should('not.exist');
-        cy.get('.alert-success .alert-content').contains('Changed default address successfully');
+        cy.get('.alert-success .alert-content').contains('Default address has been changed.');
         cy.get(`${page.elements.lightButton}[title="Change shipping address"]`).click();
         cy.get('.address-editor-modal .modal-dialog').should('be.visible');
         cy.get(`${page.elements.lightButton}[title="Set as default shipping "]`).click();

@@ -115,7 +115,7 @@ describe('Customer group: Test crud operations', () => {
 
         // Verify deletion
         cy.wait('@deleteData').then(() => {
-            cy.awaitAndCheckNotification('Customer group has successfully been deleted.');
+            cy.awaitAndCheckNotification('Customer group has been deleted.');
         });
     });
 });

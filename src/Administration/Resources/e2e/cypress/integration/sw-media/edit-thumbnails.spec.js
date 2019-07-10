@@ -44,7 +44,7 @@ describe('Media: Test thumbnails', () => {
         page.setThumbnailSize('800');
         cy.get('button.sw-media-modal-folder-settings__switch-mode').click();
         cy.get(page.elements.saveSettingsAction).click();
-        cy.awaitAndCheckNotification('Settings have successfully been saved.');
+        cy.awaitAndCheckNotification('Settings have been saved.');
 
         // Remove first thumbnail size and create second size with separate height afterwards
         cy.clickContextMenuItem(
@@ -61,7 +61,7 @@ describe('Media: Test thumbnails', () => {
         cy.get('input[name=thumbnail-size-1920-1080-active]').click();
         cy.get('button.sw-media-modal-folder-settings__switch-mode').click();
         cy.get(page.elements.saveSettingsAction).click();
-        cy.awaitAndCheckNotification('Settings have successfully been saved.');
+        cy.awaitAndCheckNotification('Settings have been saved.');
 
         // Check inheritance of parent thumbnail settings and sizes
         cy.clickContextMenuItem(
@@ -90,7 +90,7 @@ describe('Media: Test thumbnails', () => {
         cy.get('.sw-media-modal-folder-settings__thumbnail-size-entry').should('not.exist');
         cy.get('.sw-media-modal-folder-settings__switch-mode').click();
         cy.get(page.elements.saveSettingsAction).click();
-        cy.awaitAndCheckNotification('Settings have successfully been saved.');
+        cy.awaitAndCheckNotification('Settings have been saved.');
 
         // Verify deactivated inheritance
         cy.get('.icon--multicolor-folder-breadcrumbs-back-to-root').click();

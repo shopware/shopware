@@ -3,14 +3,14 @@
     "general": {
       "titleCard": "SEO url templates",
       "labelPossibleValues": "Possible variables",
-      "tooltipValidTemplate": "The template is valid",
-      "tooltipInvalidTemplate": "The template is not valid",
+      "tooltipValidTemplate": "Template valid",
+      "tooltipInvalidTemplate": "Invalid template",
       "titleSaveError": "Error",
       "messageSaveError": "Not all templates are valid.",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The SEO url templates have successfully been saved.",
+      "messageSaveSuccess": "SEO url templates have been saved.",
       "preview": "Preview:",
-      "placeholderSelectVariables": "Choose...",
+      "placeholderSelectVariables": "Search and select...",
       "labelSalesChannelSelect": "Sales channel"
     },
     "routeNames": {

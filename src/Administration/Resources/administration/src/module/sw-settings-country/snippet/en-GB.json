@@ -17,7 +17,7 @@
       "contextMenuDelete": "Delete",
       "modalTitleDelete": "Delete country",
       "titleDeleteSuccess": "Success",
-      "messageDeleteSuccess": "Country \"{name}\" has successfully been deleted.",
+      "messageDeleteSuccess": "Country \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
     },
@@ -25,7 +25,7 @@
       "textHeadline": "New country",
       "titleCard": "Settings",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Country \"{name}\" has successfully been saved.",
+      "messageSaveSuccess": "Country \"{name}\" has been saved.",
       "titleSaveError": "Error",
       "messageSaveError": "Country \"{name}\" could not be saved.",
       "labelName": "Name",

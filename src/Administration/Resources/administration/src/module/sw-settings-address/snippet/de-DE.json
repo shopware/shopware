@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "Adressen",
       "textHeadline": "Adressen",
-      "description": "Verwalten von Adresseinstellungen.",
+      "description": "Verwaltung von Adresseinstellungen.",
       "buttonSave": "Speichern",
       "titleSaveSuccess": "Konfiguration gespeichert",
       "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",

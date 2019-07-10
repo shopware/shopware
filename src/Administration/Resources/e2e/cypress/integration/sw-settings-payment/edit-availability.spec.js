@@ -53,7 +53,7 @@ describe('Payment: Test crud operations', () => {
 
         cy.get(`${rulePage.elements.modal} ${rulePage.elements.primaryButton}`).click();
         cy.get(rulePage.elements.modal).should('not.exist');
-        cy.awaitAndCheckNotification('The rule "Rule for new customers" has successfully been saved.');
+        cy.awaitAndCheckNotification('The rule "Rule for new customers" has been saved.');
         cy.get('.sw-select-rule-create').contains('Rule for new customers');
 
         // Save and verify payment method

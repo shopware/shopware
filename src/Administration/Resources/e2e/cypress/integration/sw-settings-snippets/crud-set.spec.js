@@ -27,7 +27,7 @@ describe('Snippet set: Test crud operations', () => {
         cy.get(`${page.elements.gridRow}--0 select[name=sw-field--item-baseFile]`)
             .select('messages.en-GB');
         cy.get(`${page.elements.gridRow}--0 ${page.elements.gridRowInlineEdit}`).click();
-        cy.awaitAndCheckNotification('Snippet set "Snip Snap" has successfully been saved.');
+        cy.awaitAndCheckNotification('Snippet set "Snip Snap" has been saved.');
         cy.get(`${page.elements.gridRow}--0 a`).contains('Snip Snap');
     });
 
@@ -61,7 +61,7 @@ describe('Snippet set: Test crud operations', () => {
             .contains('Are you sure you want to delete the snippet set "A Set Name Snippet"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
-        cy.awaitAndCheckNotification('Snippet set has successfully been deleted.');
+        cy.awaitAndCheckNotification('Snippet set has been deleted.');
         cy.get(`${page.elements.gridRow}--2`).should('not.exist');
     });
 });

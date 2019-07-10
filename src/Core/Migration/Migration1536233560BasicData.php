@@ -367,8 +367,8 @@ class Migration1536233560BasicData extends MigrationStep
 
         $ilId = Uuid::randomBytes();
         $connection->insert('country', ['id' => $ilId, 'iso' => 'IL', 'position' => 10, 'iso3' => 'ISR', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('country_translation', $languageEN($ilId, 'Isreal'));
-        $connection->insert('country_translation', $languageDE($ilId, 'Isreal'));
+        $connection->insert('country_translation', $languageEN($ilId, 'Israel'));
+        $connection->insert('country_translation', $languageDE($ilId, 'Israel'));
 
         $auId = Uuid::randomBytes();
         $connection->insert('country', ['id' => $auId, 'iso' => 'AU', 'position' => 10, 'active' => 1, 'iso3' => 'AUS', 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT)]);

@@ -4,11 +4,11 @@
       "notificationSaveErrorTitle": "Error",
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
       "notificationSaveSuccessTitle": "Success",
-      "notificationSaveSuccessMessage": "The entity \"{entityName}\" has successfully been saved."
+      "notificationSaveSuccessMessage": "The entity \"{entityName}\" has been saved."
     },
     "notification-center": {
       "title": "Notifications",
-      "emptyText": "Congratulations, all done.",
+      "emptyText": "Nothing to show.",
       "deleteModal": {
         "title": "Delete notifications",
         "textConfirm": "Are you sure you really want to delete all notifications?",
@@ -17,16 +17,16 @@
       },
       "worker-listener": {
         "thumbnailGeneration": {
-          "title": "Thumbnails are being generated",
-          "message": "No thumbnails remains. | One thumbnail remains. | {n} Thumbnails remains.",
-          "titleSuccess": "Thumbnails finished",
-          "messageSuccess": "Generation of the thumbnails was completed."
+          "title": "Generating thumbnails",
+          "message": "No thumbnails remaining. | One thumbnail remaining. | {n} thumbnails remaining.",
+          "titleSuccess": "Success",
+          "messageSuccess": "Thumbnails have been generated."
         }
       },
       "plugin-updates-listener": {
-        "updatesAvailableTitle": "Plugin-Updates available.",
-        "updatesAvailableMessage": "For some Plugins are updates available."
-      },
+        "updatesAvailableTitle": "Update(s) available",
+        "updatesAvailableMessage": "Download the latest versions of your plugins now."
+       },
       "shopware-updates-listener": {
         "updatesAvailableTitle": "A new Shopware version {version} is available",
         "updatesAvailableMessage": "Start the auto-updater to begin the update",
@@ -156,7 +156,7 @@
         },
         "renamingSuccess": {
           "title": "Success",
-          "message": "Media item has successfully been renamed."
+          "message": "Media item has been renamed."
         },
         "renamingError": {
           "title": "Error",
@@ -182,8 +182,8 @@
         "successSingle": {
           "title": "Success",
           "message": {
-            "media": "File \"{name}\" has successfully been deleted.",
-            "folder": "Folder \"{name}\" has successfully been deleted."
+            "media": "File \"{name}\" has been deleted.",
+            "folder": "Folder \"{name}\" has been deleted."
           }
         },
         "errorSingle": {
@@ -196,9 +196,9 @@
         "successOverall": {
           "title": "Success",
           "message": {
-            "media": "No file has successfully been deleted. | A file has successfully been deleted. | {count} / {total} files have successfully been deleted.",
-            "folder": "No folder has successfully been deleted. | A folder has successfully been deleted. | {count} / {total} folders have successfully been deleted.",
-            "mediaAndFolder": "No file or folder has successfully been deleted. | A file or a folder has successfully been deleted. | {count} / {total} files or folders have successfully been deleted."
+            "media": "No file has been deleted. | A file has been deleted. | {count} / {total} files have been deleted.",
+            "folder": "No folder has been deleted. | A folder has been deleted. | {count} / {total} folders have been deleted.",
+            "mediaAndFolder": "No file or folder has been deleted. | A file or a folder has been deleted. | {count} / {total} files or folders have been deleted."
           }
         },
         "errorOverall": {
@@ -219,7 +219,7 @@
       "notification": {
         "successSingle": {
           "title": "Success",
-          "message": "Folder \"{folderName}\" has successfully been dissolved."
+          "message": "Folder \"{folderName}\" has been dissolved."
         },
         "errorSingle": {
           "title": "Error",
@@ -227,7 +227,7 @@
         },
         "successOverall": {
           "title": "Success",
-          "message": "Folders have successfully been dissolved."
+          "message": "Folders have been dissolved."
         },
         "errorOverall": {
           "title": "Error",
@@ -256,7 +256,7 @@
       "notification": {
         "successSingle": {
           "title": "Success",
-          "message": "Folder \"{mediaName}\" has successfully been moved."
+          "message": "Folder \"{mediaName}\" has been moved."
         },
         "errorSingle": {
           "title": "Error",
@@ -264,7 +264,7 @@
         },
         "successOverall": {
           "title": "Success",
-          "message": "Media items have successfully been moved."
+          "message": "Media items have been moved."
         },
         "errorOverall": {
           "title": "Error",
@@ -292,7 +292,7 @@
       "notification": {
         "success": {
           "title": "Media upload",
-          "message": "No file has successfully been saved. | File has successfully been saved. | {count} / {total} files have successfully been saved.",
+          "message": "No file has been saved. | File has been saved. | {count} / {total} files have been saved.",
           "titleSuccess": "Success"
         },
         "failure": {
@@ -332,7 +332,7 @@
       "notification": {
         "success": {
           "title": "Success",
-          "message": "Settings have successfully been saved."
+          "message": "Settings have been saved."
         },
         "error": {
           "title": "Error",
@@ -382,25 +382,25 @@
     "sw-condition": {
       "operator": {
         "lowerThanEquals": "Lower than equals",
-        "equals": "Equals",
-        "greaterThanEquals": "Greater than equals",
-        "lowerThan": "Lower",
-        "greaterThan": "Greater",
-        "notEquals": "Not equals",
+        "equals": "Is equal to",
+        "greaterThanEquals": "Is greater than/equal to",
+        "lowerThan": "Is less than",
+        "greaterThan": "Is greater than",
+        "notEquals": "Is not equal to",
         "isOneOf": "Is one of",
         "isNoneOf": "Is none of"
       },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",
       "tag": {
-        "placeholder": "Use enter key to submit your values."
+        "placeholder": "Press ENTER to confirm input..."
       },
       "condition": {
         "dateRangeRule": {
           "label": "Date range",
           "useTime": "Include time reference"
         },
-        "placeholder": "Select condition...",
+        "placeholder": "Search conditions...",
         "orderCountRule": "Count of orders",
         "salesChannelRule": "Sales channel",
         "currencyRule": "Currency",
@@ -439,7 +439,7 @@
         "field": {
           "valuePlaceholder": "Enter value..."
         },
-        "placeholder-warning": "Please choose a condition...",
+        "placeholder-warning": "Please select a condition...",
         "not-found": {
           "label": "Condition was not found",
           "error-message": "Condition type {type} was not found. The condition includes the field: {fields} | The condition type {type} was not found. The conditions include the fields: {fields}"
@@ -603,7 +603,7 @@
     "infoTextInheritedField": "{moduleName} has inherited fields. Meaning that as long as the inherited state is active the content will be inherited. Inherited fields can be unlinked by clicking the link symbol. Clicking the symbol again will set the inherited state back."
   },
   "sw-sales-channel-switch": {
-    "messageModalUnsavedChanges": "There are unsaved changes for the current sales channel. Do you want to save them now?",
+    "messageModalUnsavedChanges": "There are unsaved changes regarding the current sales channel. Do you want to save them now?",
     "placeholderSelect": "Search for...",
     "titleModalUnsavedChanges": "Unsaved changes",
     "titleModalButtonCancelUnsavedChanges": "Cancel",
@@ -635,10 +635,10 @@
     "placeholderName": "Enter a rule name...",
     "labelPriority": "Priority",
     "placeholderPriority": "Prioritise this rule...",
-    "buttonAbort": "Abort",
+    "buttonAbort": "Cancel",
     "buttonSave": "Save",
     "titleSaveSuccess": "Success",
-    "messageSaveSuccess": "The rule \"{name}\" has successfully been saved.",
+    "messageSaveSuccess": "The rule \"{name}\" has been saved.",
     "titleSaveError": "Error",
     "messageSaveError": "An error occurred while saving rule \"{name}\"."
   },
@@ -647,76 +647,76 @@
   },
   "sw-shortcut-overview": {
     "title": "Keyboard shortcuts",
-    "iconTooltip": "Press the `{key}` key to show a shortcut overview",
+    "iconTooltip": "Press `{key}` to show a list of available shortcuts",
     "modalTitle": "Keyboard shortcuts",
     "sectionAddingItems": "Adding Items",
     "sectionNavigation": "Navigation",
-    "sectionSpecialShortcuts": "Special Shortcuts",
+    "sectionSpecialShortcuts": "Special shortcuts",
     "function": "Function",
     "keyboardShortcut": "Keyboard shortcut",
-    "functionAddProduct": "Add Product",
+    "functionAddProduct": "Add product",
     "keyboardShortcutAddProduct": "A P",
-    "functionAddCategory": "Add Category",
+    "functionAddCategory": "Add category",
     "keyboardShortcutAddCategory": "A C",
-    "functionAddShoppingExperienceLayout": "Add Shopping Experience Layout",
+    "functionAddShoppingExperienceLayout": "Add Shopping Experience layout",
     "keyboardShortcutAddShoppingExperienceLayout": "A E",
-    "functionAddCustomer": "Add Customer",
+    "functionAddCustomer": "Add customer",
     "keyboardShortcutAddCustomer": "A U",
-    "functionAddProperties": "Add Properties",
+    "functionAddProperties": "Add properties",
     "keyboardShortcutAddProperties": "A P R",
-    "functionAddManufacturer": "Add Manufacturer",
+    "functionAddManufacturer": "Add manufacturer",
     "keyboardShortcutAddManufacturer": "A M",
     "functionAddRule": "Add Rule",
     "keyboardShortcutAddRule": "A R",
-    "functionAddSaleschannel": "Add Saleschannel",
+    "functionAddSaleschannel": "Add sales channel",
     "keyboardShortcutAddSaleschannel": "A S",
-    "functionGoToDashboard": "Go to Dashboard",
+    "functionGoToDashboard": "Go to dashboard",
     "keyboardShortcutGoToDashboard": "G H",
-    "functionGoToProducts": "Go to Products",
+    "functionGoToProducts": "Go to products",
     "keyboardShortcutGoToProducts": "G P",
-    "functionGoToCategories": "Go to Categories",
+    "functionGoToCategories": "Go to categories",
     "keyboardShortcutGoToCategories": "G C",
     "functionGoToDynamicProductGroups": "Go to dynamic product groups",
     "keyboardShortcutGoToDynamicProductGroups": "G D",
-    "functionGoToProperties": "Go to Properties",
+    "functionGoToProperties": "Go to properties",
     "keyboardShortcutGoToProperties": "G P R",
-    "functionGoToManufacturers": "Go to Manufacturers",
+    "functionGoToManufacturers": "Go to manufacturers",
     "keyboardShortcutGoToManufacturers": "G M",
-    "functionGoToOrders": "Go to Orders",
+    "functionGoToOrders": "Go to orders",
     "keyboardShortcutGoToOrders": "G O",
-    "functionGoToCustomers": "Go to Customers",
+    "functionGoToCustomers": "Go to customers",
     "keyboardShortcutGoToCustomers": "G U",
-    "functionGoToShoppingExperience": "Go to Shopping Experience",
+    "functionGoToShoppingExperience": "Go to Shopping Experiences",
     "keyboardShortcutGoToShoppingExperience": "G E",
     "functionGoToMedia": "Go to Media",
     "keyboardShortcutGoToMedia": "G M E",
-    "functionGoToPromotion": "Go to Promotion",
+    "functionGoToPromotion": "Go to promotions",
     "keyboardShortcutGoToPromotion": "G P O",
-    "functionGoToNewsletterRecipients": "Go to Newsletter recipients",
+    "functionGoToNewsletterRecipients": "Go to newsletter recipients",
     "keyboardShortcutGoToNewsletterRecipients": "G N",
-    "functionGoToSettingsListing": "Go to Settings Listing",
+    "functionGoToSettingsListing": "Go to settings listing",
     "keyboardShortcutGoToSettingsListing": "G S",
-    "functionGoToSnippets": "Go to Snippets",
+    "functionGoToSnippets": "Go to snippets",
     "keyboardShortcutGoToSnippets": "G S N",
-    "functionGoToPayment": "Go to Payment",
+    "functionGoToPayment": "Go to payment",
     "keyboardShortcutGoToPayment": "G S P",
-    "functionGoToShipping": "Go to Shipping",
+    "functionGoToShipping": "Go to shipping",
     "keyboardShortcutGoToShipping": "G S S",
-    "functionGoToRuleBuilder": "Go to Rule builder",
+    "functionGoToRuleBuilder": "Go to rule builder",
     "keyboardShortcutGoToRuleBuilder": "G S R",
-    "functionGoToPlugins": "Go to Plugins",
+    "functionGoToPlugins": "Go to plugins",
     "keyboardShortcutGoToPlugins": "G A",
-    "functionSpecialShortcutFocusSearch": "Focus Search",
-    "keyboardShortcutSpecialShortcutFocusSearch": "f",
-    "functionSpecialShortcutShortcutListing": "Shortcut Listing",
-    "keyboardShortcutSpecialShortcutShortcutListing": "Shift ?",
-    "functionSpecialShortcutSaveDetailViewWindows": "Windows: Save Detail View",
-    "keyboardShortcutSpecialShortcutSaveDetailViewWindows": "alt s",
-    "functionSpecialShortcutSaveDetailViewMac": "Mac: Save Detail View",
-    "keyboardShortcutSpecialShortcutSaveDetailViewMac": "control s",
-    "functionSpecialShortcutSaveDetailViewLinux": "Linux: Save Detail View",
-    "keyboardShortcutSpecialShortcutSaveDetailViewLinux": "alt s",
-    "functionSpecialShortcutCancelDetailView": "Cancel Detail View",
-    "keyboardShortcutSpecialShortcutCancelDetailView": "Esc"
+    "functionSpecialShortcutFocusSearch": "Focus search",
+    "keyboardShortcutSpecialShortcutFocusSearch": "F",
+    "functionSpecialShortcutShortcutListing": "Shortcut listing",
+    "keyboardShortcutSpecialShortcutShortcutListing": "SHIFT-?",
+    "functionSpecialShortcutSaveDetailViewWindows": "Windows: Save detail view",
+    "keyboardShortcutSpecialShortcutSaveDetailViewWindows": "ALT-S",
+    "functionSpecialShortcutSaveDetailViewMac": "Mac: Save detail view",
+    "keyboardShortcutSpecialShortcutSaveDetailViewMac": "CONTROL-S",
+    "functionSpecialShortcutSaveDetailViewLinux": "Linux: Save detail view",
+    "keyboardShortcutSpecialShortcutSaveDetailViewLinux": "ALT-S",
+    "functionSpecialShortcutCancelDetailView": "Cancel detail view",
+    "keyboardShortcutSpecialShortcutCancelDetailView": "ESC"
   }
 }

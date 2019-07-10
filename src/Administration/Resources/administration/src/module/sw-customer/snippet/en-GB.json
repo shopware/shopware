@@ -156,7 +156,7 @@
       "titleSaveError": "Error",
       "titleSaveSuccess": "Success",
       "messageSaveError": "Customer could not be saved.",
-      "messageSaveSuccess": "Customer \"{name}\" has successfully been saved."
+      "messageSaveSuccess": "Customer \"{name}\" has been saved."
     }
   }
 }

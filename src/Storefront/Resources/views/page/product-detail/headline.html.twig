@@ -11,26 +11,28 @@
     {% endblock %}
 
     {% block page_product_detail_manufacturer %}
-        <div class="col-md-auto product-detail-manufacturer">
-            {% block page_product_detail_manufacturer_inner %}
-                {% block page_product_detail_manufacturer_link %}
-                    <a href="{{ page.product.manufacturer.link }}"
-                       class="product-detail-manufacturer-link"
-                       title="{{ page.product.manufacturer.translated.name }}">
-                        {% if page.product.manufacturer.media %}
-                            {% block page_product_detail_manufacturer_logo %}
-                                <img src="{{ page.product.manufacturer.media.url }}"
-                                     class="product-detail-manufacturer-logo"
-                                     alt="{{ page.product.manufacturer.translated.name }}"/>
-                            {% endblock %}
-                        {% else %}
-                            {% block page_product_detail_manufacturer_text %}
-                                {{ page.product.manufacturer.translated.name }}
-                            {% endblock %}
-                        {% endif %}
-                    </a>
+        {% if page.product.manufacturer %}
+            <div class="col-md-auto product-detail-manufacturer">
+                {% block page_product_detail_manufacturer_inner %}
+                    {% block page_product_detail_manufacturer_link %}
+                        <a href="{{ page.product.manufacturer.link }}"
+                           class="product-detail-manufacturer-link"
+                           title="{{ page.product.manufacturer.translated.name }}">
+                            {% if page.product.manufacturer.media %}
+                                {% block page_product_detail_manufacturer_logo %}
+                                    <img src="{{ page.product.manufacturer.media.url }}"
+                                         class="product-detail-manufacturer-logo"
+                                         alt="{{ page.product.manufacturer.translated.name }}"/>
+                                {% endblock %}
+                            {% else %}
+                                {% block page_product_detail_manufacturer_text %}
+                                    {{ page.product.manufacturer.translated.name }}
+                                {% endblock %}
+                            {% endif %}
+                        </a>
+                    {% endblock %}
                 {% endblock %}
-            {% endblock %}
-        </div>
+            </div>
+        {% endif %}
     {% endblock %}
 {% endblock %}

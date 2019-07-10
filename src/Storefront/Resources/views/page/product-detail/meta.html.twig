@@ -31,8 +31,10 @@
     <meta property="og:image"
           content="{{ page.product.cover.media.url }}"/>
 
-    <meta property="product:brand"
-          content="{{ page.product.manufacturer.translated.name }}"/>
+    {% if page.product.manufacturer %}
+        <meta property="product:brand"
+              content="{{ page.product.manufacturer.translated.name }}"/>
+    {% endif %}
     <meta property="product:price"
           content="{{ page.product.calculatedPrice.unitPrice|currency }}"/>
     <meta property="product:product_link"

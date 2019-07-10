@@ -1,22 +1,39 @@
 {% block sw_first_run_wizard_paypal_info %}
-    <div>
-        <img class="sw-dashboard__paypal-icon" :src="'/administration/static/img/paypal-official-logo.svg' | asset">
+    <div class="sw-first-run-wizard-paypal-info">
+        <img class="sw-first-run-wizard-paypal-info__icon" :src="'/administration/static/img/paypal-official-logo.svg' | asset">
 
-        <h3>Lorem ipsum dolor sit amet, consetetur sadipscing elitr</h3>
+        <h3 class="headline">{{ $tc('sw-first-run-wizard.paypal-info.headline') }}</h3>
 
-        <sw-container columns="1fr 1fr 1fr">
-            <div>
-                <h5>Lorem ipsum</h5>
-                <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor.</p>
+        <sw-container columns="1fr 1fr 1fr 1fr"
+                      class="paymethods">
+            <div class="paymethod">
+                <sw-icon name="default-basic-checkmark-circle"
+                         size="12px">
+                </sw-icon>
+                <span>{{ $tc('sw-first-run-wizard.paypal-info.paymethod.paypal') }}</span>
             </div>
-            <div>
-                <h5>Lorem ipsum</h5>
-                <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor.</p>
+            <div class="paymethod">
+                <sw-icon name="default-basic-checkmark-circle"
+                         size="12px">
+                </sw-icon>
+                <span>{{ $tc('sw-first-run-wizard.paypal-info.paymethod.debit') }}</span>
             </div>
-            <div>
-                <h5>Lorem ipsum</h5>
-                <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor.</p>
+            <div class="paymethod">
+                <sw-icon name="default-basic-checkmark-circle"
+                         size="12px">
+                </sw-icon>
+                <span>{{ $tc('sw-first-run-wizard.paypal-info.paymethod.creditcard') }}</span>
+            </div>
+            <div class="paymethod">
+                <sw-icon name="default-basic-checkmark-circle"
+                         size="12px">
+                </sw-icon>
+                <span>{{ $tc('sw-first-run-wizard.paypal-info.paymethod.invoice') }}**</span>
             </div>
         </sw-container>
+        <div class="disclaimer">
+            <p>{{ $tc('sw-first-run-wizard.paypal-info.disclaimer-one') }}</p>
+            <p>{{ $tc('sw-first-run-wizard.paypal-info.disclaimer-two') }}</p>
+        </div>
     </div>
 {% endblock %}

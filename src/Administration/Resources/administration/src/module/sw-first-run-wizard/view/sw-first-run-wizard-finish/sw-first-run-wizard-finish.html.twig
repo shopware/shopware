@@ -8,10 +8,10 @@
                      small>
             </sw-icon>
         </span>
-        <h3 class="headline-success">All done!</h3>
-        <p class="message-success">Your Shopware 6 Professional Edition is now ready to be used.</p>
+        <h3 class="headline-success">{{ $tc('sw-first-run-wizard.finish.headline-all-done') }}</h3>
+        <p class="message-success">{{ $tc('sw-first-run-wizard.finish.message', {}, { edition }) }}</p>
 
-        <h3 class="headline-usefull-links">Usefull links</h3>
+        <h3 class="headline-usefull-links">{{ $tc('sw-first-run-wizard.finish.headline-usefull-links') }}</h3>
         <sw-container columns="1fr 1fr 1fr"
                       class="list-usefull-links">
             <a href="http://wwww.shopware.com/" class="external-link">www.shopware.com</a>

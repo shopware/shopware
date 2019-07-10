@@ -1,10 +1,11 @@
 {% block sw_first_run_wizard_plugins %}
     <div class="sw-first-run-wizard-plugins">
-        <h3 class="recommended-plugins__headline">Install plugins recommended by shopware</h3>
-        <p class="recommended-plugins__description">After selecting the region you want to sell in you can browse all recommended plugins by category.</p>
+        <h3 class="recommended-plugins__headline">{{ $tc('sw-first-run-wizard.recommended-plugins.headline') }}</h3>
+        <p v-html="$tc('sw-first-run-wizard.recommended-plugins.message')"
+           class="recommended-plugins__description"></p>
 
         <div class="select-region">
-            <p>Available in region</p>
+            <p>{{ $tc('sw-first-run-wizard.recommended-plugins.available-in-region') }}</p>
             <div class="regions">
                 <sw-label v-for="region in regions"
                           :key="region.name"
@@ -20,7 +21,7 @@
         </div>
 
         <div v-if="categories.length" class="select-category">
-            <p>Category</p>
+            <p>{{ $tc('sw-first-run-wizard.recommended-plugins.category') }}</p>
             <div class="categories">
                 <sw-label v-for="category in categories"
                           :key="category.name"

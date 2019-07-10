@@ -1,8 +1,10 @@
 {% block sw_first_run_wizard_shopware_domain %}
     <div>
-        <h3>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod</h3>
+        <h3 class="headline">{{ $tc('sw-first-run-wizard.shopware-domain.headline') }}</h3>
+        <p v-html="$tc('sw-first-run-wizard.shopware-domain.message')"
+           class="message"></p>
 
-        <sw-switch-field label="Create a new shop domain"
+        <sw-switch-field :label="$tc('sw-first-run-wizard.shopware-domain.label-create-domain')"
                          v-model="createShopDomain">
         </sw-switch-field>
 
@@ -10,10 +12,10 @@
             <sw-field type="text"
                       name="newShopDomain"
                       validation="required"
-                      :label="'Shopware ID'"
+                      :label="'Shop domain'"
                       v-model="newShopDomain">
             </sw-field>
-            <sw-checkbox-field label="Test environment" v-model="testEnvironment"></sw-checkbox-field>
+            <sw-checkbox-field :label="$tc('sw-first-run-wizard.shopware-domain.test-environment')" v-model="testEnvironment"></sw-checkbox-field>
         </div>
         <div v-else>
             <sw-select-field v-model="selectedShopDomain"
@@ -27,7 +29,7 @@
             </sw-select-field>
         </div>
         <div v-if="domainError"
-             class="sw-first-run-wizard-shopware-account__error">
+             class="sw-first-run-wizard-shopware-domain__error">
             <sw-alert :title="domainError"
              variant="error"
              appearance="notification">

@@ -12,16 +12,51 @@
     "welcome": {
       "modalTitle": "Willkommen",
       "headlineWelcome": "Willkommen in der Shopware 6 Administration",
-      "headlineChangeLanguage": "Change your interface language"
+      "messageWelcome": "Dieser Einrichtungs-Assistent begleitet Dich durch die wichtigsten Einstellungen und gibt Dir wertvolle Tipps zur Konfiguration.<br>Willst Du Deinen Shop in einer anderen Sprache verwenden und dadurch auch Kunden in anderen Ländern erreichen? Dann kannst Du hier einfach die gewünschten Sprachpakete installieren.",
+      "headlineChangeLanguage": "Wechsel die Sprache der Benutzeroberfläche"
     },
     "demodata": {
       "modalTitle": "Demodaten installieren",
-      "headlineDemodata": "Install demodata blahh blah bla",
-      "messageDemodata": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren."
+      "headlineDemodata": "Demodaten",
+      "messageDemodata": "Nutze optional die Möglichkeit und statte Deinen Shop mit Demodaten aus.<br><br>Bitte beachte: Die Demodaten dienen nur zu Testzwecken. Du solltest sie nicht in einer Produktivumgebung anwenden.",
+      "loadingMessage": "Installiere Demodaten<br>Es könnte eine Weile dauern..."
     },
-    "store-login": {
-      "registerAccountUrl": "https://account.shopware.com/register?lang=de",
-      "forgotPasswordUrl": "https://account.shopware.com/recovery?lang=de"
+    "paypal-info": {
+      "headline": "Jetzt vorintegriert in Shopware mit noch einfacherer und schnellerer Aktivierung der beliebtesten Zahlarten*",
+      "paymethod": {
+        "paypal": "PayPal",
+        "debit": "Lastschrift",
+        "creditcard": "Kreditkarte",
+        "invoice": "Kauf auf Rechnung"
+      },
+      "disclaimer-one": "1 ECC Köln: ECC-Payment-Studie Vol. 20, Köln, 2016",
+      "disclaimer-two": "2 vorbehaltlich einer positiven Risikoprüfung von PayPal"
+    },
+    "recommended-plugins": {
+      "headline": "Unsere Empfehlungen",
+      "message": "Hier findet Du eine Auswahl an sinnvollen Erweiterungen für Deinen Shop. Wähle zunächst eine Region aus, die für Dich relevant ist. Danach kannst Du durch verschiedene Kategorien stöbern.",
+      "available-in-region": "Verfügbar in Region",
+      "category": "Kategorie"
+    },
+    "shopware-account": {
+      "headline": "Shopware Account",
+      "message": "Melde Dich jetzt mit Deiner Shopware ID an. Dadurch erhälst Du Zugriff auf Deine gekauften Plugins und Lizenzen.<br><br>Mit Deiner Shopware ID kannst Du Dich in weitere Shopware-Plattformen wie z. B. den <a href=\"https://store.shopware.com/\" class=\"external-link\" target=\"_blank\">Community Store</a>, <a href=\"https://forum.shopware.com\" class=\"external-link\" target=\"_blank\">das Forum</a> oder Deinen persönlichen <a href=\"https://account.shopware.com\" class=\"external-link\" target=\"_blank\">Shopware-Account</a> einloggen.",
+      "register-account-text": "Du hast noch keine Shopware ID? Dann registriere Dich direkt",
+      "register-account-here": "hier",
+      "register-account-url": "https://account.shopware.com/register?lang=de",
+      "forgot-password-text": "Passwort vergessen?",
+      "forgot-password-url": "https://account.shopware.com/recovery?lang=de"
+    },
+    "shopware-domain": {
+      "headline": "Verifiziere Deine Domain",
+      "message": "Mit welcher Domain willst Du diesen Shop verknüpfen? Wähle die entsprechende Domain aus oder lege eine neue an.",
+      "label-create-domain": "Erstelle eine neue Shop Domain",
+      "test-environment": "Test Umgebung"
+    },
+    "finish": {
+      "headline-all-done": "Herzlichen Glückwunsch!",
+      "message": "Dein Shopware 6 %{edition} is jetzt verifziert.",
+      "headline-usefull-links": "Nützliche Links"
     },
     "error": {
       "titleLoginDataInvalid": "Fehler",

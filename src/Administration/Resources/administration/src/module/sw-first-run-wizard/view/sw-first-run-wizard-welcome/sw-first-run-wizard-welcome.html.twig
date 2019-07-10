@@ -3,8 +3,8 @@
         <div class="center">
             <img class="sw-first-run-wizard__welcome-image" :src="'/administration/static/img/first-run-wizard/welcome.svg' | asset">
             <h4 class="headline-welcome">{{ $tc('sw-first-run-wizard.welcome.headlineWelcome') }}</h4>
-            <p class="text-welcome">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est.
+            <p v-html="$tc('sw-first-run-wizard.welcome.messageWelcome')"
+               class="text-welcome">
             </p>
         </div>
 

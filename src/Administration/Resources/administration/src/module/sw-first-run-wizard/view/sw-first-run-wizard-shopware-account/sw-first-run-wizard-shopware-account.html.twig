@@ -3,10 +3,10 @@
         <sw-container columns="1fr 1fr">
             <img class="sw-first-run-wizard-shopware-account__illustration" :src="'/administration/static/img/first-run-wizard/shopware-account.svg' | asset">
             <div>
-                <h5 class="headline">Shopware Account</h5>
-                <p class="message">The Shopware ID is your username for the login to the Shopware account and other shopware services.
-                </p>
-                <p class="create-account">You don't have an account yet?  <a class="external-link" :href="$tc('sw-first-run-wizard.store-login.registerAccountUrl')" target="_blank">Create new account</a></p>
+                <h5 class="headline">{{ $tc('sw-first-run-wizard.shopware-account.headline') }}</h5>
+                <p v-html="$tc('sw-first-run-wizard.shopware-account.message')"
+                   class="message"></p>
+                <p class="create-account">{{ $tc('sw-first-run-wizard.shopware-account.register-account-text') }} <a class="external-link" :href="$tc('sw-first-run-wizard.shopware-account.register-account-url')" target="_blank">{{ $tc('sw-first-run-wizard.shopware-account.register-account-here') }}</a>.</p>
                 <div class="input-fields">
                     <sw-field type="text"
                               name="shopwareId"
@@ -23,8 +23,10 @@
                         placeholder="">
                     </sw-password-field>
                 </div>
-                <p class="forgot-password"><a class="external-link" :href="$tc('sw-first-run-wizard.store-login.forgotPasswordUrl')"
-                    target="_blank">Forgot password?</a></p>
+                <p class="forgot-password">
+                <a class="external-link" :href="$tc('sw-first-run-wizard.shopware-account.forgot-password-url')"
+                   target="_blank">{{ $tc('sw-first-run-wizard.shopware-account.forgot-password-text') }}</a>
+                </p>
 
                 <div v-if="accountError"
                      class="sw-first-run-wizard-shopware-account__error">

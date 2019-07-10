@@ -24,4 +24,19 @@
         line-height: 22px;
         margin: 0 auto;
     }
+
+    .installing-plugin {
+        transform: translate(0, 10%);
+    }
+
+    .sw-loader {
+        background: none;
+    }
+
+    .sw-loader-info-text {
+        position: relative;
+        width: 100%;
+        top: 60px;
+        text-align: center;
+    }
 }

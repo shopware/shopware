@@ -22,7 +22,7 @@ class SalesChannelContextSwitcher
     private const BILLING_ADDRESS_ID = SalesChannelContextService::BILLING_ADDRESS_ID;
     private const SHIPPING_ADDRESS_ID = SalesChannelContextService::SHIPPING_ADDRESS_ID;
     private const COUNTRY_ID = SalesChannelContextService::COUNTRY_ID;
-    private const STATE_ID = SalesChannelContextService::STATE_ID;
+    private const STATE_ID = SalesChannelContextService::COUNTRY_STATE_ID;
     private const CURRENCY_ID = SalesChannelContextService::CURRENCY_ID;
     private const LANGUAGE_ID = SalesChannelContextService::LANGUAGE_ID;
 

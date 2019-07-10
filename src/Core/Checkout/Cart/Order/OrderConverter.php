@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
@@ -83,13 +84,19 @@ class OrderConverter
      */
     private $orderDefinition;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderAddressRepository;
+
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         SalesChannelContextFactory $salesChannelContextFactory,
         StateMachineRegistry $stateMachineRegistry,
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        OrderDefinition $orderDefinition
+        OrderDefinition $orderDefinition,
+        EntityRepositoryInterface $orderAddressRepository
     ) {
         $this->customerRepository = $customerRepository;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
@@ -97,6 +104,7 @@ class OrderConverter
         $this->eventDispatcher = $eventDispatcher;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
         $this->orderDefinition = $orderDefinition;
+        $this->orderAddressRepository = $orderAddressRepository;
     }
 
     /**
@@ -228,10 +236,13 @@ class OrderConverter
             $customerGroupId = $customer->getGroupId() ?? null;
         }
 
+        /** @var OrderAddressEntity|null $billingAddress */
+        $billingAddress = $this->orderAddressRepository->search(new Criteria([$order->getBillingAddressId()]), $context)->get($order->getBillingAddressId());
+
         $options = [
             SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId(),
             SalesChannelContextService::CUSTOMER_ID => $customerId,
-            SalesChannelContextService::STATE_ID => $order->getStateId(),
+            SalesChannelContextService::COUNTRY_STATE_ID => $billingAddress->getCountryStateId(),
             SalesChannelContextService::CUSTOMER_GROUP_ID => $customerGroupId,
         ];
 

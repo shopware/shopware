@@ -138,7 +138,7 @@ class SalesChannelContextFactory
 
         // customer
         $customer = null;
-        if (array_key_exists(SalesChannelContextService::CUSTOMER_ID, $options)) {
+        if (array_key_exists(SalesChannelContextService::CUSTOMER_ID, $options) && $options[SalesChannelContextService::CUSTOMER_ID] !== null) {
             //load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $context);
         }
@@ -350,9 +350,9 @@ class SalesChannelContextFactory
         SalesChannelEntity $salesChannel
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
-        if (array_key_exists(SalesChannelContextService::STATE_ID, $options)) {
-            $state = $this->countryStateRepository->search(new Criteria([$options[SalesChannelContextService::STATE_ID]]), $context)
-                ->get($options[SalesChannelContextService::STATE_ID]);
+        if (array_key_exists(SalesChannelContextService::COUNTRY_STATE_ID, $options) && $options[SalesChannelContextService::COUNTRY_STATE_ID]) {
+            $state = $this->countryStateRepository->search(new Criteria([$options[SalesChannelContextService::COUNTRY_STATE_ID]]), $context)
+                ->get($options[SalesChannelContextService::COUNTRY_STATE_ID]);
 
             $country = $this->countryRepository->search(new Criteria([$state->getCountryId()]), $context)
                 ->get($state->getCountryId());
@@ -361,7 +361,7 @@ class SalesChannelContextFactory
         }
 
         $countryId = $salesChannel->getCountryId();
-        if (array_key_exists(SalesChannelContextService::COUNTRY_ID, $options)) {
+        if (array_key_exists(SalesChannelContextService::COUNTRY_ID, $options) && $options[SalesChannelContextService::COUNTRY_ID]) {
             $countryId = $options[SalesChannelContextService::COUNTRY_ID];
         }
 

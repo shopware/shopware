@@ -41,6 +41,7 @@
                     <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
                         <sw-price-field :price="currentValue"
+                                        required
                                         :taxRate="productTaxRate"
                                         :disabled="isInherited"
                                         :error="productPriceError"

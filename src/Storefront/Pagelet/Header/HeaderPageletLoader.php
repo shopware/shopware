@@ -5,12 +5,14 @@ namespace Shopware\Storefront\Pagelet\Header;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Language\LanguageCollection;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Currency\CurrencyCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -19,9 +21,9 @@ use Symfony\Component\HttpFoundation\Request;
 class HeaderPageletLoader
 {
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var EntityRepositoryInterface
      */
-    private $languageRepository;
+    private $salesChannelDomainRepository;
 
     /**
      * @var SalesChannelRepositoryInterface
@@ -44,13 +46,13 @@ class HeaderPageletLoader
     private $eventDispatcher;
 
     public function __construct(
-        SalesChannelRepositoryInterface $languageRepository,
+        EntityRepositoryInterface $salesChannelDomainRepository,
         SalesChannelRepositoryInterface $currencyRepository,
         SalesChannelRepositoryInterface $categoryRepository,
         NavigationLoader $navigationLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->languageRepository = $languageRepository;
+        $this->salesChannelDomainRepository = $salesChannelDomainRepository;
         $this->currencyRepository = $currencyRepository;
         $this->categoryRepository = $categoryRepository;
         $this->navigationLoader = $navigationLoader;
@@ -105,10 +107,16 @@ class HeaderPageletLoader
     private function loadLanguages(SalesChannelContext $salesChannelContext): LanguageCollection
     {
         $criteria = (new Criteria())
-            ->addAssociation('translationCode');
+            ->addFilter(new EqualsFilter('salesChannelId', $salesChannelContext->getSalesChannel()->getId()))
+            ->addAssociationPath('language.translationCode');
 
-        /** @var LanguageCollection $languageCollection */
-        $languageCollection = $this->languageRepository->search($criteria, $salesChannelContext)->getEntities();
+        $domains = $this->salesChannelDomainRepository->search($criteria, $salesChannelContext->getContext())->getEntities();
+
+        $languageCollection = new LanguageCollection();
+        /** @var SalesChannelDomainEntity $domain */
+        foreach ($domains as $domain) {
+            $languageCollection->add($domain->getLanguage());
+        }
 
         return $languageCollection;
     }

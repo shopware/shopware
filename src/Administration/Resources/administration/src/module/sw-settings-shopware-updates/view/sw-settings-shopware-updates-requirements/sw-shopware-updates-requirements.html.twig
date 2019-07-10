@@ -2,34 +2,35 @@
 <sw-card
     :title="$t('sw-settings-shopware-updates.cards.requirements')"
     :isLoading="isLoading"
-    class="sw-settings-shopware-updates-requirements"
 >
-    <sw-data-grid
+    <template #grid>
+        <sw-data-grid
 
-        :showActions="false"
-        :showSelection="false"
-        :columns="columns"
-        :dataSource="requirements">
+            :showActions="false"
+            :showSelection="false"
+            :columns="columns"
+            :dataSource="requirements">
 
-        {% block sw_shopware_updates_requirements_column_result %}
-        <template slot="column-result" slot-scope="{ item, isInlineEdit }">
-            <template v-if="item.result">
-                <sw-color-badge variant="success" :rounded="true"></sw-color-badge>&nbsp;
-                {{ $t('sw-settings-shopware-updates.requirements.ready') }}
+            {% block sw_shopware_updates_requirements_column_result %}
+            <template slot="column-result" slot-scope="{ item, isInlineEdit }">
+                <template v-if="item.result">
+                    <sw-color-badge variant="success" :rounded="true"></sw-color-badge>&nbsp;
+                    {{ $t('sw-settings-shopware-updates.requirements.ready') }}
+                </template>
+
+                <template v-else>
+                    <sw-color-badge variant="error" :rounded="true"></sw-color-badge>&nbsp;
+                    {{ $t('sw-settings-shopware-updates.requirements.notReady') }}
+                </template>
             </template>
+            {% endblock %}
 
-            <template v-else>
-                <sw-color-badge variant="error" :rounded="true"></sw-color-badge>&nbsp;
-                {{ $t('sw-settings-shopware-updates.requirements.notReady') }}
+            {% block sw_shopware_updates_requirements_column_message %}
+            <template slot="column-message" slot-scope="{ item, isInlineEdit }">
+                <span v-html="$t('sw-settings-shopware-updates.requirements.message.' + item.message, item.vars)"></span>
             </template>
-        </template>
-        {% endblock %}
-
-        {% block sw_shopware_updates_requirements_column_message %}
-        <template slot="column-message" slot-scope="{ item, isInlineEdit }">
-            <span v-html="$t('sw-settings-shopware-updates.requirements.message.' + item.message, item.vars)"></span>
-        </template>
-        {% endblock %}
-    </sw-data-grid>
+            {% endblock %}
+        </sw-data-grid>
+    </template>
 </sw-card>
 {% endblock %}

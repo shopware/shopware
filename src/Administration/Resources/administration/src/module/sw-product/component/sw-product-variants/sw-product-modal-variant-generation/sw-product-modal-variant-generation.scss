@@ -1,5 +1,6 @@
 @import "~scss/variables";
 
+/* stylelint-disable */
 .sw-modal.sw-modal--default.sw-product-modal-variant-generation {
 
     .sw-modal__dialog {
@@ -45,6 +46,13 @@
         }
     }
 
+    .sw-property-search .sw-property-search__toolbar {
+        margin-bottom: 0;
+    }
+
+    .sw-property-search__tree-selection {
+        height: calc(100% - 93px);
+    }
 }
 
 p.sw-product-variants-configurator-selection__modal--delete-text {
@@ -56,3 +64,4 @@ p.sw-product-variants-configurator-selection__modal--delete-text {
         margin-bottom: 20px;
     }
 }
+/* stylelint-enable */

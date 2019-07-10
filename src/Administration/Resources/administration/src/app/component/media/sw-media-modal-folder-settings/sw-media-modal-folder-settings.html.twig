@@ -134,7 +134,7 @@
                                                             {% block sw_media_modal_folder_settings_thumbnail_size_switch %}
                                                                 <sw-field type="switch"
                                                                           :value="isThumbnailSizeActive(size)"
-                                                                          name="thumbnail-size-active"
+                                                                          :name="thumbnailSizeCheckboxName(size)"
                                                                           :label="size | thumbnailSize"
                                                                           :disabled="notEditable"
                                                                           @change="onChangeThumbnailSize($event, size)">

@@ -73,8 +73,7 @@ Component.register('sw-first-run-wizard-plugins', {
         },
 
         getRecommendations() {
-            // ToDo: (mve) add param of current language
-            const language = 'de-DE';
+            const language = this.$store.state.adminLocale.currentLocale;
             const region = this.selectedRegion.name;
             const category = this.selectedCategory.name;
 
@@ -83,16 +82,12 @@ Component.register('sw-first-run-wizard-plugins', {
                 region,
                 category
             }).then((response) => {
-                const { items } = response;
-                this.plugins = [...items, ...items, ...items];
-                // ToDo: (mve) fix me!
-                // this.plugins = response.items;
+                this.plugins = response.items;
             });
         },
 
         getRecommendationRegions() {
-            // ToDo: (mve) add param of current language
-            const language = 'de-DE';
+            const language = this.$store.state.adminLocale.currentLocale;
 
             this.recommendationsService.getRecommendationRegions({
                 language

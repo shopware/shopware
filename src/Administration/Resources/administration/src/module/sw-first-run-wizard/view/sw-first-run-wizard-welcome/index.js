@@ -23,8 +23,11 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         getLanguagePlugins() {
-            // ToDo: (mve) add param of current language
-            this.languagePluginService.getPlugins().then((response) => {
+            const language = this.$store.state.adminLocale.currentLocale;
+
+            this.languagePluginService.getPlugins({
+                language
+            }).then((response) => {
                 this.languagePlugins = response.items;
             });
         }

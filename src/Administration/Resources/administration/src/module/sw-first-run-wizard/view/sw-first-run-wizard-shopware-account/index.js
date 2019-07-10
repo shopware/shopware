@@ -26,8 +26,7 @@ Component.register('sw-first-run-wizard-shopware-account', {
 
         testCredentials() {
             const { shopwareId, password } = this;
-            // ToDo: (mve) use adminLang
-            const language = 'de_DE';
+            const language = this.$store.state.adminLocale.currentLocale;
 
             return this.firstRunWizardService.checkShopwareId({
                 language,

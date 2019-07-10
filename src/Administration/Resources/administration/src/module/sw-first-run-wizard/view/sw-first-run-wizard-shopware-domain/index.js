@@ -31,7 +31,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
 
     methods: {
         createdComponent() {
-            const language = 'de_DE';
+            const language = this.$store.state.adminLocale.currentLocale;
 
             this.firstRunWizardService.getLicenseDomains({
                 language

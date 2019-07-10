@@ -15,26 +15,22 @@ class OrderApiService extends ApiService {
 
     recalculateOrder(orderId, versionId, additionalParams = {}, additionalHeaders = {}) {
         const route = `/_action/order/${orderId}/recalculate`;
-
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         return this.httpClient
-            .post(route, {}, {
-                additionalParams,
-                headers
-            });
+            .post(route, {}, { additionalParams, headers });
     }
 
     addProductToOrder(orderId, versionId, productId, quantity, additionalParams = {}, additionalHeaders = {}) {
         const route = `_action/order/${orderId}/product/${productId}`;
-
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 
         return this.httpClient
-            .post(route, { quantity: quantity }, {
-                additionalParams,
-                headers
-            });
+            .post(
+                route,
+                { quantity: quantity },
+                { additionalParams, headers }
+            );
     }
 
     addCustomLineItemToOrder(orderId, versionId, item, additionalParams = {}, additionalHeaders = {}) {
@@ -81,7 +77,6 @@ class OrderApiService extends ApiService {
 
     changeOrderAddress(orderAddressId, customerAddressId, additionalParams, additionalHeaders) {
         const route = `_action/order-address/${orderAddressId}/customer-address/${customerAddressId}`;
-
         const params = Object.assign({ }, additionalParams);
         const headers = this.getBasicHeaders(additionalHeaders);
 
@@ -92,10 +87,9 @@ class OrderApiService extends ApiService {
             });
     }
 
-    getState(orderId, versionId, additionalParams = {}, additionalHeaders = {}) {
+    getState(orderId, additionalParams = {}, additionalHeaders = {}) {
         const route = `_action/order/${orderId}/state`;
-
-        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
+        const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
             .get(route, {
@@ -104,16 +98,12 @@ class OrderApiService extends ApiService {
             });
     }
 
-    transitionState(orderId, versionId, actionName, additionalParams = {}, additionalHeaders = {}) {
+    transitionState(orderId, actionName, additionalParams = {}, additionalHeaders = {}) {
         const route = `_action/order/${orderId}/state/${actionName}`;
-
-        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
+        const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
-            .post(route, {}, {
-                additionalParams,
-                headers
-            });
+            .post(route, {}, { additionalParams, headers });
     }
 }
 

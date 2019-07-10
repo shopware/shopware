@@ -1,11 +1,16 @@
-import { Component, State, Mixin } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
 
 Component.register('sw-order-list', {
     template,
 
-    inject: ['stateStyleDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'context',
+        'stateStyleDataProviderService'
+    ],
 
     mixins: [
         Mixin.getByName('listing')
@@ -27,12 +32,27 @@ Component.register('sw-order-list', {
     },
 
     computed: {
-        orderStore() {
-            return State.getStore('order');
+        orderRepsitory() {
+            return this.repositoryFactory.create('order');
         },
 
         orderColumns() {
             return this.getOrderColumns();
+        },
+
+        orderCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+
+            criteria.setTerm(this.term);
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
+            criteria.addAssociation('addresses');
+            criteria.addAssociation('salesChannel');
+            criteria.addAssociation('orderCustomer');
+            criteria.addAssociation('currency');
+            criteria.addAssociation('transactions');
+
+            return criteria;
         }
     },
 
@@ -58,32 +78,15 @@ Component.register('sw-order-list', {
 
         getList() {
             this.isLoading = true;
-            const params = this.getListingParams();
 
-            this.orders = [];
-
-            // Use the order date as the default sorting
-            if (!params.sortBy && !params.sortDirection) {
-                params.sortBy = this.sortBy;
-                params.sortDirection = this.sortDirection;
-            }
-
-            if (!params.associations) {
-                params.associations = {};
-            }
-
-            params.associations.addresses = {};
-            params.associations.salesChannel = {};
-            params.associations.orderCustomer = {};
-            params.associations.transactions = {};
-
-            return this.orderStore.getList(params, true).then((response) => {
+            return this.orderRepsitory.search(this.orderCriteria, this.context).then((response) => {
                 this.total = response.total;
-                this.orders = response.items;
-
+                this.orders = response;
                 this.isLoading = false;
 
-                return this.orders;
+                return response;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
         getBillingAddress(order) {

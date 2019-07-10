@@ -32,7 +32,11 @@
       "tabDeliveries": "Deliveries",
       "textHeadline": "Order",
       "textHeadlineNew": "New order",
-      "tabGeneral": "General"
+      "tabGeneral": "General",
+      "titleRecalculationError": "Error",
+      "messageRecalculationError": "An error occurred while calculating the price: <br>",
+      "titleSaveError": "Error",
+      "messageSaveError": "An error occurred during saving"
     },
     "detailBase": {
       "cardTitleDetails": "Details",

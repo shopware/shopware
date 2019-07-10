@@ -96,7 +96,7 @@ export default class ChangesetGenerator {
                     if (change !== null) {
                         // if a change is detected, add id as identifier for updates
                         change.id = draftValue.id;
-                        changes.push(change);
+                        changes[fieldName] = change;
                     }
                     break;
                 }

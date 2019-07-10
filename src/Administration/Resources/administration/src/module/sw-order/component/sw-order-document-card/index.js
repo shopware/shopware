@@ -1,4 +1,5 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 import '../sw-order-document-settings-invoice-modal/';
@@ -10,7 +11,12 @@ import '../sw-order-document-settings-modal/';
 Component.register('sw-order-document-card', {
     template,
 
-    inject: ['documentService', 'numberRangeService'],
+    inject: [
+        'documentService',
+        'numberRangeService',
+        'repositoryFactory',
+        'context'
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -38,8 +44,7 @@ Component.register('sw-order-document-card', {
             currentDocumentType: null,
             documentNumber: null,
             documentComment: '',
-            term: '',
-            documentCardEmpty: true
+            term: ''
         };
     },
 
@@ -56,12 +61,16 @@ Component.register('sw-order-document-card', {
             return items;
         },
 
-        documentStore() {
-            return this.order.getAssociation('documents');
+        documentTypeRepository() {
+            return this.repositoryFactory.create('document_type');
         },
 
-        documentTypeStore() {
-            return State.getStore('document_type');
+        documentRepository() {
+            return this.repositoryFactory.create('document');
+        },
+
+        documentsEmpty() {
+            return this.documents.length === 0;
         },
 
         documentModal() {
@@ -73,44 +82,25 @@ Component.register('sw-order-document-card', {
         },
 
         documentCardStyles() {
-            return `sw-order-document-card ${this.documentCardEmpty ? 'sw-order-document-card--is-empty' : ''}`;
-        }
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    methods: {
-        createdComponent() {
-            this.cardLoading = true;
-
-            this.documentTypeStore.getList(
-                { page: 1, limit: 100, sortBy: 'name' }
-            ).then((response) => {
-                this.documentTypes = response.items;
-                this.cardLoading = false;
-            });
+            return `sw-order-document-card ${this.documentsEmpty ? 'sw-order-document-card--is-empty' : ''}`;
         },
 
-        getList() {
-            this.documentsLoading = true;
+        documentTypeCriteria() {
+            const criteria = new Criteria(1, 100);
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
 
-            const params = this.getListingParams();
-            params.sortBy = 'createdAt';
-            params.sortDirection = 'DESC';
-            params.term = this.term;
-            params.associations = {
-                documentType: {}
-            };
+            return criteria;
+        },
 
-            this.documentStore.getList(params).then((response) => {
-                this.total = response.total;
-                this.documentCardEmpty = this.total === 0;
-                this.documents = response.items;
-            }).then(() => {
-                this.documentsLoading = false;
-            });
+        documentCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
+            criteria.setTerm(this.term);
+            criteria.addAssociation('documentType');
+            criteria.addFilter(Criteria.equals('order.id', this.order.id));
+            criteria.addFilter(Criteria.equals('order.versionId', this.order.versionId));
+
+            return criteria;
         },
 
         getDocumentColumns() {
@@ -137,6 +127,32 @@ Component.register('sw-order-document-card', {
                 allowResize: false,
                 align: 'center'
             }];
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.cardLoading = true;
+
+            this.documentTypeRepository.search(this.documentTypeCriteria, this.context).then((response) => {
+                this.documentTypes = response;
+                this.cardLoading = false;
+            });
+        },
+
+        getList() {
+            this.documentsLoading = true;
+
+            return this.documentRepository.search(this.documentCriteria, this.context).then((response) => {
+                this.total = response.total;
+                this.documents = response;
+                this.documentsLoading = false;
+                return Promise.resolve();
+            });
         },
 
         documentTypeAvailable(documentType) {
@@ -185,29 +201,26 @@ Component.register('sw-order-document-card', {
         onCreateDocument(params, additionalAction, referencedDocumentId = null) {
             this.showModal = false;
             this.$nextTick().then(() => {
-                this.createDocument(
+                return this.createDocument(
                     this.order.id,
                     this.currentDocumentType.technicalName,
                     params,
                     referencedDocumentId
-                ).then((response) => {
-                    this.documentCardEmpty = false;
+                );
+            }).then((response) => {
+                this.getList();
+                this.$emit('document-save');
 
-                    this.$nextTick().then(() => {
-                        this.getList();
-
-                        if (additionalAction === 'download') {
-                            window.open(
-                                this.documentService.generateDocumentLink(
-                                    response.data.documentId,
-                                    response.data.documentDeepLink,
-                                    true
-                                ),
-                                '_blank'
-                            );
-                        }
-                    });
-                });
+                if (additionalAction === 'download') {
+                    window.open(
+                        this.documentService.generateDocumentLink(
+                            response.data.documentId,
+                            response.data.documentDeepLink,
+                            true
+                        ),
+                        '_blank'
+                    );
+                }
             });
         },
 

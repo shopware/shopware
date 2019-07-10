@@ -14,8 +14,8 @@
                 {% block sw_order_state_card_entry_icon %}
                     <sw-label appearance="circle" :class="getBackgroundColorFromState(entry.state.technicalName)">
                         <sw-icon :name="getIconFromState(entry.state.technicalName)"
-                            :class="getIconColorFromState(entry.state.technicalName)"
-                            size="16">
+                                 :class="getIconColorFromState(entry.state.technicalName)"
+                                 size="16">
                         </sw-icon>
                     </sw-label>
                 {% endblock%}
@@ -27,18 +27,19 @@
                 {% block sw_order_state_card_entry_date %}
                     <span class="sw-order-state-card__date"
                       v-tooltip="{
-                        showDelay: 300,
-                        message:userDisplayName(entry.user)
-                    }">
+                          showDelay: 300,
+                          message:userDisplayName(entry.user)
+                      }">
                         {{ entry.createdAt| date() }}
                     </span>
                 {% endblock %}
+
             </div>
         {% endblock %}
 
         {% block sw_order_state_card_entry_state_select %}
             <sw-order-state-select :transitionOptions="transitionOptions"
-                v-on="$listeners">
+                                   v-on="$listeners">
             </sw-order-state-select>
         {% endblock %}
 

@@ -1,5 +1,40 @@
 @import "~scss/variables";
 
-.sw-order-detail .smart-bar__actions .sw-button-group .sw-button {
-    margin-right: 0;
+.sw-order-detail{
+
+    .smart-bar__actions .sw-button-group .sw-button {
+        margin-right: 0;
+    }
+    
+    .sw-order-detail__summary {
+        grid-template-areas: 'empty summary'
+    }
+
+    .sw-order-detail__summary-data {
+        grid-area: summary;
+        font-size: 15px;
+        display: grid;
+
+        dt,
+        dd {
+            line-height: 49px;
+            border-bottom: 1px solid $color-steam-cloud;
+            color: $color-gutenberg;
+            font-weight: normal;
+            text-align: right;
+            padding: 0;
+        }
+
+        dd {
+            padding-right: 60px;
+
+            .sw-order-saveable-field {
+                transform: translateY(-50%);
+                position: relative;
+                left: 80px;
+                top: 50%;
+            }
+        }
+    }
+
 }

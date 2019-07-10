@@ -1,7 +1,7 @@
 {% block sw_order_product_select %}
-
+    <span class="sw-order-product-select">
         {% block sw_order_product_select_blank_item%}
-            <sw-field v-if="!displayProductSelection"
+            <sw-field v-if="!displayProductSelection && item.type !== 'product'"
                       type="text"
                       v-model="item.label"
                       size="small"
@@ -10,13 +10,19 @@
         {% endblock %}
 
         {% block sw_order_product_select_existing_product %}
-            <sw-select v-else id="edit-product-select"
-                       v-fixed
-                       @input="onItemChanged"
-                       :placeholder="$tc('sw-order.detailBase.columnProductName')"
-                       :store="productStore"
-                       size="small"
-                       :value="null">
-            </sw-select>
+            <sw-entity-single-select v-else-if="item.type !== 'product'"
+                                     v-fixed
+                                     :value="null"
+                                     entity="product"
+                                     @input="onItemChanged"
+                                     size="small">
+            </sw-entity-single-select>
         {% endblock %}
+
+        {% block sw_order_product_show_product %}
+            <template v-else>
+                {{ item.label }}
+            </template>
+        {% endblock %}
+    </span>
 {% endblock %}

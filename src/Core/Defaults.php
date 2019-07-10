@@ -15,11 +15,6 @@ final class Defaults
      */
     public const LANGUAGE_SYSTEM = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 
-    /**
-     * @deprecated this constant will be removed
-     */
-    public const LANGUAGE_SYSTEM_DE = '00e84bd18c574a6ca748ac0db17654dc';
-
     public const FALLBACK_CUSTOMER_GROUP = 'cfbd5018d38d41d8adca10d94fc8bdd6';
 
     public const LIVE_VERSION = '0fa91ce3e96a4bc2be4bd9ce752c3425';

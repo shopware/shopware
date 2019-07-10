@@ -113,6 +113,8 @@ export default {
 
         sort(column) {
             if (this.localMode) {
+                this.$emit('column-sort', column);
+
                 return Promise.resolve();
             }
 

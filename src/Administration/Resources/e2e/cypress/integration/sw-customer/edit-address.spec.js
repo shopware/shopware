@@ -63,9 +63,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.modal} ${page.elements.primaryButton}`).click();
 
         // Verify updated customer
-        cy.wait('@saveData').then(() => {
-            cy.contains(`Mr. ${customer.firstName} ${customer.lastName}`);
-        });
+        cy.contains(`Mr. ${customer.firstName} ${customer.lastName}`);
     });
 
     it('remove address', () => {
@@ -109,10 +107,9 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
 
         // Verify updated customer
-        cy.wait('@saveData').then(() => {
-            cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
-        });
+        cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
     });
+
 
     it('swap default billing and shipping address', () => {
         const page = new CustomerPageObject();

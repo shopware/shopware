@@ -1,5 +1,4 @@
 import { Component, Mixin, Entity } from 'src/core/shopware';
-import { object } from 'src/core/service/util.service';
 import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
@@ -46,6 +45,8 @@ Component.register('sw-customer-detail-addresses', {
             showAddAddressModal: false,
             showEditAddressModal: false,
             showDeleteAddressModal: false,
+            addressSortProperty: null,
+            addressSortDirection: '',
             currentAddress: null
         };
     },
@@ -64,6 +65,37 @@ Component.register('sw-customer-detail-addresses', {
                 this.activeCustomer.addresses.entity,
                 this.activeCustomer.addresses.source
             );
+        },
+
+        sortedAddresses() {
+            if (this.addressSortProperty) {
+                return this.activeCustomer.addresses.sort((a, b) => {
+                    const aValue = a[this.addressSortProperty];
+                    const bValue = b[this.addressSortProperty];
+
+                    let isBigger = null;
+
+                    if (typeof aValue === 'string' && typeof bValue === 'string') {
+                        isBigger = aValue.toUpperCase() > bValue.toUpperCase();
+                    }
+
+                    if (typeof aValue === 'number' && typeof bValue === 'number') {
+                        isBigger = (aValue - bValue) > 0;
+                    }
+
+                    if (isBigger !== null) {
+                        if (this.addressSortDirection === 'DESC') {
+                            return isBigger ? -1 : 1;
+                        }
+
+                        return isBigger ? 1 : -1;
+                    }
+
+                    return 0;
+                });
+            }
+
+            return this.activeCustomer.addresses;
         }
     },
 
@@ -123,14 +155,26 @@ Component.register('sw-customer-detail-addresses', {
             }];
         },
 
+        setAddressSorting(column) {
+            this.addressSortProperty = column.property;
+
+            let direction = 'ASC';
+            if (this.addressSortProperty === column.dataIndex) {
+                if (this.addressSortDirection === direction) {
+                    direction = 'DESC';
+                }
+            }
+            this.addressSortProperty = column.dataIndex;
+            this.addressSortDirection = direction;
+        },
+
         onCreateNewAddress() {
             this.showAddAddressModal = true;
             this.createNewCustomerAddress();
         },
 
         createNewCustomerAddress() {
-            const newAddress = this.createEmptyAddress();
-
+            const newAddress = this.addressRepository.create(this.context);
             newAddress.customerId = this.activeCustomer.id;
 
             this.currentAddress = newAddress;
@@ -156,9 +200,11 @@ Component.register('sw-customer-detail-addresses', {
             }
 
             Object.assign(address, this.currentAddress);
-            this.addressRepository.save(address, this.context).then(() => {
-                this.refreshList();
-            });
+
+            if (!this.customer.addresses.has(address.id)) {
+                this.customer.addresses.push(address);
+            }
+
             this.currentAddress = null;
         },
 
@@ -189,12 +235,13 @@ Component.register('sw-customer-detail-addresses', {
             this.currentAddress = null;
         },
 
-        createEmptyAddress() {
-            return this.addressRepository.create(this.context);
-        },
-
         onEditAddress(id) {
-            this.currentAddress = object.deepCopyObject(this.activeCustomer.addresses.get(id));
+            const currentAddress = this.addressRepository.create(this.context, id);
+
+            // assign values and id to new address
+            Object.assign(currentAddress, this.activeCustomer.addresses.get(id));
+
+            this.currentAddress = currentAddress;
             this.showEditAddressModal = id;
         },
 
@@ -206,10 +253,13 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onConfirmDeleteAddress(id) {
-            this.addressRepository.delete(id, this.context).then(() => {
-                this.refreshList();
-            });
             this.onCloseDeleteAddressModal();
+
+            // address have to be removed after the modal is closed because otherwise
+            // the slot does not exist anymore and the modal stays open
+            this.$nextTick(() => {
+                this.customer.addresses.remove(id);
+            });
         },
 
         onCloseDeleteAddressModal() {

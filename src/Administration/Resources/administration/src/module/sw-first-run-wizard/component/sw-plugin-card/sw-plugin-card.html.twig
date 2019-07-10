@@ -22,9 +22,9 @@
                 <div v-else class="plugin-status">
                     <span class="plugin-installed">
                         <sw-icon name="small-default-checkmark-circle" size="16"></sw-icon>
-                        Installed
+                        {{ $tc('sw-first-run-wizard.general.pluginInstalled') }}
                     </span>
-                    <span class="plugin-uninstall" @click="onUninstall">Uninstall</span>
+                    <span class="plugin-uninstall" @click="onUninstall">{{ $tc('sw-first-run-wizard.general.uninstallPlugin') }}</span>
                 </div>
             </div>
         </sw-container>

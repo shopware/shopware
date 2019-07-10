@@ -5,7 +5,9 @@
       "buttonSkip": "Skip",
       "buttonBack": "Back",
       "buttonInstall": "Install",
-      "buttonFinish": "Finish"
+      "buttonFinish": "Finish",
+      "pluginInstalled": "Installed",
+      "uninstallPlugin": "Uninstall"
     },
     "welcome": {
       "modalTitle": "Welcome",

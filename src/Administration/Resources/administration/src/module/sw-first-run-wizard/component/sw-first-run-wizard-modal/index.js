@@ -5,6 +5,8 @@ import './sw-first-run-wizard-modal.scss';
 Component.register('sw-first-run-wizard-modal', {
     template,
 
+    inject: ['firstRunWizardService'],
+
     provide() {
         return {
             addNextCallback: this.addNextCallback
@@ -25,6 +27,7 @@ Component.register('sw-first-run-wizard-modal', {
             stepVariant: 'info',
             currentStep: {
                 name: '',
+                variant: 'large',
                 navigationIndex: 0,
                 next: false,
                 skip: false,
@@ -34,6 +37,7 @@ Component.register('sw-first-run-wizard-modal', {
             stepper: {
                 welcome: {
                     name: 'sw.first.run.wizard.index.welcome',
+                    variant: 'large',
                     navigationIndex: 0,
                     next: 'sw.first.run.wizard.index.demodata',
                     skip: false,
@@ -42,6 +46,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 demodata: {
                     name: 'sw.first.run.wizard.index.demodata',
+                    variant: 'large',
                     navigationIndex: 1,
                     next: 'sw.first.run.wizard.index.paypal.info',
                     skip: 'sw.first.run.wizard.index.paypal.info',
@@ -50,6 +55,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 'paypal.info': {
                     name: 'sw.first.run.wizard.index.paypal.info',
+                    variant: 'large',
                     navigationIndex: 2,
                     next: 'sw.first.run.wizard.index.paypal.install',
                     skip: 'sw.first.run.wizard.index.plugins',
@@ -58,6 +64,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 'paypal.install': {
                     name: 'sw.first.run.wizard.index.paypal.install',
+                    variant: 'large',
                     navigationIndex: 2,
                     next: 'sw.first.run.wizard.index.paypal.credentials',
                     skip: false,
@@ -66,6 +73,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 'paypal.credentials': {
                     name: 'sw.first.run.wizard.index.paypal.credentials',
+                    variant: 'large',
                     navigationIndex: 2,
                     next: 'sw.first.run.wizard.index.plugins',
                     skip: 'sw.first.run.wizard.index.plugins',
@@ -74,6 +82,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 plugins: {
                     name: 'sw.first.run.wizard.index.plugins',
+                    variant: 'large',
                     navigationIndex: 3,
                     next: 'sw.first.run.wizard.index.shopware.account',
                     skip: false,
@@ -82,14 +91,16 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 'shopware.account': {
                     name: 'sw.first.run.wizard.index.shopware.account',
+                    variant: 'large',
                     navigationIndex: 4,
                     next: 'sw.first.run.wizard.index.shopware.domain',
                     skip: false,
-                    back: 'sw.first.run.wizard.index.paypal.credentials',
+                    back: 'sw.first.run.wizard.index.plugins',
                     finish: false
                 },
                 'shopware.domain': {
                     name: 'sw.first.run.wizard.index.shopware.domain',
+                    variant: 'large',
                     navigationIndex: 4,
                     next: 'sw.first.run.wizard.index.finish',
                     skip: false,
@@ -98,6 +109,7 @@ Component.register('sw-first-run-wizard-modal', {
                 },
                 finish: {
                     name: 'sw.first.run.wizard.index.finish',
+                    variant: 'large',
                     navigationIndex: 5,
                     next: false,
                     skip: false,
@@ -109,6 +121,28 @@ Component.register('sw-first-run-wizard-modal', {
     },
 
     computed: {
+        columns() {
+            const res = this.showSteps
+                ? '1fr 4fr'
+                : '1fr';
+
+            console.log('cols', res);
+
+            return res;
+        },
+
+        variant() {
+            const { variant } = this.currentStep;
+
+            return variant;
+        },
+
+        showSteps() {
+            const { navigationIndex } = this.currentStep;
+
+            return navigationIndex !== 0;
+        },
+
         nextVisible() {
             return !!this.currentStep.next;
         },
@@ -128,7 +162,7 @@ Component.register('sw-first-run-wizard-modal', {
         stepIndex() {
             const { navigationIndex } = this.currentStep;
 
-            if (navigationIndex < 1) {
+            if (navigationIndex < 1 || navigationIndex >= 5) {
                 return 0;
             }
 
@@ -164,7 +198,15 @@ Component.register('sw-first-run-wizard-modal', {
         this.currentStep = this.stepper[step];
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.firstRunWizardService.setFRWStart();
+        },
+
         onNext() {
             const { next } = this.currentStep;
 
@@ -194,7 +236,10 @@ Component.register('sw-first-run-wizard-modal', {
         },
 
         onFinish() {
-            document.location.href = document.location.origin;
+            this.firstRunWizardService.setFRWStart()
+                .then(() => {
+                    document.location.href = document.location.origin;
+                });
         },
 
         redirect(routeName) {

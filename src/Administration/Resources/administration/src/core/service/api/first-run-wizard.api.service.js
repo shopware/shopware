@@ -73,6 +73,48 @@ class FirstRunWizardApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    /**
+     * Set wizard start message
+     *
+     * @param {Object} [additionalParams = {}]
+     * @param {Object} [additionalHeaders = {}]
+     * @returns {Promise<T>}
+     */
+    setFRWStart(additionalParams = {}, additionalHeaders = {}) {
+        const params = additionalParams;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .post('/_action/store/frw/start', {}, {
+                params,
+                headers
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
+     * Set wizard finish message
+     *
+     * @param {Object} [additionalParams = {}]
+     * @param {Object} [additionalHeaders = {}]
+     * @returns {Promise<T>}
+     */
+    setFRWFinish(additionalParams = {}, additionalHeaders = {}) {
+        const params = additionalParams;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .post('/_action/store/frw/finish', {}, {
+                params,
+                headers
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
 export default FirstRunWizardApiService;

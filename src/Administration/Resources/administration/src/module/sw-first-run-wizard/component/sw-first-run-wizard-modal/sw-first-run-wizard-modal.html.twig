@@ -1,10 +1,14 @@
 {% block sw_first_run_wizard_modal %}
-    <sw-modal :title="title" class="sw-first-run-wizard-modal" variant="full">
+    <sw-modal :title="title"
+        :variant="variant"
+        class="sw-first-run-wizard-modal">
         {% block sw_first_run_wizard_modal_content %}
             <div class="sw-first-run-wizard-modal-content">
-                <sw-container class="sw-first-run-wizard-modal-content__two_columns" columns="1fr 4fr">
+                <sw-container v-bind:class="{'one': !showSteps, 'two': showSteps}"
+                              class="sw-first-run-wizard-modal-content__columns">
                     {% block sw_first_run_wizard_modal_content_steps %}
-                        <div class="sw-first-run-wizard-modal-content__steps">
+                        <div v-if="showSteps"
+                             class="sw-first-run-wizard-modal-content__steps">
                             <sw-step-display :itemIndex="stepIndex"
                              :itemVariant="stepVariant"
                              :initialItemVariants="stepInitialItemVariants">

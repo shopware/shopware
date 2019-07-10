@@ -1,4 +1,8 @@
 .sw-first-run-wizard-modal {
+    &.sw-modal--large .sw-modal__dialog {
+        max-width: 1021px !important;
+    }
+
     .sw-modal__header {
         .sw-modal__close {
             visibility: hidden;
@@ -12,8 +16,16 @@
     .sw-first-run-wizard-modal-content {
         height: calc(100vh - 235px);
 
-        .sw-first-run-wizard-modal-content__two_columns {
+        .sw-first-run-wizard-modal-content__columns {
             height: 100%;
+
+            &.one {
+                grid-template-columns: 1fr;
+            }
+
+            &.two {
+                grid-template-columns: 1fr 4fr;
+            }
         }
 
         .sw-first-run-wizard-modal-content__steps {

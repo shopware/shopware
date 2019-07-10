@@ -19,7 +19,12 @@ class LicenseDomainStruct extends Struct
     /**
      * @var string
      */
-    protected $edition = 'CE';
+    protected $edition = 'Community Edition';
+
+    /**
+     * @var bool
+     */
+    protected $active = false;
 
     public function getDomain(): string
     {
@@ -34,5 +39,10 @@ class LicenseDomainStruct extends Struct
     public function getEdition(): string
     {
         return $this->edition;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
     }
 }

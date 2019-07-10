@@ -88,7 +88,9 @@ Component.register('sw-cms-el-product-slider', {
         },
 
         currentDeviceView() {
-            this.setSliderRowLimit();
+            setTimeout(() => {
+                this.setSliderRowLimit();
+            }, 400);
         }
     },
 
@@ -110,19 +112,31 @@ Component.register('sw-cms-el-product-slider', {
         },
 
         setSliderRowLimit() {
-            if (this.currentDeviceView === 'mobile') {
+            if (this.currentDeviceView === 'mobile' || this.$refs.productHolder.offsetWidth < 500) {
                 this.sliderBoxLimit = 1;
                 return;
             }
 
-            if (!this.element.config.elMinWidth.value || this.element.config.elMinWidth.value.indexOf('px') === -1) {
+            if (!this.element.config.elMinWidth.value ||
+                this.element.config.elMinWidth.value === 'px' ||
+                this.element.config.elMinWidth.value.indexOf('px') === -1) {
                 this.sliderBoxLimit = 3;
                 return;
             }
 
+            if (parseInt(this.element.config.elMinWidth.value.replace('px', ''), 0) <= 0) {
+                return;
+            }
+
+            // Subtract to fake look in storefront which has more width
+            const fakeLookWidth = 100;
             const boxWidth = this.$refs.productHolder.offsetWidth;
-            const elWidth = parseInt(this.element.config.elMinWidth.value.replace('px', ''), 0);
             const elGap = 32;
+            let elWidth = parseInt(this.element.config.elMinWidth.value.replace('px', ''), 0);
+
+            if (elWidth >= 300) {
+                elWidth -= fakeLookWidth;
+            }
 
             this.sliderBoxLimit = Math.floor(boxWidth / (elWidth + elGap));
         },

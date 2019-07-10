@@ -40,7 +40,7 @@ Application.getContainer('service').cmsService.registerCmsElement({
         },
         elMinWidth: {
             source: 'static',
-            value: null
+            value: '300px'
         },
         verticalAlign: {
             source: 'static',

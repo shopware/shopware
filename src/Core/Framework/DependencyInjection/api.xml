@@ -21,8 +21,6 @@
 
         <service id="Shopware\Core\Framework\Api\EventListener\ResponseExceptionListener">
             <tag name="kernel.event_subscriber"/>
-            <argument/>
-            <argument type="service" id="logger"/>
             <argument>%kernel.debug%</argument>
         </service>
 

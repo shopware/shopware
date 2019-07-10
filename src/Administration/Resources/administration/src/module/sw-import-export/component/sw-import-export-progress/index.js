@@ -15,7 +15,7 @@ Component.register('sw-import-export-progress', {
 
     computed: {
         aborted() {
-            return this.state === 'aborted'
+            return this.state === 'aborted';
         },
         failed() {
             return this.state === 'failed';
@@ -34,8 +34,9 @@ Component.register('sw-import-export-progress', {
                     return 'error';
                 case this.succeeded:
                     return 'success';
+                default:
+                    return 'info';
             }
-            return 'info';
         },
         alertMessage() {
             return this.$tc(`sw-import-export-progress.messages.${this.state}`);

@@ -80,7 +80,9 @@
       "placeholderMinPurchase": "Mindestabnahme ...",
       "placeholderMaxPurchase": "Maximalabnahme ...",
       "placeholderEan": "Gib die EAN-Nummer ein ...",
-      "placeholderManufacturerNumber": "Gib die Herstellernummer ein ..."
+      "placeholderManufacturerNumber": "Gib die Herstellernummer ein ...",
+      "labelAvailableStock": "Verfügbarer Bestand",
+      "labelPurchaseSteps": "Staffelung"
     },
     "packagingForm": {
       "labelUnit": "Einheit",
@@ -90,6 +92,7 @@
       "purchaseUnitHelpText": "Gib die Menge des Produktes an. Wenn z.B. eine Flasche 0,7 Liter beinhaltet, füge 0.7 ein. "
     },
     "detailBase": {
+      "cardTitleDeliverabilityInfo": "Lieferbarkeit",
       "cardTitleProductInfo": "Informationen",
       "cardTitleAssignment": "Zuordnung",
       "cardTitlePrices": "Preise",

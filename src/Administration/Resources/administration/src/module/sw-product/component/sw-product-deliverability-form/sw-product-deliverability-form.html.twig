@@ -1,0 +1,192 @@
+{% block sw_product_deliverability_form %}
+    <div class="product-deliverability-form">
+        <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
+            {% block sw_product_deliverability_form_stock_field %}
+                <sw-inherit-wrapper v-model="product.stock"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.stock">
+                    <template #content="props">
+
+                        <sw-field type="number"
+                                  name="sw-field--product-stock"
+                                  :mapInheritance="props"
+                                  numberType="int"
+                                  :min="0"
+                                  :disabled="props.isInherited"
+                                  :label="$tc('sw-product.settingsForm.labelStock')"
+                                  :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+                                  required
+                                  :value="props.currentValue"
+                                  :error="productStockError"
+                                  @change="props.updateCurrentValue">
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+
+            {% block sw_product_deliverability_form_available_stock_field %}
+                <sw-field type="number"
+                          name="sw-field--product-available-stock"
+                          numberType="int"
+                          :disabled="true"
+                          :label="$tc('sw-product.settingsForm.labelAvailableStock')"
+                          v-model="product.availableStock">
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_product_deliverability_form_is_closeout_field %}
+                <sw-inherit-wrapper v-model="product.isCloseout"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.isCloseout">
+                    <template #content="props">
+
+                        <sw-field type="switch"
+                                  bordered
+                                  :error="productIsCloseoutError"
+                                  :mapInheritance="props"
+                                  :label="$tc('sw-product.settingsForm.labelIsCloseout')"
+                                  :disabled="props.isInherited"
+                                  :value="props.currentValue"
+                                  @change="props.updateCurrentValue">
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+        </sw-container>
+
+        <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
+            {% block sw_product_deliverability_form_delivery_time_field %}
+                <sw-inherit-wrapper v-model="product.deliveryTimeId"
+                                    :inheritedValue="parentProduct.deliveryTimeId"
+                                    :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
+                                    required>
+                    <template #content="{ currentValue, updateCurrentValue, isInherited }">
+
+                        <sw-entity-single-select :value="currentValue"
+                                                 @input="updateCurrentValue"
+                                                 entity="delivery_time"
+                                                 :disabled="isInherited"
+                                                 class="sw-select-product__select_delivery_time"
+                                                 id="deliveryTimeId"
+                                                 :key="isInherited"
+                                                 :error="productDeliveryTimeIdError"
+                                                 :placeholder="$tc('sw-product.settingsForm.placeholderDeliveryTime')">
+                        </sw-entity-single-select>
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+
+            {% block sw_product_deliverability_form_restock_field %}
+                <sw-inherit-wrapper v-model="product.restockTime"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.restockTime">
+                    <template #content="props">
+
+                        <sw-field type="number"
+                                  name="sw-field--product-restock-time"
+                                  :mapInheritance="props"
+                                  numberType="int"
+                                  :min="0"
+                                  :disabled="props.isInherited"
+                                  :label="$tc('sw-product.settingsForm.labelRestockTime')"
+                                  :placeholder="$tc('sw-product.settingsForm.placeholderRestockTime')"
+                                  required
+                                  :value="props.currentValue"
+                                  :error="productRestockTimeError"
+                                  @change="props.updateCurrentValue">
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+
+            {% block sw_product_deliverability_form_shipping_free_field %}
+                <sw-inherit-wrapper v-model="product.shippingFree"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.shippingFree">
+                    <template #content="props">
+
+                        <sw-field type="switch"
+                                  bordered
+                                  :mapInheritance="props"
+                                  :error="productShippingFreeError"
+                                  :label="$tc('sw-product.settingsForm.labelShippingFree')"
+                                  :disabled="props.isInherited"
+                                  :value="props.currentValue"
+                                  @change="props.updateCurrentValue">
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+        </sw-container>
+
+        <sw-container columns="1fr 1fr 1fr" gap="0px 30px">
+            {% block sw_product_deliverability_form_min_purchase_field %}
+                <sw-inherit-wrapper v-model="product.minPurchase"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.minPurchase">
+                    <template #content="props">
+
+                        <sw-field type="number"
+                                  :mapInheritance="props"
+                                  numberType="int"
+                                  :min="0"
+                                  :error="productMinPurchaseError"
+                                  :label="$tc('sw-product.settingsForm.labelMinPurchase')"
+                                  :placeholder="$tc('sw-product.settingsForm.placeholderMinPurchase')"
+                                  :disabled="props.isInherited"
+                                  :value="props.currentValue"
+                                  @change="props.updateCurrentValue">
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+
+            {% block sw_product_deliverability_form_purchase_steps_field %}
+                <sw-inherit-wrapper v-model="product.purchaseSteps"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.purchaseSteps">
+                    <template #content="props">
+
+                        <sw-field type="number"
+                                  :mapInheritance="props"
+                                  numberType="int"
+                                  :min="0"
+                                  :error="productPurchaseStepsError"
+                                  :label="$tc('sw-product.settingsForm.labelPurchaseSteps')"
+                                  :placeholder="$tc('sw-product.settingsForm.placeholderPurchaseSteps')"
+                                  :disabled="props.isInherited"
+                                  :value="props.currentValue"
+                                  @change="props.updateCurrentValue">
+                        </sw-field>
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+
+            {% block sw_product_deliverability_form_max_purchase_field %}
+                <sw-inherit-wrapper v-model="product.maxPurchase"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.maxPurchase">
+                    <template #content="props">
+
+                        <sw-field type="number"
+                                  :mapInheritance="props"
+                                  numberType="int"
+                                  :min="0"
+                                  :error="productMaxPurchaseError"
+                                  :label="$tc('sw-product.settingsForm.labelMaxPurchase')"
+                                  :placeholder="$tc('sw-product.settingsForm.placeholderMaxPurchase')"
+                                  :disabled="props.isInherited"
+                                  :value="props.currentValue"
+                                  @change="props.updateCurrentValue">
+                        </sw-field>
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+        </sw-container>
+    </div>
+{% endblock %}

@@ -81,7 +81,9 @@
       "placeholderMinPurchase": "Enter minimum amount purchaseable...",
       "placeholderMaxPurchase": "Enter maximum amount purchaseable...",
       "placeholderEan": "Enter EAN number...",
-      "placeholderManufacturerNumber": "Enter original manufacturer product number..."
+      "placeholderManufacturerNumber": "Enter original manufacturer product number...",
+      "labelAvailableStock": "Available stock",
+      "labelPurchaseSteps": "Purchase steps"
     },
     "packagingForm": {
       "placeholderUnit": "Select ...",
@@ -91,6 +93,7 @@
       "purchaseUnitHelpText": "Add the amount of the product e.g. 0.7 when a bottle contains 0.7 litres."
     },
     "detailBase": {
+      "cardTitleDeliverabilityInfo": "Deliverability",
       "cardTitleProductInfo": "General information",
       "cardTitleAssignment": "Assignment",
       "cardTitlePrices": "Prices",
@@ -217,7 +220,6 @@
       "generatedListMessageSaveError": "Variant could not be saved.",
       "generatedListTitleDeleteError": "Deleted",
       "generatedListMessageDeleteSuccess": "The variant has been deleted.",
-
       "overview": {
         "filterReset": "Reset",
         "filter": "Filter",

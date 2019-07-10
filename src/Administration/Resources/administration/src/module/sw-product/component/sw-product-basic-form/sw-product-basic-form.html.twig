@@ -1,36 +1,25 @@
 {% block sw_product_basic_form %}
     <div class="product-basic-form">
-        <sw-container columns="1fr 300px" gap="0px 30px">
-            {% block sw_product_basic_form_title_field %}
-                <sw-inherit-wrapper v-model="product.name"
-                                    :inheritedValue="getInheritValue('translated', 'name')">
-                    <template #content="props">
+        {% block sw_product_basic_form_title_field %}
+            <sw-inherit-wrapper v-model="product.name"
+                                :inheritedValue="getInheritValue('translated', 'name')">
+                <template #content="props">
 
-                        <sw-field type="text"
-                                  :mapInheritance="props"
-                                  :value="props.currentValue"
-                                  @input="props.updateCurrentValue"
-                                  :disabled="props.isInherited"
-                                  :label="$tc('sw-product.basicForm.labelTitle')"
-                                  :required="isTitleRequired"
-                                  name="sw-field--product-name"
-                                  :error="productNameError"
-                                  :placeholder="placeholder(product, 'name', $tc('sw-product.basicForm.placeholderName'))">
-                        </sw-field>
+                    <sw-field type="text"
+                              :mapInheritance="props"
+                              :value="props.currentValue"
+                              @input="props.updateCurrentValue"
+                              :disabled="props.isInherited"
+                              :label="$tc('sw-product.basicForm.labelTitle')"
+                              :required="isTitleRequired"
+                              name="sw-field--product-name"
+                              :error="productNameError"
+                              :placeholder="placeholder(product, 'name', $tc('sw-product.basicForm.placeholderName'))">
+                    </sw-field>
 
-                    </template>
-                </sw-inherit-wrapper>
-            {% endblock %}
-
-            {% block sw_product_settings_form_active_field %}
-                <sw-field type="switch"
-                          bordered
-                          :error="productActiveError"
-                          :label="$tc('sw-product.settingsForm.labelActive')"
-                          v-model="product.active">
-                </sw-field>
-            {% endblock %}
-        </sw-container>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
 
         {% block sw_product_basic_form_description_field %}
             <sw-inherit-wrapper v-model="product.description"
@@ -81,20 +70,33 @@
             {% endblock %}
         </sw-container>
 
-        <sw-inherit-wrapper v-model="product.tags"
-                            :inheritedValue="parentProduct.tags"
-                            isAssociation
-                            :label="$tc('global.sw-tag-field.title')">
+        <div class="product-basic-form__switches">
+            {% block sw_product_settings_form_active_field %}
+                <sw-field type="switch"
+                          :error="productActiveError"
+                          :label="$tc('sw-product.settingsForm.labelActive')"
+                          v-model="product.active">
+                </sw-field>
+            {% endblock %}
 
-            <template #content="{ currentValue, isInherited }">
-                <sw-tag-field-new v-if="!loading.product && !loading.parentProduct"
-                                  :disabled="isInherited"
-                                  :key="isInherited"
-                                  :error="productTagsError"
-                                  :tagCollection="currentValue ? currentValue : {}">
-                </sw-tag-field-new>
-            </template>
+            {% block sw_product_settings_form_mark_as_topseller_field %}
+                <sw-inherit-wrapper v-model="product.markAsTopseller"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.markAsTopseller">
+                    <template #content="props">
 
-        </sw-inherit-wrapper>
+                        <sw-field type="switch"
+                                  :error="productMarkAsTopsellerError"
+                                  :mapInheritance="props"
+                                  :label="$tc('sw-product.settingsForm.labelMarkAsTopseller')"
+                                  :disabled="props.isInherited"
+                                  :value="props.currentValue"
+                                  @change="props.updateCurrentValue">
+                        </sw-field>
+
+                    </template>
+                </sw-inherit-wrapper>
+            {% endblock %}
+        </div>
     </div>
 {% endblock %}

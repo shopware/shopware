@@ -1,5 +1,6 @@
 import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-product-basic-form.html.twig';
+import './sw-product-basic-form.scss';
 
 const { mapState, mapApiErrors } = Component.getComponentHelper();
 
@@ -23,7 +24,7 @@ Component.register('sw-product-basic-form', {
             'loading'
         ]),
 
-        ...mapApiErrors('product', ['name', 'active', 'description', 'productNumber', 'manufacturerId', 'tags']),
+        ...mapApiErrors('product', ['name', 'description', 'productNumber', 'manufacturerId', 'active', 'markAsTopseller']),
 
         languageStore() {
             return State.getStore('language');

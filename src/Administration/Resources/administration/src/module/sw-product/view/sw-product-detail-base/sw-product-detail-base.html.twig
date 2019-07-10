@@ -8,6 +8,31 @@
             </sw-card>
         {% endblock %}
 
+
+        {% block sw_product_detail_base_price_card %}
+            <sw-card :title="$tc('sw-product.detailBase.cardTitlePrices')" :isLoading="loading.product">
+                {% block sw_product_detail_base_price_form %}
+                    <sw-product-price-form></sw-product-price-form>
+                {% endblock %}
+
+                {% block sw_product_detail_base_advanced_prices_link %}
+                <sw-container columns="1fr" justify="end" v-if="productId">
+                    <router-link :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }" class="sw-card__quick-link">
+                        {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                    </router-link>
+                </sw-container>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_product_detail_deliverability_info_card %}
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')" :isLoading="isLoading">
+                {% block sw_product_detail_deliverability_info_form %}
+                    <sw-product-deliverability-form v-if="!isLoading"></sw-product-deliverability-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
         {% block sw_product_detail_base_category_card %}
             <sw-card :title="$tc('sw-product.detailBase.cardTitleAssignment')" :isLoading="loading.product">
                 {% block sw_product_detail_base_category_form %}
@@ -64,21 +89,6 @@
             </sw-card>
         {% endblock %}
 
-        {% block sw_product_detail_base_price_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitlePrices')" :isLoading="loading.product">
-                {% block sw_product_detail_base_price_form %}
-                    <sw-product-price-form></sw-product-price-form>
-                {% endblock %}
-
-                {% block sw_product_detail_base_advanced_prices_link %}
-                <sw-container columns="1fr" justify="end" v-if="productId">
-                    <router-link :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }" class="sw-card__quick-link">
-                        {{ $tc('sw-product.detailBase.linkAdvancedPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
-                    </router-link>
-                </sw-container>
-                {% endblock %}
-            </sw-card>
-        {% endblock %}
 
         {% block sw_product_detail_base_settings_card %}
             <sw-card :title="$tc('sw-product.detailBase.cardTitleSettings')" :isLoading="loading.product">

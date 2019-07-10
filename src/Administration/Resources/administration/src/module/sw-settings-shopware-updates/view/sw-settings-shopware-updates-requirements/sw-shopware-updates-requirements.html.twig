@@ -1,12 +1,17 @@
 {% block sw_shopware_updates_requirements %}
-<sw-card :title="$t('sw-settings-shopware-updates.cards.requirements')" :isLoading="isLoading">
-    <sw-data-grid
+<sw-card
+    :title="$t('sw-settings-shopware-updates.cards.requirements')"
+    :isLoading="isLoading"
+>
+    <template #grid>
+        <sw-data-grid
+
             :showActions="false"
             :showSelection="false"
             :columns="columns"
             :dataSource="requirements">
 
-        {% block sw_shopware_updates_requirements_column_result %}
+            {% block sw_shopware_updates_requirements_column_result %}
             <template slot="column-result" slot-scope="{ item, isInlineEdit }">
                 <template v-if="item.result">
                     <sw-color-badge variant="success" :rounded="true"></sw-color-badge>&nbsp;
@@ -18,13 +23,14 @@
                     {{ $t('sw-settings-shopware-updates.requirements.notReady') }}
                 </template>
             </template>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_shopware_updates_requirements_column_message %}
+            {% block sw_shopware_updates_requirements_column_message %}
             <template slot="column-message" slot-scope="{ item, isInlineEdit }">
                 <span v-html="$t('sw-settings-shopware-updates.requirements.message.' + item.message, item.vars)"></span>
             </template>
-        {% endblock %}
-    </sw-data-grid>
+            {% endblock %}
+        </sw-data-grid>
+    </template>
 </sw-card>
 {% endblock %}

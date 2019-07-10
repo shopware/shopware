@@ -89,11 +89,57 @@
                                       :value="props.currentValue"
                                       @change="props.updateCurrentValue">
                             </sw-field>
+                        </template>
+                    </sw-inherit-wrapper>
+                {% endblock %}
+            </sw-container>
+
+            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                {% block sw_product_settings_form_delivery_time_field %}
+                    <sw-inherit-wrapper v-model="product.deliveryTimeId"
+                                        :inheritedValue="parentProduct.deliveryTimeId"
+                                        :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
+                                        required>
+                        <template #content="{ currentValue, updateCurrentValue, isInherited }">
+
+                            <sw-entity-single-select :value="currentValue"
+                                                     @input="updateCurrentValue"
+                                                     entity="delivery_time"
+                                                     :disabled="isInherited"
+                                                     class="sw-select-product__select_delivery_time"
+                                                     id="manufacturerId"
+                                                     :key="isInherited"
+                                                     :error="deliveryTimeIdError"
+                                                     :placeholder="$tc('sw-product.settingsForm.placeholderDeliveryTime')">
+                            </sw-entity-single-select>
 
                         </template>
                     </sw-inherit-wrapper>
                 {% endblock %}
 
+                {% block sw_product_settings_form_restock_field %}
+                    <sw-inherit-wrapper v-model="product.restockTime"
+                                        :hasParent="!!parentProduct.id"
+                                        :inheritedValue="parentProduct.restockTime">
+                        <template #content="props">
+
+                            <sw-field type="number"
+                                      name="sw-field--product-restock-time"
+                                      :mapInheritance="props"
+                                      numberType="int"
+                                      :min="0"
+                                      :disabled="props.isInherited"
+                                      :label="$tc('sw-product.settingsForm.labelRestockTime')"
+                                      :placeholder="$tc('sw-product.settingsForm.placeholderRestockTime')"
+                                      required
+                                      :value="props.currentValue"
+                                      :error="productRestockTimeError"
+                                      @change="props.updateCurrentValue">
+                            </sw-field>
+
+                        </template>
+                    </sw-inherit-wrapper>
+                {% endblock %}
             </sw-container>
 
             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">

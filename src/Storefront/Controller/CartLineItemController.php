@@ -301,7 +301,12 @@ class CartLineItemController extends StorefrontController
                 $type = 'info';
             }
 
-            $message = $this->trans('checkout.' . $error->getMessageKey(), $error->getParameters());
+            $parameters = [];
+            foreach ($error->getParameters() as $key => $value) {
+                $parameters['%' . $key . '%'] = $value;
+            }
+
+            $message = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
 
             $this->addFlash($type, $message);
         }

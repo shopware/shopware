@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
@@ -94,9 +95,7 @@ class ProductDefinition extends EntityDefinition
             'minPurchase' => 1,
             'purchaseSteps' => 1,
             'shippingFree' => false,
-            'restockTime' => 1,
-            'minDeliveryTime' => 1,
-            'maxDeliveryTime' => 2,
+            'restockTime' => 3,
         ];
     }
 
@@ -165,8 +164,9 @@ class ProductDefinition extends EntityDefinition
             (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new Inherited(), new WriteProtected()),
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
 
-            (new IntField('min_delivery_time', 'minDeliveryTime'))->addFlags(new Inherited()),
-            (new IntField('max_delivery_time', 'maxDeliveryTime'))->addFlags(new Inherited()),
+            new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class),
+            new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class),
+
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
 
             //translatable fields

@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -87,18 +88,26 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             if (!$behavior->isRecalculation()) {
                 $product = $data->get('product-' . $lineItem->getReferencedId());
 
-                /** @var ProductEntity $product */
-                if ($lineItem->getQuantity() > $product->getAvailableStock()) {
-                    $lineItem->setQuantity($product->getAvailableStock());
+                $available = $this->getAvailableStock($product, $lineItem);
 
-                    $definition->setQuantity($product->getAvailableStock());
+                /** @var ProductEntity $product */
+                if ($available <= 0 || $available < $product->getMinPurchase()) {
+                    $original->remove($lineItem->getId());
+
+                    $original->addErrors(
+                        new ProductOutOfStockError($product->getId(), (string) $product->getTranslation('name'))
+                    );
+
+                    continue;
+                }
+
+                if ($available < $lineItem->getQuantity()) {
+                    $lineItem->setQuantity($available);
+
+                    $definition->setQuantity($available);
 
                     $toCalculate->addErrors(
-                        new ProductStockReachedError(
-                            $product->getId(),
-                            (string) $product->getTranslation('name'),
-                            $product->getAvailableStock()
-                        )
+                        new ProductStockReachedError($product->getId(), (string) $product->getTranslation('name'), $available)
                     );
                 }
             }
@@ -142,13 +151,18 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         /* @var ProductEntity $product */
+        $deliveryTime = null;
+        if ($product->getDeliveryTime()) {
+            $deliveryTime = DeliveryTime::createFromEntity($product->getDeliveryTime());
+        }
+
         $lineItem->setDeliveryInformation(
             new DeliveryInformation(
                 (int) $product->getAvailableStock(),
                 (float) $product->getWeight(),
-                $product->getDeliveryDate(),
-                $product->getRestockDeliveryDate(),
-                $product->getShippingFree()
+                $product->getShippingFree(),
+                $product->getRestockTime(),
+                $deliveryTime
             )
         );
 
@@ -165,8 +179,14 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $quantityInformation->setMinPurchase($product->getMinPurchase());
         }
 
-        if ($product->getMaxPurchase() > 0) {
-            $quantityInformation->setMaxPurchase($product->getMaxPurchase());
+        if ($product->getIsCloseout()) {
+            $max = $product->getAvailableStock();
+
+            if ($product->getMaxPurchase() > 0 && $product->getMaxPurchase() < $max) {
+                $max = $product->getMaxPurchase();
+            }
+
+            $quantityInformation->setMaxPurchase($max);
         }
 
         if ($product->getPurchaseSteps() > 0) {
@@ -237,5 +257,18 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         return $lineItem->getPriceDefinition() !== null;
+    }
+
+    private function getAvailableStock(ProductEntity $product, LineItem $lineItem): int
+    {
+        if (!$product->getIsCloseout()) {
+            return $lineItem->getQuantity();
+        }
+
+        return $product->getAvailableStock();
+    }
+
+    private function validateStock(Cart $toCalculate, LineItem $lineItem, ProductEntity $product, $definition): void
+    {
     }
 }

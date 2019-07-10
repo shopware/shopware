@@ -2,18 +2,17 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
@@ -22,23 +21,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryBuilder
 {
-    /**
-     * @var QuantityPriceCalculator
-     */
-    private $priceCalculator;
-
-    public function __construct(QuantityPriceCalculator $priceCalculator)
+    public function build(Cart $cart, CartDataCollection $data, SalesChannelContext $context, CartBehavior $cartBehavior): DeliveryCollection
     {
-        $this->priceCalculator = $priceCalculator;
-    }
-
-    public function build(
-        CartDataCollection $data,
-        DeliveryCollection $deliveries,
-        LineItemCollection $items,
-        SalesChannelContext $context,
-        bool $allowSplitting = true
-    ): DeliveryCollection {
         $key = DeliveryProcessor::buildKey($context->getShippingMethod()->getId());
 
         if (!$data->has($key)) {
@@ -48,140 +32,84 @@ class DeliveryBuilder
         /** @var ShippingMethodEntity $shippingMethod */
         $shippingMethod = $data->get($key);
 
-        /** @var LineItem $item */
-        foreach ($items as $item) {
+        $delivery = $this->buildSingleDelivery($shippingMethod, $cart->getLineItems(), $context);
+
+        if (!$delivery) {
+            return new DeliveryCollection();
+        }
+
+        return new DeliveryCollection([$delivery]);
+    }
+
+    private function buildSingleDelivery(ShippingMethodEntity $shippingMethod, LineItemCollection $collection, SalesChannelContext $context): ?Delivery
+    {
+        $deliveryDate = DeliveryDate::createFromDeliveryTime(
+            DeliveryTime::createFromEntity($shippingMethod->getDeliveryTime())
+        );
+
+        $positions = new DeliveryPositionCollection();
+
+        foreach ($collection as $item) {
             if (!$item->getDeliveryInformation()) {
                 continue;
             }
 
-            if ($deliveries->contains($item)) {
-                continue;
+            $restockDate = DeliveryDate::createFromDeliveryTime(
+                DeliveryTime::createFromEntity($shippingMethod->getDeliveryTime())
+            );
+
+            $restockTime = $item->getDeliveryInformation()->getRestockTime();
+            if ($restockTime) {
+                $restockDate = $restockDate->add(new \DateInterval('P' . $restockTime . 'D'));
             }
 
-            $quantity = $item->getQuantity();
-
-            $position = new DeliveryPosition(
-                $item->getId(),
-                clone $item,
-                $quantity,
-                $item->getPrice(),
-                $item->getDeliveryInformation()->getInStockDeliveryDate()
-            );
-
-            //completely in stock?
-            if ($allowSplitting === false || $item->getDeliveryInformation()->getStock() >= $quantity) {
-                $this->addGoodsToDelivery(
-                    $deliveries,
-                    $position,
-                    $context->getShippingLocation(),
-                    $shippingMethod
-                );
-                continue;
+            if ($item->getDeliveryInformation()->getStock() < $item->getQuantity()) {
+                $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $deliveryDate);
+            } else {
+                $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $restockDate);
             }
 
-            //completely out of stock? add full quantity to a delivery with same of out stock delivery date
-            if ($item->getDeliveryInformation()->getStock() <= 0) {
-                $position = new DeliveryPosition(
-                    $item->getId(),
-                    clone $item,
-                    $quantity,
-                    $item->getPrice(),
-                    $item->getDeliveryInformation()->getOutOfStockDeliveryDate()
-                );
-
-                $this->addGoodsToDelivery(
-                    $deliveries,
-                    $position,
-                    $context->getShippingLocation(),
-                    $shippingMethod
-                );
-                continue;
-            }
-
-            $outOfStock = abs($item->getDeliveryInformation()->getStock() - $quantity);
-
-            $position = $this->recalculatePosition(
-                $item,
-                $item->getDeliveryInformation()->getStock(),
-                $item->getDeliveryInformation()->getInStockDeliveryDate(),
-                $context
-            );
-
-            $this->addGoodsToDelivery(
-                $deliveries,
-                $position,
-                $context->getShippingLocation(),
-                $shippingMethod
-            );
-
-            $position = $this->recalculatePosition(
-                $item,
-                $outOfStock,
-                $item->getDeliveryInformation()->getOutOfStockDeliveryDate(),
-                $context
-            );
-
-            $this->addGoodsToDelivery(
-                $deliveries,
-                $position,
-                $context->getShippingLocation(),
-                $shippingMethod
-            );
+            $positions->add($position);
         }
 
-        return $deliveries;
-    }
-
-    private function recalculatePosition(
-        LineItem $item,
-        int $quantity,
-        DeliveryDate $deliveryDate,
-        SalesChannelContext $context
-    ): DeliveryPosition {
-        $definition = new QuantityPriceDefinition(
-            $item->getPrice()->getUnitPrice(),
-            $item->getPrice()->getTaxRules(),
-            $context->getContext()->getCurrencyPrecision(),
-            $quantity,
-            true
-        );
-
-        $price = $this->priceCalculator->calculate($definition, $context);
-
-        return new DeliveryPosition(
-            $item->getId(),
-            clone $item,
-            $quantity,
-            $price,
-            $deliveryDate
-        );
-    }
-
-    private function addGoodsToDelivery(
-        DeliveryCollection $deliveries,
-        DeliveryPosition $position,
-        ShippingLocation $location,
-        ShippingMethodEntity $shippingMethod
-    ): void {
-        $delivery = $deliveries->getDelivery(
-            $position->getDeliveryDate(),
-            $location
-        );
-
-        if ($delivery) {
-            $delivery->getPositions()->add($position);
-
-            return;
+        if ($positions->count() <= 0) {
+            return null;
         }
 
-        $delivery = new Delivery(
-            new DeliveryPositionCollection([$position]),
-            $position->getDeliveryDate(),
+        return new Delivery(
+            $positions,
+            $this->getDeliveryDateByPositions($positions),
             $shippingMethod,
-            $location,
+            $context->getShippingLocation(),
             new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
+    }
 
-        $deliveries->add($delivery);
+    private function getDeliveryDateByPositions(DeliveryPositionCollection $positions): ?DeliveryDate
+    {
+        $max = null;
+
+        /** @var DeliveryPosition $position */
+        foreach ($positions as $position) {
+            $date = $position->getDeliveryDate();
+
+            if (!$max) {
+                $max = $position->getDeliveryDate();
+                continue;
+            }
+
+            $earliest = $max->getEarliest() > $date->getEarliest() ? $max->getEarliest() : $date->getEarliest();
+
+            $latest = $max->getLatest() > $date->getLatest() ? $max->getLatest() : $date->getLatest();
+
+            // if earliest and latest is same date, add one day buffer
+            if ($earliest->format('Y-m-d') === $latest->format('Y-m-d')) {
+                $latest->add(new \DateInterval('P1D'));
+            }
+
+            $max = new DeliveryDate($earliest, $latest);
+        }
+
+        return $max;
     }
 }

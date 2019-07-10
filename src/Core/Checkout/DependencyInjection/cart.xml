@@ -84,9 +84,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
-        </service>
+        <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder" />
 
         <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>

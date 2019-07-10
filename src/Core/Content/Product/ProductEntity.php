@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -94,14 +95,14 @@ class ProductEntity extends Entity
     protected $available;
 
     /**
-     * @var int
+     * @var string|null
      */
-    protected $minDeliveryTime;
+    protected $deliveryTimeId;
 
     /**
-     * @var int
+     * @var DeliveryTimeEntity|null
      */
-    protected $maxDeliveryTime;
+    protected $deliveryTime;
 
     /**
      * @var int
@@ -722,16 +723,6 @@ class ProductEntity extends Entity
         $this->listingPrices = $listingPrices;
     }
 
-    public function getMinDeliveryTime(): int
-    {
-        return $this->minDeliveryTime;
-    }
-
-    public function setMinDeliveryTime(int $minDeliveryTime): void
-    {
-        $this->minDeliveryTime = $minDeliveryTime;
-    }
-
     public function getRestockTime(): int
     {
         return $this->restockTime;
@@ -740,16 +731,6 @@ class ProductEntity extends Entity
     public function setRestockTime(int $restockTime): void
     {
         $this->restockTime = $restockTime;
-    }
-
-    public function getMaxDeliveryTime(): int
-    {
-        return $this->maxDeliveryTime;
-    }
-
-    public function setMaxDeliveryTime(int $maxDeliveryTime): void
-    {
-        $this->maxDeliveryTime = $maxDeliveryTime;
     }
 
     public function getTaxRuleCollection(): TaxRuleCollection
@@ -763,10 +744,10 @@ class ProductEntity extends Entity
     {
         return new DeliveryDate(
             (new \DateTime())
-                ->add(new \DateInterval('P' . $this->getMinDeliveryTime() . 'D')),
+                ->add(new \DateInterval('P' . 1 . 'D')),
             (new \DateTime())
-                ->add(new \DateInterval('P' . $this->getMinDeliveryTime() . 'D'))
-                ->add(new \DateInterval('P' . $this->getMaxDeliveryTime() . 'D'))
+                ->add(new \DateInterval('P' . 1 . 'D'))
+                ->add(new \DateInterval('P' . 1 . 'D'))
         );
     }
 
@@ -1054,5 +1035,25 @@ class ProductEntity extends Entity
     public function setAvailable(bool $available): void
     {
         $this->available = $available;
+    }
+
+    public function getDeliveryTimeId(): ?string
+    {
+        return $this->deliveryTimeId;
+    }
+
+    public function setDeliveryTimeId(?string $deliveryTimeId): void
+    {
+        $this->deliveryTimeId = $deliveryTimeId;
+    }
+
+    public function getDeliveryTime(): ?DeliveryTimeEntity
+    {
+        return $this->deliveryTime;
+    }
+
+    public function setDeliveryTime(?DeliveryTimeEntity $deliveryTime): void
+    {
+        $this->deliveryTime = $deliveryTime;
     }
 }

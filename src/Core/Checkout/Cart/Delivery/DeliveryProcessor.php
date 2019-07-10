@@ -97,13 +97,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
             return;
         }
 
-        $deliveries = $this->builder->build(
-            $data,
-            $calculated->getDeliveries(),
-            $calculated->getLineItems(),
-            $context,
-            false
-        );
+        $deliveries = $this->builder->build($calculated, $data, $context, $behavior);
 
         $this->deliveryCalculator->calculate($data, $deliveries, $context);
 

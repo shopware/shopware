@@ -17,7 +17,6 @@ class ProductAvailableFilter extends MultiFilter
                 new RangeFilter('product.visibilities.visibility', [RangeFilter::GTE => $visibility]),
                 new EqualsFilter('product.visibilities.salesChannelId', $salesChannelId),
                 new EqualsFilter('product.active', true),
-                new EqualsFilter('product.available', true),
             ]
         );
     }

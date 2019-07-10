@@ -26,6 +26,9 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         if (!$criteria->hasAssociation('unit')) {
             $criteria->addAssociation('unit');
         }
+        if (!$criteria->hasAssociation('deliveryTime')) {
+            $criteria->addAssociation('deliveryTime');
+        }
 
         if (!$this->hasAvailableFilter($criteria)) {
             $criteria->addFilter(

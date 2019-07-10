@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 
-class ProductStockReachedError extends Error
+class ProductOutOfStockError extends Error
 {
     /**
      * @var string
@@ -17,29 +17,19 @@ class ProductStockReachedError extends Error
      */
     protected $name;
 
-    /**
-     * @var int
-     */
-    protected $quantity;
-
-    public function __construct(string $id, string $name, int $quantity)
+    public function __construct(string $id, string $name)
     {
         $this->id = $id;
 
-        $this->message = sprintf(
-            'The product %s is only available %s times',
-            $name,
-            $quantity
-        );
+        $this->message = sprintf('The product %s is no more available', $name);
 
         parent::__construct($this->message);
         $this->name = $name;
-        $this->quantity = $quantity;
     }
 
     public function getParameters(): array
     {
-        return ['name' => $this->name, 'quantity' => $this->quantity];
+        return ['name' => $this->name];
     }
 
     public function getId(): string
@@ -49,7 +39,7 @@ class ProductStockReachedError extends Error
 
     public function getMessageKey(): string
     {
-        return 'product-stock-reached';
+        return 'product-out-of-stock';
     }
 
     public function getLevel(): int

@@ -1,7 +1,18 @@
 {% block page_checkout_item %}
+    {# @var page \Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage #}
+    {# @var delivery \Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery #}
+    {# @var lineItem \Shopware\Core\Checkout\Cart\LineItem\LineItem #}
+
     {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
     {% set isNested = lineItem.children.count > 0 %}
     {% set childTemplate = '@Storefront/page/checkout/checkout-item.html.twig' %}
+    {% set deliveryPosition = null %}
+
+    {% if page.cart.deliveries.count > 0 %}
+        {% set delivery = page.cart.deliveries.first %}
+
+        {% set deliveryPosition = delivery.positions.get(lineItem.id) %}
+    {% endif %}
 
     {% block page_checkout_item_container %}
         <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %}">
@@ -83,6 +94,18 @@
                                                         {{ price.referencePrice.price|currency }}{{ "general.star"|trans }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
                                                     </span>
                                                 {% endif %}
+
+                                                {% block page_checkout_item_delivery_date %}
+                                                    {% if deliveryPosition and deliveryPosition.deliveryDate %}
+                                                        <div class="cart-item-delivery-date">
+                                                            {{ "checkout.lineItemDeliveryDate"|trans({
+                                                                '%earliest%': deliveryPosition.deliveryDate.earliest|localizeddate('medium', 'none', app.request.locale),
+                                                                '%latest%': deliveryPosition.deliveryDate.latest|localizeddate('medium', 'none', app.request.locale)
+                                                            }) }}
+                                                        </div>
+                                                    {% endif %}
+                                                {% endblock %}
+
                                             </div>
                                         {% endblock %}
                                     </div>

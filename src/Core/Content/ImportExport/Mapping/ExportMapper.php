@@ -2,27 +2,19 @@
 
 namespace Shopware\Core\Content\ImportExport\Mapping;
 
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 
 class ExportMapper implements MapperInterface
 {
-    /**
-     * @var FieldDefinitionCollection
-     */
-    private $definitions;
-
-    public function __construct(FieldDefinitionCollection $definitions)
-    {
-        $this->definitions = $definitions;
-    }
-
-    public function map(array $entityData): array
+    public function map(array $entityData, FieldDefinitionCollection $fieldDefinitions, EntityDefinition $entityDefinition): array
     {
         $result = [];
         $entityData = ArrayNormalizer::flatten($entityData);
 
         /** @var FieldDefinition $definition */
-        foreach ($this->definitions as $definition) {
+        foreach ($fieldDefinitions as $definition) {
             if (!array_key_exists($definition->getEntityField(), $entityData)) {
                 continue;
             }
@@ -41,5 +33,10 @@ class ExportMapper implements MapperInterface
         }
 
         return $result;
+    }
+
+    public function supports(ImportExportLogEntity $logEntity): bool
+    {
+        return $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_EXPORT;
     }
 }

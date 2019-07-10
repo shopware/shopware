@@ -8,7 +8,8 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
-use Shopware\Core\Content\ImportExport\Iterator\IteratorFactory;
+use Shopware\Core\Content\ImportExport\Iterator\IteratorFactoryInterface;
+use Shopware\Core\Content\ImportExport\Iterator\RecordIterator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -34,9 +35,9 @@ class InitiationService
     private $logRepository;
 
     /**
-     * @var IteratorFactory
+     * @var IteratorFactoryInterface[]
      */
-    private $iteratorFactory;
+    private $iteratorFactories;
 
     /**
      * @var EntityRepositoryInterface
@@ -47,13 +48,13 @@ class InitiationService
         FilesystemInterface $filesystem,
         EntityRepositoryInterface $fileRepository,
         EntityRepositoryInterface $logRepository,
-        IteratorFactory $iteratorFactory,
+        iterable $iteratorFactories,
         EntityRepositoryInterface $userRepository
     ) {
         $this->filesystem = $filesystem;
         $this->fileRepository = $fileRepository;
         $this->logRepository = $logRepository;
-        $this->iteratorFactory = $iteratorFactory;
+        $this->iteratorFactories = $iteratorFactories;
         $this->userRepository = $userRepository;
     }
 
@@ -72,9 +73,9 @@ class InitiationService
             $originalFileName = $this->generateFilename($profileEntity);
         }
         $fileEntity = $this->storeFile($context, $expireDate, $filePath, $originalFileName);
-        $iterator = $this->iteratorFactory->create($context, $activity, $fileEntity, $profileEntity);
-        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $iterator->count());
+        $iterator = $this->createIterator($context, $activity, $profileEntity, $fileEntity);
 
+        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $iterator->count());
         $logEntity->setProfile($profileEntity);
         $logEntity->setFile($fileEntity);
 
@@ -158,5 +159,16 @@ class InitiationService
     private function findUser(Context $context, string $userId): UserEntity
     {
         return $this->userRepository->search(new Criteria([$userId]), $context)->first();
+    }
+
+    private function createIterator(Context $context, string $activity, ImportExportProfileEntity $profileEntity, ImportExportFileEntity $fileEntity): RecordIterator
+    {
+        foreach ($this->iteratorFactories as $iteratorFactory) {
+            if ($iteratorFactory->supports($activity, $profileEntity)) {
+                return $iteratorFactory->create($context, $activity, $profileEntity, $fileEntity);
+            }
+        }
+
+        throw new \RuntimeException('Cannot find supported iterator factory');
     }
 }

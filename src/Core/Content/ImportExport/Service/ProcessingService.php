@@ -2,14 +2,16 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
-use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
-use Shopware\Core\Content\ImportExport\Iterator\IteratorFactory;
+use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
+use Shopware\Core\Content\ImportExport\Iterator\IteratorFactoryInterface;
 use Shopware\Core\Content\ImportExport\Iterator\RecordIterator;
-use Shopware\Core\Content\ImportExport\Mapping\MapperFactory;
-use Shopware\Core\Content\ImportExport\Writer\WriterFactory;
+use Shopware\Core\Content\ImportExport\Mapping\FieldDefinitionCollection;
+use Shopware\Core\Content\ImportExport\Mapping\MapperInterface;
+use Shopware\Core\Content\ImportExport\Writer\WriterFactoryInterface;
+use Shopware\Core\Content\ImportExport\Writer\WriterInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
@@ -21,19 +23,24 @@ class ProcessingService
     private $logRepository;
 
     /**
-     * @var WriterFactory
+     * @var WriterFactoryInterface[]
      */
-    private $writerFactory;
+    private $writerFactories;
 
     /**
-     * @var IteratorFactory
+     * @var IteratorFactoryInterface[]
      */
-    private $iteratorFactory;
+    private $iteratorFactories;
 
     /**
-     * @var MapperFactory
+     * @var MapperInterface[]
      */
-    private $mapperFactory;
+    private $mappers;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $entityDefinitionRegistry;
 
     /**
      * @var int
@@ -42,15 +49,17 @@ class ProcessingService
 
     public function __construct(
         EntityRepositoryInterface $logRepository,
-        WriterFactory $writerFactory,
-        IteratorFactory $iteratorFactory,
-        MapperFactory $mapperFactory,
+        iterable $writerFactories,
+        iterable $iteratorFactories,
+        iterable $mappers,
+        DefinitionInstanceRegistry $entityDefinitionRegistry,
         int $writeBufferSize
     ) {
         $this->logRepository = $logRepository;
-        $this->writerFactory = $writerFactory;
-        $this->iteratorFactory = $iteratorFactory;
-        $this->mapperFactory = $mapperFactory;
+        $this->writerFactories = $writerFactories;
+        $this->iteratorFactories = $iteratorFactories;
+        $this->mappers = $mappers;
+        $this->entityDefinitionRegistry = $entityDefinitionRegistry;
         $this->writeBufferSize = $writeBufferSize;
     }
 
@@ -61,20 +70,36 @@ class ProcessingService
         return $result->getEntities()->get($logId);
     }
 
-    public function createRecordIterator(Context $context, string $activity, ImportExportFileEntity $fileEntity, ImportExportProfileEntity $profileEntity): RecordIterator
+    public function createRecordIterator(Context $context, ImportExportLogEntity $logEntity): RecordIterator
     {
-        return $this->iteratorFactory->create($context, $activity, $fileEntity, $profileEntity);
+        foreach ($this->iteratorFactories as $iteratorFactory) {
+            if ($iteratorFactory->supports($logEntity->getActivity(), $logEntity->getProfile())) {
+                return $iteratorFactory->create(
+                    $context,
+                    $logEntity->getActivity(),
+                    $logEntity->getProfile(),
+                    $logEntity->getFile()
+                );
+            }
+        }
+
+        throw new ProcessingException(
+            'Cannot find supported factory to build instance of {{ type }}',
+            ['type' => RecordIterator::class]
+        );
     }
 
     public function process(Context $context, ImportExportLogEntity $logEntity, \Iterator $iterator): int
     {
-        $writer = $this->writerFactory->create($logEntity, $context);
-        $mapper = $this->mapperFactory->create($logEntity);
+        $writer = $this->createWriter($context, $logEntity);
+        $mapper = $this->getMapper($logEntity);
+        $fieldDefinitions = FieldDefinitionCollection::fromArray($logEntity->getProfile()->getMapping());
+        $entityDefinition = $this->entityDefinitionRegistry->getByEntityName($logEntity->getProfile()->getSourceEntity());
 
         $processed = 0;
         $lastIndex = -1;
         foreach ($iterator as $index => $record) {
-            $writer->append($mapper->map($record), $index);
+            $writer->append($mapper->map($record, $fieldDefinitions, $entityDefinition), $index);
             if ($index % $this->writeBufferSize === 0) {
                 $writer->flush();
             }
@@ -105,5 +130,33 @@ class ProcessingService
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logData) {
             $this->logRepository->update([$logData], $context);
         });
+    }
+
+    private function createWriter(Context $context, ImportExportLogEntity $logEntity): WriterInterface
+    {
+        foreach ($this->writerFactories as $writerFactory) {
+            if ($writerFactory->supports($logEntity)) {
+                return $writerFactory->create($context, $logEntity);
+            }
+        }
+
+        throw new ProcessingException(
+            'Cannot find supported factory to build instance of {{ type }}',
+            ['type' => WriterInterface::class]
+        );
+    }
+
+    private function getMapper(ImportExportLogEntity $logEntity): MapperInterface
+    {
+        foreach ($this->mappers as $mapper) {
+            if ($mapper->supports($logEntity)) {
+                return $mapper;
+            }
+        }
+
+        throw new ProcessingException(
+            'Cannot find supported instance of {{ type }}',
+            ['type' => MapperInterface::class]
+        );
     }
 }

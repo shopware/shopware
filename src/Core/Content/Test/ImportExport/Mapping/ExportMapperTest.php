@@ -4,19 +4,39 @@ namespace Shopware\Core\Content\Test\ImportExport\Mapping;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Mapping\ExportMapper;
+use Shopware\Core\Content\ImportExport\Mapping\FieldDefinitionCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 class ExportMapperTest extends TestCase
 {
     use CustomerDefinition;
+    use KernelTestBehaviour;
 
     /**
      * @var ExportMapper
      */
     private $mapper;
 
+    /**
+     * @var FieldDefinitionCollection
+     */
+    private $fieldDefinitions;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $entityDefinitionRegistry;
+
     protected function setUp(): void
     {
-        $this->mapper = new ExportMapper($this->buildDefinitionCollection());
+        $this->entityDefinitionRegistry = new DefinitionInstanceRegistry(
+            $this->getContainer(),
+            ['customer' => \Shopware\Core\Checkout\Customer\CustomerDefinition::class],
+            ['customer' => 'customer.repository']
+        );
+        $this->mapper = new ExportMapper();
+        $this->fieldDefinitions = $this->buildDefinitionCollection();
     }
 
     public function testMappingCustomer(): void
@@ -41,7 +61,11 @@ class ExportMapperTest extends TestCase
             ],
             'active' => false,
         ];
-        $fileFormat = $this->mapper->map($input);
+        $fileFormat = $this->mapper->map(
+            $input,
+            $this->fieldDefinitions,
+            $this->entityDefinitionRegistry->getByEntityName('customer')
+        );
 
         static::assertEquals($input['firstName'], $fileFormat['first_name']);
         static::assertEquals($input['lastName'], $fileFormat['last_name']);

@@ -60,15 +60,16 @@
 			<argument type="service" id="shopware.filesystem.private"/>
 			<argument type="service" id="import_export_file.repository"/>
 			<argument type="service" id="import_export_log.repository"/>
-			<argument type="service" id="Shopware\Core\Content\ImportExport\Iterator\IteratorFactory"/>
+            <argument type="tagged" tag="shopware.import_export.iterator_factory"/>
             <argument type="service" id="user.repository"/>
 		</service>
 
 		<service id="Shopware\Core\Content\ImportExport\Service\ProcessingService">
 			<argument type="service" id="import_export_log.repository"/>
-			<argument type="service" id="Shopware\Core\Content\ImportExport\Writer\WriterFactory"/>
-			<argument type="service" id="Shopware\Core\Content\ImportExport\Iterator\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Content\ImportExport\Mapping\MapperFactory"/>
+            <argument type="tagged" tag="shopware.import_export.writer_factory"/>
+            <argument type="tagged" tag="shopware.import_export.iterator_factory"/>
+            <argument type="tagged" tag="shopware.import_export.mapper"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument>%import_export.write_buffer_size%</argument>
 		</service>
 
@@ -81,20 +82,44 @@
 			<argument type="service" id="import_export_file.repository"/>
 		</service>
 
-		<service id="Shopware\Core\Content\ImportExport\Iterator\IteratorFactory">
+		<service id="Shopware\Core\Content\ImportExport\Iterator\CsvFileIteratorFactory">
 			<argument type="service" id="shopware.filesystem.private"/>
-			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument>%import_export.read_buffer_size%</argument>
+            <tag name="shopware.import_export.iterator_factory"/>
 		</service>
 
-		<service id="Shopware\Core\Content\ImportExport\Mapping\MapperFactory">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        <service id="Shopware\Core\Content\ImportExport\Iterator\XmlFileIteratorFactory">
+            <argument type="service" id="shopware.filesystem.private"/>
+            <tag name="shopware.import_export.iterator_factory"/>
         </service>
 
-		<service id="Shopware\Core\Content\ImportExport\Writer\WriterFactory">
+        <service id="Shopware\Core\Content\ImportExport\Iterator\RepositoryIteratorFactory">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument>%import_export.read_buffer_size%</argument>
+            <tag name="shopware.import_export.iterator_factory"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\Mapping\ImportMapper">
+            <tag name="shopware.import_export.mapper"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\Mapping\ExportMapper">
+            <tag name="shopware.import_export.mapper"/>
+        </service>
+
+		<service id="Shopware\Core\Content\ImportExport\Writer\CsvFileWriterFactory">
 			<argument type="service" id="shopware.filesystem.private"/>
-			<argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <tag name="shopware.import_export.writer_factory"/>
 		</service>
+
+        <service id="Shopware\Core\Content\ImportExport\Writer\XmlFileWriterFactory">
+            <argument type="service" id="shopware.filesystem.private"/>
+            <tag name="shopware.import_export.writer_factory"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\Writer\RepositoryWriterFactory">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <tag name="shopware.import_export.writer_factory"/>
+        </service>
 
 		<service id="Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand">
 			<argument type="service" id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService"/>

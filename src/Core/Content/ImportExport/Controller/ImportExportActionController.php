@@ -140,7 +140,7 @@ class ImportExportActionController extends AbstractController
         $this->dataValidator->validate($params, $definition);
 
         $log = $this->processingService->findLog($context, $params['logId']);
-        $recordIterator = $this->processingService->createRecordIterator($context, $log->getActivity(), $log->getFile(), $log->getProfile());
+        $recordIterator = $this->processingService->createRecordIterator($context, $log);
         $outer = new \LimitIterator($recordIterator, $params['offset'], $this->processingBatchSize);
 
         $processed = $this->processingService->process($context, $log, $outer);

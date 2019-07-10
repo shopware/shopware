@@ -95,10 +95,8 @@
                 {% endblock %}
 
                 {% block sw_product_detail_content_view %}
-                    <router-view @media-drop="onAddItemToProduct"></router-view>
+                    <router-view @media-drop="onAddItemToProduct" @cover-change="onCoverChange"></router-view>
                 {% endblock %}
-
-
             </sw-card-view>
         {% endblock %}
 

@@ -369,6 +369,7 @@ Component.register('sw-product-media-form', {
                 this.productFromStore.coverId = productMedia.id;
             }
             this.product.coverId = productMedia.id;
+            this.$emit('cover-change', productMedia.id);
         },
 
         onDropMedia(dragData) {

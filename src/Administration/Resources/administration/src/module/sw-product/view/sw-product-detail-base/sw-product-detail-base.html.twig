@@ -43,7 +43,8 @@
                                                        :productId="isInherited ? parentProduct.id : product.id"
                                                        :key="isInherited"
                                                        :disabled="isInherited"
-                                                       @media-drop="$emit('media-drop', $event)">
+                                                       @media-drop="$emit('media-drop', $event)"
+                                                       @cover-change="$emit('cover-change', $event)">
                                 </sw-product-media-form>
                             {% endblock %}
                         </sw-card>

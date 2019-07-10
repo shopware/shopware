@@ -58,7 +58,7 @@ describe('Media: Test thumbnails', () => {
         cy.get('.sw-media-modal-folder-settings__thumbnail-size-entry').should('not.exist');
 
         page.setThumbnailSize('1920', '1080');
-        cy.get('input[name=thumbnail-size-active]').click();
+        cy.get('input[name=thumbnail-size-1920-1080-active]').click();
         cy.get('button.sw-media-modal-folder-settings__switch-mode').click();
         cy.get(page.elements.saveSettingsAction).click();
         cy.awaitAndCheckNotification('Settings have successfully been saved.');
@@ -80,7 +80,7 @@ describe('Media: Test thumbnails', () => {
         cy.get('.sw-media-folder-settings__thumbnails-tab').click();
         cy.get('input[name=sw-field--configuration-keepAspectRatio]').should('not.be.selected');
         cy.get('.sw-media-modal-folder-settings__thumbnail-size-entry label').contains('1920x1080');
-        cy.get('input[name=thumbnail-size-active]').should('be.checked');
+        cy.get('input[name=thumbnail-size-1920-1080-active]').should('be.checked');
 
         // Deactivate inheritance
         cy.get('input[name=sw-field--folder-useParentConfiguration]').click(false);

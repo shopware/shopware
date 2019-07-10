@@ -138,6 +138,10 @@ export default {
             });
         },
 
+        thumbnailSizeCheckboxName(size) {
+            return `thumbnail-size-${size.width}-${size.height}-active`;
+        },
+
         onActiveTabChanged(activeTab) {
             if (activeTab === 'settings') {
                 this.modalClass = 'sw-media-modal-folder-settings--shows-overflow';

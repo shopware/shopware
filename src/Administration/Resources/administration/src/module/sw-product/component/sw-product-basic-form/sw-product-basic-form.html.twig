@@ -61,8 +61,7 @@
 
                 <sw-inherit-wrapper v-model="product.manufacturerId"
                                     :inheritedValue="parentProduct.manufacturerId"
-                                    :label="$tc('sw-product.basicForm.labelManufacturer')"
-                                    required>
+                                    :label="$tc('sw-product.basicForm.labelManufacturer')">
                     <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
                         <sw-entity-single-select :value="currentValue"

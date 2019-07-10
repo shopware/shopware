@@ -5,14 +5,13 @@
         {% block element_product_slider_alignment %}
             <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
                 <div class="base-slider product-slider{% if sliderConfig.border.value %} has-border{% endif %}{% if sliderConfig.navigation.value %} has-nav{% endif %}"
-                     {% if sliderConfig.elMinWidth.value %}style="min-width: {{ sliderConfig.elMinWidth.value }}"{% endif %}
-                     data-base-slider="true"
-                     data-base-slider-options='{
+                     data-product-slider="true"
+                     data-product-slider-options='{
+                        {% if sliderConfig.elMinWidth.value %}"productboxMinWidth": "{{ sliderConfig.elMinWidth.value }}",{% endif %}
                         "slider": {
                             "gutter": 30,
                             "autoplayButtonOutput": false,
                             "nav": false,
-                            {% if sliderConfig.verticalAlign.value %}"items": "1",{% else %}"items": "3",{% endif %}
                             "controls": {% if sliderConfig.navigation.value %}true{% else %}false{% endif %},
                             {% if not sliderConfig.navigation.value %}"mouseDrag": true,{% endif %}
                             "autoplay": {% if sliderConfig.rotate.value %}true{% else %}false{% endif %}
@@ -30,7 +29,7 @@
                     {% block element_product_slider_inner %}
                         {% block element_product_slider_element %}
                             <div class="product-slider-container"
-                                 data-base-slider-container="true">
+                                 data-product-slider-container="true">
                                 {% for product in element.data.products.elements %}
                                     {% block element_product_slider_inner_item %}
                                         <div class="product-slider-item">
@@ -48,7 +47,7 @@
                             {% if sliderConfig.navigation.value %}
                                 <div class="product-slider-controls-container">
                                     <div class="base-slider-controls"
-                                         data-base-slider-controls="true">
+                                         data-product-slider-controls="true">
                                         {% block element_product_slider_controls_items %}
                                             <button class="base-slider-controls-prev product-slider-controls-prev{% if sliderConfig.border.value %} has-border{% endif %}">
                                                 {% block element_product_slider_controls_items_prev_icon %}

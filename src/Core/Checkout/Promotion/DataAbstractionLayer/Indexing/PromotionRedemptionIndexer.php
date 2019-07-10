@@ -124,7 +124,7 @@ class PromotionRedemptionIndexer implements IndexerInterface
         $lineItemIds = array_map('Shopware\Core\Framework\Uuid\Uuid::fromHexToBytes', $lineItemIds);
 
         $query = '
-            SELECT HEX(o.id) AS id, oli.type, oli.payload, HEX(oc.customer_id) AS customer_id
+            SELECT HEX(o.id) AS id, oli.type, oli.payload, LOWER(HEX(oc.customer_id)) AS customer_id
             FROM `order` o
             INNER JOIN order_line_item oli
                 ON o.id = oli.order_id
@@ -145,7 +145,7 @@ class PromotionRedemptionIndexer implements IndexerInterface
             if (!array_key_exists($rawOrder['id'], $orders)) {
                 $orders[$rawOrder['id']] = [
                     'id' => $rawOrder['id'],
-                    'customerId' => strtolower($rawOrder['customer_id']),
+                    'customerId' => $rawOrder['customer_id'],
                     'lineItems' => [],
                 ];
             }

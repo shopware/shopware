@@ -26,7 +26,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     public const COUNTRY_ID = 'countryId';
 
-    public const STATE_ID = 'stateId';
+    public const COUNTRY_STATE_ID = 'countryStateId';
 
     /**
      * @var SalesChannelContextFactory

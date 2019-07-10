@@ -126,8 +126,6 @@ Component.register('sw-first-run-wizard-modal', {
                 ? '1fr 4fr'
                 : '1fr';
 
-            console.log('cols', res);
-
             return res;
         },
 

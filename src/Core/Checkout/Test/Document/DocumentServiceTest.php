@@ -69,22 +69,25 @@ class DocumentServiceTest extends TestCase
 
         $this->context = Context::createDefaultContext();
 
-        $priceRuleId = Uuid::randomHex();
+        $paymentMethod = $this->getAvailablePaymentMethod();
 
-        $paymentMethodId = $this->getAvailablePaymentMethodId();
-        $customerId = $this->createCustomer($paymentMethodId);
-        $shippingMethodId = $this->getAvailableShippingMethodId();
+        $customerId = $this->createCustomer($paymentMethod->getId());
+        $shippingMethod = $this->getAvailableShippingMethod();
+
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::CUSTOMER_ID => $customerId,
-                SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
-                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+                SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethod->getId(),
+                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethod->getId(),
             ]
         );
 
-        $this->salesChannelContext->setRuleIds([$priceRuleId]);
+        $this->salesChannelContext->setRuleIds([
+            $shippingMethod->getAvailabilityRuleId(),
+            $paymentMethod->getAvailabilityRuleId()
+        ]);
     }
 
     public function testCreateDeliveryNotePdf(): void
@@ -386,6 +389,7 @@ class DocumentServiceTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $paymentMethodId,

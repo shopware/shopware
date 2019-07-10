@@ -302,13 +302,13 @@ class ProductRepositoryTest extends TestCase
         static::assertInstanceOf(ListingPriceCollection::class, $prices);
         static::assertCount(9, $prices);
 
-        $aPrices = $prices->filterByRuleId($ruleA);
-        $aPrices = $aPrices->filterByCurrencyId(Defaults::CURRENCY);
+        $aPrices = ListingPriceCollection::filterByRuleId($prices, $ruleA);
+        $aPrices = ListingPriceCollection::filterByCurrencyId($aPrices, Defaults::CURRENCY);
 
         static::assertCount(1, $aPrices);
 
         /** @var ListingPrice $aPrice */
-        $aPrice = $aPrices->first();
+        $aPrice = $aPrices[0];
 
         static::assertEquals(5, $aPrice->getFrom()->getGross());
         static::assertEquals(15, $aPrice->getTo()->getGross());
@@ -331,13 +331,13 @@ class ProductRepositoryTest extends TestCase
         static::assertInstanceOf(ListingPriceCollection::class, $prices);
         static::assertCount(9, $prices);
 
-        $aPrices = $prices->filterByRuleId($ruleA);
-        $aPrices = $aPrices->filterByCurrencyId(Defaults::CURRENCY);
+        $aPrices = ListingPriceCollection::filterByRuleId($prices, $ruleA);
+        $aPrices = ListingPriceCollection::filterByCurrencyId($aPrices, Defaults::CURRENCY);
 
         static::assertCount(1, $aPrices);
 
         /** @var ListingPrice $aPrice */
-        $aPrice = $aPrices->first();
+        $aPrice = $aPrices[0];
 
         static::assertEquals(5, $aPrice->getFrom()->getGross());
         static::assertEquals(30, $aPrice->getTo()->getGross());
@@ -958,7 +958,6 @@ class ProductRepositoryTest extends TestCase
             ['id' => $id, 'productNumber' => Uuid::randomHex(), 'stock' => 10, 'name' => 'Insert', 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]], 'tax' => ['name' => 'test', 'taxRate' => 10], 'manufacturer' => ['name' => 'test'], 'ean' => $filterId],
             ['id' => $child, 'productNumber' => Uuid::randomHex(), 'stock' => 10, 'parentId' => $id, 'name' => 'Update', 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 12, 'net' => 11, 'linked' => false]], 'ean' => $filterId],
         ];
-
         $this->repository->upsert($data, Context::createDefaultContext());
 
         $products = $this->repository->search(new Criteria([$id, $child]), Context::createDefaultContext());
@@ -2050,13 +2049,13 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->get($id);
 
-        $price = $product
-            ->getListingPrices()
-            ->filterByRuleId($ruleA)
-            ->filterByCurrencyId(Defaults::CURRENCY);
+        $price = ListingPriceCollection::filterByCurrencyId(
+            ListingPriceCollection::filterByRuleId($product->getListingPrices(), $ruleA),
+            Defaults::CURRENCY
+        );
 
         static::assertCount(1, $price);
-        $price = $price->first();
+        $price = $price[0];
 
         /** @var ListingPrice $price */
         static::assertEquals(10, $price->getFrom()->getGross());

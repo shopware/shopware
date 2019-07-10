@@ -28,12 +28,10 @@ class AvailableCombinationLoader
         $query->andWhere('product.version_id = :versionId');
         $query->andWhere('product.active = :active');
         $query->andWhere('product.option_ids IS NOT NULL');
-        $query->andWhere('product.available = :available');
 
         $query->setParameter('id', Uuid::fromHexToBytes($productId));
         $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
         $query->setParameter('active', true);
-        $query->setParameter('available', true);
 
         $query->select([
             'LOWER(HEX(product.id))',

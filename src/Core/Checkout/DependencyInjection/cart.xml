@@ -126,7 +126,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Calculator">
+        <service id="Shopware\Core\Checkout\Cart\Calculator" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>

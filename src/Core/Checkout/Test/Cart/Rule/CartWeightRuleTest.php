@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -117,9 +118,14 @@ class CartWeightRuleTest extends TestCase
             new DeliveryInformation(
                 9999,
                 50.0,
-                new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                false
+                false,
+                null,
+                (new DeliveryTime())->assign([
+                    'max' => 3,
+                    'min' => 1,
+                    'unit' => 'week',
+                    'name' => '1-3 weeks'
+                ])
             )
         ));
         $lineItemCollection->add(
@@ -127,9 +133,14 @@ class CartWeightRuleTest extends TestCase
                 new DeliveryInformation(
                     9999,
                     50.0,
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    true
+                    true,
+                    null,
+                    (new DeliveryTime())->assign([
+                        'max' => 3,
+                        'min' => 1,
+                        'unit' => 'week',
+                        'name' => '1-3 weeks'
+                    ])
                 )
             )
         );

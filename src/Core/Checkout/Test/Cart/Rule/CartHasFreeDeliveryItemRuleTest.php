@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule;
@@ -52,9 +53,14 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
                 new DeliveryInformation(
                     9999,
                     50.0,
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    false
+                    false,
+                    null,
+                    (new DeliveryTime())->assign([
+                        'min' => 1,
+                        'max' => 3,
+                        'unit' => 'weeks',
+                        'name' => '1-3 weeks'
+                    ])
                 )
             ));
         $lineItemCollection->add(
@@ -62,9 +68,14 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
                 new DeliveryInformation(
                     9999,
                     50.0,
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    true
+                    true,
+                    null,
+                    (new DeliveryTime())->assign([
+                        'min' => 1,
+                        'max' => 3,
+                        'unit' => 'weeks',
+                        'name' => '1-3 weeks'
+                    ])
                 )
             )
         );
@@ -88,9 +99,14 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
                 new DeliveryInformation(
                     9999,
                     50.0,
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    false
+                    false,
+                    null,
+                    (new DeliveryTime())->assign([
+                        'min' => 1,
+                        'max' => 3,
+                        'unit' => 'weeks',
+                        'name' => '1-3 weeks'
+                    ])
                 )
             )
         );
@@ -132,9 +148,14 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
                 new DeliveryInformation(
                     9999,
                     50.0,
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    false
+                    false,
+                    null,
+                    (new DeliveryTime())->assign([
+                        'min' => 1,
+                        'max' => 3,
+                        'unit' => 'weeks',
+                        'name' => '1-3 weeks'
+                    ])
                 )
             )
         );
@@ -157,9 +178,14 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
             new DeliveryInformation(
                 9999,
                 50.0,
-                new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                false
+                false,
+                null,
+                (new DeliveryTime())->assign([
+                    'min' => 1,
+                    'max' => 3,
+                    'unit' => 'weeks',
+                    'name' => '1-3 weeks'
+                ])
             )
         ));
         $lineItemCollection->add(
@@ -167,9 +193,14 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
                 new DeliveryInformation(
                     9999,
                     50.0,
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    new DeliveryDate(new \DateTime('-6h'), new \DateTime('+3 weeks')),
-                    true
+                    true,
+                    null,
+                    (new DeliveryTime())->assign([
+                        'min' => 1,
+                        'max' => 3,
+                        'unit' => 'weeks',
+                        'name' => '1-3 weeks'
+                    ])
                 )
             )
         );

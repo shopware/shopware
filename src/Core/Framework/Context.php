@@ -221,6 +221,6 @@ class Context extends Struct
 
     public function setRuleIds(array $ruleIds): void
     {
-        $this->ruleIds = $ruleIds;
+        $this->ruleIds = array_filter(array_values($ruleIds));
     }
 }

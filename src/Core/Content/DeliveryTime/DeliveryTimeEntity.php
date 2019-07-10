@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Content\DeliveryTime;
 
-use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -35,7 +36,7 @@ class DeliveryTimeEntity extends Entity
     protected $unit;
 
     /**
-     * @var ShippingMethodEntity[]|null
+     * @var ShippingMethodCollection|null
      */
     protected $shippingMethods;
 
@@ -48,6 +49,11 @@ class DeliveryTimeEntity extends Entity
      * @var array|null
      */
     protected $customFields;
+
+    /**
+     * @var ProductCollection|null
+     */
+    protected $products;
 
     public function getName(): string
     {
@@ -89,12 +95,12 @@ class DeliveryTimeEntity extends Entity
         $this->unit = $unit;
     }
 
-    public function getShippingMethods(): ?array
+    public function getShippingMethods(): ?ShippingMethodCollection
     {
         return $this->shippingMethods;
     }
 
-    public function setShippingMethods(?array $shippingMethods): void
+    public function setShippingMethods(?ShippingMethodCollection $shippingMethods): void
     {
         $this->shippingMethods = $shippingMethods;
     }
@@ -117,5 +123,15 @@ class DeliveryTimeEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getProducts(): ?ProductCollection
+    {
+        return $this->products;
+    }
+
+    public function setProducts(ProductCollection $products): void
+    {
+        $this->products = $products;
     }
 }

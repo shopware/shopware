@@ -10,10 +10,10 @@ class ListingPriceCollection extends Collection
     public function getContextPrice(Context $context): ?ListingPrice
     {
         foreach ($context->getRuleIds() as $ruleId) {
-            $prices = $this->filterByRuleId($this->elements, $ruleId);
+            $prices = self::filterByRuleId($this->elements, $ruleId);
 
             if (\count($prices) > 0) {
-                $prices = $this->filterByCurrencyId($prices, $context->getCurrencyId());
+                $prices = self::filterByCurrencyId($prices, $context->getCurrencyId());
 
                 return array_shift($prices);
             }
@@ -27,7 +27,7 @@ class ListingPriceCollection extends Collection
         return ListingPrice::class;
     }
 
-    private function filterByCurrencyId(array $prices, string $currencyId): array
+    public static function filterByCurrencyId(iterable $prices, string $currencyId): array
     {
         $filtered = [];
         /** @var ListingPrice $price */
@@ -40,7 +40,7 @@ class ListingPriceCollection extends Collection
         return $filtered;
     }
 
-    private function filterByRuleId(array $prices, string $ruleId): array
+    public static function filterByRuleId(iterable $prices, string $ruleId): array
     {
         $filtered = [];
         /** @var ListingPrice $price */

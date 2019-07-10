@@ -30,7 +30,7 @@ class DeliveryTime extends Struct
     public static function createFromEntity(DeliveryTimeEntity $entity): self
     {
         $self = new self();
-        $self->setName($entity->getTranslation('name'));
+        $self->setName((string) $entity->getTranslation('name'));
         $self->setUnit($entity->getUnit());
         $self->setMax($entity->getMax());
         $self->setMin($entity->getMin());

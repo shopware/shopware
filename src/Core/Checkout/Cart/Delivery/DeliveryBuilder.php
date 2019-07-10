@@ -43,10 +43,6 @@ class DeliveryBuilder
 
     private function buildSingleDelivery(ShippingMethodEntity $shippingMethod, LineItemCollection $collection, SalesChannelContext $context): ?Delivery
     {
-        $deliveryDate = DeliveryDate::createFromDeliveryTime(
-            DeliveryTime::createFromEntity($shippingMethod->getDeliveryTime())
-        );
-
         $positions = new DeliveryPositionCollection();
 
         foreach ($collection as $item) {
@@ -54,18 +50,32 @@ class DeliveryBuilder
                 continue;
             }
 
-            $restockDate = DeliveryDate::createFromDeliveryTime(
-                DeliveryTime::createFromEntity($shippingMethod->getDeliveryTime())
-            );
+            // use shipping method delivery time as default
+            $deliveryTime = DeliveryTime::createFromEntity($shippingMethod->getDeliveryTime());
+
+            // each line item can override the delivery time
+            if ($item->getDeliveryInformation()->getDeliveryTime()) {
+                $deliveryTime = $item->getDeliveryInformation()->getDeliveryTime();
+            }
+
+            // create the estimated delivery date by detected delivery time
+            $deliveryDate = DeliveryDate::createFromDeliveryTime($deliveryTime);
+
+            // create a restock date based on the detected delivery time
+            $restockDate = DeliveryDate::createFromDeliveryTime($deliveryTime);
 
             $restockTime = $item->getDeliveryInformation()->getRestockTime();
+
+            // if the line item has a restock time, add this days to the restock date
             if ($restockTime) {
                 $restockDate = $restockDate->add(new \DateInterval('P' . $restockTime . 'D'));
             }
 
+            // if the item is completely instock, use the delivery date
             if ($item->getDeliveryInformation()->getStock() < $item->getQuantity()) {
                 $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $deliveryDate);
             } else {
+                // otherwise use the restock date as delivery date
                 $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $restockDate);
             }
 
@@ -85,19 +95,16 @@ class DeliveryBuilder
         );
     }
 
-    private function getDeliveryDateByPositions(DeliveryPositionCollection $positions): ?DeliveryDate
+    private function getDeliveryDateByPositions(DeliveryPositionCollection $positions): DeliveryDate
     {
-        $max = null;
+        // this function is only called if the provided collection contains a deliverable line item
+        $max = $positions->first()->getDeliveryDate();
 
         /** @var DeliveryPosition $position */
         foreach ($positions as $position) {
             $date = $position->getDeliveryDate();
 
-            if (!$max) {
-                $max = $position->getDeliveryDate();
-                continue;
-            }
-
+            // detect the latest delivery date
             $earliest = $max->getEarliest() > $date->getEarliest() ? $max->getEarliest() : $date->getEarliest();
 
             $latest = $max->getLatest() > $date->getLatest() ? $max->getLatest() : $date->getLatest();

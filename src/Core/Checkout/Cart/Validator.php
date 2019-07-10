@@ -24,6 +24,6 @@ class Validator
             $validator->validate($cart, $errors, $context);
         }
 
-        return $errors->getElements();
+        return array_values($errors->getElements());
     }
 }

@@ -312,69 +312,6 @@ class StockDeliverySeparatorTest extends TestCase
         );
     }
 
-    public function testPositionWithMoreQuantityThanStockWillBeSplitted(): void
-    {
-        $location = self::createShippingLocation();
-
-        $context = Generator::createSalesChannelContext(null, null, null, null, null, null, $location->getCountry(), $location->getState());
-
-        $product = (new LineItem('A', 'product', null, 12))
-            ->setPrice(new CalculatedPrice(1.19, 14.28, new CalculatedTaxCollection([new CalculatedTax(1.9, 19, 11.90)]), new TaxRuleCollection([new TaxRule(19)]), 12))
-            ->setDeliveryInformation(
-                new DeliveryInformation(
-                    5,
-                    5.0,
-                    new DeliveryDate(new \DateTime('2012-01-01'), new \DateTime('2012-01-03')),
-                    new DeliveryDate(new \DateTime('2012-01-04'), new \DateTime('2012-01-06')),
-                    false
-                )
-            );
-
-        $deliveries = new DeliveryCollection();
-        $data = new CartDataCollection();
-        $data->set(
-            DeliveryProcessor::buildKey($context->getShippingMethod()->getId()),
-            $context->getShippingMethod()
-        );
-
-        $this->separator->build(
-            $data,
-            $deliveries,
-            new LineItemCollection([$product]),
-            $context
-        );
-
-        static::assertEquals(
-            new DeliveryCollection([
-                new Delivery(
-                    new DeliveryPositionCollection([
-                        new DeliveryPosition('A', $product, 5,
-                            new CalculatedPrice(1.19, 5.95, new CalculatedTaxCollection([new CalculatedTax(0.95, 19, 5.95)]), new TaxRuleCollection([new TaxRule(19)]), 5),
-                            $product->getDeliveryInformation()->getInStockDeliveryDate()
-                        ),
-                    ]),
-                    $product->getDeliveryInformation()->getInStockDeliveryDate(),
-                    $context->getShippingMethod(),
-                    $location,
-                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
-                ),
-                new Delivery(
-                    new DeliveryPositionCollection([
-                        new DeliveryPosition('A', $product, 7,
-                            new CalculatedPrice(1.19, 8.33, new CalculatedTaxCollection([new CalculatedTax(1.33, 19, 8.33)]), new TaxRuleCollection([new TaxRule(19)]), 7),
-                            $product->getDeliveryInformation()->getOutOfStockDeliveryDate()
-                        ),
-                    ]),
-                    $product->getDeliveryInformation()->getOutOfStockDeliveryDate(),
-                    $context->getShippingMethod(),
-                    $location,
-                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
-                ),
-            ]),
-            $deliveries
-        );
-    }
-
     private static function createShippingLocation(): ShippingLocation
     {
         $address = new CustomerAddressEntity();

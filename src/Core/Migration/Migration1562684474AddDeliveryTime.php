@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1562684474 extends MigrationStep
+class Migration1562684474AddDeliveryTime extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -17,7 +17,7 @@ class Migration1562684474 extends MigrationStep
         $connection->executeUpdate('
             ALTER TABLE `product`
             ADD `delivery_time_id` binary(16) NULL AFTER `product_manufacturer_version_id`,
-            ADD `delivery_time` binary(16) NULL AFTER `delivery_time_id`,
+            ADD `deliveryTime` binary(16) NULL AFTER `delivery_time_id`,
             DROP `min_delivery_time`,
             DROP `max_delivery_time`;        
         ');

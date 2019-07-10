@@ -48,6 +48,7 @@ namespace ExampleCurrentCart {
 namespace ExampleAddToCart {
     use Shopware\Core\Checkout\Cart\LineItem\LineItem;
     use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+    use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
     use Shopware\Core\System\SalesChannel\SalesChannelContext;
     use Symfony\Component\Routing\Annotation\Route;
 
@@ -63,7 +64,7 @@ namespace ExampleAddToCart {
         {
             // unique identifier to reference the line item, usually the source id, but can be random
             // and id of the referenced product
-            $product = new LineItem('___', LineItem::PRODUCT_LINE_ITEM_TYPE, '407f9c24dd414da485501085e3ead678', 5);
+            $product = (new ProductLineItemFactory())->create('407f9c24dd414da485501085e3ead678', ['quantity' => 5]);
 
             $cart = $this->cartService->getCart('596a70b408014230a140fd5d94d3402b', $salesChannelContext);
 

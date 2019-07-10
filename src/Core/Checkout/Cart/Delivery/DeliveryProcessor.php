@@ -43,12 +43,8 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
         return 'shipping-method-' . $shippingMethodId;
     }
 
-    public function collect(
-        CartDataCollection $data,
-        Cart $original,
-        SalesChannelContext $context,
-        CartBehavior $behavior
-    ): void {
+    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
+    {
         $default = $context->getShippingMethod()->getId();
 
         if (!$data->has(self::buildKey($default))) {
@@ -71,8 +67,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
         $criteria->addAssociation('prices');
         $criteria->addAssociation('deliveryTime');
 
-        $shippingMethods = $this->shippingMethodRepository
-            ->search($criteria, $context->getContext());
+        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext());
 
         foreach ($ids as $id) {
             $key = self::buildKey($id);
@@ -90,7 +85,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
         if ($behavior->isRecalculation()) {
             $deliveries = $original->getDeliveries();
 
-            $this->deliveryCalculator->calculate($data, $deliveries, $context);
+            $this->deliveryCalculator->calculate($data, $calculated, $deliveries, $context);
 
             $calculated->setDeliveries($deliveries);
 
@@ -99,7 +94,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
         $deliveries = $this->builder->build($calculated, $data, $context, $behavior);
 
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, $calculated, $deliveries, $context);
 
         $calculated->setDeliveries($deliveries);
     }

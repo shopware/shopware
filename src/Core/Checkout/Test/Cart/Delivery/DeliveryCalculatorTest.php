@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Test\Cart\Delivery;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
@@ -12,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -37,16 +40,27 @@ class DeliveryCalculatorTest extends TestCase
      */
     private $deliveryCalculator;
 
+    /**
+     * @var DeliveryTime
+     */
+    private $deliveryTime;
+
     protected function setUp(): void
     {
         $this->deliveryCalculator = $this->getContainer()->get(DeliveryCalculator::class);
+        $this->deliveryTime = (new DeliveryTime())->assign([
+            'min' => 1,
+            'max' => 3,
+            'unit' => 'day',
+            'name' => '1-3 days'
+        ]);
     }
 
     public function testCalculateWithEmptyDelivery(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
         $context->expects(static::never())->method(static::anything());
-        $this->deliveryCalculator->calculate(new CartDataCollection(), new DeliveryCollection(), $context);
+        $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test', 'test'), new DeliveryCollection(), $context);
     }
 
     public function testCalculateWithAlreadyCalculatedCosts(): void
@@ -72,7 +86,7 @@ class DeliveryCalculatorTest extends TestCase
         );
         $delivery->expects(static::once())->method('getPositions')->willReturn($positions);
 
-        $this->deliveryCalculator->calculate(new CartDataCollection(), new DeliveryCollection([$delivery]), $context);
+        $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test', 'test'), new DeliveryCollection([$delivery]), $context);
 
         static::assertNotNull($newCosts);
         static::assertInstanceOf(CalculatedPrice::class, $newCosts);
@@ -108,9 +122,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 10,
                 12.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -130,11 +144,12 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $this->deliveryCalculator->calculate($data, new DeliveryCollection([$delivery]), $context);
+        $cart = new Cart('test', 'test');
+        $this->deliveryCalculator->calculate($data, $cart, new DeliveryCollection([$delivery]), $context);
         static::assertSame($costs, $delivery->getShippingCosts());
 
-        static::assertNotNull($delivery->getError());
-        static::assertInstanceOf(ShippingMethodBlockedError::class, $delivery->getError());
+        static::assertGreaterThan(0, $cart->getErrors()->count());
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $cart->getErrors()->first());
     }
 
     public function testCalculateWithoutShippingMethodPricesWithFreeDeliveryItem(): void
@@ -158,9 +173,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 10,
                 12.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                true
+                true,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -180,7 +195,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
 
-        $this->deliveryCalculator->calculate($data, new DeliveryCollection([$delivery]), $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), new DeliveryCollection([$delivery]), $context);
         static::assertNotSame($costs, $newCosts);
     }
 
@@ -205,9 +220,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 10,
                 12.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -217,7 +232,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(12.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -244,9 +259,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 10,
                 12.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -255,10 +270,11 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $cart = new Cart('test', 'test');
+        $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
 
-        static::assertNotNull($deliveries->first()->getError());
-        static::assertInstanceOf(ShippingMethodBlockedError::class, $deliveries->first()->getError());
+        static::assertSame(1, $cart->getErrors()->count());
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $cart->getErrors()->first());
     }
 
     public function testCalculateWithMultipleMatchingCalculationPricesSelectsLowest(): void
@@ -286,9 +302,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 10,
                 12.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -303,7 +319,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -335,9 +351,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 50,
                 12.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -346,7 +362,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(10.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -375,9 +391,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 50,
                 12.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -386,7 +402,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -418,9 +434,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 50,
                 22.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -428,7 +444,7 @@ class DeliveryCalculatorTest extends TestCase
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(14.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -457,9 +473,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 50,
                 12.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -467,7 +483,7 @@ class DeliveryCalculatorTest extends TestCase
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'),$deliveries, $context);
 
         static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -499,9 +515,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 50,
                 22.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(7.5, 15.0, new CalculatedTaxCollection(), new TaxRuleCollection(), 2));
@@ -510,7 +526,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(10.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -543,9 +559,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 50,
                 22.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(7.5, 37.5, new CalculatedTaxCollection(), new TaxRuleCollection(), 5));
@@ -554,7 +570,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(23.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -589,9 +605,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 50,
                 22.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(7.5, 375.0, new CalculatedTaxCollection(), new TaxRuleCollection(), 50));
@@ -600,7 +616,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(14.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -629,9 +645,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 50,
                 12.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -640,7 +656,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -679,9 +695,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 50,
                 12.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
@@ -690,7 +706,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(7.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -720,9 +736,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 50,
                 22.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(7.5, 375.0, new CalculatedTaxCollection(), new TaxRuleCollection(), 50));
@@ -731,12 +747,13 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $cart = new Cart('test', 'test');
+        $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
 
         static::assertSame(0.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
 
-        static::assertNotNull($deliveries->first()->getError());
-        static::assertInstanceOf(ShippingMethodBlockedError::class, $deliveries->first()->getError());
+        static::assertCount(1, $cart->getErrors());
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $cart->getErrors()->first());
     }
 
     public function testCalculateOpenEndWithMatchingRule(): void
@@ -775,9 +792,9 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryInformation(
                 50,
                 22.0,
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                new DeliveryDate(new \DateTime(), new \DateTime()),
-                false
+                false,
+                null,
+                $this->deliveryTime
             )
         );
         $lineItem->setPrice(new CalculatedPrice(7.5, 375.0, new CalculatedTaxCollection(), new TaxRuleCollection(), 50));
@@ -786,7 +803,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(14.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
@@ -796,7 +813,10 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($context->getShippingMethod()->getId()), $context->getShippingMethod());
 
+        $cart = new Cart('test', 'test');
+        $cart->setLineItems($lineItems);
+
         return $this->getContainer()->get(DeliveryBuilder::class)
-            ->build($data, new DeliveryCollection(), $lineItems, $context);
+            ->build($cart, $data, $context, new CartBehavior());
     }
 }

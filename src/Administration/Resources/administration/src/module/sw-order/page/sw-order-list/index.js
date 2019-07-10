@@ -38,6 +38,21 @@ Component.register('sw-order-list', {
 
         orderColumns() {
             return this.getOrderColumns();
+        },
+
+        orderCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+
+            criteria.setTerm(this.term);
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
+            criteria.addAssociation('addresses');
+            criteria.addAssociation('salesChannel');
+            criteria.addAssociation('orderCustomer');
+            criteria.addAssociation('currency');
+            criteria.addAssociation('transactions');
+
+            return criteria;
         }
     },
 
@@ -63,18 +78,8 @@ Component.register('sw-order-list', {
 
         getList() {
             this.isLoading = true;
-            const criteria = new Criteria(this.page, this.limit);
 
-            criteria.setTerm(this.term);
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
-
-            criteria.addAssociation('addresses');
-            criteria.addAssociation('salesChannel');
-            criteria.addAssociation('orderCustomer');
-            criteria.addAssociation('currency');
-            criteria.addAssociation('transactions');
-
-            return this.orderRepsitory.search(criteria, this.context).then((response) => {
+            return this.orderRepsitory.search(this.orderCriteria, this.context).then((response) => {
                 this.total = response.total;
                 this.orders = response;
                 this.isLoading = false;

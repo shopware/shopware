@@ -50,7 +50,7 @@
 
         {% block sw_order_line_items_grid_grid %}
             <sw-data-grid :dataSource="orderLineItems"
-                          :columns="lineItemColumns"
+                          :columns="getLineItemColumns"
                           :fullPage="false"
                           :showSettings="false"
                           :showSelection="editable"

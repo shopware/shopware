@@ -38,16 +38,66 @@ Component.register('sw-order-line-items-grid', {
             return this.repositoryFactory.create('order_line_item');
         },
 
-        lineItemColumns() {
-            return this.getLineItemColumns();
-        },
-
         lineItemActionsEnabled() {
             return this.selectedItems.length !== 0;
         },
 
         orderLineItems() {
             return this.order.lineItems;
+        },
+
+        getLineItemColumns() {
+            const columnDefintions = [{
+                property: 'label',
+                dataIndex: 'label',
+                label: this.$tc('sw-order.detailBase.columnProductName'),
+                allowResize: false,
+                primary: true,
+                inlineEdit: true,
+                width: '200px'
+            }, {
+                property: 'unitPrice',
+                dataIndex: 'unitPrice',
+                label: this.order.taxStatus === 'net' ?
+                    this.$tc('sw-order.detailBase.columnPriceNet') :
+                    this.$tc('sw-order.detailBase.columnPriceGross'),
+                allowResize: false,
+                align: 'right',
+                inlineEdit: true,
+                width: '120px'
+            }, {
+                property: 'quantity',
+                dataIndex: 'quantity',
+                label: this.$tc('sw-order.detailBase.columnQuantity'),
+                allowResize: false,
+                align: 'right',
+                inlineEdit: true,
+                width: '80px'
+            }, {
+                property: 'totalPrice',
+                dataIndex: 'totalPrice',
+                label: this.order.taxStatus === 'net' ?
+                    this.$tc('sw-order.detailBase.columnTotalPriceNet') :
+                    this.$tc('sw-order.detailBase.columnTotalPriceGross'),
+                allowResize: false,
+                align: 'right',
+                width: '80px'
+            }];
+
+            if (this.order.price.taxStatus !== 'tax-free') {
+                columnDefintions.push(
+                    {
+                        property: 'price.taxRules[0]',
+                        label: this.$tc('sw-order.detailBase.columnTax'),
+                        allowResize: false,
+                        align: 'right',
+                        inlineEdit: true,
+                        width: '100px'
+                    }
+                );
+            }
+
+            return columnDefintions;
         }
     },
     methods: {
@@ -155,60 +205,6 @@ Component.register('sw-order-line-items-grid', {
                 return null;
             }
             return 0;
-        },
-
-        getLineItemColumns() {
-            const columnDefintions = [{
-                property: 'label',
-                dataIndex: 'label',
-                label: this.$tc('sw-order.detailBase.columnProductName'),
-                allowResize: false,
-                primary: true,
-                inlineEdit: true,
-                width: '200px'
-            }, {
-                property: 'unitPrice',
-                dataIndex: 'unitPrice',
-                label: this.order.taxStatus === 'net' ?
-                    this.$tc('sw-order.detailBase.columnPriceNet') :
-                    this.$tc('sw-order.detailBase.columnPriceGross'),
-                allowResize: false,
-                align: 'right',
-                inlineEdit: true,
-                width: '120px'
-            }, {
-                property: 'quantity',
-                dataIndex: 'quantity',
-                label: this.$tc('sw-order.detailBase.columnQuantity'),
-                allowResize: false,
-                align: 'right',
-                inlineEdit: true,
-                width: '80px'
-            }, {
-                property: 'totalPrice',
-                dataIndex: 'totalPrice',
-                label: this.order.taxStatus === 'net' ?
-                    this.$tc('sw-order.detailBase.columnTotalPriceNet') :
-                    this.$tc('sw-order.detailBase.columnTotalPriceGross'),
-                allowResize: false,
-                align: 'right',
-                width: '80px'
-            }];
-
-            if (this.order.price.taxStatus !== 'tax-free') {
-                columnDefintions.push(
-                    {
-                        property: 'price.taxRules[0]',
-                        label: this.$tc('sw-order.detailBase.columnTax'),
-                        allowResize: false,
-                        align: 'right',
-                        inlineEdit: true,
-                        width: '100px'
-                    }
-                );
-            }
-
-            return columnDefintions;
         }
     }
 });

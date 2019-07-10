@@ -55,7 +55,7 @@
         {% block sw_order_document_card_grid %}
             <sw-data-grid v-if="!documentsEmpty"
                           :dataSource="documents"
-                          :columns="getDocumentColumns()"
+                          :columns="getDocumentColumns"
                           :fullPage="false"
                           :showSettings="false"
                           :showSelection="false"

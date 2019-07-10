@@ -48,6 +48,28 @@ Component.register('sw-order-state-history-card', {
 
         stateMachineHistoryRepository() {
             return this.repositoryFactory.create('state_machine_history');
+        },
+
+        stateMachineHistoryCriteria() {
+            const criteria = new Criteria(1, 50);
+            criteria.addFilter(
+                Criteria.equalsAny(
+                    'state_machine_history.entityId.id',
+                    [this.order.id, this.order.transactions[0].id]
+                )
+            );
+            criteria.addFilter(
+                Criteria.equalsAny(
+                    'state_machine_history.entityName',
+                    ['order', 'order_transaction']
+                )
+            );
+            criteria.addAssociation('fromStateMachineState');
+            criteria.addAssociation('toStateMachineState');
+            criteria.addAssociation('user');
+            criteria.addSorting({ field: 'state_machine_history.createdAt', order: 'ASC' });
+
+            return criteria;
         }
 
     },
@@ -76,36 +98,14 @@ Component.register('sw-order-state-history-card', {
 
         getStateHistoryEntries() {
             return this.stateMachineHistoryRepository.search(
-                this.stateMachineHistoryCriteria(),
+                this.stateMachineHistoryCriteria,
                 this.context
             ).then((fetchedEntries) => {
                 this.orderHistory = this.buildStateHistory(this.order, fetchedEntries);
                 this.transactionHistory = this.buildStateHistory(this.order.transactions[0], fetchedEntries);
 
-                return Promise.resolve();
+                return Promise.resolve(fetchedEntries);
             });
-        },
-
-        stateMachineHistoryCriteria() {
-            const criteria = new Criteria(1, 50);
-            criteria.addFilter(
-                Criteria.equalsAny(
-                    'state_machine_history.entityId.id',
-                    [this.order.id, this.order.transactions[0].id]
-                )
-            );
-            criteria.addFilter(
-                Criteria.equalsAny(
-                    'state_machine_history.entityName',
-                    ['order', 'order_transaction']
-                )
-            );
-            criteria.addAssociation('fromStateMachineState');
-            criteria.addAssociation('toStateMachineState');
-            criteria.addAssociation('user');
-            criteria.addSorting({ field: 'state_machine_history.createdAt', order: 'ASC' });
-
-            return criteria;
         },
 
         buildStateHistory(entity, allEntries) {

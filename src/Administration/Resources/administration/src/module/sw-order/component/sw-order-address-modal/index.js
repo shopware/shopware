@@ -50,6 +50,14 @@ Component.register('sw-order-address-modal', {
         };
     },
     computed: {
+        customerCriteria() {
+            const criteria = new Criteria({ page: 1, limit: 1 });
+            criteria.setIds([this.orderCustomer.customerId]);
+            criteria.addAssociation('addresses');
+
+            return criteria;
+        },
+
         customerRepository() {
             return this.repositoryFactory.create('customer');
         },
@@ -69,21 +77,13 @@ Component.register('sw-order-address-modal', {
         createdComponent() {
             this.isLoading = true;
 
-            this.customerRepository.search(this.customerCriteria(), this.context).then((customer) => {
+            this.customerRepository.search(this.customerCriteria, this.context).then((customer) => {
                 this.availableAddresses = customer[0].addresses;
 
                 return this.$store.dispatch('resetApiErrors');
             }).finally(() => {
                 this.isLoading = false;
             });
-        },
-
-        customerCriteria() {
-            const criteria = new Criteria({ page: 1, limit: 1 });
-            criteria.setIds([this.orderCustomer.customerId]);
-            criteria.addAssociation('addresses');
-
-            return criteria;
         },
 
         onNewActiveItem() {

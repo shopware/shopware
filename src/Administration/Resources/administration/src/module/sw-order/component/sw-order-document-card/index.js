@@ -83,32 +83,6 @@ Component.register('sw-order-document-card', {
 
         documentCardStyles() {
             return `sw-order-document-card ${this.documentsEmpty ? 'sw-order-document-card--is-empty' : ''}`;
-        }
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    methods: {
-        createdComponent() {
-            this.cardLoading = true;
-
-            this.documentTypeRepository.search(this.documentTypeCriteria(), this.context).then((response) => {
-                this.documentTypes = response;
-                this.cardLoading = false;
-            });
-        },
-
-        getList() {
-            this.documentsLoading = true;
-
-            return this.documentRepository.search(this.documentCriteria(), this.context).then((response) => {
-                this.total = response.total;
-                this.documents = response;
-                this.documentsLoading = false;
-                return Promise.resolve();
-            });
         },
 
         documentTypeCriteria() {
@@ -153,6 +127,32 @@ Component.register('sw-order-document-card', {
                 allowResize: false,
                 align: 'center'
             }];
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.cardLoading = true;
+
+            this.documentTypeRepository.search(this.documentTypeCriteria, this.context).then((response) => {
+                this.documentTypes = response;
+                this.cardLoading = false;
+            });
+        },
+
+        getList() {
+            this.documentsLoading = true;
+
+            return this.documentRepository.search(this.documentCriteria, this.context).then((response) => {
+                this.total = response.total;
+                this.documents = response;
+                this.documentsLoading = false;
+                return Promise.resolve();
+            });
         },
 
         documentTypeAvailable(documentType) {

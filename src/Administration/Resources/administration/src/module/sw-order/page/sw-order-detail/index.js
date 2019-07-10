@@ -98,6 +98,25 @@ Component.register('sw-order-detail', {
 
             return this.stateStyleDataProviderService.getStyle('order.state',
                 this.order.stateMachineState.technicalName).selectBackgroundStyle;
+        },
+
+        orderCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+
+            criteria.addAssociationPaths([
+                'lineItems',
+                'currency',
+                'orderCustomer',
+                'salesChannel.language',
+                'addresses.country',
+                'deliveries.shippingMethod',
+                'deliveries.shippingOrderAddress',
+                'transactions.paymentMethod',
+                'documents',
+                'tags'
+            ]);
+
+            return criteria;
         }
     },
 
@@ -130,7 +149,7 @@ Component.register('sw-order-detail', {
         reloadEntityData() {
             this.isLoading = true;
 
-            return this.orderRepository.get(this.orderId, this.versionContext, this.orderCriteria()).then((response) => {
+            return this.orderRepository.get(this.orderId, this.versionContext, this.orderCriteria).then((response) => {
                 this.order = response;
                 this.isLoading = false;
                 return Promise.resolve();
@@ -138,25 +157,6 @@ Component.register('sw-order-detail', {
                 this.isLoading = false;
                 return Promise.reject();
             });
-        },
-
-        orderCriteria() {
-            const criteria = new Criteria(this.page, this.limit);
-
-            criteria.addAssociationPaths([
-                'lineItems',
-                'currency',
-                'orderCustomer',
-                'salesChannel.language',
-                'addresses.country',
-                'deliveries.shippingMethod',
-                'deliveries.shippingOrderAddress',
-                'transactions.paymentMethod',
-                'documents',
-                'tags'
-            ]);
-
-            return criteria;
         },
 
         saveAndReload() {

@@ -8,14 +8,18 @@ The helper accepts a string which will act as the `class` attribute of the `pict
 
 * `thumbnails` - MediaThumbnailCollection
 * `default` - URL to the default image if no thumbnail matches the screen real estate of the user
-* `alt` - Text for the "alt" attribute 
+* `alt` - Text for the "alt" attribute
+* `attributes` - Additional attributes for the "picture" element
 
 ### Example
 
 ```
 {% sw_thumbnails "my-image-class" with {
     thumbnails: page.product.media.first.media.thumbnails,
-    default: page.product.media.first.media.thumbnails.last,
+    default: page.product.media.first.media.thumbnails.last.url,
+    attributes: {
+        'data-plugin-slider': true
+    },
     alt: page.product.translated.name
 } %}
 ```

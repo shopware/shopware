@@ -8,5 +8,9 @@
     {% else %}
         {% set lastThumb = thumbnails.last.url %}
     {% endif %}
-    <img src="{{ lastThumb }}" alt="{{ alt }}" />
+    <img src="{{ lastThumb }}" alt="{{ alt }}" {% apply spaceless %}
+        {% for key,value in attributes %}
+            {{ key }}="{{ value }}"
+        {% endfor %}
+    {% endapply %} />
 </picture>

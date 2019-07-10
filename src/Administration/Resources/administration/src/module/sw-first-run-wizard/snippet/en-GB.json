@@ -8,7 +8,9 @@
       "buttonFinish": "Finish"
     },
     "welcome": {
-      "modalTitle": "Welcome"
+      "modalTitle": "Welcome",
+      "headlineWelcome": "Welcome in the Shopware 6 Administration",
+      "headlineChangeLanguage": "Change your interface language"
     },
     "store-login": {
       "registerAccountUrl": "https://account.shopware.com/register?lang=en",

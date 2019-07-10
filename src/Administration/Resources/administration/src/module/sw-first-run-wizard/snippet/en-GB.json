@@ -12,6 +12,11 @@
       "headlineWelcome": "Welcome in the Shopware 6 Administration",
       "headlineChangeLanguage": "Change your interface language"
     },
+    "demodata": {
+      "modalTitle": "Install Demodata",
+      "headlineDemodata": "Install demodata blahh blah bla",
+      "messageDemodata": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren."
+    },
     "store-login": {
       "registerAccountUrl": "https://account.shopware.com/register?lang=en",
       "forgotPasswordUrl": "https://account.shopware.com/recovery?lang=en"

@@ -1,8 +1,8 @@
 {% block sw_first_run_wizard_demodata %}
-    <div>
-        <img class="sw-first-run-wizard__demodata-image" :src="'/administration/static/img/first-run-wizard/demodata.svg' | asset">
-        <h5>Install demodata blahh blah bla</h5>
-        <p>
+    <div class="sw-first-run-wizard-demodata">
+        <img class="sw-first-run-wizard-demodata__illustration" :src="'/administration/static/img/first-run-wizard/demodata.svg' | asset">
+        <h5 class="sw-first-run-wizard-demodata__headline">{{ $tc('sw-first-run-wizard.demodata.headlineDemodata') }}</h5>
+        <p class="sw-first-run-wizard-demodata__message">
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren.
         </p>
     </div>

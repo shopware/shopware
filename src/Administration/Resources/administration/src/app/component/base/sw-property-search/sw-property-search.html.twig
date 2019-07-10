@@ -56,7 +56,14 @@
 
                                 <template slot="pagination">
                                     {% block sw_property_search_tree_group_grid_pagination %}
-                                        <sw-pagination :page="groupPage" :limit="10" :total="groupTotal" :total-visible="7" @page-change="onGroupPageChange" :steps="[10]" />
+                                        <sw-pagination :page="groupPage"
+                                                       :limit="10"
+                                                       :total="groupTotal"
+                                                       :total-visible="7"
+                                                       @page-change="onGroupPageChange"
+                                                       :autoHide="false"
+                                                       :steps="[10]">
+                                        </sw-pagination>
                                     {% endblock %}
                                 </template>
                             </sw-grid>
@@ -90,7 +97,8 @@
                                                        :total-visible="7"
                                                        :autoHide="false"
                                                        @page-change="onOptionPageChange"
-                                                       :steps="[10]" />
+                                                       :steps="[10]" >
+                                        </sw-pagination>
                                     {% endblock %}
                                 </template>
 

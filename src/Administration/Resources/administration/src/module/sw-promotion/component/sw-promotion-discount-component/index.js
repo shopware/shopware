@@ -46,13 +46,13 @@ Component.register('sw-promotion-discount-component', {
         },
 
         ruleFilter() {
-            return Criteria.equalsAny(
-                'conditions.type',
-                [
-                    'cartLineItem', 'cartLineItemTag', 'cartLineItemTotalPrice',
-                    'cartLineItemUnitPrice', 'cartLineItemWithQuantity'
-                ]
-            );
+            return Criteria.multi('AND', [
+                Criteria.equalsAny('conditions.type', [
+                    'cartLineItemOfType', 'cartLineItem', 'cartLineItemTotalPrice', 'cartLineItemUnitPrice',
+                    'cartLineItemWithQuantity', 'cartLineItemTag'
+                ]),
+                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
+            ]);
         },
 
         currencyPriceColumns() {

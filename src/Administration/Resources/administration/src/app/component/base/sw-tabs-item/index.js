@@ -51,6 +51,11 @@ export default {
             type: Boolean,
             required: false,
             default: false
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -86,7 +91,8 @@ export default {
         tabsItemClasses() {
             return {
                 'sw-tabs-item--active': this.isActive,
-                'sw-tabs-item--has-error': this.hasError
+                'sw-tabs-item--has-error': this.hasError,
+                'sw-tabs-item--is-disabled': this.disabled
             };
         }
     },

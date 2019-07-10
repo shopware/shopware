@@ -50,25 +50,28 @@
                     {% endblock %}
 
                     {% block sw_promotion_detail_content_tabs %}
-                        <sw-tabs class="sw-promotion-detail-page__tabs" v-if="promotionId">
+                        <sw-tabs class="sw-promotion-detail-page__tabs">
                             {% block sw_promotion_detail_content_tabs_general %}
                                 <sw-tabs-item :route="{ name: 'sw.promotion.detail.base', params: { id: $route.params.id } }"
                                               :title="$tc('sw-promotion.detail.tabs.tabGeneral')"
-                                              :hasError="swPromotionDetailBaseError">
+                                              :hasError="swPromotionDetailBaseError"
+                                              :disabled="promotionId ? false : true">
                                     {{ $tc('sw-promotion.detail.tabs.tabGeneral') }}
                                 </sw-tabs-item>
                             {% endblock %}
 
                             {% block sw_promotion_detail_content_tabs_restrictions %}
                                 <sw-tabs-item :route="{ name: 'sw.promotion.detail.restrictions', params: { id: $route.params.id } }"
-                                              :title="$tc('sw-promotion.detail.tabs.tabPreconditions')">
+                                              :title="$tc('sw-promotion.detail.tabs.tabPreconditions')"
+                                              :disabled="promotionId ? false : true">
                                     {{ $tc('sw-promotion.detail.tabs.tabPreconditions') }}
                                 </sw-tabs-item>
                             {% endblock %}
 
                             {% block sw_promotion_detail_content_tabs_rebate %}
                                 <sw-tabs-item :route="{ name: 'sw.promotion.detail.discounts', params: { id: $route.params.id } }"
-                                              :title="$tc('sw-promotion.detail.tabs.tabDiscounts')">
+                                              :title="$tc('sw-promotion.detail.tabs.tabDiscounts')"
+                                              :disabled="promotionId ? false : true">
                                     {{ $tc('sw-promotion.detail.tabs.tabDiscounts') }}
                                 </sw-tabs-item>
                             {% endblock %}

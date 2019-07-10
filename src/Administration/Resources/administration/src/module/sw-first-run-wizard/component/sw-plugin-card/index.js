@@ -52,7 +52,6 @@ Component.register('sw-plugin-card', {
                 })
                 .finally(() => {
                     this.pluginIsLoading = false;
-                    // document.location.reload();
                     this.cacheApiService.clear();
                 });
         },
@@ -65,7 +64,6 @@ Component.register('sw-plugin-card', {
                     return this.pluginService.delete(pluginName);
                 })
                 .finally(() => {
-                    // document.location.reload();
                     this.cacheApiService.clear();
                 });
         }

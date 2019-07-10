@@ -27,11 +27,10 @@ Component.register('sw-first-run-wizard', {
         // ]),
         currentLocale() {
             return this.$store.state.adminLocale.currentLocale;
-            // return Shopware.State.getStore('adminLocale').state.currentLocale;
         },
 
         title() {
-            return `${this.$tc('sw-first-run-wizard.welcome.modalTitle')} ${this.currentLocale}`;
+            return `${this.$tc('sw-first-run-wizard.welcome.modalTitle')}`;
         }
     },
 

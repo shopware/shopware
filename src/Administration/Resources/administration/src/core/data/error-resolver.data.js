@@ -1,9 +1,6 @@
 import { State, EntityDefinition } from 'src/core/shopware';
 import ShopwareError from './ShopwareError';
 
-const regExToManyAssociation = /\/([^\/]*)\/(\d)(\/.*)/;
-const regExTranslations = /\/translations\/([a-fA-f\d]*)\/(.*)/;
-
 export default class ErrorResolver {
     constructor() {
         this.errorStore = State.getStore('error');
@@ -69,16 +66,9 @@ export default class ErrorResolver {
             error.source.pointer = `/${error.source.pointer}`;
         }
 
-        const pointer = error.source.pointer.split('/');
+        const [, /* command index */, fieldName, ...rest] = error.source.pointer.split('/');
 
-        // remove empty part before the slash
-        pointer.shift();
-
-        // remove (yet unused) write index
-        pointer.shift();
-
-        const fieldName = pointer.shift();
-        const subFields = `/${pointer.join('/')}`;
+        const subFields = `/${rest.join('/')}`;
 
         const field = definition.getField(fieldName);
 
@@ -120,10 +110,10 @@ export default class ErrorResolver {
             return;
         }
 
-        const [, associationName, index, field] = error.source.pointer.match(regExToManyAssociation);
+        const [, , associationName, index, ...additionalPath] = error.source.pointer.split('/');
         const associationChanges = changeset[associationName][index];
         const entity = entityCollection.get(associationChanges.id);
-        error.source.pointer = field;
+        error.source.pointer = `/${index}/${additionalPath.join('/')}`;
 
         this.resolveError(error, definition, entity, changeset, systemErrors);
     }
@@ -148,8 +138,8 @@ export default class ErrorResolver {
      * @param systemErrors
      */
     resolveTranslation(error, definition, entity, systemErrors) {
-        const match = error.source.pointer.match(regExTranslations);
-        const fieldName = match[2];
+        const match = error.source.pointer.split('/');
+        const fieldName = match[4];
 
         if (typeof fieldName === 'undefined') {
             if (error.code === 'MISSING-SYSTEM-TRANSLATION') {

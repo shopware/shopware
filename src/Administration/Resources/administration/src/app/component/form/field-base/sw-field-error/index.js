@@ -17,19 +17,17 @@ export default {
     },
 
     computed: {
-        snippetKey() {
-            if (!this.error) {
-                return null;
-            }
-            return `global.error-codes.${this.error.code}`;
-        },
-
         errorMessage() {
-            if (this.$te(this.$i18n.fallbackLocale, this.snippetKey)) {
-                return this.$t(this.snippetKey, this.error.parameters);
+            if (!this.error) {
+                return '';
             }
+            const translationKey = `global.error-codes.${this.error.code}`;
+            const translation = this.$tc(translationKey);
 
-            return this.error.detail;
+            if (translation === translationKey) {
+                return this.error.detail;
+            }
+            return translation;
         }
     }
 };

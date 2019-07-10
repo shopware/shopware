@@ -1,4 +1,14 @@
 {
+  "global": {
+    "error-codes": {
+      "PROMOTION_VALID_UNTIL_VIOLATION": "Expiration Date of Promotion must be after Start of Promotion.",
+      "PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION": "The discount value must not be bigger than {value}.",
+      "PROMOTION_DISCOUNT_MIN_VALUE_VIOLATION": "The discount value must not be less than {value}.",
+      "PROMOTION_DUPLICATED_CODE_VIOLATION": "The code has been used by another promotion already.",
+      "PROMOTION_CODE_WHITESPACE_VIOLATION": "The code must not start nor end with whitespace.",
+      "PROMOTION_EMPTY_CODE_VIOLATION": "The code must not be empty."
+    }
+  },
   "sw-promotion": {
     "general": {
       "mainMenuItemGeneral" : "Promotions",

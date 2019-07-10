@@ -1,4 +1,15 @@
 {
+  "global": {
+    "error-codes": {
+      "PROMOTION_VALID_UNTIL_VIOLATION": "Das Ende der Aktion muss vor ihrem Beginn liegen.",
+      "PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION": "Der Rabattwert darf nicht größer sein als {value}.",
+      "PROMOTION_DISCOUNT_MIN_VALUE_VIOLATION": "Der Rabattwert darf nicht kleiner sein als {value}.",
+      "PROMOTION_DUPLICATED_CODE_VIOLATION": "Dieser Aktionscode wird bereits von einer anderen Aktion benutzt.",
+      "PROMOTION_CODE_WHITESPACE_VIOLATION": "Der Aktionscode darf nicht mit Leerzeichen beginnen oder enden.",
+      "PROMOTION_EMPTY_CODE_VIOLATION": "Der Aktionscode darf nicht leer sein."
+    }
+  },
+
   "sw-promotion": {
     "general": {
       "mainMenuItemGeneral" : "Rabatte & Aktionen",

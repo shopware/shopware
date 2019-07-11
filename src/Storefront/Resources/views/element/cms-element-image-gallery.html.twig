@@ -2,9 +2,9 @@
     {# cms element data and configs #}
     {% if element.fieldConfig is defined and element.data is defined %}
         {% set mediaItems = element.data.sliderItems %}
-        
+
         {% set sliderConfig = element.fieldConfig.elements %}
-        
+
         {% set zoom = sliderConfig.zoom.value %}
         {% set magnifierOverGallery = true %}
         {% set zoomModal = sliderConfig.fullScreen.value %}
@@ -15,13 +15,13 @@
         {% set galleryPosition = sliderConfig.galleryPosition.value %}
         {% set verticalAlign = sliderConfig.verticalAlign.value %}
     {% endif %}
-    
+
     {% set imageCount = mediaItems|length %}
-    
+
     <div class="cms-element-{{ element.type }}{% if displayMode == "standard" and verticalAlign %} has-vertical-alignment{% endif %}">
         {% block element_image_gallery_alignment %}
             <div class="cms-element-alignment{% if verticalAlign == "center" %} align-self-center{% elseif verticalAlign == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
-    
+
                 {% block element_image_gallery_inner %}
                     <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% endif %} js-gallery-zoom-modal-container"
                         {% if zoom %}
@@ -69,7 +69,7 @@
                                 }
                             }'
                         {% endif %}>
-            
+
                         {% block element_image_gallery_inner_col %}
                             <div class="gallery-slider-col{% if galleryPosition == "left" %} col order-1 order-md-2{% elseif galleryPosition == "underneath" %} col-12 order-1{% endif %}"
                                  {% if zoomModal %}data-zoom-modal="true"{% endif %}>
@@ -89,6 +89,8 @@
                                                                             <img src="{{ image.media.url }}"
                                                                                  class="img-fluid gallery-slider-image magnifier-image js-magnifier-image"
                                                                                  data-full-image="{{ image.media.url }}"
+                                                                                 data-width="{{ image.media.metaData.width }}"
+                                                                                 data-height="{{ image.media.metaData.height }}"
                                                                                  {% if image.media.translated.title %}title="{{ image.media.translated.title }}"{% endif %}
                                                                                  alt="{{ (image.media.translated.alt ?: image.media.fileName) }}"/>
                                                                         </div>
@@ -98,7 +100,7 @@
                                                         {% endblock %}
                                                     </div>
                                                 {% endblock %}
-                                    
+
                                                 {% block element_image_gallery_inner_controls %}
                                                     {% if navigationArrows %}
                                                         <div class="gallery-slider-controls"
@@ -111,7 +113,7 @@
                                                                         {% endblock %}
                                                                     </button>
                                                                 {% endblock %}
-                                                    
+
                                                                 {% block element_image_gallery_inner_control_next %}
                                                                     <button class="base-slider-controls-next gallery-slider-controls-next{% if navigationArrows == "outside" %} is-nav-next-outside{% elseif navigationArrows == "inside" %} is-nav-next-inside{% endif %}">
                                                                         {% block element_image_gallery_inner_control_next_icon %}
@@ -161,7 +163,7 @@
                                 </div>
                             </div>
                         {% endblock %}
-            
+
                         {% block element_image_gallery_inner_thumbnails_col %}
                             {% if imageCount > 1 %}
                                 <div class="gallery-slider-thumbnails-col{% if galleryPosition == "left" %} col-0 col-md-auto order-2 order-md-1 is-left{% elseif galleryPosition == "underneath" %} col-12 order-2 is-underneath{% endif %}">
@@ -187,7 +189,7 @@
                                                 {% endblock %}
                                             </div>
                                         {% endblock %}
-                            
+
                                         {% block element_image_gallery_inner_thumbnails_controls %}
                                             {% if galleryPosition == "left" %}
                                                 <div data-thumbnail-slider-controls="true" class="gallery-slider-thumbnails-controls">
@@ -204,7 +206,7 @@
                                 </div>
                             {% endif %}
                         {% endblock %}
-            
+
                         {% block element_image_gallery_inner_zoom_modal_wrapper %}
                             {% if zoomModal %}
                                 <div class="zoom-modal-wrapper">
@@ -230,15 +232,15 @@
                                                                     {% endblock %}
                                                                 </button>
                                                             {% endblock %}
-                                                
+
                                                             {% block element_image_gallery_inner_zoom_modal_body %}
                                                                 <div class="modal-body">
-                                                        
+
                                                                     {% block element_image_gallery_inner_zoom_modal_action_buttons %}
                                                                         <div class="zoom-modal-actions btn-group"
                                                                              role="group"
                                                                              aria-label="zoom actions">
-                                                                
+
                                                                             {% block element_image_gallery_inner_zoom_modal_action_zoom_out %}
                                                                                 <button class="btn btn-light image-zoom-btn js-image-zoom-out">
                                                                                     {% block element_image_gallery_inner_zoom_modal_action_zoom_out_icon %}
@@ -246,7 +248,7 @@
                                                                                     {% endblock %}
                                                                                 </button>
                                                                             {% endblock %}
-                                                                
+
                                                                             {% block element_image_gallery_inner_zoom_modal_action_zoom_reset %}
                                                                                 <buton class="btn btn-light image-zoom-btn js-image-zoom-reset">
                                                                                     {% block element_image_gallery_inner_zoom_modal_action_zoom_reset_icon %}
@@ -254,7 +256,7 @@
                                                                                     {% endblock %}
                                                                                 </buton>
                                                                             {% endblock %}
-                                                                
+
                                                                             {% block element_image_gallery_inner_zoom_modal_action_zoom_in %}
                                                                                 <button class="btn btn-light image-zoom-btn js-image-zoom-in">
                                                                                     {% block element_image_gallery_inner_zoom_modal_action_zoom_in_icon %}
@@ -264,7 +266,7 @@
                                                                             {% endblock %}
                                                                         </div>
                                                                     {% endblock %}
-                                                        
+
                                                                     {% block element_image_gallery_inner_zoom_modal_slider %}
                                                                         <div class="gallery-slider"
                                                                              data-gallery-slider-container=true>
@@ -291,7 +293,7 @@
                                                                             {% endblock %}
                                                                         </div>
                                                                     {% endblock %}
-                                                        
+
                                                                     {% block element_image_gallery_inner_zoom_modal_slider_controls %}
                                                                         {% if imageCount > 1 %}
                                                                             <div class="gallery-slider-controls"
@@ -303,7 +305,7 @@
                                                                                         {% endblock %}
                                                                                     </button>
                                                                                 {% endblock %}
-                                                                    
+
                                                                                 {% block element_image_gallery_inner_zoom_modal_slider_control_next %}
                                                                                     <button class="base-slider-controls-next gallery-slider-controls-next">
                                                                                         {% block element_image_gallery_inner_zoom_modal_slider_control_next_icon %}
@@ -316,7 +318,7 @@
                                                                     {% endblock %}
                                                                 </div>
                                                             {% endblock %}
-                                                
+
                                                             {% if imageCount > 1 %}
                                                                 {% block element_image_gallery_inner_zoom_modal_footer %}
                                                                     <div class="modal-footer">
@@ -355,7 +357,7 @@
                         {% endblock %}
                     </div>
                 {% endblock %}
-                
+
             </div>
         {% endblock %}
     </div>

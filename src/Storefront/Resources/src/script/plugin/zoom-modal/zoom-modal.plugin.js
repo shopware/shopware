@@ -48,7 +48,7 @@ export default class ZoomModalPlugin extends Plugin {
 
     init() {
         this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
-
+        this._clickInterrupted = false;
         this._registerEvents();
     }
 
@@ -57,24 +57,40 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        const eventType = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+        const eventType = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
 
         Iterator.iterate(this._triggers, element => {
             element.removeEventListener(eventType, this._onClick.bind(this));
             element.addEventListener(eventType, this._onClick.bind(this));
         });
+
+        Iterator.iterate(this._triggers, element => {
+            element.removeEventListener('touchmove', this._onTouchMove.bind(this));
+            element.addEventListener('touchmove', this._onTouchMove.bind(this));
+        });
     }
 
     /**
-     *
      * @param event
      * @private
      */
     _onClick(event) {
+        if (this._clickInterrupted === true) {
+            this._clickInterrupted = false;
+            return;
+        }
+
         ZoomModalPlugin._stopEvent(event);
         this._openModal();
 
         this.$emitter.publish('onClick');
+    }
+
+    /**
+     * @private
+     */
+    _onTouchMove() {
+        this._clickInterrupted = true;
     }
 
     /**
@@ -88,8 +104,8 @@ export default class ZoomModalPlugin extends Plugin {
             // execute all needed scripts for the slider
             const $modal = $(modal);
 
-            $modal.off('show.bs.modal');
-            $modal.on('show.bs.modal', () => {
+            $modal.off('shown.bs.modal');
+            $modal.on('shown.bs.modal', () => {
                 this._initSlider(modal);
 
                 this.$emitter.publish('modalShow', { modal });
@@ -123,6 +139,7 @@ export default class ZoomModalPlugin extends Plugin {
         PluginManager.initializePlugin('GallerySlider', slider, {
             slider: {
                 startIndex: parentSliderIndex,
+                touch: false,
             },
             thumbnailSlider: {
                 startIndex: parentSliderIndex,
@@ -155,13 +172,23 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _registerImageZoom() {
-        this.gallerySliderPlugin._slider.events.on('indexChanged', () => {
-            const activeSlideElement = this.gallerySliderPlugin.getActiveSlideElement();
-            const activeImageZoomElement = activeSlideElement.querySelector(this.options.imageZoomInitSelector);
-            const imageZoomPlugin = PluginManager.getPluginInstanceFromElement(activeImageZoomElement, 'ImageZoom');
+        this._updateButtonState();
+        this.gallerySliderPlugin._slider.events.on('indexChanged', this._updateButtonState.bind(this));
+    }
 
-            imageZoomPlugin._setActionButtonState();
-        });
+    /**
+     * updates the image zoom button state
+     *
+     * @private
+     */
+    _updateButtonState() {
+        const activeSlideElement = this.gallerySliderPlugin.getActiveSlideElement();
+        if (!activeSlideElement) return;
+        const activeImageZoomElement = activeSlideElement.querySelector(this.options.imageZoomInitSelector);
+        if (!activeImageZoomElement) return;
+        const imageZoomPlugin = PluginManager.getPluginInstanceFromElement(activeImageZoomElement, 'ImageZoom');
+        if (!imageZoomPlugin) return;
+        imageZoomPlugin._setActionButtonState();
     }
 
     /**
@@ -183,7 +210,7 @@ export default class ZoomModalPlugin extends Plugin {
             }
         }
 
-        return sliderIndex === 0 ? 1 : sliderIndex + 1;
+        return sliderIndex + 1;
     }
 
     /**

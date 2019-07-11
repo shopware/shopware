@@ -149,7 +149,7 @@ class FirstRunWizardController extends AbstractController
     {
         $shopwareId = $requestDataBag->get('shopwareId');
         $password = $requestDataBag->get('password');
-        $language = $queryDataBag->get('language', '');
+        $language = $requestDataBag->get('language') ?? $queryDataBag->get('language', '');
 
         if ($shopwareId === null || $password === null) {
             throw new StoreInvalidCredentialsException();

@@ -86,7 +86,10 @@ class Kernel extends HttpKernel
             }
         }
 
-        yield from self::$plugins->getActives();
+        foreach (self::$plugins->getActives() as $plugin) {
+            yield $plugin;
+            yield from $plugin->getExtraBundles($this->classLoader);
+        }
     }
 
     public function boot($withPlugins = true): void

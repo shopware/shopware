@@ -13,7 +13,9 @@
         <sw-container columns="1fr 1fr" gap="24px 0">
             <sw-plugin-card v-for="languagePlugin in languagePlugins"
                             :key="languagePlugin.name"
-                            :plugin="languagePlugin">
+                            :plugin="languagePlugin"
+                            @onPluginInstalled="reloadPlugins"
+                            @onPluginRemoved="reloadPlugins">
             </sw-plugin-card>
         </sw-container>
     </div>

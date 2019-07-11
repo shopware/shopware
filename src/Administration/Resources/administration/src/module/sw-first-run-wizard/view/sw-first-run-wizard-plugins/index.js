@@ -94,6 +94,10 @@ Component.register('sw-first-run-wizard-plugins', {
             }).then((response) => {
                 this.regions = response.items;
             });
+        },
+
+        reloadRecommendations() {
+            this.getRecommendations();
         }
     }
 });

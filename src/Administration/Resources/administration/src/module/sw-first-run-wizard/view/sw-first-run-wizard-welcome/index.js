@@ -30,6 +30,10 @@ Component.register('sw-first-run-wizard-welcome', {
             }).then((response) => {
                 this.languagePlugins = response.items;
             });
+        },
+
+        reloadPlugins() {
+            this.getLanguagePlugins();
         }
     }
 });

@@ -53,6 +53,8 @@ Component.register('sw-plugin-card', {
                 .finally(() => {
                     this.pluginIsLoading = false;
                     this.cacheApiService.clear();
+
+                    this.$emit('onPluginInstalled', pluginName);
                 });
         },
 
@@ -65,6 +67,9 @@ Component.register('sw-plugin-card', {
                 })
                 .finally(() => {
                     this.cacheApiService.clear();
+                    this.pluginIsSaveSuccessful = false;
+
+                    this.$emit('onPluginRemoved', pluginName);
                 });
         }
     }

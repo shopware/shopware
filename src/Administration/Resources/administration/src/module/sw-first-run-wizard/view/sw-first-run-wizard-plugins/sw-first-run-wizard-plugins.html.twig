@@ -39,7 +39,9 @@
         <div class="plugins-category-lead">
             <sw-plugin-card v-for="plugin in categoryLead"
                             :key="plugin.name"
-                            :plugin="plugin">
+                            :plugin="plugin"
+                            @onPluginInstalled="reloadRecommendations"
+                            @onPluginRemoved="reloadRecommendations">
             </sw-plugin-card>
         </div>
 

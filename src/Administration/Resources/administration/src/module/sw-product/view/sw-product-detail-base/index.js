@@ -41,5 +41,37 @@ Component.register('sw-product-detail-base', {
                    !this.loading.customFieldSets &&
                    !this.loading.media;
         }
+    },
+
+    methods: {
+        mediaRemoveInheritanceFunction(newValue) {
+            // remove all items
+            this.mediaRestoreInheritanceFunction();
+
+            this.$refs.productMediaInheritance.forceInheritanceRemove = true;
+
+            // add each item from the parentValue to the original value
+            this.$nextTick(() => {
+                newValue.forEach((item) => {
+                    this.$root.$emit('media-added', item.mediaId);
+                });
+            });
+
+            return this.product.media;
+        },
+
+        mediaRestoreInheritanceFunction() {
+            this.$refs.productMediaInheritance.forceInheritanceRemove = false;
+            this.product.coverId = null;
+
+            const productMediaIds = this.product.media.map(media => media.id);
+
+            // remove all items from value
+            productMediaIds.forEach((mediaId) => {
+                this.product.media.remove(mediaId);
+            });
+
+            return this.product.media;
+        }
     }
 });

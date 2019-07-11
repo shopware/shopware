@@ -21,5 +21,12 @@
             <a href="http://wwww.shopware.com/" class="external-link">www.shopware.com</a>
             <a href="http://wwww.shopware.com/" class="external-link">www.shopware.com</a>
         </sw-container>
+
+        <div v-if="restarting"
+             class="restart-progress">
+            <sw-loader size="48"></sw-loader>
+            <p v-html="$tc('sw-first-run-wizard.finish.loadingMessage')"
+               class="sw-loader-info-text"></p>
+        </div>
     </div>
 {% endblock %}

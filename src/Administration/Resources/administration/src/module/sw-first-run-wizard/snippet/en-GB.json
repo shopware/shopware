@@ -61,7 +61,8 @@
     "finish": {
       "headline-all-done": "All done!",
       "message": "Your Shopware 6 %{edition} is now verified.",
-      "headline-useful-links": "Useful Links"
+      "headline-useful-links": "Useful Links",
+      "loadingMessage": "Restarting Application<br>This may take a while..."
     },
     "error": {
       "titleLoginDataInvalid": "Error",

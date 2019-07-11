@@ -225,10 +225,20 @@ Component.register('sw-first-run-wizard-modal', {
         },
 
         onFinish() {
-            this.firstRunWizardService.setFRWStart()
-                .then(() => {
-                    document.location.href = document.location.origin;
-                });
+            let callbackPromise = Promise.resolve(false);
+
+            if (this.nextCallback !== null && typeof this.nextCallback === 'function') {
+                callbackPromise = this.nextCallback.call();
+            }
+
+            callbackPromise.then((abort) => {
+                if (!abort) {
+                    this.firstRunWizardService.setFRWFinish()
+                        .then(() => {
+                            document.location.href = document.location.origin;
+                        });
+                }
+            });
         },
 
         redirect(routeName) {

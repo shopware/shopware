@@ -62,4 +62,17 @@
             }
         }
     }
+
+    .restart-progress {
+        transform: translate(0, 80px);
+
+        .sw-loader {
+            background: none;
+        }
+
+        .sw-loader-info-text {
+            position: relative;
+            top: 50px;
+        }
+    }
 }

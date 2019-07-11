@@ -147,7 +147,7 @@ class InheritanceIndexer implements IndexerInterface
                         ),
                         IFNULL(#root#.parent_id, #root#.id)
                      )
-                     WHERE #root#.id IN (:ids)
+                     WHERE #root#.id IN (:ids) OR #root#.parent_id IN (:ids)
                      %s',
                 $definition->isVersionAware() ? 'AND #reference#.#entity_version_id# = #root#.version_id' : '',
                 $definition->isVersionAware() ? 'AND #root#.version_id = :version' : ''

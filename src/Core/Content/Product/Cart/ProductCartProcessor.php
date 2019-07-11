@@ -267,8 +267,4 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         return $product->getAvailableStock();
     }
-
-    private function validateStock(Cart $toCalculate, LineItem $lineItem, ProductEntity $product, $definition): void
-    {
-    }
 }

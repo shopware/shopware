@@ -173,7 +173,7 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
         $bytes = Uuid::fromHexToBytesList($ids);
 
         $sql = '
-UPDATE product SET available_stock = stock + (
+UPDATE product SET available_stock = stock - (
 	SELECT IFNULL(SUM(order_line_item.quantity), 0)
 
 	FROM order_line_item
@@ -256,6 +256,7 @@ WHERE product.id IN (:ids);
         $query->select(['referenced_id', 'quantity']);
         $query->from('order_line_item');
         $query->andWhere('type = :type');
+        $query->andWhere('order_id = :id');
         $query->setParameter('id', Uuid::fromHexToBytes($orderId));
         $query->setParameter('type', LineItem::PRODUCT_LINE_ITEM_TYPE);
 

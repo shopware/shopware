@@ -23,6 +23,7 @@ class ProductGateway implements ProductGatewayInterface
     {
         $criteria = new Criteria($ids);
         $criteria->addAssociation('prices');
+        $criteria->addAssociation('deliveryTime');
         $criteria->addAssociation('cover');
         $criteria->addAssociation('unit');
 

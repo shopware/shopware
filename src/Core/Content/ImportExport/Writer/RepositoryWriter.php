@@ -50,7 +50,7 @@ class RepositoryWriter implements WriterInterface
             return;
         }
 
-        if ($this->identityField !== null) {
+        if ($this->identityField !== null && $this->identityField !== 'id') {
             $this->enrichRecordsWithIds();
         }
 
@@ -65,9 +65,12 @@ class RepositoryWriter implements WriterInterface
 
     private function enrichRecordsWithIds(): void
     {
-        $filters = array_map(function ($value) {
-            return new EqualsFilter($this->identityField, $value);
-        }, array_column($this->buffer, $this->identityField));
+        $filters = [];
+        foreach ($this->buffer as $record) {
+            if (!isset($record['id']) && isset($record[$this->identityField])) {
+                $filters[] = new EqualsFilter($this->identityField, $record[$this->identityField]);
+            }
+        }
 
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));

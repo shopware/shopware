@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Iterator\IteratorFactoryInterface;
@@ -119,20 +118,18 @@ class ProcessingService
                 }
             }
             $writer->flush();
-        } catch (ShopwareHttpException $exception) {
-            $errors = iterator_to_array($exception->getErrors());
-            $this->logger->error('Failed to process import/export', [
-                'errors' => $errors,
-                'logId' => $logEntity->getId()
-            ]);
-            $this->updateState($context, $logEntity->getId(), ImportExportLogEntity::STATE_FAILED);
-
-            throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Failed to process import/export', [
-                'exception' => $exception,
-                'logId' => $logEntity->getId()
-            ]);
+            $meta = [
+                'logId' => $logEntity->getId(),
+            ];
+
+            if ($exception instanceof ShopwareHttpException) {
+                $meta['errors'] = iterator_to_array($exception->getErrors());
+            } else {
+                $meta['exception'] = $exception;
+            }
+
+            $this->logger->error('Failed to process import/export', $meta);
             $this->updateState($context, $logEntity->getId(), ImportExportLogEntity::STATE_FAILED);
 
             throw $exception;

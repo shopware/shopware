@@ -6,7 +6,11 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionGatewayInterface;
@@ -14,26 +18,46 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionCollector implements CartDataCollectorInterface
 {
+    /**
+     * @var PromotionGatewayInterface
+     */
     private $gateway;
 
-    public function __construct(PromotionGatewayInterface $gateway)
+    /**
+     * @var PromotionItemBuilder
+     */
+    private $itemBuilder;
+
+    public function __construct(PromotionGatewayInterface $gateway, PromotionItemBuilder $itemBuilder)
     {
         $this->gateway = $gateway;
+        $this->itemBuilder = $itemBuilder;
     }
 
     /**
      * This function is used to collect our promotion data for our cart.
      * It queries the database for all promotions with codes within our cart extension
      * along with all non-code promotions that are applied automatically if conditions are met.
-     * The eligible promotions will then be passed on to the enrichment function.
+     * The eligible promotions will then be used in the enrichment process and converted
+     * into Line Items which will be passed on to the next processor.
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
      */
-    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
+    public function collect(CartDataCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
+        // if we are in recalculation,
+        // we must not re-add any promotions. just leave it as it is.
+        if ($behavior->isRecalculation()) {
+            return;
+        }
+
         /** @var array $autoPromotions */
         $autoPromotions = $this->searchPromotionsAuto($data, $context);
 
         /** @var array $allCodes */
-        $allCodes = $original
+        $allCodes = $cart
             ->getLineItems()
             ->filterType(PromotionProcessor::LINE_ITEM_TYPE)
             ->getReferenceIds();
@@ -49,11 +73,27 @@ class PromotionCollector implements CartDataCollectorInterface
         /** @var PromotionEntity[] $eligiblePromotions */
         $eligiblePromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomer());
 
+        $discountLineItems = [];
+
+        /** @var PromotionEntity $promotion */
+        foreach ($eligiblePromotions as $promotion) {
+            // lets build separate line items for each
+            // of the available discounts within the current promotion
+            /** @var array $lineItems */
+            $lineItems = $this->buildDiscountLineItems($promotion, $cart, $context);
+
+            // add to our list of all line items
+            // that should be added
+            foreach ($lineItems as $nested) {
+                $discountLineItems[] = $nested;
+            }
+        }
+
         // if we do have promotions, set them to be processed
         // otherwise make sure to remove the entry to avoid any processing
         // within our promotions scope
-        if (count($eligiblePromotions) >= 0) {
-            $data->set(PromotionProcessor::DATA_KEY, new PromotionCollection($eligiblePromotions));
+        if (count($discountLineItems) > 0) {
+            $data->set(PromotionProcessor::DATA_KEY, new LineItemCollection($discountLineItems));
         } else {
             $data->remove(PromotionProcessor::DATA_KEY);
         }
@@ -185,5 +225,70 @@ class PromotionCollector implements CartDataCollectorInterface
         }
 
         return $eligiblePromotions;
+    }
+
+    /**
+     * This function builds separate line items for each of the
+     * available discounts within the provided promotion.
+     * Every item will be built with a corresponding price definition based
+     * on the configuration of a discount entity.
+     * The resulting list of line items will then be returned and can be added to the cart.
+     * The function will already avoid duplicate entries.
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     */
+    private function buildDiscountLineItems(PromotionEntity $promotion, Cart $cart, SalesChannelContext $context): array
+    {
+        /** @var PromotionDiscountCollection|null $collection */
+        $collection = $promotion->getDiscounts();
+
+        if (!$collection instanceof PromotionDiscountCollection) {
+            return [];
+        }
+
+        $lineItems = [];
+
+        /** @var PromotionDiscountEntity $discount */
+        foreach ($collection->getElements() as $discount) {
+            // we only calculate discounts with scope cart in this processor
+            if ($discount->getScope() !== PromotionDiscountEntity::SCOPE_CART) {
+                continue;
+            }
+
+            /** @var array $itemIds */
+            $itemIds = $this->getAllLineItemIds($cart);
+
+            // add a new discount line item for this discount
+            // if we have at least one valid item that will be discounted.
+            if (count($itemIds) <= 0) {
+                continue;
+            }
+
+            /* @var LineItem $discountItem */
+            $discountItem = $this->itemBuilder->buildDiscountLineItem(
+                $promotion,
+                $discount,
+                $context
+            );
+
+            $lineItems[] = $discountItem;
+        }
+
+        return $lineItems;
+    }
+
+    private function getAllLineItemIds(Cart $cart): array
+    {
+        return $cart->getLineItems()->fmap(
+            static function (LineItem $lineItem) {
+                if ($lineItem->getType() === PromotionProcessor::LINE_ITEM_TYPE) {
+                    return null;
+                }
+
+                return $lineItem->getId();
+            }
+        );
     }
 }

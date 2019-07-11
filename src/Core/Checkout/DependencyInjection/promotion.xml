@@ -71,13 +71,13 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionCollector">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\PromotionGateway"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
             <!-- // inject after product collector(5000) -->
             <tag name="shopware.cart.collector" priority="4900"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
             <tag name="shopware.cart.processor" priority="4900"/>
         </service>
 

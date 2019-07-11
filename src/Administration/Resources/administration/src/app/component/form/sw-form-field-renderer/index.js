@@ -100,7 +100,8 @@ export default {
                 'sw-media-field': ['label'],
                 'sw-select': ['label', 'placeholder', 'helpText'],
                 'sw-single-select': ['label', 'placeholder', 'helpText'],
-                'sw-multi-select': ['label', 'placeholder', 'helpText']
+                'sw-multi-select': ['label', 'placeholder', 'helpText'],
+                'sw-entity-single-select': ['label', 'placeholder', 'helpText']
             }
         };
     },
@@ -242,6 +243,10 @@ export default {
 
             if (this.type === 'media') {
                 return 'sw-media-field';
+            }
+
+            if (this.type === 'entity-single-select') {
+                return 'sw-entity-single-select';
             }
 
             return 'sw-field';

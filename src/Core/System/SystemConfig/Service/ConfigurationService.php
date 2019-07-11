@@ -55,10 +55,11 @@ class ConfigurationService
 
         foreach ($config as $i => $card) {
             foreach ($card['elements'] as $j => $field) {
-                $newField = [
-                    'type' => $field['type'],
-                    'name' => $domain . $field['name'],
-                ];
+                $newField = ['name' => $domain . $field['name']];
+
+                if (array_key_exists('type', $field)) {
+                    $newField['type'] = $field['type'];
+                }
 
                 unset($field['type'], $field['name']);
                 $newField['config'] = $field;

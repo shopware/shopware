@@ -44,5 +44,39 @@
             <helpText>Sets meta tag "isFamilyFriendly" for search engines</helpText>
             <helpText lang="de-DE">Setzt den Metatag "isFamiliyFriendly" für Suchmaschinen</helpText>
         </input-field>
+
+    </card>
+
+    <card>
+        <title>Shop pages</title>
+        <title lang="de-DE">Shopseiten</title>
+
+        <component name="sw-entity-single-select">
+            <name>tosPage</name>
+            <entity>cms_page</entity>
+            <label>Shop page for terms of service</label>
+            <label lang="de-DE">Shopseite für AGB</label>
+        </component>
+
+        <component name="sw-entity-single-select">
+            <name>revocationPage</name>
+            <entity>cms_page</entity>
+            <label>Shop page for revocation notice</label>
+            <label lang="de-DE">Shopseite für Widerrufsbelehrung</label>
+        </component>
+
+        <component name="sw-entity-single-select">
+            <name>shippingPaymentInfoPage</name>
+            <entity>cms_page</entity>
+            <label>Shop page for shipping and payment info</label>
+            <label lang="de-DE">Shopseite für Versand- und Zahlungsarten</label>
+        </component>
+
+        <component name="sw-entity-single-select">
+            <name>privacyPage</name>
+            <entity>cms_page</entity>
+            <label>Shop page for privacy</label>
+            <label lang="de-DE">Shopseite für Datenschutz</label>
+        </component>
     </card>
 </config>

@@ -81,8 +81,8 @@ class ConfigurationServiceTest extends TestCase
                 'name' => null,
                 'elements' => [
                     0 => [
-                        'type' => 'text',
                         'name' => 'SwagExampleTest.email',
+                        'type' => 'text',
                         'config' => [
                             'copyable' => true,
                             'label' => [
@@ -96,8 +96,8 @@ class ConfigurationServiceTest extends TestCase
                         ],
                     ],
                     1 => [
-                        'type' => 'single-select',
                         'name' => 'SwagExampleTest.mailMethod',
+                        'type' => 'single-select',
                         'config' => [
                             'options' => [
                                 0 => [

@@ -109,6 +109,11 @@ class ConfigReader extends XmlReader
             ];
 
             foreach ($options as $option) {
+                if ($this->isTranslateAbleOption($option)) {
+                    $elementData[$option->nodeName][$this->getLocaleCodeFromElement($option)] = $option->nodeValue;
+                    continue;
+                }
+
                 $elementData[$option->nodeName] = $option->nodeValue;
             }
 

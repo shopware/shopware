@@ -82,7 +82,7 @@ class SyncController extends AbstractController
                             $errors = array_merge($errors, $event->getErrors());
                         }
                     } catch (WriteException $exception) {
-                        $errors = array_merge($errors, $exception->getErrors());
+                        $errors = array_merge($errors, iterator_to_array($exception->getErrors()));
                     }
 
                     break;

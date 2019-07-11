@@ -85,6 +85,10 @@ abstract class EntityDefinition
         $this->fields = null;
     }
 
+    /**
+     * @internal
+     * Use this only for test purposes
+     */
     final public function removeExtension(EntityExtensionInterface $toDelete): void
     {
         foreach ($this->extensions as $key => $extension) {

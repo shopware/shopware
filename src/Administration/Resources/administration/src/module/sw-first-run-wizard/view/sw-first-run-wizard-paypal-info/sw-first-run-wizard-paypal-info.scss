@@ -1,5 +1,9 @@
 @import "~scss/variables";
 
+.sw-first-run-wizard-paypal {
+    height: 100%;
+}
+
 .sw-first-run-wizard-paypal-info {
     text-align: center;
     display: flex;
@@ -43,5 +47,20 @@
         font-weight: normal;
         letter-spacing: 0;
         line-height: 19px;
+    }
+}
+
+.sw-first-run-wizard-paypal-install {
+    .sw-loader {
+        background: none;
+    }
+
+    .sw-loader-info-text {
+        position: relative;
+        width: 100%;
+        left: 50%;
+        top: 170px;
+        text-align: center;
+        transform: translate(-50%, -50%);
     }
 }

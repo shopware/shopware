@@ -6,7 +6,6 @@ import './view/sw-first-run-wizard-welcome';
 import './view/sw-first-run-wizard-demodata';
 import './view/sw-first-run-wizard-paypal-base';
 import './view/sw-first-run-wizard-paypal-info';
-import './view/sw-first-run-wizard-paypal-install';
 import './view/sw-first-run-wizard-paypal-credentials';
 import './view/sw-first-run-wizard-plugins';
 import './view/sw-first-run-wizard-shopware-base';

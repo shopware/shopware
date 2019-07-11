@@ -33,6 +33,9 @@
       "disclaimer-two": "2 subject to a positive risk assessment by PayPal"
 
     },
+    "paypal-install": {
+      "loadingMessage": "Installing PayPal plugin<br>This my take a while..."
+    },
     "recommended-plugins": {
       "headline": "Our recommendations",
       "message": "Here you will find a selection of useful extensions for your shop. First select a region that is relevant for you. Then you can browse through different categories.",

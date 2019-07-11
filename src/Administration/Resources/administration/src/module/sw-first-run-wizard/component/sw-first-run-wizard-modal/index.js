@@ -57,17 +57,8 @@ Component.register('sw-first-run-wizard-modal', {
                     name: 'sw.first.run.wizard.index.paypal.info',
                     variant: 'large',
                     navigationIndex: 2,
-                    next: 'sw.first.run.wizard.index.paypal.install',
-                    skip: 'sw.first.run.wizard.index.plugins',
-                    back: false,
-                    finish: false
-                },
-                'paypal.install': {
-                    name: 'sw.first.run.wizard.index.paypal.install',
-                    variant: 'large',
-                    navigationIndex: 2,
                     next: 'sw.first.run.wizard.index.paypal.credentials',
-                    skip: false,
+                    skip: 'sw.first.run.wizard.index.plugins',
                     back: false,
                     finish: false
                 },

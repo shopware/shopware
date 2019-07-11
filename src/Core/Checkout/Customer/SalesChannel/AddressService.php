@@ -139,6 +139,7 @@ class AddressService
             'department' => $data->get('department'),
             'title' => $data->get('title'),
             'vatId' => $data->get('vatId'),
+            'phoneNumber' => $data->get('phoneNumber'),
             'additionalAddressLine1' => $data->get('additionalAddressLine1'),
             'additionalAddressLine2' => $data->get('additionalAddressLine2'),
         ];

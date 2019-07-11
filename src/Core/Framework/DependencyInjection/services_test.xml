@@ -77,7 +77,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal\Indexing\QueueTestIndexer">
-            <tag name="shopware.dbal_indexing.indexer"/>
+            <tag name="shopware.dal_indexing.indexer"/>
         </service>
 
         <service id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler">

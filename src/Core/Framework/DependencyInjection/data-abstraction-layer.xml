@@ -265,13 +265,13 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerHandler">
-            <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
+            <argument type="tagged" tag="shopware.dal_indexing.indexer"/>
             <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender">
             <argument type="service" id="messenger.bus.shopware" />
-            <argument type="tagged" tag="shopware.dbal_indexing.indexer"/>
+            <argument type="tagged" tag="shopware.dal_indexing.indexer"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand">

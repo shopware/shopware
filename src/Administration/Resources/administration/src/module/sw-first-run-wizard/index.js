@@ -1,4 +1,5 @@
 import { Module } from 'src/core/shopware';
+import './extension/sw-settings-index';
 import './component/sw-first-run-wizard-modal';
 import './component/sw-plugin-card';
 import './page/index';

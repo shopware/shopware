@@ -112,11 +112,11 @@ class ProcessingService
         try {
             foreach ($iterator as $index => $record) {
                 $writer->append($mapper->map($record, $fieldDefinitions, $entityDefinition), $index);
-                if ($index % $this->writeBufferSize === 0) {
-                    $writer->flush();
-                }
                 ++$processed;
                 $lastIndex = $index;
+                if ($processed % $this->writeBufferSize === 0) {
+                    $writer->flush();
+                }
             }
             $writer->flush();
         } catch (ShopwareHttpException $exception) {

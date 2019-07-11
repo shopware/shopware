@@ -125,7 +125,7 @@ class InitiationService
         $logEntity = new ImportExportLogEntity();
         $logEntity->setId(Uuid::randomHex());
         $logEntity->setActivity($activity);
-        $logEntity->setState(ImportExportLogEntity::STATE_PROGRESS);
+        $logEntity->setState($records > 0 ? ImportExportLogEntity::STATE_PROGRESS : ImportExportLogEntity::STATE_SUCCEEDED);
         $logEntity->setRecords($records);
         $logEntity->setProfileId($profile->getId());
         $logEntity->setProfileName($profile->getName());

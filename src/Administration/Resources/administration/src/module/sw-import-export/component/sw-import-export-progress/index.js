@@ -57,31 +57,30 @@ Component.register('sw-import-export-progress', {
 
     methods: {
         createdComponent() {
-            this.process(this.log.id, 0, this.log.records);
+            if (this.log.records > 0) {
+                this.process(0);
+            } else {
+                this.complete();
+            }
         },
 
-        process(logId, offset, total) {
-            if (total <= 0) {
-                this.complete();
-                return;
-            }
-
-            this.percentage = offset / total * 100;
+        process(offset) {
+            this.percentage = offset / this.log.records * 100;
             this.state = 'progress';
-            this.importExportService.process(logId, offset).then((response) => {
+            this.importExportService.process(this.log.id, offset).then((response) => {
                 if (this.aborted || this.failed) {
                     return;
                 }
 
                 offset += response.processed;
                 if (offset < this.log.records) {
-                    this.process(logId, offset, total);
+                    this.process(offset);
                     return;
                 }
 
                 this.complete();
             }).catch(() => {
-                this.state = 'failed';
+                this.fail();
             });
         },
 
@@ -93,6 +92,14 @@ Component.register('sw-import-export-progress', {
             }
         },
 
+        abort() {
+            this.state = 'aborted';
+        },
+
+        fail() {
+            this.state = 'failed';
+        },
+
         closeModal() {
             if (this.progress) {
                 return;
@@ -101,7 +108,7 @@ Component.register('sw-import-export-progress', {
         },
 
         onUserCancel() {
-            this.state = 'aborted';
+            this.abort();
             this.importExportService.cancel(this.log.id);
         }
     }

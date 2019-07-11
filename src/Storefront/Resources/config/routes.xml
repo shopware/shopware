@@ -6,4 +6,5 @@
 
     <import resource="../../Framework/Seo/Api/**/*Controller.php" type="annotation" />
     <import resource="../../Controller/**/*Controller.php" type="annotation" />
+    <import resource="../../Theme/**/*Controller.php" type="annotation" />
 </routes>

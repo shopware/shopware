@@ -10,11 +10,6 @@ import 'jquery/dist/jquery.slim';
 import 'bootstrap';
 
 /*
-import styles
- */
-import 'src/style/base.scss';
-
-/*
 import helpers
  */
 import PluginManager from 'src/script/plugin-system/plugin.manager';
@@ -111,7 +106,7 @@ PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
 /*
 run plugins
 */
-document.addEventListener('DOMContentLoaded', () => PluginManager.initializePlugins(), false);
+document.addEventListener('DOMContentLoaded', () => { console.dir('a', PluginManager.getPluginList().stickyHeader);  PluginManager.initializePlugins()}, false);
 
 /*
 run utils

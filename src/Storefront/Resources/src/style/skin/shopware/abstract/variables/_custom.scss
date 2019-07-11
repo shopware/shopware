@@ -4,8 +4,8 @@ Custom variables
 Contains custom non bootstrap variables.
 */
 
-$buy-btn-bg: $primary;
-$buy-btn-color: color-yiq($primary);
+$buy-btn-bg: $sw-color-buy-button;
+$buy-btn-color: color-yiq($sw-color-buy-button);
 
 $disabled-btn-bg: #eee;
 $disabled-btn-border-color: #eee;

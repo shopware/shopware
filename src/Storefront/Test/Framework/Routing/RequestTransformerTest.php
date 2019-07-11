@@ -318,6 +318,7 @@ class RequestTransformerTest extends TestCase
                 'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
                 'countries' => [['id' => $this->getValidCountryId()]],
                 'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'themeId' => $this->getDefaultThemeId(),
             ];
 
             return array_merge_recursive($defaults, $salesChannelData);

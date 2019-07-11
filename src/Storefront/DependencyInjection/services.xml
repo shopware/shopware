@@ -20,9 +20,10 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\TemplateDataExtension">
-            <tag name="twig.extension"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <tag name="twig.extension"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\TwigDateRequestListener">

@@ -8,7 +8,7 @@ const utils = require('./utils');
 
 const outputFolder = utils.getOutputPath();
 const buildDirectory = utils.getBuildPath();
-const assetOutPutFolder = `${outputFolder}/assets`;
+const assetOutPutFolder = `${buildDirectory}/assets`;
 
 /**
  * -------------------------------------------------------
@@ -31,7 +31,7 @@ const context = utils.getPath('src/script');
  * @type {{main: string}}
  */
 const entries = {
-    app: './base.js',
+    app: ['./base.js'],
 };
 
 /**
@@ -73,14 +73,14 @@ const modules = {
         {
             test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
             include: [
-                utils.getPath('assets/font'),
+                utils.getPath('vendor/Inter-3.5/font'),
             ],
             use: [
                 {
                     loader: 'file-loader',
                     options: {
                         name: '[name].[ext]',
-                        outputPath: `${assetOutPutFolder}/font`,
+                        outputPath: 'assets/font',
                         publicPath: '../assets/font',
                     },
                 },
@@ -89,14 +89,14 @@ const modules = {
         {
             test: /\.(jp(e)g|png|gif|svg)(\?v=\d+\.\d+\.\d+)?$/,
             exclude: [
-                utils.getPath('assets/font'),
+                utils.getPath('vendor/Inter-3.5/font'),
             ],
             use: [
                 {
                     loader: 'file-loader',
                     options: {
                         name: '[name].[ext]',
-                        outputPath: `${assetOutPutFolder}/img`,
+                        outputPath: 'assets/img',
                         publicPath: '../assets/img',
                     },
                 },
@@ -125,12 +125,6 @@ const plugins = [
         syntax: 'scss',
         fix: true,
     }),
-    new CopyPlugin([
-        {
-            from: utils.getPath('assets'),
-            to: assetOutPutFolder,
-        },
-    ]),
     new MiniCssExtractPlugin({
         filename: `${outputFolder}/css/[name].css`,
         chunkFilename: `${outputFolder}/css/[name].css`,
@@ -167,6 +161,7 @@ const resolve = {
         assets: utils.getPath('assets'),
         jquery: 'jquery/dist/jquery.slim',
         scss: utils.getPath('src/style'),
+        vendor: utils.getPath('vendor')
     },
 };
 

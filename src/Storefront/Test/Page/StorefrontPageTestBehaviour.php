@@ -63,8 +63,8 @@ trait StorefrontPageTestBehaviour
         $product = $this->getRandomProduct($context);
 
         $lineItem = (new LineItem($product->getId(), LineItem::PRODUCT_LINE_ITEM_TYPE, $product->getId()))
-                    ->setRemovable(true)
-                    ->setStackable(true);
+            ->setRemovable(true)
+            ->setStackable(true);
 
         $cartService = $this->getContainer()->get(CartService::class);
         $cart = $cartService->getCart($context->getToken(), $context);
@@ -135,6 +135,7 @@ trait StorefrontPageTestBehaviour
             'domains' => [
                 ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
             ],
+            'themeId' => $this->getDefaultThemeId(),
         ];
 
         return $this->createContext($data, []);
@@ -169,6 +170,7 @@ trait StorefrontPageTestBehaviour
             'domains' => [
                 ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
             ],
+            'themeId' => $this->getDefaultThemeId(),
         ];
 
         return $this->createContext($data, [
@@ -206,6 +208,7 @@ trait StorefrontPageTestBehaviour
             'domains' => [
                 ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
             ],
+            'themeId' => $this->getDefaultThemeId(),
         ];
 
         return $this->createContext($data, []);

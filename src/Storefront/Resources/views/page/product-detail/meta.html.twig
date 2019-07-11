@@ -29,7 +29,7 @@
     <meta property="og:description"
           content="{{ metaDescription }}"/>
     <meta property="og:image"
-          content="{{ page.product.cover.media.url }}"/>
+          content="{{ asset(page.product.cover.media.url, '@Storefront') }}"/>
 
     {% if page.product.manufacturer %}
         <meta property="product:brand"
@@ -49,7 +49,7 @@
     <meta name="twitter:description"
           content="{{ metaDescription }}"/>
     <meta name="twitter:image"
-          content="{{ page.product.cover.media.url }}"/>
+          content="{{ asset(page.product.cover.media.url, '@Storefront') }}"/>
 {% endblock %}
 
 {% block layout_head_meta_tags_keywords %}{{ page.product.translated.keywords }}{% endblock %}

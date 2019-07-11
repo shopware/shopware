@@ -49,7 +49,7 @@ function getPublicPath() {
  * @return {String}
  */
 function getBuildPath() {
-    return path.join(__dirname, '..', 'public');
+    return path.join(__dirname, '..', 'dist');
 }
 
 /**

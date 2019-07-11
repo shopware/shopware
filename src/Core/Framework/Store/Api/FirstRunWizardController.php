@@ -204,12 +204,12 @@ class FirstRunWizardController extends AbstractController
         $testEnvironment = $params->getBoolean('testEnvironment');
 
         try {
-            $this->frwClient->verifyLicenseDomain($domain, $language, $storeToken, $testEnvironment);
+            $domainStruct = $this->frwClient->verifyLicenseDomain($domain, $language, $storeToken, $testEnvironment);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
 
-        return new JsonResponse();
+        return new JsonResponse(['data' => $domainStruct]);
     }
 
     /**

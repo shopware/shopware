@@ -258,41 +258,46 @@ final class FirstRunWizardClient
         );
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $domains = array_map(static function ($data) {
+        $currentLicenseDomain = $this->configService->get(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN);
+        $currentLicenseDomain = $currentLicenseDomain ? idn_to_utf8($currentLicenseDomain) : null;
+
+        $domains = array_map(static function ($data) use ($currentLicenseDomain) {
+            $domain = idn_to_utf8($data['domain']);
+
             return (new LicenseDomainStruct())->assign([
-                'domain' => idn_to_utf8($data['domain']),
+                'domain' => $domain,
                 'edition' => $data['edition']['label'],
                 'verified' => $data['verified'] ?? false,
+                'active' => $domain === $currentLicenseDomain,
             ]);
         }, $data);
 
         return new LicenseDomainCollection($domains);
     }
 
-    public function verifyLicenseDomain(string $domain, string $language, string $storeToken, bool $testEnvironment = false): void
+    public function verifyLicenseDomain(string $domain, string $language, string $storeToken, bool $testEnvironment = false): LicenseDomainStruct
     {
         $domains = $this->getLicenseDomains($language, $storeToken);
 
         $existing = $domains->get($domain);
-        if ($existing && $existing->isVerified()) {
-            $this->configService->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, $domain);
+        if (!$existing || !$existing->isVerified()) {
+            $secret = $this->fetchVerificationInfo($domain, $language, $storeToken);
+            $this->storeVerificationSecret($domain, $secret);
+            $this->checkVerificationSecret($domain, $storeToken, $testEnvironment);
 
-            return;
-        }
-
-        $secret = $this->fetchVerificationInfo($domain, $language, $storeToken);
-        $this->storeVerificationSecret($domain, $secret);
-        $this->checkVerificationSecret($domain, $storeToken, $testEnvironment);
-
-        if (!$testEnvironment) {
             $domains = $this->getLicenseDomains($language, $storeToken);
             $existing = $domains->get($domain);
-            if (!$existing || !$existing->isVerified()) {
-                throw new LicenseDomainVerificationException($domain);
-            }
         }
 
+        if (!$existing || !$existing->isVerified()) {
+            throw new LicenseDomainVerificationException($domain);
+        }
+        $existing->assign(['active' => true]);
+
         $this->configService->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, $domain);
+        $this->configService->set(StoreService::CONFIG_KEY_STORE_LICENSE_EDITION, $existing->getEdition());
+
+        return $existing;
     }
 
     private function setFrwStatus(FrwState $newState): void

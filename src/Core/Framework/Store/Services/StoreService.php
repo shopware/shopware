@@ -14,6 +14,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 final class StoreService
 {
     public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
+    public const CONFIG_KEY_STORE_LICENSE_EDITION = 'core.store.licenseEdition';
+
     private const CONFIG_KEY_STORE_API_URI = 'core.store.apiUri';
 
     private const SHOPWARE_SIGNATURE_HEADER = 'X-Shopware-Signature';

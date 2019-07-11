@@ -10,17 +10,7 @@
       "textTotalManufacturer": "Keine Hersteller | Ein Hersteller | {count} Hersteller",
       "buttonAddManufacturer": "Hersteller anlegen",
       "columnName": "Hersteller",
-      "columnLink": "Webseite",
-      "columnDescription": "Beschreibung",
-      "columnActions": "Aktionen",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen",
-      "contextMenuDuplicate": "Duplizieren",
-      "modalTitleDelete": "Hersteller löschen",
-      "textDeleteConfirm": "Bist Du sicher, dass Du den Hersteller \"{name}\" löschen möchtest?",
-      "buttonCancel": "Abbrechen",
-      "buttonDelete": "Löschen",
-      "titleSidebarItemRefresh": "Aktualisieren"
+      "columnLink": "Webseite"
     },
     "detail": {
       "textHeadline": "Neuer Hersteller",

@@ -243,11 +243,11 @@ WHERE product.id IN (:ids);
             LEFT JOIN product parent 
                 ON parent.id = product.parent_id AND parent.version_id = product.version_id
             
-            SET product.available = (
+            SET product.available = IFNULL((
                 IFNULL(product.is_closeout, parent.is_closeout) * product.available_stock 
                 >=
                 IFNULL(product.is_closeout, parent.is_closeout) * IFNULL(product.min_purchase, parent.min_purchase)
-            )
+            ), 0)
             WHERE product.id IN (:ids)
             AND product.version_id = :version
         ';

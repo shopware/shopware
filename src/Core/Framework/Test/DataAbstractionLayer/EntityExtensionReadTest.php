@@ -76,6 +76,8 @@ class EntityExtensionReadTest extends TestCase
         $this->connection->executeQuery('DROP TABLE `extended_product`');
         $this->connection->beginTransaction();
 
+        $this->removeExtension(ProductExtension::class);
+
         parent::tearDown();
     }
 

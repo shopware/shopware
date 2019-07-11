@@ -36,6 +36,7 @@ Component.register('sw-first-run-wizard-paypal-info', {
                     return this.pluginService.activate(pluginName);
                 })
                 .then(() => {
+                    // need a force reload, after plugin was activated
                     const url = `${document.location.origin}/#/sw/first/run/wizard/index/paypal/credentials`;
 
                     document.location.href = url;

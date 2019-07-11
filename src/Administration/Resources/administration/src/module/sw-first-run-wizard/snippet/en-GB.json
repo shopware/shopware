@@ -60,7 +60,7 @@
     "finish": {
       "headline-all-done": "All done!",
       "message": "Your Shopware 6 %{edition} is now verified.",
-      "headline-usefull-links": "Usefull Links"
+      "headline-useful-links": "Useful Links"
     },
     "error": {
       "titleLoginDataInvalid": "Error",

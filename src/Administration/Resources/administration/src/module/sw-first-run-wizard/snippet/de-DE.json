@@ -59,7 +59,7 @@
     "finish": {
       "headline-all-done": "Herzlichen Glückwunsch!",
       "message": "Dein Shopware 6 %{edition} is jetzt verifziert.",
-      "headline-usefull-links": "Nützliche Links"
+      "headline-useful-links": "Nützliche Links"
     },
     "error": {
       "titleLoginDataInvalid": "Fehler",

@@ -12,6 +12,7 @@
       "columnAssignment": "Zuweisung",
       "buttonAddNumberRange": "Nummernkreis anlegen",
       "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
       "modalTitleDelete": "Nummernkreis löschen",
       "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Der Nummernkreis \"{name}\" wurde erfolgreich gelöscht.",

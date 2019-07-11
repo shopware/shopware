@@ -54,18 +54,18 @@
                         <sw-card v-if="numberRange" :isLoading="isLoading">
                             {% block sw_settings_number_range_list_grid %}
                                 <template #grid>
-                                    {% block sw_settings_custom_field_list_grid %}
+                                    {% block sw_settings_number_range_list_grid %}
                                         <sw-entity-listing ref="swSettingsNumberRangeGrid"
                                                            class="sw-settings-number-range-list-grid"
                                                            :items="numberRange"
                                                            :columns="getNumberRangeColumns()"
                                                            :repository="numberRangeRepository"
                                                            :fullPage="false"
-                                                           detailRoute="sw.settings.custom.field.detail"
+                                                           detailRoute="sw.settings.number.range.detail"
                                                            :showSelection="false"
                                                            :isLoading="isLoading">
 
-                                            {% block sw_customer_list_grid_columns_name %}
+                                            {% block sw_number_range_list_grid_columns_name %}
                                                 <template #column-global="{ item }">
                                                     <sw-label v-if="item.type.global || item.global"
                                                               class="sw-settings-number-range-list__columns-assignment-tag"
@@ -84,46 +84,46 @@
                                                 </template>
                                             {% endblock %}
 
-                                            {% block sw_settings_custom_field_list_grid_columns_actions %}
+                                            {% block sw_settings_number_range_list_grid_columns_actions %}
                                                 <template #actions="{ item }">
-                                                    {% block sw_settings_custom_field_list_grid_columns_actions_edit %}
-                                                        <sw-context-menu-item :routerLink="{ name: 'sw.settings.custom.field.detail', params: { id: item.id, edit: 'edit' }}">
-                                                            {{ $tc('sw-settings-custom-field.set.list.contextMenuEdit') }}
+                                                    {% block sw_settings_number_range_list_grid_columns_actions_edit %}
+                                                        <sw-context-menu-item :routerLink="{ name: 'sw.settings.number.range.detail', params: { id: item.id, edit: 'edit' }}">
+                                                            {{ $tc('sw-settings-number-range.list.contextMenuEdit') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
 
-                                                    {% block sw_settings_custom_field_list_grid_columns_actions_delete %}
+                                                    {% block sw_settings_number_range_list_grid_columns_actions_delete %}
                                                         <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
-                                                            {{ $tc('sw-settings-custom-field.set.list.contextMenuDelete') }}
+                                                            {{ $tc('sw-settings-number-range.list.contextMenuDelete') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
                                                 </template>
                                             {% endblock %}
 
-                                            {% block sw_settings_custom_field_list_grid_action_modals %}
+                                            {% block sw_settings_number_range_list_grid_action_modals %}
                                             <template #action-modals="{ item }">
-                                                {% block sw_settings_tax_list_delete_modal %}
+                                                {% block sw_settings_number_range_list_delete_modal %}
                                                 <sw-modal v-if="showDeleteModal === item.id"
                                                           @modal-close="onCloseDeleteModal"
-                                                          :title="$tc('sw-settings-custom-field.set.list.titleModalDelete')"
+                                                          :title="$tc('sw-settings-number-range.list.titleModalDelete')"
                                                           variant="small">
-                                                    {% block sw_settings_tax_list_delete_modal_confirm_delete_text %}
-                                                    <p class="sw-settings-tax-list__confirm-delete-text">
-                                                        {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                                    {% block sw_settings_number_range_list_delete_modal_confirm_delete_text %}
+                                                    <p class="sw-settings-number-range-list__confirm-delete-text">
+                                                        {{ $tc('sw-settings-number-range.list.textDeleteConfirm', 0, { name: item.name }) }}
                                                     </p>
                                                     {% endblock %}
 
-                                                    {% block sw_settings_custom_field_list_delete_modal_footer %}
+                                                    {% block sw_settings_number_range_list_delete_modal_footer %}
                                                     <template #modal-footer>
-                                                        {% block sw_settings_custom_field_list_delete_modal_cancel %}
+                                                        {% block sw_settings_number_range_list_delete_modal_cancel %}
                                                             <sw-button @click="onCloseDeleteModal" size="small">
-                                                                {{ $tc('sw-settings-tax.list.buttonCancel') }}
+                                                                {{ $tc('sw-settings-number-range.list.buttonCancel') }}
                                                             </sw-button>
                                                         {% endblock %}
 
-                                                        {% block sw_settings_custom_field_list_delete_modal_confirm %}
+                                                        {% block sw_settings_number_range_list_delete_modal_confirm %}
                                                             <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
-                                                                {{ $tc('sw-settings-tax.list.buttonDelete') }}
+                                                                {{ $tc('sw-settings-number-range.list.buttonDelete') }}
                                                             </sw-button>
                                                         {% endblock %}
                                                     </template>
@@ -133,9 +133,9 @@
                                             </template>
                                             {% endblock %}
                                         </sw-entity-listing>
-                                        {% block sw_settings_custom_fields_set_list_empty_message %}
+                                        {% block sw_settings_number_ranges_set_list_empty_message %}
                                             <sw-empty-state v-if="!isLoading && !total"
-                                                            :title="$tc('sw-settings-custom-field.set.list.messageEmpty')">
+                                                            :title="$tc('sw-settings-number-range.list.messageEmpty')">
                                             </sw-empty-state>
                                         {% endblock %}
                                     {% endblock %}

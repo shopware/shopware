@@ -12,6 +12,7 @@
       "columnAssignment": "Assignment",
       "buttonAddNumberRange": "Add number range",
       "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
       "modalTitleDelete": "Delete number range",
       "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Number range \"{name}\" has been deleted.",

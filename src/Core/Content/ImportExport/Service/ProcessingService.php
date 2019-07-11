@@ -135,7 +135,7 @@ class ProcessingService
             throw $exception;
         }
 
-        if ($lastIndex >= 0 && ++$lastIndex >= $logEntity->getRecords()) {
+        if (++$lastIndex >= $logEntity->getRecords()) {
             $writer->finish();
             $this->updateState($context, $logEntity->getId(), ImportExportLogEntity::STATE_SUCCEEDED);
         }

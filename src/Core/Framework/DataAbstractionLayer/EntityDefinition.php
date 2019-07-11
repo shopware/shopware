@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -84,6 +85,18 @@ abstract class EntityDefinition
         $this->fields = null;
     }
 
+    final public function removeExtension(EntityExtensionInterface $toDelete): void
+    {
+        foreach ($this->extensions as $key => $extension) {
+            if (\get_class($extension) === \get_class($toDelete)) {
+                unset($this->extensions[$key]);
+                $this->fields = null;
+
+                return;
+            }
+        }
+    }
+
     abstract public function getEntityName(): string;
 
     final public function getFields(): CompiledFieldCollection
@@ -105,6 +118,10 @@ abstract class EntityDefinition
 
             /** @var Field $field */
             foreach ($new as $field) {
+                if ((!$field instanceof AssociationField) && (!$field->is(Runtime::class))) {
+                    throw new \Exception('Only AssociationFields or fields flagged as Runtime can be added as Extension.');
+                }
+
                 $field->addFlags(new Extension());
                 $fields->add($field);
             }

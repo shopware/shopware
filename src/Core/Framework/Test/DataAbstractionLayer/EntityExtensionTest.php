@@ -21,12 +21,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class EntityExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var Connection
@@ -69,6 +76,8 @@ class EntityExtensionTest extends TestCase
         parent::tearDown();
         $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myPrices');
         $this->getContainer()->get(ProductDefinition::class)->getFields()->remove('myCategories');
+
+        $this->removeExtension(ScalarExtension::class, ScalarRuntimeExtension::class, AssociationExtension::class);
     }
 
     public function testICanWriteOneToManyAssociationsExtensions(): void
@@ -445,6 +454,32 @@ class EntityExtensionTest extends TestCase
         static::assertTrue($product->hasExtension('myCategories'));
         static::assertInstanceOf(CategoryCollection::class, $product->getExtension('myCategories'));
         static::assertCount(2, $product->getExtension('myCategories'));
+    }
+
+    public function testICantAddScalarExtensions(): void
+    {
+        static::expectException(\Exception::class);
+        static::expectExceptionMessage('Only AssociationFields or fields flagged as Runtime can be added as Extension.');
+
+        $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ScalarExtension::class);
+
+        $this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('test');
+    }
+
+    public function testICanAddRuntimeExtensions(): void
+    {
+        $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ScalarRuntimeExtension::class);
+
+        static::assertTrue($this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('test'));
+    }
+
+    public function testICanAddAssociationExtensions(): void
+    {
+        $this->registerDefinition(ExtendedDefinition::class);
+        $this->registerDefinitionWithExtensions(ExtendableDefinition::class, AssociationExtension::class);
+
+        static::assertTrue($this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('toOne'));
+        static::assertTrue($this->getContainer()->get(ExtendableDefinition::class)->getFields()->has('toMany'));
     }
 
     private function getPricesData($id): array

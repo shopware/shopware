@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefin
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -22,7 +23,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
 
 class WriterTest extends TestCase
 {
@@ -725,6 +728,82 @@ class WriterTest extends TestCase
         );
     }
 
+    public function testWriteExtensionWithExtensionKey(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannel($salesChannelId);
+
+        /** @var EntityRepositoryInterface $salesChannelRepo */
+        $salesChannelRepo = $this->getContainer()->get('sales_channel.repository');
+        $context = Context::createDefaultContext();
+
+        $salesChannelRepo->update([
+            [
+                'id' => $salesChannelId,
+                'extensions' => [
+                    'seoUrls' => [
+                        [
+                            'languageId' => Defaults::LANGUAGE_SYSTEM,
+                            'foreignKey' => $salesChannelId,
+                            'routeName' => 'test',
+                            'pathInfo' => 'test',
+                            'seoPathInfo' => 'test',
+                        ],
+                    ],
+                ],
+            ],
+        ], $context);
+
+        $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('seoUrls');
+
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = $salesChannelRepo->search($criteria, $context)->get($salesChannelId);
+        static::assertTrue($salesChannel->hasExtension('seoUrls'));
+
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $salesChannel->getExtension('seoUrls');
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+        static::assertCount(1, $seoUrls);
+    }
+
+    public function testCanWriteExtensionWithoutExtensionKey(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannel($salesChannelId);
+
+        /** @var EntityRepositoryInterface $salesChannelRepo */
+        $salesChannelRepo = $this->getContainer()->get('sales_channel.repository');
+        $context = Context::createDefaultContext();
+
+        $salesChannelRepo->update([
+            [
+                'id' => $salesChannelId,
+                'seoUrls' => [
+                    [
+                        'languageId' => Defaults::LANGUAGE_SYSTEM,
+                        'foreignKey' => $salesChannelId,
+                        'routeName' => 'test',
+                        'pathInfo' => 'test',
+                        'seoPathInfo' => 'test',
+                    ],
+                ],
+            ],
+        ], $context);
+
+        $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('seoUrls');
+
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = $salesChannelRepo->search($criteria, $context)->get($salesChannelId);
+        static::assertTrue($salesChannel->hasExtension('seoUrls'));
+
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $salesChannel->getExtension('seoUrls');
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+        static::assertCount(1, $seoUrls);
+    }
+
     protected function createWriteContext(): WriteContext
     {
         return WriteContext::createFromContext(Context::createDefaultContext());
@@ -768,5 +847,34 @@ class WriterTest extends TestCase
     private function getTaxRepository(): EntityRepository
     {
         return $this->getContainer()->get('tax.repository');
+    }
+
+    private function createSalesChannel($id): void
+    {
+        $data = [
+            'id' => $id,
+            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'currencyId' => Defaults::CURRENCY,
+            'currencyVersionId' => Defaults::LIVE_VERSION,
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'paymentMethodVersionId' => Defaults::LIVE_VERSION,
+            'shippingMethodId' => $this->getValidShippingMethodId(),
+            'shippingMethodVersionId' => Defaults::LIVE_VERSION,
+            'navigationCategoryId' => $this->getValidCategoryId(),
+            'navigationCategoryVersionId' => Defaults::LIVE_VERSION,
+            'countryId' => $this->getValidCountryId(),
+            'countryVersionId' => Defaults::LIVE_VERSION,
+            'currencies' => [['id' => Defaults::CURRENCY]],
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
+            'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
+            'countries' => [['id' => $this->getValidCountryId()]],
+            'name' => 'first sales-channel',
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+        ];
+
+        $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
     }
 }

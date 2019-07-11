@@ -62,6 +62,8 @@ class JsonApiEncoder
         // add included entities
         $this->serializeRelationships($serialized, $entity, $result);
 
+        $this->addExtensions($serialized, $entity, $result);
+
         if ($isRelationship) {
             $result->addIncluded($serialized);
         } else {
@@ -158,15 +160,27 @@ class JsonApiEncoder
                     $reference = $field->getToManyReferenceDefinition();
                 }
 
-                $serialized->addRelationship(
-                    $propertyName,
-                    [
-                        'tmp' => [
-                            'definition' => $reference,
-                        ],
-                        'data' => $isSingle ? null : [],
-                    ]
-                );
+                if ($field->is(Extension::class)) {
+                    $serialized->addExtension(
+                        $propertyName,
+                        [
+                            'tmp' => [
+                                'definition' => $reference,
+                            ],
+                            'data' => $isSingle ? null : [],
+                        ]
+                    );
+                } else {
+                    $serialized->addRelationship(
+                        $propertyName,
+                        [
+                            'tmp' => [
+                                'definition' => $reference,
+                            ],
+                            'data' => $isSingle ? null : [],
+                        ]
+                    );
+                }
 
                 continue;
             }
@@ -184,5 +198,70 @@ class JsonApiEncoder
     private function formatToJson(JsonApiEncodingResult $result): string
     {
         return json_encode($result, JSON_PRESERVE_ZERO_FRACTION);
+    }
+
+    private function addExtensions(Record $serialized, Entity $entity, JsonApiEncodingResult $result): void
+    {
+        if (empty($serialized->getExtensions())) {
+            return;
+        }
+
+        $extension = new Record($serialized->getId(), 'extension');
+
+        $serialized->addRelationship('extensions', [
+            'data' => [
+                'type' => 'extension',
+                'id' => $serialized->getId(),
+            ],
+        ]);
+
+        foreach ($serialized->getExtensions() as $property => $value) {
+            if ($value === null) {
+                $extension->setAttribute($property, $entity->getExtension($property));
+                continue;
+            }
+
+            /** @var EntityDefinition $definition */
+            $definition = $value['tmp']['definition'];
+
+            $association = $entity->getExtension($property);
+            if ($value['data'] === null) {
+                $relationship = [
+                    'data' => null,
+                    'links' => [
+                        'related' => $serialized->getLink('self') . '/extensions/' . $property,
+                    ],
+                ];
+
+                if ($association instanceof Entity) {
+                    $relationship['data'] = [
+                        'type' => $definition->getEntityName(),
+                        'id' => $association->getUniqueIdentifier(),
+                    ];
+                    $this->serializeEntity($association, $definition, $result, true);
+                }
+            } else {
+                $relationship = [
+                    'data' => [],
+                    'links' => [
+                        'related' => $serialized->getLink('self') . '/extensions/' . $property,
+                    ],
+                ];
+
+                if ($association instanceof EntityCollection) {
+                    foreach ($association as $sub) {
+                        $relationship['data'][] = [
+                            'type' => $definition->getEntityName(),
+                            'id' => $sub->getUniqueIdentifier(),
+                        ];
+                        $this->serializeEntity($sub, $definition, $result, true);
+                    }
+                }
+            }
+
+            $extension->addRelationship($property, $relationship);
+        }
+
+        $result->addIncluded($extension);
     }
 }

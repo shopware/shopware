@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait DataAbstractionLayerFieldTestBehaviour
@@ -29,5 +31,38 @@ trait DataAbstractionLayerFieldTestBehaviour
         }
 
         return $ret;
+    }
+
+    protected function registerDefinitionWithExtensions(string $definitionClass, string ...$extensionsClasses): EntityDefinition
+    {
+        $ret = null;
+
+        $definition = $this->registerDefinition($definitionClass);
+        foreach ($extensionsClasses as $extensionsClass) {
+            if ($this->getContainer()->has($extensionsClass)) {
+                $extension = $this->getContainer()->get($extensionsClass);
+            } else {
+                $extension = new $extensionsClass();
+                $this->getContainer()->set($extensionsClass, $extension);
+            }
+
+            $definition->addExtension($extension);
+        }
+
+        return $definition;
+    }
+
+    protected function removeExtension(string ...$extensionsClasses): void
+    {
+        foreach ($extensionsClasses as $extensionsClass) {
+            /** @var EntityExtensionInterface $extension */
+            $extension = new $extensionsClass();
+            if ($this->getContainer()->has($extension->getDefinitionClass())) {
+                /** @var EntityDefinition $definition */
+                $definition = $this->getContainer()->get($extension->getDefinitionClass());
+
+                $definition->removeExtension($extension);
+            }
+        }
     }
 }

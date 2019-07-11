@@ -9,21 +9,29 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicStruct;
+use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithExtension;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToManyRelationships;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToOneRelationship;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestCollectionWithSelfReference;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestCollectionWithToOneRelationship;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestInternalFieldsAreFiltered;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestMainResourceShouldNotBeInIncluded;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
 
 class JsonApiEncoderTest extends TestCase
 {
     use KernelTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
     /**
      * @var JsonApiEncoder
@@ -76,6 +84,25 @@ class JsonApiEncoderTest extends TestCase
     public function testEncodeComplexStructs(EntityDefinition $definition, SerializationFixture $fixture): void
     {
         $actual = $this->encoder->encode($definition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
+
+        static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+    }
+
+    /**
+     * Not possible with dataprovider
+     * as we have to manipulate the container, but the dataprovider run before all tests
+     */
+    public function testEncodeStructWithExtension(): void
+    {
+        $this->registerDefinition(ExtendableDefinition::class, ExtendedDefinition::class);
+        $extendableDefinition = new ExtendableDefinition();
+        $extendableDefinition->addExtension(new AssociationExtension());
+        $extendableDefinition->addExtension(new ScalarRuntimeExtension());
+
+        $extendableDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $fixture = new TestBasicWithExtension();
+
+        $actual = $this->encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
         static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
     }

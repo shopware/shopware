@@ -3,7 +3,8 @@
         class="sw-sidebar-media-item"
         icon="default-object-image"
         :title="$tc('global.sw-sidebar-media-item.title')"
-        ref="sidebarItem">
+        ref="sidebarItem"
+        v-on="additionalEventListeners">
 
         {% block sw_sidebar_media_item_content %}
             <div class="sw-sidebar-media-item__content">

@@ -1,0 +1,33 @@
+{% block sw_theme_list_item %}
+    <div class="sw-theme-list-item">
+
+        {% block sw_theme_list_item_options %}
+            <slot name="contextMenu"></slot>
+        {% endblock %}
+
+        {% block sw_theme_list_item_image %}
+            <div class="sw-theme-list-item__image"
+                 v-if="theme"
+                 :style="previewMedia"
+                 @click="$emit('item-click', theme)">
+            </div>
+
+            <div class="sw-theme-list-item__image is--empty" v-else>
+                {{ $tc('sw-theme-manager.themeListItem.emptyText') }}
+            </div>
+        {% endblock %}
+
+        {% block sw_theme_list_item_info %}
+            <div class="sw-theme-list-item__info">
+                <sw-icon class="sw-theme-list-item__status" name="small-default-circle-medium" small></sw-icon>
+                <div class="sw-theme-list-item__title" v-if="theme" @click="onThemeClick">{{ theme.name }}</div>
+                <sw-icon v-if="theme && !theme.parentThemeId"
+                         class="sw-theme-list-item__locked"
+                         name="small-lock-closed"
+                         v-tooltip="lockToolTip"
+                         small>
+                </sw-icon>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

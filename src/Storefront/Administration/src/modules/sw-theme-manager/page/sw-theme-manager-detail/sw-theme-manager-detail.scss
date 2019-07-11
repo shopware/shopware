@@ -1,0 +1,124 @@
+@import "~scss/variables";
+
+.sw-theme-manager-detail {
+    .sw-theme-manager-detail__inheritance {
+        display: flex;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto 20px auto;
+        background-color: $color-module-purple-50;
+        border: 1px solid $color-module-purple-900;
+        border-radius: $border-radius-default;
+
+        .sw-icon {
+            flex-shrink: 0;
+            margin-right: 8px;
+            margin-top: 2px;
+        }
+
+        .sw-theme-manager-detail__inheritance-text {
+            color: $color-darkgray-200;
+            font-size: $font-size-small;
+            line-height: 22px;
+        }
+    }
+
+    .sw-theme-manager-detail__back-btn {
+        width: 54px;
+        height: 24px;
+        line-height: 24px;
+        display: grid;
+        grid-template-columns: 30px 24px;
+        align-items: center;
+        margin-left: 20px;
+        color: $color-darkgray-200;
+
+        &:hover {
+            color: $color-shopware-brand-500;
+        }
+    }
+
+    .sw-theme-manager-detail__content {
+        margin-top: 25px;
+
+        .sw-theme-manager-detail__area {
+            .sw-card-section {
+                padding: 24px;
+            }
+        }
+    }
+
+    .sw-theme-manager-detail__info-card {
+        position: relative;
+
+        .sw-theme-manager-detail__context-button {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+        }
+    }
+
+    .sw-theme-manager-detail__info {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-gap: 24px;
+        position: relative;
+        font-size: 14px;
+    }
+
+    .sw-theme-manager-detail__info-image {
+        width: 228px;
+        height: 132px;
+        border-radius: $border-radius-default;
+        background-size: contain;
+        background-repeat: no-repeat;
+    }
+
+    .sw-theme-manager-detail__info-name {
+        font-weight: 600;
+    }
+
+    .sw-theme-manager-detail__info-descr {
+        margin-top: 12px;
+
+        .sw-theme-manager-detail__info-descr-title {
+            font-weight: 600;
+        }
+    }
+
+    .sw-theme-manager-detail__info-saleschannels {
+        margin-top: 12px;
+        font-weight: 600;
+
+        .sw-theme-manager-detail__saleschannel {
+            .sw-theme-manager-detail__saleschannel-link {
+                color: $color-shopware-brand-500;
+                text-decoration: none;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
+    .sw-theme-manager-detail__content--section_field {
+        display: grid;
+        gap: 28px;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+        .sw-field {
+            margin: 0;
+        }
+    }
+
+    .sw-theme-manager-detail__content--section_title {
+        margin-bottom: 12px;
+    }
+
+    .sw_theme_manager__duplicate-modal {
+        .sw_theme_manager__duplicate-info {
+            margin-bottom: 16px;
+        }
+    }
+}

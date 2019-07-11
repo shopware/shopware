@@ -1,0 +1,61 @@
+@import '~scss/variables';
+
+.sw-theme-modal {
+
+    .sw-theme-modal__header {
+        display: grid;
+        grid-template-columns: 1fr 250px;
+        align-items: center;
+        padding: 24px 30px;
+        border-bottom: 1px solid $color-steam-cloud;
+
+        .sw-theme-modal__header-title {
+            font-size: 18px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        .sw-simple-search-field {
+            margin-bottom: 0;
+        }
+    }
+
+    .sw-theme-modal__content {
+        display: flex;
+        flex-direction: column;
+        padding: 20px 30px;
+        overflow-y: auto;
+
+        .sw-theme-modal__content-item {
+            position: relative;
+
+            &.is--selected {
+                .sw-theme-list-item {
+                    border-color: $color-shopware-blue;
+                }
+            }
+
+            .sw-field--checkbox {
+                margin: 0;
+                width: 16px;
+                position: absolute;
+                grid-template-columns: 16px;
+                top: 24px;
+                left: 24px;
+            }
+        }
+    }
+
+    &.sw-modal.sw-modal--default {
+        .sw-modal__dialog {
+            max-width: 960px;
+        }
+        .sw-modal__body {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 520px;
+        }
+    }
+}

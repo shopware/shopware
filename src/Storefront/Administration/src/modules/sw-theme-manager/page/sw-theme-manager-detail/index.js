@@ -1,0 +1,226 @@
+import { Component, Application, Mixin, State } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
+import { getObjectDiff, cloneDeep } from 'src/core/service/utils/object.utils';
+import template from './sw-theme-manager-detail.html.twig';
+import './sw-theme-manager-detail.scss';
+
+Component.register('sw-theme-manager-detail', {
+    template,
+
+    mixins: [
+        Mixin.getByName('theme')
+    ],
+
+    data() {
+        return {
+            theme: null,
+            parentTheme: null,
+            themeFields: {},
+            themeConfig: {},
+            showResetModal: false,
+            showSaveModal: false,
+            baseThemeConfig: {},
+            isLoading: false,
+            isSaveSuccessful: false,
+            mappedFields: {
+                color: 'colorpicker',
+                fontFamily: 'text'
+            }
+        };
+    },
+
+    computed: {
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
+        previewMedia() {
+            if (this.theme && this.theme.previewMedia && this.theme.previewMedia.id && this.theme.previewMedia.url) {
+                return {
+                    'background-image': `url(${this.theme.previewMedia.url})`,
+                    'background-size': 'cover'
+                };
+            }
+
+            return {
+                'background-image': this.defaultThemeAsset
+            };
+        },
+
+        defaultThemeAsset() {
+            const initContainer = Application.getContainer('init');
+            const context = initContainer.contextService;
+
+            return `url('${context.assetsPath}/administration/static/img/theme/default_theme_preview.jpg')`;
+        },
+
+        deleteDisabledToolTip() {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-theme-manager.actions.deleteDisablesToolTip'),
+                disabled: this.theme.salesChannels.length === 0
+            };
+        },
+
+        languageId() {
+            return this.$store.state.adminLocale.languageId;
+        },
+
+        mediaStore() {
+            return State.getStore('media');
+        },
+
+        themeId() {
+            return this.$route.params.id;
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    watch: {
+        themeId() {
+            this.getTheme();
+        },
+
+        languageId() {
+            this.getThemeConfig();
+        }
+    },
+
+    methods: {
+        createdComponent() {
+            this.getTheme();
+        },
+
+        getTheme() {
+            if (!this.themeId) {
+                return;
+            }
+
+            this.isLoading = true;
+
+            const criteria = new Criteria();
+            criteria.addAssociation('previewMedia');
+            criteria.addAssociation('salesChannels');
+
+            this.themeRepository.get(this.themeId, this.context, criteria).then((response) => {
+                this.theme = response;
+
+                if (this.languageId) {
+                    this.getThemeConfig();
+                }
+
+                if (this.theme.parentThemeId) {
+                    this.getParentTheme();
+                }
+
+                this.isLoading = false;
+            });
+        },
+
+        getThemeConfig() {
+            this.isLoading = true;
+
+            if (!this.theme || !this.themeId) {
+                return;
+            }
+
+            this.themeService.getFields(this.themeId, this.languageId).then((fields) => {
+                this.themeFields = fields;
+            });
+
+            this.themeService.getConfiguration(this.themeId, this.languageId).then((config) => {
+                this.themeConfig = config.fields;
+                this.baseThemeConfig = cloneDeep(config.fields);
+                this.isLoading = false;
+            });
+        },
+
+        getParentTheme() {
+            this.themeRepository.get(this.theme.parentId, this.context).then((parentTheme) => {
+                this.parentTheme = parentTheme;
+            });
+        },
+
+        saveFinish() {
+            this.isSaveSuccessful = false;
+        },
+
+        onSaveTheme() {
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
+            const newValues = getObjectDiff(this.baseThemeConfig, this.themeConfig);
+
+            return this.themeService.updateTheme(this.themeId, { config: newValues }).then(() => {
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+            }).catch(() => {
+                this.isLoading = false;
+            });
+        },
+
+        openMediaSidebar() {
+            this.$refs.mediaSidebarItem.openContent();
+        },
+
+        onDropMedia(dragData, context) {
+            this.setMediaItem(dragData, context);
+        },
+
+        setMediaItem(mediaItem, context) {
+            context.value = mediaItem.id;
+        },
+
+        successfulUpload(mediaItem, context) {
+            this.mediaStore.getByIdAsync(mediaItem.targetId).then((media) => {
+                context.value = media.id;
+                return true;
+            });
+        },
+
+        removeMediaItem(field) {
+            field.value = null;
+        },
+
+        onReset() {
+            this.showResetModal = true;
+        },
+
+        onCloseResetModal() {
+            this.showResetModal = false;
+        },
+
+        onConfirmThemeReset() {
+            this.getTheme();
+            this.showResetModal = false;
+        },
+
+        onSave() {
+            this.showSaveModal = true;
+        },
+
+        onCloseSaveModal() {
+            this.showSaveModal = false;
+        },
+
+        onConfirmThemeSave() {
+            this.onSaveTheme();
+            this.showSaveModal = false;
+        },
+
+        onSearch(value = null) {
+            if (!value.length || value.length <= 0) {
+                this.term = null;
+            } else {
+                this.term = value;
+            }
+        },
+
+        mapSwFieldTypes(field) {
+            return !this.mappedFields[field] ? 'text' : this.mappedFields[field];
+        }
+    }
+});

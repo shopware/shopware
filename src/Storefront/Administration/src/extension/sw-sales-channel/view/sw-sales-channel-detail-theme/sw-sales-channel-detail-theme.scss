@@ -1,0 +1,59 @@
+@import "~scss/variables";
+
+.sw-sales-channel-detail-theme {
+    display: grid;
+    grid-template-columns: min-content 1fr;
+    gap: 32px;
+
+    .sw-theme-list-item {
+        width: 250px;
+    }
+
+    .sw-sales-channel-detail-theme__info {
+        display: grid;
+        grid-template-rows: 132px 1fr;
+        align-items: baseline;
+
+        .sw-sales-channel-detail-theme__info-name,
+        .sw-sales-channel-detail-theme__info-description-title {
+            font-weight: 600;
+        }
+
+        .sw-sales-channel-detail-theme__info-author,
+        .sw-sales-channel-detail-theme__info-name,
+        .sw-sales-channel-detail-theme__info-description {
+            font-size: 14px;
+        }
+
+        .sw-sales-channel-detail-theme__info-description {
+            margin: 12px 0;
+        }
+
+        .sw-sales-channel-detail-theme__info-info {
+            margin-bottom: 16px;
+        }
+
+        .sw-sales-channel-detail-theme__info-actions {
+            display: flex;
+            align-self: flex-end;
+
+            .sw-button {
+                margin-right: 8px;
+            }
+        }
+
+        .sw-sales-channel-detail-theme__info-link {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            color: $color-shopware-blue;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 8px;
+
+            .sw-icon {
+                margin-left: 8px;
+            }
+        }
+    }
+}

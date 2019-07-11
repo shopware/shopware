@@ -129,6 +129,12 @@ export default {
         },
 
         colorWatcher() {
+            if (this.editorFormat === 'hex' &&
+                this.color.length > 7 &&
+                !this.alpha) {
+                this.color = this.color.slice(0, 7);
+            }
+
             this.$emit('input', this.color);
         },
 

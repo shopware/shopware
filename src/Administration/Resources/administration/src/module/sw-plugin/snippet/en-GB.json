@@ -17,6 +17,7 @@
       "titleDownloadSuccess":"Success",
       "messageDownloadSuccess":"Plugin has been downloaded.",
       "downloadButton":"Download",
+      "recommendationsLabel": "Recommendations",
       "storeLink": "https://store.shopware.com/en",
       "storeLabel": "Shopware Store",
       "storeNotAvailable": "Could not connect to the Shopware Store",

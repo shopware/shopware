@@ -4,6 +4,7 @@ import './page/sw-plugin-manager';
 import './view/sw-plugin-list';
 import './view/sw-plugin-license-list';
 import './view/sw-plugin-updates';
+import './view/sw-plugin-recommendation';
 import './component/sw-plugin-file-upload';
 import './component/sw-plugin-store-login';
 import './component/sw-plugin-store-login-status';
@@ -53,6 +54,13 @@ Module.register('sw-plugin', {
                 licenses: {
                     component: 'sw-plugin-license-list',
                     path: 'licenses',
+                    meta: {
+                        parentPath: 'sw.settings.index'
+                    }
+                },
+                recommendations: {
+                    component: 'sw-plugin-recommendation',
+                    path: 'recommendations',
                     meta: {
                         parentPath: 'sw.settings.index'
                     }

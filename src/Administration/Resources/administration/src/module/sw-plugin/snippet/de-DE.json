@@ -17,6 +17,7 @@
       "messageDownloadSuccess":"Das Plugin wurde erfolgreich heruntergeladen",
       "titleDownloadSuccess":"Plugin heruntergeladen",
       "downloadButton":"Laden",
+      "recommendationsLabel": "Empfehlungen",
       "storeLink": "https://store.shopware.com/",
       "storeLabel": "Shopware Store",
       "storeNotAvailable": "Es konnte keine Verbindung zum Shopware Store hergestellt werden",

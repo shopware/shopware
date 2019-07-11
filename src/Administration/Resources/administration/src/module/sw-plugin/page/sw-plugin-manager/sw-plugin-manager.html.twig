@@ -66,6 +66,14 @@
                                         </sw-tabs-item>
                                     {% endblock %}
 
+                                    {% block sw_plugin_manager_content_sidebar_tabs_recommendations %}
+                                        <sw-tabs-item :route="{name: 'sw.plugin.index.recommendations' }"
+                                                      title="recommendations"
+                                                      variant="minimal">
+                                            {{ $tc('sw-plugin.general.recommendationsLabel') }}
+                                        </sw-tabs-item>
+                                    {% endblock %}
+
                                     {% block sw_plugin_manager_content_sidebar_tabs_store_link %}
                                         <sw-tabs-item :href="$tc('sw-plugin.general.storeLink')"
                                                       target="_blank"

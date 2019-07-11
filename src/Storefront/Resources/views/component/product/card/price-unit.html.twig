@@ -31,6 +31,7 @@
 
         {% block component_product_box_price %}
             <p class="product-price">
+                {{ price.unitPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                 {% if product.priceRange %}
                     {{ product.calculatedListingPrice.from.unitPrice|currency }}
                     -

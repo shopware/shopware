@@ -33,6 +33,7 @@
       "labelIso": "ISO",
       "labelIso3": "ISO3",
       "labelActive": "Active",
+      "labelShippingAvailable": "Shipping available",
       "placeholderName": "Enter name",
       "placeholderPosition": "1",
       "placeholderIso": "Enter alpha-2 ISO code",

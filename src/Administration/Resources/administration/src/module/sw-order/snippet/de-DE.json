@@ -36,7 +36,13 @@
       "titleRecalculationError": "Fehler",
       "messageRecalculationError": "Beim Berechnen des Preises ist ein Fehler aufgetreten: <br>",
       "titleSaveError": "Fehler",
-      "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten"
+      "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
+      "notification": {
+        "shippingNotAvailable": {
+          "title": "Fehler",
+          "message": "Lieferung in das Land nicht möglich"
+        }
+      }
     },
     "detailBase": {
       "cardTitleDetails": "Details",

@@ -55,6 +55,7 @@ class CountryDefinition extends EntityDefinition
             new IntField('position', 'position'),
             new BoolField('tax_free', 'taxFree'),
             new BoolField('active', 'active'),
+            new BoolField('shipping_available', 'shippingAvailable'),
             (new StringField('iso3', 'iso3'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             new BoolField('display_state_in_registration', 'displayStateInRegistration'),
             new BoolField('force_state_in_registration', 'forceStateInRegistration'),

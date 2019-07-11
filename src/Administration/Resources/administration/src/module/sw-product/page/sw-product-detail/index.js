@@ -533,6 +533,13 @@ Component.register('sw-product-detail', {
         },
 
         removeMediaItem(state, mediaId) {
+            const media = this.product.media.find((mediaItem) => mediaItem.mediaId === mediaId);
+
+            // remove cover id if mediaId matches
+            if (this.product.coverId === media.id) {
+                this.product.coverId = null;
+            }
+
             this.product.media.remove(mediaId);
         },
 
@@ -540,7 +547,12 @@ Component.register('sw-product-detail', {
             if (!mediaId || mediaId.length < 0) {
                 return;
             }
-            this.product.coverId = mediaId;
+
+            const media = this.product.media.find((mediaItem) => mediaItem.mediaId === mediaId);
+
+            if (media) {
+                this.product.coverId = media.id;
+            }
         },
 
         _checkIfMediaIsAlreadyUsed(mediaId) {

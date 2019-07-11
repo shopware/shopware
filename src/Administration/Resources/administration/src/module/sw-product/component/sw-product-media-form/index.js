@@ -44,12 +44,6 @@ Component.register('sw-product-media-form', {
                 if (translatedIndex >= 0) {
                     changes.splice(translatedIndex, 1);
                 }
-
-                if (changes.length > 0) {
-                    if (!this.localMode) {
-                        this.product.save();
-                    }
-                }
             }, 500)
         }
     },
@@ -165,13 +159,13 @@ Component.register('sw-product-media-form', {
                     // set mediaId
                     responseMedia.setData({ mediaId: responseMedia.id });
 
-                    // set first item as cover
-                    if (this.product.media.length <= 0) {
-                        this.markMediaAsCover(responseMedia);
-                    }
-
                     // push it to existing product
                     this.product.media.push(responseMedia);
+
+                    // set first item as cover
+                    if (!this.productFromStore.coverId) {
+                        this.markMediaAsCover(responseMedia);
+                    }
 
                     resolve();
                 });
@@ -278,15 +272,6 @@ Component.register('sw-product-media-form', {
 
             this.product.isLoading = true;
             this.mediaStore.sync().then(() => {
-                data.forEach((upload) => {
-                    if (this.productMedia.some((pMedia) => {
-                        return pMedia.mediaId === upload.targetId;
-                    })) {
-                        return;
-                    }
-
-                    this.product.media.push(this.buildProductMedia(upload.targetId));
-                });
                 this.product.isLoading = false;
 
                 this.uploadStore.runUploads(this.product.id);
@@ -333,23 +318,22 @@ Component.register('sw-product-media-form', {
         },
 
         removeFile(mediaItem) {
-            const key = mediaItem.id;
-            const item = this.product.media.find((e) => {
-                return e.id === key;
-            });
-
-            this.product.media = this.product.media.filter((e) => e.id !== key && e !== key);
-            if (this.isCover(item)) {
-                if (this.product.media.length === 0) {
-                    this.product.coverId = null;
-                } else {
-                    this.product.coverId = this.product.media[0].id;
-                }
-            }
-
+            this.product.media = this.product.media.filter((m) => m.id !== mediaItem.id);
             this.productFromStore.media.remove(mediaItem.id);
 
+            this.removeCover();
+
             return true;
+        },
+
+        removeCover() {
+            this.productFromStore.coverId = null;
+
+            // if another media exists
+            if (this.productFromStore.media.length > 0) {
+                // set first media item as cover
+                this.productFromStore.coverId = this.productFromStore.media[0].id;
+            }
         },
 
         isCover(productMedia) {
@@ -357,19 +341,19 @@ Component.register('sw-product-media-form', {
                 return productMedia.isCover;
             }
 
-            if (this.product.coverId === null) {
-                this.product.coverId = productMedia.id;
+            if (this.productFromStore.coverId === null) {
+                this.productFromStore.coverId = productMedia.id;
             }
 
-            return this.product.coverId === productMedia.id;
+            return this.productFromStore.coverId === productMedia.id;
         },
 
         markMediaAsCover(productMedia) {
-            if (this.localMode) {
-                this.productFromStore.coverId = productMedia.id;
-            }
+            console.log('productMedia', productMedia);
+            console.log('this.productFromStore.media', this.productFromStore.media);
+
             this.product.coverId = productMedia.id;
-            this.$emit('cover-change', productMedia.id);
+            this.productFromStore.coverId = productMedia.id;
         },
 
         onDropMedia(dragData) {

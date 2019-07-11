@@ -1,6 +1,7 @@
 {
   "sw-first-run-wizard": {
     "general": {
+      "mainMenuItemGeneral": "Ersteinrichtungs-Assistent",
       "buttonNext": "Weiter",
       "buttonSkip": "Überspringen",
       "buttonBack": "Zurück",

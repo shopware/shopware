@@ -1,0 +1,9 @@
+{% block sw_settings_content_card_slot_system %}
+    {% parent %}
+
+    <sw-settings-item :label="$tc('sw-first-run-wizard.general.mainMenuItemGeneral')" :to="{ name: 'sw.first.run.wizard.index' }">
+        <template slot="icon">
+            <sw-icon name="default-object-rocket"></sw-icon>
+        </template>
+    </sw-settings-item>
+{% endblock %}

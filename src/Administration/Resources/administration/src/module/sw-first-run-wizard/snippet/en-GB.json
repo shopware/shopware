@@ -1,6 +1,7 @@
 {
   "sw-first-run-wizard": {
     "general": {
+      "mainMenuItemGeneral": "First Run Wizard",
       "buttonNext": "Next",
       "buttonSkip": "Skip",
       "buttonBack": "Back",

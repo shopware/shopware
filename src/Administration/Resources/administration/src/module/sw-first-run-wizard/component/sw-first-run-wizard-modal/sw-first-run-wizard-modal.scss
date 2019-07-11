@@ -1,0 +1,65 @@
+@import '~scss/variables';
+
+.sw-first-run-wizard-modal {
+    &.sw-modal--large .sw-modal__dialog {
+        max-width: 1021px !important;
+    }
+
+    .sw-modal__header {
+        .sw-modal__close {
+            visibility: hidden;
+        }
+    }
+
+    .sw-modal__body {
+        overflow-y: hidden !important;
+    }
+
+    .sw-first-run-wizard-modal-content {
+        height: calc(100vh - 235px);
+
+        .sw-first-run-wizard-modal-content__columns {
+            height: 100%;
+
+            &.one {
+                grid-template-columns: 1fr;
+            }
+
+            &.two {
+                grid-template-columns: 230px 4fr;
+            }
+        }
+
+        .sw-first-run-wizard-modal-content__steps {
+            margin-right: 25%;
+            border-right: 1px solid $color-gray-300;
+        }
+
+        .sw-first-run-wizard-modal-content__page {
+            position: relative;
+            overflow-y: auto;
+        }
+    }
+
+    .sw-modal__footer {
+        display: flex !important;
+    }
+
+    .sw-first-run-wizard-modal__footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+
+        .footer-right {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            .skip-button {
+                margin-right: 12px;
+            }
+        }
+    }
+}

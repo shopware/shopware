@@ -1,0 +1,66 @@
+@import "~scss/variables";
+
+.sw-first-run-wizard-paypal {
+    height: 100%;
+}
+
+.sw-first-run-wizard-paypal-info {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    &__icon {
+        height: 48px;
+        margin-top: 140px;
+        margin-bottom: 25px;
+    }
+
+    .headline {
+        width: 512px;
+        font-size: 18px;
+        font-weight: normal;
+        text-align: center;
+        letter-spacing: 0.41px;
+        line-height: 25px;
+        margin: 50px auto;
+    }
+
+    .paymethods {
+        flex-grow: 1;
+        width: 565px;
+        margin: 0 auto;
+    }
+
+    .paymethod {
+        font-size: 14px;
+        font-weight: normal;
+        text-align: center;
+        letter-spacing: 0.1px;
+        line-height: 22px;
+    }
+
+    .disclaimer p {
+        color: $color-gray-500;
+        width: 732px;
+        font-size: 12px;
+        font-weight: normal;
+        letter-spacing: 0;
+        line-height: 19px;
+    }
+}
+
+.sw-first-run-wizard-paypal-install {
+    .sw-loader {
+        background: none;
+    }
+
+    .sw-loader-info-text {
+        position: relative;
+        width: 100%;
+        left: 50%;
+        top: 170px;
+        text-align: center;
+        transform: translate(-50%, -50%);
+    }
+}

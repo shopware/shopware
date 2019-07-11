@@ -1,0 +1,42 @@
+{% block sw_first_run_wizard_shopware_account %}
+    <div class="sw-first-run-wizard-shopware-account">
+        <sw-container columns="1fr 1fr">
+            <img class="sw-first-run-wizard-shopware-account__illustration" :src="'/administration/static/img/first-run-wizard/shopware-account.svg' | asset">
+            <div>
+                <h5 class="headline">{{ $tc('sw-first-run-wizard.shopware-account.headline') }}</h5>
+                <p v-html="$tc('sw-first-run-wizard.shopware-account.message')"
+                   class="message"></p>
+                <p class="create-account">{{ $tc('sw-first-run-wizard.shopware-account.register-account-text') }} <a class="external-link" :href="$tc('sw-first-run-wizard.shopware-account.register-account-url')" target="_blank">{{ $tc('sw-first-run-wizard.shopware-account.register-account-here') }}</a>.</p>
+                <div class="input-fields">
+                    <sw-field type="text"
+                              name="shopwareId"
+                              validation="required"
+                              :label="'Shopware ID'"
+                              v-model="shopwareId">
+                    </sw-field>
+                </div>
+
+                <div class="input-fields">
+                    <sw-password-field v-model="password"
+                        type="password"
+                        label="Password"
+                        placeholder="">
+                    </sw-password-field>
+                </div>
+                <p class="forgot-password">
+                <a class="external-link" :href="$tc('sw-first-run-wizard.shopware-account.forgot-password-url')"
+                   target="_blank">{{ $tc('sw-first-run-wizard.shopware-account.forgot-password-text') }}</a>
+                </p>
+
+                <div v-if="accountError"
+                     class="sw-first-run-wizard-shopware-account__error">
+                    <sw-alert :title="$tc('sw-first-run-wizard.error.titleLoginDataInvalid')"
+                     variant="error"
+                     appearance="notification">
+                        {{ $tc('sw-first-run-wizard.error.messageLoginDataInvalid') }}
+                    </sw-alert>
+                </div>
+            </div>
+        </sw-container>
+    </div>
+{% endblock %}

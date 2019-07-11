@@ -1,0 +1,76 @@
+{
+  "sw-first-run-wizard": {
+    "general": {
+      "buttonNext": "Next",
+      "buttonSkip": "Skip",
+      "buttonBack": "Back",
+      "buttonInstall": "Install",
+      "buttonFinish": "Finish",
+      "pluginInstalled": "Installed",
+      "uninstallPlugin": "Uninstall"
+    },
+    "welcome": {
+      "modalTitle": "Welcome",
+      "headlineWelcome": "Welcome in the Shopware 6 Administration",
+      "messageWelcome": "This setup wizard guides you through the most important settings and gives you valuable tips for configuration.<br>Do you want to use your shop in a different language and reach customers in other countries? Then you can simply install the desired language packs here.",
+      "headlineChangeLanguage": "Change your interface language"
+    },
+    "demodata": {
+      "modalTitle": "Install Demodata",
+      "headlineDemodata": "Demo data",
+      "messageDemodata": "Optionally use the possibility and equip your shop with demo data.<br><br>Please note: The demo data is for testing purposes only. You should not use them in a productive environment.",
+      "loadingMessage": "Installing demo data plugin<br>This may take a while..."
+    },
+    "paypal-info": {
+      "headline": "Now pre-integrated in Shopware with even easier and faster activation of the most popular payment methods*",
+      "paymethod": {
+        "paypal": "PayPal",
+        "debit": "Debit",
+        "creditcard": "Credit Card",
+        "invoice": "Invoice"
+      },
+      "disclaimer-one": "1 ECC Cologne: ECC-Payment-Study Vol. 20, Cologne, 2016",
+      "disclaimer-two": "2 subject to a positive risk assessment by PayPal"
+
+    },
+    "paypal-install": {
+      "loadingMessage": "Installing PayPal plugin<br>This my take a while..."
+    },
+    "recommended-plugins": {
+      "headline": "Our recommendations",
+      "message": "Here you will find a selection of useful extensions for your shop. First select a region that is relevant for you. Then you can browse through different categories.",
+      "available-in-region": "Available in region",
+      "category": "Category"
+    },
+    "shopware-account": {
+      "headline": "Shopware Account",
+      "message": "Sign up now with your Shopware ID. This will give you access to your purchased plugins and licenses.<br><br>With your Shopware ID you can log into other Shopware platforms such as the <a href=\"https://store.shopware.com/en\" class=\"external-link\" target=\"_blank\">Community Store</a>, <a href=\"https://forum.shopware.com\" class=\"external-link\" target=\"_blank\">the forum</a> or your personal <a href=\"https://account.shopware.com/\" class=\"external-link\" target=\"_blank\">Shopware account</a>.",
+      "register-account-text": "You don't have a Shopware ID yet? Then register directly",
+      "register-account-here": "here",
+      "register-account-url": "https://account.shopware.com/register?lang=en",
+      "forgot-password-text": "Forgot your password?",
+      "forgot-password-url": "https://account.shopware.com/recovery?lang=en"
+    },
+    "shopware-domain": {
+      "headline": "Verify your domain",
+      "message": "With which domain do you want to link this shop? Select the appropriate domain or create a new one.",
+      "label-create-domain": "Create a new shop domain",
+      "test-environment": "Test environment"
+    },
+    "finish": {
+      "headline-all-done": "All done!",
+      "message": "Your Shopware 6 %{edition} is now verified.",
+      "headline-useful-links": "Useful Links"
+    },
+    "error": {
+      "titleLoginDataInvalid": "Error",
+      "messageLoginDataInvalid": "Login data incomplete."
+    },
+    "step-item-title": {
+      "demodata": "Demodata",
+      "setup-paypal": "Setup PayPal",
+      "plugins": "Plugins",
+      "shopware": "Shopware"
+    }
+  }
+}

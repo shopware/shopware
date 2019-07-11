@@ -1,0 +1,14 @@
+{% block sw_first_run_wizard_demodata %}
+    <div class="sw-first-run-wizard-demodata">
+        <img class="sw-first-run-wizard-demodata__illustration" :src="'/administration/static/img/first-run-wizard/demodata.svg' | asset">
+        <h5 class="sw-first-run-wizard-demodata__headline">{{ $tc('sw-first-run-wizard.demodata.headlineDemodata') }}</h5>
+        <p v-if="!isInstallingPlugin"
+           v-html="$tc('sw-first-run-wizard.demodata.messageDemodata')"
+           class="sw-first-run-wizard-demodata__message"></p>
+        <div v-else class="installing-plugin">
+            <sw-loader size="48"></sw-loader>
+            <p v-html="$tc('sw-first-run-wizard.demodata.loadingMessage')"
+               class="sw-loader-info-text"></p>
+        </div>
+    </div>
+{% endblock %}

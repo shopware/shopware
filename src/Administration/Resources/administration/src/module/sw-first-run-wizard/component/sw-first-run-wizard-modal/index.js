@@ -1,0 +1,244 @@
+import { Component } from 'src/core/shopware';
+import template from './sw-first-run-wizard-modal.html.twig';
+import './sw-first-run-wizard-modal.scss';
+
+Component.register('sw-first-run-wizard-modal', {
+    template,
+
+    inject: ['firstRunWizardService'],
+
+    provide() {
+        return {
+            addNextCallback: this.addNextCallback
+        };
+    },
+
+    props: {
+        title: {
+            type: String,
+            required: true,
+            default: 'unknown title'
+        }
+    },
+
+    data() {
+        return {
+            nextCallback: null,
+            stepVariant: 'info',
+            currentStep: {
+                name: '',
+                variant: 'large',
+                navigationIndex: 0,
+                next: false,
+                skip: false,
+                back: false,
+                finish: false
+            },
+            stepper: {
+                welcome: {
+                    name: 'sw.first.run.wizard.index.welcome',
+                    variant: 'large',
+                    navigationIndex: 0,
+                    next: 'sw.first.run.wizard.index.demodata',
+                    skip: false,
+                    back: false,
+                    finish: false
+                },
+                demodata: {
+                    name: 'sw.first.run.wizard.index.demodata',
+                    variant: 'large',
+                    navigationIndex: 1,
+                    next: 'sw.first.run.wizard.index.paypal.info',
+                    skip: 'sw.first.run.wizard.index.paypal.info',
+                    back: false,
+                    finish: false
+                },
+                'paypal.info': {
+                    name: 'sw.first.run.wizard.index.paypal.info',
+                    variant: 'large',
+                    navigationIndex: 2,
+                    next: 'sw.first.run.wizard.index.paypal.credentials',
+                    skip: 'sw.first.run.wizard.index.plugins',
+                    back: false,
+                    finish: false
+                },
+                'paypal.credentials': {
+                    name: 'sw.first.run.wizard.index.paypal.credentials',
+                    variant: 'large',
+                    navigationIndex: 2,
+                    next: 'sw.first.run.wizard.index.plugins',
+                    skip: 'sw.first.run.wizard.index.plugins',
+                    back: 'sw.first.run.wizard.index.paypal.info',
+                    finish: false
+                },
+                plugins: {
+                    name: 'sw.first.run.wizard.index.plugins',
+                    variant: 'large',
+                    navigationIndex: 3,
+                    next: 'sw.first.run.wizard.index.shopware.account',
+                    skip: false,
+                    back: 'sw.first.run.wizard.index.paypal.info',
+                    finish: false
+                },
+                'shopware.account': {
+                    name: 'sw.first.run.wizard.index.shopware.account',
+                    variant: 'large',
+                    navigationIndex: 4,
+                    next: 'sw.first.run.wizard.index.shopware.domain',
+                    skip: false,
+                    back: 'sw.first.run.wizard.index.plugins',
+                    finish: false
+                },
+                'shopware.domain': {
+                    name: 'sw.first.run.wizard.index.shopware.domain',
+                    variant: 'large',
+                    navigationIndex: 4,
+                    next: 'sw.first.run.wizard.index.finish',
+                    skip: false,
+                    back: 'sw.first.run.wizard.index.shopware.account',
+                    finish: false
+                },
+                finish: {
+                    name: 'sw.first.run.wizard.index.finish',
+                    variant: 'large',
+                    navigationIndex: 5,
+                    next: false,
+                    skip: false,
+                    back: 'sw.first.run.wizard.index.shopware.domain',
+                    finish: true
+                }
+            }
+        };
+    },
+
+    computed: {
+        columns() {
+            const res = this.showSteps
+                ? '1fr 4fr'
+                : '1fr';
+
+            return res;
+        },
+
+        variant() {
+            const { variant } = this.currentStep;
+
+            return variant;
+        },
+
+        showSteps() {
+            const { navigationIndex } = this.currentStep;
+
+            return navigationIndex !== 0;
+        },
+
+        nextVisible() {
+            return !!this.currentStep.next;
+        },
+
+        backVisible() {
+            return !!this.currentStep.back;
+        },
+
+        skipable() {
+            return !!this.currentStep.skip;
+        },
+
+        finishable() {
+            return !!this.currentStep.finish;
+        },
+
+        stepIndex() {
+            const { navigationIndex } = this.currentStep;
+
+            if (navigationIndex < 1 || navigationIndex >= 5) {
+                return 0;
+            }
+
+            return navigationIndex - 1;
+        },
+
+        stepInitialItemVariants() {
+            const navigationSteps = [
+                ['disabled', 'disabled', 'disabled', 'disabled'],
+                ['info', 'disabled', 'disabled', 'disabled'],
+                ['success', 'info', 'disabled', 'disabled'],
+                ['success', 'success', 'info', 'disabled'],
+                ['success', 'success', 'success', 'info'],
+                ['success', 'success', 'success', 'success']
+            ];
+            const { navigationIndex } = this.currentStep;
+
+            return navigationSteps[navigationIndex];
+        }
+    },
+
+    watch: {
+        '$route'(to) {
+            const toName = to.name.replace('sw.first.run.wizard.index.', '');
+
+            this.currentStep = this.stepper[toName];
+        }
+    },
+
+    mounted() {
+        const step = this.$route.name.replace('sw.first.run.wizard.index.', '');
+
+        this.currentStep = this.stepper[step];
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.firstRunWizardService.setFRWStart();
+        },
+
+        onNext() {
+            const { next } = this.currentStep;
+
+            let callbackPromise = Promise.resolve(false);
+
+            if (this.nextCallback !== null && typeof this.nextCallback === 'function') {
+                callbackPromise = this.nextCallback.call();
+            }
+
+            callbackPromise.then((abort) => {
+                if (!abort) {
+                    this.redirect(next);
+                }
+            });
+        },
+
+        onSkip() {
+            const { skip } = this.currentStep;
+
+            this.redirect(skip);
+        },
+
+        onBack() {
+            const { back } = this.currentStep;
+
+            this.redirect(back);
+        },
+
+        onFinish() {
+            this.firstRunWizardService.setFRWStart()
+                .then(() => {
+                    document.location.href = document.location.origin;
+                });
+        },
+
+        redirect(routeName) {
+            this.nextCallback = null;
+            this.$router.push({ name: routeName });
+        },
+
+        addNextCallback(fs) {
+            this.nextCallback = fs;
+        }
+    }
+});
+

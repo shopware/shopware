@@ -1,0 +1,65 @@
+@import "~scss/variables";
+
+.sw-first-run-wizard-finish {
+    text-align: center;
+
+    &__bubble {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $color-emerald-50;
+        margin-bottom: 16px;
+    }
+
+    &__icon {
+        color: $color-emerald-500;
+    }
+
+    .headline-success {
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
+        letter-spacing: 0.1px;
+        line-height: 25px;
+    }
+
+    .message-success {
+        font-size: 14px;
+        font-weight: normal;
+        text-align: center;
+        letter-spacing: 0.1px;
+        line-height: 22px;
+        margin: 20px 0;
+    }
+
+    .headline-useful-links {
+        font-size: 18px;
+        font-weight: 600;
+        text-align: left;
+        letter-spacing: 0.1px;
+        line-height: 25px;
+    }
+
+    .list-useful-links {
+        .external-link {
+            width: 100%;
+            display: inline-block;
+            text-decoration: none;
+            color: $color-shopware-brand-500;
+            font-size: 14px;
+            font-weight: normal;
+            letter-spacing: 0.1px;
+            line-height: 22px;
+            padding: 10px 0;
+            border-radius: $border-radius-default;
+
+            &:hover {
+                background-color: $color-gray-100;
+            }
+        }
+    }
+}

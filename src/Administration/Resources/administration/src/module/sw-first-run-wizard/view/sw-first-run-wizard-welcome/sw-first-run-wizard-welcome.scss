@@ -1,0 +1,33 @@
+@import "~scss/variables";
+
+.sw-first-run-wizard-welcome {
+    .center {
+        text-align: center;
+    }
+
+    .headline-welcome {
+        font-size: 32px;
+        font-weight: normal;
+        text-align: center;
+        letter-spacing: 0.2px;
+        line-height: 45px;
+    }
+
+    .text-welcome {
+        width: 675px;
+        font-size: 14px;
+        font-weight: normal;
+        text-align: center;
+        letter-spacing: 0.1px;
+        margin: 0 auto 30px auto;
+    }
+
+    .text-change-language {
+        width: 247px;
+        height: 25px;
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.1px;
+        line-height: 25px;
+    }
+}

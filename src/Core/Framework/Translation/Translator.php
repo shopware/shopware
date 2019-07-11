@@ -166,6 +166,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         }
 
         $snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
+
         if ($snippetSetId === null) {
             return $catalog;
         }

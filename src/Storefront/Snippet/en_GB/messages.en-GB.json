@@ -291,7 +291,12 @@
         "shippingCosts": "Shipping costs",
         "shippingCountry": "Shipping country",
         "paymentMethod": "Payment method",
-        "shippingMethod": "Shipping method"
+        "shippingMethod": "Shipping method",
+        "product-stock-reached": "The product %name% is only available %quantity% times",
+        "product-out-of-stock": "The product %name% is not available any more",
+        "shipping-method-blocked": "The shipping method %name% is blocked for your current cart.",
+        "payment-method-blocked": "The payment method %name% is blocked for your current cart.",
+        "lineItemDeliveryDate": "Delivery period: %earliest% - %latest%"
     },
     "listing": {
         "boxUnitLabel": "Content:",
@@ -329,7 +334,10 @@
         "priceDataInfoFrom": "From",
         "dataColumnQuantity": "Quantity",
         "dataColumnPrice": "Unit price",
-        "dataColumnReferencePrice": "Reference price"
+        "dataColumnReferencePrice": "Reference price",
+        "deliveryTimeAvailable": "Available, Delivery time %name%",
+        "deliveryTimeRestock": "Shipping in %restockTime% days, Delivery time %name%",
+        "soldOut": "No longer available"
     },
     "footer": {
         "serviceHotlineHeadline": "Service Hotline",

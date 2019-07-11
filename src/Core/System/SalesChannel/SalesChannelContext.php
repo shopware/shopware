@@ -171,8 +171,8 @@ class SalesChannelContext extends Struct
             throw new ContextRulesLockedException();
         }
 
-        $this->rulesIds = array_values($ruleIds);
-        $this->getContext()->setRuleIds($ruleIds);
+        $this->rulesIds = array_filter(array_values($ruleIds));
+        $this->getContext()->setRuleIds($this->rulesIds);
     }
 
     public function lockRules(): void

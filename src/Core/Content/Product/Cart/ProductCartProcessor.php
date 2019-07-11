@@ -7,11 +7,13 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
@@ -79,22 +81,59 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         foreach ($lineItems as $lineItem) {
             $definition = $lineItem->getPriceDefinition();
 
-            if (!$definition) {
+            if (!$definition instanceof QuantityPriceDefinition) {
                 throw new MissingLineItemPriceException($lineItem->getId());
             }
 
-            $lineItem->setPrice(
-                $this->calculator->calculate($definition, $context)
-            );
+            if ($behavior->isRecalculation()) {
+                $lineItem->setPrice($this->calculator->calculate($definition, $context));
+                $toCalculate->add($lineItem);
 
-            // move enriched items to cart,
-            // we could calculate the price here but the \Shopware\Core\Checkout\Cart\Calculator will calculate all items after each processor automatically
+                continue;
+            }
+
+            /** @var ProductEntity $product */
+            $product = $data->get('product-' . $lineItem->getReferencedId());
+
+            // container products can not be buyed
+            if ($product->getChildCount() > 0) {
+                $original->remove($lineItem->getId());
+                continue;
+            }
+
+            $available = $this->getAvailableStock($product, $lineItem);
+
+            if ($available <= 0 || $available < $product->getMinPurchase()) {
+                $original->remove($lineItem->getId());
+
+                $original->addErrors(
+                    new ProductOutOfStockError($product->getId(), (string) $product->getTranslation('name'))
+                );
+
+                continue;
+            }
+
+            if ($available < $lineItem->getQuantity()) {
+                $lineItem->setQuantity($available);
+
+                $definition->setQuantity($available);
+
+                $toCalculate->addErrors(
+                    new ProductStockReachedError($product->getId(), (string) $product->getTranslation('name'), $available)
+                );
+            }
+
+            $lineItem->setPrice($this->calculator->calculate($definition, $context));
             $toCalculate->add($lineItem);
         }
     }
 
-    private function enrich(LineItem $lineItem, CartDataCollection $data, SalesChannelContext $context, CartBehavior $behavior): void
-    {
+    private function enrich(
+        LineItem $lineItem,
+        CartDataCollection $data,
+        SalesChannelContext $context,
+        CartBehavior $behavior
+    ): void {
         $id = $lineItem->getReferencedId();
 
         $key = 'product-' . $id;
@@ -118,13 +157,18 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         /* @var ProductEntity $product */
+        $deliveryTime = null;
+        if ($product->getDeliveryTime()) {
+            $deliveryTime = DeliveryTime::createFromEntity($product->getDeliveryTime());
+        }
+
         $lineItem->setDeliveryInformation(
             new DeliveryInformation(
-                (int) $product->getStock(),
+                (int) $product->getAvailableStock(),
                 (float) $product->getWeight(),
-                $product->getDeliveryDate(),
-                $product->getRestockDeliveryDate(),
-                $product->getShippingFree()
+                $product->getShippingFree(),
+                $product->getRestockTime(),
+                $deliveryTime
             )
         );
 
@@ -141,8 +185,14 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $quantityInformation->setMinPurchase($product->getMinPurchase());
         }
 
-        if ($product->getMaxPurchase() > 0) {
-            $quantityInformation->setMaxPurchase($product->getMaxPurchase());
+        if ($product->getIsCloseout()) {
+            $max = $product->getAvailableStock();
+
+            if ($product->getMaxPurchase() > 0 && $product->getMaxPurchase() < $max) {
+                $max = $product->getMaxPurchase();
+            }
+
+            $quantityInformation->setMaxPurchase($max);
         }
 
         if ($product->getPurchaseSteps() > 0) {
@@ -213,5 +263,14 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         return $lineItem->getPriceDefinition() !== null;
+    }
+
+    private function getAvailableStock(ProductEntity $product, LineItem $lineItem): int
+    {
+        if (!$product->getIsCloseout()) {
+            return $lineItem->getQuantity();
+        }
+
+        return $product->getAvailableStock();
     }
 }

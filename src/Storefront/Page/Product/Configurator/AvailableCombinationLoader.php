@@ -31,15 +31,13 @@ class AvailableCombinationLoader
 
         $query->setParameter('id', Uuid::fromHexToBytes($productId));
         $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
-        $query->setParameter(':active', true);
+        $query->setParameter('active', true);
 
         $query->select([
             'LOWER(HEX(product.id))',
             'product.option_ids as options',
             'product.product_number as productNumber',
-            'product.min_purchase as minPurchase',
-            'product.stock as stock',
-            'product.is_closeout as isCloseout',
+            'product.available',
         ]);
 
         $combinations = $query->execute()->fetchAll();
@@ -49,19 +47,6 @@ class AvailableCombinationLoader
 
         foreach ($combinations as $key => $combination) {
             $combination['options'] = json_decode($combination['options'], true);
-
-            if (!$combination['isCloseout']) {
-                $available[] = $combination;
-                continue;
-            }
-
-            $stock = (int) $combination['stock'];
-
-            $minPurchase = (int) $combination['minPurchase'];
-
-            if ($stock < $minPurchase) {
-                continue;
-            }
 
             $available[] = $combination;
         }

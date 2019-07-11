@@ -15,36 +15,6 @@ use Shopware\Core\Framework\Pricing\PriceRuleCollection;
  */
 class ProductPriceCollection extends PriceRuleCollection
 {
-    public function getProductIds(): array
-    {
-        return $this->fmap(function (ProductPriceEntity $price) {
-            return $price->getProductId();
-        });
-    }
-
-    public function filterByProductId(string $id): self
-    {
-        return $this->filter(function (ProductPriceEntity $price) use ($id) {
-            return $price->getProductId() === $id;
-        });
-    }
-
-    public function sortByQuantity(): void
-    {
-        $this->sort(function (ProductPriceEntity $a, ProductPriceEntity $b) {
-            return $a->getQuantityStart() <=> $b->getQuantityStart();
-        });
-    }
-
-    public function getQuantityPrices(int $quantity): self
-    {
-        return $this->filter(function (ProductPriceEntity $price) use ($quantity) {
-            $end = $price->getQuantityEnd() ?? $quantity + 1;
-
-            return $price->getQuantityStart() <= $quantity && $end >= $quantity;
-        });
-    }
-
     protected function getExpectedClass(): string
     {
         return ProductPriceEntity::class;

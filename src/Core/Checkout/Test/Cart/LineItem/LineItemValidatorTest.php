@@ -54,7 +54,7 @@ class LineItemValidatorTest extends TestCase
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(IncompleteLineItemError::class, $errors->first());
-        static::assertSame('id', $errors->first()->getKey());
+        static::assertSame('id', $errors->first()->getId());
         static::assertSame('label', $errors->first()->getMessageKey());
     }
 
@@ -71,7 +71,7 @@ class LineItemValidatorTest extends TestCase
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(IncompleteLineItemError::class, $errors->first());
-        static::assertSame('id', $errors->first()->getKey());
+        static::assertSame('id', $errors->first()->getId());
         static::assertSame('price', $errors->first()->getMessageKey());
     }
 
@@ -87,7 +87,7 @@ class LineItemValidatorTest extends TestCase
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(IncompleteLineItemError::class, $errors->first());
-        static::assertSame('id', $errors->first()->getKey());
+        static::assertSame('id', $errors->first()->getId());
         static::assertSame('price', $errors->last()->getMessageKey());
     }
 }

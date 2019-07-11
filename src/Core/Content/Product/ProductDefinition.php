@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -90,12 +92,11 @@ class ProductDefinition extends EntityDefinition
         }
 
         return [
+            'isCloseout' => false,
             'minPurchase' => 1,
             'purchaseSteps' => 1,
             'shippingFree' => false,
-            'restockTime' => 1,
-            'minDeliveryTime' => 1,
-            'maxDeliveryTime' => 2,
+            'restockTime' => 3,
         ];
     }
 
@@ -107,6 +108,7 @@ class ProductDefinition extends EntityDefinition
 
             new ParentFkField(self::class),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
+            new ChildCountField(),
 
             (new BlacklistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new WhitelistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
@@ -116,6 +118,8 @@ class ProductDefinition extends EntityDefinition
             //not inherited fields
             new BoolField('active', 'active'),
             (new IntField('stock', 'stock'))->addFlags(new Required()),
+            (new IntField('available_stock', 'availableStock'))->addFlags(new WriteProtected()),
+            (new BoolField('available', 'available'))->addFlags(new WriteProtected()),
 
             (new JsonField('variant_restrictions', 'variantRestrictions'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             new BoolField('display_in_listing', 'displayInListing'),
@@ -162,8 +166,9 @@ class ProductDefinition extends EntityDefinition
             (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new Inherited(), new WriteProtected()),
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
 
-            (new IntField('min_delivery_time', 'minDeliveryTime'))->addFlags(new Inherited()),
-            (new IntField('max_delivery_time', 'maxDeliveryTime'))->addFlags(new Inherited()),
+            (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
+            (new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
+
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
 
             //translatable fields

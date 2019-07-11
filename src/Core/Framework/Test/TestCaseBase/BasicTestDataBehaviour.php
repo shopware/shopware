@@ -42,7 +42,7 @@ trait BasicTestDataBehaviour
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 
-    protected function getAvailablePaymentMethodId(): ?string
+    protected function getAvailablePaymentMethod(): PaymentMethodEntity
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
@@ -52,11 +52,11 @@ trait BasicTestDataBehaviour
         /** @var PaymentMethodEntity $paymentMethod */
         foreach ($paymentMethods as $paymentMethod) {
             if ($paymentMethod->getAvailabilityRuleId() === null) {
-                return $paymentMethod->getId();
+                return $paymentMethod;
             }
         }
 
-        return null;
+        throw new \LogicException('No available ShippingMethod configured');
     }
 
     protected function getValidShippingMethodId(): string
@@ -69,7 +69,7 @@ trait BasicTestDataBehaviour
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 
-    protected function getAvailableShippingMethodId(): string
+    protected function getAvailableShippingMethod(): ShippingMethodEntity
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('shipping_method.repository');
@@ -84,7 +84,7 @@ trait BasicTestDataBehaviour
         /** @var ShippingMethodEntity $shippingMethod */
         foreach ($shippingMethods as $shippingMethod) {
             if ($shippingMethod->getAvailabilityRuleId() !== null) {
-                return $shippingMethod->getId();
+                return $shippingMethod;
             }
         }
 

@@ -108,7 +108,7 @@ trait StorefrontPageTestBehaviour
     protected function createSalesChannelContextWithNavigation(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
-        $shippingMethodId = $this->getAvailableShippingMethodId();
+        $shippingMethodId = $this->getAvailableShippingMethod()->getId();
         $countryId = $this->getValidCountryId();
         $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
         $data = [
@@ -143,7 +143,7 @@ trait StorefrontPageTestBehaviour
     protected function createSalesChannelContextWithLoggedInCustomerAndWithNavigation(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
-        $shippingMethodId = $this->getAvailableShippingMethodId();
+        $shippingMethodId = $this->getAvailableShippingMethod()->getId();
         $countryId = $this->getValidCountryId();
         $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
         $data = [
@@ -179,7 +179,7 @@ trait StorefrontPageTestBehaviour
     protected function createSalesChannelContext(): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
-        $shippingMethodId = $this->getAvailableShippingMethodId();
+        $shippingMethodId = $this->getAvailableShippingMethod()->getId();
         $countryId = $this->getValidCountryId();
         $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
         $data = [

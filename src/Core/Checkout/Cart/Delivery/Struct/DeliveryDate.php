@@ -17,15 +17,51 @@ class DeliveryDate extends Struct
      */
     protected $latest;
 
-    public function __construct(
-        \DateTimeInterface $earliest,
-        \DateTimeInterface $latest
-    ) {
+    public function __construct(\DateTimeInterface $earliest, \DateTimeInterface $latest)
+    {
         $earliest = new \DateTimeImmutable($earliest->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         $latest = new \DateTimeImmutable($latest->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
         $this->earliest = $earliest->setTime(16, 0);
         $this->latest = $latest->setTime(16, 0);
+    }
+
+    public static function createFromDeliveryTime(DeliveryTime $deliveryTime): self
+    {
+        switch ($deliveryTime->getUnit()) {
+            case 'hour':
+                return new self(
+                    self::create('PT' . $deliveryTime->getMin() . 'H'),
+                    self::create('PT' . $deliveryTime->getMax() . 'H')
+                );
+
+            case 'day':
+                return new self(
+                    self::create('P' . $deliveryTime->getMin() . 'D'),
+                    self::create('P' . $deliveryTime->getMax() . 'D')
+                );
+
+            case 'week':
+                return new self(
+                    self::create('P' . $deliveryTime->getMin() . 'W'),
+                    self::create('P' . $deliveryTime->getMax() . 'W')
+                );
+
+            case 'month':
+                return new self(
+                    self::create('P' . $deliveryTime->getMin() . 'M'),
+                    self::create('P' . $deliveryTime->getMax() . 'M')
+                );
+
+            case 'year':
+                return new self(
+                    self::create('P' . $deliveryTime->getMin() . 'Y'),
+                    self::create('P' . $deliveryTime->getMax() . 'Y')
+                );
+
+            default:
+                throw new \RuntimeException(sprintf('Not supported unit %s', $deliveryTime->getUnit()));
+        }
     }
 
     public function getEarliest(): \DateTimeImmutable
@@ -44,5 +80,10 @@ class DeliveryDate extends Struct
             $this->earliest->add($interval),
             $this->latest->add($interval)
         );
+    }
+
+    private static function create(string $interval): \DateTime
+    {
+        return (new \DateTime())->add(new \DateInterval($interval));
     }
 }

@@ -23,12 +23,8 @@ class ProductCombinationFinder
     /**
      * @throws ProductNotFoundException
      */
-    public function find(
-        string $productId,
-        string $wishedGroupId,
-        array $options,
-        SalesChannelContext $salesChannelContext
-    ): FoundCombination {
+    public function find(string $productId, string $wishedGroupId, array $options, SalesChannelContext $salesChannelContext): FoundCombination
+    {
         $variantId = $this->searchForOptions($productId, $salesChannelContext, $options);
 
         if ($variantId !== null) {

@@ -17,32 +17,32 @@ class DeliveryInformation extends Struct
     protected $weight;
 
     /**
-     * @var DeliveryDate
-     */
-    protected $inStockDeliveryDate;
-
-    /**
-     * @var DeliveryDate
-     */
-    protected $outOfStockDeliveryDate;
-
-    /**
      * @var bool
      */
     protected $freeDelivery;
 
+    /**
+     * @var int|null
+     */
+    protected $restockTime;
+
+    /**
+     * @var DeliveryTime|null
+     */
+    protected $deliveryTime;
+
     public function __construct(
         int $stock,
         float $weight,
-        DeliveryDate $inStockDeliveryDate,
-        DeliveryDate $outOfStockDeliveryDate,
-        bool $freeDelivery
+        bool $freeDelivery,
+        ?int $restockTime = null,
+        ?DeliveryTime $deliveryTime = null
     ) {
         $this->stock = $stock;
         $this->weight = $weight;
-        $this->inStockDeliveryDate = $inStockDeliveryDate;
-        $this->outOfStockDeliveryDate = $outOfStockDeliveryDate;
         $this->freeDelivery = $freeDelivery;
+        $this->restockTime = $restockTime;
+        $this->deliveryTime = $deliveryTime;
     }
 
     public function getStock(): int
@@ -65,26 +65,6 @@ class DeliveryInformation extends Struct
         $this->weight = $weight;
     }
 
-    public function getInStockDeliveryDate(): DeliveryDate
-    {
-        return $this->inStockDeliveryDate;
-    }
-
-    public function setInStockDeliveryDate(DeliveryDate $inStockDeliveryDate): void
-    {
-        $this->inStockDeliveryDate = $inStockDeliveryDate;
-    }
-
-    public function getOutOfStockDeliveryDate(): DeliveryDate
-    {
-        return $this->outOfStockDeliveryDate;
-    }
-
-    public function setOutOfStockDeliveryDate(DeliveryDate $outOfStockDeliveryDate): void
-    {
-        $this->outOfStockDeliveryDate = $outOfStockDeliveryDate;
-    }
-
     public function getFreeDelivery(): bool
     {
         return $this->freeDelivery;
@@ -93,5 +73,25 @@ class DeliveryInformation extends Struct
     public function setFreeDelivery(bool $freeDelivery): void
     {
         $this->freeDelivery = $freeDelivery;
+    }
+
+    public function getRestockTime(): ?int
+    {
+        return $this->restockTime;
+    }
+
+    public function setRestockTime(?int $restockTime): void
+    {
+        $this->restockTime = $restockTime;
+    }
+
+    public function getDeliveryTime(): ?DeliveryTime
+    {
+        return $this->deliveryTime;
+    }
+
+    public function setDeliveryTime(?DeliveryTime $deliveryTime): void
+    {
+        $this->deliveryTime = $deliveryTime;
     }
 }

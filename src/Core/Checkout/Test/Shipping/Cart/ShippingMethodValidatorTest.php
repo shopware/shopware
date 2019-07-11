@@ -131,6 +131,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
         $shippingMethod->setName('Express');
+        $shippingMethod->addTranslated('name', 'Express');
         $shippingMethod->setDeliveryTime($deliveryTime);
         $shippingMethod->setAvailabilityRuleId(Uuid::randomHex());
         $shippingMethod->setAvailabilityRuleId('1');
@@ -151,7 +152,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(ShippingMethodBlockedError::class, $errors->first());
-        static::assertSame('shipping-method-blocked-Express', $errors->first()->getKey());
+        static::assertSame('shipping-method-blocked-Express', $errors->first()->getId());
     }
 
     public function testValidateWithMultiDeliveries(): void
@@ -164,6 +165,7 @@ class ShippingMethodValidatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
         $shippingMethod->setName('Express');
+        $shippingMethod->addTranslated('name', 'Express');
         $shippingMethod->setDeliveryTime($deliveryTime);
         $shippingMethod->setAvailabilityRuleId(Uuid::randomHex());
         $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
@@ -191,54 +193,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         static::assertCount(1, $errors);
         static::assertInstanceOf(ShippingMethodBlockedError::class, $errors->first());
-        static::assertSame('shipping-method-blocked-Express', $errors->first()->getKey());
-    }
-
-    public function testValidateWithDifferentShippingMethods(): void
-    {
-        $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(SalesChannelContext::class);
-
-        $deliveryTime = $this->generateDeliveryTimeDummy();
-
-        $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setId('1');
-        $shippingMethod->setName('Express');
-        $shippingMethod->setDeliveryTime($deliveryTime);
-        $shippingMethod->setAvailabilityRuleId(Uuid::randomHex());
-        $deliveryDate = new DeliveryDate(new \DateTime(), new \DateTime());
-        $delivery = new Delivery(
-            new DeliveryPositionCollection(),
-            $deliveryDate,
-            $shippingMethod,
-            $this->createMock(ShippingLocation::class),
-            $this->createMock(CalculatedPrice::class)
-        );
-
-        $shippingMethod2 = new ShippingMethodEntity();
-        $shippingMethod2->setId('3');
-        $shippingMethod2->setName('Standard');
-        $shippingMethod2->setAvailabilityRuleId(Uuid::randomHex());
-        $shippingMethod2->setDeliveryTime($deliveryTime);
-
-        $delivery2 = new Delivery(
-            new DeliveryPositionCollection(),
-            $deliveryDate,
-            $shippingMethod2,
-            $this->createMock(ShippingLocation::class),
-            $this->createMock(CalculatedPrice::class)
-        );
-
-        $cart->expects(static::once())->method('getDeliveries')->willReturn(new DeliveryCollection([$delivery, $delivery2]));
-
-        $validator = new DeliveryValidator();
-        $errors = new ErrorCollection();
-        $validator->validate($cart, $errors, $context);
-
-        static::assertCount(2, $errors);
-        static::assertInstanceOf(ShippingMethodBlockedError::class, $errors->first());
-        static::assertSame('shipping-method-blocked-Express', $errors->first()->getKey());
-        static::assertSame('shipping-method-blocked-Standard', $errors->last()->getKey());
+        static::assertSame('shipping-method-blocked-Express', $errors->first()->getId());
     }
 
     private function generateDeliveryTimeDummy(): DeliveryTimeEntity

@@ -66,6 +66,10 @@
       "labelActive": "Aktiv",
       "labelShippingFree": "Versandkostenfrei",
       "labelMarkAsTopseller": "Produkt hervorheben",
+      "labelIsCloseout": "Abverkauf",
+      "labelDeliveryTime": "Lieferzeit",
+      "labelRestockTime": "Auffüllzeit in Tagen",
+      "placeholderDeliveryTime": "Gib ein Lieferzeit ein ...",
       "placeholderCreatedAt": "Gib ein Erstelldatum ein ...",
       "placeholderReleaseDate": "Gib ein Einstelldatum ein ...",
       "placeholderWidth": "500 ...",
@@ -76,7 +80,9 @@
       "placeholderMinPurchase": "Mindestabnahme ...",
       "placeholderMaxPurchase": "Maximalabnahme ...",
       "placeholderEan": "Gib die EAN-Nummer ein ...",
-      "placeholderManufacturerNumber": "Gib die Herstellernummer ein ..."
+      "placeholderManufacturerNumber": "Gib die Herstellernummer ein ...",
+      "labelAvailableStock": "Verfügbarer Bestand",
+      "labelPurchaseSteps": "Staffelung"
     },
     "packagingForm": {
       "labelUnit": "Einheit",
@@ -86,6 +92,7 @@
       "purchaseUnitHelpText": "Gib die Menge des Produktes an. Wenn z.B. eine Flasche 0,7 Liter beinhaltet, füge 0.7 ein. "
     },
     "detailBase": {
+      "cardTitleDeliverabilityInfo": "Lieferbarkeit",
       "cardTitleProductInfo": "Informationen",
       "cardTitleAssignment": "Zuordnung",
       "cardTitlePrices": "Preise",
@@ -127,6 +134,7 @@
       "columnActive": "Aktiv",
       "columnPrice": "Preis",
       "columnInStock": "Lager",
+      "columnAvailableStock": "Noch verfügbar",
       "columnActions": "Aktion(en)",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",

@@ -32,15 +32,6 @@ class SalesChannelProductEntity extends ProductEntity
      */
     protected $sortedProperties;
 
-    public function isAvailable(): bool
-    {
-        if (!$this->getIsCloseout()) {
-            return true;
-        }
-
-        return $this->getStock() >= $this->getMinPurchase();
-    }
-
     public function getCalculatedListingPrice(): CalculatedListingPrice
     {
         return $this->calculatedListingPrice;

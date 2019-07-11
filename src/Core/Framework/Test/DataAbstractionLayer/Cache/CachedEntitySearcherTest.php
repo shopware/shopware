@@ -194,6 +194,7 @@ class CachedEntitySearcherTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'name' => 'asdf',
             ],
+            'active' => true,
             'tax' => [
                 'name' => 'tax foo',
                 'taxRate' => 15,

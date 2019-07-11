@@ -47,28 +47,6 @@ class DeliveryPosition extends Struct
         $this->deliveryDate = $deliveryDate;
     }
 
-    public static function createByLineItemForInStockDate(LineItem $lineItem): self
-    {
-        return new self(
-            $lineItem->getId(),
-            clone $lineItem,
-            $lineItem->getQuantity(),
-            $lineItem->getPrice(),
-            $lineItem->getDeliveryInformation()->getInStockDeliveryDate()
-        );
-    }
-
-    public static function createByLineItemForOutOfStockDate(LineItem $lineItem): self
-    {
-        return new self(
-            $lineItem->getId(),
-            clone $lineItem,
-            $lineItem->getQuantity(),
-            $lineItem->getPrice(),
-            $lineItem->getDeliveryInformation()->getOutOfStockDeliveryDate()
-        );
-    }
-
     public function getLineItem(): LineItem
     {
         return $this->lineItem;

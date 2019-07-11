@@ -359,7 +359,7 @@ class VariantListingIndexerTest extends TestCase
         );
 
         $optionIds = array_map(function ($item) {
-            return json_decode($item['option_ids'], true);
+            return json_decode((string) $item['option_ids'], true);
         }, $listing);
 
         if (!empty($optionIds)) {

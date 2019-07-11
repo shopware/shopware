@@ -89,12 +89,6 @@ class OrderDeliveryActionController extends AbstractController
             $transition
         );
 
-        $payload = [
-            ['id' => $delivery->getId(), 'stateId' => $toPlace->getId()],
-        ];
-
-        $this->orderDeliveryRepository->update($payload, $context);
-
         $delivery->setStateMachineState($toPlace);
         $delivery->setStateId($toPlace->getId());
 

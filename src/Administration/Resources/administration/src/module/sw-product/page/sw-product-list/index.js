@@ -204,6 +204,11 @@ Component.register('sw-product-list', {
                 inlineEdit: 'number',
                 allowResize: true,
                 align: 'right'
+            }, {
+                property: 'availableStock',
+                label: this.$tc('sw-product.list.columnAvailableStock'),
+                allowResize: true,
+                align: 'right'
             }];
         }
     }

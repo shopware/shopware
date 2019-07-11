@@ -1,7 +1,7 @@
 import { Component } from 'src/core/shopware';
 import template from './sw-product-category-form.html.twig';
 
-const { mapState, mapGetters } = Component.getComponentHelper();
+const { mapState, mapGetters, mapApiErrors } = Component.getComponentHelper();
 
 Component.register('sw-product-category-form', {
     template,
@@ -26,6 +26,8 @@ Component.register('sw-product-category-form', {
         ...mapGetters('swProductDetail', [
             'isChild'
         ]),
+
+        ...mapApiErrors('product', ['tags']),
 
         hasSelectedVisibilities() {
             if (this.product && this.product.visibilities) {

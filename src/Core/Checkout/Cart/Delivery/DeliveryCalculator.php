@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
@@ -42,14 +43,14 @@ class DeliveryCalculator
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
-    public function calculate(CartDataCollection $data, DeliveryCollection $deliveries, SalesChannelContext $context): void
+    public function calculate(CartDataCollection $data, Cart $cart, DeliveryCollection $deliveries, SalesChannelContext $context): void
     {
         foreach ($deliveries as $delivery) {
-            $this->calculateDelivery($data, $delivery, $context);
+            $this->calculateDelivery($data, $cart, $delivery, $context);
         }
     }
 
-    private function calculateDelivery(CartDataCollection $data, Delivery $delivery, SalesChannelContext $context): void
+    private function calculateDelivery(CartDataCollection $data, Cart $cart, Delivery $delivery, SalesChannelContext $context): void
     {
         $costs = null;
         if ($delivery->getShippingCosts()->getUnitPrice() > 0) {
@@ -111,7 +112,9 @@ class DeliveryCalculator
         }
 
         if (!$costs) {
-            $delivery->setError(new ShippingMethodBlockedError($shippingMethod->getName() ?? $shippingMethod->getId()));
+            $cart->addErrors(
+                new ShippingMethodBlockedError((string) $shippingMethod->getTranslation('name'))
+            );
 
             return;
         }

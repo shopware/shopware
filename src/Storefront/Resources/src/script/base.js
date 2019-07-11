@@ -49,6 +49,7 @@ import FromScrollToInvalidFieldPlugin from 'src/script/plugin/forms/form-scroll-
 import OffCanvasTabsPlugin from 'src/script/plugin/offcanvas-tabs/offcanvas-tabs.plugin';
 import BaseSliderPlugin from 'src/script/plugin/slider/base-slider.plugin';
 import GallerySliderPlugin from 'src/script/plugin/slider/gallery-slider.plugin';
+import ProductSliderPlugin from 'src/script/plugin/slider/product-slider.plugin';
 import ZoomModalPlugin from 'src/script/plugin/zoom-modal/zoom-modal.plugin';
 import MagnifierPlugin from 'src/script/plugin/magnifier/magnifier.plugin';
 import ImageZoomPlugin from 'src/script/plugin/image-zoom/image-zoom.plugin';
@@ -96,6 +97,7 @@ PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-accoun
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tabs]');
 PluginManager.register('BaseSlider', BaseSliderPlugin, '[data-base-slider]');
 PluginManager.register('GallerySlider', GallerySliderPlugin, '[data-gallery-slider]');
+PluginManager.register('ProductSlider', ProductSliderPlugin, '[data-product-slider]');
 PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
 PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');
 PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-image-zoom]');

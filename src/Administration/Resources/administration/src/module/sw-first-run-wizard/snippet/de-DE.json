@@ -64,6 +64,13 @@
     "error": {
       "titleLoginDataInvalid": "Fehler",
       "messageLoginDataInvalid": "Login Daten sind unvollständig."
+    },
+    "step-item-title": {
+      "demodata": "Demodaten",
+      "setup-paypal": "PayPal einrichten",
+      "plugins": "Plugins",
+      "shopware": "Shopware"
     }
+
   }
 }

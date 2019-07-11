@@ -65,6 +65,12 @@
     "error": {
       "titleLoginDataInvalid": "Error",
       "messageLoginDataInvalid": "Login data incomplete."
+    },
+    "step-item-title": {
+      "demodata": "Demodata",
+      "setup-paypal": "Setup PayPal",
+      "plugins": "Plugins",
+      "shopware": "Shopware"
     }
   }
 }

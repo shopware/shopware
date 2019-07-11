@@ -1,3 +1,5 @@
+@import '~scss/variables';
+
 .sw-first-run-wizard-modal {
     &.sw-modal--large .sw-modal__dialog {
         max-width: 1021px !important;
@@ -24,13 +26,13 @@
             }
 
             &.two {
-                grid-template-columns: 1fr 4fr;
+                grid-template-columns: 230px 4fr;
             }
         }
 
         .sw-first-run-wizard-modal-content__steps {
             margin-right: 25%;
-            border-right: 1px solid #d1d9e0;
+            border-right: 1px solid $color-gray-300;
         }
 
         .sw-first-run-wizard-modal-content__page {

@@ -328,7 +328,7 @@ class ProductRepositoryTest extends TestCase
 
         $prices = $product->getListingPrices();
 
-        static::assertInstanceOf($this->class, $prices);
+        static::assertInstanceOf(ListingPriceCollection::class, $prices);
         static::assertCount(9, $prices);
 
         $aPrices = $this->filterByRuleId($prices, $ruleA);

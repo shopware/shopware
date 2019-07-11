@@ -1062,7 +1062,7 @@ class ProductEntity extends Entity
         $this->deliveryTime = $deliveryTime;
     }
 
-    public function getChildCount(): int
+    public function getChildCount(): ?int
     {
         return $this->childCount;
     }

@@ -106,7 +106,7 @@ PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
 /*
 run plugins
 */
-document.addEventListener('DOMContentLoaded', () => { console.dir('a', PluginManager.getPluginList().stickyHeader);  PluginManager.initializePlugins()}, false);
+document.addEventListener('DOMContentLoaded', () => { PluginManager.initializePlugins()}, false);
 
 /*
 run utils

@@ -294,7 +294,6 @@ class ProductVisibilityTest extends TestCase
                     'snippetSetId' => Uuid::fromBytesToHex($snippetSetId),
                 ],
             ],
-            'themeId' => $this->getDefaultThemeId(),
         ];
 
         $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());

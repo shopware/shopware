@@ -149,7 +149,6 @@ class ThemeLifecycleService
     private function getLabelsFromConfig(array $config): array
     {
         $translations = [];
-        // blocks
         if (array_key_exists('blocks', $config)) {
             $translations = array_merge_recursive($translations, $this->extractLabels('blocks', $config['blocks']));
         }

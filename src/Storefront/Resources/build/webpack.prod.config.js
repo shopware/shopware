@@ -24,9 +24,9 @@ const optimization = {
             },
             cache: true,
             parallel: true,
-            sourceMap: true
-        })
-    ]
+            sourceMap: true,
+        }),
+    ],
 };
 
 /**
@@ -35,6 +35,5 @@ const optimization = {
 module.exports = {
     devtool: 'source-map',
     mode: 'production',
-    module: modules,
     optimization: optimization,
 };

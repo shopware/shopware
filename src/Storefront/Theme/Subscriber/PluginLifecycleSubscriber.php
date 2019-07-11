@@ -98,9 +98,6 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             }
         );
 
-        dump($configurationCollection);
-        dump($this->storefrontPluginRegistry->getConfigurations()->getByTechnicalName($event->getPlugin()->getName()));
-
         $storeFrontPluginConfiguration = $this->storefrontPluginRegistry->getConfigurations()->getByTechnicalName($event->getPlugin()->getName());
 
         if ($storeFrontPluginConfiguration !== null) {

@@ -247,7 +247,7 @@ class ThemeEntity extends Entity
         return $this->translations;
     }
 
-    public function setTranslations(?ThemeTranslationCollection $translations): void
+    public function setTranslations(ThemeTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

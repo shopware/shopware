@@ -16,7 +16,7 @@
             <argument>%kernel.cache_dir%</argument>
         </service>
 
-        <service id="Shopware\Storefront\Theme\ThemeLifecycleService" public="true">
+        <service id="Shopware\Storefront\Theme\ThemeLifecycleService">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="media.repository"/>
@@ -24,7 +24,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\ThemeService" public="true">
+        <service id="Shopware\Storefront\Theme\ThemeService">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="theme_sales_channel.repository"/>
@@ -80,9 +80,8 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="theme_sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator"/>
             <tag name="console.command"/>
-            <argument type="service"
-                      id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\Command\ThemeCompileCommand">

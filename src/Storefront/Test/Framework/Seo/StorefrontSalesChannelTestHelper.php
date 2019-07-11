@@ -63,7 +63,6 @@ trait StorefrontSalesChannelTestHelper
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'domains' => $domains,
             'navigationCategoryId' => $this->getValidCategoryId(),
-            'themeId' => $this->getDefaultThemeId(),
         ]], Context::createDefaultContext());
 
         /** @var SalesChannelEntity $salesChannel */

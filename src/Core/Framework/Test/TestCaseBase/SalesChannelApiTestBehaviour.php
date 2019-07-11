@@ -127,7 +127,6 @@ trait SalesChannelApiTestBehaviour
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'themeId' => $this->getDefaultThemeId(),
         ], $salesChannelOverride);
 
         $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());

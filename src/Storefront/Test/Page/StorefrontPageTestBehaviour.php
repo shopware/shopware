@@ -135,7 +135,6 @@ trait StorefrontPageTestBehaviour
             'domains' => [
                 ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
             ],
-            'themeId' => $this->getDefaultThemeId(),
         ];
 
         return $this->createContext($data, []);
@@ -170,7 +169,6 @@ trait StorefrontPageTestBehaviour
             'domains' => [
                 ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
             ],
-            'themeId' => $this->getDefaultThemeId(),
         ];
 
         return $this->createContext($data, [
@@ -208,7 +206,6 @@ trait StorefrontPageTestBehaviour
             'domains' => [
                 ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
             ],
-            'themeId' => $this->getDefaultThemeId(),
         ];
 
         return $this->createContext($data, []);

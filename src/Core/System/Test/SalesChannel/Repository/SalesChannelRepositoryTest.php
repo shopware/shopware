@@ -110,7 +110,6 @@ class SalesChannelRepositoryTest extends TestCase
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'themeId' => $this->getDefaultThemeId(),
         ]], $context);
 
         $criteria1 = new Criteria([$salesChannelId]);

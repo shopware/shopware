@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Framework\Pricing\CalculatedListingPrice;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
@@ -54,10 +55,13 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
             )
         );
 
+        $priceCollection = new PriceCollection();
+        foreach ($prices->getPrices() as $price) {
+            $priceCollection->add($this->priceCalculator->calculate($price, $context));
+        }
+
         //calculate context prices
-        $product->setCalculatedPrices(
-            $this->priceCalculator->calculateCollection($prices->getPrices(), $context)
-        );
+        $product->setCalculatedPrices($priceCollection);
 
         //calculate simple price
         $product->setCalculatedPrice(

@@ -43,18 +43,25 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $precision;
 
+    /**
+     * @var ReferencePriceDefinition|null
+     */
+    protected $referencePriceDefinition;
+
     public function __construct(
         float $price,
         TaxRuleCollection $taxRules,
         int $precision,
         int $quantity = 1,
-        bool $isCalculated = false
+        bool $isCalculated = false,
+        ?ReferencePriceDefinition $referencePrice = null
     ) {
         $this->price = $price;
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;
         $this->isCalculated = $isCalculated;
         $this->precision = $precision;
+        $this->referencePriceDefinition = $referencePrice;
     }
 
     public function getPrice(): float
@@ -139,5 +146,10 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
             'isCalculated' => [new Type('bool')],
             'precision' => [new NotBlank(), new Type('int')],
         ];
+    }
+
+    public function getReferencePriceDefinition(): ?ReferencePriceDefinition
+    {
+        return $this->referencePriceDefinition;
     }
 }

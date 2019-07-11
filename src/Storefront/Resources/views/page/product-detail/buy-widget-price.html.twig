@@ -57,9 +57,9 @@
                                                 {% endblock %}
 
                                                 {% block page_product_detail_price_block_table_body_cell_reference_price %}
-                                                    {% if page.product.purchaseUnit %}
+                                                    {% if price.referencePrice is not null %}
                                                         <td class="product-block-prices-cell">
-                                                            {# todo@dr NEXT-3678 reference price #}
+                                                            {{ price.referencePrice.price|currency }}{{ "general.star"|trans }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
                                                         </td>
                                                     {% endif %}
                                                 {% endblock %}
@@ -97,14 +97,14 @@
 
                     {% block page_product_detail_price_unit_content %}
                         <span class="price-unit-content">
-							{{ page.product.purchaseUnit }} {#TODO: NEXT-2781 - add measuring unit (old sArticle.sUnit.description) #}
+							{{ page.product.purchaseUnit }} {{ page.product.unit.name }}
                         </span>
                     {% endblock %}
 
-                    {% if page.product.purchaseUnit and page.product.referenceUnit and page.product.purchaseUnit != page.product.referenceUnit %}
+                    {% if price.referencePrice is not null %}
                         {% block page_product_detail_price_unit_refrence_content %}
                             <span class="price-unit-reference-content">
-                                {# todo@dr NEXT-3678 reference price #}
+                                ({{ price.referencePrice.price|currency }}{{ "general.star"|trans }} / {{ price.referencePrice.purchaseUnit }} {{ price.referencePrice.unitName }})
                             </span>
                         {% endblock %}
                     {% endif %}

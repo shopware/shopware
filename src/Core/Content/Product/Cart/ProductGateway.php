@@ -24,6 +24,7 @@ class ProductGateway implements ProductGatewayInterface
         $criteria = new Criteria($ids);
         $criteria->addAssociation('prices');
         $criteria->addAssociation('cover');
+        $criteria->addAssociation('unit');
 
         /** @var ProductCollection $result */
         $result = $this->repository->search($criteria, $context->getContext())->getEntities();

@@ -9,16 +9,20 @@
                             {{ "listing.boxUnitLabel"|trans }}
                         </span>
                         <span class="price-unit-content">
-                            {{ product.purchaseUnit }} {{ product.packUnit }}
+                            {{ product.purchaseUnit }} {{ product.unit.name }}
                         </span>
                     {% endif %}
                 {% endblock %}
 
                 {# Unit price is based on a reference unit #}
                 {% block component_product_box_price_reference_unit %}
-                    {% if product.purchaseUnit and product.referenceUnit and product.purchaseUnit !=  product.referenceUnit %}
+                    {% if product.calculatedPrice.referencePrice is not null %}
                         <span class="price-unit-reference">
-                            {# todo@dr NEXT-3678 reference price #}
+                            {% if product.priceRange %}
+                                ({{ "listing.listingTextFrom"|trans }} {{ product.calculatedListingPrice.from.referencePrice.price|currency }}{{ "general.star"|trans }} / {{ product.calculatedListingPrice.from.referencePrice.referenceUnit }} {{ product.calculatedListingPrice.from.referencePrice.unitName }})
+                            {% else %}
+                                ({{ product.calculatedPrice.referencePrice.price|currency }}{{ "general.star"|trans }} / {{ product.calculatedPrice.referencePrice.referenceUnit }} {{ product.calculatedPrice.referencePrice.unitName }})
+                            {% endif %}
                         </span>
                     {% endif %}
                 {% endblock %}

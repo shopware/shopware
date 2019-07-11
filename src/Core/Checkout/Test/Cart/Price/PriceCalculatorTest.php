@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\PriceRoundingInterface;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -35,10 +36,13 @@ class PriceCalculatorTest extends TestCase
             new TaxRuleCalculator($priceRounding)
         );
 
+        $referencePriceCalculator = new ReferencePriceCalculator($priceRounding);
+
         $calculator = new QuantityPriceCalculator(
-            new GrossPriceCalculator($taxCalculator, $priceRounding),
-            new NetPriceCalculator($taxCalculator, $priceRounding),
-            Generator::createGrossPriceDetector()
+            new GrossPriceCalculator($taxCalculator, $priceRounding, $referencePriceCalculator),
+            new NetPriceCalculator($taxCalculator, $priceRounding, $referencePriceCalculator),
+            Generator::createGrossPriceDetector(),
+            $referencePriceCalculator
         );
 
         $lineItemPrice = $calculator->calculate(
@@ -60,15 +64,19 @@ class PriceCalculatorTest extends TestCase
         $detector->method('useGross')->willReturn(false);
         $detector->method('isNetDelivery')->willReturn(false);
 
+        $priceRounding = new PriceRounding();
+        $referencePriceCalculator = new ReferencePriceCalculator($priceRounding);
+
         $taxCalculator = new TaxCalculator(
-            new PriceRounding(),
-            new TaxRuleCalculator(new PriceRounding())
+            $priceRounding,
+            new TaxRuleCalculator($priceRounding)
         );
 
         $calculator = new QuantityPriceCalculator(
-            new GrossPriceCalculator($taxCalculator, new PriceRounding()),
-            new NetPriceCalculator($taxCalculator, new PriceRounding()),
-            $detector
+            new GrossPriceCalculator($taxCalculator, $priceRounding, $referencePriceCalculator),
+            new NetPriceCalculator($taxCalculator, $priceRounding, $referencePriceCalculator),
+            $detector,
+            $referencePriceCalculator
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -89,15 +97,19 @@ class PriceCalculatorTest extends TestCase
         $detector->method('useGross')->willReturn(false);
         $detector->method('isNetDelivery')->willReturn(true);
 
+        $priceRounding = new PriceRounding();
+        $referencePriceCalculator = new ReferencePriceCalculator($priceRounding);
+
         $taxCalculator = new TaxCalculator(
-            new PriceRounding(),
-            new TaxRuleCalculator(new PriceRounding())
+            $priceRounding,
+            new TaxRuleCalculator($priceRounding)
         );
 
         $calculator = new QuantityPriceCalculator(
-            new GrossPriceCalculator($taxCalculator, new PriceRounding()),
-            new NetPriceCalculator($taxCalculator, new PriceRounding()),
-            $detector
+            new GrossPriceCalculator($taxCalculator, $priceRounding, $referencePriceCalculator),
+            new NetPriceCalculator($taxCalculator, $priceRounding, $referencePriceCalculator),
+            $detector,
+            $referencePriceCalculator
         );
 
         $context = $this->createMock(SalesChannelContext::class);

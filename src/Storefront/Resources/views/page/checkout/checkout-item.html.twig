@@ -99,13 +99,12 @@
                                                     {% if deliveryPosition and deliveryPosition.deliveryDate %}
                                                         <div class="cart-item-delivery-date">
                                                             {{ "checkout.lineItemDeliveryDate"|trans({
-                                                                '%earliest%': deliveryPosition.deliveryDate.earliest|localizeddate('medium', 'none', app.request.locale),
-                                                                '%latest%': deliveryPosition.deliveryDate.latest|localizeddate('medium', 'none', app.request.locale)
+                                                                '%earliest%': deliveryPosition.deliveryDate.earliest|localizeddate('short', 'none', app.request.locale),
+                                                                '%latest%': deliveryPosition.deliveryDate.latest|localizeddate('short', 'none', app.request.locale)
                                                             }) }}
                                                         </div>
                                                     {% endif %}
                                                 {% endblock %}
-
                                             </div>
                                         {% endblock %}
                                     </div>

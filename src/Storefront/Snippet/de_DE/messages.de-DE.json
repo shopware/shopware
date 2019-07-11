@@ -297,7 +297,7 @@
         "product-out-of-stock": "Das Produkt %name% ist nicht mehr Verfügbar",
         "shipping-method-blocked": "Die Versandart %name% ist für Ihren aktuellen Warenkorb gesperrt",
         "payment-method-blocked": "Die Zahlungsart %name% ist für Ihren aktuellen Warenkorb gesperrt",
-        "lineItemDeliveryDate": "Geschätzter Lieferzeitraum: %earliest% - %latest%"
+        "lineItemDeliveryDate": "Lieferzeitraum: %earliest% - %latest%"
     },
     "listing": {
         "boxUnitLabel": "Inhalt:",

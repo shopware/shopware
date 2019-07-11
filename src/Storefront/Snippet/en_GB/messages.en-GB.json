@@ -296,7 +296,7 @@
         "product-out-of-stock": "The product %name% is not available any more",
         "shipping-method-blocked": "The shipping method %name% is blocked for your current cart.",
         "payment-method-blocked": "The payment method %name% is blocked for your current cart.",
-        "lineItemDeliveryDate": "Estimated delivery period: %earliest% - %latest%"
+        "lineItemDeliveryDate": "Delivery period: %earliest% - %latest%"
     },
     "listing": {
         "boxUnitLabel": "Content:",

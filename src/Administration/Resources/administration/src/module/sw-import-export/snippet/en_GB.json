@@ -113,6 +113,7 @@
       "columnFileField": "File column",
       "columnEntityField": "Internal field",
       "columnValueSubstitution": "Value substitution",
+      "columnIsIdentifier": "Identity criteria",
       "addCsvMappingItem": "Add item",
       "deleteCsvMappingItem": "Delete item",
       "saveButton": "Save"

@@ -54,6 +54,16 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
         $this->context = Context::createDefaultContext();
+
+        $medias = $this->mediaRepository->searchIds(new Criteria(), $this->context);
+
+        if ($medias->getTotal() > 0) {
+            $deleteArray = [];
+            foreach ($medias->getIds() as $id) {
+                $deleteArray[]['id'] = $id;
+            }
+            $this->mediaRepository->delete($deleteArray, $this->context);
+        }
     }
 
     public function testExecuteHappyPath(): void
@@ -158,7 +168,10 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
-        $mediaResult = $this->mediaRepository->search(new Criteria(), $this->context);
+        $mediaCriteria = new Criteria();
+        $mediaCriteria->addAssociation('thumbnails');
+
+        $mediaResult = $this->mediaRepository->search($mediaCriteria, $this->context);
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();

@@ -116,6 +116,7 @@ class NewsletterRecipientServiceTest extends TestCase
                     'snippetSetId' => $this->getRandomId('snippet_set'),
                 ],
             ],
+            'themeId' => $this->getDefaultThemeId(),
         ];
 
         $this->getContainer()->get('sales_channel.repository')

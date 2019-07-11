@@ -37,6 +37,11 @@ class MediaFolderConfigurationEntity extends Entity
     protected $private;
 
     /**
+     * @var bool|null
+     */
+    protected $noAssociation;
+
+    /**
      * @var MediaThumbnailSizeCollection|null
      */
     protected $mediaThumbnailSizes;
@@ -129,5 +134,15 @@ class MediaFolderConfigurationEntity extends Entity
     public function setMediaThumbnailSizesRo(string $mediaThumbnailSizesRo): void
     {
         $this->mediaThumbnailSizesRo = $mediaThumbnailSizesRo;
+    }
+
+    public function isNoAssociation(): ?bool
+    {
+        return $this->noAssociation;
+    }
+
+    public function setNoAssociation(?bool $noAssociation): void
+    {
+        $this->noAssociation = $noAssociation;
     }
 }

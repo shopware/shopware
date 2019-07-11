@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Language\LanguageEntity;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait BasicTestDataBehaviour
@@ -130,6 +131,18 @@ trait BasicTestDataBehaviour
         $repository = $this->getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit(1)->addFilter(new EqualsFilter('taxFree', 0));
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
+
+    protected function getDefaultThemeId(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('theme.repository');
+
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }

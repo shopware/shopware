@@ -413,6 +413,12 @@ class DefinitionValidator
         $classReflection = new \ReflectionClass($translationDefinition->getEntityClass());
         $reflectionMethods = $classReflection->getMethods(\ReflectionMethod::IS_PUBLIC);
 
+        if ($classReflection->getName() === ArrayEntity::class) {
+            $violations[$translationDefinition->getClass()][] = sprintf('No EntityClass defined for TranslationDefinition `%s`. Add Method: public function getEntityClass(): string', $translationDefinition->getClass());
+
+            return $violations;
+        }
+
         foreach ($reflectionMethods as $method) {
             if (strpos($method->getName(), 'get') !== 0
                 || $method->getDeclaringClass()->getName() !== $translationDefinition->getEntityClass()

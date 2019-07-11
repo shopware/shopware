@@ -85,7 +85,6 @@ class SalesChannelDefinition extends EntityDefinition
             new ReferenceVersionField(CategoryDefinition::class, 'service_category_version_id'),
 
             new FkField('mail_header_footer_id', 'mailHeaderFooterId', MailHeaderFooterDefinition::class),
-            (new StringField('type', 'type'))->addFlags(new Required()),
             new TranslatedField('name'),
             new StringField('short_name', 'shortName'),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),

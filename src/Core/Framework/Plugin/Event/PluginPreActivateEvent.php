@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 
 class PluginPreActivateEvent extends PluginLifecycleEvent
 {
-    public const NAME = 'plugin.pre.activate';
-
     /**
      * @var ActivateContext
      */

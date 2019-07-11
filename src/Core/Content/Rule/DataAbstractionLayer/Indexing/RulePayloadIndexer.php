@@ -93,11 +93,11 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PluginPostInstallEvent::NAME => 'refreshPlugin',
-            PluginPostActivateEvent::NAME => 'refreshPlugin',
-            PluginPostUpdateEvent::NAME => 'refreshPlugin',
-            PluginPostDeactivateEvent::NAME => 'refreshPlugin',
-            PluginPostUninstallEvent::NAME => 'refreshPlugin',
+            PluginPostInstallEvent::class => 'refreshPlugin',
+            PluginPostActivateEvent::class => 'refreshPlugin',
+            PluginPostUpdateEvent::class => 'refreshPlugin',
+            PluginPostDeactivateEvent::class => 'refreshPlugin',
+            PluginPostUninstallEvent::class => 'refreshPlugin',
         ];
     }
 

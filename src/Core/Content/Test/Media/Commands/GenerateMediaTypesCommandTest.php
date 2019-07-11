@@ -50,6 +50,16 @@ class GenerateMediaTypesCommandTest extends TestCase
         $this->generateMediaTypesCommand = $this->getContainer()->get(GenerateMediaTypesCommand::class);
 
         $this->context = Context::createDefaultContext();
+
+        $medias = $this->mediaRepository->searchIds(new Criteria(), $this->context);
+
+        if ($medias->getTotal() > 0) {
+            $deleteArray = [];
+            foreach ($medias->getIds() as $id) {
+                $deleteArray[]['id'] = $id;
+            }
+            $this->mediaRepository->delete($deleteArray, $this->context);
+        }
     }
 
     public function testExecuteHappyPath(): void

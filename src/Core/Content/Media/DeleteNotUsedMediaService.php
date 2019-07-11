@@ -8,6 +8,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 
 class DeleteNotUsedMediaService
 {
@@ -50,10 +52,28 @@ class DeleteNotUsedMediaService
     private function createFilterForNotUsedMedia(Context $context): Criteria
     {
         $criteria = new Criteria();
-        $iterator = new RepositoryIterator($this->defaultFolderRepo, $context);
+
+        $defaultFolderCriteria = new Criteria();
+        $defaultFolderCriteria->setOffset(0);
+        $defaultFolderCriteria->setLimit(50);
+        $defaultFolderCriteria->addAssociationPath('folder.configuration');
+
+        $iterator = new RepositoryIterator($this->defaultFolderRepo, $context, $defaultFolderCriteria);
         /** @var MediaDefaultFolderCollection $defaultFolders */
         while ($defaultFolders = $iterator->fetch()) {
             foreach ($defaultFolders as $defaultFolder) {
+                if ($defaultFolder->getFolder()->getConfiguration()->isNoAssociation()) {
+                    $criteria->addFilter(
+                        new MultiFilter('OR', [
+                            new NotFilter('AND', [
+                                new EqualsFilter('mediaFolderId', $defaultFolder->getFolder()->getId()),
+                            ]),
+                            new EqualsFilter('mediaFolderId', null),
+                        ]
+                        )
+                    );
+                    continue;
+                }
                 foreach ($defaultFolder->getAssociationFields() as $associationField) {
                     $criteria->addFilter(
                         new EqualsFilter("media.${associationField}.id", null)

@@ -172,6 +172,7 @@ class ProductVisibilityEntityTest extends TestCase
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'themeId' => $this->getDefaultThemeId(),
         ];
 
         $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());

@@ -52,7 +52,7 @@ class DeliveryCalculatorTest extends TestCase
             'min' => 1,
             'max' => 3,
             'unit' => 'day',
-            'name' => '1-3 days'
+            'name' => '1-3 days',
         ]);
     }
 
@@ -483,7 +483,7 @@ class DeliveryCalculatorTest extends TestCase
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'),$deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }

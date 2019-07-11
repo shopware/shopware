@@ -60,8 +60,7 @@
             {% block sw_product_deliverability_form_delivery_time_field %}
                 <sw-inherit-wrapper v-model="product.deliveryTimeId"
                                     :inheritedValue="parentProduct.deliveryTimeId"
-                                    :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
-                                    required>
+                                    :label="$tc('sw-product.settingsForm.labelDeliveryTime')">
                     <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
                         <sw-entity-single-select :value="currentValue"
@@ -92,7 +91,6 @@
                                   :disabled="props.isInherited"
                                   :label="$tc('sw-product.settingsForm.labelRestockTime')"
                                   :placeholder="$tc('sw-product.settingsForm.placeholderRestockTime')"
-                                  required
                                   :value="props.currentValue"
                                   :error="productRestockTimeError"
                                   @change="props.updateCurrentValue">

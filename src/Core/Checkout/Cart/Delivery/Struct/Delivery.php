@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Struct\Struct;

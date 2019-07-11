@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -124,7 +123,7 @@ class CartWeightRuleTest extends TestCase
                     'max' => 3,
                     'min' => 1,
                     'unit' => 'week',
-                    'name' => '1-3 weeks'
+                    'name' => '1-3 weeks',
                 ])
             )
         ));
@@ -139,7 +138,7 @@ class CartWeightRuleTest extends TestCase
                         'max' => 3,
                         'min' => 1,
                         'unit' => 'week',
-                        'name' => '1-3 weeks'
+                        'name' => '1-3 weeks',
                     ])
                 )
             )

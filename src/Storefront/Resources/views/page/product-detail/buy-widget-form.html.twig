@@ -6,7 +6,7 @@
         data-add-to-cart="true">
         {% block page_product_detail_buy_container %}
             {# @var page \Shopware\Storefront\Page\Product\ProductPage #}
-            {% if not page.product.isCloseout or (page.product.availableStock >= page.product.minPurchase) %}
+            {% if (not page.product.isCloseout or (page.product.availableStock >= page.product.minPurchase)) and page.product.childCount <= 0 %}
                 <div class="form-row buy-widget-container">
                     {% block page_product_detail_buy_quantity_container %}
                         <div class="col-4">

@@ -85,39 +85,45 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 throw new MissingLineItemPriceException($lineItem->getId());
             }
 
-            if (!$behavior->isRecalculation()) {
-                $product = $data->get('product-' . $lineItem->getReferencedId());
+            if ($behavior->isRecalculation()) {
+                $lineItem->setPrice($this->calculator->calculate($definition, $context));
+                $toCalculate->add($lineItem);
 
-                $available = $this->getAvailableStock($product, $lineItem);
-
-                /** @var ProductEntity $product */
-                if ($available <= 0 || $available < $product->getMinPurchase()) {
-                    $original->remove($lineItem->getId());
-
-                    $original->addErrors(
-                        new ProductOutOfStockError($product->getId(), (string) $product->getTranslation('name'))
-                    );
-
-                    continue;
-                }
-
-                if ($available < $lineItem->getQuantity()) {
-                    $lineItem->setQuantity($available);
-
-                    $definition->setQuantity($available);
-
-                    $toCalculate->addErrors(
-                        new ProductStockReachedError($product->getId(), (string) $product->getTranslation('name'), $available)
-                    );
-                }
+                continue;
             }
 
-            $lineItem->setPrice(
-                $this->calculator->calculate($definition, $context)
-            );
+            /** @var ProductEntity $product */
+            $product = $data->get('product-' . $lineItem->getReferencedId());
 
-            // move enriched items to cart,
-            // we could calculate the price here but the \Shopware\Core\Checkout\Cart\Calculator will calculate all items after each processor automatically
+            // container products can not be buyed
+            if ($product->getChildCount() > 0) {
+                $original->remove($lineItem->getId());
+                continue;
+            }
+
+            $available = $this->getAvailableStock($product, $lineItem);
+
+            if ($available <= 0 || $available < $product->getMinPurchase()) {
+                $original->remove($lineItem->getId());
+
+                $original->addErrors(
+                    new ProductOutOfStockError($product->getId(), (string) $product->getTranslation('name'))
+                );
+
+                continue;
+            }
+
+            if ($available < $lineItem->getQuantity()) {
+                $lineItem->setQuantity($available);
+
+                $definition->setQuantity($available);
+
+                $toCalculate->addErrors(
+                    new ProductStockReachedError($product->getId(), (string) $product->getTranslation('name'), $available)
+                );
+            }
+
+            $lineItem->setPrice($this->calculator->calculate($definition, $context));
             $toCalculate->add($lineItem);
         }
     }

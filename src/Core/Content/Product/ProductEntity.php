@@ -37,6 +37,11 @@ class ProductEntity extends Entity
     /**
      * @var int
      */
+    protected $childCount;
+
+    /**
+     * @var int
+     */
     protected $autoIncrement;
 
     /**
@@ -1055,5 +1060,15 @@ class ProductEntity extends Entity
     public function setDeliveryTime(?DeliveryTimeEntity $deliveryTime): void
     {
         $this->deliveryTime = $deliveryTime;
+    }
+
+    public function getChildCount(): int
+    {
+        return $this->childCount;
+    }
+
+    public function setChildCount(int $childCount): void
+    {
+        $this->childCount = $childCount;
     }
 }

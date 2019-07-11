@@ -128,7 +128,16 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
             return;
         }
 
-        if ($event->getToPlace()->getTechnicalName() !== OrderStates::STATE_COMPLETED) {
+        $multiplier = null;
+        if ($event->getToPlace()->getTechnicalName() === OrderStates::STATE_COMPLETED) {
+            $multiplier = -1;
+        }
+
+        if ($event->getFromPlace()->getTechnicalName() === OrderStates::STATE_COMPLETED) {
+            $multiplier = +1;
+        }
+
+        if ($multiplier === null) {
             return;
         }
 
@@ -136,7 +145,7 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
 
         $ids = array_column($products, 'referenced_id');
 
-        $this->updateStock($products);
+        $this->updateStock($products, $multiplier);
 
         $this->updateAvailableStock($ids, $event->getContext());
 
@@ -206,13 +215,13 @@ WHERE product.id IN (:ids);
         );
     }
 
-    private function updateStock(array $products)
+    private function updateStock(array $products, int $multiplier)
     {
-        $query = $this->connection->prepare('UPDATE product SET stock = stock - :quantity WHERE id = :id AND version_id = :version');
+        $query = $this->connection->prepare('UPDATE product SET stock = stock + :quantity WHERE id = :id AND version_id = :version');
 
         foreach ($products as $product) {
             $query->execute([
-                'quantity' => (int) $product['quantity'],
+                'quantity' => (int) $product['quantity'] * $multiplier,
                 'id' => Uuid::fromHexToBytes($product['referenced_id']),
                 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ]);

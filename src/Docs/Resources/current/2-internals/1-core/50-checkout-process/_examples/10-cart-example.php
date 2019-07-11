@@ -46,7 +46,6 @@ namespace ExampleCurrentCart {
 } // code-example-end
 
 namespace ExampleAddToCart {
-    use Shopware\Core\Checkout\Cart\LineItem\LineItem;
     use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
     use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
     use Shopware\Core\System\SalesChannel\SalesChannelContext;

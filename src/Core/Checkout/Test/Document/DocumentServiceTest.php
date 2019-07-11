@@ -86,7 +86,7 @@ class DocumentServiceTest extends TestCase
 
         $this->salesChannelContext->setRuleIds([
             $shippingMethod->getAvailabilityRuleId(),
-            $paymentMethod->getAvailabilityRuleId()
+            $paymentMethod->getAvailabilityRuleId(),
         ]);
     }
 

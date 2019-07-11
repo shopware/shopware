@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Test\Cart\Delivery;
 
@@ -56,6 +56,4 @@ class DeliveryBuilderTest extends TestCase
 
         static::assertCount(0, $deliveries);
     }
-
-
 }

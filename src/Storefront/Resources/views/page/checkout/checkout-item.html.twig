@@ -67,7 +67,7 @@
                                             <div class="cart-item-details-container">
                                                 {% block page_checkout_item_info_label %}
                                                     {% if lineItem.type == 'product' %}
-                                                        <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.id})) }}"
+                                                        <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.referencedId})) }}"
                                                            class="cart-item-label"
                                                            title="{{ lineItem.label }}">
                                                             {{ lineItem.label|truncate(60) }}

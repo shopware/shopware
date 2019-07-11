@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -107,6 +108,7 @@ class ProductDefinition extends EntityDefinition
 
             new ParentFkField(self::class),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
+            new ChildCountField(),
 
             (new BlacklistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new WhitelistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),

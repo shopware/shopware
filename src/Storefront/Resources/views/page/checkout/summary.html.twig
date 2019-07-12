@@ -48,10 +48,8 @@
                     {% endblock %}
 
                     {% block page_checkout_summary_total_value %}
-                        <dd class="col-5 summary-value summary-total">
-                            {{ summary.price.totalPrice|localizedcurrency(context.currency.translated.shortName, app.request.locale) }}{{ "general.star"|trans }}
                         <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
-                            {{ summary.price.totalPrice|currency }}
+                            {{ summary.price.totalPrice|currency }}{{ "general.star"|trans }}
                         </dd>
                     {% endblock %}
                 {% endblock %}

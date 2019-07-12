@@ -43,6 +43,7 @@ class ThemeCompiler
         $this->cacheDir = $cacheDir;
 
         $this->scssCompiler = new Compiler();
+        $this->scssCompiler->setImportPaths('');
     }
 
     public function compileTheme(
@@ -173,26 +174,32 @@ class ThemeCompiler
 
     private function concatenateCss(
         array $cssFiles,
-        StorefrontPluginConfigurationCollection $configurationCollection
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        StorefrontPluginConfiguration $config
     ): string {
         $output = '';
         foreach ($cssFiles as $cssFile) {
-            $output .= $this->resolveCss($cssFile, $configurationCollection);
+            $output .= $this->resolveCss($cssFile, $configurationCollection, $config);
         }
 
         return $output;
     }
 
-    private function resolveCss(string $cssFile, StorefrontPluginConfigurationCollection $configurationCollection): string
-    {
+    private function resolveCss(
+        string $cssFile,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        StorefrontPluginConfiguration $originalConfig
+    ): string {
         if (strpos($cssFile, '@') !== 0) {
+            $this->scssCompiler->addImportPath(dirname($cssFile));
+
             return file_get_contents($cssFile) . PHP_EOL;
         }
 
         if ($cssFile === '@Plugins') {
             $output = '';
             foreach ($configurationCollection->getNoneThemes() as $plugin) {
-                $output .= $this->concatenateCss($plugin->getStyleFiles(), $configurationCollection);
+                $output .= $this->concatenateCss($plugin->getStyleFiles(), $configurationCollection, $originalConfig);
             }
 
             return $output;
@@ -205,16 +212,18 @@ class ThemeCompiler
             throw new InvalidThemeException($name);
         }
 
-        return $this->concatenateCss($config->getStyleFiles(), $configurationCollection);
+        $originalConfig->setEntries(array_replace_recursive($originalConfig->getEntries(), $config->getEntries()));
+
+        return $this->concatenateCss($config->getStyleFiles(), $configurationCollection, $originalConfig);
     }
 
     private function compileStyles(
         StorefrontPluginConfiguration $config,
         StorefrontPluginConfigurationCollection $configurationCollection
     ): string {
-        $concatenated = $this->concatenateCss($config->getStyleFiles(), $configurationCollection);
+        $concatenated = $this->concatenateCss($config->getStyleFiles(), $configurationCollection, $config);
 
-        $this->scssCompiler->setImportPaths('');
+        //$this->scssCompiler->setImportPaths('');
 
         foreach ($config->getStyleFiles() as $styleFile) {
             $this->scssCompiler->addImportPath(dirname($styleFile));
@@ -256,7 +265,11 @@ class ThemeCompiler
         $variables = [];
         foreach ($config['fields'] as $key => $data) {
             if (array_key_exists('value', $data) && $data['value']) {
-                $variables[] = sprintf('$%s: %s;', $key, $data['value']);
+                if ($data['type'] === 'media') {
+                    $variables[] = sprintf('$%s: \'%s\';', $key, $data['value']);
+                } else {
+                    $variables[] = sprintf('$%s: %s;', $key, $data['value']);
+                }
             }
         }
 

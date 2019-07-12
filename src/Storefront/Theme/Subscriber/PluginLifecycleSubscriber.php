@@ -78,7 +78,14 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             );
         }
 
-        $storefrontPluginConfig = StorefrontPluginConfiguration::createFromBundle($plugin);
+        $configPath = $plugin->getPath() . DIRECTORY_SEPARATOR . ltrim($plugin->getThemeConfigPath(), DIRECTORY_SEPARATOR);
+
+        if (file_exists($configPath)) {
+            $storefrontPluginConfig = StorefrontPluginConfiguration::createFromConfigFile($configPath, $plugin);
+        } else {
+            $storefrontPluginConfig = StorefrontPluginConfiguration::createFromBundle($plugin);
+        }
+
         $configurationCollection = clone $this->storefrontPluginRegistry->getConfigurations();
         $configurationCollection->add($storefrontPluginConfig);
 
@@ -115,7 +122,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         Context $context
     ) {
         if ($storefrontPluginConfig->getIsTheme()) {
-            $this->themeLifecycleService->refreshThemes($context);
+            $this->themeLifecycleService->refreshThemes($context, $storefrontPluginConfig);
         }
 
         if (!$storefrontPluginConfig->getStyleFiles() && !$storefrontPluginConfig->getScriptFiles()) {

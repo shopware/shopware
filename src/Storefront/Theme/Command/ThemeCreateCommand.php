@@ -81,9 +81,15 @@ class ThemeCreateCommand extends Command
             $this->getBootstrapTemplate()
         );
 
+        $themeConfig = str_replace(
+            ['#name#'],
+            [$name],
+            $this->getThemeConfigTemplate()
+        );
+
         file_put_contents($composerFile, $composer);
         file_put_contents($bootstrapFile, $bootstrap);
-        file_put_contents($themeConfigFile, $this->getThemeConfigTemplate());
+        file_put_contents($themeConfigFile, $themeConfig);
 
         touch($directory . '/src/Resources/storefront/dist/script/all.js');
         touch($directory . '/src/Resources/storefront/style/base.scss');
@@ -128,8 +134,8 @@ EOL;
   "extra": {
     "shopware-plugin-class": "#namespace#\\\\#class#",
     "label": {
-      "de-DE": "Theme skeleton plugin",
-      "en-GB": "Theme skeleton plugin"
+      "de-DE": "Theme #namespace# plugin",
+      "en-GB": "Theme #namespace# plugin"
     }
   }
 }
@@ -140,10 +146,14 @@ EOL;
     {
         return <<<EOL
 {
+  "name": "#name#",
+  "author": "Showpare AG",
   "style": [
+    "@Storefront",
     "Resources/storefront/style/base.scss"
   ],
   "script": [
+    "@Storefront",
     "Resources/storefront/dist/script/all.js"
   ],
   "asset": [

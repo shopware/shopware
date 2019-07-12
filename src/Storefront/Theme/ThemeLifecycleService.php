@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
 class ThemeLifecycleService
 {
@@ -52,13 +53,20 @@ class ThemeLifecycleService
         $this->fileSaver = $fileSaver;
     }
 
-    public function refreshThemes(Context $context): void
+    public function refreshThemes(Context $context, ?StorefrontPluginConfiguration $storefrontPluginConfig = null): void
     {
+        if ($storefrontPluginConfig === null) {
+            $configurationCollection = $this->pluginRegistry->getConfigurations();
+        } else {
+            $configurationCollection = clone $this->pluginRegistry->getConfigurations();
+            $configurationCollection->add($storefrontPluginConfig);
+        }
+
         /** @var ThemeCollection $themes */
         $themes = $this->themeRepository->search(new Criteria(), $context)->getEntities();
 
         $data = [];
-        foreach ($this->pluginRegistry->getConfigurations() as $themeConfig) {
+        foreach ($configurationCollection as $themeConfig) {
             if ($themes->getByTechnicalName($themeConfig->getTechnicalName())) {
                 continue;
             }
@@ -80,6 +88,7 @@ class ThemeLifecycleService
             $media = [];
 
             if (!array_key_exists('fields', $themeConfig->getConfig())) {
+                $data[] = $themeData;
                 continue;
             }
 

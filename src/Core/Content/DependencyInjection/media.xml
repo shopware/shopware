@@ -120,7 +120,7 @@
         <service id="Shopware\Core\Content\Media\File\FileFetcher">
         </service>
 
-        <service id="Shopware\Core\Content\Media\File\FileSaver">
+        <service id="Shopware\Core\Content\Media\File\FileSaver" public="true">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="shopware.filesystem.private"/>

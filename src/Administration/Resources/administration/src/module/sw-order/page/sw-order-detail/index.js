@@ -162,7 +162,7 @@ Component.register('sw-order-detail', {
         saveAndReload() {
             this.isLoading = true;
             return this.orderRepository.save(this.order, this.versionContext).then(() => {
-                return this.reloadEntityData();
+                this.reloadEntityData();
             }).catch((error) => {
                 this.onError(error);
             }).finally(() => {

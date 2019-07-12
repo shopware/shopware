@@ -235,7 +235,7 @@ Component.register('sw-first-run-wizard-modal', {
                 if (!abort) {
                     this.firstRunWizardService.setFRWFinish()
                         .then(() => {
-                            document.location.href = document.location.origin;
+                            document.location.href = document.location.origin + document.location.pathname;
                         });
                 }
             });

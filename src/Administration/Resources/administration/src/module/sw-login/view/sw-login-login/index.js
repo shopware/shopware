@@ -86,6 +86,12 @@ Component.register('sw-login-login', {
             const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route'));
             sessionStorage.removeItem('sw-admin-previous-route');
 
+            const firstRunWizard = this.context.firstRunWizard;
+            if (firstRunWizard && !this.$router.history.current.name.startsWith('sw.first.run.wizard.')) {
+                this.$router.push({ name: 'sw.first.run.wizard.index' });
+                return;
+            }
+
             if (previousRoute && previousRoute.name && previousRoute.fullPath) {
                 this.$router.push(previousRoute.fullPath);
                 return;

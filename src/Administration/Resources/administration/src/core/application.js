@@ -346,6 +346,12 @@ class ApplicationBootstrapper {
                 router,
                 this.getContainer('service')
             );
+            const firstRunWizard = container.context.firstRunWizard;
+            if (firstRunWizard && !router.history.current.name.startsWith('sw.first.run.wizard.')) {
+                router.push({
+                    name: 'sw.first.run.wizard.index'
+                });
+            }
 
             return this;
         }).catch((error) => {

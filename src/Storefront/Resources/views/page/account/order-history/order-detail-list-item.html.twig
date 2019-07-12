@@ -28,9 +28,17 @@
                                        title="{{ lineItem.label }}">
                                         {% block page_checkout_item_info_image_element %}
                                             {% if lineItem.cover %}
-                                                <img src="{{ lineItem.cover.url }}"
-                                                     class="img-fluid order-item-img product-image is-{{ displayMode }}"
-                                                     alt="{{ lineItem.cover.alt }}">
+                                                {% sw_thumbnails 'cart-item-img-thumbnails' with {
+                                                    media: lineItem.cover,
+                                                    sizes: {
+                                                        'default': '100px'
+                                                    },
+                                                    attributes: {
+                                                        'class': 'img-fluid order-item-img',
+                                                        'alt': (lineItem.cover.translated.alt ?: ''),
+                                                        'title': (lineItem.cover.translated.title ?: '')
+                                                    }
+                                                } %}
                                             {% else %}
                                                 <div class="product-image-placeholder">
                                                     {% sw_icon 'placeholder' style {

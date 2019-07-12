@@ -21,8 +21,8 @@
                         {% if context.shippingMethod.media %}
                             <img src="{{ context.shippingMethod.media.url }}"
                                  class="confirm-shipping-method-image"
-                                 alt="{{ context.shippingMethod.media.alt ?: context.shippingMethod.media.fileName }}"
-                                    {{ context.shippingMethod.media.title ? 'title="#{context.shippingMethod.media.title}"' }}>
+                                 alt="{{ context.shippingMethod.media.translated.alt }}"
+                                 title="{{ context.shippingMethod.media.translated.title }}">
                         {% endif %}
                     {% endblock %}
 
@@ -114,8 +114,8 @@
                                                                                     {% if shipping.media %}
                                                                                         <img src="{{ shipping.media.url }}"
                                                                                              class="confirm-shipping-method-image"
-                                                                                             alt="{{ shipping.media.alt ?: shipping.media.fileName }}"
-                                                                                             {{ shipping.media.title ? 'title="#{shipping.media.title}"' }}>
+                                                                                             alt="{{ shipping.media.translated.alt }}"
+                                                                                             title="{{ shipping.media.translated.title }}">
                                                                                     {% endif %}
                                                                                 {% endblock %}
 

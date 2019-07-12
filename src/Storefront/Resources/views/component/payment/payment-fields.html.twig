@@ -21,12 +21,10 @@
                                                for="paymentMethod{{ loop.index }}">
 
                                             {% block component_payment_method_image %}
-                                                {% if payment.media %}
-                                                    <img src="{{ payment.media.url }}"
-                                                         class="payment-method-image"
-                                                         alt="{{ payment.media.alt ?: payment.media.fileName }}"
-                                                            {{ payment.media.title ? 'title="#{payment.media.title}"' }}>
-                                                {% endif %}
+                                                <img src="{{ payment.media.url }}"
+                                                     class="payment-method-image"
+                                                     alt="{{ payment.media.translated.alt }}"
+                                                     title="{{ payment.media.translated.title }}">
                                             {% endblock %}
 
                                             {% block component_payment_method_description %}

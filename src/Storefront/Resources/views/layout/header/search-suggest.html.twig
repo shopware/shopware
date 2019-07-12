@@ -14,9 +14,17 @@
 											{% block layout_search_suggest_result_image %}
 												<div class="col-auto search-suggest-product-image-container">
 													{% if product.cover.media.url %}
-														<img src="{{ product.cover.media.url }}"
-															 class="search-suggest-product-image"
-															 alt="{{ product.translated.name }}">
+														{% sw_thumbnails 'search-suggest-product-image-thumbnails' with {
+															media: product.cover.media,
+															sizes: {
+																'default': '100px'
+															},
+															attributes: {
+																'class': 'search-suggest-product-image',
+																'alt': (product.cover.media.translated.alt ?: ''),
+																'title': (product.cover.media.translated.title ?: '')
+															}
+														} %}
 													{% else %}
 														{% sw_icon 'placeholder' style {
 															'size': 'lg'

@@ -21,14 +21,22 @@
 							   title="{{ product.translated.name }}"
 							   class="product-image-link is-{{ displayMode }}">
 								{% if product.cover.media.url %}
-									<img class="product-image is-{{ displayMode }}"
-                                         {% if displayMode == 'cover' %}
-										 	data-object-fit="cover"
-										 {% elseif displayMode == 'contain' %}
-										 	data-object-fit="contain"
-										 {% endif %}
-										 src="{{ product.cover.media.url }}"
-										 alt="{{ product.cover.media.alt }}">
+                                    {% sw_thumbnails 'product-image-thumbnails' with {
+                                        media: product.cover.media,
+                                        sizes: {
+                                            'xs': '501px',
+                                            'sm': '315px',
+                                            'md': '427px',
+                                            'lg': '333px',
+                                            'xl': '284px'
+                                        },
+                                        attributes: {
+                                            'class': 'product-image is-'~displayMode,
+                                            'alt': (product.cover.media.translated.alt ?: ''),
+                                            'title': (product.cover.media.translated.title ?: ''),
+                                            'data-object-fit': displayMode
+                                        }
+                                    } %}
 								{% else %}
 									<div class="product-image-placeholder">
 										{% sw_icon 'placeholder' style {

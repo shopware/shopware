@@ -85,7 +85,7 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 4,
                     next: 'sw.first.run.wizard.index.shopware.domain',
-                    skip: false,
+                    skip: 'sw.first.run.wizard.index.finish',
                     back: 'sw.first.run.wizard.index.plugins',
                     finish: false
                 },

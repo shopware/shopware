@@ -15,6 +15,8 @@ Basic example for `theme.json`:
 
 ```json
 {
+  "name": "Just another theme",
+  "author": "Just another theme",
   "style": [
     "src/style/base.scss"
   ],
@@ -69,33 +71,41 @@ Example `theme.json`
 {
   "config": {
     "sw-color-brand-primary": {
-      "label": "sw-theme.label.sw-color-brand-primary",
-      "type": "color",
-      "value": "#399",
-      "editable": true,
-      "block": "colors",
-      "section": "generalColors",
-      "block_order": 100,
-      "section_order": 100
+    "label": {
+      "en-GB": "Primary",
+      "de-DE": "Primär"
     },
-    "sw-font-family-base": {
-      "label": "sw-theme.label.sw-font-family-base",
+    "type": "color",
+    "value": "#399",
+    "editable": true,
+    "block": "colors",
+    "section": "generalColors",
+    "order": 100
+    },
+    "sw-font-family-headline": {
+      "label": {
+        "en-GB": "Headline",
+        "de-DE": "Überschrift"
+      },
       "type": "fontFamily",
       "value": "'Inter', sans-serif",
       "editable": true,
       "block": "fonts",
       "section": "generalFonts",
-      "section_order": 100
+      "order": 200
     },
-    "sw-logo-default-sm": {
-      "label": "sw-theme.label.sw-logo-default-sm",
+    "sw-logo-default": {
+      "label": {
+        "en-GB": "Default",
+        "de-DE": "Standard"
+      },
       "type": "media",
-      "value": "logo.png",
+      "value": "dist/assets/logo/demostore-logo.png",
       "editable": true,
       "block": "media",
       "section": "logos",
-      "section_order": 100
-    },
+      "order": 300
+    }
   }
 }
 ```
@@ -108,7 +118,7 @@ The following parameters can be definined for a config item:
 
 | Name         | Meaning                                                                              |
 |------------- |--------------------------------------------------------------------------------------|
-| label        | Name of a translation/snippet which will be used to  find the correct translation    |
+| label        | Array of translations with locale code as key                                        |
 | type         | Type of the config. Possible values: color, fontFamily and media                     |
 | value        | Value for the config                                                                 |
 | editable     | If set to false, the config option will not be displayed (e.g. in the administration |
@@ -183,3 +193,12 @@ bin/console theme:change MyCustomTheme --all
 
 Calling the `theme:compile` command will recompile all themes which 
 are assigned to a sales channel.
+
+## Theme refresh
+Normally new themes are detected automatically but if you want to trigger this process
+run the:
+
+```bash
+bin/console theme:refresh
+```
+command

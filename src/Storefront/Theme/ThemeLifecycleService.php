@@ -98,19 +98,22 @@ class ThemeLifecycleService
                     continue;
                 }
 
-                $mediaId = Uuid::randomHex();
-                $media[$path] = [
-                    'basename' => $pathinfo['filename'] . '_' . $themeConfig->getTechnicalName(),
-                    'media' => ['id' => $mediaId, 'mediaFolderId' => $themeFolderId],
-                    'mediaFile' => new MediaFile(
-                        $path,
-                        mimetype_from_filename($pathinfo['basename']),
-                        $pathinfo['extension'],
-                        filesize($path)
-                    ),
-                ];
-
-                $config['fields'][$key]['value'] = $mediaId;
+                if (!array_key_exists($path, $media)) {
+                    $mediaId = Uuid::randomHex();
+                    $media[$path] = [
+                        'basename' => $pathinfo['filename'],
+                        'media' => ['id' => $mediaId, 'mediaFolderId' => $themeFolderId],
+                        'mediaFile' => new MediaFile(
+                            $path,
+                            mimetype_from_filename($pathinfo['basename']),
+                            $pathinfo['extension'],
+                            filesize($path)
+                        ),
+                    ];
+                    $config['fields'][$key]['value'] = $mediaId;
+                } else {
+                    $config['fields'][$key]['value'] = $media[$path]['media']['id'];
+                }
             }
             $themeData['baseConfig'] = $config;
 

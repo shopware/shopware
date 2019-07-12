@@ -1,6 +1,7 @@
 {% block sw_first_run_wizard_modal %}
     <sw-modal :title="title"
         :variant="variant"
+        @modal-close="onFinish"
         class="sw-first-run-wizard-modal">
         {% block sw_first_run_wizard_modal_content %}
             <div class="sw-first-run-wizard-modal-content">

@@ -59,7 +59,7 @@ Component.register('sw-first-run-wizard-modal', {
                     navigationIndex: 2,
                     next: 'sw.first.run.wizard.index.paypal.credentials',
                     skip: 'sw.first.run.wizard.index.plugins',
-                    back: false,
+                    back: 'sw.first.run.wizard.index.demodata',
                     finish: false
                 },
                 'paypal.credentials': {

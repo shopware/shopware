@@ -14,9 +14,47 @@
             <sw-plugin-card v-for="languagePlugin in languagePlugins"
                             :key="languagePlugin.name"
                             :plugin="languagePlugin"
-                            @onPluginInstalled="reloadPlugins"
-                            @onPluginRemoved="reloadPlugins">
+                            @onPluginInstalled="onPluginInstalled"
+                            @onPluginRemoved="onPluginRemoved">
             </sw-plugin-card>
         </sw-container>
+
+        {% block sw_first_run_wizard_welcome_confirm_language_switch_modal %}
+            <sw-modal v-if="showConfirmLanguageSwitchModal"
+                      @modal-close="onCancelSwitch"
+                      variant="small"
+                      :title="$tc('sw-first-run-wizard.welcome.switch-language-modal-title')"
+                      class="sw-first-run-wizard-confirm-language-switch-modal">
+                {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_text %}
+                    <p>{{ $tc('sw-first-run-wizard.welcome.switch-language-message', {}, { pluginName: latestTouchedPlugin.name }) }}</p>
+                    <sw-select-field
+                        class="sw-profile__language"
+                        :label="$tc('sw-settings-user.user-detail.labelLanguage')"
+                        v-model="user.localeId">
+                        <option v-for="language in languages"
+                                :value="language.locale.id"
+                                :selected="user.localeId === language.locale.id">
+                        {{ language.customLabel }}
+                        </option>
+                    </sw-select-field>
+                {% endblock %}
+
+                {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_cancel %}
+                            <sw-button @click="onCancelSwitch" size="small">
+                                {{ $tc('sw-first-run-wizard.welcome.cancel-language-switch') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_switch %}
+                            <sw-button @click="onConfirmLanguageSwitch" size="small" variant="primary">
+                                {{ $tc('sw-first-run-wizard.welcome.confirm-language-switch') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
     </div>
 {% endblock %}

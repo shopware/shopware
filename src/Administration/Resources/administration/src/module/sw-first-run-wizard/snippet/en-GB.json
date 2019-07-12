@@ -14,7 +14,11 @@
       "modalTitle": "Welcome",
       "headlineWelcome": "Welcome in the Shopware 6 Administration",
       "messageWelcome": "This setup wizard guides you through the most important settings and gives you valuable tips for configuration.<br>Do you want to use your shop in a different language and reach customers in other countries? Then you can simply install the desired language packs here.",
-      "headlineChangeLanguage": "Change your interface language"
+      "headlineChangeLanguage": "Change your interface language",
+      "switch-language-modal-title": "Select your interface language",
+      "confirm-language-switch": "Change language",
+      "cancel-language-switch": "Cancel",
+      "switch-language-message": "Your language plugin was installed successfully. Would you like to change your interface language?"
     },
     "demodata": {
       "modalTitle": "Install Demodata",

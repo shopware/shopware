@@ -14,7 +14,11 @@
       "modalTitle": "Willkommen",
       "headlineWelcome": "Willkommen in der Shopware 6 Administration",
       "messageWelcome": "Dieser Einrichtungs-Assistent begleitet Dich durch die wichtigsten Einstellungen und gibt Dir wertvolle Tipps zur Konfiguration.<br>Willst Du Deinen Shop in einer anderen Sprache verwenden und dadurch auch Kunden in anderen Ländern erreichen? Dann kannst Du hier einfach die gewünschten Sprachpakete installieren.",
-      "headlineChangeLanguage": "Wechsel die Sprache der Benutzeroberfläche"
+      "headlineChangeLanguage": "Wechsel die Sprache der Benutzeroberfläche",
+      "switch-language-modal-title": "Wähle die Sprache der Benutzeroberfläche",
+      "confirm-language-switch": "Sprache wechseln",
+      "cancel-language-switch": "Abbrechen",
+      "switch-language-message": "Das Sprach-Plugin \"%{pluginName}\" wurde erfolgreich installiert. Möchtest du die Spache der Benutzeroberfläche ändern?"
     },
     "demodata": {
       "modalTitle": "Demodaten installieren",

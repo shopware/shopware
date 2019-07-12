@@ -57,6 +57,7 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
         </service>
 
         <service id="Shopware\Storefront\Controller\CheckoutController">

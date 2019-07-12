@@ -4,7 +4,7 @@
              class="sw-first-run-wizard-paypal-info">
             <img class="sw-first-run-wizard-paypal-info__icon" :src="'/administration/static/img/paypal-official-logo.svg' | asset">
 
-            <h3 class="headline">{{ $tc('sw-first-run-wizard.paypal-info.headline') }}</h3>
+            <h3 class="headline">{{ $tc('sw-first-run-wizard.paypalInfo.headline') }}</h3>
 
             <sw-container columns="1fr 1fr 1fr 1fr"
                           class="paymethods">
@@ -12,25 +12,25 @@
                     <sw-icon name="default-basic-checkmark-circle"
                              size="12px">
                     </sw-icon>
-                    <span>{{ $tc('sw-first-run-wizard.paypal-info.paymethod.paypal') }}</span>
+                    <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.paypal') }}</span>
                 </div>
                 <div class="paymethod">
                     <sw-icon name="default-basic-checkmark-circle"
                              size="12px">
                     </sw-icon>
-                    <span>{{ $tc('sw-first-run-wizard.paypal-info.paymethod.debit') }}</span>
+                    <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.debit') }}</span>
                 </div>
                 <div class="paymethod">
                     <sw-icon name="default-basic-checkmark-circle"
                              size="12px">
                     </sw-icon>
-                    <span>{{ $tc('sw-first-run-wizard.paypal-info.paymethod.creditcard') }}</span>
+                    <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.creditcard') }}</span>
                 </div>
                 <div class="paymethod">
                     <sw-icon name="default-basic-checkmark-circle"
                              size="12px">
                     </sw-icon>
-                    <span>{{ $tc('sw-first-run-wizard.paypal-info.paymethod.invoice') }}**</span>
+                    <span>{{ $tc('sw-first-run-wizard.paypalInfo.paymethod.invoice') }}**</span>
                 </div>
             </sw-container>
             <div v-if="pluginInstallationFailed"
@@ -42,14 +42,14 @@
                 </sw-alert>
             </div>
             <div class="disclaimer">
-                <p>{{ $tc('sw-first-run-wizard.paypal-info.disclaimer-one') }}</p>
-                <p>{{ $tc('sw-first-run-wizard.paypal-info.disclaimer-two') }}</p>
+                <p>{{ $tc('sw-first-run-wizard.paypalInfo.disclaimerLineOne') }}</p>
+                <p>{{ $tc('sw-first-run-wizard.paypalInfo.disclaimerLineTwo') }}</p>
             </div>
         </div>
         <div v-else
              class="sw-first-run-wizard-paypal-install">
             <sw-loader size="48"></sw-loader>
-            <p v-html="$tc('sw-first-run-wizard.paypal-install.loadingMessage')"
+            <p v-html="$tc('sw-first-run-wizard.paypalInstall.loadingMessage')"
                class="sw-loader-info-text"></p>
         </div>
     </div>

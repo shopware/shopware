@@ -23,11 +23,11 @@
             <sw-modal v-if="showConfirmLanguageSwitchModal"
                       @modal-close="onCancelSwitch"
                       variant="small"
-                      :title="$tc('sw-first-run-wizard.welcome.switch-language-modal-title')"
-                      class="sw-first-run-wizard-confirm-language-switch-modal">
+                      :title="$tc('sw-first-run-wizard.welcome.switchLanguageModalTitle')"
+                      class="sw-first-run-wizard-confirmLanguageSwitch-modal">
 
                 {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_text %}
-                    <p>{{ $tc('sw-first-run-wizard.welcome.switch-language-message', {}, { pluginName: latestTouchedPlugin.name }) }}</p>
+                    <p>{{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', {}, { pluginName: latestTouchedPlugin.name }) }}</p>
                     <sw-select-field
                         class="sw-profile__language"
                         :label="$tc('sw-settings-user.user-detail.labelLanguage')"
@@ -44,13 +44,13 @@
                     <template slot="modal-footer">
                         {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_cancel %}
                             <sw-button @click="onCancelSwitch" size="small">
-                                {{ $tc('sw-first-run-wizard.welcome.cancel-language-switch') }}
+                                {{ $tc('sw-first-run-wizard.welcome.cancelLanguageSwitch') }}
                             </sw-button>
                         {% endblock %}
 
                         {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_switch %}
                             <sw-button @click="onConfirmLanguageSwitch" size="small" variant="primary">
-                                {{ $tc('sw-first-run-wizard.welcome.confirm-language-switch') }}
+                                {{ $tc('sw-first-run-wizard.welcome.confirmLanguageSwitch') }}
                             </sw-button>
                         {% endblock %}
                     </template>

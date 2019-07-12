@@ -5,7 +5,7 @@
                 <strong>{{ "general.privacyTitle"|trans }}</strong><br />
                 {#TODO: NEXT-2757 - configured cms id needed#}
                 {{ "general.privacyNotice"|trans({
-                    '%tosUrl%': path('frontend.cms.page',{ id: shopware.config.cms.tosCmsPageId })
+                    '%tosUrl%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
                 })|raw }}
             </label>
         {% endblock %}

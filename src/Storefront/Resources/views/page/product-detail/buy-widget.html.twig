@@ -70,11 +70,12 @@
 
                             <p class="product-detail-tax">
                                 {% block page_product_detail_tax_link %}
+
                                     <a class="product-detail-tax-link"
-                                       href="{{ path('frontend.cms.page',{ id: shopware.config.cms.taxCmsPageId }) }}"
+                                       href="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.shippingPaymentInfoPage }) }}"
                                        title="{{ taxText }}"
                                        data-toggle="modal"
-                                       data-url="{{ path('frontend.cms.page',{ id: shopware.config.cms.taxCmsPageId }) }}">
+                                       data-url="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.shippingPaymentInfoPage }) }}">
                                         {{ taxText }}
                                     </a>
                                 {% endblock %}

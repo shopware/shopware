@@ -137,7 +137,7 @@ Component.register('sw-system-config', {
                     && this.actualConfigData.hasOwnProperty('null')
                     && this.actualConfigData.null[bind.name] !== null
                     && !types.isUndefined(this.actualConfigData.null[bind.name])) {
-                if (bind.type === 'single-select') {
+                if (bind.type === 'single-select' || bind.config.componentName === 'sw-entity-single-select') {
                     // Add inherited placeholder option
                     bind.placeholder = this.$tc('sw-settings.system-config.inherited');
                 } else if (bind.type === 'bool') {

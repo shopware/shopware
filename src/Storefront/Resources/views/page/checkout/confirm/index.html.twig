@@ -26,7 +26,7 @@
                     } %}
                 {% endfor %}
             {% endblock %}
-            
+
             {% block page_checkout_confirm_errors %}
                 {% for error in page.cart.errors %}
                     {% set snippetName = "error.#{error.messageKey}" %}
@@ -53,10 +53,10 @@
                             {% if shopware.config.confirm.revocationNotice %}
                                 <p class="revocation-notice">
                                     {% block page_checkout_confirm_revocation_notice_link %}
-                                        <a href="{{ path('frontend.cms.page',{ id: shopware.config.cms.revocationNoticeCmsPageId }) }}"
+                                        <a href="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.revocationPage }) }}"
                                            data-toggle="modal"
                                            title="{{ "checkout.confirmRevocationNotice"|trans }}"
-                                           data-url="{{ path('frontend.cms.page',{ id: shopware.config.cms.revocationNoticeCmsPageId }) }}">
+                                           data-url="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.revocationPage }) }}">
                                             {{ "checkout.confirmRevocationNotice"|trans }}
                                         </a>
                                     {% endblock %}
@@ -79,7 +79,7 @@
                                     <label for="tos"
                                            class="custom-control-label">
                                         {{ "checkout.confirmTerms"|trans({
-                                            '%tosUrl%': path('frontend.cms.page',{ id: shopware.config.cms.tosCmsPageId })
+                                            '%tosUrl%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.tosPage })
                                         })|raw }}
                                     </label>
                                 {% endblock %}

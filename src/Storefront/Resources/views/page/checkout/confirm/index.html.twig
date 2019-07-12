@@ -147,10 +147,9 @@
                 <button id="confirmFormSubmit"
                         class="btn btn-primary btn-block btn-lg"
                         form="confirmOrderForm"
-                        {% if isShippableCountry == false %}disabled{% endif %}
-                        {% if page.cart.errors|length > 0 %}
+                    {% if page.cart.errors|length > 0 %}
                         disabled="disabled"
-                        {% endif %}
+                    {% endif %}
                         type="submit">
                     {{ "checkout.confirmSubmit"|trans }}
                 </button>

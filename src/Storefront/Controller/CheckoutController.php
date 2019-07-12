@@ -106,9 +106,7 @@ class CheckoutController extends StorefrontController
 
         $page = $this->confirmPageLoader->load($request, $context);
 
-        $shippingAvailable = $context->getShippingLocation()->getCountry()->getShippingAvailable();
-
-        return $this->renderStorefront('@Storefront/page/checkout/confirm/index.html.twig', ['page' => $page, 'isShippableCountry' => $shippingAvailable]);
+        return $this->renderStorefront('@Storefront/page/checkout/confirm/index.html.twig', ['page' => $page]);
     }
 
     /**

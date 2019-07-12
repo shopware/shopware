@@ -79,6 +79,8 @@
       "placeholderStock": "Gib einen Lagerbestand ein ...",
       "placeholderMinPurchase": "Mindestabnahme ...",
       "placeholderMaxPurchase": "Maximalabnahme ...",
+      "placeholderPurchaseSteps": "Enter purchase steps",
+      "placeholderRestockTime": "Enter restock time in days",
       "placeholderEan": "Gib die EAN-Nummer ein ...",
       "placeholderManufacturerNumber": "Gib die Herstellernummer ein ...",
       "labelAvailableStock": "Verfügbarer Bestand",

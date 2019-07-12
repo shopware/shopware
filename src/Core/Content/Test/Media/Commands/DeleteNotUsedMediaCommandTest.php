@@ -79,6 +79,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $commandTester->execute([]);
 
         $string = $commandTester->getDisplay();
+
         static::assertIsInt(strpos($string, 'Successfully deleted 2 media files.'));
 
         $this->runWorker();

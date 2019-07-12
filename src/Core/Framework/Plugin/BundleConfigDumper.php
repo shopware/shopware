@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Kernel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Finder\Finder;
 
 class BundleConfigDumper implements EventSubscriberInterface
 {
@@ -26,8 +27,10 @@ class BundleConfigDumper implements EventSubscriberInterface
      */
     private $pluginRepository;
 
-    public function __construct(Kernel $kernel, EntityRepositoryInterface $pluginRepository)
-    {
+    public function __construct(
+        Kernel $kernel,
+        EntityRepositoryInterface $pluginRepository
+    ) {
         $this->kernel = $kernel;
         $this->pluginRepository = $pluginRepository;
     }
@@ -35,9 +38,9 @@ class BundleConfigDumper implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PluginPostActivateEvent::NAME => 'postActivate',
-            PluginPostUninstallEvent::NAME => 'dump',
-            PluginPostDeactivateEvent::NAME => 'dump',
+            PluginPostActivateEvent::class => 'postActivate',
+            PluginPostUninstallEvent::class => 'dump',
+            PluginPostDeactivateEvent::class => 'dump',
         ];
     }
 
@@ -109,6 +112,7 @@ class BundleConfigDumper implements EventSubscriberInterface
                     'path' => trim($bundle->getStorefrontEntryPath(), '/'),
                     'entryFilePath' => $this->getEntryFile($bundle, $bundle->getStorefrontEntryPath()),
                     'webpack' => $this->getWebpackConfig($bundle, $bundle->getStorefrontEntryPath()),
+                    'styleFiles' => $this->getStyleFiles($bundle),
                 ],
             ];
         }
@@ -136,5 +140,31 @@ class BundleConfigDumper implements EventSubscriberInterface
         }
 
         return $path . '/build/webpack.config.js';
+    }
+
+    private function getStyleFiles(Bundle $bundle): array
+    {
+        $files = [];
+        if ($this->kernel->getContainer()->has('Shopware\Storefront\Theme\StorefrontPluginRegistry')) {
+            $registry = $this->kernel->getContainer()->get('Shopware\Storefront\Theme\StorefrontPluginRegistry');
+
+            $config = $registry->getByName($bundle->getName());
+
+            if ($config) {
+                return $config->getStyleFiles();
+            }
+        }
+
+        $path = $bundle->getPath() . DIRECTORY_SEPARATOR . $bundle->getStorefrontStylePath();
+        if (is_dir($path)) {
+            $finder = new Finder();
+            $finder->in($path)->files()->depth(0);
+
+            foreach ($finder->getIterator() as $file) {
+                $files[] = $file->getPathname();
+            }
+        }
+
+        return $files;
     }
 }

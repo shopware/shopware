@@ -69,6 +69,10 @@ export default {
 
         itemsLoaded() {
             return this.mediaItems.length;
+        },
+
+        additionalEventListeners() {
+            return this.$listeners;
         }
     },
 

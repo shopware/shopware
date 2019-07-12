@@ -7,17 +7,17 @@
                 {% block layout_header_logo_image %}
                     <picture>
                         {% block layout_header_logo_image_desktop_source %}
-                            <source srcset="{{ asset(shopware.theme.logo.desktop) }}"
+                            <source srcset="{{ shopware.theme['sw-logo-default-lg'] }}"
                                     media="(min-width: {{ shopware.theme.breakpoint.lg }}px)">
                         {% endblock %}
 
                         {% block layout_header_logo_image_tablet_source %}
-                            <source srcset="{{ asset(shopware.theme.logo.tablet) }}"
+                            <source srcset="{{ shopware.theme['sw-logo-default-md'] }}"
                                     media="(min-width: {{ shopware.theme.breakpoint.md }}px)">
                         {% endblock %}
 
                         {% block layout_header_logo_image_mobile %}
-                            <img srcset="{{ asset(shopware.theme.logo.mobile) }}"
+                            <img srcset="{{ shopware.theme['sw-logo-default-sm'] }}"
                                  alt="{{ "header.logoLink"|trans }}"
                                  class="img-fluid header-logo-main-img"/>
                         {% endblock %}

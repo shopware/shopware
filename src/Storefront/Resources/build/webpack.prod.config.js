@@ -1,7 +1,4 @@
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const path = require('path');
 
 /**
  * -------------------------------------------------------
@@ -12,37 +9,6 @@ const path = require('path');
  * -------------------------------------------------------
  */
 
-/**
- * Webpack module configuration and how them will be treated
- * https://webpack.js.org/configuration/module
- * @type {{rules: *[]}}
- */
-const modules = {
-    rules: [
-        {
-            test: /\.scss$/,
-            use: [
-                {
-                    loader: MiniCssExtractPlugin.loader, // extract css files from the js code
-                },
-                {
-                    loader: 'css-loader',
-                },
-                {
-                    loader: 'postcss-loader', // needs to be AFTER css/style-loader and BEFORE sass-loader
-                    options: {
-                        config: {
-                            path: path.join(__dirname, '..'),
-                        },
-                    },
-                },
-                {
-                    loader: 'sass-loader',
-                },
-            ],
-        },
-    ],
-};
 
 /**
  * Optimizations configuration
@@ -60,7 +26,6 @@ const optimization = {
             parallel: true,
             sourceMap: true,
         }),
-        new OptimizeCSSAssetsPlugin({}),
     ],
 };
 
@@ -70,6 +35,5 @@ const optimization = {
 module.exports = {
     devtool: 'source-map',
     mode: 'production',
-    module: modules,
     optimization: optimization,
 };

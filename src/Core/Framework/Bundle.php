@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Asset\AssetPackageService;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Twig\TemplateFinder;
@@ -31,8 +32,13 @@ abstract class Bundle extends SymfonyBundle
 
     public function boot(): void
     {
+        /** @var TemplateFinder $templateFinder */
         $templateFinder = $this->container->get(TemplateFinder::class);
         $templateFinder->addBundle($this);
+
+        /** @var AssetPackageService $assetPackageService */
+        $assetPackageService = $this->container->get(AssetPackageService::class);
+        $assetPackageService->addAssetPackage($this->getName());
 
         parent::boot();
     }
@@ -40,6 +46,11 @@ abstract class Bundle extends SymfonyBundle
     public function getClassName(): string
     {
         return get_class($this);
+    }
+
+    public function getThemeConfigPath(): ?string
+    {
+        return 'theme.json';
     }
 
     /**
@@ -65,6 +76,16 @@ abstract class Bundle extends SymfonyBundle
     public function getConfigPath(): string
     {
         return 'Resources/config';
+    }
+
+    public function getStorefrontScriptPath(): string
+    {
+        return 'Resources/storefront/script';
+    }
+
+    public function getStorefrontStylePath(): string
+    {
+        return 'Resources/storefront/style';
     }
 
     public function getMigrationNamespace(): string

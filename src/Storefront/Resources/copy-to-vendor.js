@@ -21,7 +21,6 @@ const fromDirectories = [
     'node_modules/bootstrap',
     'node_modules/jquery',
     'node_modules/tiny-slider',
-    'assets/font/Inter-3.5'
 ];
 
 /**
@@ -61,14 +60,5 @@ function onCopyProcess(results) {
 }
 
 const fullToPath = path.join(__dirname, toDirectory);
-fs.remove(fullToPath)
-    .then(() => {
-        console.log(`✓ Removed directory "${fullToPath}"`);
-        console.log();
-        onCopyProcess(iterateFromDirectories(fromDirectories));
-    })
-    .catch((err) => {
-        console.log('');
-        console.error(`✖ An error occurred while deleting directory "${fullToPath}"`);
-        throw err;
-    });
+
+onCopyProcess(iterateFromDirectories(fromDirectories));

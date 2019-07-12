@@ -63,8 +63,8 @@ trait StorefrontPageTestBehaviour
         $product = $this->getRandomProduct($context);
 
         $lineItem = (new LineItem($product->getId(), LineItem::PRODUCT_LINE_ITEM_TYPE, $product->getId()))
-                    ->setRemovable(true)
-                    ->setStackable(true);
+            ->setRemovable(true)
+            ->setStackable(true);
 
         $cartService = $this->getContainer()->get(CartService::class);
         $cart = $cartService->getCart($context->getToken(), $context);

@@ -32,6 +32,7 @@ class Storefront extends Bundle
         $loader->load('services.xml');
         $loader->load('seo.xml');
         $loader->load('controller.xml');
+        $loader->load('theme.xml');
 
         $environment = $container->getParameter('kernel.environment');
         $this->buildConfig($container, $environment);
@@ -50,6 +51,11 @@ class Storefront extends Bundle
     public function getAdministrationEntryPath(): string
     {
         return 'Administration';
+    }
+
+    public function getThemeConfigPath(): ?string
+    {
+        return 'Resources/theme.json';
     }
 
     private function buildConfig(ContainerBuilder $container, $environment): void

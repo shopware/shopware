@@ -20,6 +20,7 @@
       "buttonSave": "Save",
       "buttonCreateNewApiKeys": "Create new API key",
       "tabBase": "General",
+      "tabTheme": "Theme",
       "labelAccessKeyField": "API access key",
       "titleAPIError": "Error",
       "messageAPIError": "Unable to generate API access key.",

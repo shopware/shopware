@@ -10,11 +10,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Context\ActivateContext;
+use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
+use Shopware\Core\Framework\Plugin\Context\InstallContext;
+use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -422,7 +428,7 @@ class RulePayloadIndexerTest extends TestCase
                 ->execute();
         }
 
-        $this->eventDispatcher->dispatch($event, $event::NAME);
+        $this->eventDispatcher->dispatch($event);
 
         $rules = $this->connection->createQueryBuilder()->select(['id', 'payload', 'invalid'])->from('rule')->execute()->fetchAll();
 
@@ -435,29 +441,20 @@ class RulePayloadIndexerTest extends TestCase
 
     public function dataProviderForTestPostEventNullsPayload(): array
     {
-        $plugin = new Plugin\PluginEntity();
+        $plugin = new PluginEntity();
+        $plugin->setName('TestPlugin');
         $plugin->setBaseClass(RulePlugin::class);
 
-        $events = [
-            PluginPostInstallEvent::class,
-            PluginPostActivateEvent::class,
-            PluginPostUpdateEvent::class,
-            PluginPostDeactivateEvent::class,
-            PluginPostUninstallEvent::class,
+        $context = Context::createDefaultContext();
+        $rulePlugin = new RulePlugin(false, '');
+
+        return [
+            [new PluginPostInstallEvent($plugin, new InstallContext($rulePlugin, $context, '', ''))],
+            [new PluginPostActivateEvent($plugin, new ActivateContext($rulePlugin, $context, '', ''))],
+            [new PluginPostUpdateEvent($plugin, new UpdateContext($rulePlugin, $context, '', '', ''))],
+            [new PluginPostDeactivateEvent($plugin, new DeactivateContext($rulePlugin, $context, '', ''))],
+            [new PluginPostUninstallEvent($plugin, new UninstallContext($rulePlugin, $context, '', '', true))],
         ];
-
-        $samples = [];
-        foreach ($events as $event) {
-            $mock = $this->getMockBuilder($event)
-                ->disableOriginalConstructor()
-                ->getMock();
-
-            $mock->method('getPlugin')->willReturn($plugin);
-
-            $samples[] = [$mock];
-        }
-
-        return $samples;
     }
 }
 

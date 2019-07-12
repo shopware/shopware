@@ -166,10 +166,7 @@ class PluginLifecycleService
             $plugin->setUpgradedAt($upgradeDate);
         }
 
-        $this->eventDispatcher->dispatch(
-            new PluginPreInstallEvent($plugin, $installContext),
-            PluginPreInstallEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new PluginPreInstallEvent($plugin, $installContext));
 
         $pluginBaseClass->install($installContext);
 
@@ -183,10 +180,7 @@ class PluginLifecycleService
 
         $pluginBaseClass->postInstall($installContext);
 
-        $this->eventDispatcher->dispatch(
-            new PluginPostInstallEvent($plugin, $installContext),
-            PluginPostInstallEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
 
         return $installContext;
     }
@@ -214,10 +208,7 @@ class PluginLifecycleService
             $keepUserData
         );
 
-        $this->eventDispatcher->dispatch(
-            new PluginPreUninstallEvent($plugin, $uninstallContext),
-            PluginPreUninstallEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new PluginPreUninstallEvent($plugin, $uninstallContext));
 
         $pluginBaseClass->uninstall($uninstallContext);
 
@@ -236,10 +227,7 @@ class PluginLifecycleService
         $plugin->setActive(false);
         $plugin->setInstalledAt(null);
 
-        $this->eventDispatcher->dispatch(
-            new PluginPostUninstallEvent($plugin, $uninstallContext),
-            PluginPostUninstallEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new PluginPostUninstallEvent($plugin, $uninstallContext));
 
         return $uninstallContext;
     }
@@ -266,10 +254,7 @@ class PluginLifecycleService
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'update');
         }
 
-        $this->eventDispatcher->dispatch(
-            new PluginPreUpdateEvent($plugin, $updateContext),
-            PluginPreUpdateEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new PluginPreUpdateEvent($plugin, $updateContext));
 
         $pluginBaseClass->update($updateContext);
 
@@ -292,10 +277,7 @@ class PluginLifecycleService
 
         $pluginBaseClass->postUpdate($updateContext);
 
-        $this->eventDispatcher->dispatch(
-            new PluginPostUpdateEvent($plugin, $updateContext),
-            PluginPostUpdateEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new PluginPostUpdateEvent($plugin, $updateContext));
 
         return $updateContext;
     }
@@ -323,10 +305,7 @@ class PluginLifecycleService
             return $activateContext;
         }
 
-        $this->eventDispatcher->dispatch(
-            new PluginPreActivateEvent($plugin, $activateContext),
-            PluginPreActivateEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new PluginPreActivateEvent($plugin, $activateContext));
 
         $pluginBaseClass->activate($activateContext);
         $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString, $shopwareContext);
@@ -340,10 +319,7 @@ class PluginLifecycleService
         );
         $plugin->setActive(true);
 
-        $this->eventDispatcher->dispatch(
-            new PluginPostActivateEvent($plugin, $activateContext),
-            PluginPostActivateEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new PluginPostActivateEvent($plugin, $activateContext));
 
         return $activateContext;
     }
@@ -372,10 +348,7 @@ class PluginLifecycleService
             $plugin->getVersion()
         );
 
-        $this->eventDispatcher->dispatch(
-            new PluginPreDeactivateEvent($plugin, $deactivateContext),
-            PluginPreDeactivateEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new PluginPreDeactivateEvent($plugin, $deactivateContext));
 
         $pluginBaseClass->deactivate($deactivateContext);
         $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString, $shopwareContext);
@@ -389,10 +362,7 @@ class PluginLifecycleService
         );
         $plugin->setActive(false);
 
-        $this->eventDispatcher->dispatch(
-            new PluginPostDeactivateEvent($plugin, $deactivateContext),
-            PluginPostDeactivateEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new PluginPostDeactivateEvent($plugin, $deactivateContext));
 
         return $deactivateContext;
     }

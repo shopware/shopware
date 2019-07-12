@@ -17,10 +17,10 @@ class PluginLifecycleSubscriberTest extends TestCase
         $events = PluginLifecycleSubscriber::getSubscribedEvents();
 
         static::assertCount(2, $events);
-        static::assertArrayHasKey(PluginPostActivateEvent::NAME, $events);
-        static::assertEquals('registerScheduledTasked', $events[PluginPostActivateEvent::NAME]);
-        static::assertArrayHasKey(PluginPostDeactivateEvent::NAME, $events);
-        static::assertEquals('registerScheduledTasked', $events[PluginPostDeactivateEvent::NAME]);
+        static::assertArrayHasKey(PluginPostActivateEvent::class, $events);
+        static::assertEquals('registerScheduledTasked', $events[PluginPostActivateEvent::class]);
+        static::assertArrayHasKey(PluginPostDeactivateEvent::class, $events);
+        static::assertEquals('registerScheduledTasked', $events[PluginPostDeactivateEvent::class]);
     }
 
     public function testRegisterScheduledTasks(): void

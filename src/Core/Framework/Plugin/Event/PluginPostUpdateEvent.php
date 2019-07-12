@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 
 class PluginPostUpdateEvent extends PluginLifecycleEvent
 {
-    public const NAME = 'plugin.post.update';
-
     /**
      * @var UpdateContext
      */

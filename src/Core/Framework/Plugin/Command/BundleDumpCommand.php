@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Command;
 
 use Shopware\Core\Framework\Console\ShopwareStyle;
-use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\BundleConfigDumper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,11 +11,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class BundleDumpCommand extends Command
 {
     /**
-     * @var Plugin\BundleConfigDumper
+     * @var BundleConfigDumper
      */
     private $bundleDumper;
 
-    public function __construct(Plugin\BundleConfigDumper $pluginDumper)
+    public function __construct(BundleConfigDumper $pluginDumper)
     {
         parent::__construct();
 

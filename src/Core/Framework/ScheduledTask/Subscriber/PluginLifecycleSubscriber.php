@@ -23,8 +23,8 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PluginPostActivateEvent::NAME => 'registerScheduledTasked',
-            PluginPostDeactivateEvent::NAME => 'registerScheduledTasked',
+            PluginPostActivateEvent::class => 'registerScheduledTasked',
+            PluginPostDeactivateEvent::class => 'registerScheduledTasked',
         ];
     }
 

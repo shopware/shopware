@@ -1,0 +1,97 @@
+{
+  "sw-theme-manager": {
+    "general": {
+      "mainMenuItemGeneral": "Themes",
+      "placeholderSearchBar": "Themes durchsuchen",
+      "descriptionTextModule": "Verwaltung von Themes",
+      "mainMenuHeader": "Deine Themes",
+      "captionMediaUpload": "Lade ein Bild hoch",
+      "lockedToolTip": "Themes die von einem Plugin installiert wurden sind gesperrt und können nicht gelöscht werden."
+    },
+    "sorting": {
+      "labelSort": "Sortieren nach:",
+      "labelSortByCreatedAsc": "Erstelldatum, aufsteigend",
+      "labelSortByCreatedDsc": "Erstelldatum, absteigend",
+      "labelSortByUpdatedAsc": "Bearbeitungsdatum, aufsteigend",
+      "labelSortByUpdatedDsc": "Bearbeitungsdatum, absteigend"
+    },
+    "themeListItem": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "rename": "Umbenennen",
+      "duplicate": "Duplizieren",
+      "emptyText": "Kein Theme zugewiesen",
+      "addPreviewImage": "Vorschau hinzufügen",
+      "removePreviewImage": "Vorschau entfernen",
+      "notificationDeleteErrorTitle": "Fehler",
+      "notificationDeleteErrorMessage": "Das Theme ist noch mindestens einem Saleschannel zugewiesen."
+    },
+    "modal": {
+      "modalTitleDelete":  "Theme Löschen",
+      "textDeleteInfo": "Möchtest Du das Theme \"{themeName}\" wirklich löschen?",
+      "buttonCancel":  "Abbrechen",
+      "buttonDelete": "Löschen",
+      "modalTitleDuplicate": "Duplikat erstellen",
+      "labelDuplicateThemeName": "Name des Duplikates",
+      "placeholderDuplicateThemeName": "Namen eintragen",
+      "textDuplicateInfo": "Wenn Du ein Duplikat erstellst, kannst Du das Theme mit einer anderen Farbkonfiguration für weitere Verkaufskanäle nutzen.",
+      "buttonDuplicateTheme": "Duplikat anlegen",
+      "modalTitleRename": "Umbenennen",
+      "textRenameInfo": "Geib einen neuen Namen für das Theme an.",
+      "labelRenameThemeName": "Neuer Theme Name",
+      "placeholderRenameThemeName": "Namen eintragen",
+      "buttonRenameTheme": "Speichern",
+      "modalTextResetConfirm": "Sind Sie sicher, dass Sie die aktuellen Änderungen zurücksetzen möchten?",
+      "modalTitleReset": "Theme zurücksetzen",
+      "buttonSave": "Speichern",
+      "modalTitleSave": "Theme speichern",
+      "textSaveInfo": "Möchtest du die Änderungen wirklich speichern? Dies wird die Visualisierung Ihres Shops verändern."
+    },
+    "list": {
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "textThemeOverview": "Themes",
+      "gridHeaderName": "Name",
+      "gridHeaderCreated": "Erstellt",
+      "gridHeaderAssignment": "Zugewiesene Verkaufskanäle"
+    },
+    "actions": {
+      "edit": "Bearbeiten",
+      "save": "Speichern",
+      "rename": "Umbenennen",
+      "delete": "Löschen",
+      "duplicate": "Duplikat erstellen",
+      "useImageAs": "Benutze Bild als",
+      "buttonReset": "Änderungen zurücksetzen",
+      "buttonCancel": "Abbrechen",
+      "buttonUseTheme": "Theme benutzen",
+      "deleteDisablesToolTip": "Das Theme ist noch mindestens einem Verkaufskanal zugewiesen"
+    },
+    "detail": {
+      "description": "Beschreibung",
+      "salesChannel": "Folgenden Verkaufskanälen zugewiesen",
+      "inheritanceInfo": "Dieses Theme ist ein Duplikat und wird abgeleitet vom \"{parentThemeName}\" Theme.",
+      "label": {
+        "media": "Media",
+        "colors": "Farben",
+        "generalColors": "Generelle Farben",
+        "moreColors": "Mehr Farben",
+        "fonts": "Schriftarten",
+        "links": "Links",
+        "textcolor": "Textfarbe",
+        "surface": "Oberfläche",
+        "frame": "Rahmen",
+        "text": "Text",
+        "headlines": "Überschriften",
+        "socialMediaLinks": "Social Media Links",
+        "favicon": "Favicon",
+        "shopLogo": "Shop Logo"
+      }
+    },
+    "themeModal": {
+      "actionCancel": "Abbrechen",
+      "actionConfirm": "Theme übernehmen",
+      "modalTitle": "Theme auswählen",
+      "headline": "Themes"
+    }
+  }
+}

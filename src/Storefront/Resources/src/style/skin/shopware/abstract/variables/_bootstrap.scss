@@ -7,19 +7,19 @@ https://getbootstrap.com/docs/4.3/getting-started/theming/#variable-defaults
 */
 
 // Color system
-$gray-100: #f8f8fa;
-$gray-200: #f5f5f8;
-$gray-300: #d1d9e0;
-$gray-600: #576574;
-$gray-800: #3f4c58;
+$gray-100: #f8f8fa;                                     // ~ 'sw5 gray-light'
+$gray-200: #f5f5f8;                                     // ~ 'sw5 gray'
+$gray-300: #d1d9e0;                                     // ~ 'sw5 gray-dark'
+$gray-600: $sw-color-brand-secondary;                   // ~ 'sw5 brand-secondary'
+$gray-800: $sw-color-price;                             // ~ 'sw5 brand-secondary-dark'
 
-$primary: #399;
-$secondary: $gray-600;
+$primary: $sw-color-brand-primary;
+$secondary: $sw-color-brand-secondary;
 
-$success: #6ed59f;
-$info: #76bce7;
-$warning: #fcc679;
-$danger: #f27f7f;
+$success: $sw-color-success;
+$info: $sw-color-info;
+$warning: $sw-color-warning;
+$danger: $sw-color-danger;
 
 $light: $gray-100;
 $dark: $gray-800;
@@ -30,17 +30,17 @@ $headings-color: $gray-800;
 $grid-gutter-width: 40px;
 
 // Body
-$body-color: #545454;
+$body-color: $sw-text-color;
 
 // Components
-$border-color: #d4e2e2;
+$border-color: $sw-border-color;
 
 $border-radius: 3px;
 $border-radius-lg: 3px;
 $border-radius-sm: 3px;
 
 // Typography
-$font-family-base: 'Inter', sans-serif;
+$font-family-base: $sw-font-family-base;
 
 $font-size-base: 0.875rem;
 $font-size-lg: 1rem;
@@ -55,7 +55,7 @@ $h5-font-size: 16px;
 $h6-font-size: 14px;
 
 $headings-font-weight: 700;
-$headings-font-family: $font-family-base;
+$headings-font-family: $sw-font-family-headline;
 
 // Buttons + Forms
 $input-btn-padding-y: 0.5625rem;

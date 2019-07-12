@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 
 class PluginPreDeactivateEvent extends PluginLifecycleEvent
 {
-    public const NAME = 'plugin.pre.deactivate';
-
     /**
      * @var DeactivateContext
      */

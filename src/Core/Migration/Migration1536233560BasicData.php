@@ -1422,6 +1422,13 @@ class Migration1536233560BasicData extends MigrationStep
             'configuration_value' => '{"_value": true}',
             'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
+
+        $connection->insert('system_config', [
+            'id' => Uuid::randomBytes(),
+            'configuration_key' => 'core.register.minPasswordLength',
+            'configuration_value' => '{"_value": 8}',
+            'created_at' => date(Defaults::STORAGE_DATE_FORMAT),
+        ]);
     }
 
     private function createDocumentTypes(Connection $connection): void

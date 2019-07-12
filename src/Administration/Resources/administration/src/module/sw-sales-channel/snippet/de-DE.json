@@ -20,6 +20,7 @@
       "buttonSave": "Speichern",
       "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
       "tabBase": "Allgemein",
+      "tabTheme": "Theme",
       "labelAccessKeyField": "API-Zugangs-ID",
       "titleAPIError": "Fehler",
       "messageAPIError": "Der API-Schlüssel konnte nicht generiert werden.",

@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 
 class PluginPostInstallEvent extends PluginLifecycleEvent
 {
-    public const NAME = 'plugin.post.install';
-
     /**
      * @var InstallContext
      */

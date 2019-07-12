@@ -69,7 +69,7 @@ const devServer = {
     stats: {
         colors: true,
     },
-    quiet: true,
+    quiet: false,
     hot: true,
     compress: true,
     disableHostCheck: true,
@@ -89,5 +89,8 @@ module.exports = {
     devtool: 'cheap-module-eval-source-map',
     mode: 'development',
     module: modules,
+    entry: {
+        app: [utils.getPath('/src/style/base.scss')]
+    },
     plugins: plugins,
 };

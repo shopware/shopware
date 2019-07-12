@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 
 class PluginPostUninstallEvent extends PluginLifecycleEvent
 {
-    public const NAME = 'plugin.post.uninstall';
-
     /**
      * @var UninstallContext
      */

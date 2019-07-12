@@ -1,0 +1,407 @@
+{% block sw_theme_manager_detail %}
+    <sw-page class="sw-theme-manager-detail">
+
+        {% block sw_theme_manager_detail_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar :placeholder="$tc('sw-theme-manager.general.placeholderSearchBar')"
+                               :searchType="$tc('sw-theme-manager.general.mainMenuItemIndex')"
+                               :entityService="themeRepository"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_theme_manager_detail_smart_bar_header %}
+            <template slot="smart-bar-header">
+
+                {% block sw_theme_manager_detail_smart_bar_header_title %}
+                    <h2 v-if="theme">
+                        {% block sw_theme_manager_detail_smart_bar_header_title_text %}
+                            {{ theme.name }}
+                        {% endblock %}
+                    </h2>
+
+                    <h2 v-else>
+                        {% block sw_theme_manager_detail_smart_bar_header_title_text_default %}
+                            {{ $tc('sw-theme-manager.list.textThemeOverview') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_theme_manager_detail_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_theme_manager_detail_smart_bar_actions_save %}
+                    <sw-button-process
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="isLoading"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        @click="onSave">
+                        {{ $tc('sw-theme-manager.actions.save') }}
+                    </sw-button-process>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_theme_manager_detail_content %}
+            <template slot="content">
+                <sw-loader v-if="isLoading" size="30" class="sw-theme-manager-detail__loading-indicator"></sw-loader>
+
+                <div v-else class="sw-theme-manager-detail__content">
+
+                    <template v-if="theme && parentTheme">
+                        {% block sw_theme_manager_detail_content_inheritance %}
+                            <div class="sw-theme-manager-detail__inheritance">
+                                {% block sw_theme_manager_detail_content_inheritance_icon %}
+                                    <sw-icon :multicolor="true" size="20" name="custom-inherited"></sw-icon>
+                                {% endblock %}
+
+                                {% block sw_theme_manager_detail_content_inheritance_text %}
+                                    <p class="sw-theme-manager-detail__inheritance-text">
+                                        {{ $tc('sw-theme-manager.detail.inheritanceInfo', 0, { parentThemeName: parentTheme.name }) }}
+                                    </p>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </template>
+
+                    {% block sw_theme_manager_detail_content_info %}
+                        <sw-card class="sw-theme-manager-detail__info-card">
+                            <div class="sw-theme-manager-detail__info">
+
+                                {% block sw_theme_manager_detail_content_info_image %}
+                                    <div class="sw-theme-manager-detail__info-image" :style="previewMedia"></div>
+                                {% endblock %}
+
+                                {% block sw_theme_manager_detail_content_info_content %}
+                                    <div class="sw-theme-manager-detail__info-content">
+                                        <div class="sw-theme-manager-detail__info-name">{{ theme.name }}</div>
+                                        <div class="sw-theme-manager-detail__info-author">{{ theme.author }}</div>
+                                        <div v-if="theme.description" class="sw-theme-manager-detail__info-descr">
+                                            <p class="sw-theme-manager-detail__info-descr-title">
+                                                {{ $tc('sw-theme-manager.detail.description') }}:
+                                            </p>
+                                            <p>{{ theme.description |truncate(140) }}</p>
+                                        </div>
+
+                                        <div v-if="theme.salesChannels.length > 0"
+                                             class="sw-theme-manager-detail__info-saleschannels">
+                                            <p>{{ $tc('sw-theme-manager.detail.salesChannel') }}:</p>
+
+                                            <span class="sw-theme-manager-detail__saleschannel"
+                                                v-for="salesChannel, index in theme.salesChannels">
+                                                <router-link :to="{ name: 'sw.sales.channel.detail.theme', params: { id: salesChannel.id } }"
+                                                             class="sw-theme-manager-detail__saleschannel-link">
+                                                    <span>
+                                                        {{ salesChannel.name }}<template v-if="index < theme.salesChannels.length - 1">, </template>
+                                                    </span>
+                                                </router-link>
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% endblock %}
+                            </div>
+
+                            {% block sw_theme_manager_detail_content_info_context_button %}
+                                <sw-context-button class="sw-theme-manager-detail__context-button">
+
+                                    {% block sw_theme_manager_detail_context_button_option_rename %}
+                                        <sw-context-menu-item @click="onRenameTheme(theme)">
+                                            {{ $tc('sw-theme-manager.actions.rename') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_theme_manager_detail_context_button_option_create %}
+                                        <sw-context-menu-item @click="onDuplicateTheme(theme)" v-if="!theme.parentThemeId">
+                                            {{ $tc('sw-theme-manager.actions.duplicate') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_theme_manager_detail_context_button_option_delete %}
+                                        <sw-context-menu-item
+                                            v-if="theme.parentThemeId"
+                                            :disabled="theme.salesChannels.length > 0"
+                                            v-tooltip="deleteDisabledToolTip"
+                                            class="sw-theme-manager-detail__option-delete"
+                                            variant="danger"
+                                            @click="onDeleteTheme(theme)">
+                                            {{ $tc('sw-theme-manager.actions.delete') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+                                </sw-context-button>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+
+                    {% block sw_theme_manager_detail_content_areas %}
+                        <sw-card v-for="(area, areaIndex) in themeFields"
+                                 v-if="Object.values(area.sections).length > 0"
+                                 :key="areaIndex"
+                                 :title="$tc(area.label)"
+                                 class="sw-theme-manager-detail__area">
+
+                            {% block sw_theme_manager_detail_content_sections %}
+                                <sw-card-section v-for="(section, sectionIndex) in area.sections" :key="sectionIndex">
+                                    <div v-if="section.label" class="sw-theme-manager-detail__content--section_title">{{ $tc(section.label) }}</div>
+
+                                    {% block sw_theme_manager_detail_content_fields %}
+                                        <sw-container class="sw-theme-manager-detail__content--section_field">
+                                            <div v-for="(field, fieldIndex) in section"
+                                                 v-if="fieldIndex !== 'label' && themeConfig[fieldIndex]"
+                                                 :key="fieldIndex"
+                                                 class="sw-theme-manager-detail__content--section_field">
+
+                                                <sw-field
+                                                    v-if="mapSwFieldTypes(field.type) === 'select'"
+                                                    type="select"
+                                                    :placeholder="field.placeholder"
+                                                    :options="field.options"
+                                                    :label="!field.label ? '' : field.label"
+                                                    v-model="themeConfig[fieldIndex].value">
+                                                </sw-field>
+                                                <sw-field
+                                                    v-else-if="field.type === 'url'"
+                                                    type="url"
+                                                    :label="!field.label ? '' : field.label"
+                                                    v-model="themeConfig[fieldIndex].value">
+                                                </sw-field>
+                                                <div v-else-if="field.type === 'media'">
+
+                                                    <sw-upload-store-listener
+                                                        :uploadTag="areaIndex + '-' + sectionIndex + '-' + fieldIndex"
+                                                        @media-upload-finish="successfulUpload($event, themeConfig[fieldIndex])"
+                                                        autoUpload>
+                                                    </sw-upload-store-listener>
+
+                                                    <sw-media-upload
+                                                        :label="!field.label ? '' : field.label"
+                                                        :source="themeConfig[fieldIndex].value"
+                                                        :uploadTag="areaIndex + '-' + sectionIndex + '-' + fieldIndex"
+                                                        :ref="areaIndex + '-' + sectionIndex + '-' + fieldIndex"
+                                                        :allowMultiSelect="false"
+                                                        @media-drop="onDropMedia($event, themeConfig[fieldIndex])"
+                                                        @media-upload-sidebar-open="openMediaSidebar()"
+                                                        @media-upload-remove-image="removeMediaItem(themeConfig[fieldIndex])">
+                                                    </sw-media-upload>
+                                                </div>
+                                                <sw-field
+                                                    v-else
+                                                    :type="mapSwFieldTypes(field.type)"
+                                                    :label="!field.label ? '' : field.label"
+                                                    v-model="themeConfig[fieldIndex].value">
+                                                </sw-field>
+                                            </div>
+                                        </sw-container>
+                                    {% endblock %}
+                                </sw-card-section>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block sw_theme_manager_reset_modal %}
+                <sw-modal v-if="showResetModal"
+                          @modal-close="onCloseResetModal"
+                          :title="$tc('sw-theme-manager.modal.modalTitleReset')"
+                          variant="small">
+
+                    {% block sw_theme_manager_reset_modal_reset_text %}
+                        <p class="sw_theme_manager__confirm-reset-text">
+                            {{ $tc('sw-theme-manager.modal.modalTextResetConfirm') }}?
+                        </p>
+                    {% endblock %}
+
+                    {% block sw_theme_manager_reset_modal_footer %}
+                        <template slot="modal-footer">
+                            {% block sw_theme_manager_reset_modal_cancel %}
+                                <sw-button @click="onCloseResetModal"
+                                           size="small">
+                                    {{ $tc('sw-theme-manager.actions.buttonCancel') }}
+                                </sw-button>
+                            {% endblock %}
+
+                            {% block sw_theme_manager_reset_modal_confirm %}
+                                <sw-button @click="onConfirmThemeReset"
+                                           variant="danger"
+                                           size="small">
+                                    {{ $tc('sw-theme-manager.actions.buttonReset') }}
+                                </sw-button>
+                            {% endblock %}
+                     </template>
+                    {% endblock %}
+                </sw-modal>
+            {% endblock %}
+
+            {% block sw_theme_manager_detail_delete_modal %}
+                <sw-modal v-if="showDeleteModal"
+                          @modal-close="onCloseDeleteModal"
+                          :title="$tc('sw-theme-manager.modal.modalTitleDelete')"
+                          variant="small">
+
+                    {% block sw_theme_manager_detail_delete_modal_info %}
+                        <div class="sw_theme_manager__confirm-delete-text">
+                            {{ $tc('sw-theme-manager.modal.textDeleteInfo', 0,
+                            { themeName: theme.name }) }}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_theme_manager_detail_delete_modal_footer %}
+                        <template slot="modal-footer">
+                            {% block sw_theme_manager_detail_delete_modal_cancel %}
+                                <sw-button @click="onCloseDeleteModal"
+                                           size="small">
+                                    {{ $tc('sw-theme-manager.modal.buttonCancel') }}
+                                </sw-button>
+                            {% endblock %}
+
+                            {% block sw_theme_manager_detail_delete_modal_confirm %}
+                                <sw-button @click="onConfirmThemeDelete"
+                                           variant="danger"
+                                           size="small">
+                                    {{ $tc('sw-theme-manager.modal.buttonDelete') }}
+                                </sw-button>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+                </sw-modal>
+            {% endblock %}
+
+            {% block sw_theme_manager_detail_save_modal %}
+                <sw-modal v-if="showSaveModal"
+                          @modal-close="onCloseSaveModal"
+                          :title="$tc('sw-theme-manager.modal.modalTitleSave')"
+                          variant="small">
+
+                    {% block sw_theme_manager_detail_save_modal_info %}
+                        <div class="sw_theme_manager__confirm-save-text">
+                            {{ $tc('sw-theme-manager.modal.textSaveInfo', 0,
+                            { themeName: theme.name }) }}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_theme_manager_detail_save_modal_footer %}
+                        <template slot="modal-footer">
+                            {% block sw_theme_manager_detail_save_modal_cancel %}
+                                <sw-button @click="onCloseSaveModal"
+                                           size="small">
+                                    {{ $tc('sw-theme-manager.modal.buttonCancel') }}
+                                </sw-button>
+                            {% endblock %}
+
+                            {% block sw_theme_manager_detail_save_modal_confirm %}
+                                <sw-button @click="onConfirmThemeSave"
+                                           variant="primary"
+                                           size="small">
+                                    {{ $tc('sw-theme-manager.modal.buttonSave') }}
+                                </sw-button>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+                </sw-modal>
+            {% endblock %}
+
+            {% block sw_theme_manager_detail_duplicate_modal %}
+                <sw-modal v-if="showDuplicateModal"
+                          class="sw_theme_manager__duplicate-modal"
+                          @modal-close="onCloseDuplicateModal"
+                          :title="$tc('sw-theme-manager.modal.modalTitleDuplicate')"
+                          variant="small">
+
+                    {% block sw_theme_manager_detail_duplicate_modal_name_input %}
+                        <div class="sw_theme_manager__duplicate-info">
+                            {{ $tc('sw-theme-manager.modal.textDuplicateInfo') }}
+                        </div>
+
+                        <sw-field v-model="newThemeName"
+                                  :label="$tc('sw-theme-manager.modal.labelDuplicateThemeName')"
+                                  :placeholder="$tc('sw-theme-manager.modal.placeholderDuplicateThemeName')"
+                                  tpye="text">
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_theme_manager_detail_duplicate_modal_footer %}
+                        <template slot="modal-footer">
+                            {% block sw_theme_manager_detail_duplicate_modal_cancel %}
+                                <sw-button @click="onCloseDuplicateModal"
+                                           size="small">
+                                    {{ $tc('sw-theme-manager.modal.buttonCancel') }}
+                                </sw-button>
+                            {% endblock %}
+
+                            {% block sw_theme_manager_detail_duplicate_modal_confirm %}
+                                <sw-button @click="onConfirmThemeDuplicate"
+                                           variant="primary"
+                                           :disabled="newThemeName.length < 3"
+                                           size="small">
+                                    {{ $tc('sw-theme-manager.modal.buttonDuplicateTheme') }}
+                                </sw-button>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+                </sw-modal>
+            {% endblock %}
+            
+            {% block sw_theme_manager_detail_rename_modal %}
+                <sw-modal v-if="showRenameModal"
+                          class="sw_theme_manager__rename-modal"
+                          @modal-close="onCloseRenameModal"
+                          :title="$tc('sw-theme-manager.modal.modalTitleRename')"
+                          variant="small">
+
+                    {% block sw_theme_manager_detail_rename_modal_name_input %}
+                        <div class="sw_theme_manager__rename-info">
+                            {{ $tc('sw-theme-manager.modal.textRenameInfo') }}
+                        </div>
+
+                        <sw-field v-model="newThemeName"
+                                  :label="$tc('sw-theme-manager.modal.labelRenameThemeName')"
+                                  :placeholder="$tc('sw-theme-manager.modal.placeholderRenameThemeName')"
+                                  tpye="text">
+                        </sw-field>
+                    {% endblock %}
+
+                    {% block sw_theme_manager_detail_rename_modal_footer %}
+                        <template slot="modal-footer">
+                            {% block sw_theme_manager_detail_rename_modal_cancel %}
+                                <sw-button @click="onCloseRenameModal"
+                                           size="small">
+                                    {{ $tc('sw-theme-manager.modal.buttonCancel') }}
+                                </sw-button>
+                            {% endblock %}
+
+                            {% block sw_theme_manager_detail_rename_modal_confirm %}
+                                <sw-button @click="onConfirmThemeRename"
+                                           variant="primary"
+                                           :disabled="newThemeName.length < 3"
+                                           size="small">
+                                    {{ $tc('sw-theme-manager.modal.buttonRenameTheme') }}
+                                </sw-button>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+                </sw-modal>
+            {% endblock %}
+        </template>
+
+        {% block sw_theme_manager_detail_sidebar %}
+            <sw-sidebar slot="sidebar" :propagateWidth="true">
+                {% block sw_theme_manager_detail_sidebar_reset %}
+                    <sw-sidebar-item
+                        icon="default-arrow-360-left"
+                        :title="$tc('sw-theme-manager.actions.buttonReset')"
+                        @click="onReset">
+                    </sw-sidebar-item>
+                {% endblock %}
+
+                {% block sw_theme_manager_detail_sidebar_media %}
+                    <sw-sidebar-media-item ref="mediaSidebarItem">
+                    </sw-sidebar-media-item>
+                {% endblock %}
+            </sw-sidebar>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

@@ -23,8 +23,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createCacheSection())
                 ->append($this->createAutoUpdateSection())
-            ->end()
-        ;
+            ->end();
 
         return $treeBuilder;
     }
@@ -51,8 +50,7 @@ class Configuration implements ConfigurationInterface
                         ->variableNode('config')->end()
                     ->end()
                 ->end()
-            ->end()
-        ;
+            ->end();
 
         return $rootNode;
     }
@@ -67,8 +65,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('url')->end()
                 ->scalarNode('strategy')->end()
-            ->end()
-            ;
+            ->end();
 
         return $rootNode;
     }
@@ -91,8 +88,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultFalse()
                 ->end()
             ->end()
-            ->end()
-        ;
+            ->end();
 
         return $rootNode;
     }
@@ -106,8 +102,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->booleanNode('frw')->end()
-            ->end()
-        ;
+            ->end();
 
         return $rootNode;
     }
@@ -130,8 +125,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(true)
                 ->end()
 
-            ->end()
-        ;
+            ->end();
 
         return $rootNode;
     }
@@ -150,8 +144,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('enabled')->end()
                     ->end()
                 ->end()
-            ->end()
-        ;
+            ->end();
 
         return $rootNode;
     }

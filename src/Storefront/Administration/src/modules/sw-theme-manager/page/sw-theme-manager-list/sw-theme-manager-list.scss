@@ -1,0 +1,95 @@
+@import "~scss/variables";
+
+.sw-theme-list {
+    .sw-theme-list__content {
+        max-width: 800px;
+        position: relative;
+        margin: auto;
+    }
+
+    .sw-theme-list__actions {
+        display: grid;
+        grid-template-columns: auto 380px 36px;
+        grid-column-gap: 20px;
+        align-items: center;
+        align-content: center;
+        margin-bottom: 28px;
+
+        @media screen and (max-width: 700px) {
+            grid-template-columns: auto 36px;
+        }
+
+        h3 {
+            font-size: 28px;
+            font-weight: normal;
+            margin: 0;
+        }
+    }
+
+    .sw-theme-list__actions-sorting {
+        display: grid;
+
+        @media screen and (max-width: 700px) {
+            display: none;
+        }
+
+        .sw-field.sw-field--select {
+            margin-bottom: 0;
+
+            select {
+                padding: 6px 12px;
+            }
+
+            &.sw-field--select-aside {
+                grid-column-gap: 10px;
+            }
+
+            .sw-field--select__options {
+                top: calc(50% - 12px);
+            }
+        }
+    }
+
+    .sw-theme-list__actions-mode {
+        height: 36px;
+        line-height: 33px;
+        text-align: center;
+        color: $color-gutenberg;
+        border: 1px solid $color-steam-cloud;
+        border-radius: 4px;
+        background: $color-white;
+        cursor: pointer;
+
+        &:hover {
+            color: $color-shopware-blue;
+            border-color: $color-shopware-blue;
+        }
+    }
+
+    .sw-theme-list__list-grid-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-gap: 30px;
+        align-content: start;
+    }
+
+    .sw-theme-list__list-data-grid {
+        border-radius: 4px;
+    }
+
+    .sw-theme-list__icon-lock {
+        margin-right: 10px;
+        color: $color-steam-cloud;
+    }
+
+    .sw-theme-list__list-pagination {
+        margin-top: 20px;
+        background: none;
+        border: none;
+    }
+}
+
+.sw_theme_manager__duplicate-info,
+.sw_theme_manager__rename-info {
+    margin-bottom: 16px;
+}

@@ -168,6 +168,9 @@ class WebpackPluginInjector {
     static getPluginConfig(pluginName, pluginDefinition, section) {
         const basePath = pluginDefinition.basePath;
         const hasCustomWebpackConfig = (pluginDefinition[section].webpack !== null);
+        const hasCustomStyleFiles = Object.prototype.hasOwnProperty.call(pluginDefinition[section], 'styleFiles')
+            ? pluginDefinition[section].styleFiles.length > 0
+            : false;
         const webpackConfigPath = !hasCustomWebpackConfig ? null
             : join(basePath, pluginDefinition[section].webpack);
 
@@ -182,12 +185,14 @@ class WebpackPluginInjector {
         return {
             basePath,
             hasCustomWebpackConfig,
+            hasCustomStyleFiles,
             webpackConfigPath,
             pluginName,
+            assetPaths,
+            styleFiles: pluginDefinition[section].styleFiles,
             technicalName: toKebabCase(pluginName),
             viewPath: pluginDefinition.views.map((path) => join(basePath, path)),
-            entryFile: join(basePath, pluginDefinition[section].entryFilePath),
-            assetPaths
+            entryFile: join(basePath, pluginDefinition[section].entryFilePath)
         };
     }
 
@@ -223,10 +228,19 @@ class WebpackPluginInjector {
                 plugin
             };
 
-            // Add plugin as a new entry in the webpack config, respect NODE_ENV and insert the 'dev-client' if necessary
-            this.webpackConfig.entry[technicalName] = (this.env === 'development' && this.section === 'administration')
-                ? ['./build/dev-client'].concat(plugin.entryFile)
-                : plugin.entryFile;
+            if (process.env.MODE === 'hot' && this.section === 'storefront') {
+                if (!this.webpackConfig.entry[technicalName]) {
+                    this.webpackConfig.entry[technicalName] = [];
+                }
+
+                this.webpackConfig.entry[technicalName].push(plugin.entryFile);
+                this.webpackConfig.entry[technicalName].push(...plugin.styleFiles);
+            } else {
+                // Add plugin as a new entry in the webpack config, respect NODE_ENV and insert the 'dev-client' if necessary
+                this.webpackConfig.entry[technicalName] = (this.env === 'development' && this.section === 'administration')
+                    ? ['./build/dev-client'].concat(plugin.entryFile)
+                    : plugin.entryFile;
+            }
 
             // Add plugin to include paths to support eslint
             this.includePaths.push(...plugin.viewPath);
@@ -283,9 +297,10 @@ class WebpackPluginInjector {
     injectCopyPluginConfig(plugins) {
         plugins.forEach((plugin) => {
             const pluginName = plugin.technicalName;
+            const publicFolder = this.section === 'administration' ? 'public' : 'dist';
             const basePath = plugin.basePath;
-            const pluginPath = `${basePath}Resources/public/${this.section}`;
-            const publicStaticPath = `${basePath}Resources/public/static/`;
+            const pluginPath = `${basePath}Resources/${publicFolder}/${this.section}`;
+            const publicStaticPath = `${basePath}Resources/${publicFolder}/static/`;
             const assetPaths = plugin.assetPaths;
 
             // Copy plugin chunk after build

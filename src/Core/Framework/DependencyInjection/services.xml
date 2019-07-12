@@ -41,6 +41,11 @@
     <services>
         <service id="templating.loader.wrapped" alias="templating.loader"/>
 
+        <!-- Asset -->
+        <service id="Shopware\Core\Framework\Asset\AssetPackageService" public="true">
+            <argument type="service" id="assets.packages"/>
+        </service>
+
         <!-- Database / Doctrine -->
         <service id="Doctrine\DBAL\Connection" public="true">
             <factory class="Shopware\Core\Kernel" method="getConnection"/>

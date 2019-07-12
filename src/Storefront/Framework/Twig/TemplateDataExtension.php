@@ -2,10 +2,13 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
-use function array_merge;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Theme\ThemeCompiler;
+use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
@@ -23,10 +26,16 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
      */
     private $systemConfigService;
 
-    public function __construct(RequestStack $requestStack, SystemConfigService $systemConfigService)
+    /**
+     * @var ThemeService
+     */
+    private $themeService;
+
+    public function __construct(RequestStack $requestStack, SystemConfigService $systemConfigService, ThemeService $themeService)
     {
         $this->requestStack = $requestStack;
         $this->systemConfigService = $systemConfigService;
+        $this->themeService = $themeService;
     }
 
     public function getGlobals(): array
@@ -46,13 +55,15 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
         $controllerInfo = $this->getControllerInfo($request);
 
+        $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
+
         return [
             'shopware' => [
                 'config' => array_merge(
                     $this->systemConfigService->getConfigArray($context->getSalesChannel()->getId()),
                     $this->getDefaultConfiguration()
                 ),
-                'theme' => $this->getThemeConfig(),
+                'theme' => $this->getThemeConfig($context->getSalesChannel()->getId(), $themeId),
                 'dateFormat' => DATE_ATOM,
             ],
             'controllerName' => $controllerInfo->getName(),
@@ -63,32 +74,36 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         ];
     }
 
-    protected function getThemeConfig(): array
+    protected function getThemeConfig(string $salesChannelId, ?string $themeId): array
     {
-        $themeConfig = [];
+        $themeConfig = [
+            'breakpoint' => [
+                'xs' => 0,
+                'sm' => 576,
+                'md' => 768,
+                'lg' => 992,
+                'xl' => 1200,
+            ],
+        ];
 
-        $themeConfig = array_merge(
-            $themeConfig,
+        if (!$themeId) {
+            return $themeConfig;
+        }
+
+        $themePrefix = ThemeCompiler::getThemePrefix($salesChannelId, $themeId);
+
+        $themeConfig = array_merge($themeConfig,
             [
-                'color' => [
-                    'primary' => '#339999',
+                'assets' => [
+                    'css' => [
+                        'theme/' . $themePrefix . '/css/all.css',
+                    ],
+                    'js' => [
+                        'theme/' . $themePrefix . '/js/all.js',
+                    ],
                 ],
-                'logo' => [
-                    'favicon' => 'assets/logo/favicon.png',
-                    'appleTouch' => 'assets/logo/apple-touch-icon.png',
-                    'androidTouch' => 'assets/logo/android-touch-icon.png',
-                    'desktop' => 'assets/logo/demostore-logo.png',
-                    'tablet' => 'assets/logo/demostore-logo.png',
-                    'mobile' => 'assets/logo/demostore-logo.png',
-                ],
-                'breakpoint' => [
-                    'xs' => 0,
-                    'sm' => 576,
-                    'md' => 768,
-                    'lg' => 992,
-                    'xl' => 1200,
-                ],
-            ]
+            ],
+            $this->themeService->getResolvedThemeConfiguration($themeId, Context::createDefaultContext())
         );
 
         return $themeConfig;

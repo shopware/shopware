@@ -16,11 +16,14 @@ Component.register('sw-promotion-persona-form', {
 
     computed: {
         ruleFilter() {
-            return Criteria.equalsAny('conditions.type', [
-                'customerBillingCountry', 'customerBillingStreet', 'customerBillingZipCode', 'customerIsNewCustomer',
-                'customerCustomerGroup', 'customerCustomerNumber', 'customerDaysSinceLastOrder',
-                'customerDifferentAddresses', 'customerLastName', 'customerOrderCount', 'customerShippingCountry',
-                'customerShippingStreet', 'customerShippingZipCode'
+            return Criteria.multi('AND', [
+                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
+                Criteria.equalsAny('conditions.type', [
+                    'customerBillingCountry', 'customerBillingStreet', 'customerBillingZipCode', 'customerIsNewCustomer',
+                    'customerCustomerGroup', 'customerCustomerNumber', 'customerDaysSinceLastOrder',
+                    'customerDifferentAddresses', 'customerLastName', 'customerOrderCount', 'customerShippingCountry',
+                    'customerShippingStreet', 'customerShippingZipCode'
+                ])
             ]);
         }
     }

@@ -31,7 +31,6 @@ Component.register('sw-sales-channel-detail-theme', {
     data() {
         return {
             theme: null,
-            themeId: null,
             showThemeSelectionModal: false,
             showChangeModal: false,
             newThemeId: null
@@ -53,9 +52,8 @@ Component.register('sw-sales-channel-detail-theme', {
                 }
 
                 this.theme = this.salesChannel.extensions.themes[0];
-                this.themeId = this.salesChannel.extensions.themes[0].id;
 
-                this.getTheme(this.themeId);
+                this.getTheme(this.theme.id);
             }
         }
     },
@@ -72,8 +70,8 @@ Component.register('sw-sales-channel-detail-theme', {
                 return;
             }
 
-            this.themeId = this.salesChannel.extensions.themes[0].id;
-            this.getTheme(this.themeId);
+            this.theme = this.salesChannel.extensions.themes[0];
+            this.getTheme(this.theme.id);
         },
 
         getTheme(themeId) {
@@ -98,10 +96,10 @@ Component.register('sw-sales-channel-detail-theme', {
         },
 
         openInThemeManager() {
-            if (!this.themeId) {
+            if (!this.theme) {
                 this.$router.push({ name: 'sw.theme.manager.index' });
             } else {
-                this.$router.push({ name: 'sw.theme.manager.detail', params: { id: this.themeId } });
+                this.$router.push({ name: 'sw.theme.manager.detail', params: { id: this.theme.id } });
             }
         },
 
@@ -128,7 +126,6 @@ Component.register('sw-sales-channel-detail-theme', {
 
         onThemeSelect(selectedThemeId) {
             this.themeService.assignTheme(selectedThemeId, this.salesChannel.id);
-            this.themeId = selectedThemeId;
             this.getTheme(selectedThemeId);
         }
     }

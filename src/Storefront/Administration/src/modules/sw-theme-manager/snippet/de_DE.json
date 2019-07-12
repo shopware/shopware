@@ -6,7 +6,7 @@
       "descriptionTextModule": "Verwaltung von Themes",
       "mainMenuHeader": "Deine Themes",
       "captionMediaUpload": "Lade ein Bild hoch",
-      "lockedToolTip": "Themes die von einem Plugin installiert wurden sind gesperrt und können nicht gelöscht werden"
+      "lockedToolTip": "Themes die von einem Plugin installiert wurden sind gesperrt und können nicht gelöscht werden."
     },
     "sorting": {
       "labelSort": "Sortieren nach:",
@@ -18,7 +18,9 @@
     "themeListItem": {
       "edit": "Bearbeiten",
       "delete": "Löschen",
+      "rename": "Umbenennen",
       "duplicate": "Duplizieren",
+      "emptyText": "Kein Theme zugewiesen",
       "addPreviewImage": "Vorschau hinzufügen",
       "removePreviewImage": "Vorschau entfernen",
       "notificationDeleteErrorTitle": "Fehler",
@@ -40,14 +42,17 @@
       "placeholderRenameThemeName": "Namen eintragen",
       "buttonRenameTheme": "Speichern",
       "modalTextResetConfirm": "Sind Sie sicher, dass Sie die aktuellen Änderungen zurücksetzen möchten?",
-      "modalTitleReset": "Theme zurücksetzen"
+      "modalTitleReset": "Theme zurücksetzen",
+      "buttonSave": "Speichern",
+      "modalTitleSave": "Theme speichern",
+      "textSaveInfo": "Möchtest du die Änderungen wirklich speichern? Dies wird die Visualisierung Ihres Shops verändern."
     },
     "list": {
       "titleSidebarItemRefresh": "Aktualisieren",
       "textThemeOverview": "Themes",
       "gridHeaderName": "Name",
       "gridHeaderCreated": "Erstellt",
-      "gridHeaderAssignment": "Zugewiesene Sales Channel"
+      "gridHeaderAssignment": "Zugewiesene Verkaufskanäle"
     },
     "actions": {
       "edit": "Bearbeiten",
@@ -59,7 +64,7 @@
       "buttonReset": "Änderungen zurücksetzen",
       "buttonCancel": "Abbrechen",
       "buttonUseTheme": "Theme benutzen",
-      "deleteDisablesToolTip": "Das Theme ist noch mindestens einem Saleschannel zugewiesen"
+      "deleteDisablesToolTip": "Das Theme ist noch mindestens einem Verkaufskanal zugewiesen"
     },
     "detail": {
       "description": "Beschreibung",

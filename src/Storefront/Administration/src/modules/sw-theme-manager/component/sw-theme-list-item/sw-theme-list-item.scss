@@ -10,8 +10,8 @@
     position: relative;
 
     &:hover {
-        border-color: $color-shopware-blue;
-        box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
+        border-color: $color-shopware-brand-500;
+        box-shadow: 0 0 4px 0 rgba($color-shopware-brand-500, 0.4);
         cursor: pointer;
 
         .sw-theme-list-item__options {
@@ -28,7 +28,7 @@
 
         &.is--empty {
             background: unset;
-            color: #B3BFCC;
+            color: $color-gray-500;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -67,12 +67,12 @@
             height: 16px;
             padding: 0 2px;
             line-height: 13px;
-            background: #FFF;
-            border: 1px solid #D8DDE6;
+            background: $color-white;
+            border: 1px solid $color-gray-300;
             border-radius: 4px;
 
             &:hover, &.is--active {
-                background-color: #fff;
+                background-color: $color-gray-300;
             }
 
             &.is--active {

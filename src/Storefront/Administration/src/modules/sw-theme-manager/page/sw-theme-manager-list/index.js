@@ -114,11 +114,7 @@ Component.register('sw-theme-manager-list', {
         },
 
         onSearch(value = null) {
-            if (!value.length || value.length <= 0) {
-                this.term = null;
-            } else {
-                this.term = value;
-            }
+            this.term = value.length > 0 ? value : null;
 
             this.resetList();
         },

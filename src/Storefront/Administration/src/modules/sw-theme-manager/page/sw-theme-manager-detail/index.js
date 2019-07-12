@@ -15,6 +15,7 @@ Component.register('sw-theme-manager-detail', {
         return {
             theme: null,
             parentTheme: null,
+            defaultMediaFolderId: null,
             themeFields: {},
             themeConfig: {},
             showResetModal: false,
@@ -32,6 +33,10 @@ Component.register('sw-theme-manager-detail', {
     computed: {
         mediaRepository() {
             return this.repositoryFactory.create('media');
+        },
+
+        defaultFolderRepository() {
+            return this.repositoryFactory.create('media_default_folder');
         },
 
         previewMedia() {
@@ -92,6 +97,7 @@ Component.register('sw-theme-manager-detail', {
     methods: {
         createdComponent() {
             this.getTheme();
+            this.setPageContext();
         },
 
         getTheme() {
@@ -135,6 +141,12 @@ Component.register('sw-theme-manager-detail', {
                 this.themeConfig = config.fields;
                 this.baseThemeConfig = cloneDeep(config.fields);
                 this.isLoading = false;
+            });
+        },
+
+        setPageContext() {
+            this.getDefaultFolderId().then((folderId) => {
+                this.defaultMediaFolderId = folderId;
             });
         },
 
@@ -221,6 +233,21 @@ Component.register('sw-theme-manager-detail', {
 
         mapSwFieldTypes(field) {
             return !this.mappedFields[field] ? 'text' : this.mappedFields[field];
-        }
+        },
+
+        getDefaultFolderId() {
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('folder');
+            criteria.addFilter(Criteria.equals('entity', this.themeRepository.schema.entity));
+
+            return this.defaultFolderRepository.search(criteria, this.context).then((searchResult) => {
+                const defaultFolder = searchResult.first();
+                if (defaultFolder.folder.id) {
+                    return defaultFolder.folder.id;
+                }
+
+                return null;
+            });
+        },
     }
 });

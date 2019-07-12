@@ -1,7 +1,6 @@
 import { Module } from 'src/core/shopware';
 import './page/sw-manufacturer-list';
 import './page/sw-manufacturer-detail';
-import './page/sw-manufacturer-create';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
@@ -31,7 +30,7 @@ Module.register('sw-manufacturer', {
             path: 'index'
         },
         create: {
-            component: 'sw-manufacturer-create',
+            component: 'sw-manufacturer-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.manufacturer.index'
@@ -42,6 +41,13 @@ Module.register('sw-manufacturer', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.manufacturer.index'
+            },
+            props: {
+                default(route) {
+                    return {
+                        manufacturerId: route.params.id
+                    };
+                }
             }
         }
     },

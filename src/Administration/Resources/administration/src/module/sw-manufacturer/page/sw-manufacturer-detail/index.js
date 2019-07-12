@@ -1,11 +1,12 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import { warn } from 'src/core/service/utils/debug.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
 
 Component.register('sw-manufacturer-detail', {
     template,
+
+    inject: ['repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -18,11 +19,18 @@ Component.register('sw-manufacturer-detail', {
         ESCAPE: 'onCancel'
     },
 
+    props: {
+        manufacturerId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
+
+
     data() {
         return {
-            manufacturerId: null,
-            manufacturer: { isLoading: true },
-            mediaItem: null,
+            manufacturer: null,
             customFieldSets: [],
             isLoading: false,
             isSaveSuccessful: false
@@ -40,8 +48,16 @@ Component.register('sw-manufacturer-detail', {
             return this.placeholder(this.manufacturer, 'name');
         },
 
-        manufacturerStore() {
-            return State.getStore('product_manufacturer');
+        manufacturerIsLoading() {
+            return this.isLoading || this.manufacturer == null;
+        },
+
+        manufacturerRepository() {
+            return this.repositoryFactory.create('product_manufacturer');
+        },
+
+        languageStore() {
+            return State.getStore('language');
         },
 
         mediaStore() {
@@ -73,34 +89,33 @@ Component.register('sw-manufacturer-detail', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     watch: {
-        '$route.params.id'() {
+        manufacturerId() {
             this.createdComponent();
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
-                this.manufacturerId = this.$route.params.id;
-                if (this.manufacturer && this.manufacturer.isLocal) {
-                    return;
-                }
-
+            if (this.manufacturerId) {
                 this.loadEntityData();
+                return;
             }
+
+            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            this.manufacturer = this.manufacturerRepository.create(this.context);
         },
 
         loadEntityData() {
-            this.manufacturerStore.getByIdAsync(this.manufacturerId).then((manufacturer) => {
+            this.isLoading = true;
+
+            this.manufacturerRepository.get(this.manufacturerId, this.context).then((manufacturer) => {
+                this.isLoading = false;
                 this.manufacturer = manufacturer;
-                if (manufacturer.mediaId) {
-                    this.mediaItem = this.mediaStore.getById(this.manufacturer.mediaId);
-                }
             });
 
             this.customFieldSetStore.getList({
@@ -119,7 +134,7 @@ Component.register('sw-manufacturer-detail', {
         },
 
         abortOnLanguageChange() {
-            return this.manufacturer.hasChanges();
+            return this.manufacturerRepository.hasChanges(this.manufacturer);
         },
 
         saveOnLanguageChange() {
@@ -131,19 +146,15 @@ Component.register('sw-manufacturer-detail', {
         },
 
         setMediaItem({ targetId }) {
-            this.mediaStore.getByIdAsync(targetId).then((updatedMedia) => {
-                this.mediaItem = updatedMedia;
-            });
             this.manufacturer.mediaId = targetId;
+            this.mediaStore.getByIdAsync(targetId);
         },
 
         setMediaFromSidebar(media) {
             this.manufacturer.mediaId = media.id;
-            this.mediaItem = media;
         },
 
         onUnlinkLogo() {
-            this.mediaItem = null;
             this.manufacturer.mediaId = null;
         },
 
@@ -151,34 +162,31 @@ Component.register('sw-manufacturer-detail', {
             this.$refs.mediaSidebarItem.openContent();
         },
 
-        saveFinish() {
-            this.isSaveSuccessful = false;
-        },
-
         onDropMedia(dragData) {
             this.setMediaItem({ targetId: dragData.id });
         },
 
         onSave() {
-            const manufacturerName = this.manufacturer.name || this.manufacturer.translated.name;
-            const titleSaveError = this.$tc('global.notification.notificationSaveErrorTitle');
-            const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessage', 0, { entityName: manufacturerName }
-            );
-            this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            this.manufacturer.save().then(() => {
+            this.manufacturerRepository.save(this.manufacturer, this.context).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
-                this.$refs.mediaSidebarItem.getList();
+                if (this.manufacturerId === null) {
+                    this.$router.push({ name: 'sw.manufacturer.detail', params: { id: this.manufacturer.id } });
+                    return;
+                }
+
+                this.loadEntityData();
             }).catch((exception) => {
                 this.isLoading = false;
+                const manufacturerName = this.manufacturer.name || this.manufacturer.translated.name;
                 this.createNotificationError({
-                    title: titleSaveError,
-                    message: messageSaveError
+                    title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                    message: this.$tc(
+                        'global.notification.notificationSaveErrorMessage', 0, { entityName: manufacturerName }
+                    )
                 });
-                warn(this._name, exception.message, exception.response);
                 throw exception;
             });
         },

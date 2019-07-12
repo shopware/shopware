@@ -146,7 +146,7 @@ export default class ChangesetGenerator {
     }
 
     /**
-     *
+     * @private
      * @param {EntityCollection} draft
      * @param {EntityCollection} origin
      * @param {Array} deletionQueue

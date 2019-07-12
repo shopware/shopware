@@ -118,6 +118,11 @@ class ProcessingService
                 }
             }
             $writer->flush();
+
+            if (++$lastIndex >= $logEntity->getRecords()) {
+                $writer->finish();
+                $this->updateState($context, $logEntity->getId(), ImportExportLogEntity::STATE_SUCCEEDED);
+            }
         } catch (\Exception $exception) {
             $meta = [
                 'logId' => $logEntity->getId(),
@@ -133,11 +138,6 @@ class ProcessingService
             $this->updateState($context, $logEntity->getId(), ImportExportLogEntity::STATE_FAILED);
 
             throw $exception;
-        }
-
-        if (++$lastIndex >= $logEntity->getRecords()) {
-            $writer->finish();
-            $this->updateState($context, $logEntity->getId(), ImportExportLogEntity::STATE_SUCCEEDED);
         }
 
         return $processed;

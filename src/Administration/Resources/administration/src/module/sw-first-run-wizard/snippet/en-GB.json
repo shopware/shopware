@@ -34,8 +34,8 @@
         "creditcard": "Credit Card",
         "invoice": "Invoice"
       },
-      "disclaimer-one": "1 ECC Cologne: ECC-Payment-Study Vol. 20, Cologne, 2016",
-      "disclaimer-two": "2 subject to a positive risk assessment by PayPal"
+      "disclaimer-one": "* ECC Cologne: ECC-Payment-Study Vol. 20, Cologne, 2016",
+      "disclaimer-two": "** subject to a positive risk assessment by PayPal"
 
     },
     "paypal-install": {

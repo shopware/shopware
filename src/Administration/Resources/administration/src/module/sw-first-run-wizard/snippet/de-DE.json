@@ -34,8 +34,8 @@
         "creditcard": "Kreditkarte",
         "invoice": "Kauf auf Rechnung"
       },
-      "disclaimer-one": "1 ECC Köln: ECC-Payment-Studie Vol. 20, Köln, 2016",
-      "disclaimer-two": "2 vorbehaltlich einer positiven Risikoprüfung von PayPal"
+      "disclaimer-one": "* ECC Köln: ECC-Payment-Studie Vol. 20, Köln, 2016",
+      "disclaimer-two": "** vorbehaltlich einer positiven Risikoprüfung von PayPal"
     },
     "paypal-install": {
       "loadingMessage": "Installiere PayPal-Plugin<br>Das könnte einen Moment dauern..."

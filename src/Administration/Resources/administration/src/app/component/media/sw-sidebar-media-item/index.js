@@ -82,7 +82,8 @@ export default {
             this.getList();
         },
 
-        mediaFolderId() {
+        initialFolderId() {
+            this.mediaFolderId = this.initialFolderId;
             this.initializeContent();
         },
 

@@ -181,6 +181,7 @@
                                                         :source="themeConfig[fieldIndex].value"
                                                         :uploadTag="areaIndex + '-' + sectionIndex + '-' + fieldIndex"
                                                         :ref="areaIndex + '-' + sectionIndex + '-' + fieldIndex"
+                                                        :defaultFolder="themeRepository.schema.entity"
                                                         :allowMultiSelect="false"
                                                         @media-drop="onDropMedia($event, themeConfig[fieldIndex])"
                                                         @media-upload-sidebar-open="openMediaSidebar()"
@@ -398,7 +399,9 @@
                 {% endblock %}
 
                 {% block sw_theme_manager_detail_sidebar_media %}
-                    <sw-sidebar-media-item ref="mediaSidebarItem">
+                    <sw-sidebar-media-item
+                        ref="mediaSidebarItem"
+                        :initialFolderId="defaultMediaFolderId">
                     </sw-sidebar-media-item>
                 {% endblock %}
             </sw-sidebar>

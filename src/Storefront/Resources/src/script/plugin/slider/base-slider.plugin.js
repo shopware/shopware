@@ -125,7 +125,7 @@ export default class BaseSliderPlugin extends Plugin {
 
         const sliderInfo = this._slider.getInfo();
 
-        let currentIndex = sliderInfo.index % sliderInfo.slideCount;
+        let currentIndex = sliderInfo.displayIndex % sliderInfo.slideCount;
         currentIndex = (currentIndex === 0) ? sliderInfo.slideCount : currentIndex;
 
         return currentIndex - 1;

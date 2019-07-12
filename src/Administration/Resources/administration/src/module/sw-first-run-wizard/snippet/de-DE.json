@@ -69,7 +69,9 @@
     },
     "error": {
       "titleLoginDataInvalid": "Fehler",
-      "messageLoginDataInvalid": "Login Daten sind unvollständig."
+      "messageLoginDataInvalid": "Login Daten sind unvollständig.",
+      "titlePayPalInstallationFailed": "Fehler",
+      "messagePayPalInstallationFailed": "PayPal installation fehlgeschlagen"
     },
     "step-item-title": {
       "demodata": "Demodaten",
@@ -77,6 +79,5 @@
       "plugins": "Plugins",
       "shopware": "Shopware"
     }
-
   }
 }

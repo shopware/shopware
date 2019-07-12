@@ -70,7 +70,9 @@
     },
     "error": {
       "titleLoginDataInvalid": "Error",
-      "messageLoginDataInvalid": "Login data incomplete."
+      "messageLoginDataInvalid": "Login data incomplete.",
+      "titlePayPalInstallationFailed": "Error",
+      "messagePayPalInstallationFailed": "PayPal installation failed"
     },
     "step-item-title": {
       "demodata": "Demodata",

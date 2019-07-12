@@ -52,18 +52,37 @@ export default {
         };
     },
 
+    watch: {
+        selectedEntities() {
+            this.setItems(this.selectedEntities);
+        }
+    },
+
     methods: {
         initData() {
             this.repository = this.repositoryFactory.create(this.entity, `/${this.entity.replace(/_/g, '-')}`);
 
             this.$on('scroll', this.paginate);
             if (this.selectedEntities && this.selectedEntities.length > 0) {
-                this.selectedEntities.forEach((entity) => {
-                    this.addItem({ item: entity });
-                });
+                this.setItems(this.selectedEntities);
             }
 
             return Promise.resolve();
+        },
+
+        setItems(collection) {
+            const visibleValues = [];
+            const selectedIds = [];
+
+            collection.forEach((entity) => {
+                visibleValues.push(entity);
+                selectedIds.push(entity[this.valueProperty]);
+            });
+
+            this.visibleValues = visibleValues;
+            this.selectedIds = selectedIds;
+
+            this.$emit('input', this.selectedIds);
         },
 
         loadVisibleItems() {

@@ -61,12 +61,12 @@ export default class ChangesetGenerator {
 
                 const equals = originValueStringified === draftValueStringified;
 
-                if (!equals && Array.isArray(draftValue) && draftValue.length <= 0) {
-                    changes[fieldName] = null;
-                    return;
-                }
-
                 if (!equals) {
+                    if (Array.isArray(draftValue) && draftValue.length <= 0) {
+                        changes[fieldName] = [];
+                        return;
+                    }
+
                     changes[fieldName] = draftValue;
                 }
 

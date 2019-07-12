@@ -68,7 +68,9 @@
             "labelCode" : "General promotion code",
             "placeholderCode": "Enter promotion code...",
             "switchUseCodes" : "Promotion code required"
-          }
+          },
+          "labelPromotionExclusions": "Do not combine with",
+          "placeholderPromotionExclusions": "Add promotion ..."
         },
         "preconditions": {
           "ruleModuleLink": "Open rule builder",

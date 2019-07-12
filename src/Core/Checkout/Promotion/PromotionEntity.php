@@ -112,6 +112,11 @@ class PromotionEntity extends Entity
      */
     protected $ordersPerCustomerCount;
 
+    /**
+     * @var string[]
+     */
+    protected $exclusionIds;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -340,6 +345,20 @@ class PromotionEntity extends Entity
     public function setTranslations(PromotionTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getExclusionIds(): array
+    {
+        if ($this->exclusionIds === null) {
+            return [];
+        }
+
+        return $this->exclusionIds;
+    }
+
+    public function setExclusionIds(array $exclusionIds): void
+    {
+        $this->exclusionIds = $exclusionIds;
     }
 
     /**

@@ -206,8 +206,17 @@ class PromotionCollector implements CartDataCollectorInterface
     {
         $eligiblePromotions = [];
 
+        // array that holds all excluded promotion ids.
+        // if a promotion has exclusions they are added on the stack
+        $exclusions = [];
+
         /** @var PromotionEntity $promotion */
         foreach ($promotions as $promotion) {
+            // if promotion is on exclusions stack it is ignored
+            if (isset($exclusions[$promotion->getId()])) {
+                continue;
+            }
+
             if (!$promotion->isOrderCountValid()) {
                 continue;
             }
@@ -219,6 +228,11 @@ class PromotionCollector implements CartDataCollectorInterface
             // check if no discounts have been set
             if (!$promotion->hasDiscount()) {
                 continue;
+            }
+
+            // add all exclusions to the stack
+            foreach ($promotion->getExclusionIds() as $id) {
+                $exclusions[$id] = true;
             }
 
             $eligiblePromotions[] = $promotion;

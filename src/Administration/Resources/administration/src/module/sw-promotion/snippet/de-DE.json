@@ -68,8 +68,10 @@
             "card" : "Aktionscodes",
             "labelCode" : "Allgemeiner Aktionscode",
             "placeholderCode": "Gib einen Code für die Rabattaktion an ...",
-            "switchUseCodes" : "Aktionscode verwenden"
-          }
+            "switchUseCodes" : "Aktionscodes verwenden"
+          },
+          "labelPromotionExclusions": "Nicht kombinieren mit",
+          "placeholderPromotionExclusions": "Aktion hinzufügen ..."
         },
         "preconditions": {
           "ruleModuleLink": "Regelmodul öffnen",

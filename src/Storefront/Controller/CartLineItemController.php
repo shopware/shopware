@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
+use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,14 +43,21 @@ class CartLineItemController extends StorefrontController
      */
     private $productRepository;
 
+    /**
+     * @var ProductLineItemFactory
+     */
+    private $productLineItemFactory;
+
     public function __construct(
         CartService $cartService,
         SalesChannelRepositoryInterface $productRepository,
-        PromotionItemBuilder $promotionItemBuilder
+        PromotionItemBuilder $promotionItemBuilder,
+        ProductLineItemFactory $productLineItemFactory
     ) {
         $this->cartService = $cartService;
         $this->productRepository = $productRepository;
         $this->promotionItemBuilder = $promotionItemBuilder;
+        $this->productLineItemFactory = $productLineItemFactory;
     }
 
     /**
@@ -188,13 +196,18 @@ class CartLineItemController extends StorefrontController
         }
 
         $productId = array_shift($data);
-        $request->request->add([
-            'lineItems' => [
-                ['id' => $productId, 'quantity' => 1, 'type' => 'product'],
-            ],
-        ]);
 
-        return $this->forwardToRoute('frontend.checkout.line-item.add');
+        $product = $this->productLineItemFactory->create($productId);
+
+        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+
+        $cart = $this->cartService->add($cart, $product, $salesChannelContext);
+
+        if (!$this->traceErrors($cart)) {
+            $this->addFlash('success', $this->trans('checkout.addToCartSuccess', ['%count%' => 1]));
+        }
+
+        return $this->createActionResponse($request);
     }
 
     /**

@@ -27,11 +27,11 @@ Component.register('sw-first-run-wizard-finish', {
     },
 
     created() {
-        this.createdComponet();
+        this.createdComponent();
     },
 
     methods: {
-        createdComponet() {
+        createdComponent() {
             const language = this.$store.state.adminLocale.currentLocale;
 
             this.firstRunWizardService.getLicenseDomains({

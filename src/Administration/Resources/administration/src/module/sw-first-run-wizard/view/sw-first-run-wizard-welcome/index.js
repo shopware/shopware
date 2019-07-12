@@ -6,7 +6,13 @@ import './sw-first-run-wizard-welcome.scss';
 Component.register('sw-first-run-wizard-welcome', {
     template,
 
-    inject: ['languagePluginService', 'userService', 'loginService', 'repositoryFactory', 'context'],
+    inject: [
+        'languagePluginService',
+        'userService',
+        'loginService',
+        'repositoryFactory',
+        'context'
+    ],
 
     data() {
         return {
@@ -147,7 +153,7 @@ Component.register('sw-first-run-wizard-welcome', {
             languageCriteria.addAssociation('locale');
             languageCriteria.addSorting(Criteria.sort('locale.name', 'ASC'));
             languageCriteria.addSorting(Criteria.sort('locale.territory', 'ASC'));
-            languageCriteria.limit = 500;
+            languageCriteria.limit = 10;
 
             return this.languageRepository.search(languageCriteria, this.context).then((result) => {
                 this.languages = [];

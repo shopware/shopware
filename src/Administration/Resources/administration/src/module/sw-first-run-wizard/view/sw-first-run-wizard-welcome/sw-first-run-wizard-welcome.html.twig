@@ -25,6 +25,7 @@
                       variant="small"
                       :title="$tc('sw-first-run-wizard.welcome.switch-language-modal-title')"
                       class="sw-first-run-wizard-confirm-language-switch-modal">
+
                 {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_text %}
                     <p>{{ $tc('sw-first-run-wizard.welcome.switch-language-message', {}, { pluginName: latestTouchedPlugin.name }) }}</p>
                     <sw-select-field
@@ -34,7 +35,7 @@
                         <option v-for="language in languages"
                                 :value="language.locale.id"
                                 :selected="user.localeId === language.locale.id">
-                        {{ language.customLabel }}
+                            {{ language.customLabel }}
                         </option>
                     </sw-select-field>
                 {% endblock %}

@@ -107,15 +107,34 @@ Component.register('sw-order-line-items-grid', {
                     // The item is a custom item
                     if (item.type === '') {
                         // This item is based on a product
-                        resolve(this.orderService.addProductToOrder(this.order.id,
+                        this.orderService.addProductToOrder(
+                            this.order.id,
                             this.order.versionId,
                             item.identifier,
-                            item.quantity));
+                            item.quantity
+                        ).then((lineItem) => {
+                            this.$emit('item-edited');
+                            resolve(lineItem);
+                        });
                     } else if (item.type === 'credit') {
-                        resolve(this.orderService.addCreditItemToOrder(this.order.id, this.order.versionId, item));
+                        this.orderService.addCreditItemToOrder(
+                            this.order.id,
+                            this.order.versionId,
+                            item
+                        ).then((lineItem) => {
+                            this.$emit('item-edited');
+                            resolve(lineItem);
+                        });
                     } else {
                         // This item not based on an existing product (blank item)
-                        resolve(this.orderService.addCustomLineItemToOrder(this.order.id, this.order.versionId, item));
+                        this.orderService.addCustomLineItemToOrder(
+                            this.order.id,
+                            this.order.versionId,
+                            item
+                        ).then((lineItem) => {
+                            this.$emit('item-edited');
+                            resolve(lineItem);
+                        });
                     }
                 } else {
                     this.$emit('item-edited');
@@ -133,7 +152,8 @@ Component.register('sw-order-line-items-grid', {
             item.versionId = this.order.versionId;
             item.priceDefinition = {
                 isCalculated: false,
-                taxRules: [{ taxRate: 0, percentage: 100 }]
+                taxRules: [{ taxRate: 0, percentage: 100 }],
+                price: 0
             };
             item.price = {
                 taxRules: [{ taxRate: 0 }]

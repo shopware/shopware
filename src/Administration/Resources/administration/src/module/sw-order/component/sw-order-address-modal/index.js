@@ -12,7 +12,8 @@ Component.register('sw-order-address-modal', {
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder')
     ],
 
     props: {
@@ -101,9 +102,6 @@ Component.register('sw-order-address-modal', {
 
         onClose() {
             this.$emit('reset');
-            this.$nextTick(() => {
-                this.$emit('close');
-            });
         },
 
         onSave() {

@@ -1,6 +1,7 @@
 import { Module } from 'src/core/shopware';
 import './page/sw-order-list';
 import './page/sw-order-detail';
+import './view/sw-order-detail-base';
 import './component/sw-order-line-items-grid';
 import './component/sw-order-delivery-metadata';
 import './component/sw-order-product-select';

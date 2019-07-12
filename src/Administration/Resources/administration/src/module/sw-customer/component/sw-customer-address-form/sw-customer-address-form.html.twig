@@ -24,7 +24,6 @@
                                       v-model="address.salutationId"
                                       :error="addressSalutationIdError"
                                       required
-                                      :error="addressSalutationIdError"
                                       validation="required">
                                 <option v-for="salutation in salutations" :key="salutation.id" :value="salutation.id">
                                     {{ salutation.translated.displayName }}

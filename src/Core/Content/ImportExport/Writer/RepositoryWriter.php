@@ -31,7 +31,7 @@ class RepositoryWriter implements WriterInterface
      */
     private $identityField;
 
-    public function __construct(EntityRepositoryInterface $repository, Context $context, string $identityField = null)
+    public function __construct(EntityRepositoryInterface $repository, Context $context, ?string $identityField = null)
     {
         $this->repository = $repository;
         $this->context = $context;

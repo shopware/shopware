@@ -17,7 +17,7 @@ class Migration1562683944ImportExportProfileIdentifierFields extends MigrationSt
     {
         $identifierByEntity = [
             'customer' => 'customerNumber',
-            'product' => 'productNumber'
+            'product' => 'productNumber',
         ];
 
         $profiles = $connection->fetchAll('SELECT id, source_entity, mapping FROM import_export_profile');
@@ -35,10 +35,10 @@ class Migration1562683944ImportExportProfileIdentifierFields extends MigrationSt
                 'import_export_profile',
                 [
                     'mapping' => json_encode($mapping),
-                    'updated_at' => date(Defaults::STORAGE_DATE_FORMAT)
+                    'updated_at' => date(Defaults::STORAGE_DATE_FORMAT),
                 ],
                 [
-                    'id' => $profile['id']
+                    'id' => $profile['id'],
                 ]
             );
         }

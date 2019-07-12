@@ -3,7 +3,7 @@ import utils from 'src/core/service/util.service';
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
-const { mapState, mapGetters } = Component.getComponentHelper();
+const { mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-product-media-form', {
     template,
@@ -19,6 +19,12 @@ Component.register('sw-product-media-form', {
         },
 
         disabled: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        isInherited: {
             type: Boolean,
             required: false,
             default: false
@@ -44,25 +50,20 @@ Component.register('sw-product-media-form', {
                 if (translatedIndex >= 0) {
                     changes.splice(translatedIndex, 1);
                 }
-
-                if (changes.length > 0) {
-                    if (!this.localMode) {
-                        this.product.save();
-                    }
-                }
             }, 500)
         }
     },
 
     computed: {
-        ...mapState('swProductDetail', [
-            'localMode',
-            'parentProduct'
-        ]),
+        productFromStore() {
+            const state = this.$store.state.swProductDetail;
 
-        ...mapState('swProductDetail', {
-            productFromStore: state => state.product
-        }),
+            if (this.isInherited) {
+                return state.parentProduct;
+            }
+
+            return state.product;
+        },
 
         ...mapGetters('swProductDetail', {
             isStoreLoading: 'isLoading'
@@ -153,7 +154,14 @@ Component.register('sw-product-media-form', {
         },
 
         addMediaWithId(mediaId) {
-            if (this.product.media.find(media => media.mediaId === mediaId)) {
+            const foundMedia = this.product.media.find(media => media.mediaId === mediaId);
+            if (foundMedia) {
+                // check if media exists in productFromStore
+                const mediaProductFromStore = this.productFromStore.media.find((media) => media.mediaId === mediaId);
+                if (!mediaProductFromStore) {
+                    this.$emit('media-drop', foundMedia);
+                }
+
                 return Promise.resolve();
             }
 
@@ -165,13 +173,19 @@ Component.register('sw-product-media-form', {
                     // set mediaId
                     responseMedia.setData({ mediaId: responseMedia.id });
 
+                    // push it to existing product
+                    this.product.media.push(responseMedia);
+
                     // set first item as cover
-                    if (this.product.media.length <= 0) {
+                    if (!this.productFromStore.coverId) {
                         this.markMediaAsCover(responseMedia);
                     }
 
-                    // push it to existing product
-                    this.product.media.push(responseMedia);
+                    // check if media exists in productFromStore
+                    const mediaProductFromStore = this.productFromStore.media.find((media) => media.mediaId === mediaId);
+                    if (!mediaProductFromStore) {
+                        this.$emit('media-drop', responseMedia);
+                    }
 
                     resolve();
                 });
@@ -179,53 +193,42 @@ Component.register('sw-product-media-form', {
         },
 
         loadMedia() {
-            if (this.localMode) {
-                this.isMediaLoading = true;
+            this.isMediaLoading = true;
 
-                // create new empty product
-                this.product = this.productStore.create();
+            // create new empty product
+            this.product = this.productStore.create();
 
-                // get existing media from vuex store
-                const existingCoverId = this.productFromStore.coverId || '';
-                const mediaItemsFromStore = this.productFromStore.media;
+            // get existing media from vuex store
+            const existingCoverId = this.productFromStore.coverId || '';
+            const mediaItemsFromStore = this.productFromStore.media;
 
-                // add cover to product
-                this.product.coverId = existingCoverId;
+            // add cover to product
+            this.product.coverId = existingCoverId;
 
-                const mediaPromises = mediaItemsFromStore.map((media) => {
-                    return new Promise((resolve) => {
-                        // get media
-                        this.mediaStore.getByIdAsync(media.mediaId).then((res) => {
-                            const responseMedia = res;
+            const mediaPromises = mediaItemsFromStore.map((media) => {
+                return new Promise((resolve) => {
+                    // get media
+                    this.mediaStore.getByIdAsync(media.mediaId).then((res) => {
+                        const responseMedia = res;
 
-                            // set mediaId
-                            responseMedia.setData({ mediaId: responseMedia.id });
-
-                            // push it to existing product
-                            this.product.media.push(responseMedia);
-                            resolve();
+                        // set mediaId
+                        responseMedia.setData({
+                            id: media.id,
+                            mediaId: responseMedia.id
                         });
+
+                        // push it to existing product
+                        this.product.media.push(responseMedia);
+                        resolve();
                     });
                 });
-
-                // get all media items from api
-                Promise.all(mediaPromises).then(() => {
-                    this.isMediaLoading = false;
-                    this.updateColumnCount();
-                });
-
-                return true;
-            }
-
-            this.isMediaLoading = true;
-            this.product = this.productStore.getById(this.productId);
-            this.product.getAssociation('media').getList({
-                page: 1,
-                limit: 50,
-                sortBy: 'position',
-                sortDirection: 'ASC'
             });
-            this.isMediaLoading = false;
+
+            // get all media items from api
+            Promise.all(mediaPromises).then(() => {
+                this.isMediaLoading = false;
+                this.updateColumnCount();
+            });
 
             return true;
         },
@@ -278,15 +281,6 @@ Component.register('sw-product-media-form', {
 
             this.product.isLoading = true;
             this.mediaStore.sync().then(() => {
-                data.forEach((upload) => {
-                    if (this.productMedia.some((pMedia) => {
-                        return pMedia.mediaId === upload.targetId;
-                    })) {
-                        return;
-                    }
-
-                    this.product.media.push(this.buildProductMedia(upload.targetId));
-                });
                 this.product.isLoading = false;
 
                 this.uploadStore.runUploads(this.product.id);
@@ -333,23 +327,22 @@ Component.register('sw-product-media-form', {
         },
 
         removeFile(mediaItem) {
-            const key = mediaItem.id;
-            const item = this.product.media.find((e) => {
-                return e.id === key;
-            });
-
-            this.product.media = this.product.media.filter((e) => e.id !== key && e !== key);
-            if (this.isCover(item)) {
-                if (this.product.media.length === 0) {
-                    this.product.coverId = null;
-                } else {
-                    this.product.coverId = this.product.media[0].id;
-                }
-            }
-
+            this.product.media = this.product.media.filter((m) => m.id !== mediaItem.id);
             this.productFromStore.media.remove(mediaItem.id);
 
+            this.removeCover();
+
             return true;
+        },
+
+        removeCover() {
+            this.productFromStore.coverId = null;
+
+            // if another media exists
+            if (this.productFromStore.media.length > 0) {
+                // set first media item as cover
+                this.productFromStore.coverId = this.productFromStore.media[0].id;
+            }
         },
 
         isCover(productMedia) {
@@ -357,19 +350,16 @@ Component.register('sw-product-media-form', {
                 return productMedia.isCover;
             }
 
-            if (this.product.coverId === null) {
-                this.product.coverId = productMedia.id;
+            if (this.productFromStore.coverId === null && this.productFromStore.media.length > 0) {
+                this.productFromStore.coverId = productMedia.id;
             }
 
-            return this.product.coverId === productMedia.id;
+            return this.productFromStore.coverId === productMedia.id;
         },
 
         markMediaAsCover(productMedia) {
-            if (this.localMode) {
-                this.productFromStore.coverId = productMedia.id;
-            }
             this.product.coverId = productMedia.id;
-            this.$emit('cover-change', productMedia.id);
+            this.productFromStore.coverId = productMedia.id;
         },
 
         onDropMedia(dragData) {

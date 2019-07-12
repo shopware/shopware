@@ -5,6 +5,12 @@
         max-width: 1030px !important;
     }
 
+    .sw-modal__header {
+        .sw-modal__close {
+            visibility: hidden;
+        }
+    }
+
     .sw-modal__body {
         overflow-y: hidden !important;
     }

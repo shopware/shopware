@@ -1737,4 +1737,118 @@ class EntityReaderTest extends TestCase
         $product = $products->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
     }
+
+    public function testBidirectionalAssociations(): void
+    {
+        $parentId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $productsPayload = [
+            [
+                'id' => $parentId,
+                'manufacturer' => ['name' => 'test'],
+                'productNumber' => Uuid::randomHex(),
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
+                'stock' => 1,
+                'name' => 'red',
+            ],
+            [
+                'id' => Uuid::randomHex(),
+                'manufacturer' => ['name' => 'test'],
+                'productNumber' => Uuid::randomHex(),
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
+                'stock' => 1,
+                'parentId' => $parentId,
+                'name' => 'blue',
+            ],
+        ];
+
+        $this->productRepository->create($productsPayload, $context);
+
+        $criteria = new Criteria([$parentId]);
+        $criteria->addAssociation('children');
+        /** @var ProductEntity $parentProduct */
+        $parentProduct = $this->productRepository->search($criteria, $context)->first();
+
+        static::assertNotNull($parentProduct->getChildren()->first()->getParent());
+    }
+
+    public function testBidirectionalAssociations2(): void
+    {
+        $parentId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $productsPayload = [
+            [
+                'id' => $parentId,
+                'manufacturer' => ['name' => 'test'],
+                'productNumber' => Uuid::randomHex(),
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
+                'stock' => 1,
+                'name' => 'red',
+            ],
+            [
+                'id' => Uuid::randomHex(),
+                'manufacturer' => ['name' => 'test'],
+                'productNumber' => Uuid::randomHex(),
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
+                'stock' => 1,
+                'parentId' => $parentId,
+                'name' => 'blue',
+            ],
+        ];
+
+        $this->productRepository->create($productsPayload, $context);
+
+        $criteria = new Criteria([$parentId]);
+        $criteria->addAssociation('children');
+        $criteria->addAssociation('children.parent');
+        /** @var ProductEntity $parentProduct */
+        $parentProduct = $this->productRepository->search($criteria, $context)->first();
+
+        static::assertSame($parentProduct, $parentProduct->getChildren()->first()->getParent());
+    }
+
+    public function testBidirectionalAssociations3(): void
+    {
+        $parentId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $productsPayload = [
+            [
+                'id' => $parentId,
+                'manufacturer' => ['name' => 'test'],
+                'productNumber' => Uuid::randomHex(),
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
+                'stock' => 1,
+                'name' => 'red',
+            ],
+            [
+                'id' => Uuid::randomHex(),
+                'manufacturer' => ['name' => 'test'],
+                'productNumber' => Uuid::randomHex(),
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
+                'stock' => 1,
+                'parentId' => $parentId,
+                'name' => 'blue',
+            ],
+        ];
+
+        $this->productRepository->create($productsPayload, $context);
+
+        $criteria = new Criteria([$parentId]);
+        $criteria->addAssociation('children');
+        $criteria->addAssociationPath('children.parent');
+        $criteria->addAssociationPath('children.parent.children');
+        /** @var ProductEntity $parentProduct */
+        $parentProduct = $this->productRepository->search($criteria, $context)->first();
+
+        static::assertNotNull($parentProduct->getChildren()->first()->getParent()->getChildren());
+    }
 }

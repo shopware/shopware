@@ -364,7 +364,6 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _setButtonDisabledState(el) {
         el.classList.add('disabled');
-
         el.disabled = true;
 
         this.$emitter.publish('setButtonDisabledState');
@@ -377,7 +376,6 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _unsetButtonDisabledState(el) {
         el.classList.remove('disabled');
-
         el.disabled = false;
 
         this.$emitter.publish('unsetButtonDisabledState');
@@ -414,7 +412,7 @@ export default class ImageZoomPlugin extends Plugin {
         this._getElementSizes();
 
         if (this._imageSize.x === 0 || this._imageSize.y === 0) {
-            return 0;
+            return 1;
         }
 
         const max = this._imageMaxSize.divide(this._imageSize);

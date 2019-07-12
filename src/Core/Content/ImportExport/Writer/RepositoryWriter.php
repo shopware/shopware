@@ -85,7 +85,7 @@ class RepositoryWriter implements WriterInterface
         }
 
         foreach ($this->buffer as $key => $record) {
-            if (isset($idMap[$record[$this->identityField]])) {
+            if (isset($record[$this->identityField]) && isset($idMap[$record[$this->identityField]])) {
                 $this->buffer[$key]['id'] = $idMap[$record[$this->identityField]];
             }
         }

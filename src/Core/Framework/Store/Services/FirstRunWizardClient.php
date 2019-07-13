@@ -4,6 +4,11 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
 use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException;
@@ -20,6 +25,9 @@ use Shopware\Core\Framework\Store\Struct\PluginRegionStruct;
 use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
 use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Theme\ThemeEntity;
+use Shopware\Storefront\Theme\ThemeLifecycleService;
+use Shopware\Storefront\Theme\ThemeService;
 
 final class FirstRunWizardClient
 {
@@ -55,8 +63,43 @@ final class FirstRunWizardClient
      */
     private $frwAutoRun;
 
-    public function __construct(StoreService $storeService, SystemConfigService $configService, FilesystemInterface $filesystem, bool $frwAutoRun = false)
-    {
+    /**
+     * @var ThemeService
+     */
+    private $themeService;
+
+    /**
+     * @var ThemeLifecycleService
+     */
+    private $themeLifecycleService;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $themeRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $salesChannelRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $themeSalesChannelRepository;
+
+    public function __construct(
+        StoreService $storeService,
+        SystemConfigService $configService,
+        FilesystemInterface $filesystem,
+        bool $frwAutoRun,
+
+        ThemeService $themeService,
+        ThemeLifecycleService $themeLifecycleService,
+        EntityRepositoryInterface $themeRepository,
+        EntityRepositoryInterface $themeSalesChannelRepository,
+        EntityRepositoryInterface $salesChannelRepository
+    ) {
         $this->storeService = $storeService;
         $this->client = $this->storeService->createClient();
 
@@ -64,6 +107,13 @@ final class FirstRunWizardClient
         $this->filesystem = $filesystem;
 
         $this->frwAutoRun = $frwAutoRun;
+
+        $this->themeService = $themeService;
+        $this->themeLifecycleService = $themeLifecycleService;
+
+        $this->themeRepository = $themeRepository;
+        $this->salesChannelRepository = $salesChannelRepository;
+        $this->themeSalesChannelRepository = $themeSalesChannelRepository;
     }
 
     public function startFrw(): void
@@ -124,8 +174,16 @@ final class FirstRunWizardClient
         return $accessTokenStruct;
     }
 
-    public function finishFrw(bool $failed): void
+    public function finishFrw(bool $failed, Context $context): void
     {
+        $currentState = $this->getFrwState();
+        try {
+            if ($currentState->isOpen()) {
+                $this->installDefaultThemes($context);
+            }
+        } catch (\Exception $e) {
+        }
+
         if ($failed) {
             $this->setFrwStatus(FrwState::failedState());
 
@@ -298,6 +356,30 @@ final class FirstRunWizardClient
         $this->configService->set(StoreService::CONFIG_KEY_STORE_LICENSE_EDITION, $existing->getEdition());
 
         return $existing;
+    }
+
+    private function installDefaultThemes(Context $context): void
+    {
+        $this->themeLifecycleService->refreshThemes($context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
+        /** @var ThemeEntity|null $theme */
+        $theme = $this->themeRepository->search($criteria, $context)->first();
+        if (!$theme) {
+            throw new \RuntimeException('Default theme not found');
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+        $salesChannelIds = $this->salesChannelRepository->search($criteria, $context)->getIds();
+        foreach ($salesChannelIds as $id) {
+            $this->themeService->compileTheme($id, $theme->getId(), $context);
+            $this->themeSalesChannelRepository->upsert([[
+                'themeId' => $theme->getId(),
+                'salesChannelId' => $id,
+            ]], $context);
+        }
     }
 
     private function setFrwStatus(FrwState $newState): void

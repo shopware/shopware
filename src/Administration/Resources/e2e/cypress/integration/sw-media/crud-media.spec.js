@@ -61,7 +61,7 @@ describe('Media: Test crud operations', () => {
         });
     });
 
-    it('@p delete medium', () => {
+    it.skip('@p delete medium', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later

@@ -1,5 +1,5 @@
 {% block sw_order_detail %}
-    <sw-page class="sw-order-detail" v-if="order">
+    <sw-page class="sw-order-detail" v-if="orderId">
 
         {% block sw_order_detail_header %}
             <template slot="smart-bar-header">
@@ -51,157 +51,33 @@
         {% block sw_order_detail_content %}
             <sw-card-view slot="content">
 
-                {% block sw_order_detail_base_leave_page_modal %}
-                    <sw-order-leave-page-modal v-if="isDisplayingLeavePageWarning"
-                                               @page-leave-cancel="onLeaveModalClose"
-                                               @page-leave-confirm="onLeaveModalConfirm">
-                    </sw-order-leave-page-modal>
-                {% endblock %}
-
-                {% block sw_order_detail_base__user_card %}
-                    <sw-order-user-card :key="isEditing"
-                                        :currentOrder="order"
-                                        :versionContext="versionContext"
-                                        :isLoading = "isLoading"
-                                        :isEditing = "isEditing"
-                                        @order-change="saveAndReload"
-                                        @order-reset="recalculateAndReload"
-                                        @error="$emit('error',$event)">
-                        {% block  sw_order_detail_base_overview_status_change %}
-                        <sw-container v-if="!isEditing"
-                                      slot="additional-actions"
-                                      columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
-                                      gap="0 15px">
-                            {% block sw_order_detail_base_status_change_transaction %}
-                            <sw-order-state-select
-                                    v-if="!isLoading"
-                                    class="sw-order-state-select__payment-state"
-                                    :transitionOptions="transactionOptions"
-                                    roundedStyle
-                                    @state-select="onQuickTransactionStatusChange"
-                                    :placeholder="transactionOptionPlaceholder"
-                                    :backgroundStyle="transactionOptionsBackground">
-                            </sw-order-state-select>
-                            {% endblock %}
-
-                            {% block sw_order_detail_base_status_change_order %}
-                            <sw-order-state-select
-                                    v-if="!isLoading"
-                                    class="sw-order-state-select__order-state"
-                                    :transitionOptions="orderOptions"
-                                    roundedStyle
-                                    @state-select="onQuickOrderStatusChange"
-                                    :placeholder="orderOptionPlaceholder"
-                                    :backgroundStyle="orderOptionsBackground">
-                            </sw-order-state-select>
-                            {% endblock %}
-                        </sw-container>
+                {% block sw_order_detail_content_tabs %}
+                    <sw-tabs v-if="showTabs" class="sw-order-detail__tabs">
+                        {% block sw_order_detail_content_tabs_general %}
+                            <sw-tabs-item :route="{ name: 'sw.order.detail.base', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-order.detail.tabGeneral')">
+                                {{ $tc('sw-order.detail.tabGeneral') }}
+                            </sw-tabs-item>
                         {% endblock %}
-                    </sw-order-user-card>
+                    </sw-tabs>
                 {% endblock %}
 
-
-                {% block sw_order_detail_base_line_items_card %}
-                <sw-card :title="$tc('sw-order.detailBase.cardTitleLineItems')"
-                         :isLoading="isLoading"
-                         class="sw-order-detail-base__line-item-grid-card">
-                    {% block sw_order_detail_base_line_items_card_rows %}
-                        <sw-container isLoading="isLoading"
-                                      slot="grid"
-                                      type="row">
-                            {% block sw_order_detail_base_line_items_grid %}
-                                <sw-order-line-items-grid :order="order"
-                                                          :context="versionContext"
-                                                          :editable="isEditing"
-                                                          ref="sw-order-line-item-grid"
-                                                          @item-deleted="saveAndRecalculate"
-                                                          @item-edited="saveAndRecalculate"
-                                                          @item-added="recalculateAndReload"
-                                                          @item-cancel="recalculateAndReload">
-                                </sw-order-line-items-grid>
-                            {% endblock %}
-                            {% block sw_order_detail_base_line_items_summary %}
-                                <sw-card-section divider="top" secondary slim>
-                                    <sw-container columns="1fr 440px"
-                                                  class="sw-order-detail__summary">
-                                        <sw-description-list columns="265px 1fr"
-                                                             class="sw-order-detail__summary-data">
-                                            {% block sw_order_detail_base_line_items_summary_entries %}
-                                                {% block sw_order_detail_base_line_items_summary_amount %}
-                                                    <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
-                                                    <dd>{{ order.positionPrice | currency(order.currency.translated.shortName) }}</dd>
-                                                {% endblock %}
-
-                                                {% block sw_order_detail_base_line_items_summary_shipping_cost %}
-                                                    <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
-                                                    <dd>
-                                                        <sw-order-saveable-field type="number"
-                                                            v-tooltip="{showDelay: 300, message: shippingCostsDetail}"
-                                                            :editable="isEditing"
-                                                            :value="delivery.shippingCosts.unitPrice"
-                                                            @value-change="onShippingChargeEdited">
-                                                                {{ delivery.shippingCosts.unitPrice | currency(order.currency.translated.shortName) }}
-                                                        </sw-order-saveable-field>
-                                                    </dd>
-                                                {% endblock %}
-
-                                                {% block sw_order_detail_base_line_items_summary_amount_without_tax %}
-                                                    <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                                                    <dd><strong>{{ order.amountNet | currency(order.currency.translated.shortName) }}</strong></dd>
-                                                {% endblock %}
-
-                                                {% block sw_order_detail_base_line_items_summary_taxes %}
-                                                    <template v-for="calculatedTax in sortedCalculatedTaxes">
-                                                        <dt>{{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}</dt>
-                                                        <dd>{{ calculatedTax.tax | currency(order.currency.translated.shortName) }}</dd>
-                                                    </template>
-                                                {% endblock %}
-
-                                                {% block sw_order_detail_base_line_items_summary_slot %}
-                                                {% endblock %}
-
-                                                {% block sw_order_detail_base_line_items_summary_amount_total %}
-                                                    <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                                                    <dd><strong>{{ order.amountTotal | currency(order.currency.shortName) }}</strong></dd>
-                                                {% endblock %}
-                                            {% endblock %}
-                                        </sw-description-list>
-                                    </sw-container>
-                                </sw-card-section>
-                            {% endblock %}
-                        </sw-container>
-                    {% endblock %}
-                </sw-card>
+                {% block sw_order_detail_content_view %}
+                    <router-view
+{#                                  TODO: check if customFieldSets are needed#}
+{#                            :customFieldSets="customFieldSets"#}
+                            :orderId="orderId"
+                            ref="baseComponent"
+                            :isEditing="isEditing"
+                            :isLoading="isLoading"
+                            :isSaveSuccessful="isSaveSuccessful"
+                            @identifier-change="updateIdentifier"
+                            @loading-change="onUpdateLoading"
+                            @editing-change="onUpdateEditing"
+                            @error="onError">
+                    </router-view>
                 {% endblock %}
 
-                {% block sw_order_detail_base_status_card %}
-                    <sw-order-state-history-card v-if="!isEditing"
-                                                 :title="$tc('sw-order.stateCard.cardTitle')"
-                                                 :isLoading="isLoading"
-                                                 :order="order"
-                                                 @order-state-change="reloadEntityData"
-                                                 @options-change="onStateTransitionOptionsChanged"
-                                                 ref="state-card">
-                    </sw-order-state-history-card>
-                {% endblock %}
-
-                {% block sw_order_detail_delivery_metadata %}
-                    <sw-order-delivery-metadata class="sw-order-delivery-metadata"
-                                                :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: ' '})"
-                                                :isLoading="isLoading"
-                                                :order="order"
-                                                :delivery="order.deliveries[0]">
-                    </sw-order-delivery-metadata>
-                {% endblock %}
-
-                {% block sw_order_detail_base_document_grid %}
-                    <sw-order-document-card v-if="!isEditing"
-                                            class="sw-order-detail-base__document-grid"
-                                            :order="order"
-                                            @document-save="saveAndReload"
-                                            :isLoading="isLoading">
-                    </sw-order-document-card>
-                {% endblock %}
             </sw-card-view>
         {% endblock %}
 

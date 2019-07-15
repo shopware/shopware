@@ -10,8 +10,7 @@
                                     :order="currentOrder"
                                     :versionContext="versionContext"
                                     @address-select="onAddressModalAddressSelected"
-                                    @close="onAddressModalClose"
-                                    @reset="$emit('order-reset')"
+                                    @reset="onResetOrder"
                                     @save="onAddressModalSave"
                                     @error="$emit('error')">
             </sw-order-address-modal>

@@ -129,14 +129,17 @@ Component.register('sw-order-user-card', {
             }
         },
 
-        onAddressModalClose() {
-            this.addressBeingEdited = null;
-        },
-
         onAddressModalSave() {
             this.addressBeingEdited = null;
             this.$nextTick(() => {
                 this.emitChange();
+            });
+        },
+
+        onResetOrder() {
+            this.addressBeingEdited = null;
+            this.$nextTick(() => {
+                this.$emit('order-reset');
             });
         },
 

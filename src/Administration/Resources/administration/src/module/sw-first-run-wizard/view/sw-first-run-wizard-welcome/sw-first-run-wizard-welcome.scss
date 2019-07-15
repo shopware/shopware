@@ -34,3 +34,7 @@
 .sw-first-run-wizard-confirmLanguageSwitch-modal {
     z-index: 1002 !important;
 }
+
+.sw-first-run-wizard-modal .sw-first-run-wizard-modal-content .sw-first-run-wizard-modal-content__page {
+    position: unset;
+}

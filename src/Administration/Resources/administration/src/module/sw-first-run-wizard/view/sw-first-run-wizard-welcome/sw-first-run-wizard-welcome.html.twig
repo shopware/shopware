@@ -10,6 +10,8 @@
 
         <h5 class="text-change-language">{{ $tc('sw-first-run-wizard.welcome.headlineChangeLanguage') }}</h5>
 
+        <sw-loader v-if="isLoading"></sw-loader>
+
         <sw-container columns="1fr 1fr" gap="24px 0">
             <sw-plugin-card v-for="languagePlugin in languagePlugins"
                             :key="languagePlugin.name"

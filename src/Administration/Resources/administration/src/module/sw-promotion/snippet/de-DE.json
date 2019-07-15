@@ -81,8 +81,15 @@
             "text": "Nutze Regeln aus dem Rule Builder, um die Zielgruppe dieser Marketingaktion einzugrenzen. Ohne eine Eingrenzung haben alle Deine Kunden Zugriff auf diese Aktion.",
             "labelRules": "Kundenregeln",
             "placeholderRules": "Regel hinzufügen ...",
-            "labelCustomers": "Individuelle Kunden zuweisen",
-            "placeholderCustomers": "Kunden hinzufügen ..."
+            "switchAssignCustomers": "Aktion einzelnen Kunden zuweisen",
+            "placeholderAddCustomers": "Kunden durchsuchen und hinzufügen...",
+            "customers" : {
+               "grid": {
+                 "headerName": "Name",
+                 "headerCustomerNumber" : "Kundennummer",
+                 "delete" : "Entfernen"
+               }
+            }
           },
           "order": {
             "card": "Qualifizierte Bestellungen",

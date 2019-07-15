@@ -63,6 +63,15 @@ class PromotionEntity extends Entity
     protected $useCodes;
 
     /**
+     * stores if the persona condition uses
+     * rules or customer assignments.
+     * default modes is "use rules".
+     *
+     * @var bool
+     */
+    protected $customerRestriction = false;
+
+    /**
      * @var PromotionSalesChannelCollection|null
      */
     protected $salesChannels;
@@ -245,6 +254,24 @@ class PromotionEntity extends Entity
     }
 
     /**
+     * Gets if the persona condition is based on
+     * direct customer restrictions or on persona rules.
+     */
+    public function isCustomerRestriction(): bool
+    {
+        return $this->customerRestriction;
+    }
+
+    /**
+     * Sets if the persona condition is based on
+     * a direct customer restriction or on persona rules.
+     */
+    public function setCustomerRestriction(bool $customerRestriction): void
+    {
+        $this->customerRestriction = $customerRestriction;
+    }
+
+    /**
      * Gets a list of "order" related rules that need to
      * be valid for this promotion.
      */
@@ -374,51 +401,43 @@ class PromotionEntity extends Entity
             []
         );
 
-        $personasFound = false;
-        $personaOR = new OrRule();
+        // first check if we either restrict our persona
+        // with direct customer assignments or with persona rules
+        if ($this->isCustomerRestriction()) {
+            // we use assigned customers
+            // check if we have customers.
+            // if so, create customer rules for it and add that also as
+            // a separate OR condition to our main persona rule
+            if ($this->getPersonaCustomers() !== null) {
+                $personaCustomerOR = new OrRule();
 
-        // check if we have persona rules and add them
-        // to our persona OR as a separate OR rule with all configured rules
-        if ($this->getPersonaRules() !== null && count($this->getPersonaRules()->getElements()) > 0) {
-            $personaRuleOR = new OrRule();
+                /* @var CustomerEntity $ruleEntity */
+                foreach ($this->getPersonaCustomers()->getElements() as $customer) {
+                    // build our new rule for this
+                    // customer and his/her customer number
+                    $custRule = new CustomerNumberRule();
+                    $custRule->assign(['numbers' => [$customer->getCustomerNumber()], 'operator' => CustomerNumberRule::OPERATOR_EQ]);
 
-            /** @var RuleEntity $ruleEntity */
-            foreach ($this->getPersonaRules()->getElements() as $ruleEntity) {
-                // add rule our rule and also make sure
-                // we know that at least a persona exists.
-                $personaRuleOR->addRule($ruleEntity->getPayload());
-                $personasFound = true;
+                    $personaCustomerOR->addRule($custRule);
+                }
+
+                // add the rule to our main rule
+                $requirements->addRule($personaCustomerOR);
             }
+        } else {
+            // we use persona rules.
+            // check if we have persona rules and add them
+            // to our persona OR as a separate OR rule with all configured rules
+            if ($this->getPersonaRules() !== null && count($this->getPersonaRules()->getElements()) > 0) {
+                $personaRuleOR = new OrRule();
 
-            $personaOR->addRule($personaRuleOR);
-        }
+                /** @var RuleEntity $ruleEntity */
+                foreach ($this->getPersonaRules()->getElements() as $ruleEntity) {
+                    $personaRuleOR->addRule($ruleEntity->getPayload());
+                }
 
-        // check if we have customers.
-        // if so, create customer rules for it and add that also as
-        // a separate OR condition to our main persona rule
-        if ($this->getPersonaCustomers() !== null) {
-            $personaCustomerOR = new OrRule();
-
-            /* @var CustomerEntity $ruleEntity */
-            foreach ($this->getPersonaCustomers()->getElements() as $customer) {
-                // build our new rule for this
-                // customer and his/her customer number
-                $custRule = new CustomerNumberRule();
-                $custRule->assign(['numbers' => [$customer->getCustomerNumber()], 'operator' => CustomerNumberRule::OPERATOR_EQ]);
-
-                // add rule for customer and make sure
-                // we know that at least a persona exists.
-                $personaCustomerOR->addRule($custRule);
-                $personasFound = true;
+                $requirements->addRule($personaRuleOR);
             }
-
-            $personaOR->addRule($personaCustomerOR);
-        }
-
-        // if we have found any persona rule
-        // or customer, then add our main persona rule
-        if ($personasFound) {
-            $requirements->addRule($personaOR);
         }
 
         if ($this->getCartRules() !== null && count($this->getCartRules()->getElements()) > 0) {

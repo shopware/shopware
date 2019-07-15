@@ -33,6 +33,11 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="shopware.filesystem.public"/>
             <argument>%shopware.store.frw%</argument>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
+            <argument type="service" id="theme.repository"/>
+            <argument type="service" id="theme_sales_channel.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreService">

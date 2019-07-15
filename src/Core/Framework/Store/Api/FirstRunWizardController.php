@@ -219,7 +219,7 @@ class FirstRunWizardController extends AbstractController
     {
         $language = $params->get('language') ?? '';
         $failed = $params->getBoolean('failed');
-        $this->frwClient->finishFrw($failed);
+        $this->frwClient->finishFrw($failed, $context);
 
         $userId = null;
         $newStoreToken = '';

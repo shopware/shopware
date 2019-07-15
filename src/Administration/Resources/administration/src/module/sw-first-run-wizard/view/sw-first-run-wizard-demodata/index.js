@@ -23,10 +23,7 @@ Component.register('sw-first-run-wizard-demodata', {
         },
 
         installDemodata() {
-            const language = this.$store.state.adminLocale.currentLocale;
-            const pluginName = language === 'de_DE'
-                ? 'SwagPlatformDemoDataDE'
-                : 'SwagPlatformDemoDataEN';
+            const pluginName = 'SwagPlatformDemoData';
 
             this.isInstallingPlugin = true;
 

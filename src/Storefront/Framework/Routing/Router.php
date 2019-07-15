@@ -14,6 +14,9 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
 class Router implements RouterInterface, RequestMatcherInterface, WarmableInterface, ServiceSubscriberInterface
 {
+    /** @var int Used to indicate the router that no custom domain parts should be added to the generated routes */
+    public const BASE_PATH = 10;
+
     /**
      * @var SymfonyRouter
      */
@@ -73,6 +76,12 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     public function generate($name, $parameters = [], $referenceType = self::ABSOLUTE_PATH)
     {
+        if ($referenceType === self::BASE_PATH) {
+            $route = $this->decorated->generate($name);
+
+            return $route;
+        }
+
         if (!$this->isStorefrontRoute($name)) {
             return $this->decorated->generate($name, $parameters, $referenceType);
         }

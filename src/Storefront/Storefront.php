@@ -37,6 +37,8 @@ class Storefront extends Bundle
         $environment = $container->getParameter('kernel.environment');
         $this->buildConfig($container, $environment);
 
+        $container->setParameter('storefrontRoot', $this->getPath());
+
         $container->addCompilerPass(new DisableTemplateCachePass());
     }
 

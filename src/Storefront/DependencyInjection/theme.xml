@@ -14,6 +14,7 @@
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="filesystem" />
             <argument>%kernel.cache_dir%</argument>
+            <argument>%kernel.debug%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeLifecycleService">

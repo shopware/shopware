@@ -103,6 +103,8 @@
         "personalBirthdaySelectDay": "Day",
         "personalBirthdaySelectMonth": "Month",
         "personalBirthdaySelectYear": "Year",
+        "personalPhoneLabel": "Phone",
+        "personalPhonePlaceholder": "Phone",
         "registerDifferentShipping": "Shipping and billing addresses do not match.",
         "registerSubmit": "Continue",
         "overviewTitle": "Overview",
@@ -320,6 +322,16 @@
         "subscriptionConfirmationFailed": "Newsletter subscription did not work properly, please contact us.",
         "subscriptionCompleted": "Thank you! We have stored your address."
     },
+    "contact": {
+        "headline": "Contact",
+        "info": "Write us an email. We look forward to hearing from you.",
+        "subjectLabel": "Subject",
+        "subjectPlaceholder": "Subject",
+        "commentLabel": "Comment",
+        "commentPlaceholder": "Comment",
+        "formSubmit": "Send",
+        "success": "We have received your contact request and will process it as soon as possible."
+    },
     "search": {
       "headline": "%totalCount% articles found for \"%searchTerm%\""
     },
@@ -344,7 +356,8 @@
         "shopServiceHeadline": "Shop Service",
         "informationHeadline": "Information",
         "newsletterHeadline": "Newsletter",
-        "serviceHotline": "Telephone support and counselling via: <a href='tel:+49180000000'>0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
+        "serviceHotline": "Support and counselling via: <a href='tel:+49180000000'>0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
+        "serviceContactLink": "Or via our <a href='%link%' title='contact form'>contact form</a>",
         "newsletterInput": "Your email address",
         "newsletter": "Subscribe to our regular newsletter now and stay tuned on the latest products and special offers.",
         "includeVat": "* All prices incl. value added tax",

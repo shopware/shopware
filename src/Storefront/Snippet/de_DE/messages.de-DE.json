@@ -103,6 +103,8 @@
         "personalBirthdaySelectDay": "Tag",
         "personalBirthdaySelectMonth": "Monat",
         "personalBirthdaySelectYear": "Jahr",
+        "personalPhoneLabel": "Telefon",
+        "personalPhonePlaceholder": "Telefon",
         "registerDifferentShipping": "Die Lieferadresse weicht von der Rechnungsadresse ab.",
         "registerSubmit": "Weiter",
         "overviewTitle": "Kundenkonto",
@@ -321,6 +323,16 @@
         "subscriptionConfirmationFailed": "Bei Ihrer Newsletter-Anmeldung ist etwas schief gelaufen, Bitte wenden Sie sich an den Shop-Betreiber.",
         "subscriptionCompleted": "Vielen Dank. Wir haben Ihre Adresse eingetragen."
     },
+    "contact": {
+        "headline": "Kontaktformular",
+        "info": "Schreiben Sie uns eine E-Mail. Wir freuen uns auf Ihre Kontaktaufnahme.",
+        "subjectLabel": "Betreff",
+        "subjectPlaceholder": "Betreff",
+        "commentLabel": "Kommentar",
+        "commentPlaceholder": "Kommentar",
+        "formSubmit": "Senden",
+        "success": "Wir haben Ihre Kontaktanfrage erhalten und werden diese schnellstmöglich bearbeiten."
+    },
     "search": {
       "headline": "Zu \"%searchTerm%\" wurden %totalCount% Artikel gefunden"
     },
@@ -345,7 +357,8 @@
         "shopServiceHeadline": "Shop Service",
         "informationHeadline": "Informationen",
         "newsletterHeadline": "Newsletter",
-        "serviceHotline": "Telefonische Unterst&uuml;tzung und Beratung unter: <a href='tel:+49180000000'>0180 - 000000</a> Mo-Fr, 09:00 - 17:00 Uhr",
+        "serviceHotline": "Unterst&uuml;tzung und Beratung unter: <a href='tel:+49180000000'>0180 - 000000</a> Mo-Fr, 09:00 - 17:00 Uhr",
+        "serviceContactLink": "Oder über unser <a href='%link%' title='Kontaktformular'>Kontaktformular</a>",
         "newsletterInput": "Ihre E-Mail Adresse",
         "newsletter": "Abonnieren Sie jetzt einfach unseren regelmäßig erscheinenden Newsletter und Sie werden stets als Erster über neue Artikel und Angebote informiert.",
         "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href='#'>Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",

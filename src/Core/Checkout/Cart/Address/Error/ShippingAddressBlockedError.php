@@ -49,4 +49,14 @@ class ShippingAddressBlockedError extends Error
     {
         return self::KEY;
     }
+
+    public function getId(): string
+    {
+        return $this->getKey();
+    }
+
+    public function getParameters(): array
+    {
+        return ['name' => $this->name];
+    }
 }

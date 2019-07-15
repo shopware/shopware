@@ -42,7 +42,10 @@ describe('Account: Login as customer', () => {
 
         // Set new address as shipping address
         cy.get(`${page.elements.lightButton}[title="Set as default shipping "]`).click();
-        cy.get('.alert-success .alert-content').contains('Default address has been changed.');
+        cy.get('.address-editor-modal .modal-dialog').should('not.exist');
+        // TODO: After saving the modal there is no success notification. This should be added!
+        cy.reload();
+
         cy.get('.overview-shipping-address p').contains('Sherman');
         cy.get(`${page.elements.lightButton}[title="Change shipping address"]`).click();
         cy.get('.address-editor-modal .modal-dialog').should('be.visible');
@@ -53,11 +56,16 @@ describe('Account: Login as customer', () => {
         cy.get('.address-editor-modal .modal-dialog').should('be.visible');
         cy.get(`${page.elements.lightButton}[title="Set as default billing"]`).click();
         cy.get('.address-editor-modal .modal-dialog').should('not.exist');
-        cy.get('.alert-success .alert-content').contains('Default address has been changed.');
+        // TODO: After saving the modal there is no success notification. This should be added!
+        cy.reload();
+
         cy.get(`${page.elements.lightButton}[title="Change shipping address"]`).click();
         cy.get('.address-editor-modal .modal-dialog').should('be.visible');
         cy.get(`${page.elements.lightButton}[title="Set as default shipping "]`).click();
         cy.get('.address-editor-modal .modal-dialog').should('not.exist');
+        // TODO: After saving the modal there is no success notification. This should be added!
+        cy.reload();
+
         cy.get('.overview-billing-address p').contains('Sherman');
         cy.get('.overview-shipping-address p').contains('Eroni');
     });

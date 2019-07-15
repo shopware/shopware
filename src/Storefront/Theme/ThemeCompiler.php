@@ -223,8 +223,6 @@ class ThemeCompiler
     ): string {
         $concatenated = $this->concatenateCss($config->getStyleFiles(), $configurationCollection, $config);
 
-        //$this->scssCompiler->setImportPaths('');
-
         foreach ($config->getStyleFiles() as $styleFile) {
             $this->scssCompiler->addImportPath(dirname($styleFile));
         }

@@ -23,7 +23,8 @@ Component.register('sw-first-run-wizard-welcome', {
             newLocaleId: null,
             user: { localeId: '' },
             userProfile: {},
-            userPromise: null
+            userPromise: null,
+            isLoading: false
         };
     },
 
@@ -106,9 +107,13 @@ Component.register('sw-first-run-wizard-welcome', {
 
         onPluginInstalled(plugin) {
             this.latestTouchedPlugin = this.getPluginByName(plugin);
-            this.showConfirmLanguageSwitchModal = true;
 
             this.getLanguagePlugins();
+            this.isLoading = true;
+            this.loadLanguages().then(() => {
+                this.showConfirmLanguageSwitchModal = true;
+                this.isLoading = false;
+            });
         },
 
         onPluginRemoved(plugin) {
@@ -124,7 +129,7 @@ Component.register('sw-first-run-wizard-welcome', {
 
                     this.localeRepository.get(this.user.localeId, this.context).then(({ code }) => {
                         this.$store.dispatch('setAdminLocale', code);
-
+                        window.localStorage.setItem('sw-admin-locale', code);
                         document.location.reload();
                     });
                 })

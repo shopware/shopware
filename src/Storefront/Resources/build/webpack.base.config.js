@@ -2,13 +2,11 @@ const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackBar = require('webpackbar');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
 const babelrc = require('../.babelrc');
 const utils = require('./utils');
 
 const outputFolder = utils.getOutputPath();
 const buildDirectory = utils.getBuildPath();
-const assetOutPutFolder = `${buildDirectory}/assets`;
 
 /**
  * -------------------------------------------------------
@@ -161,7 +159,7 @@ const resolve = {
         assets: utils.getPath('assets'),
         jquery: 'jquery/dist/jquery.slim',
         scss: utils.getPath('src/style'),
-        vendor: utils.getPath('vendor')
+        vendor: utils.getPath('vendor'),
     },
 };
 

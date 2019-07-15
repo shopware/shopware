@@ -90,7 +90,7 @@ module.exports = {
     mode: 'development',
     module: modules,
     entry: {
-        app: [utils.getPath('/src/style/base.scss')]
+        app: [utils.getPath('/src/style/base.scss')],
     },
     plugins: plugins,
 };

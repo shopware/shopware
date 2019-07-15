@@ -32,10 +32,6 @@ Component.register('sw-plugin-card', {
             this.setupPlugin();
         },
 
-        onUninstall() {
-            this.removePlugin();
-        },
-
         setupPlugin() {
             const pluginName = this.plugin.name;
 
@@ -55,21 +51,6 @@ Component.register('sw-plugin-card', {
                     this.cacheApiService.clear();
 
                     this.$emit('onPluginInstalled', pluginName);
-                });
-        },
-
-        removePlugin() {
-            const pluginName = this.plugin.name;
-
-            this.pluginService.uninstall(pluginName)
-                .then(() => {
-                    return this.pluginService.delete(pluginName);
-                })
-                .finally(() => {
-                    this.cacheApiService.clear();
-                    this.pluginIsSaveSuccessful = false;
-
-                    this.$emit('onPluginRemoved', pluginName);
                 });
         }
     }

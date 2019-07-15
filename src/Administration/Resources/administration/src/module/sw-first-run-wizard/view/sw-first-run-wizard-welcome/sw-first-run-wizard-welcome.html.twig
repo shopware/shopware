@@ -29,7 +29,9 @@
                       class="sw-first-run-wizard-confirmLanguageSwitch-modal">
 
                 {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_text %}
-                    <p>{{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', {}, { pluginName: latestTouchedPlugin.name }) }}</p>
+                    <p class="sw-first-run-wizard-welcome__modal-text">
+                        {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', {}, { pluginName: latestTouchedPlugin.name }) }}
+                    </p>
                     <sw-select-field
                         class="sw-profile__language"
                         :label="$tc('sw-settings-user.user-detail.labelLanguage')"

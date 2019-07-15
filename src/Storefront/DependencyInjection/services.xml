@@ -223,6 +223,12 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Contact\ContactPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="salutation.repository"/>
+        </service>
+
         <!--SnippetFiles-->
         <service id="Shopware\Storefront\Snippet\de_DE\SnippetFile_de_DE" public="true">
             <tag name="shopware.snippet.file" priority="100"/>

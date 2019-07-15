@@ -47,4 +47,6 @@ class MailTemplateTypes
     public const MAILTYPE_STATE_ENTER_ORDER_STATE_OPEN = 'state_enter.order.state.open';
     public const MAILTYPE_STATE_ENTER_ORDER_STATE_IN_PROGRESS = 'state_enter.order.state.in_progress';
     public const MAILTYPE_STATE_ENTER_ORDER_STATE_COMPLETED = 'state_enter.order.state.completed';
+
+    public const MAILTYPE_CONTACT_FORM = 'contact_form';
 }

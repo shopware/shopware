@@ -64,23 +64,6 @@ Component.register('sw-order-detail', {
             this.isEditing = false;
         },
 
-        onSave() {
-            console.log(this.order);
-            if (!this.order.addresses[0].country.shippingAvailable) {
-                this.createNotificationError({
-                    title: this.$tc('sw-order.detail.notification.shippingNotAvailable.title'),
-                    message: this.$tc('sw-order.detail.notification.shippingNotAvailable.message')
-                });
-                return;
-            }
-            this.isSaveSuccessful = false;
-            this.isLoading = true;
-
-            this.$refs.baseComponent.mergeOrder();
-            this.isLoading = false;
-            this.isSaveSuccessful = true;
-        },
-
         onStartEditing() {
             this.$root.$emit('order-edit-start');
         },

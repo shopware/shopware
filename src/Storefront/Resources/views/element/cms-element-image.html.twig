@@ -7,14 +7,18 @@
                         <div class="cms-image-container is-{{ element.translated.config.displayMode.value }}"
                             {% if element.translated.config.minHeight.value and element.translated.config.displayMode.value == "cover" %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
                             {% block element_image_media %}
+                                {% set attributes = {
+                                    'class': 'cms-image',
+                                    'alt': (element.data.media.translated.alt ?: ''),
+                                    'title': (element.data.media.translated.title ?: '')
+                                } %}
+
+                                {% if element.translated.config.displayMode.value == 'cover' or element.translated.config.displayMode.value == 'contain' %}
+                                    {% set attributes = attributes|merge({ 'data-object-fit': element.translated.config.displayMode.value }) %}
+                                {% endif %}
+
                                 {% sw_thumbnails 'cms-image-thumbnails' with {
-                                    media: element.data.media,
-                                    attributes: {
-                                        'class': 'cms-image',
-                                        'alt': (element.data.media.translated.alt ?: ''),
-                                        'title': (element.data.media.translated.title ?: ''),
-                                        'data-object-fit': element.translated.config.displayMode.value
-                                    }
+                                    media: element.data.media
                                 } %}
                             {% endblock %}
                         </div>

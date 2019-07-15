@@ -21,6 +21,16 @@
 							   title="{{ product.translated.name }}"
 							   class="product-image-link is-{{ displayMode }}">
 								{% if product.cover.media.url %}
+									{% set attributes = {
+										'class': 'product-image is-'~displayMode,
+										'alt': (product.cover.media.translated.alt ?: ''),
+										'title': (product.cover.media.translated.title ?: '')
+									} %}
+
+									{% if displayMode == 'cover' or displayMode == 'contain' %}
+										{% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+									{% endif %}
+
                                     {% sw_thumbnails 'product-image-thumbnails' with {
                                         media: product.cover.media,
                                         sizes: {
@@ -29,12 +39,6 @@
                                             'md': '427px',
                                             'lg': '333px',
                                             'xl': '284px'
-                                        },
-                                        attributes: {
-                                            'class': 'product-image is-'~displayMode,
-                                            'alt': (product.cover.media.translated.alt ?: ''),
-                                            'title': (product.cover.media.translated.title ?: ''),
-                                            'data-object-fit': displayMode
                                         }
                                     } %}
 								{% else %}

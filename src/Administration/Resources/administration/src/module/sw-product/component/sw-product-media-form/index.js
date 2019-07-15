@@ -1,5 +1,4 @@
 import { Component, Mixin, State } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
@@ -38,20 +37,6 @@ Component.register('sw-product-media-form', {
             columnCount: 7,
             columnWidth: 90
         };
-    },
-
-    watch: {
-        'product.media': {
-            deep: true,
-            handler: utils.debounce(function saveProduct() {
-                const changes = Object.getOwnPropertyNames(this.product.getChanges());
-
-                const translatedIndex = changes.indexOf('translated');
-                if (translatedIndex >= 0) {
-                    changes.splice(translatedIndex, 1);
-                }
-            }, 500)
-        }
     },
 
     computed: {
@@ -213,7 +198,7 @@ Component.register('sw-product-media-form', {
 
                         // set mediaId
                         responseMedia.setData({
-                            id: media.id,
+                            productMediaId: media.id,
                             mediaId: responseMedia.id
                         });
 
@@ -351,15 +336,15 @@ Component.register('sw-product-media-form', {
             }
 
             if (this.productFromStore.coverId === null && this.productFromStore.media.length > 0) {
-                this.productFromStore.coverId = productMedia.id;
+                this.productFromStore.coverId = (productMedia.productMediaId || productMedia.id);
             }
 
-            return this.productFromStore.coverId === productMedia.id;
+            return this.productFromStore.coverId === (productMedia.productMediaId || productMedia.id);
         },
 
         markMediaAsCover(productMedia) {
-            this.product.coverId = productMedia.id;
-            this.productFromStore.coverId = productMedia.id;
+            this.product.coverId = (productMedia.productMediaId || productMedia.id);
+            this.productFromStore.coverId = (productMedia.productMediaId || productMedia.id);
         },
 
         onDropMedia(dragData) {

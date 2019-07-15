@@ -87,6 +87,10 @@ export default {
             this.initializeContent();
         },
 
+        mediaFolderId() {
+            this.initializeContent();
+        },
+
         isParentLoading() {
             this.getList();
         }

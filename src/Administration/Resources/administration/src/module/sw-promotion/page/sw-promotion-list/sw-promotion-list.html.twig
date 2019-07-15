@@ -55,17 +55,30 @@
                                            allowInlineEdit
                                            allowColumnEdit
                                            fullPage>
-                            {% block sw_promotion_list_grid_columns_valid_from %}
-                                <template slot="column-validFrom" slot-scope="{ item }">
-                                    {{ item.validFrom | date() }}
-                                </template>
+
+                            {% block sw_promotion_list_grid_columns %}
+
+                                {% block sw_promotion_list_grid_columns_active %}
+                                    <template #column-active="{ item }">
+                                        <sw-icon v-if="item.active" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
+                                        <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_promotion_list_grid_columns_valid_from %}
+                                    <template #column-validFrom="{ item }">
+                                        {{ item.validFrom| date({ hour: '2-digit', minute: '2-digit' }) }}
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_promotion_list_grid_columns_valid_until %}
+                                    <template #column-validUntil="{ item }">
+                                        {{ item.validUntil | date({ hour: '2-digit', minute: '2-digit' }) }}
+                                    </template>
+                                {% endblock %}
+
                             {% endblock %}
 
-                            {% block sw_promotion_list_grid_columns_valid_until %}
-                                <template slot="column-validUntil" slot-scope="{ item }">
-                                    {{ item.validUntil | date() }}
-                                </template>
-                            {% endblock %}
                         </sw-entity-listing>
                     {% endblock %}
 

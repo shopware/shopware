@@ -34,14 +34,18 @@
             
                                 {% set imageElement %}
                                     <div class="image-slider-item is-{{ sliderConfig.displayMode.value }}"{% if sliderConfig.minHeight.value and  sliderConfig.displayMode.value == "cover" %} style="min-height: {{ sliderConfig.minHeight.value }}"{% endif %}>
+                                        {% set attributes = {
+                                            'class': 'img-fluid image-slider-image',
+                                            'alt': (image.media.translated.alt ?: ''),
+                                            'title': (image.media.translated.title ?: '')
+                                        } %}
+
+                                        {% if element.config.displayMode.value == 'cover' or element.config.displayMode.value == 'contain' %}
+                                            {% set attributes = attributes|merge({ 'data-object-fit': element.config.displayMode.value }) %}
+                                        {% endif %}
+
                                         {% sw_thumbnails 'cms-image-slider-thumbnails' with {
-                                            media: image.media,
-                                            attributes: {
-                                                'class': 'img-fluid image-slider-image',
-                                                'alt': (image.media.translated.alt ?: ''),
-                                                'title': (image.media.translated.title ?: ''),
-                                                'data-object-fit': element.config.displayMode.value
-                                            }
+                                            media: image.media
                                         } %}
                                     </div>
                                 {% endset %}

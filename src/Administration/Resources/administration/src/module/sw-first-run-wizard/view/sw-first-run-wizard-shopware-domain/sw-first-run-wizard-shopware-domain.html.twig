@@ -1,10 +1,10 @@
 {% block sw_first_run_wizard_shopware_domain %}
     <div>
-        <h3 class="headline">{{ $tc('sw-first-run-wizard.shopware-domain.headline') }}</h3>
-        <p v-html="$tc('sw-first-run-wizard.shopware-domain.message')"
+        <h3 class="headline">{{ $tc('sw-first-run-wizard.shopwareDomain.headline') }}</h3>
+        <p v-html="$tc('sw-first-run-wizard.shopwareDomain.message')"
            class="message"></p>
 
-        <sw-switch-field :label="$tc('sw-first-run-wizard.shopware-domain.label-create-domain')"
+        <sw-switch-field :label="$tc('sw-first-run-wizard.shopwareDomain.labelCreateDomain')"
                          v-model="createShopDomain">
         </sw-switch-field>
 
@@ -15,7 +15,7 @@
                       :label="'Shop domain'"
                       v-model="newShopDomain">
             </sw-field>
-            <sw-checkbox-field :label="$tc('sw-first-run-wizard.shopware-domain.test-environment')" v-model="testEnvironment"></sw-checkbox-field>
+            <sw-checkbox-field :label="$tc('sw-first-run-wizard.shopwareDomain.testEnvironment')" v-model="testEnvironment"></sw-checkbox-field>
         </div>
         <div v-else>
             <sw-select-field v-model="selectedShopDomain"

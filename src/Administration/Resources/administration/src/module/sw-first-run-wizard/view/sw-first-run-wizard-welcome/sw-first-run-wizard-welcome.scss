@@ -23,11 +23,14 @@
     }
 
     .text-change-language {
-        width: 247px;
         height: 25px;
         font-size: 18px;
         font-weight: 600;
         letter-spacing: 0.1px;
         line-height: 25px;
     }
+}
+
+.sw-first-run-wizard-confirmLanguageSwitch-modal {
+    z-index: 1002 !important;
 }

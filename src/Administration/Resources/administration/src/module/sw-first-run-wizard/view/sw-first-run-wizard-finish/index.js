@@ -5,13 +5,25 @@ import './sw-first-run-wizard-finish.scss';
 Component.register('sw-first-run-wizard-finish', {
     template,
 
-    inject: ['addNextCallback'],
+    inject: ['addNextCallback', 'firstRunWizardService'],
 
     data() {
         return {
-            edition: 'edition',
+            licenceDomains: [],
             restarting: false
         };
+    },
+
+    computed: {
+        edition() {
+            const activeDomain = this.licenceDomains.find((domain) => domain.active);
+
+            if (!activeDomain) {
+                return '';
+            }
+
+            return activeDomain.edition;
+        }
     },
 
     created() {
@@ -20,6 +32,20 @@ Component.register('sw-first-run-wizard-finish', {
 
     methods: {
         createdComponent() {
+            const language = this.$store.state.adminLocale.currentLocale;
+
+            this.firstRunWizardService.getLicenseDomains({
+                language
+            }).then((response) => {
+                const { items } = response;
+
+                if (!items || items.length < 1) {
+                    return;
+                }
+
+                this.licenceDomains = items;
+            });
+
             this.addNextCallback(this.onFinish);
         },
 

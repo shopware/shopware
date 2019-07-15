@@ -15,6 +15,7 @@ export default class OrderPageObject extends GeneralPageObject {
     setOrderState({ stateTitle, type, signal = 'neutral', scope = 'select' }) {
         const stateColor = `.sw-order-state__${signal}-select`;
 
+        cy.get(`.sw-order-state-${scope}__${type}-state select[name=sw-field--selectedActionName]`).scrollIntoView();
         cy.get(`.sw-order-state-${scope}__${type}-state select[name=sw-field--selectedActionName]`)
             .should('be.visible')
             .select(stateTitle, { force: true });
@@ -33,6 +34,7 @@ export default class OrderPageObject extends GeneralPageObject {
         const item = `.sw-order-state-history-card__${type}-state .sw-order-state-history__entry--${position}`;
 
         cy.get('.sw-order-state-card').scrollIntoView();
+        cy.get(`${item} ${currentStatusIcon}`).scrollIntoView();
         cy.get(`${item} ${currentStatusIcon}`).should('be.visible');
         cy.get(item).contains(stateTitle);
     }

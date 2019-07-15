@@ -2,7 +2,7 @@
     {% block page_account_address_actions_set_default %}
         <div class="address-actions-defaults">
             {% block page_account_address_actions_set_default_shipping %}
-                {% if defaultShippingAddress != address.id %}
+                {% if defaultShippingAddress.id != address.id %}
                     <form action="{{ path('frontend.account.address.set-default-address', {'type': 'shipping', 'addressId': address.id}) }}"
                         method="post">
                         <button type="submit"
@@ -15,7 +15,7 @@
             {% endblock %}
 
             {% block page_account_address_actions_set_default_billing %}
-                {% if defaultBillingAddress != address.id %}
+                {% if defaultBillingAddress.id != address.id %}
                     <form action="{{ path('frontend.account.address.set-default-address', {'type': 'billing', 'addressId': address.id}) }}"
                         method="post">
                         <button type="submit"
@@ -42,7 +42,7 @@
             {% endblock %}
 
             {% block page_account_address_actions_delete %}
-                {% if defaultShippingAddress != address.id and defaultBillingAddress != address.id %}
+                {% if defaultShippingAddress.id != address.id and defaultBillingAddress != address.id %}
                     <div class="col-auto">
                         <form action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}"
                               class="address-action-delete"

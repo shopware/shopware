@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -193,7 +194,7 @@ class ThemeService
             }
 
             foreach ($config['fields'] as $key => $data) {
-                if ($data['type'] === 'media' && $data['value']) {
+                if ($data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {
                     $mediaItems[$data['value']][] = $key;
                 }
                 $resolvedConfig[$key] = $data['value'];
@@ -221,8 +222,8 @@ class ThemeService
 
         $translations = [];
         if ($translate) {
-            $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->get($themeId);
-            $translations = $theme->getLabels();
+            $translations = $this->getTranslations($themeId, $context);
+            $mergedConfig = $this->translateLabels($mergedConfig, $translations);
         }
 
         $blocks = [];
@@ -337,8 +338,12 @@ class ThemeService
             $configuredTheme = array_replace_recursive($configuredTheme, $theme->getBaseConfig());
         }
 
-        if ($theme !== null && $theme->getConfigValues() !== null && array_key_exists('fields', $configuredTheme)) {
-            $configuredTheme['fields'] = array_replace_recursive($configuredTheme['fields'], $theme->getConfigValues());
+        if ($theme !== null && $theme->getConfigValues() !== null) {
+            $configuredThemeFields = [];
+            if (array_key_exists('fields', $configuredTheme)) {
+                $configuredThemeFields = $configuredTheme['fields'];
+            }
+            $configuredTheme['fields'] = array_replace_recursive($configuredThemeFields, $theme->getConfigValues());
         }
 
         return $configuredTheme;
@@ -372,5 +377,28 @@ class ThemeService
         }
 
         return $themeConfiguration;
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    private function getTranslations(string $themeId, Context $context): array
+    {
+        /** @var ThemeEntity $theme */
+        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->get($themeId);
+        $translations = $theme->getLabels() ?: [];
+        if ($theme->getParentThemeId() !== null) {
+            $parentTheme = $this->themeRepository->search(new Criteria([$theme->getParentThemeId()]), $context)
+                ->get($theme->getParentThemeId());
+            $parentTranslations = $parentTheme->getLabels() ?: [];
+            $translations = array_replace_recursive($parentTranslations, $translations);
+        }
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
+        $baseTheme = $this->themeRepository->search($criteria, $context)->first();
+        $baseTranslations = $baseTheme->getLabels() ?: [];
+        $translations = array_replace_recursive($baseTranslations, $translations);
+
+        return $translations;
     }
 }

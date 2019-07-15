@@ -7,8 +7,7 @@
       "buttonBack": "Zurück",
       "buttonInstall": "Installieren",
       "buttonFinish": "Fertig",
-      "pluginInstalled": "Installiert",
-      "uninstallPlugin": "Deinstallieren"
+      "pluginInstalled": "Installiert"
     },
     "welcome": {
       "modalTitle": "Willkommen",

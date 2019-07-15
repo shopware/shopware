@@ -10,6 +10,7 @@
                 <sw-label v-for="region in regions"
                           :key="region.name"
                           :variant="regionVariant(region)"
+                          size="medium"
                           :ghost="false"
                           :caps="false"
                           appearance="pill"
@@ -26,6 +27,7 @@
                 <sw-label v-for="category in categories"
                           :key="category.name"
                           :variant="categoryVariant(category)"
+                          size="medium"
                           :ghost="false"
                           :caps="false"
                           appearance="pill"
@@ -36,7 +38,7 @@
             </div>
         </div>
 
-        <div class="plugins-category-lead">
+        <div class="plugins-category-lead" v-show="categoryLead.length > 0">
             <sw-plugin-card v-for="plugin in categoryLead"
                             :key="plugin.name"
                             :plugin="plugin"
@@ -47,7 +49,7 @@
 
         <hr v-if="showSpacer" class="spacer" />
 
-        <div class="plugins-not-category-lead">
+        <div class="plugins-not-category-lead" v-show="notCategoryLead.length > 0">
             <sw-container v-if="plugins"
                           columns="1fr 1fr"
                           gap="24px 0">

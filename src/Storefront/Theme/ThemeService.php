@@ -146,9 +146,11 @@ class ThemeService
      */
     public function getThemeConfiguration(string $themeId, bool $translate, Context $context): array
     {
-        $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName(
-            StorefrontPluginRegistry::BASE_THEME_NAME
-        )->getConfig();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
+        $baseTheme = $this->themeRepository->search($criteria, $context)->first();
+
+        $baseTheme = $this->mergeStaticConfig($baseTheme);
 
         $criteria = new Criteria([$themeId]);
 
@@ -164,7 +166,7 @@ class ThemeService
 
         $configuredTheme = $this->mergeStaticConfig($theme);
 
-        $themeConfig = array_replace_recursive($themeConfig, $configuredTheme);
+        $themeConfig = array_replace_recursive($baseTheme, $configuredTheme);
 
         foreach ($themeConfig['fields'] as $name => $item) {
             $configFields[$name] = $themeConfigFieldFactory->create($name, $item);

@@ -34,6 +34,11 @@ Component.register('sw-first-run-wizard-demodata', {
                 .then(() => {
                     return this.pluginService.activate(pluginName);
                 })
+                .then(() => {
+                    this.isInstallingPlugin = false;
+
+                    return false;
+                })
                 .catch(() => {
                     this.isInstallingPlugin = false;
 

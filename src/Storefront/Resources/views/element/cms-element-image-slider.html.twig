@@ -34,12 +34,15 @@
             
                                 {% set imageElement %}
                                     <div class="image-slider-item is-{{ sliderConfig.displayMode.value }}"{% if sliderConfig.minHeight.value and  sliderConfig.displayMode.value == "cover" %} style="min-height: {{ sliderConfig.minHeight.value }}"{% endif %}>
-                                        <img src="{{ image.media.url }}"
-                                             class="img-fluid image-slider-image"
-                                            {% if element.config.displayMode.value == 'cover' %}
-                                                data-object-fit="cover"
-                                            {% endif %}
-                                             alt="{{ image.media.alt }}"/>
+                                        {% sw_thumbnails 'cms-image-slider-thumbnails' with {
+                                            media: image.media,
+                                            attributes: {
+                                                'class': 'img-fluid image-slider-image',
+                                                'alt': (image.media.translated.alt ?: ''),
+                                                'title': (image.media.translated.title ?: ''),
+                                                'data-object-fit': element.config.displayMode.value
+                                            }
+                                        } %}
                                     </div>
                                 {% endset %}
             

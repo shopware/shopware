@@ -21,8 +21,8 @@
                         {% if context.paymentMethod.media %}
                             <img src="{{ context.paymentMethod.media.url }}"
                                  class="payment-method-image"
-                                 alt="{{ context.paymentMethod.media.alt ?: context.paymentMethod.media.fileName }}"
-                                    {{ context.paymentMethod.media.title ? 'title="#{context.paymentMethod.media.title}"' }}>
+                                 alt="{{ context.paymentMethod.media.translated.alt }}"
+                                 title="{{  context.paymentMethod.media.translated.title }}">
                         {% endif %}
                     {% endblock %}
 

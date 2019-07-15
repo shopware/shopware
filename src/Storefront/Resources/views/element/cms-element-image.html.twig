@@ -7,12 +7,15 @@
                         <div class="cms-image-container is-{{ element.translated.config.displayMode.value }}"
                             {% if element.translated.config.minHeight.value and element.translated.config.displayMode.value == "cover" %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
                             {% block element_image_media %}
-                                <img class="cms-image"
-                                     {% if element.translated.config.displayMode.value == 'cover' %}
-                                         data-object-fit="cover"
-                                     {% endif %}
-                                     src="{{ element.data.media.url }}"
-                                     alt="{{ element.data.media.alt }}">
+                                {% sw_thumbnails 'cms-image-thumbnails' with {
+                                    media: element.data.media,
+                                    attributes: {
+                                        'class': 'cms-image',
+                                        'alt': (element.data.media.translated.alt ?: ''),
+                                        'title': (element.data.media.translated.title ?: ''),
+                                        'data-object-fit': element.translated.config.displayMode.value
+                                    }
+                                } %}
                             {% endblock %}
                         </div>
                     {% endif %}

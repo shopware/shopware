@@ -21,10 +21,17 @@
                             </div>
                         {%  else %}
                             {% if lineItem.cover.url %}
-                                <img src="{{ lineItem.cover.url }}"
-                                     class="img-fluid cart-item-img"
-                                     alt="{{ lineItem.label }}"
-                                     title="{{ lineItem.label }}">
+                                {% sw_thumbnails 'cart-item-img-thumbnails' with {
+                                    media: lineItem.cover,
+                                    sizes: {
+                                        'default': '100px'
+                                    },
+                                    attributes: {
+                                        'class': 'img-fluid cart-item-img',
+                                        'alt': (lineItem.cover.translated.alt ?: ''),
+                                        'title': (lineItem.cover.translated.title ?: '')
+                                    }
+                                } %}
                             {% else %}
                                 {% sw_icon 'placeholder' style {
                                     'size': 'fluid'

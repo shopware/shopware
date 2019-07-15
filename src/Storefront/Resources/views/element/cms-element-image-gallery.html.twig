@@ -86,13 +86,17 @@
                                                                 {% block element_image_gallery_inner_item %}
                                                                     <div class="gallery-slider-item-container">
                                                                         <div class="gallery-slider-item is-{{ displayMode }} js-magnifier-container"{% if minHeight and  displayMode == "cover" %} style="min-height: {{ minHeight }}"{% endif %}>
-                                                                            <img src="{{ image.media.url }}"
-                                                                                 class="img-fluid gallery-slider-image magnifier-image js-magnifier-image"
-                                                                                 data-full-image="{{ image.media.url }}"
-                                                                                 data-width="{{ image.media.metaData.width }}"
-                                                                                 data-height="{{ image.media.metaData.height }}"
-                                                                                 {% if image.media.translated.title %}title="{{ image.media.translated.title }}"{% endif %}
-                                                                                 alt="{{ (image.media.translated.alt ?: image.media.fileName) }}"/>
+                                                                            {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
+                                                                                media: image.media,
+                                                                                attributes: {
+                                                                                    'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
+                                                                                    'alt': (image.media.translated.alt ?: ''),
+                                                                                    'title': (image.media.translated.title ?: ''),
+                                                                                    'data-full-image': image.media.url,
+                                                                                    'data-width': image.media.metaData.width,
+                                                                                    'data-height': image.media.metaData.height
+                                                                                }
+                                                                            } %}
                                                                         </div>
                                                                     </div>
                                                                 {% endblock %}
@@ -130,11 +134,15 @@
                                             {% block element_image_gallery_inner_single %}
                                                 <div class="gallery-slider-single-image js-magnifier-container">
                                                     {% if mediaItems %}
-                                                        <img src="{{ mediaItems|first.media.url }}"
-                                                             class="img-fluid gallery-slider-image magnifier-image js-magnifier-image"
-                                                             data-full-image="{{ mediaItems|first.media.url }}"
-                                                             {% if mediaItems|first.media.translated.title %}title="{{ mediaItems|first.media.translated.title }}"{% endif %}
-                                                             alt="{{ (mediaItems|first.media.translated.alt ?: mediaItems|first.media.fileName) }}"/>
+                                                        {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
+                                                            media: mediaItems|first.media,
+                                                            attributes: {
+                                                                'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
+                                                                'alt': (mediaItems|first.media.translated.alt ?: ''),
+                                                                'title': (mediaItems|first.media.translated.title ?: ''),
+                                                                'data-full-image': mediaItems|first.media.url
+                                                            }
+                                                        } %}
                                                     {% else %}
                                                         {% sw_icon 'placeholder' style {
                                                             'size': 'fluid'
@@ -177,10 +185,17 @@
                                                             <div class="gallery-slider-thumbnails-item">
                                                                 {% block element_image_gallery_inner_thumbnails_item_inner %}
                                                                     <div class="gallery-slider-thumbnails-item-inner">
-                                                                        <img src="{{ image.media.url }}"
-                                                                             class="gallery-slider-thumbnails-image"
-                                                                             {% if image.media.translated.title %}title="{{ image.media.translated.title }}"{% endif %}
-                                                                             alt="{{ (image.media.translated.alt ?: image.media.fileName) }}"/>
+                                                                        {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
+                                                                            media: image.media,
+                                                                            sizes: {
+                                                                                'default': '200px'
+                                                                            },
+                                                                            attributes: {
+                                                                                'class': 'gallery-slider-thumbnails-image',
+                                                                                'alt': (image.media.translated.alt ?: ''),
+                                                                                'title': (image.media.translated.title ?: '')
+                                                                            }
+                                                                        } %}
                                                                     </div>
                                                                 {% endblock %}
                                                             </div>
@@ -227,8 +242,8 @@
                                                                         aria-label="Close">
                                                                     {% block element_image_gallery_inner_zoom_modal_close_icon %}
                                                                         <span aria-hidden="true">
-                                                                {% sw_icon 'x' style { 'size': 'sm' } %}
-                                                            </span>
+                                                                            {% sw_icon 'x' style { 'size': 'sm' } %}
+                                                                        </span>
                                                                     {% endblock %}
                                                                 </button>
                                                             {% endblock %}
@@ -278,12 +293,16 @@
                                                                                                 <div class="image-zoom-container"
                                                                                                      data-image-zoom="true">
                                                                                                     {% block element_image_gallery_inner_zoom_modal_slider_item_image %}
-                                                                                                        <img class="gallery-slider-image js-image-zoom-element"
-                                                                                                             data-max-width="{{ image.media.metaData.width }}"
-                                                                                                             data-max-height="{{ image.media.metaData.height }}"
-                                                                                                             src="{{ image.media.url }}"
-                                                                                                             {% if image.media.translated.title %}title="{{ image.media.translated.title }}"{% endif %}
-                                                                                                             alt="{{ (image.media.translated.alt ?: image.media.fileName) }}"/>
+                                                                                                        {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
+                                                                                                            media: mediaItems|first.media,
+                                                                                                            attributes: {
+                                                                                                                'class': 'gallery-slider-image js-image-zoom-element',
+                                                                                                                'alt': (image.media.translated.alt ?: ''),
+                                                                                                                'title': (image.media.translated.title ?: ''),
+                                                                                                                'data-max-width': image.media.metaData.width,
+                                                                                                                'data-max-height': image.media.metaData.height
+                                                                                                            }
+                                                                                                        } %}
                                                                                                     {% endblock %}
                                                                                                 </div>
                                                                                             {% endblock %}
@@ -331,10 +350,17 @@
                                                                                             <div class="gallery-slider-thumbnails-item">
                                                                                                 {% block element_image_gallery_inner_zoom_modal_thumbnails_item_inner %}
                                                                                                     <div class="gallery-slider-thumbnails-item-inner">
-                                                                                                        <img src="{{ image.media.url }}"
-                                                                                                             class="gallery-slider-thumbnails-image"
-                                                                                                             {% if image.media.translated.title %}title="{{ image.media.translated.title }}"{% endif %}
-                                                                                                             alt="{{ (image.media.translated.alt ?: image.media.fileName) }}"/>
+                                                                                                        {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
+                                                                                                            media: image.media,
+                                                                                                            sizes: {
+                                                                                                                'default': '200px'
+                                                                                                            },
+                                                                                                            attributes: {
+                                                                                                                'class': 'gallery-slider-thumbnails-image',
+                                                                                                                'alt': (image.media.translated.alt ?: ''),
+                                                                                                                'title': (image.media.translated.title ?: '')
+                                                                                                            }
+                                                                                                        } %}
                                                                                                     </div>
                                                                                                 {% endblock %}
                                                                                             </div>

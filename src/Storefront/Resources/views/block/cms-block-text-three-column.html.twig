@@ -1,4 +1,6 @@
 {% block block_text_three_column %}
+    {% set columns = 3 %}
+
     {% block block_text_three_column_left %}
         {% set element = block.slots.getSlot('left') %}
 

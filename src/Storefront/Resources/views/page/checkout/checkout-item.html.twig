@@ -44,9 +44,17 @@
                                                            title="{{ lineItem.label }}">
                                                             {% block page_checkout_item_info_image_element %}
                                                                 {% if lineItem.cover.url %}
-                                                                    <img src="{{ lineItem.cover.url }}"
-                                                                         class="img-fluid cart-item-img"
-                                                                         alt="{{ lineItem.cover.fileName }}">
+                                                                    {% sw_thumbnails 'cart-item-img-thumbnails' with {
+                                                                        media: lineItem.cover,
+                                                                        sizes: {
+                                                                            'default': '100px'
+                                                                        },
+                                                                        attributes: {
+                                                                            'class': 'img-fluid cart-item-img',
+                                                                            'alt': (lineItem.cover.translated.alt ?: ''),
+                                                                            'title': (lineItem.cover.translated.title ?: '')
+                                                                        }
+                                                                    } %}
                                                                 {% else %}
                                                                     {% sw_icon 'placeholder' style {
                                                                         'size': 'fluid'

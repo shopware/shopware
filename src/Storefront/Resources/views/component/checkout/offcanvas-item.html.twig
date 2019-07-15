@@ -25,10 +25,17 @@
                                     <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.id})) }}"
                                        title="{{ lineItem.label }}">
                                         {% if lineItem.cover.url %}
-                                            <img src="{{ lineItem.cover.url }}"
-                                                 class="img-fluid"
-                                                 alt="{{ lineItem.label }}"
-                                                 title="{{ lineItem.label }}">
+                                            {% sw_thumbnails 'cart-item-img-thumbnails' with {
+                                                media: lineItem.cover,
+                                                sizes: {
+                                                    'default': '100px'
+                                                },
+                                                attributes: {
+                                                    'class': 'img-fluid',
+                                                    'alt': lineItem.label,
+                                                    'title': lineItem.label
+                                                }
+                                            } %}
                                         {% else %}
                                             {% sw_icon 'placeholder' style {
                                                 'size': 'fluid'

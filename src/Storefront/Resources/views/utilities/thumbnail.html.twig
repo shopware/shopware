@@ -1,16 +1,35 @@
-<picture class="{{ name }}">
-    {% for thumbnail in thumbnails %}
-        <source srcset="{{ thumbnail.url }}" media="(max-width: {{ thumbnail.width }}px)" />
-    {% endfor %}
-
-    {% if default != '' %}
-        {% set lastThumb = default %}
+{% if default is not null %}
+    {% set imgSrc = default %}
+{% else %}
+    {% if media.thumbnails|length > 0 %}
+        {% set imgSrc = media.thumbnails|sort|last.url %}
     {% else %}
-        {% set lastThumb = thumbnails.last.url %}
+        {% set imgSrc = media.url %}
     {% endif %}
-    <img src="{{ lastThumb }}" alt="{{ alt }}" {% apply spaceless %}
-        {% for key,value in attributes %}
-            {{ key }}="{{ value }}"
-        {% endfor %}
-    {% endapply %} />
-</picture>
+{% endif %}
+
+{% if columns and media.thumbnails|length > 0 and sizes is not defined %}
+    {% set container = 1360 %}
+
+    {% set sizes = {
+        'xs': (shopware.theme.breakpoint.sm - 1) ~'px',
+        'sm': (shopware.theme.breakpoint.md - 1) ~'px',
+        'md': ((shopware.theme.breakpoint.lg - 1) / columns)|round(0, 'ceil') ~'px',
+        'lg': ((shopware.theme.breakpoint.xl - 1) / columns)|round(0, 'ceil') ~'px',
+        'xl': (container / columns)|round(0, 'ceil') ~'px'
+    } %}
+{% endif %}
+
+<img src="{{ imgSrc }}"
+    {% if media.thumbnails|length > 0 %}
+        srcset="{% for thumbnail in media.thumbnails|sort|reverse %}{{ thumbnail.url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}"
+        {% if sizes['default'] %}
+            sizes="{{ sizes['default'] }}"
+        {% else %}
+            {% if sizes|length > 0 %}
+                sizes="{% for key, value in shopware.theme.breakpoint|reverse %}{% if maxWidth %}(max-width: {{ maxWidth }}px) and {% endif %}(min-width: {{ value }}px) {{ sizes[key] }}{% set maxWidth = value-1 %}{% if not loop.last %}, {% endif %}{% endfor %}, 100vw"
+            {% endif %}
+        {% endif %}
+    {% endif %}
+    {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
+/>

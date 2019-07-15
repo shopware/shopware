@@ -58,10 +58,22 @@
                 <div class="col-4 col-xl-3">
                     <div class="navigation-flyout-teaser">
                         {% block layout_navigation_flyout_teaser_image %}
-                            <a class="navigation-flyout-teaser-image"
+                            <a class="navigation-flyout-teaser-image-container"
                                href="{{ navigationUrl(navigationTree.category) }}"
-                               title="Zur Kategorie {{ navigationTree.category.translated.name }}"
-                               style="background-image: url('{{ navigationTree.category.media.url }}');"></a>
+                               title="{{ navigationTree.category.translated.name }}">
+                                {% sw_thumbnails 'navigation-flyout-teaser-image-thumbnails' with {
+                                    media: navigationTree.category.media,
+                                    sizes: {
+                                        'default': '310px'
+                                    },
+                                    attributes: {
+                                        'class': 'navigation-flyout-teaser-image',
+                                        'alt': (navigationTree.category.media.translated.alt ?: ''),
+                                        'title': (navigationTree.category.media.translated.title ?: ''),
+                                        'data-object-fit': 'cover'
+                                    }
+                                } %}
+                            </a>
                         {% endblock %}
                     </div>
                 </div>

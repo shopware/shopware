@@ -84,7 +84,6 @@ export default {
 
         initialFolderId() {
             this.mediaFolderId = this.initialFolderId;
-            this.initializeContent();
         },
 
         mediaFolderId() {

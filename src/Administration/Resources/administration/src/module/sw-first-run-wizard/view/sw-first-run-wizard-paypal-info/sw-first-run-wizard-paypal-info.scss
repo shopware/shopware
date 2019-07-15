@@ -52,16 +52,16 @@
 }
 
 .sw-first-run-wizard-paypal-install {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+
     .sw-loader {
         background: none;
     }
 
     .sw-loader-info-text {
-        position: relative;
-        width: 100%;
-        left: 50%;
-        top: 170px;
-        text-align: center;
-        transform: translate(-50%, -50%);
+        margin-top: -150px;
     }
 }

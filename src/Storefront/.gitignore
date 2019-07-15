@@ -3,3 +3,4 @@ composer.lock
 phpunit.xml
 **/Resources/public
 **/Resources/vendor
+!**/Resources/vendor/Inter-3.5

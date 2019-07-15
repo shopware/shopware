@@ -134,10 +134,24 @@ Component.register('sw-profile-index', {
 
             return this.languageRepository.search(languageCriteria, this.context).then((result) => {
                 this.languages = [];
+                const localeIds = [];
+                let fallbackId = '';
+
                 result.forEach((lang) => {
                     lang.customLabel = `${lang.locale.translated.name} (${lang.locale.translated.territory})`;
                     this.languages.push(lang);
+
+                    localeIds.push(lang.localeId);
+                    if (lang.locale.code === this.$store.state.adminLocale.fallbackLocale) {
+                        fallbackId = lang.localeId;
+                    }
                 });
+
+                if (!localeIds.includes(this.user.localeId)) {
+                    this.user.localeId = fallbackId;
+                    this.saveUser();
+                }
+                this.isUserLoading = false;
 
                 return this.languages;
             });

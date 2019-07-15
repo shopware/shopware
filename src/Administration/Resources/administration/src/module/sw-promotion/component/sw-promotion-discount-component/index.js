@@ -30,7 +30,10 @@ Component.register('sw-promotion-discount-component', {
             isLoading: false,
             showRuleModal: false,
             showDeleteModal: false,
-            currencySymbol: null
+            currencySymbol: null,
+            allowProductRules: false,
+            cartScope: this.discount.scope === DiscountScopes.CART,
+            considerAdvancedRules: this.discount.considerAdvancedRules
         };
     },
     created() {
@@ -69,7 +72,8 @@ Component.register('sw-promotion-discount-component', {
 
         scopes() {
             return [
-                { key: DiscountScopes.CART, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeCart') }
+                { key: DiscountScopes.CART, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeCart') },
+                { key: DiscountScopes.DELIVERY, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeDelivery') }
             ];
         },
 
@@ -94,7 +98,7 @@ Component.register('sw-promotion-discount-component', {
         },
 
         showAbsoluteAdvancedPricesSettings() {
-            return this.discount.type === DiscountTypes.ABSOLUTE;
+            return (this.discount.type === DiscountTypes.ABSOLUTE || this.discount.type === DiscountTypes.FIXED);
         }
 
     },
@@ -189,6 +193,15 @@ Component.register('sw-promotion-discount-component', {
             this.$nextTick(() => {
                 this.$emit('discount-delete', this.discount);
             });
+        },
+        onDiscountScopeChanged(value) {
+            if (value === DiscountScopes.DELIVERY) {
+                this.discount.considerAdvancedRules = false;
+                this.cartScope = false;
+            } else {
+                this.discount.considerAdvancedRules = this.considerAdvancedRules;
+                this.cartScope = true;
+            }
         }
     }
 });

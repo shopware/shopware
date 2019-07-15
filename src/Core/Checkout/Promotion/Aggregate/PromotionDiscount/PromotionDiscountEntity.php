@@ -20,6 +20,12 @@ class PromotionDiscountEntity extends Entity
     public const SCOPE_CART = 'cart';
 
     /**
+     * This scope defines promotion discounts on
+     * the delivery costs.
+     */
+    public const SCOPE_DELIVERY = 'delivery';
+
+    /**
      * This type defines a percentage
      * price definition of the discount.
      */

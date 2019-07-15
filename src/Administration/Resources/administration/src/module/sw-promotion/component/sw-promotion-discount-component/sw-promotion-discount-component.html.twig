@@ -13,7 +13,8 @@
                 <sw-select-field v-model="discount.scope"
                                  required
                                  validation="required"
-                                 :label="$tc('sw-promotion.detail.main.discounts.labelScope')">
+                                 :label="$tc('sw-promotion.detail.main.discounts.labelScope')"
+                                 @change="onDiscountScopeChanged">
                     <option v-for="scope in scopes" :value="scope.key">
                         {{ scope.name }}
                     </option>
@@ -21,16 +22,18 @@
             {% endblock %}
 
             {% block sw_promotion_discount_condition_consider_product_rules_field %}
-                <sw-field type="switch"
-                          bordered
-                          :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
-                          v-model="discount.considerAdvancedRules">
-                </sw-field>
+                <template v-if="cartScope">
+                    <sw-field type="switch"
+                              bordered
+                              :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
+                              v-model="discount.considerAdvancedRules">
+                    </sw-field>
+                </template>
             {% endblock %}
         </sw-container>
 
         {% block sw_promotion_discount_condition_rules_form %}
-            <template v-if="discount.considerAdvancedRules === true">
+            <template v-if="cartScope && discount.considerAdvancedRules === true">
                 <sw-promotion-rule-select
                         class="sw-promotion-discount-component__select-discount-rules"
                         v-model="discount.discountRules"

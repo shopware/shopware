@@ -390,7 +390,7 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixtureProduct($productIdTwo, 100, 7, $this->getContainer());
 
         // add a new promotion
-        $this->createTestFixtureFixedPricePromotion($promotionId, $code, 40, $this->getContainer());
+        $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $this->context);
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
@@ -435,13 +435,12 @@ class PromotionCalculationTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
-        $code = 'BF19';
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
 
         // add a new promotion
-        $this->createFixedAutoPromotion($promotionId, 40);
+        $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, null, $this->getContainer(), $this->context);
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
@@ -510,6 +509,53 @@ class PromotionCalculationTest extends TestCase
     }
 
     /**
+     * This test verifies that we use the max value of our currency
+     * instead of the defined fixed price, if existing.
+     * Thus we create a promotion with a fixed price of 80
+     * That would lead to 80 EUR for the product
+     * But for your currency defined price, we use 65 as fixed price instead.
+     * Our test needs to verify that we use 30 EUR, and end with a product sum of 65 EUR in the end.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testFixedPriceDiscountWithCurrencyPrices(): void
+    {
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $code = 'BF19';
+
+        $productGross = 100;
+        $fixedPriceValue = 80;
+        $currencyMaxValue = 65.0;
+
+        $expectedPrice = $currencyMaxValue;
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, $productGross, 19, $this->getContainer());
+
+        /** @var string $discountId */
+        $discountId = $this->createTestFixtureFixedDiscountPromotion($promotionId, $fixedPriceValue, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $this->context);
+
+        $this->createTestFixtureAdvancedPrice($discountId, Defaults::CURRENCY, $currencyMaxValue, $this->getContainer());
+
+        /** @var Cart $cart */
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // create product and add to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        static::assertEquals($productGross, $cart->getPrice()->getTotalPrice());
+
+        // create promotion and add to cart
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        static::assertEquals($expectedPrice, $cart->getPrice()->getPositionPrice());
+        static::assertEquals($expectedPrice, $cart->getPrice()->getTotalPrice());
+        static::assertEquals(54.62, $cart->getPrice()->getNetPrice());
+    }
+
+    /**
      * create a promotion with a currency based price value discount.
      */
     private function createAdvancedCurrencyPriceValuePromotion(string $promotionId, string $code, float $discountPrice, float $advancedPrice)
@@ -541,34 +587,6 @@ class PromotionCalculationTest extends TestCase
                                     'price' => $advancedPrice,
                                 ],
                             ],
-                        ],
-                    ],
-                ],
-            ],
-            $this->context->getContext()
-        );
-    }
-
-    private function createFixedAutoPromotion(string $promotionId, float $fixedPrice)
-    {
-        $this->promotionRepository->create(
-            [
-                [
-                    'id' => $promotionId,
-                    'name' => 'Black Friday',
-                    'active' => true,
-                    'code' => null,
-                    'useCodes' => false,
-                    'salesChannels' => [
-                        ['salesChannelId' => Defaults::SALES_CHANNEL, 'priority' => 1],
-                    ],
-                    'discounts' => [
-                        [
-                            'id' => Uuid::randomHex(),
-                            'scope' => PromotionDiscountEntity::SCOPE_CART,
-                            'type' => PromotionDiscountEntity::TYPE_FIXED,
-                            'value' => $fixedPrice,
-                            'considerAdvancedRules' => false,
                         ],
                     ],
                 ],

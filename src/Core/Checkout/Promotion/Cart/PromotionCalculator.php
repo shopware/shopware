@@ -82,6 +82,14 @@ class PromotionCalculator
 
         /* @var LineItem $discountLineItem */
         foreach ($discountLineItems as $discountItem) {
+            if (!$discountItem->hasPayloadValue('discountScope')) {
+                continue;
+            }
+
+            if ($discountItem->getPayloadValue('discountScope') !== PromotionDiscountEntity::SCOPE_CART) {
+                continue;
+            }
+
             // we have to verify if the line item is still valid depending on
             // the added requirements and conditions.
             if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
@@ -103,7 +111,10 @@ class PromotionCalculator
                     // if we our price is 0,00 because of whatever reason, make sure to skip it.
                     // this can be if the price-definition filter is none,
                     // or if a fixed price is set to the price of the product itself.
-                    if ($discountItem->getPrice() === null || abs($discountItem->getPrice()->getTotalPrice()) === 0.0) {
+                    if (
+                        $discountItem->getType() !== PromotionDiscountEntity::SCOPE_DELIVERY
+                        && ($discountItem->getPrice() === null || abs($discountItem->getPrice()->getTotalPrice()) === 0.0)
+                    ) {
                         continue 2;
                     }
 
@@ -147,7 +158,13 @@ class PromotionCalculator
 
         $discountedPriceValue = 0.0;
 
-        $fixedProductPrice = (float) $discount->getPayloadValue('value');
+        $absolutePriceDefinition = $discount->getPriceDefinition();
+
+        if (!$absolutePriceDefinition instanceof AbsolutePriceDefinition) {
+            throw new InvalidPriceDefinitionException($discount);
+        }
+
+        $fixedProductPrice = (float) abs($absolutePriceDefinition->getPrice());
 
         // iterate over every lineItem that may be discounted and create a separate discount for each
         /** @var LineItem $lineItem */

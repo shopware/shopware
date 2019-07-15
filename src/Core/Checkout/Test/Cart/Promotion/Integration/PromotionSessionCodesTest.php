@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
@@ -212,7 +213,7 @@ class PromotionSessionCodesTest extends TestCase
         $this->createTestFixtureProduct($productTwoId, 100, 7, $this->getContainer());
 
         // add a new promotion black friday
-        $this->createTestFixtureFixedPricePromotion($promotionId, $promotionCode, 30, $this->getContainer());
+        $this->createTestFixtureFixedDiscountPromotion($promotionId, 30, PromotionDiscountEntity::SCOPE_CART, $promotionCode, $this->getContainer(), $this->context);
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);

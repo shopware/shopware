@@ -266,11 +266,6 @@ class PromotionCollector implements CartDataCollectorInterface
 
         /** @var PromotionDiscountEntity $discount */
         foreach ($collection->getElements() as $discount) {
-            // we only calculate discounts with scope cart in this processor
-            if ($discount->getScope() !== PromotionDiscountEntity::SCOPE_CART) {
-                continue;
-            }
-
             /** @var array $itemIds */
             $itemIds = $this->getAllLineItemIds($cart);
 

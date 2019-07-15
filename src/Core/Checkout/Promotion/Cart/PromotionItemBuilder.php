@@ -6,7 +6,9 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceEntity;
@@ -106,6 +108,7 @@ class PromotionItemBuilder
                 break;
 
             case PromotionDiscountEntity::TYPE_FIXED:
+                $promotionValue = -abs($this->getCurrencySpecificValue($discount, $discount->getValue(), $context));
                 $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
                 break;
 
@@ -153,6 +156,33 @@ class PromotionItemBuilder
     }
 
     /**
+     * in case of a delivery discount we add a 0.0 lineItem just to show customers and
+     * shop owners, that delivery costs have been discounted by a promotion discount
+     * if promotion is a auto promotion (no code) it may not be removed from cart
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     */
+    public function buildDeliveryPlaceholderLineItem(LineItem $discount, QuantityPriceDefinition $priceDefinition, CalculatedPrice $price): LineItem
+    {
+        $mayRemove = true;
+        if ($discount->getReferencedId() === null) {
+            $mayRemove = false;
+        }
+        // create a fake lineItem that stores our promotion code
+        $promotionItem = new LineItem($discount->getId(), PromotionProcessor::LINE_ITEM_TYPE, $discount->getReferencedId(), 1);
+        $promotionItem->setLabel($discount->getLabel());
+        $promotionItem->setDescription($discount->getLabel());
+        $promotionItem->setGood(false);
+        $promotionItem->setRemovable($mayRemove);
+        $promotionItem->setPayload($discount->getPayload());
+        $promotionItem->setPriceDefinition($priceDefinition);
+        $promotionItem->setPrice($price);
+
+        return $promotionItem;
+    }
+
+    /**
      * Builds a custom payload array from the provided promotion data.
      * This will make sure we have our eligible items referenced as meta data
      * and also have the code in our payload.
@@ -179,6 +209,9 @@ class PromotionItemBuilder
         } else {
             $payload['maxValue'] = '';
         }
+
+        // set the scope of the discount cart, delivery....
+        $payload['discountScope'] = $discount->getScope();
 
         return $payload;
     }

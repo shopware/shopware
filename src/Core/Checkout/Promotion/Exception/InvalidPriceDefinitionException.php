@@ -10,6 +10,15 @@ class InvalidPriceDefinitionException extends ShopwareHttpException
 {
     public function __construct(LineItem $discount)
     {
+        if ($discount->getReferencedId() === null) {
+            parent::__construct(
+                'Invalid price definition for automated promotion "{{ label }}"',
+                ['label' => $discount->getLabel()]
+            );
+
+            return;
+        }
+
         parent::__construct(
             'Invalid price definition for promotion line item with code "{{ code }}"',
             ['code' => $discount->getReferencedId()]

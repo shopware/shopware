@@ -1,5 +1,7 @@
 const CART = 'cart';
+const DELIVERY = 'delivery';
 
 export default {
-    CART: CART
+    CART: CART,
+    DELIVERY: DELIVERY
 };

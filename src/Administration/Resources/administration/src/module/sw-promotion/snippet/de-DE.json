@@ -119,6 +119,7 @@
           "placeholder": "Produktregeln zuweisen ...",
           "labelType": "Art",
           "valueScopeCart": "Warenkorb",
+          "valueScopeDelivery": "Versandkosten",
           "valueTypeAbsolute": "Absolut",
           "valueTypePercentage": "Prozentual",
           "valueTypeFixed": "Festpreis",

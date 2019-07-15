@@ -107,4 +107,51 @@ class TextTypeDataResolverTest extends TestCase
         static::assertInstanceOf(TextStruct::class, $slot->getData());
         static::assertEquals($product->getDescription(), $slot->getData()->getContent());
     }
+
+    public function testWithMappedContentAndTranslationFallback(): void
+    {
+        $product = new ProductEntity();
+        $product->setTranslated(['description' => 'fallback foo']);
+
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $result = new ElementDataCollection();
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_MAPPED, 'product.description'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('text');
+        $slot->setConfig([]);
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->textResolver->enrich($slot, $resolverContext, $result);
+
+        static::assertInstanceOf(TextStruct::class, $slot->getData());
+        static::assertEquals('fallback foo', $slot->getData()->getContent());
+    }
+
+    public function testWithMappedContentAndTranslation(): void
+    {
+        $product = new ProductEntity();
+        $product->setDescription('foobar loo');
+        $product->setTranslated(['description' => 'fallback foo']);
+
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $result = new ElementDataCollection();
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_MAPPED, 'product.description'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('text');
+        $slot->setConfig([]);
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->textResolver->enrich($slot, $resolverContext, $result);
+
+        static::assertInstanceOf(TextStruct::class, $slot->getData());
+        static::assertEquals($product->getDescription(), $slot->getData()->getContent());
+    }
 }

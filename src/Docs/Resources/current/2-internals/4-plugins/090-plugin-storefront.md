@@ -8,7 +8,6 @@ This guide is about plugins which change the appearance or the behavior of the s
 If you want to add your own styles (css/scss) or Javascript to the Storefront, you can 
 put them in the following folders:
 
-// todo check paths
 Resources/storefront/script -> for script files like *.js
 Resources/storefront/style -> for style files like *.css / *.scss
 

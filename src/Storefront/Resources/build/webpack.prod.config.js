@@ -33,7 +33,6 @@ const optimization = {
  * Export the webpack configuration
  */
 module.exports = {
-    devtool: 'source-map',
     mode: 'production',
     optimization: optimization,
 };

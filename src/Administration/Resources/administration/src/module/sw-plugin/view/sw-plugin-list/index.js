@@ -84,6 +84,8 @@ Component.register('sw-plugin-list', {
                     });
                     this.getList();
                     this.cacheApiService.clear();
+
+                    window.location.reload();
                 });
             } else {
                 this.pluginService.activate(plugin.name).then(() => {
@@ -93,6 +95,8 @@ Component.register('sw-plugin-list', {
                     });
                     this.getList();
                     this.cacheApiService.clear();
+
+                    window.location.reload();
                 });
             }
         },

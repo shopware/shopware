@@ -410,6 +410,8 @@ SQL;
 
     private function parseShopwareVersion(?string $version): void
     {
+         $ version  =  ltrim ( version $ , ' v ' );
+        $ version  =  str numplace ( ' + ' , ' - ' , $ version );
         // does not come from composer, was set manually
         if ($version === null || mb_strpos($version, '@') === false) {
             $this->shopwareVersion = self::SHOPWARE_FALLBACK_VERSION;

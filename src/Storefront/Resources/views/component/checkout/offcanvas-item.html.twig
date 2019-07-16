@@ -23,6 +23,7 @@
                                     </div>
                                 {% else %}
                                     <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.id})) }}"
+                                       class="cart-item-img-link"
                                        title="{{ lineItem.label }}">
                                         {% if lineItem.cover.url %}
                                             {% sw_thumbnails 'cart-item-img-thumbnails' with {

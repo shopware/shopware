@@ -61,8 +61,8 @@ Component.register('sw-theme-modal', {
             this.closeModal();
         },
 
-        selectItem(layout) {
-            this.selected = layout;
+        selectItem(themeId) {
+            this.selected = themeId;
         },
 
         onSearch(value) {
@@ -72,8 +72,8 @@ Component.register('sw-theme-modal', {
             this.getList();
         },
 
-        onSelection(selection) {
-            this.selected = selection;
+        onSelection(themeId) {
+            this.selected = themeId;
         },
 
         closeModal() {

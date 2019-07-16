@@ -37,7 +37,7 @@
       "disclaimerLineTwo": "** vorbehaltlich einer positiven Risikoprüfung von PayPal"
     },
     "paypalInstall": {
-      "loadingMessage": "Installiere PayPal-Plugin<br>Das könnte einen Moment dauern..."
+      "loadingMessage": "PayPal wird konfiguriert<br>Das könnte einen Moment dauern..."
     },
     "recommendedPlugins": {
       "headline": "Unsere Empfehlungen",
@@ -70,7 +70,7 @@
       "titleLoginDataInvalid": "Fehler",
       "messageLoginDataInvalid": "Login Daten sind unvollständig.",
       "titlePayPalInstallationFailed": "Fehler",
-      "messagePayPalInstallationFailed": "PayPal installation fehlgeschlagen"
+      "messagePayPalInstallationFailed": "PayPal Konfiguration fehlgeschlagen"
     },
     "stepItemTitle": {
       "demodata": "Demodaten",

@@ -314,6 +314,7 @@ final class FirstRunWizardClient
                 'headers' => $headers,
             ]
         );
+
         $data = json_decode($response->getBody()->getContents(), true);
 
         $currentLicenseDomain = $this->configService->get(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN);
@@ -406,21 +407,17 @@ final class FirstRunWizardClient
         $headers = $this->client->getConfig('headers');
         $headers[self::SHOPWARE_TOKEN_HEADER] = $storeToken;
 
-        try {
-            $this->client->post(
-                '/swplatform/firstrunwizard/shops',
-                [
-                    'json' => [
-                        'domain' => $domain,
-                        'shopwareVersion' => $this->storeService->getShopwareVersion(),
-                        'testEnvironment' => $testEnvironment,
-                    ],
-                    'headers' => $headers,
-                ]
-            );
-        } catch (\Exception $e) {
-            throw new LicenseDomainVerificationException($domain, $e->getMessage());
-        }
+        $this->client->post(
+            '/swplatform/firstrunwizard/shops',
+            [
+                'json' => [
+                    'domain' => $domain,
+                    'shopwareVersion' => $this->storeService->getShopwareVersion(),
+                    'testEnvironment' => $testEnvironment,
+                ],
+                'headers' => $headers,
+            ]
+        );
     }
 
     private function fetchVerificationInfo(string $domain, string $language, string $storeToken): DomainVerificationRequestStruct
@@ -480,7 +477,7 @@ final class FirstRunWizardClient
         try {
             $this->filesystem->put($validationRequest->getFileName(), $validationRequest->getContent());
         } catch (\Exception $e) {
-            throw new LicenseDomainVerificationException($domain, $e->getMessage());
+            throw new LicenseDomainVerificationException($domain);
         }
     }
 }

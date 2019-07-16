@@ -34,11 +34,11 @@
                 {% if product.priceRange %}
                     {{ product.calculatedListingPrice.from.unitPrice|currency }}
                     -
-                    {{ product.calculatedListingPrice.to.unitPrice|currency }}
+                    {{ product.calculatedListingPrice.to.unitPrice|currency }}{{ "general.star"|trans }}
                 {% elseif product.calculatedPrices|length == 1 %}
-                    {{ product.calculatedPrices.first.unitPrice|currency }}
+                    {{ product.calculatedPrices.first.unitPrice|currency }}{{ "general.star"|trans }}
                 {% else %}
-                    {{ product.calculatedPrice.unitPrice|currency }}
+                    {{ product.calculatedPrice.unitPrice|currency }}{{ "general.star"|trans }}
                 {% endif %}
             </p>
         {% endblock %}

@@ -5,8 +5,7 @@
     {% block page_checkout_confirm_address %}
         <div class="row js-confirm-overview-addresses">
             {% block page_checkout_confirm_address_billing %}
-                <div
-                    class="col-sm-6 card-col confirm-billing-address">
+                <div class="col-sm-6 card-col confirm-billing-address">
                     <div class="card checkout-card">
                         <div class="card-body">
                             {% block page_checkout_confirm_address_billing_title %}
@@ -31,10 +30,9 @@
                                            class="btn btn-light"
                                            data-address-editor="true"
                                            data-address-editor-options='{
-                                                    "redirectRoute": "frontend.checkout.ajax-addresses",
-                                                    "replaceSelector": ".js-confirm-overview-addresses",
-                                                    "changeBilling": true
-                                                }'>
+                                                "redirectRoute": "frontend.checkout.ajax-addresses",
+                                                "changeBilling": true
+                                            }'>
                                             {{ "account.overviewChangeBilling"|trans }}
                                         </a>
                                     {% endblock %}
@@ -79,10 +77,9 @@
                                            class="btn btn-light"
                                            data-address-editor="true"
                                            data-address-editor-options='{
-                                                    "redirectRoute": "frontend.checkout.ajax-addresses",
-                                                    "replaceSelector": ".js-confirm-overview-addresses",
-                                                    "changeShipping": true
-                                                }'>
+                                                "redirectRoute": "frontend.checkout.ajax-addresses",
+                                                "changeShipping": true
+                                            }'>
                                             {{ "account.overviewChangeShipping"|trans }}
                                         </a>
                                     {% endblock %}

@@ -107,6 +107,17 @@ Component.register('sw-order-address-modal', {
         onSave() {
             this.isLoading = true;
 
+            const isShippingAvailable = this.order.addresses[0].country.shippingAvailable;
+            if (!isShippingAvailable && typeof isShippingAvailable === 'boolean') {
+                this.createNotificationError({
+                    title: this.$tc('sw-order.detail.notification.shippingNotAvailable.title'),
+                    message: this.$tc('sw-order.detail.notification.shippingNotAvailable.message')
+                });
+
+                this.isLoading = false;
+                return;
+            }
+
             new Promise((resolve) => {
                 // check if user selected an address
                 if (this.selectedAddressId !== 0) {

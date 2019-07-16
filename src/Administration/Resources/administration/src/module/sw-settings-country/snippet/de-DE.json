@@ -33,6 +33,7 @@
       "labelIso": "ISO",
       "labelIso3": "ISO3",
       "labelActive": "Aktiv",
+      "labelShippingAvailable": "Versand verfügbar",
       "placeholderName": "Namen eingeben ...",
       "placeholderPosition": "1",
       "placeholderIso": "ISO-Code eingeben ...",

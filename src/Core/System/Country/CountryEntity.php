@@ -40,6 +40,11 @@ class CountryEntity extends Entity
     protected $active;
 
     /**
+     * @var bool
+     */
+    protected $shippingAvailable;
+
+    /**
      * @var string|null
      */
     protected $iso3;
@@ -137,6 +142,16 @@ class CountryEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getShippingAvailable(): bool
+    {
+        return $this->shippingAvailable;
+    }
+
+    public function setShippingAvailable(bool $shippingAvailable): void
+    {
+        $this->shippingAvailable = $shippingAvailable;
     }
 
     public function getIso3(): ?string

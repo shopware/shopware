@@ -36,7 +36,13 @@
       "titleRecalculationError": "Error",
       "messageRecalculationError": "An error occurred while calculating the price: <br>",
       "titleSaveError": "Error",
-      "messageSaveError": "An error occurred during saving"
+      "messageSaveError": "An error occurred during saving",
+      "notification": {
+        "shippingNotAvailable": {
+          "title": "Error",
+          "message": "Delivery to the selected country not possible"
+        }
+      }
     },
     "detailBase": {
       "cardTitleDetails": "Details",

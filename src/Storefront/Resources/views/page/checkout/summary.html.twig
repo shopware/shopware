@@ -49,7 +49,7 @@
 
                     {% block page_checkout_summary_total_value %}
                         <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
-                            {{ summary.price.totalPrice|currency }}
+                            {{ summary.price.totalPrice|currency }}{{ "general.star"|trans }}
                         </dd>
                     {% endblock %}
                 {% endblock %}

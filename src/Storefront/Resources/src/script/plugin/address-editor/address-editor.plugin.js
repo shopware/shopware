@@ -186,11 +186,11 @@ export default class AddressEditorPlugin extends Plugin {
                         instance.addCallback(() => {
                             pseudoModal.close();
 
-                            this.$emitter.publish('modalClose', { pseudoModal });
+                            PageLoadingIndicatorUtil.create();
+
+                            window.location.reload();
                         });
                     }
-
-                    instance.addCallback(this._registerModalEvents.bind(this, pseudoModal));
                 }
             });
         }

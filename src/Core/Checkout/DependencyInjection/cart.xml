@@ -148,6 +148,10 @@
             <tag name="shopware.cart.validator"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Address\AddressValidator">
+            <tag name="shopware.cart.validator"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Validator">
             <argument type="tagged" tag="shopware.cart.validator"/>
         </service>

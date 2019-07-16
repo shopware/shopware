@@ -24,5 +24,5 @@ const plugins = [
 module.exports = {
     devtool: 'cheap-module-eval-source-map',
     mode: 'development',
-    plugins: plugins
+    plugins: plugins,
 };

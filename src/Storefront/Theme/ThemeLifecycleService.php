@@ -56,9 +56,9 @@ class ThemeLifecycleService
     public function refreshThemes(Context $context, ?StorefrontPluginConfiguration $storefrontPluginConfig = null): void
     {
         if ($storefrontPluginConfig === null) {
-            $configurationCollection = $this->pluginRegistry->getConfigurations();
+            $configurationCollection = $this->pluginRegistry->getConfigurations()->getThemes();
         } else {
-            $configurationCollection = clone $this->pluginRegistry->getConfigurations();
+            $configurationCollection = clone $this->pluginRegistry->getConfigurations()->getThemes();
             $configurationCollection->add($storefrontPluginConfig);
         }
 

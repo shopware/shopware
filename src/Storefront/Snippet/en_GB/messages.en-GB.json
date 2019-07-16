@@ -25,7 +25,7 @@
         "required": "*",
         "requiredFields": "Fields marked with * are required",
         "privacyTitle": "Privacy",
-        "privacyNotice": "I have read the <a data-toggle='modal' data-url='%tosUrl%' href='%tosUrl%' title='Data protection information'>data protection information</a>."
+        "privacyNotice": "I have read the <a data-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"Data protection information\">data protection information</a>."
     },
     "header": {
         "logoLink": "Go to homepage",
@@ -33,7 +33,7 @@
         "searchPlaceholder": "Search all categories...",
         "searchAllResults": "Show all search results",
         "searchResults": "Results",
-        "supportInfo": "<strong>Questions regarding your order?</strong><br /><strong><a href='tel:+4912345-123456789'>12345-123456789</a></strong> <small>Daily from 7:30 am to 10:00 pm</small>",
+        "supportInfo": "<strong>Questions regarding your order?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Daily from 7:30 am to 10:00 pm</small>",
         "indexLinkService": "Service/Help",
         "searchNoResult": "No results found"
     },
@@ -281,7 +281,7 @@
         "confirmSubmit": "Send order",
         "confirmTermsHeader": "Terms, conditions and cancellation policy",
         "confirmRevocationNotice": "Please note our cancellation policy.",
-        "confirmTerms": "I have read and accepted the <a data-toggle='modal' data-url='%tosUrl%' href='%tosUrl%' title='General terms and conditions'>General terms and conditions</a> of your shop.",
+        "confirmTerms": "I have read and accepted the <a data-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"General terms and conditions\">General terms and conditions</a> of your shop.",
         "finishInfoPayment": "Payment method:",
         "finishInfoShipping": "Shipping type:",
         "finishHeader": "Thank you for your order with %shop%!",
@@ -357,16 +357,16 @@
         "shopServiceHeadline": "Shop Service",
         "informationHeadline": "Information",
         "newsletterHeadline": "Newsletter",
-        "serviceHotline": "Support and counselling via: <a href='tel:+49180000000'>0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
-        "serviceContactLink": "Or via our <a href='%link%' title='contact form'>contact form</a>",
+        "serviceHotline": "Support and counselling via: <a href=\"tel:+49180000000\">0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
+        "serviceContactLink": "Or via our <a href=\"%link%\" title=\"contact form\">contact form</a>",
         "newsletterInput": "Your email address",
         "newsletter": "Subscribe to our regular newsletter now and stay tuned on the latest products and special offers.",
         "includeVat": "* All prices incl. value added tax",
-        "excludeVat": "* All prices are quoted net of the statutory value-added tax, <a href='#'>shipping costs</a> and possibly delivery charges, if not otherwise described",
+        "excludeVat": "* All prices are quoted net of the statutory value-added tax, <a href=\"#\">shipping costs</a> and possibly delivery charges, if not otherwise described",
         "copyrightInfo": "Realised with Shopware"
     },
     "cookie": {
-        "message": "This website uses cookies to ensure you get the best experience on our website.&nbsp;<a href='#'>More&nbsp;information</a>",
+        "message": "This website uses cookies to ensure you get the best experience on our website.&nbsp;<a href=\"#\">More information</a>",
         "accept": "Accept"
     },
     "document": {

@@ -67,7 +67,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
             }).catch((error) => {
                 const msg = error.response.data.errors.pop();
 
-                this.domainError = msg.detail;
+                this.domainError = msg;
 
                 return true;
             });

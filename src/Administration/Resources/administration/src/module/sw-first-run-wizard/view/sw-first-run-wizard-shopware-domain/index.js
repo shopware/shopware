@@ -49,10 +49,6 @@ Component.register('sw-first-run-wizard-shopware-domain', {
             this.addNextCallback(this.verifyDomain);
         },
 
-        onSelectDomain() {
-            this.verfiyDomain();
-        },
-
         verifyDomain() {
             const { testEnvironment } = this;
             const domain = this.domainToVerify;

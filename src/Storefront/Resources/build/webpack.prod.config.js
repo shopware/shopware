@@ -24,7 +24,7 @@ const optimization = {
             },
             cache: true,
             parallel: true,
-            sourceMap: true,
+            sourceMap: false,
         }),
     ],
 };
@@ -35,4 +35,5 @@ const optimization = {
 module.exports = {
     mode: 'production',
     optimization: optimization,
+    devtool: 'none',
 };

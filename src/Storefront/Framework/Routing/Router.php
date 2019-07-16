@@ -108,7 +108,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                 $generated = $this->decorated->generate($name, $parameters);
                 $pathInfo = $this->removePrefix($generated, $basePath);
 
-                $rewrite = $schemaAuthority . rtrim($salesChannelBaseUrl, '/') . $pathInfo;
+                $rewrite = $schemaAuthority . rtrim($basePath, '/') . rtrim($salesChannelBaseUrl, '/') . $pathInfo;
                 break;
 
             case self::RELATIVE_PATH:

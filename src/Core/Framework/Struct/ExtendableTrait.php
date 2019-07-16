@@ -2,11 +2,6 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-/**
- * @category  Shopware\Core
- *
- * @copyright Copyright (c) shopware AG (http://www.shopware.de)
- */
 trait ExtendableTrait
 {
     /**

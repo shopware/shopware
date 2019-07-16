@@ -4,6 +4,8 @@ namespace Shopware\Storefront\Theme;
 
 use League\Flysystem\FilesystemInterface;
 use ScssPhp\ScssPhp\Compiler;
+use ScssPhp\ScssPhp\Formatter\Crunched;
+use ScssPhp\ScssPhp\Formatter\Expanded;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -36,7 +38,8 @@ class ThemeCompiler
     public function __construct(
         FilesystemInterface $publicFilesystem,
         Filesystem $localFileSystem,
-        string $cacheDir
+        string $cacheDir,
+        bool $debug
     ) {
         $this->publicFilesystem = $publicFilesystem;
         $this->localFileSystem = $localFileSystem;
@@ -44,6 +47,8 @@ class ThemeCompiler
 
         $this->scssCompiler = new Compiler();
         $this->scssCompiler->setImportPaths('');
+
+        $this->scssCompiler->setFormatter($debug ? Expanded::class : Crunched::class);
     }
 
     public function compileTheme(
@@ -191,9 +196,7 @@ class ThemeCompiler
         StorefrontPluginConfiguration $originalConfig
     ): string {
         if (strpos($cssFile, '@') !== 0) {
-            $this->scssCompiler->addImportPath(dirname($cssFile));
-
-            return file_get_contents($cssFile) . PHP_EOL;
+            return '@import \'' . $cssFile . '\';' . PHP_EOL;
         }
 
         if ($cssFile === '@Plugins') {
@@ -222,10 +225,6 @@ class ThemeCompiler
         StorefrontPluginConfigurationCollection $configurationCollection
     ): string {
         $concatenated = $this->concatenateCss($config->getStyleFiles(), $configurationCollection, $config);
-
-        foreach ($config->getStyleFiles() as $styleFile) {
-            $this->scssCompiler->addImportPath(dirname($styleFile));
-        }
 
         $this->scssCompiler->addImportPath(function ($originalPath) use ($config) {
             foreach ($config->getEntries() as $entry => $entryPath) {

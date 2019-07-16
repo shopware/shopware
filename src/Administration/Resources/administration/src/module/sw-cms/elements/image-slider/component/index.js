@@ -1,4 +1,4 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Application, Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-cms-el-image-slider.html.twig';
 import './sw-cms-el-image-slider.scss';
 
@@ -22,7 +22,8 @@ Component.register('sw-cms-el-image-slider', {
             columnCount: 7,
             columnWidth: 90,
             sliderPos: 0,
-            imgSrc: '/administration/static/img/cms/preview_mountain_large.jpg'
+            imgPath: '/administration/static/img/cms/preview_mountain_large.jpg',
+            imgSrc: ''
         };
     },
 
@@ -84,6 +85,12 @@ Component.register('sw-cms-el-image-slider', {
             }
 
             return `align-self: ${this.element.config.verticalAlign.value};`;
+        },
+
+        contextAssetPath() {
+            const initContainer = Application.getContainer('init');
+
+            return initContainer.contextService.assetsPath;
         }
     },
 
@@ -94,7 +101,7 @@ Component.register('sw-cms-el-image-slider', {
                     this.imgSrc = this.sliderItems[0].media.url;
                     this.$emit('active-image-change', this.sliderItems[0].media);
                 } else {
-                    this.imgSrc = '/administration/static/img/cms/preview_mountain_large.jpg';
+                    this.imgSrc = `${this.contextAssetPath}${this.imgPath}`;
                 }
             },
             deep: true
@@ -117,6 +124,8 @@ Component.register('sw-cms-el-image-slider', {
             if (this.element.data && this.element.data.sliderItems && this.element.data.sliderItems.length > 0) {
                 this.imgSrc = this.sliderItems[0].media.url;
                 this.$emit('active-image-change', this.sliderItems[this.sliderPos].media);
+            } else {
+                this.imgSrc = `${this.contextAssetPath}${this.imgPath}`;
             }
         },
 

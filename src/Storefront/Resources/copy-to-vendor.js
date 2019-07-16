@@ -47,18 +47,19 @@ function onCopyProcess(results) {
         .then(() => {
             console.log('');
             console.log('✓ Done, all directories / files copied successfully.');
+
+            const endTime = process.hrtime(startTime);
+            console.log(`Execution time: ${endTime[1] / 1000000}ms`);
         })
         .catch((err) => {
             console.log('');
             console.error('✖ An error occurred while copying files');
-            throw err;
-        })
-        .finally(() => {
+
             const endTime = process.hrtime(startTime);
             console.log(`Execution time: ${endTime[1] / 1000000}ms`);
-        });
-}
 
-const fullToPath = path.join(__dirname, toDirectory);
+            throw err;
+        })
+}
 
 onCopyProcess(iterateFromDirectories(fromDirectories));

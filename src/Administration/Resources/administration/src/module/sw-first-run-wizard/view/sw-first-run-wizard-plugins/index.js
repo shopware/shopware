@@ -73,7 +73,7 @@ Component.register('sw-first-run-wizard-plugins', {
         },
 
         getRecommendations() {
-            const language = this.$store.state.adminLocale.currentLocale;
+            const language = window.localStorage.getItem('sw-admin-locale');
             const region = this.selectedRegion.name;
             const category = this.selectedCategory.name;
 
@@ -87,7 +87,7 @@ Component.register('sw-first-run-wizard-plugins', {
         },
 
         getRecommendationRegions() {
-            const language = this.$store.state.adminLocale.currentLocale;
+            const language = window.localStorage.getItem('sw-admin-locale');
 
             this.recommendationsService.getRecommendationRegions({
                 language

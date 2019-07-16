@@ -65,7 +65,13 @@
       "headlineAllDone": "All done!",
       "message": "Your Shopware 6 %{edition} is now verified.",
       "headlineUsefulLinks": "Useful Links",
-      "loadingMessage": "Restarting Application<br>This may take a while..."
+      "loadingMessage": "Restarting Application<br>This may take a while...",
+      "documentationLabel": "Documentation",
+      "documentationUrl": "https://docs.shopware.com/en",
+      "forumLabel": "Forum",
+      "forumUrl": "https://forum.shopware.com/",
+      "roadmapLabel": "Roadmap",
+      "roadmapUrl": "https://www.shopware.com/en/roadmap/"
     },
     "error": {
       "titleLoginDataInvalid": "Error",

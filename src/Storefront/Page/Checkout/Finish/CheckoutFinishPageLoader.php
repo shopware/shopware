@@ -74,7 +74,8 @@ class CheckoutFinishPageLoader
      */
     private function getOrder(Request $request, SalesChannelContext $salesChannelContext): OrderEntity
     {
-        if ($salesChannelContext->getCustomer() === null) {
+        $customer = $salesChannelContext->getCustomer();
+        if ($customer === null) {
             throw new CustomerNotLoggedInException();
         }
 
@@ -84,8 +85,10 @@ class CheckoutFinishPageLoader
         }
 
         $criteria = (new Criteria([$orderId]))
-            ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $salesChannelContext->getCustomer()->getId()))
-            ->addAssociationPath('lineItems.cover');
+            ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
+            ->addAssociationPath('lineItems.cover')
+            ->addAssociationPath('transactions')
+            ->addAssociationPath('deliveries');
 
         try {
             $searchResult = $this->orderRepository->search($criteria, $salesChannelContext->getContext());

@@ -46,7 +46,7 @@ class ProductSuggestGateway implements ProductSuggestGatewayInterface
     {
         $criteria = new Criteria();
 
-        $criteria->setLimit(50);
+        $criteria->setLimit(10);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
         $criteria->addFilter(
             new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_SEARCH)

@@ -14,7 +14,7 @@
         "deliveryShippingTime": "Lieferzeit %shippingTime% Werktage",
         "deliveryShippingDelay": "Lieferzeit ca. 5 Werktage",
         "offcanvasCloseMenu": "Menü schließen",
-        "noscriptNotice": "Um unseren Shop in vollem Umfang nutzen zu k&ouml;nnen, empfehlen wir Ihnen Javascript in Ihrem Browser zu aktiveren.",
+        "noscriptNotice": "Um unseren Shop in vollem Umfang nutzen zu können, empfehlen wir Ihnen Javascript in Ihrem Browser zu aktiveren.",
         "toCategory": "Zur Kategorie",
         "readMore": "mehr erfahren",
         "mainMenu": "Hauptmenü",
@@ -25,7 +25,7 @@
         "required": "*",
         "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld",
         "privacyTitle": "Datenschutz",
-        "privacyNotice": "Ich habe die <a data-toggle='modal' data-url='%tosUrl%' href='%tosUrl%' title='Datenschutzbestimmungen'>Datenschutzbestimmungen</a> zur Kenntnis genommen."
+        "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen."
     },
     "header": {
         "logoLink": "zur Startseite wechseln",
@@ -33,7 +33,7 @@
         "searchPlaceholder": "Suchbegriff...",
         "searchAllResults": "Alle Ergebnisse anzeigen",
         "searchResults": "Treffer",
-        "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href='tel:+4912345-123456789'>12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
+        "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
         "indexLinkService": "Service/Hilfe",
         "searchNoResult": "Keine Suchergebnisse gefunden"
     },
@@ -282,7 +282,7 @@
         "confirmSubmit": "Zahlungspflichtig bestellen",
         "confirmTermsHeader": "AGB und Widerrufsbelehrung",
         "confirmRevocationNotice": "Bitte beachten Sie bei Ihrer Bestellung auch unsere Widerrufsbelehrung.",
-        "confirmTerms": "Ich habe die <a data-toggle='modal' data-url='%tosUrl%' href='%tosUrl%' title='AGB'>AGB</a> Ihres Shops gelesen und bin mit deren Geltung einverstanden.",
+        "confirmTerms": "Ich habe die <a data-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> Ihres Shops gelesen und bin mit deren Geltung einverstanden.",
         "finishInfoPayment": "Zahlungsart:",
         "finishInfoShipping": "Versandart:",
         "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!",
@@ -358,16 +358,16 @@
         "shopServiceHeadline": "Shop Service",
         "informationHeadline": "Informationen",
         "newsletterHeadline": "Newsletter",
-        "serviceHotline": "Unterst&uuml;tzung und Beratung unter: <a href='tel:+49180000000'>0180 - 000000</a> Mo-Fr, 09:00 - 17:00 Uhr",
-        "serviceContactLink": "Oder über unser <a href='%link%' title='Kontaktformular'>Kontaktformular</a>",
+        "serviceHotline": "Unterstützung und Beratung unter: <a href=\"tel:+49180000000\">0180 - 000000</a> Mo-Fr, 09:00 - 17:00 Uhr",
+        "serviceContactLink": "Oder über unser <a href=\"%link%\" title=\"Kontaktformular\">Kontaktformular</a>",
         "newsletterInput": "Ihre E-Mail Adresse",
         "newsletter": "Abonnieren Sie jetzt einfach unseren regelmäßig erscheinenden Newsletter und Sie werden stets als Erster über neue Artikel und Angebote informiert.",
-        "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href='#'>Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
-        "excludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer und <a href='#'>Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
+        "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href=\"#\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
+        "excludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer und <a href=\"#\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
         "copyrightInfo": "Realisiert mit Shopware"
     },
     "cookie": {
-        "message": "Diese Website verwendet Cookies, um Ihnen die bestmögliche Funktionalität bieten zu können.&nbsp;<a href='#'>Mehr Informationen</a>",
+        "message": "Diese Website verwendet Cookies, um Ihnen die bestmögliche Funktionalität bieten zu können.&nbsp;<a href=\"#\">Mehr Informationen</a>",
         "accept": "Einverstanden"
     },
     "document": {

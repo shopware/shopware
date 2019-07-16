@@ -27,12 +27,12 @@ Component.register('sw-import-export-progress', {
             return this.state === 'succeeded';
         },
         alertVariant() {
-            switch (true) {
-                case this.aborted:
+            switch (this.state) {
+                case 'aborted':
                     return 'warning';
-                case this.failed:
+                case 'failed':
                     return 'error';
-                case this.succeeded:
+                case 'succeeded':
                     return 'success';
                 default:
                     return 'info';

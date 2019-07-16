@@ -22,7 +22,7 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product-manufacturer?_response=true',
+            url: '/api/v1/product-manufacturer',
             method: 'post'
         }).as('saveData');
 
@@ -52,7 +52,7 @@ describe('Manufacturer: Test crud operations', () => {
         }).as('saveData');
 
         // Edit base data
-        cy.get(`${page.elements.gridRow}--0 a`).click();
+        cy.get(`${page.elements.dataGridRow}--0 a`).click();
         cy.get('input[name=name]').clear().type('What does it means?(TM)');
         cy.get('input[name=link]').clear().type('https://google.com/doodles');
         cy.get(page.elements.manufacturerSave).click();
@@ -77,10 +77,10 @@ describe('Manufacturer: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--0`
+            `${page.elements.dataGridRow}--0`
         );
         cy.get(`${page.elements.modal} ${page.elements.modal}__body p`).contains(
-            'Are you sure you want to delete the manufacturer "MAN-U-FACTURE"?'
+            'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
         cy.get(page.elements.modal).should('not.exist');

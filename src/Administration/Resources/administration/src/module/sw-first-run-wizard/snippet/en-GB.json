@@ -38,7 +38,7 @@
 
     },
     "paypalInstall": {
-      "loadingMessage": "Installing PayPal plugin<br>This my take a while..."
+      "loadingMessage": "Configuring PayPal<br>This may take a while..."
     },
     "recommendedPlugins": {
       "headline": "Our recommendations",
@@ -71,7 +71,7 @@
       "titleLoginDataInvalid": "Error",
       "messageLoginDataInvalid": "Login data incomplete.",
       "titlePayPalInstallationFailed": "Error",
-      "messagePayPalInstallationFailed": "PayPal installation failed"
+      "messagePayPalInstallationFailed": "PayPal configuration failed"
     },
     "stepItemTitle": {
       "demodata": "Demodata",

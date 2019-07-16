@@ -35,7 +35,7 @@
                                 {% block sw_cms_layout_modal_content_listing_item %}
 
                                     {% block sw_cms_layout_modal_content_listing_item_checkbox %}
-                                        <sw-checkbox-field @input="onSelection(cmsPage.id)" :value="cmsPage.id === selected" type="checkbox"></sw-checkbox-field>
+                                        <sw-checkbox-field @change="onSelection(cmsPage.id)" :value="cmsPage.id === selected" type="checkbox"></sw-checkbox-field>
                                     {% endblock %}
 
                                     {% block sw_cms_layout_modal_content_listing_item_inner %}

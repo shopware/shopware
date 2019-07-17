@@ -14,8 +14,6 @@ export default class AddressEditorPlugin extends Plugin {
 
     static options = {
         url: window.router['frontend.account.addressbook'],
-        redirectRoute: false,
-        replaceSelector: false,
         addressId: false,
         changeShipping: false,
         changeBilling: false,
@@ -73,8 +71,6 @@ export default class AddressEditorPlugin extends Plugin {
     _getRequestData() {
         return {
             id: this.options.id,
-            redirectRoute: this.options.redirectRoute,
-            replaceSelector: this.options.replaceSelector,
             changeableAddresses: {
                 changeShipping: this.options.changeShipping,
                 changeBilling: this.options.changeBilling,
@@ -95,6 +91,10 @@ export default class AddressEditorPlugin extends Plugin {
 
         PageLoadingIndicatorUtil.remove();
         pseudoModal.open(this._onOpen.bind(this, pseudoModal));
+
+        const modal = pseudoModal.getModal();
+
+        modal.classList.add(this.options.editorModalClass);
     }
 
     /**
@@ -105,9 +105,6 @@ export default class AddressEditorPlugin extends Plugin {
      * @private
      */
     _onOpen(pseudoModal) {
-        const modal = pseudoModal.getModal();
-
-        modal.classList.add(this.options.editorModalClass);
         window.PluginManager.initializePlugins();
 
         this._registerModalEvents(pseudoModal);

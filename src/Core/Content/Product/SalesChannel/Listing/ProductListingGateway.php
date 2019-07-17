@@ -6,11 +6,13 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -26,12 +28,19 @@ class ProductListingGateway implements ProductListingGatewayInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         SalesChannelRepositoryInterface $productRepository,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SystemConfigService $systemConfigService
     ) {
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function search(Request $request, SalesChannelContext $salesChannelContext): EntitySearchResult
@@ -48,6 +57,14 @@ class ProductListingGateway implements ProductListingGatewayInterface
         );
 
         $result = $this->productRepository->search($criteria, $salesChannelContext);
+
+        $markAsNewDayRange = $this->systemConfigService->get('core.listing.markAsNew');
+
+        $now = new \DateTime();
+        /** @var SalesChannelProductEntity $product */
+        foreach ($result->getEntities() as $product) {
+            $product->setIsNew($product->getReleaseDate() instanceof \DateTimeInterface && $product->getReleaseDate()->diff($now)->days <= $markAsNewDayRange);
+        }
 
         $this->eventDispatcher->dispatch(
             new ProductListingResultEvent($request, $result, $salesChannelContext)

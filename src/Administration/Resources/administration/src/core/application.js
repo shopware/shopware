@@ -23,6 +23,7 @@ class ApplicationBootstrapper {
     constructor(container) {
         const noop = () => {};
         this.$container = container;
+        this.viewAdapter = null;
 
         // Create an empty DI container for the core initializers & services, so we can separate the core initializers
         // and the providers
@@ -322,6 +323,13 @@ class ApplicationBootstrapper {
         return this.applicationRoot;
     }
 
+    // ToDo@Jannis: viewAdapter über die App setzen
+    setViewAdapter(viewAdapter) {
+        // TODO: it would be great if we can bind the helper function to
+        //  an extra namespace like `$view` on the Application
+        this.viewAdapter = viewAdapter;
+    }
+
     /**
      * Creates the application root and injects the provider container into the
      * view instance to keep the dependency injection of Vue.js in place.
@@ -331,9 +339,13 @@ class ApplicationBootstrapper {
     createApplicationRoot() {
         const container = this.getContainer('init');
 
+        // ToDo@Jannis: View Adapter initialisieren
+        //  this.view = new this.viewAdapter('#app', router, context);
+        //  => this is not possible here because the initComponents have to be called before the router initializes
+        //  => better way in main.js in the app where the view adapter gets set
+
         return this.instantiateInitializers(container).then(() => {
             const router = container.router.getRouterInstance();
-            const view = container.view;
             const contextService = container.contextService;
 
             // We're in a test environment, we're not needing an application root
@@ -341,11 +353,12 @@ class ApplicationBootstrapper {
                 return this;
             }
 
-            this.applicationRoot = view.createInstance(
+            this.applicationRoot = this.viewAdapter.createInstance(
                 '#app',
                 router,
                 this.getContainer('service')
             );
+
             const firstRunWizard = container.context.firstRunWizard;
             if (firstRunWizard && !router.history.current.name.startsWith('sw.first.run.wizard.')) {
                 router.push({
@@ -356,9 +369,8 @@ class ApplicationBootstrapper {
             return this;
         }).catch((error) => {
             const router = container.router.getRouterInstance();
-            const view = container.view;
 
-            this.applicationRoot = view.createInstance(
+            this.applicationRoot = this.viewAdapter.createInstance(
                 '#app',
                 router,
                 this.getContainer('service')

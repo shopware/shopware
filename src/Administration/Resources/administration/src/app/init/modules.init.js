@@ -1,4 +1,4 @@
-import requireModules from 'module';
+import baseModules from 'module';
 import types from 'src/core/service/utils/types.utils';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
@@ -8,7 +8,7 @@ export default function initializeCoreModules() {
     const componentFactory = factoryContainer.component;
 
     // Register modules
-    requireModules().forEach((module) => {
+    baseModules.forEach((module) => {
         if (module === undefined) {
             return;
         }

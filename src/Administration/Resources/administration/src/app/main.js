@@ -4,6 +4,9 @@ import { Application } from 'src/core/shopware';
 /** Initializer */
 import initializers from 'src/app/init';
 
+/** View Adapter */
+import VueAdapter from 'src/app/adapter/view/vue.adapter';
+
 /** Services */
 import MenuService from 'src/app/service/menu.service';
 import LoginService from 'src/core/service/login.service';
@@ -25,6 +28,17 @@ import 'src/app/decorator';
 import 'src/app/assets/scss/all.scss';
 
 const factoryContainer = Application.getContainer('factory');
+
+/** Create View Adapter */
+const adapter = VueAdapter(
+    factoryContainer.component,
+    factoryContainer.state,
+    factoryContainer.filter,
+    factoryContainer.directive,
+    factoryContainer.locale
+);
+
+Application.setViewAdapter(adapter);
 
 // Add initializers
 Object.keys(initializers).forEach((key) => {

@@ -7,7 +7,7 @@ import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import VuePlugins from 'src/app/plugin';
-import { ObservationApi, Component, State, Mixin } from 'src/core/shopware';
+import { Component, State, Mixin } from 'src/core/shopware';
 import EntityStore from 'src/core/data/EntityStore';
 import { warn } from 'src/core/service/utils/debug.utils';
 
@@ -20,7 +20,6 @@ const vueComponents = {};
 /**
  * @method VueAdapter
  * @memberOf module:app/adapter/view/vue
- * @param context
  * @param componentFactory
  * @param stateFactory
  * @param filterFactory
@@ -28,7 +27,15 @@ const vueComponents = {};
  * @param localeFactory
  * @returns {VueAdapter}
  */
-export default function VueAdapter(context, componentFactory, stateFactory, filterFactory, directiveFactory, localeFactory) {
+
+// ToDo@Jannis: Refactor Adapter to Class extending from abstract Core Class
+export default function VueAdapter(
+    componentFactory,
+    stateFactory,
+    filterFactory,
+    directiveFactory,
+    localeFactory
+) {
     return {
         createInstance,
         initComponents,
@@ -36,7 +43,9 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         getComponent,
         getComponents,
         getWrapper,
-        getName
+        getName,
+        setReactive: setReactive(),
+        deleteReactive: deleteReactive()
     };
 
     /**
@@ -50,8 +59,6 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @returns {Vue}
      */
     function createInstance(renderElement, router, providers) {
-        ObservationApi.setObservationApiFunctions(Vue.set, Vue.delete);
-
         initPlugins();
         initDirectives();
         initFilters();
@@ -403,5 +410,25 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      */
     function getName() {
         return 'Vue.js';
+    }
+
+    /**
+     * Returns the Vue.set function
+     *
+     * @memberOf module:app/adapter/view/vue
+     * @returns {function}
+     */
+    function setReactive() {
+        return Vue.set;
+    }
+
+    /**
+     * Returns the Vue.delete function
+     *
+     * @memberOf module:app/adapter/view/vue
+     * @returns {function}
+     */
+    function deleteReactive() {
+        return Vue.delete;
     }
 }

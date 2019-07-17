@@ -1,11 +1,11 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Application, View, Component, Mixin, State } from 'src/core/shopware';
+import { mapPageErrors } from 'src/app/service/map-errors.service';
+import { mapState, mapGetters } from 'vuex';
 import Criteria from 'src/core/data-new/criteria.data';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
-
-const { mapPageErrors, mapState, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-product-detail', {
     template,

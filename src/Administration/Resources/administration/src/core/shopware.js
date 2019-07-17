@@ -116,12 +116,6 @@ export const Defaults = {
     versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425'
 };
 
-export const ObservationApi = {
-    setReactive: Shopware.ObservationApiService.setReactive,
-    deleteReactive: Shopware.ObservationApiService.deleteReactive,
-    setObservationApiFunctions: Shopware.ObservationApiService.setObservationApiFunctions
-};
-
 export default {
     Module,
     Component,
@@ -137,6 +131,5 @@ export default {
     ApiService,
     EntityDefinition,
     Defaults,
-    ObservationApi,
     WorkerNotification
 };

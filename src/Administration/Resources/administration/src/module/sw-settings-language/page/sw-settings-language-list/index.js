@@ -65,7 +65,7 @@ Component.register('sw-settings-language-list', {
                 dataIndex: 'locale.id',
                 label: this.$tc('sw-settings-language.list.columnLocaleName')
             }, {
-                property: 'translationCode.code',
+                property: 'locale.code',
                 label: this.$tc('sw-settings-language.list.columnIsoCode')
             }, {
                 property: 'parent',

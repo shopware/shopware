@@ -131,6 +131,7 @@
         <service id="Shopware\Storefront\Controller\ProductController">
             <argument type="service" id="Shopware\Storefront\Page\Product\ProductPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder"/>
+            <argument type="service" id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

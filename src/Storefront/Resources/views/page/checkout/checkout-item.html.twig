@@ -41,7 +41,13 @@
                                                     {% else %}
                                                         <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.id})) }}"
                                                            class="cart-item-img-link"
-                                                           title="{{ lineItem.label }}">
+                                                           title="{{ lineItem.label }}"
+                                                           {% if controllerAction is same as('confirmPage') %}
+                                                           data-toggle="modal"
+                                                           data-modal-class="quickview-modal"
+                                                           data-url="{{ path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) }}"
+                                                           {% endif %}
+                                                           >
                                                             {% block page_checkout_item_info_image_element %}
                                                                 {% if lineItem.cover.url %}
                                                                     {% sw_thumbnails 'cart-item-img-thumbnails' with {
@@ -77,7 +83,13 @@
                                                     {% if lineItem.type == 'product' %}
                                                         <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.referencedId})) }}"
                                                            class="cart-item-label"
-                                                           title="{{ lineItem.label }}">
+                                                           title="{{ lineItem.label }}"
+                                                           {% if controllerAction is same as('confirmPage') %}
+                                                           data-toggle="modal"
+                                                           data-modal-class="quickview-modal"
+                                                           data-url="{{ path('widgets.quickview.minimal',{ 'productId': lineItem.referencedId }) }}"
+                                                           {% endif %}
+                                                           >
                                                             {{ lineItem.label|truncate(60) }}
                                                         </a>
                                                     {% else %}

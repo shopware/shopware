@@ -7,16 +7,9 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
-use Shopware\Core\Content\Property\PropertyGroupCollection;
-use Shopware\Core\Content\Property\PropertyGroupDefinition;
-use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -65,6 +58,10 @@ class ProductPageLoader
      * @var ProductDefinition
      */
     private $productDefinition;
+    /**
+     * @var ProductLoader
+     */
+    private $productLoader;
 
     public function __construct(
         GenericPageLoader $genericLoader,
@@ -73,7 +70,8 @@ class ProductPageLoader
         SalesChannelCmsPageRepository $cmsPageRepository,
         CmsSlotsDataResolver $slotDataResolver,
         ProductPageConfiguratorLoader $configuratorLoader,
-        ProductDefinition $productDefinition
+        ProductDefinition $productDefinition,
+        ProductLoader $productLoader
     ) {
         $this->genericLoader = $genericLoader;
         $this->productRepository = $productRepository;
@@ -82,6 +80,7 @@ class ProductPageLoader
         $this->slotDataResolver = $slotDataResolver;
         $this->configuratorLoader = $configuratorLoader;
         $this->productDefinition = $productDefinition;
+        $this->productLoader = $productLoader;
     }
 
     /**
@@ -102,7 +101,7 @@ class ProductPageLoader
 
         $productId = $this->findBestVariant($productId, $salesChannelContext);
 
-        $product = $this->loadProduct($productId, $salesChannelContext);
+        $product = $this->productLoader->load($productId, $salesChannelContext);
         $page->setProduct($product);
 
         $page->setConfiguratorSettings(
@@ -151,89 +150,6 @@ class ProductPageLoader
         $page = $pages->first();
 
         return $page;
-    }
-
-    /**
-     * @throws InconsistentCriteriaIdsException
-     * @throws ProductNotFoundException
-     */
-    private function loadProduct(string $productId, SalesChannelContext $salesChannelContext): SalesChannelProductEntity
-    {
-        $criteria = (new Criteria([$productId]))
-            ->addFilter(new ProductAvailableFilter($salesChannelContext->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_LINK))
-            ->addAssociation('media')
-            ->addAssociation('prices')
-            ->addAssociation('manufacturer')
-            ->addAssociation('cover')
-            ->addAssociationPath('properties.group');
-
-        $this->eventDispatcher->dispatch(
-            new ProductPageCriteriaEvent($criteria, $salesChannelContext)
-        );
-
-        /** @var SalesChannelProductEntity|null $product */
-        $product = $this->productRepository->search($criteria, $salesChannelContext)->get($productId);
-
-        if (!$product) {
-            throw new ProductNotFoundException($productId);
-        }
-
-        $product->setSortedProperties(
-            $this->sortProperties($product)
-        );
-
-        return $product;
-    }
-
-    private function sortProperties(SalesChannelProductEntity $product): PropertyGroupCollection
-    {
-        $properties = $product->getProperties();
-        if ($properties === null) {
-            return new PropertyGroupCollection();
-        }
-
-        $sorted = [];
-        foreach ($properties as $option) {
-            $group = $option->getGroup();
-
-            if (!$group) {
-                continue;
-            }
-
-            if (!$group->getOptions()) {
-                $group->setOptions(new PropertyGroupOptionCollection());
-            }
-
-            $group->getOptions()->add($option);
-
-            $sorted[$group->getId()] = $group;
-        }
-
-        usort(
-            $sorted,
-            static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
-                return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
-            }
-        );
-
-        /** @var PropertyGroupEntity $group */
-        foreach ($sorted as $group) {
-            $group->getOptions()->sort(
-                static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {
-                    if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                        return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
-                    }
-
-                    if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                        return $a->getTranslation('name') <=> $b->getTranslation('name');
-                    }
-
-                    return $a->getPosition() <=> $b->getPosition();
-                }
-            );
-        }
-
-        return new PropertyGroupCollection($sorted);
     }
 
     /**

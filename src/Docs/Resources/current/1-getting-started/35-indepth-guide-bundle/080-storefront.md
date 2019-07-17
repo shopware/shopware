@@ -9,7 +9,7 @@ Those are for example associations like the product's prices or the associated m
 Yet, your bundles are not part of those "to be loaded" associations, because this association was never requested on the `Criteria` instance.
 
 Thus, you have to somehow manipulate the `Criteria` instance before it is used for a search. There's an event for this case, which is `product-detail.page.criteria`.
-Don't use it like this though, rather use the constant from the respective `Event` class: `\Shopware\Storefront\Page\Product\ProductPageCriteriaEvent::class`
+Don't use it like this though, rather use the constant from the respective `Event` class: `\Shopware\Storefront\Page\Product\ProductLoaderCriteriaEvent::class`
 
 But how do you handle events in the first place?
 This is done by using the [Symfony event subscriber](https://symfony.com/doc/current/event_dispatcher.html#creating-an-event-subscriber).
@@ -26,7 +26,7 @@ Just use the constant mentioned above and choose a method name to call once the 
 
 namespace Swag\BundleExample\Storefront\Page\Product\Subscriber;
 
-use Shopware\Storefront\Page\Product\ProductPageCriteriaEvent;
+use Shopware\Storefront\Page\Product\ProductLoaderCriteriaEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProductPageCriteriaSubscriber implements EventSubscriberInterface
@@ -34,21 +34,21 @@ class ProductPageCriteriaSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ProductPageCriteriaEvent::class => 'onProductCriteriaLoaded'
+            ProductLoaderCriteriaEvent::class => 'onProductCriteriaLoaded'
         ];
     }
 
-    public function onProductCriteriaLoaded(ProductPageCriteriaEvent $event): void
+    public function onProductCriteriaLoaded(ProductLoaderCriteriaEvent $event): void
     {
     }
 }
 ```
 
-This example also already knows the method `onProductCriteriaLoaded`. Each event comes with its own event parameter, `ProductPageCriteriaEvent` in this case.
+This example also already knows the method `onProductCriteriaLoaded`. Each event comes with its own event parameter, `ProductLoaderCriteriaEvent` in this case.
 It grants access to the criteria object before it has been used for a search, so time to add your new association in there.
 
 ```php
-public function onProductCriteriaLoaded(ProductPageCriteriaEvent $event): void
+public function onProductCriteriaLoaded(ProductLoaderCriteriaEvent $event): void
 {
     $event->getCriteria()->addAssociationPath('bundles.products.cover');
 }

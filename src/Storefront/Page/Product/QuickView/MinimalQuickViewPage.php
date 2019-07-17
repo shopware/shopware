@@ -1,0 +1,24 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Page\Product\QuickView;
+
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Struct\Struct;
+
+class MinimalQuickViewPage extends Struct
+{
+    /**
+     * @var ProductEntity
+     */
+    private $product;
+
+    public function __construct(ProductEntity $product)
+    {
+        $this->product = $product;
+    }
+
+    public function getProduct(): ProductEntity
+    {
+        return $this->product;
+    }
+}

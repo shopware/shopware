@@ -65,25 +65,35 @@
                         {% endblock %}
 
                         {% block page_account_order_item_detail_unitprice %}
-                            {#TODO: NEXT-2695 - purchaseunit, referenceunit, referencePrice, packUnit#}
-                            {% if lineItem.purchaseunit %}
+                            {% set referencePrice = lineItem.price.referencePrice %}
+                            
+                            {% if referencePrice.purchaseUnit %}
                                 <div class="order-price-unit">
                                     {% block page_account_order_item_detail_purchaseunit %}
-                                        <p>
-                                            {{ "account.orderItemInfoContent"|trans }}: {{ lineItem.purchaseunit }} {{ lineItem.packUnit }}
-                                        </p>
+                                        <div class="order-price-purchase">
+                                            {% block page_account_order_item_detail_purchaseunit_label %}
+                                                <span class="order-price-purchase-label">
+                                                    {{ "account.orderItemInfoContent"|trans }}
+                                                </span>
+                                            {% endblock %}
+            
+                                            {% block page_account_order_item_detail_purchaseunit_content %}
+                                                <span class="order-price-purchase-content">
+                                                   {{ referencePrice.purchaseUnit }} {{ referencePrice.unitName }}
+                                                </span>
+                                            {% endblock %}
+                                        </div>
                                     {% endblock %}
-
+                                    
                                     {% block page_account_order_item_detail_referenceunit %}
-                                        {% if lineItem.purchaseunit != lineItem.referenceunit %}
-                                            <p>
-                                                {% if lineItem.referenceunit %}
-                                                    <span class="order-base-price">
-                                                        {{ "account.orderItemInfoBaseprice"|trans }}:
+                                        {% if referencePrice.referenceUnit is not null %}
+                                            <div class="order-price-reference">
+                                                {% block page_account_order_item_detail_referenceunit_content %}
+                                                    <span class="order-price-reference-content">
+                                                        ({{ referencePrice.price|currency }}{{ "general.star"|trans }} / {{ referencePrice.referenceUnit }} {{ referencePrice.unitName }})
                                                     </span>
-                                                    {{ lineItem.referenceunit }} {{ lineItem.packUnit }} = {{ lineItem.referencePrice|currency }}{{ "general.star"|trans }}
-                                                {% endif %}
-                                            </p>
+                                                {% endblock %}
+                                            </div>
                                         {% endif %}
                                     {% endblock %}
                                 </div>

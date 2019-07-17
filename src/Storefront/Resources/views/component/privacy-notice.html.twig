@@ -3,7 +3,6 @@
         {% block component_privacy_label %}
             <label>
                 <strong>{{ "general.privacyTitle"|trans }}</strong><br />
-                {#TODO: NEXT-2757 - configured cms id needed#}
                 {{ "general.privacyNotice"|trans({
                     '%tosUrl%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
                 })|raw }}

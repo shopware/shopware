@@ -37,7 +37,7 @@
       "disclaimerLineTwo": "** vorbehaltlich einer positiven Risikoprüfung von PayPal"
     },
     "paypalInstall": {
-      "loadingMessage": "Installiere PayPal-Plugin<br>Das könnte einen Moment dauern..."
+      "loadingMessage": "PayPal wird konfiguriert<br>Das könnte einen Moment dauern..."
     },
     "recommendedPlugins": {
       "headline": "Unsere Empfehlungen",
@@ -64,13 +64,19 @@
       "headlineAllDone": "Herzlichen Glückwunsch!",
       "message": "Dein Shopware 6 %{edition} is jetzt verifziert.",
       "headlineUsefulLinks": "Nützliche Links",
-      "loadingMessage": "Anwendung wird neu gestartet<br>Das könnte einen Moment dauern..."
+      "loadingMessage": "Anwendung wird neu gestartet<br>Das könnte einen Moment dauern...",
+      "documentationLabel": "Dokumentation",
+      "documentationUrl": "https://docs.shopware.com/de",
+      "forumLabel": "Forum",
+      "forumUrl": "https://forum.shopware.com/",
+      "roadmapLabel": "Roadmap",
+      "roadmapUrl": "https://www.shopware.com/de/roadmap/"
     },
     "error": {
       "titleLoginDataInvalid": "Fehler",
       "messageLoginDataInvalid": "Login Daten sind unvollständig.",
       "titlePayPalInstallationFailed": "Fehler",
-      "messagePayPalInstallationFailed": "PayPal installation fehlgeschlagen"
+      "messagePayPalInstallationFailed": "PayPal Konfiguration fehlgeschlagen"
     },
     "stepItemTitle": {
       "demodata": "Demodaten",

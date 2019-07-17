@@ -271,7 +271,7 @@
         "type": "media",
         "value": "dist/assets/logo/demostore-logo.png",
         "editable": true,
-        "block": "colors",
+        "block": "media",
         "section": "logos",
         "order": 400
       },

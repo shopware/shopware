@@ -86,16 +86,6 @@ class ThemeFixtures
                             'type' => 'color',
                         ],
                     ],
-                    'logos' => [
-                        'label' => 'logos',
-                        'sw-logo-default-xl' => [
-                            'label' => [
-                                'en-GB' => 'Extra large',
-                                'de-DE' => 'Sehr groß',
-                            ],
-                            'type' => 'media',
-                        ],
-                    ],
                 ],
             ],
             'fonts' => [
@@ -171,6 +161,13 @@ class ThemeFixtures
                             'label' => [
                                 'en-GB' => 'App-Icon',
                                 'de-DE' => 'App-Icon',
+                            ],
+                            'type' => 'media',
+                        ],
+                        'sw-logo-default-xl' => [
+                            'label' => [
+                                'en-GB' => 'Extra large',
+                                'de-DE' => 'Sehr groß',
                             ],
                             'type' => 'media',
                         ],
@@ -522,7 +519,7 @@ class ThemeFixtures
                     'type' => 'media',
                     'value' => '*',
                     'editable' => true,
-                    'block' => 'colors',
+                    'block' => 'media',
                     'section' => 'logos',
                     'order' => 400,
                     'sectionOrder' => null,
@@ -922,7 +919,7 @@ class ThemeFixtures
                     'type' => 'media',
                     'value' => '',
                     'editable' => true,
-                    'block' => 'colors',
+                    'block' => 'media',
                     'section' => 'logos',
                     'order' => 400,
                     'sectionOrder' => null,

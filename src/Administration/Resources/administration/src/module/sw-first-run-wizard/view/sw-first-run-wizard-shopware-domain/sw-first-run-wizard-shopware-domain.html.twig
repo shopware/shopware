@@ -30,10 +30,10 @@
         </div>
         <div v-if="domainError"
              class="sw-first-run-wizard-shopware-domain__error">
-            <sw-alert :title="domainError"
+            <sw-alert :title="domainError.title"
              variant="error"
              appearance="notification">
-                {{ domainError }}
+                {{ domainError.detail }}
             </sw-alert>
         </div>
     </div>

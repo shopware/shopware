@@ -38,7 +38,7 @@
 
     },
     "paypalInstall": {
-      "loadingMessage": "Installing PayPal plugin<br>This my take a while..."
+      "loadingMessage": "Configuring PayPal<br>This may take a while..."
     },
     "recommendedPlugins": {
       "headline": "Our recommendations",
@@ -65,13 +65,19 @@
       "headlineAllDone": "All done!",
       "message": "Your Shopware 6 %{edition} is now verified.",
       "headlineUsefulLinks": "Useful Links",
-      "loadingMessage": "Restarting Application<br>This may take a while..."
+      "loadingMessage": "Restarting Application<br>This may take a while...",
+      "documentationLabel": "Documentation",
+      "documentationUrl": "https://docs.shopware.com/en",
+      "forumLabel": "Forum",
+      "forumUrl": "https://forum.shopware.com/",
+      "roadmapLabel": "Roadmap",
+      "roadmapUrl": "https://www.shopware.com/en/roadmap/"
     },
     "error": {
       "titleLoginDataInvalid": "Error",
       "messageLoginDataInvalid": "Login data incomplete.",
       "titlePayPalInstallationFailed": "Error",
-      "messagePayPalInstallationFailed": "PayPal installation failed"
+      "messagePayPalInstallationFailed": "PayPal configuration failed"
     },
     "stepItemTitle": {
       "demodata": "Demodata",

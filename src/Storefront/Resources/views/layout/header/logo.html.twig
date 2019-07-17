@@ -6,18 +6,36 @@
                title="{{ "header.logoLink"|trans }}">
                 {% block layout_header_logo_image %}
                     <picture>
+                        {% block layout_header_logo_image_large_desktop_source %}
+                            {% if shopware.theme['sw-logo-default-xl'] %}
+                                <source srcset="{{ shopware.theme['sw-logo-default-xl'] }}"
+                                        media="(min-width: {{ shopware.theme.breakpoint.xl }}px)">
+                            {% endif %}
+                        {% endblock %}
+
                         {% block layout_header_logo_image_desktop_source %}
-                            <source srcset="{{ shopware.theme['sw-logo-default-lg'] }}"
-                                    media="(min-width: {{ shopware.theme.breakpoint.lg }}px)">
+                            {% if shopware.theme['sw-logo-default-lg'] %}
+                                <source srcset="{{ shopware.theme['sw-logo-default-lg'] }}"
+                                        media="(min-width: {{ shopware.theme.breakpoint.lg }}px)">
+                            {% endif %}
                         {% endblock %}
 
                         {% block layout_header_logo_image_tablet_source %}
-                            <source srcset="{{ shopware.theme['sw-logo-default-md'] }}"
-                                    media="(min-width: {{ shopware.theme.breakpoint.md }}px)">
+                            {% if shopware.theme['sw-logo-default-md'] %}
+                                <source srcset="{{ shopware.theme['sw-logo-default-md'] }}"
+                                        media="(min-width: {{ shopware.theme.breakpoint.md }}px)">
+                            {% endif %}
                         {% endblock %}
 
                         {% block layout_header_logo_image_mobile %}
-                            <img srcset="{{ shopware.theme['sw-logo-default-sm'] }}"
+                            {% if shopware.theme['sw-logo-default-sm'] %}
+                                <source srcset="{{ shopware.theme['sw-logo-default-sm'] }}"
+                                        media="(min-width: 1px)">
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block layout_header_logo_image_default %}
+                            <img src="{{ shopware.theme['sw-logo-default'] }}"
                                  alt="{{ "header.logoLink"|trans }}"
                                  class="img-fluid header-logo-main-img"/>
                         {% endblock %}

@@ -81,8 +81,6 @@ class ThemeTest extends TestCase
 
     public function testInheritedThemeConfig()
     {
-        $id = Uuid::randomHex();
-
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 

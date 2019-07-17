@@ -2,7 +2,7 @@
 
 .sw-cms-list-item {
     display: grid;
-    grid-auto-rows: 120px 40px;
+    grid-template-rows: 120px 40px;
     padding: 10px 10px 0 10px;
     background: $color-white;
     border: 1px solid $color-steam-cloud;
@@ -28,7 +28,7 @@
 
         &.is--empty {
             background: unset;
-            color: #B3BFCC;
+            color: #b3bfcc;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -67,11 +67,12 @@
             height: 16px;
             padding: 0 2px;
             line-height: 13px;
-            background: #FFF;
-            border: 1px solid #D8DDE6;
+            background: #fff;
+            border: 1px solid #d8dde6;
             border-radius: 4px;
 
-            &:hover, &.is--active {
+            &:hover,
+            &.is--active {
                 background-color: #fff;
             }
 
@@ -83,6 +84,5 @@
                 height: 100%;
             }
         }
-
     }
 }

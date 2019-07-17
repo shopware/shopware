@@ -54,6 +54,7 @@
       "buttonCancel":"Abbrechen",
       "footerNoAccount":"Du hast noch keinen Account?",
       "footerRegisterAccount":"Neuen Account erstellen",
+      "forgotPassword":"Passwort vergessen?",
       "forgotPasswordUrl":"https://account.shopware.com/recovery?lang=de",
       "registerAccountUrl":"https://account.shopware.com/register?lang=de"
     },

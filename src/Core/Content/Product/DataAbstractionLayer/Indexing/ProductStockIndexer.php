@@ -193,8 +193,8 @@ UPDATE product SET available_stock = stock - (
 			ON state_machine_state.id = `order`.state_id
 			AND state_machine_state.technical_name NOT IN (:states)
 
-	WHERE UNHEX(order_line_item.referenced_id) = product.id
-    AND order_line_item.type = :type
+	WHERE LOWER(order_line_item.referenced_id) = LOWER(HEX(product.id))
+	AND order_line_item.type = :type
     AND order_line_item.version_id = :version
 )
 WHERE product.id IN (:ids);

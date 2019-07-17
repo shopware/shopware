@@ -16,7 +16,7 @@
         "composer/composer": "1.8.6",
         "erusev/parsedown-extra":"0.7.1",
         "guzzlehttp/guzzle": "6.3.3",
-        "shopware/core": "dev-master",
+        "shopware/core": "*",
         "symfony/config": "4.3.2",
         "symfony/console": "4.3.2",
         "symfony/dependency-injection": "4.3.2",

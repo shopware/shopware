@@ -23,7 +23,7 @@ class Migration1536233280CustomFieldSet extends MigrationStep
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3),
               CONSTRAINT `json.custom_field_set.config` CHECK(JSON_VALID(`config`))
-            );
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }
 

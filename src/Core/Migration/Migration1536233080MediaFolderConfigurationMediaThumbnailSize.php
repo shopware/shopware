@@ -23,7 +23,7 @@ class Migration1536233080MediaFolderConfigurationMediaThumbnailSize extends Migr
                   REFERENCES `media_folder_configuration` (`id`) ON DELETE CASCADE,
                 CONSTRAINT `fk.media_folder_configuration_media_thumbnail_size.size_id` FOREIGN KEY (`media_thumbnail_size_id`)
                   REFERENCES `media_thumbnail_size` (`id`) ON DELETE CASCADE
-            );
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }
 

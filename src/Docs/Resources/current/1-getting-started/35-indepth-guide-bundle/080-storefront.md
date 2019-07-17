@@ -467,14 +467,14 @@ It's not that much of a deal though, so don't worry.
 
 Adding snippets via plugins works by registering services via the DI container tag `shopware.snippet.file`.
 Those services implement the `Shopware\Core\Framework\Snippet\Files\SnippetFileInterface` interface, which needs five methods to be implemented:
-- `getName`: Return the name of the snippet file as a string here. Using this name, you can access the translations later. By default, you can return `messages.en-GB` here.
-- `getPath`: Each SnippetFile class has to point to a `.json` file, which actually contain the translations. Return the path to this file here.
-- `getIso`: Return the ISO string of the supported locale here.
+- `getName`: Return the name of the snippet file as a string here. Using this name, you can access the translations later. By default, you can return `storefront.en-GB` here.
+- `getPath`: Each SnippetFile class has to point to a `.json` file, which actually contains the translations. Return the path to this file here.
+- `getIso`: Return the ISO string of the supported locale here. This is important, because the `Translator` collects every snippet file with this locale and merges them to generate the snippet catalogue used by the storefront. 
 - `getAuthor`: Guess what, return your vendor name here. This can be used to distinguish your snippets from all the other available ones.
 - `isBase`: Return `true` here, if your plugin implements a whole new language, such as providing french snippets for the whole Shopware 6.
 In this case, you're just adding your own snippets to an existent language, so use `false` here.
 
-Now start of by adding this new directory: `<plugin root>/src/Snippet/Files`
+Now start of by adding this new directory: `<plugin root>/src/Resources/snippet`
 In there, create a new directory for each locale you want to support, `en_GB` and `de_DE` as supported by this example plugin, the focus will be on the english one though. 
 Inside the `en_GB` directory, create the new file `SnippetFile_en_GB.php`, which will also be the class name.
 
@@ -482,7 +482,7 @@ Having implemented all methods mentioned above, your `SnippetFile_en_GB.php` sho
 ```php
 <?php declare(strict_types=1);
 
-namespace Swag\BundleExample\Snippet\Files\en_GB;
+namespace Swag\BundleExample\Resources\snippet\en_GB;
 
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 
@@ -490,12 +490,12 @@ class SnippetFile_en_GB implements SnippetFileInterface
 {
     public function getName(): string
     {
-        return 'messages.en-GB';
+        return 'storefront.en-GB';
     }
 
     public function getPath(): string
     {
-        return __DIR__ . '/messages.en-GB.json';
+        return __DIR__ . '/storefront.en-GB.json';
     }
 
     public function getIso(): string
@@ -505,17 +505,17 @@ class SnippetFile_en_GB implements SnippetFileInterface
 
     public function getAuthor(): string
     {
-        return 'Shopware';
+        return 'Enter developer name here';
     }
 
     public function isBase(): bool
     {
-        return true;
+        return false;
     }
 }
 ```
 
-As you might notice, it points to a `messanges.en-GB.json` file in the same directory. This is also the file you need to create now.
+As you might notice, it points to a `storefront.en-GB.json` file in the same directory. This is also the file you need to create now.
 In there, you can store all the translations you want to use, just like you've done in the administration snippets.
 
 ##### Register to services.xml
@@ -523,7 +523,7 @@ In there, you can store all the translations you want to use, just like you've d
 Now register your `SnippetFile` in the DI container using the `shopware.snippet.file` tag.
 
 ```xml
-<service id="Swag\BundleExample\Snippet\Files\en_GB\SnippetFile_en_GB">
+<service id="Swag\BundleExample\Resources\snippet\en_GB\SnippetFile_en_GB">
     <tag name="shopware.snippet.file" priority="100"/>
 </service>
 ```
@@ -532,7 +532,7 @@ That's it already.
 
 #### Filling the translations
 
-Now you can fill the `messages.en-GB.json` file with all the translations you need.
+Now you can fill the `storefront.en-GB.json` file with all the translations you need.
 There's several occurrences in the code so far, that would need a proper translation:
 - `index.html.twig`: The badge text needs a translation
 - `tabs.html.twig`: The tab text inside of the `a` element is statically set to `Bundles` and needs a translation.
@@ -562,15 +562,15 @@ If you're dealing with variables, use it like this instead:
     "swag-bundle": {
         "detail": {
             "bundleBadge": "Bundle",
-            "buyButtonText": "Buy bundle and save bundleDiscount symbol"
+            "buyButtonText": "Buy bundle and save %bundleDiscount%"
         }
     }
 }
 ```
-*Note: "bundleDiscount" and "symbol" are variables to be replaced.*
 
+In your template:
 ```twig
 <button class="btn btn-primary btn-block buy-widget-submit" style="margin-top: 10px;">
-    {{ 'swag-bundle.detail.buyButtonText'|trans({ bundleDiscount: bundle.discount, symbol: bundle.discountType == 'absolute' ? context.currency.symbol : '%' }) }}
+    {{ 'swag-bundle.detail.buyButtonText'|trans({ '%bundleDiscount%': bundle.discountType == 'absolute' ? bundle.discount|currency : (bundle.discount ~ '%') }) }}
 </button>
 ```

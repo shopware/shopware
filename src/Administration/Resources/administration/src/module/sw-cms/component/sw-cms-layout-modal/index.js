@@ -59,8 +59,8 @@ Component.register('sw-cms-layout-modal', {
             this.closeModal();
         },
 
-        selectItem(layout) {
-            this.selected = layout;
+        selectItem(layoutId) {
+            this.selected = layoutId;
         },
 
         onSearch(value) {
@@ -74,8 +74,8 @@ Component.register('sw-cms-layout-modal', {
             this.getList();
         },
 
-        onSelection(selection) {
-            this.selected = selection;
+        onSelection(layoutId) {
+            this.selected = layoutId;
         },
 
         closeModal() {

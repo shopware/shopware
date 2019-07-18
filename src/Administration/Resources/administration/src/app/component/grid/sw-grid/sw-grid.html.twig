@@ -57,6 +57,7 @@
                                                      :item="item"
                                                      :index="index"
                                                      @inline-edit-finish="onInlineEditFinish"
+                                                     @inline-edit-start="onInlineEditStart"
                                                      :class="['sw-grid__row--' + index, { 'is--selected': isSelected(item.id), 'is--deleted': item.isDeleted, 'is--new': item.isLocal }]">
 
                                             {% block sw_grid_body_item_selectable %}

@@ -75,6 +75,7 @@ export default {
 
             this.isEditingActive = true;
             this.$parent.$emit('sw-row-inline-edit-start', this.id);
+            this.$parent.$emit('inline-edit-start', this.item);
         },
 
         onInlineEditCancel(id, index) {

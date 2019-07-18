@@ -104,7 +104,7 @@ Component.register('sw-first-run-wizard-modal', {
                     navigationIndex: 5,
                     next: false,
                     skip: false,
-                    back: 'sw.first.run.wizard.index.shopware.domain',
+                    back: 'sw.first.run.wizard.index.shopware.account',
                     finish: true
                 }
             }
@@ -151,7 +151,7 @@ Component.register('sw-first-run-wizard-modal', {
         stepIndex() {
             const { navigationIndex } = this.currentStep;
 
-            if (navigationIndex < 1 || navigationIndex >= 5) {
+            if (navigationIndex < 1) {
                 return 0;
             }
 

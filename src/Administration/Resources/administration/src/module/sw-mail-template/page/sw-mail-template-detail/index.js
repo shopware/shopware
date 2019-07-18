@@ -150,7 +150,7 @@ Component.register('sw-mail-template-detail', {
         },
 
         abortOnLanguageChange() {
-            return this.mailTemplate.hasChanges();
+            return this.mailTemplateRepository.hasChanges(this.mailTemplate);
         },
 
         saveOnLanguageChange() {

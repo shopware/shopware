@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation;
 
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -38,9 +39,9 @@ class MailTemplateTranslationDefinition extends EntityTranslationDefinition
         return new FieldCollection([
             new StringField('sender_name', 'senderName'),
             new LongTextField('description', 'description'),
-            new StringField('subject', 'subject'),
-            new LongTextWithHtmlField('content_html', 'contentHtml'),
-            new LongTextField('content_plain', 'contentPlain'),
+            (new StringField('subject', 'subject'))->setFlags(new Required()),
+            (new LongTextWithHtmlField('content_html', 'contentHtml'))->setFlags(new Required()),
+            (new LongTextField('content_plain', 'contentPlain'))->setFlags(new Required()),
         ]);
     }
 }

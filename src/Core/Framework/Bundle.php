@@ -106,6 +106,17 @@ abstract class Bundle extends SymfonyBundle
         }
     }
 
+    public function getMigrationPath(): string
+    {
+        $migrationSuffix = str_replace(
+            $this->getNamespace(),
+            '',
+            $this->getMigrationNamespace()
+        );
+
+        return $this->getPath() . str_replace('\\', '/', $migrationSuffix);
+    }
+
     protected function getRoutesPath(): string
     {
         return 'Resources/config';
@@ -140,13 +151,7 @@ abstract class Bundle extends SymfonyBundle
 
     protected function registerMigrationPath(ContainerBuilder $container): void
     {
-        $migrationSuffix = str_replace(
-            $this->getNamespace(),
-            '',
-            $this->getMigrationNamespace()
-        );
-
-        $migrationPath = $this->getPath() . str_replace('\\', '/', $migrationSuffix);
+        $migrationPath = $this->getMigrationPath();
 
         if (!is_dir($migrationPath)) {
             return;

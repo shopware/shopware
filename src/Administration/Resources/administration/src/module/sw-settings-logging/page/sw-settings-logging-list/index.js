@@ -79,7 +79,7 @@ Component.register('sw-settings-logging-list', {
 
             return this.logEntryRepository.search(criteria, this.context).then((response) => {
                 this.total = response.total;
-                this.logs = response.items;
+                this.logs = response;
                 this.isLoading = false;
 
                 return response;

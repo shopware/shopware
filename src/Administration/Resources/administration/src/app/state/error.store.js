@@ -11,6 +11,7 @@ class VuexErrorStore {
 
         this.mutations = {
             addApiError(state, { expression, error }) {
+                error.selfLink = expression;
                 ErrorStore.addApiError(expression, error, state, ObservationApi.setReactive);
             },
 

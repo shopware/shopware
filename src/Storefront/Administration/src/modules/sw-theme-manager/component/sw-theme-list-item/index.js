@@ -23,7 +23,7 @@ Component.register('sw-theme-list-item', {
         previewMedia() {
             if (this.theme.previewMedia && this.theme.previewMedia.id && this.theme.previewMedia.url) {
                 return {
-                    'background-image': `url(${this.theme.previewMedia.url})`,
+                    'background-image': `url('${this.theme.previewMedia.url}')`,
                     'background-size': 'cover'
                 };
             }

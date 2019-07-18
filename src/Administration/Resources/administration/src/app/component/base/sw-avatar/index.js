@@ -112,7 +112,7 @@ export default {
             }
 
             return {
-                'background-image': `url(${this.imageUrl})`
+                'background-image': `url('${this.imageUrl}')`
             };
         },
 

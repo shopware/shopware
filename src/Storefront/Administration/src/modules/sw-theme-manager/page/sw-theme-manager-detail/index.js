@@ -42,7 +42,7 @@ Component.register('sw-theme-manager-detail', {
         previewMedia() {
             if (this.theme && this.theme.previewMedia && this.theme.previewMedia.id && this.theme.previewMedia.url) {
                 return {
-                    'background-image': `url(${this.theme.previewMedia.url})`,
+                    'background-image': `url('${this.theme.previewMedia.url}')`,
                     'background-size': 'cover'
                 };
             }

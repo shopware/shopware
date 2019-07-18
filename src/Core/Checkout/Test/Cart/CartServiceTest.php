@@ -123,4 +123,40 @@ class CartServiceTest extends TestCase
 
         $cartService->changeQuantity($cart, $productId, 100, $context);
     }
+
+    public function testZeroPricedItemsCanBeAddedToCart()
+    {
+        $cartService = $this->getContainer()->get(CartService::class);
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $productId = Uuid::randomHex();
+        $product = [
+            'id' => $productId,
+            'productNumber' => $productId,
+            'name' => 'test',
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 0, 'net' => 0, 'linked' => false],
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 18],
+            'manufacturer' => ['name' => 'test'],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], $context->getContext());
+
+        $lineItem = (new ProductLineItemFactory())->create($productId);
+
+        $cart = $cartService->getCart($context->getToken(), $context);
+
+        $cart = $cartService->add($cart, $lineItem, $context);
+
+        static::assertTrue($cart->has($productId));
+        static::assertEquals(0, $cart->getPrice()->getTotalPrice());
+        $calculatedLineItem = $cart->getLineItems()->get($productId);
+        static::assertEquals(0, $calculatedLineItem->getPrice()->getTotalPrice());
+        static::assertEquals(0, $calculatedLineItem->getPrice()->getCalculatedTaxes()->getAmount());
+    }
 }

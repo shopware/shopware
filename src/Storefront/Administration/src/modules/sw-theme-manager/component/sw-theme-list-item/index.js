@@ -10,6 +10,12 @@ Component.register('sw-theme-list-item', {
             type: Object,
             required: false,
             default: null
+        },
+
+        active: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -40,9 +46,19 @@ Component.register('sw-theme-list-item', {
                 message: this.$tc('sw-theme-manager.general.lockedToolTip')
             };
         },
+
+        componentClasses() {
+            return {
+                'is--active': this.isActive()
+            }
+        }
     },
 
     methods: {
+        isActive() {
+            return this.theme && this.theme.salesChannels && this.theme.salesChannels.length > 0 || this.active;
+        },
+
         onChangePreviewImage(theme) {
             this.$emit('preview-image-change', theme);
         },

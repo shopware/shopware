@@ -38,6 +38,7 @@ Component.register('sw-theme-modal', {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia');
+            criteria.addAssociation('salesChannels');
 
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 

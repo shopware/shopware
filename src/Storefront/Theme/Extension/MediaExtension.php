@@ -12,7 +12,7 @@ class MediaExtension implements EntityExtensionInterface
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            new OneToManyAssociationField('previewMedia', ThemeDefinition::class, 'preview_media_id')
+            new OneToManyAssociationField('themes', ThemeDefinition::class, 'preview_media_id')
         );
     }
 

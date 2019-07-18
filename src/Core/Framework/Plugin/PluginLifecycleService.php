@@ -237,7 +237,8 @@ class PluginLifecycleService
      */
     public function updatePlugin(PluginEntity $plugin, Context $shopwareContext): UpdateContext
     {
-        $pluginBaseClass = $this->getPluginBaseClass($plugin->getBaseClass());
+        $pluginBaseClassString = $plugin->getBaseClass();
+        $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
         $updateContext = new UpdateContext(
             $pluginBaseClass,
@@ -257,6 +258,9 @@ class PluginLifecycleService
         $this->eventDispatcher->dispatch(new PluginPreUpdateEvent($plugin, $updateContext));
 
         $pluginBaseClass->update($updateContext);
+        if ($plugin->getInstalledAt() && $plugin->getActive()) {
+            $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString, $shopwareContext);
+        }
 
         $this->runMigrations($pluginBaseClass);
 

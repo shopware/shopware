@@ -66,7 +66,7 @@ abstract class StorefrontController extends AbstractController
     {
         $router = $this->container->get('router');
 
-        $url = $this->generateUrl($routeName, $routeParameters, Router::BASE_PATH);
+        $url = $this->generateUrl($routeName, $routeParameters, Router::PATH_INFO);
 
         // for the route matching the request method is set to "GET" because
         // this method is not ought to be used as a post passthrough

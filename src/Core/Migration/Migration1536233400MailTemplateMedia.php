@@ -25,7 +25,7 @@ class Migration1536233400MailTemplateMedia extends MigrationStep
                 REFERENCES `mail_template` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.mail_template_media.media_id` FOREIGN KEY (`media_id`)
                 REFERENCES `media` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            )
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
         $connection->exec($query);

@@ -26,7 +26,7 @@ class Migration1536233290CustomFieldSetRelation extends MigrationStep
                 UNIQUE (`set_id`, `entity_name`),
               CONSTRAINT `fk.custom_field_set_relation.set_id` FOREIGN KEY (`set_id`) 
                 REFERENCES `custom_field_set` (id) ON UPDATE CASCADE ON DELETE CASCADE
-            );
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }
 

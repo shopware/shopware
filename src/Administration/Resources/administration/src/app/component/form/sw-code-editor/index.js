@@ -129,6 +129,7 @@ export default {
             this.defineAutocompletion(this.completerFunction);
 
             this.editor.setValue(this.value || '', 1);
+            this.editor.on('input', this.onInput);
             this.editor.on('blur', this.onBlur);
 
             if (this.setFocus) {
@@ -146,11 +147,6 @@ export default {
             if (this.value !== value) {
                 this.$emit('input', value);
             }
-        },
-
-        onChange() {
-            const value = this.editor.getValue();
-            this.$emit('change', value);
         },
 
         onBlur() {

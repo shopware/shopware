@@ -104,7 +104,7 @@ Component.register('sw-first-run-wizard-modal', {
                     navigationIndex: 5,
                     next: false,
                     skip: false,
-                    back: 'sw.first.run.wizard.index.shopware.domain',
+                    back: 'sw.first.run.wizard.index.shopware.account',
                     finish: true
                 }
             }

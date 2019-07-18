@@ -83,6 +83,8 @@
 						{% set violationPath = "/city" %}
 					{% elseif formViolations.getViolations("/#{prefix}/city") is not empty %}
 						{% set violationPath = "/#{prefix}/city" %}
+					{% else %}
+						{% set violationPath = null %}
 					{% endif %}
 
 					{% block component_address_form_city_label %}

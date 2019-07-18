@@ -70,8 +70,10 @@
         width: 228px;
         height: 132px;
         border-radius: $border-radius-default;
+        border: 1px solid $color-gray-300;
         background-size: contain;
         background-repeat: no-repeat;
+        background-position: center;
     }
 
     .sw-theme-manager-detail__info-name {

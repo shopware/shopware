@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Extension;
 
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -18,6 +19,6 @@ class MediaExtension implements EntityExtensionInterface
 
     public function getDefinitionClass(): string
     {
-        return ThemeDefinition::class;
+        return MediaDefinition::class;
     }
 }

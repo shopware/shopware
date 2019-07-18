@@ -139,6 +139,21 @@ class ThemeService
         return true;
     }
 
+    public function resetTheme(string $themeId, Context $context): void
+    {
+        $criteria = new Criteria([$themeId]);
+        $theme = $this->themeRepository->search($criteria, $context)->get($themeId);
+
+        if (!$theme) {
+            throw new InvalidThemeException($themeId);
+        }
+
+        $data = ['id' => $themeId];
+        $data['configValues'] = null;
+
+        $this->themeRepository->update([$data], $context);
+    }
+
     /**
      * @throws InvalidThemeConfigException
      * @throws InvalidThemeException

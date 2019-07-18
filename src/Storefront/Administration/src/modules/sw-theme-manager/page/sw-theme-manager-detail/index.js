@@ -180,6 +180,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onReset() {
+            if (this.theme.configValues === null) {
+                return;
+            }
+
             this.showResetModal = true;
         },
 
@@ -188,7 +192,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onConfirmThemeReset() {
-            this.getTheme();
+            this.themeService.resetTheme(this.themeId).then(() => {
+                this.getTheme();
+            });
+
             this.showResetModal = false;
         },
 
@@ -217,8 +224,7 @@ Component.register('sw-theme-manager-detail', {
             const newValues = getObjectDiff(this.baseThemeConfig, this.themeConfig);
 
             return this.themeService.updateTheme(this.themeId, { config: newValues }).then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
+                this.getTheme();
             }).catch(() => {
                 this.isLoading = false;
             });

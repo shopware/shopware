@@ -41,6 +41,21 @@ class ThemeApiService extends ApiService {
         });
     }
 
+    resetTheme(themeId, additionalParams = {}, additionalHeaders = {}) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/${themeId}/reset`;
+
+        return this.httpClient.patch(
+            apiRoute,
+            {},
+            {
+                params: { ...additionalParams },
+                headers: this.getBasicHeaders(additionalHeaders)
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
     getConfiguration(themeId, languageId) {
         const apiRoute = `/_action/${this.getApiBasePath()}/${themeId}/configuration`;
 

@@ -97,7 +97,7 @@ class PromotionItemBuilder
 
         switch ($discount->getType()) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
-                $promotionValue = $this->getDiscountValueBySalesChannelContext($discount, $context);
+                $promotionValue = -abs($this->getCurrencySpecificValue($discount, $discount->getValue(), $context));
                 $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
                 break;
 
@@ -135,7 +135,13 @@ class PromotionItemBuilder
 
         // add custom content to our payload.
         // we need this as meta data information.
-        $promotionItem->setPayload($this->buildPayload($discount, $promotion));
+        $promotionItem->setPayload(
+            $this->buildPayload(
+                $promotion,
+                $discount,
+                $context
+            )
+        );
 
         // add our lazy-validation rules.
         // this is required within the recalculation process.
@@ -151,7 +157,7 @@ class PromotionItemBuilder
      * This will make sure we have our eligible items referenced as meta data
      * and also have the code in our payload.
      */
-    private function buildPayload(PromotionDiscountEntity $discount, PromotionEntity $promotion): array
+    private function buildPayload(PromotionEntity $promotion, PromotionDiscountEntity $discount, SalesChannelContext $context): array
     {
         $payload = [];
 
@@ -167,6 +173,13 @@ class PromotionItemBuilder
         // set value of discount in payload
         $payload['value'] = (string) $discount->getValue();
 
+        // set our max value for maximum percentage discounts
+        if ($discount->getType() === PromotionDiscountEntity::TYPE_PERCENTAGE && $discount->getMaxValue() !== null) {
+            $payload['maxValue'] = (string) $this->getCurrencySpecificValue($discount, $discount->getMaxValue(), $context);
+        } else {
+            $payload['maxValue'] = '';
+        }
+
         return $payload;
     }
 
@@ -174,17 +187,14 @@ class PromotionItemBuilder
      * get the absolute price from collection if there is a price defined for the SalesChannelContext currency
      * if no price is defined return standard discount price
      */
-    private function getDiscountValueBySalesChannelContext(PromotionDiscountEntity $discount, SalesChannelContext $context): float
+    private function getCurrencySpecificValue(PromotionDiscountEntity $discount, float $default, SalesChannelContext $context): float
     {
-        /** @var float $discountValue */
-        $discountValue = $discount->getValue();
-
         /** @var PromotionDiscountPriceCollection|null $currencyPrices */
         $currencyPrices = $discount->getPromotionDiscountPrices();
 
-        // if there is no special defined price return standard value
+        // if there is no special defined price return default value
         if (!$currencyPrices instanceof PromotionDiscountPriceCollection || $currencyPrices->count() === 0) {
-            return -1 * $discountValue;
+            return $default;
         }
 
         // there are defined special prices, let's look if we may find one in collection for sales channel currency
@@ -192,6 +202,8 @@ class PromotionItemBuilder
 
         /** @var string $currencyId */
         $currencyId = $context->getCurrency()->getId();
+
+        $discountValue = $default;
 
         /** @var PromotionDiscountPriceEntity $currencyPrice */
         foreach ($currencyPrices as $currencyPrice) {
@@ -203,6 +215,6 @@ class PromotionItemBuilder
         }
 
         // return the value
-        return -1 * $discountValue;
+        return $discountValue;
     }
 }

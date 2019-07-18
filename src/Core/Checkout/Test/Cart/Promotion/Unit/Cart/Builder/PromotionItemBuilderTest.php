@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit\Cart\Builder;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
@@ -298,6 +299,109 @@ class PromotionItemBuilderTest extends TestCase
         $expectedPriceDefinition = new AbsolutePriceDefinition($expectedPrice, $precision, null);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
+    }
+
+    /**
+     * This test verifies that we have a correct payload
+     * including our max value from our discount, when building
+     * a new line item for our cart.
+     *
+     * @test
+     * @group promotions
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     */
+    public function testPercentagePayloadWithoutAdvancedPrices()
+    {
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('P123');
+        $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount->setValue(50);
+        $discount->setMaxValue(23.0);
+
+        $builder = new PromotionItemBuilder('My-TYPE');
+
+        /** @var LineItem $item */
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, $this->salesChannelContext);
+
+        $expected = [
+            'promotionId' => 'PR-1',
+            'discountType' => 'percentage',
+            'value' => 50,
+            'maxValue' => 23,
+            'discountId' => 'P123',
+        ];
+
+        static::assertEquals($expected, $item->getPayload());
+    }
+
+    /**
+     * This test verifies that we have our max value from
+     * the currency in our payload and not the one from
+     * our discount entity.
+     *
+     * @test
+     * @group promotions
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     */
+    public function testPercentagePayloadMaxValueWithAdvancedPrices()
+    {
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
+        $discount->setValue(40);
+        $discount->setMaxValue(30.0);
+
+        $currency = new CurrencyEntity();
+        $currency->setId('currency');
+        $this->salesChannelContext->method('getCurrency')->willReturn($currency);
+
+        $advancedPrice = new PromotionDiscountPriceEntity();
+        $advancedPrice->setUniqueIdentifier(Uuid::randomHex());
+        $advancedPrice->setCurrency($currency);
+        $advancedPrice->setCurrencyId($currency->getId());
+        $advancedPrice->setPrice(20);
+        $discount->setPromotionDiscountPrices(new PromotionDiscountPriceCollection([$advancedPrice]));
+
+        $builder = new PromotionItemBuilder('My-TYPE');
+
+        /** @var LineItem $item */
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, $this->salesChannelContext);
+
+        static::assertEquals(20, $item->getPayload()['maxValue']);
+    }
+
+    /**
+     * This test verifies that we have our max value for
+     * absolute discounts is null. This feature is not available
+     * for absolute disocunts - only percentage discounts.
+     *
+     * @test
+     * @group promotions
+     *
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     */
+    public function testAbsolutePayloadMaxValueIsNull()
+    {
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $discount->setValue(40);
+        $discount->setMaxValue(30.0);
+
+        $builder = new PromotionItemBuilder('My-TYPE');
+
+        /** @var LineItem $item */
+        $item = $builder->buildDiscountLineItem($this->promotion, $discount, $this->salesChannelContext);
+
+        static::assertEquals('', $item->getPayload()['maxValue']);
     }
 
     /**

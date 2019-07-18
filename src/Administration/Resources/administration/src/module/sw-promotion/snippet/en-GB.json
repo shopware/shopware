@@ -110,6 +110,7 @@
         "discounts": {
           "card": "Discount",
           "labelValue": "Value",
+          "labelMaxValue": "Maximum Discount",
           "placeholderValue": "Enter either a percentage or an absolute value...",
           "labelScope" : "Apply to:",
           "flagProductScopeLabel": "Apply to specific range of products",

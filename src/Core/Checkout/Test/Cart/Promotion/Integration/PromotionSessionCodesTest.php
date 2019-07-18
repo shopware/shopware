@@ -77,7 +77,7 @@ class PromotionSessionCodesTest extends TestCase
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
 
         // add a new promotion black friday
-        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, $this->getContainer());
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
@@ -127,7 +127,7 @@ class PromotionSessionCodesTest extends TestCase
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         foreach ($promotions as $promotion) {
-            $this->createTestFixturePercentagePromotion($promotion['id'], $promotion['code'], $promotion['percentage'], $this->getContainer());
+            $this->createTestFixturePercentagePromotion($promotion['id'], $promotion['code'], $promotion['percentage'], null, $this->getContainer());
             $cart = $this->addPromotionCode($promotion['code'], $cart, $this->cartService, $this->context);
 
             static::assertContains($promotion['code'], $this->getSessionCodes());
@@ -166,7 +166,7 @@ class PromotionSessionCodesTest extends TestCase
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
 
         // add a new promotion black friday
-        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, $this->getContainer());
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
@@ -260,7 +260,7 @@ class PromotionSessionCodesTest extends TestCase
 
         // add a new promotion with a
         // minimum line item quantity discount rule of 2
-        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 50, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 50, null, $this->getContainer());
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);

@@ -29,7 +29,8 @@ Component.register('sw-promotion-discount-component', {
             defaultCurrency: null,
             isLoading: false,
             showRuleModal: false,
-            showDeleteModal: false
+            showDeleteModal: false,
+            currencySymbol: null
         };
     },
     created() {
@@ -81,13 +82,18 @@ Component.register('sw-promotion-discount-component', {
         },
 
         valueSuffix() {
-            return discountHandler.getValueSuffix(
-                this.discount.type,
-                this.defaultCurrency !== null ? this.defaultCurrency.suffix : null
-            );
+            return discountHandler.getValueSuffix(this.discount.type, this.currencySymbol);
         },
 
-        showAdvancedPricesLink() {
+        maxValueSuffix() {
+            return this.currencySymbol;
+        },
+
+        showMaxValueSettings() {
+            return this.discount.type === DiscountTypes.PERCENTAGE;
+        },
+
+        showAbsoluteAdvancedPricesSettings() {
             return this.discount.type === DiscountTypes.ABSOLUTE;
         }
 
@@ -97,24 +103,32 @@ Component.register('sw-promotion-discount-component', {
             this.currencyRepository.search(new Criteria(), this.context).then((response) => {
                 this.currencies = response;
                 this.defaultCurrency = this.currencies.find(currency => currency.isDefault);
+                this.currencySymbol = this.defaultCurrency.symbol;
             });
         },
 
         // This function verifies the currently set value
         // depending on the discount type, and fixes it if
         // the min or maximum thresholds have been exceeded.
-        verifyValueMax() {
+        onDiscountTypeChanged() {
             this.discount.value = discountHandler.getFixedValue(this.discount.value, this.discount.type);
         },
 
-        changeValue(value) {
+        onDiscountValueChanged(value) {
             this.discount.value = discountHandler.getFixedValue(value, this.discount.type);
         },
 
         onClickAdvancedPrices() {
             this.currencies.forEach((currency) => {
                 if (!this.isMemberOfCollection(currency)) {
-                    this.prepareAdvancedPrices(currency, this.discount.value);
+                    // if we have a max-value setting active
+                    // then our advanced prices is for this
+                    // otherwise its for the promotion value itself
+                    if (this.showMaxValueField) {
+                        this.prepareAdvancedPrices(currency, this.discount.maxValue);
+                    } else {
+                        this.prepareAdvancedPrices(currency, this.discount.value);
+                    }
                 }
             });
             this.displayAdvancedPrices = true;
@@ -139,6 +153,7 @@ Component.register('sw-promotion-discount-component', {
             newAdvancedCurrencyPrices.price = setPrice;
             newAdvancedCurrencyPrices.currencyId = currency.id;
             newAdvancedCurrencyPrices.currency = currency;
+
             this.discount.promotionDiscountPrices.add(newAdvancedCurrencyPrices);
         },
 
@@ -156,10 +171,7 @@ Component.register('sw-promotion-discount-component', {
 
         onCloseAdvancedPricesModal() {
             this.discount.promotionDiscountPrices.forEach((advancedPrice) => {
-                const fixedPrice = discountHandler.getFixedValue(advancedPrice.price, DiscountTypes.ABSOLUTE);
-                if (advancedPrice.price !== fixedPrice) {
-                    advancedPrice.price = fixedPrice;
-                }
+                advancedPrice.price = discountHandler.getFixedValue(advancedPrice.price, DiscountTypes.ABSOLUTE);
             });
             this.displayAdvancedPrices = false;
         },

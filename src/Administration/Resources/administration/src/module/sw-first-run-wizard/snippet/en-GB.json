@@ -64,6 +64,7 @@
     "finish": {
       "headlineAllDone": "All done!",
       "message": "Your Shopware 6 %{edition} is now verified.",
+      "messageNotLicensed": "Your Shopware 6 is now prepared.",
       "headlineUsefulLinks": "Useful Links",
       "loadingMessage": "Restarting Application<br>This may take a while...",
       "documentationLabel": "Documentation",

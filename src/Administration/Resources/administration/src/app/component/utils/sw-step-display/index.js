@@ -92,10 +92,18 @@ export default {
         },
 
         setVariantForCurrentItem(variant) {
+            if (this.items.length >= this.itemIndex) {
+                return;
+            }
+
             this.items[this.itemIndex].setVariant(variant);
         },
 
         setItemActive(index, active) {
+            if (this.items.length >= index) {
+                return;
+            }
+
             this.items[index].setActive(active);
         }
     }

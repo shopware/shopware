@@ -65,7 +65,11 @@ class AccountProfileController extends StorefrontController
 
         $page = $this->profilePageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/profile/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/page/account/profile/index.html.twig', [
+            'page' => $page,
+            'passwordFormViolation' => $request->get('passwordFormViolation'),
+            'emailFormViolation' => $request->get('emailFormViolation'),
+        ]);
     }
 
     /**
@@ -104,9 +108,11 @@ class AccountProfileController extends StorefrontController
 
             $this->addFlash('success', $this->trans('account.emailChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {
-            return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations]);
+            $this->addFlash('danger', $this->trans('account.emailChangeNoSuccess'));
+
+            return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations, 'emailFormViolation' => true]);
         } catch (\Exception $exception) {
-            $this->addFlash('error', $this->trans('error.message-default'));
+            $this->addFlash('danger', $this->trans('error.message-default'));
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
@@ -123,8 +129,12 @@ class AccountProfileController extends StorefrontController
 
         try {
             $this->accountService->savePassword($data->get('password'), $context);
+
+            $this->addFlash('success', $this->trans('account.passwordChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {
-            return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations]);
+            $this->addFlash('danger', $this->trans('account.passwordChangeNoSuccess'));
+
+            return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations, 'passwordFormViolation' => true]);
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');

@@ -156,24 +156,6 @@ Component.register('sw-theme-manager-detail', {
             });
         },
 
-        saveFinish() {
-            this.isSaveSuccessful = false;
-        },
-
-        onSaveTheme() {
-            this.isSaveSuccessful = false;
-            this.isLoading = true;
-
-            const newValues = getObjectDiff(this.baseThemeConfig, this.themeConfig);
-
-            return this.themeService.updateTheme(this.themeId, { config: newValues }).then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-            }).catch(() => {
-                this.isLoading = false;
-            });
-        },
-
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
         },
@@ -211,7 +193,12 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onSave() {
-            this.showSaveModal = true;
+            if (this.theme.salesChannels.length > 0) {
+                this.showSaveModal = true;
+                return;
+            }
+
+            this.onSaveTheme();
         },
 
         onCloseSaveModal() {
@@ -221,6 +208,24 @@ Component.register('sw-theme-manager-detail', {
         onConfirmThemeSave() {
             this.onSaveTheme();
             this.showSaveModal = false;
+        },
+
+        onSaveTheme() {
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
+            const newValues = getObjectDiff(this.baseThemeConfig, this.themeConfig);
+
+            return this.themeService.updateTheme(this.themeId, { config: newValues }).then(() => {
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+            }).catch(() => {
+                this.isLoading = false;
+            });
+        },
+
+        saveFinish() {
+            this.isSaveSuccessful = false;
         },
 
         onSearch(value = null) {

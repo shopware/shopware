@@ -44,6 +44,10 @@
             <argument type="service" id="twig"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter" public="false">
+            <tag name="twig.extension"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\StorefrontSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="request_stack"/>

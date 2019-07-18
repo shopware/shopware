@@ -23,7 +23,7 @@
 
     {# generate srcset with all available thumbnails #}
     {% set srcsetValue %}{% apply spaceless %}
-        {{ media.url }} {{ thumbnails|first.width + 1 }}w, {% for thumbnail in thumbnails %}{{ thumbnail.url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
+        {{ media | sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% for thumbnail in thumbnails %}{{ thumbnail.url | sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
     {% endapply %}{% endset %}
 
     {# generate sizes #}
@@ -42,8 +42,7 @@
         {% for key, value in shopware.theme.breakpoint|reverse %}{% if maxWidth %}(max-width: {{ maxWidth }}px) and {% endif %}(min-width: {{ value }}px) {{ sizes[key] }}{% set maxWidth = value-1 %}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
     {% endapply %}{% endset %}
 {% endif %}
-
-<img src="{{ media.url }}"
+<img src="{{ media | sw_encode_media_url }}"
     {% if media.thumbnails|length > 0 %}
         srcset="{{ srcsetValue }}"
         {% if sizes['default'] %}

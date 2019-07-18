@@ -3,9 +3,11 @@
     {% set fieldName = violation.propertyPath|split('/')|last|trim('/', 'left')|capitalize %}
     <div class="invalid-feedback">
         {% if violation.parameters %}
-            {{ snippetName|trans(violation.parameters) }}
+            {% set violationParams =  {'%field%': fieldName}|merge(violation.parameters) %}
         {% else %}
-            {{ snippetName|trans({'%field%': fieldName}) }}
+            {% set violationParams =  {'%field%': fieldName} %}
         {% endif %}
+
+        {{ snippetName|trans(violationParams) }}
     </div>
 {% endfor %}

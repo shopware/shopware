@@ -10,6 +10,7 @@ Component.register('sw-first-run-wizard-finish', {
     data() {
         return {
             licenceDomains: [],
+            licensed: false,
             restarting: false
         };
     },
@@ -44,6 +45,9 @@ Component.register('sw-first-run-wizard-finish', {
                 }
 
                 this.licenceDomains = items;
+                this.licensed = true;
+            }).catch(() => {
+                this.licensed = false;
             });
 
             this.addNextCallback(this.onFinish);

@@ -92,7 +92,8 @@
         "symfony/yaml": "4.3.2",
         "twig/extensions": "1.5.4",
         "twig/twig": "2.11.2",
-        "voku/stop-words": "2.0.1"
+        "voku/stop-words": "2.0.1",
+        "padaliyajay/php-autoprefixer": "1.2"
     },
     "require-dev": {
         "ext-tokenizer": "*",

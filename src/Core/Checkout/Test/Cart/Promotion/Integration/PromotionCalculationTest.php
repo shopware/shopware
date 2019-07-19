@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtu
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
@@ -19,6 +20,7 @@ class PromotionCalculationTest extends TestCase
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
+    use SessionTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface

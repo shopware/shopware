@@ -86,6 +86,10 @@ Component.register('sw-manufacturer-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        manufacturerNameError() {
+            return this.$store.getters.getApiError(this.manufacturer, 'name');
         }
     },
 

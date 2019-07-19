@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
+use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,15 +19,21 @@ class CreateMigrationCommand extends Command
     private $projectDir;
 
     /**
-     * @var string
+     * @var PluginService
      */
-    private $pluginDir;
+    private $pluginService;
 
-    public function __construct(string $projectDir, string $pluginDir)
+    /**
+     * @var KernelPluginCollection
+     */
+    private $kernelPluginCollection;
+
+    public function __construct(KernelPluginCollection $kernelPluginCollection, PluginService $pluginService, string $projectDir)
     {
         parent::__construct();
         $this->projectDir = $projectDir;
-        $this->pluginDir = $pluginDir;
+        $this->pluginService = $pluginService;
+        $this->kernelPluginCollection = $kernelPluginCollection;
     }
 
     protected function configure(): void
@@ -48,6 +57,10 @@ class CreateMigrationCommand extends Command
         $namespace = (string) $input->getArgument('namespace');
         $name = $input->getOption('name') ?? '';
 
+        if (!preg_match('/^[a-zA-Z0-9\_]*$/', $name)) {
+            throw new \InvalidArgumentException('Migrationname contains forbidden characters!');
+        }
+
         if ($directory && !$namespace) {
             throw new \InvalidArgumentException('Please specify both dir and namespace or none.');
         }
@@ -55,24 +68,37 @@ class CreateMigrationCommand extends Command
         // Both dir and namespace were given
         if ($directory) {
             $this->createMigrationFile($name, $output, realpath($directory), $namespace);
-
-            return null;
         }
 
-        $plugin = $input->getOption('plugin');
-        if ($plugin) {
-            $pluginPath = $this->pluginDir . '/' . $plugin . '/';
-            if (!file_exists($pluginPath)) {
-                throw new \InvalidArgumentException('Plugin "' . $plugin . '" does not exist.');
+        $pluginName = $input->getOption('plugin');
+        if ($pluginName) {
+            $pluginBundles = array_filter($this->kernelPluginCollection->all(), function (Plugin $value) use ($pluginName) {
+                return strpos($value->getName(), $pluginName) === 0;
+            });
+
+            if (count($pluginBundles) === 0) {
+                throw new \RuntimeException(sprintf('Plugin "%s" could not be found.', $pluginName));
             }
 
-            if (!file_exists($pluginPath . 'Migration/')) {
-                mkdir($pluginPath . 'Migration/');
+            if (count($pluginBundles) > 1) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'More than one pluginname starting with "%s" was found: %s',
+                        $pluginName, implode(';', array_keys($pluginBundles))
+                    )
+                );
             }
 
-            $directory = $pluginPath . 'Migration/';
-            $namespace = $plugin . '\\Migration';
-            $output->writeln('Creating plugin-migration ...');
+            /** @var Plugin $pluginBundle */
+            $pluginBundle = array_values($pluginBundles)[0];
+
+            $directory = $pluginBundle->getMigrationPath();
+            if (!file_exists($directory) && !mkdir($directory) && !is_dir($directory)) {
+                throw new \RuntimeException(sprintf('Migrationdirectory "%s" could not be created', $directory));
+            }
+
+            $namespace = $pluginBundle->getMigrationNamespace();
+            $output->writeln(sprintf('Creating plugin-migration with namespace %s in path %s...', $namespace, $directory));
         } else {
             // We create a core-migration in case no plugin was given
             $directory = $this->projectDir . '/vendor/shopware/platform/src/Core/Migration/';
@@ -86,10 +112,6 @@ class CreateMigrationCommand extends Command
 
     private function createMigrationFile(string $name, OutputInterface $output, string $directory, string $namespace): void
     {
-        if (!preg_match('/^[a-zA-Z0-9\_]*$/', $name)) {
-            throw new \InvalidArgumentException('Migrationname contains forbidden characters!');
-        }
-
         $timestamp = (new \DateTime())->getTimestamp();
         $path = rtrim($directory, '/') . '/Migration' . $timestamp . $name . '.php';
         $file = fopen($path, 'wb');

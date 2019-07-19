@@ -19,7 +19,7 @@
                 <p class="confirm-payment-current{% if paymentMethodInvalid %} is-invalid{% endif %}">
                     {% block page_checkout_confirm_payment_current_image %}
                         {% if context.paymentMethod.media %}
-                            <img src="{{ context.paymentMethod.media.url }}"
+                            <img src="{{ context.paymentMethod.media|sw_encode_media_url }}"
                                  class="payment-method-image"
                                  alt="{{ context.paymentMethod.media.translated.alt }}"
                                  title="{{  context.paymentMethod.media.translated.title }}">

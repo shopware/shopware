@@ -34,11 +34,11 @@
 
                                             {% if option.configuratorSetting.media %}
                                                 {% set displayType = 'media' %}
-                                                {% set mediaUrl = option.configuratorSetting.media.url %}
+                                                {% set media = option.configuratorSetting.media %}
                                             {% else %}
                                                 {% set displayType = group.displayType %}
                                                 {% if option.media %}
-                                                    {% set mediaUrl = option.media.url %}
+                                                    {% set media = option.media %}
                                                 {% endif %}
                                             {% endif %}
 
@@ -60,8 +60,8 @@
                                                                    title="{{ option.translated.name }}"
                                                                    for="{{ optionIdentifier }}">
                                                                 {% if displayType == 'media' %}
-                                                                    {% if mediaUrl %}
-                                                                        <img src="{{ mediaUrl }}"
+                                                                    {% if media %}
+                                                                        <img src="{{ media|sw_encode_media_url }}"
                                                                              class="product-detail-configurator-option-image"
                                                                              alt="{{ option.translated.name }}"/>
                                                                     {% else %}

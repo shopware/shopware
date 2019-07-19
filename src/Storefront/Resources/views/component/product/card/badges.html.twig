@@ -18,8 +18,7 @@
         {% endblock %}
 
         {% block component_product_badges_new %}
-            {#TODO: NEXT-2675 - adjust if-query#}
-            {% if product.newProduct %}
+            {% if product.isNew %}
                 <div class="badge badge-success badge-new">
                     {{ "listing.boxLabelNew"|trans }}
                 </div>

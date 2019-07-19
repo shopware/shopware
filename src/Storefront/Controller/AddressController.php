@@ -184,27 +184,11 @@ class AddressController extends StorefrontController
     }
 
     /**
-     * @Route("/widgets/account/addresses", name="frontend.account.ajax-addresses", methods={"GET"}, defaults={"XmlHttpRequest"=true})
-     */
-    public function accountAjaxAddresses(Request $request, SalesChannelContext $context): Response
-    {
-        $this->denyAccessUnlessLoggedIn();
-
-        $page = $this->addressListingPageLoader->load($request, $context);
-        $this->addFlash('success', $this->trans('account.addressDefaultChanged'));
-
-        return $this->renderStorefront('@Storefront/component/account/ajax-addresses.html.twig', ['page' => $page]);
-    }
-
-    /**
      * @Route("/widgets/account/address-book", name="frontend.account.addressbook", options={"seo"=true}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function addressBook(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
-
-        $redirectRoute = $request->get('redirectRoute');
-        $replaceSelector = $request->get('replaceSelector');
 
         $viewData = [];
         $viewData = $this->handleChangeableAddresses($viewData, $dataBag);
@@ -213,28 +197,11 @@ class AddressController extends StorefrontController
 
         $viewData['page'] = $this->addressListingPageLoader->load($request, $context);
 
-        $viewData['redirectRoute'] = $redirectRoute;
-        $viewData['replaceSelector'] = $replaceSelector;
-
         if ($request->get('redirectTo') || $request->get('forwardTo')) {
             return $this->createActionResponse($request);
         }
 
         return $this->renderStorefront('@Storefront/component/address/address-editor-modal.html.twig', $viewData);
-    }
-
-    /**
-     * @Route("/widgets/checkout/addresses", name="frontend.checkout.ajax-addresses", methods={"GET"}, defaults={"XmlHttpRequest"=true})
-     */
-    public function checkoutAjaxAddresses(Request $request, SalesChannelContext $context): Response
-    {
-        $this->denyAccessUnlessLoggedIn();
-
-        $page = $this->addressListingPageLoader->load($request, $context);
-
-        $this->addFlash('success', $this->trans('account.addressDefaultChanged'));
-
-        return $this->renderStorefront('@Storefront/component/checkout/confirm/ajax-addresses.html.twig', ['page' => $page]);
     }
 
     private function handleAddressCreation(array $viewData, RequestDataBag $dataBag, SalesChannelContext $context): array
@@ -315,6 +282,12 @@ class AddressController extends StorefrontController
             }
         } catch (AddressNotFoundException $exception) {
             $success = false;
+        }
+
+        if ($success) {
+            $this->addFlash('success', $this->trans('account.addressDefaultChanged'));
+        } else {
+            $this->addFlash('danger', $this->trans('account.addressDefaultNotChanged'));
         }
 
         $viewData['success'] = $success;

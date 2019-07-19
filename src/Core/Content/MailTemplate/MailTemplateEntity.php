@@ -113,7 +113,7 @@ class MailTemplateEntity extends Entity
         return $this->subject;
     }
 
-    public function setSubject(string $subject): void
+    public function setSubject(?string $subject): void
     {
         $this->subject = $subject;
     }
@@ -123,7 +123,7 @@ class MailTemplateEntity extends Entity
         return $this->contentHtml;
     }
 
-    public function setContentHtml(string $contentHtml): void
+    public function setContentHtml(?string $contentHtml): void
     {
         $this->contentHtml = $contentHtml;
     }
@@ -133,7 +133,7 @@ class MailTemplateEntity extends Entity
         return $this->contentPlain;
     }
 
-    public function setContentPlain(string $contentPlain): void
+    public function setContentPlain(?string $contentPlain): void
     {
         $this->contentPlain = $contentPlain;
     }

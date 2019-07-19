@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -65,6 +66,11 @@ class MailService
      */
     private $eventDispatcher;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         DataValidator $dataValidator,
         StringTemplateRenderer $templateRenderer,
@@ -74,7 +80,8 @@ class MailService
         SalesChannelDefinition $salesChannelDefinition,
         EntityRepositoryInterface $salesChannelRepository,
         SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        LoggerInterface $logger
     ) {
         $this->dataValidator = $dataValidator;
         $this->templateRenderer = $templateRenderer;
@@ -85,6 +92,7 @@ class MailService
         $this->salesChannelRepository = $salesChannelRepository;
         $this->systemConfigService = $systemConfigService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->logger = $logger;
     }
 
     public function send(array $data, Context $context, array $templateData = []): ?\Swift_Message
@@ -109,7 +117,8 @@ class MailService
 
         $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
         if ($senderEmail === null) {
-            // todo Create log entry, but do not throw exception
+            $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');
+
             return null;
         }
 
@@ -117,7 +126,21 @@ class MailService
 
         $contents = $this->buildContents($data, $salesChannel);
         foreach ($contents as $index => $template) {
-            $contents[$index] = $this->templateRenderer->render($template, $templateData);
+            try {
+                $contents[$index] = $this->templateRenderer->render($template, $templateData);
+            } catch (\Exception $e) {
+                $this->logger->error(
+                    "Could not render Mail-Template with error message:\n"
+                    . $e->getMessage() . "\n"
+                    . 'Error Code:' . $e->getCode() . "\n"
+                    . 'Template source:'
+                    . $template . "\n"
+                    . "Template data: \n"
+                    . print_r($templateData, true) . "\n"
+                );
+
+                return null;
+            }
         }
 
         $mediaUrls = $this->getMediaUrls($data['mediaIds'], $context);

@@ -56,6 +56,9 @@
                                                    placeholder="{{ "account.personalMailPlaceholder"|trans }}{{ "general.required"|trans }}"
                                                    name="email"
                                                    value="{{ data.get('email') }}"
+                                                   {% if shopware.config.core.loginRegistration.requireEmailConfirmation %}
+                                                   data-form-validation-equal="personalMail"
+                                                   {% endif %}
                                                    required="required">
                                         {% endblock %}
 
@@ -86,6 +89,8 @@
                                                    placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans }}{{ "general.required"|trans }}"
                                                    name="emailConfirmation"
                                                    value="{{ data.get('emailConfirmation') }}"
+                                                   data-form-validation-equal="personalMail"
+                                                   data-form-validation-equal-message="{{ "account.personalMailConfirmationInvalidMessage"|trans }}"
                                                    required="required">
                                         {% endblock %}
 
@@ -123,15 +128,27 @@
                                                        placeholder="{{ "account.personalPasswordPlaceholder"|trans }}{{ "general.required"|trans }}"
                                                        name="password"
                                                        minlength="shopware.config.core.loginRegistration.passwordMinLength"
+                                                       {% if shopware.config.core.loginRegistration.requirePasswordConfirmation %}
+                                                       data-form-validation-equal="newPassword"
+                                                       {% endif %}
+                                                       {% if shopware.config.core.loginRegistration.passwordMinLength != 0 %}
+													   data-form-validation-length="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
+                                                       data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
+                                                           '%minLength%': shopware.config.core.loginRegistration.passwordMinLength
+                                                       }) }}"
+                                                       {% endif %}
                                                        required="required">
                                             {% endblock %}
 
                                             {% block component_account_register_personal_password_description %}
-                                                <small class="form-text text-muted">
-                                                    {{ "account.personalPasswordDescription"|trans({
-                                                        '%minLength%': shopware.config.core.loginRegistration.passwordMinLength
-                                                    }) }}
-                                                </small>
+                                                {% if shopware.config.core.loginRegistration.passwordMinLength != 0 %}
+                                                    <small class="form-text js-validation-message"
+                                                           data-form-validation-length-text="true">
+                                                        {{ "account.personalPasswordDescription"|trans({
+                                                            '%minLength%': shopware.config.core.loginRegistration.passwordMinLength
+                                                        }) }}
+                                                    </small>
+                                                {% endif %}
                                             {% endblock %}
 
                                             {% block component_account_register_personal_password_input_error %}
@@ -163,6 +180,8 @@
                                                        placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans }}{{ "general.required"|trans }}"
                                                        name="passwordConfirmation"
                                                        minlength="shopware.config.core.loginRegistration.passwordMinLength"
+                                                       data-form-validation-equal="newPassword"
+                                                       data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans }}"
                                                        required="required">
                                             {% endblock %}
 

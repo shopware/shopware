@@ -38,6 +38,8 @@ export default class FormValidation extends Plugin {
          */
         styleCls: 'was-validated',
 
+        hintCls: 'invalid-feedback',
+
         debounceTime: '150',
 
         eventName: 'ValidateEqual',
@@ -45,6 +47,11 @@ export default class FormValidation extends Plugin {
         equalAttr: 'data-form-validation-equal',
 
         lengthAttr: 'data-form-validation-length',
+
+        /**
+         * Use an already visible text as a hint for the length-validation
+         */
+        lengthTextAttr: 'data-form-validation-length-text',
     };
 
     init() {
@@ -90,11 +97,11 @@ export default class FormValidation extends Plugin {
         }
 
         // equal validation
-        this._registerValidationListener(this.options.equalAttr, this._onValidateEqualTrigger.bind(this), ['keyup', 'change']);
+        this._registerValidationListener(this.options.equalAttr, this._onValidateEqualTrigger.bind(this), ['change']);
         this._registerValidationListener(this.options.equalAttr, Debouncer.debounce(this._onValidateEqual.bind(this), this.options.debounceTime), [this.options.eventName]);
 
         // length validation
-        this._registerValidationListener(this.options.lengthAttr, this._onValidateLength.bind(this), ['keyup', 'change']);
+        this._registerValidationListener(this.options.lengthAttr, this._onValidateLength.bind(this), ['change']);
     }
 
     /**
@@ -145,10 +152,14 @@ export default class FormValidation extends Plugin {
     _onValidateEqualTrigger(event) {
         const selector = DomAccess.getDataAttribute(event.target, this.options.equalAttr);
         const fields = DomAccess.querySelectorAll(this.el, `[${this.options.equalAttr}='${selector}']`);
+        const confirmField = fields[1];
+        const confirmFieldValue = confirmField.value.trim();
 
-        Iterator.iterate(fields, field => {
-            field.dispatchEvent(new CustomEvent(this.options.eventName, { target: event.target }));
-        });
+        if (confirmFieldValue.length > 0 ) {
+            Iterator.iterate(fields, field => {
+                field.dispatchEvent(new CustomEvent(this.options.eventName, {target: event.target}));
+            });
+        }
 
         this.$emitter.publish('onValidateEqualTrigger');
     }
@@ -197,11 +208,21 @@ export default class FormValidation extends Plugin {
         const field = event.target;
         const value = field.value.trim();
         const expectedLength = DomAccess.getDataAttribute(event.target, this.options.lengthAttr);
+        const formText = field.nextElementSibling;
 
         if (value.length < expectedLength) {
             this._setFieldToInvalid(field, this.options.lengthAttr);
+
+            // if a form text exists, give it the invalid styling
+            if (formText && formText.hasAttribute(this.options.lengthTextAttr)) {
+                formText.classList.add(this.options.hintCls);
+            }
         } else {
             this._setFieldToValid(field, this.options.lengthAttr);
+
+            if (formText && formText.hasAttribute(this.options.lengthTextAttr)) {
+                formText.classList.remove(this.options.hintCls);
+            }
         }
 
         this.$emitter.publish('onValidateLength');
@@ -243,7 +264,7 @@ export default class FormValidation extends Plugin {
 
         if (message) {
             if (!parent.querySelector('.js-validation-message')) {
-                field.insertAdjacentHTML('afterEnd', `<div class="text-danger js-validation-message" data-type="${attribute}">${message}</div>`);
+                field.insertAdjacentHTML('afterEnd', `<div class="invalid-feedback js-validation-message" data-type="${attribute}">${message}</div>`);
             }
             field.setCustomValidity(message);
         }

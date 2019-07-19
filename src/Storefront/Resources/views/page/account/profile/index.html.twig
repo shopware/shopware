@@ -82,18 +82,27 @@
 
                                     {% block page_account_profile_credentials_change_mail %}
                                         <div class="col-3">
-                                            <a class="account-profile-change" data-toggle="collapse" href="#profile-email-form"
+                                            <a class="account-profile-change{% if not emailFormViolation %} collapsed{% endif %}"
+                                               data-toggle="collapse"
+                                               href="#profile-email-form"
                                                role="button"
-                                               aria-expanded="false"
-                                               aria-controls="profile-email-form">{{ "account.profileChangeEmail"|trans }}</a>
+                                               aria-expanded="{% if emailFormViolation %}true{% else %}false{% endif %}"
+                                               aria-controls="profile-email-form">
+                                                {{ "account.profileChangeEmail"|trans }}
+                                            </a>
                                         </div>
                                     {% endblock %}
 
                                     {% block page_account_profile_credentials_change_password %}
                                         <div class="col-3">
-                                            <a class="account-profile-change" data-toggle="collapse"
-                                               href="#profile-password-form" role="button"
-                                               aria-expanded="false" aria-controls="profile-password-form">{{ "account.profileChangePassword"|trans }}</a>
+                                            <a class="account-profile-change{% if not passwordFormViolation %} collapsed{% endif %}"
+                                               data-toggle="collapse"
+                                               href="#profile-password-form"
+                                               role="button"
+                                               aria-expanded="{% if passwordFormViolation %}true{% else %}false{% endif %}"
+                                               aria-controls="profile-password-form">
+                                                {{ "account.profileChangePassword"|trans }}
+                                            </a>
                                         </div>
                                     {% endblock %}
                                 </div>
@@ -105,7 +114,7 @@
                 {% block page_account_profile_mail_and_password %}
                     <div class="profile-content accordion">
                         {% block page_account_profile_mail_collapse %}
-                            <div class="collapse" id="profile-email-form" data-parent=".profile-content">
+                            <div class="collapse{% if emailFormViolation and formViolations %} show{% endif %}" id="profile-email-form" data-parent=".profile-content">
                                 <div class="card account-email">
                                     {% block page_account_profile_mail_title %}
                                         <div class="card-title">
@@ -198,7 +207,7 @@
 
                                                         {% block page_account_profile_mail_password_input %}
                                                             <input type="password"
-                                                                   class="form-control{% if formViolations.getViolations('/password') is not empty %} is-invalid{% endif %}"
+                                                                   class="form-control{% if formViolations.getViolations('/password') is not empty and emailFormViolation %} is-invalid{% endif %}"
                                                                    autocomplete="new-password"
                                                                    id="personalMailPasswordCurrent"
                                                                    placeholder="{{ "account.profilePasswordCurrent"|trans }}{{ "general.required"|trans }}"
@@ -207,7 +216,7 @@
                                                         {% endblock %}
 
                                                         {% block page_account_profile_mail_password_input_error %}
-                                                            {% if formViolations.getViolations('/password') is not empty %}
+                                                            {% if formViolations.getViolations('/password') is not empty and emailFormViolation %}
                                                                 {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
                                                                     violationPath: '/password'
                                                                 } %}
@@ -241,7 +250,7 @@
                         {% endblock %}
 
                         {% block page_account_profile_password %}
-                            <div class="collapse" id="profile-password-form" data-parent=".profile-content">
+                            <div class="collapse{% if passwordFormViolation and formViolations %} show{% endif %}" id="profile-password-form" data-parent=".profile-content">
                                 <div class="card account-password">
                                     {% block page_account_profile_password_form %}
                                         <form id="profilePasswordForm"
@@ -338,7 +347,7 @@
 
                                                         {% block page_account_profile_current_password_input %}
                                                             <input type="password"
-                                                                   class="form-control{% if formViolations.getViolations('/password') is not empty %} is-invalid{% endif %}"
+                                                                   class="form-control{% if formViolations.getViolations('/password') is not empty and passwordFormViolation %} is-invalid{% endif %}"
                                                                    autocomplete="new-password"
                                                                    id="password"
                                                                    placeholder="{{ "account.profilePasswordCurrent"|trans }}{{ "general.required"|trans }}"
@@ -347,7 +356,7 @@
                                                         {% endblock %}
 
                                                         {% block page_account_profile_current_password_input_error %}
-                                                            {% if formViolations.getViolations('/password') is not empty %}
+                                                            {% if formViolations.getViolations('/password') is not empty and passwordFormViolation %}
                                                                 {% sw_include '@Storefront/utilities/form-violation.html.twig' with {
                                                                     violationPath: '/password'
                                                                 } %}

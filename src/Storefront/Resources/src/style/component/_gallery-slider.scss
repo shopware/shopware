@@ -35,7 +35,8 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 }
 
-.gallery-slider-item {
+.gallery-slider-item,
+.gallery-slider-single-image {
     position: relative;
     backface-visibility: hidden;
     cursor: default;
@@ -154,9 +155,11 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 }
 
-@include media-breakpoint-up(sm) {
+@include media-breakpoint-down(sm) {
     .gallery-slider-single-image {
-        height: 430px;
+        &.is-cover {
+            min-height: 225px !important;
+        }
     }
 }
 

@@ -7,57 +7,22 @@ class ThemeFixtures
     public static function getThemeFields(): array
     {
         return [
-            'colors' => [
-                'label' => 'colors',
+            'themeColors' => [
+                'label' => 'themeColors',
                 'sections' => [
-                    'generalColors' => [
-                        'label' => 'generalColors',
+                    '' => [
+                        'label' => '',
                         'sw-color-brand-primary' => [
                             'label' => [
-                                'en-GB' => 'Primary',
-                                'de-DE' => 'Primär',
+                                'en-GB' => 'Primary color',
+                                'de-DE' => 'Hauptfarbe',
                             ],
                             'type' => 'color',
                         ],
                         'sw-color-brand-secondary' => [
                             'label' => [
-                                'en-GB' => 'Secondary',
-                                'de-DE' => 'Sekundär',
-                            ],
-                            'type' => 'color',
-                        ],
-                        'sw-color-success' => [
-                            'label' => [
-                                'en-GB' => 'Success',
-                                'de-DE' => 'Erfolg',
-                            ],
-                            'type' => 'color',
-                        ],
-                        'sw-color-info' => [
-                            'label' => [
-                                'en-GB' => 'Info',
-                                'de-DE' => 'Info',
-                            ],
-                            'type' => 'color',
-                        ],
-                        'sw-color-warning' => [
-                            'label' => [
-                                'en-GB' => 'Warning',
-                                'de-DE' => 'Warnung',
-                            ],
-                            'type' => 'color',
-                        ],
-                        'sw-color-danger' => [
-                            'label' => [
-                                'en-GB' => 'Danger',
-                                'de-DE' => 'Achtung',
-                            ],
-                            'type' => 'color',
-                        ],
-                        'sw-text-color' => [
-                            'label' => [
-                                'en-GB' => 'Text',
-                                'de-DE' => 'Text',
+                                'en-GB' => 'Secondary color',
+                                'de-DE' => 'Sekundärfarbe',
                             ],
                             'type' => 'color',
                         ],
@@ -69,34 +34,16 @@ class ThemeFixtures
                             'type' => 'color',
                         ],
                     ],
-                    'additionalColors' => [
-                        'label' => 'additionalColors',
-                        'sw-color-price' => [
-                            'label' => [
-                                'en-GB' => 'Price',
-                                'de-DE' => 'Preis',
-                            ],
-                            'type' => 'color',
-                        ],
-                        'sw-color-buy-button' => [
-                            'label' => [
-                                'en-GB' => 'Buy button',
-                                'de-DE' => 'Kaufen Schaltfläche',
-                            ],
-                            'type' => 'color',
-                        ],
-                    ],
                 ],
             ],
-            'fonts' => [
-                'label' => 'fonts',
+            'typography' => [
+                'label' => 'typography',
                 'sections' => [
-                    'generalFonts' => [
-                        'label' => 'generalFonts',
+                    '' => [
                         'sw-font-family-base' => [
                             'label' => [
-                                'en-GB' => 'Default',
-                                'de-DE' => 'Allgemein',
+                                'en-GB' => 'Fonttype text',
+                                'de-DE' => 'Schriftart Text',
                             ],
                             'type' => 'fontFamily',
                         ],
@@ -107,14 +54,22 @@ class ThemeFixtures
                             ],
                             'type' => 'fontFamily',
                         ],
+                        'sw-text-color' => [
+                            'label' => [
+                                'en-GB' => 'Text color',
+                                'de-DE' => 'Textfarbe',
+                            ],
+                            'type' => 'color',
+                        ],
+                        'label' => '',
                     ],
                 ],
             ],
             'media' => [
                 'label' => 'media',
                 'sections' => [
-                    'logos' => [
-                        'label' => 'logos',
+                    '' => [
+                        'label' => '',
                         'sw-logo-default' => [
                             'label' => [
                                 'en-GB' => 'Default',
@@ -143,6 +98,13 @@ class ThemeFixtures
                             ],
                             'type' => 'media',
                         ],
+                        'sw-logo-default-xl' => [
+                            'label' => [
+                                'en-GB' => 'Extra large',
+                                'de-DE' => 'Sehr groß',
+                            ],
+                            'type' => 'media',
+                        ],
                         'sw-logo-share' => [
                             'label' => [
                                 'en-GB' => 'Share',
@@ -164,12 +126,63 @@ class ThemeFixtures
                             ],
                             'type' => 'media',
                         ],
-                        'sw-logo-default-xl' => [
+                    ],
+                ],
+            ],
+            'eCommerce' => [
+                'label' => 'eCommerce',
+                'sections' => [
+                    '' => [
+                        'label' => '',
+                        'sw-color-price' => [
                             'label' => [
-                                'en-GB' => 'Extra large',
-                                'de-DE' => 'Sehr groß',
+                                'en-GB' => 'Price color',
+                                'de-DE' => 'Preisfarbe',
                             ],
-                            'type' => 'media',
+                            'type' => 'color',
+                        ],
+                        'sw-color-buy-button' => [
+                            'label' => [
+                                'en-GB' => 'Buy button',
+                                'de-DE' => 'Warenkorb Button',
+                            ],
+                            'type' => 'color',
+                        ],
+                    ],
+                ],
+            ],
+            'statusColors' => [
+                'label' => 'statusColors',
+                'sections' => [
+                    '' => [
+                        'label' => '',
+                        'sw-color-success' => [
+                            'label' => [
+                                'en-GB' => 'Success',
+                                'de-DE' => 'Erfolg',
+                            ],
+                            'type' => 'color',
+                        ],
+                        'sw-color-info' => [
+                            'label' => [
+                                'en-GB' => 'Information',
+                                'de-DE' => 'Information',
+                            ],
+                            'type' => 'color',
+                        ],
+                        'sw-color-warning' => [
+                            'label' => [
+                                'en-GB' => 'Notice',
+                                'de-DE' => 'Hinweis',
+                            ],
+                            'type' => 'color',
+                        ],
+                        'sw-color-danger' => [
+                            'label' => [
+                                'en-GB' => 'Error',
+                                'de-DE' => 'Fehler',
+                            ],
+                            'type' => 'color',
                         ],
                     ],
                 ],
@@ -186,22 +199,34 @@ class ThemeFixtures
     {
         return [
             'blocks' => [
-                'colors' => [
+                'themeColors' => [
                     'label' => [
-                        'en-GB' => 'Colors',
-                        'de-DE' => 'Farben',
+                        'en-GB' => 'Theme colors',
+                        'de-DE' => 'Theme Farben',
                     ],
                 ],
-                'fonts' => [
+                'typography' => [
                     'label' => [
-                        'en-GB' => 'Fonts',
-                        'de-DE' => 'Schriftarten',
+                        'en-GB' => 'Typography',
+                        'de-DE' => 'Typografie',
                     ],
                 ],
                 'media' => [
                     'label' => [
                         'en-GB' => 'Media',
                         'de-DE' => 'Medien',
+                    ],
+                ],
+                'eCommerce' => [
+                    'label' => [
+                        'en-GB' => 'E-Commerce',
+                        'de-DE' => 'E-Commerce',
+                    ],
+                ],
+                'statusColors' => [
+                    'label' => [
+                        'en-GB' => 'Status messages',
+                        'de-DE' => 'Status Ausgaben',
                     ],
                 ],
                 'unordered' => [
@@ -211,44 +236,18 @@ class ThemeFixtures
                     ],
                 ],
             ],
-            'sections' => [
-                'generalColors' => [
-                    'label' => [
-                        'en-GB' => 'General colors',
-                        'de-DE' => 'Allgemeine Farben',
-                    ],
-                ],
-                'additionalColors' => [
-                    'label' => [
-                        'en-GB' => 'Additional colors',
-                        'de-DE' => 'Weitere Farben',
-                    ],
-                ],
-                'generalFonts' => [
-                    'label' => [
-                        'en-GB' => 'General fonts',
-                        'de-DE' => 'Allgemeine Schriftarten',
-                    ],
-                ],
-                'logos' => [
-                    'label' => [
-                        'en-GB' => 'Logos',
-                        'de-DE' => 'Logos',
-                    ],
-                ],
-            ],
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
                     'label' => [
-                        'en-GB' => 'Primary',
-                        'de-DE' => 'Primär',
+                        'en-GB' => 'Primary color',
+                        'de-DE' => 'Hauptfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#ff00ff',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
+                    'block' => 'themeColors',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -258,14 +257,14 @@ class ThemeFixtures
                 'sw-color-brand-secondary' => [
                     'name' => 'sw-color-brand-secondary',
                     'label' => [
-                        'en-GB' => 'Secondary',
-                        'de-DE' => 'Sekundär',
+                        'en-GB' => 'Secondary color',
+                        'de-DE' => 'Sekundärfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#576574',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
+                    'block' => 'themeColors',
+                    'section' => null,
                     'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -281,9 +280,9 @@ class ThemeFixtures
                     'type' => 'color',
                     'value' => '#6ed59f',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 300,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -292,15 +291,15 @@ class ThemeFixtures
                 'sw-color-info' => [
                     'name' => 'sw-color-info',
                     'label' => [
-                        'en-GB' => 'Info',
-                        'de-DE' => 'Info',
+                        'en-GB' => 'Information',
+                        'de-DE' => 'Information',
                     ],
                     'type' => 'color',
                     'value' => '#76bce7',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 400,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -309,15 +308,15 @@ class ThemeFixtures
                 'sw-color-warning' => [
                     'name' => 'sw-color-warning',
                     'label' => [
-                        'en-GB' => 'Warning',
-                        'de-DE' => 'Warnung',
+                        'en-GB' => 'Notice',
+                        'de-DE' => 'Hinweis',
                     ],
                     'type' => 'color',
                     'value' => '#fcc679',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 500,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -326,15 +325,15 @@ class ThemeFixtures
                 'sw-color-danger' => [
                     'name' => 'sw-color-danger',
                     'label' => [
-                        'en-GB' => 'Danger',
-                        'de-DE' => 'Achtung',
+                        'en-GB' => 'Error',
+                        'de-DE' => 'Fehler',
                     ],
                     'type' => 'color',
                     'value' => '#f27f7f',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 600,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 400,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -343,15 +342,15 @@ class ThemeFixtures
                 'sw-text-color' => [
                     'name' => 'sw-text-color',
                     'label' => [
-                        'en-GB' => 'Text',
-                        'de-DE' => 'Text',
+                        'en-GB' => 'Text color',
+                        'de-DE' => 'Textfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#545454',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 700,
+                    'block' => 'typography',
+                    'section' => null,
+                    'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -366,9 +365,9 @@ class ThemeFixtures
                     'type' => 'color',
                     'value' => '#d4e2e2',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 800,
+                    'block' => 'themeColors',
+                    'section' => null,
+                    'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -377,14 +376,14 @@ class ThemeFixtures
                 'sw-color-price' => [
                     'name' => 'sw-color-price',
                     'label' => [
-                        'en-GB' => 'Price',
-                        'de-DE' => 'Preis',
+                        'en-GB' => 'Price color',
+                        'de-DE' => 'Preisfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#3f4c58',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'additionalColors',
+                    'block' => 'eCommerce',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -395,13 +394,13 @@ class ThemeFixtures
                     'name' => 'sw-color-buy-button',
                     'label' => [
                         'en-GB' => 'Buy button',
-                        'de-DE' => 'Kaufen Schaltfläche',
+                        'de-DE' => 'Warenkorb Button',
                     ],
                     'type' => 'color',
                     'value' => '#399',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'additionalColors',
+                    'block' => 'eCommerce',
+                    'section' => null,
                     'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -411,14 +410,14 @@ class ThemeFixtures
                 'sw-font-family-base' => [
                     'name' => 'sw-font-family-base',
                     'label' => [
-                        'en-GB' => 'Default',
-                        'de-DE' => 'Allgemein',
+                        'en-GB' => 'Fonttype text',
+                        'de-DE' => 'Schriftart Text',
                     ],
                     'type' => 'fontFamily',
                     'value' => '\'Inter\', sans-serif',
                     'editable' => true,
-                    'block' => 'fonts',
-                    'section' => 'generalFonts',
+                    'block' => 'typography',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -434,9 +433,9 @@ class ThemeFixtures
                     'type' => 'fontFamily',
                     'value' => '\'Inter\', sans-serif',
                     'editable' => true,
-                    'block' => 'fonts',
-                    'section' => 'generalFonts',
-                    'order' => 200,
+                    'block' => 'typography',
+                    'section' => null,
+                    'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -452,7 +451,7 @@ class ThemeFixtures
                     'value' => '*',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -469,7 +468,7 @@ class ThemeFixtures
                     'value' => '*',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -486,7 +485,7 @@ class ThemeFixtures
                     'value' => '*',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -503,7 +502,7 @@ class ThemeFixtures
                     'value' => '*',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -520,7 +519,7 @@ class ThemeFixtures
                     'value' => '*',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 400,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -537,7 +536,7 @@ class ThemeFixtures
                     'value' => '*',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 500,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -554,7 +553,7 @@ class ThemeFixtures
                     'value' => '*',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 600,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -571,7 +570,7 @@ class ThemeFixtures
                     'value' => '*',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 700,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -586,22 +585,34 @@ class ThemeFixtures
     {
         return [
             'blocks' => [
-                'colors' => [
+                'themeColors' => [
                     'label' => [
-                        'en-GB' => 'Colors',
-                        'de-DE' => 'Farben',
+                        'en-GB' => 'Theme colors',
+                        'de-DE' => 'Theme Farben',
                     ],
                 ],
-                'fonts' => [
+                'typography' => [
                     'label' => [
-                        'en-GB' => 'Fonts',
-                        'de-DE' => 'Schriftarten',
+                        'en-GB' => 'Typography',
+                        'de-DE' => 'Typografie',
                     ],
                 ],
                 'media' => [
                     'label' => [
                         'en-GB' => 'Media',
                         'de-DE' => 'Medien',
+                    ],
+                ],
+                'eCommerce' => [
+                    'label' => [
+                        'en-GB' => 'E-Commerce',
+                        'de-DE' => 'E-Commerce',
+                    ],
+                ],
+                'statusColors' => [
+                    'label' => [
+                        'en-GB' => 'Status messages',
+                        'de-DE' => 'Status Ausgaben',
                     ],
                 ],
                 'unordered' => [
@@ -611,44 +622,18 @@ class ThemeFixtures
                     ],
                 ],
             ],
-            'sections' => [
-                'generalColors' => [
-                    'label' => [
-                        'en-GB' => 'General colors',
-                        'de-DE' => 'Allgemeine Farben',
-                    ],
-                ],
-                'additionalColors' => [
-                    'label' => [
-                        'en-GB' => 'Additional colors',
-                        'de-DE' => 'Weitere Farben',
-                    ],
-                ],
-                'generalFonts' => [
-                    'label' => [
-                        'en-GB' => 'General fonts',
-                        'de-DE' => 'Allgemeine Schriftarten',
-                    ],
-                ],
-                'logos' => [
-                    'label' => [
-                        'en-GB' => 'Logos',
-                        'de-DE' => 'Logos',
-                    ],
-                ],
-            ],
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
                     'label' => [
-                        'en-GB' => 'Primary',
-                        'de-DE' => 'Primär',
+                        'en-GB' => 'Primary color',
+                        'de-DE' => 'Hauptfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#399',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
+                    'block' => 'themeColors',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -658,14 +643,14 @@ class ThemeFixtures
                 'sw-color-brand-secondary' => [
                     'name' => 'sw-color-brand-secondary',
                     'label' => [
-                        'en-GB' => 'Secondary',
-                        'de-DE' => 'Sekundär',
+                        'en-GB' => 'Secondary color',
+                        'de-DE' => 'Sekundärfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#576574',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
+                    'block' => 'themeColors',
+                    'section' => null,
                     'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -681,9 +666,9 @@ class ThemeFixtures
                     'type' => 'color',
                     'value' => '#6ed59f',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 300,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -692,15 +677,15 @@ class ThemeFixtures
                 'sw-color-info' => [
                     'name' => 'sw-color-info',
                     'label' => [
-                        'en-GB' => 'Info',
-                        'de-DE' => 'Info',
+                        'en-GB' => 'Information',
+                        'de-DE' => 'Information',
                     ],
                     'type' => 'color',
                     'value' => '#76bce7',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 400,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -709,15 +694,15 @@ class ThemeFixtures
                 'sw-color-warning' => [
                     'name' => 'sw-color-warning',
                     'label' => [
-                        'en-GB' => 'Warning',
-                        'de-DE' => 'Warnung',
+                        'en-GB' => 'Notice',
+                        'de-DE' => 'Hinweis',
                     ],
                     'type' => 'color',
                     'value' => '#fcc679',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 500,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -726,15 +711,15 @@ class ThemeFixtures
                 'sw-color-danger' => [
                     'name' => 'sw-color-danger',
                     'label' => [
-                        'en-GB' => 'Danger',
-                        'de-DE' => 'Achtung',
+                        'en-GB' => 'Error',
+                        'de-DE' => 'Fehler',
                     ],
                     'type' => 'color',
                     'value' => '#f27f7f',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 600,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 400,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -743,15 +728,15 @@ class ThemeFixtures
                 'sw-text-color' => [
                     'name' => 'sw-text-color',
                     'label' => [
-                        'en-GB' => 'Text',
-                        'de-DE' => 'Text',
+                        'en-GB' => 'Text color',
+                        'de-DE' => 'Textfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#545454',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 700,
+                    'block' => 'typography',
+                    'section' => null,
+                    'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -766,9 +751,9 @@ class ThemeFixtures
                     'type' => 'color',
                     'value' => '#d4e2e2',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 800,
+                    'block' => 'themeColors',
+                    'section' => null,
+                    'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -777,14 +762,14 @@ class ThemeFixtures
                 'sw-color-price' => [
                     'name' => 'sw-color-price',
                     'label' => [
-                        'en-GB' => 'Price',
-                        'de-DE' => 'Preis',
+                        'en-GB' => 'Price color',
+                        'de-DE' => 'Preisfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#3f4c58',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'additionalColors',
+                    'block' => 'eCommerce',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -795,13 +780,13 @@ class ThemeFixtures
                     'name' => 'sw-color-buy-button',
                     'label' => [
                         'en-GB' => 'Buy button',
-                        'de-DE' => 'Kaufen Schaltfläche',
+                        'de-DE' => 'Warenkorb Button',
                     ],
                     'type' => 'color',
                     'value' => '#399',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'additionalColors',
+                    'block' => 'eCommerce',
+                    'section' => null,
                     'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -811,14 +796,14 @@ class ThemeFixtures
                 'sw-font-family-base' => [
                     'name' => 'sw-font-family-base',
                     'label' => [
-                        'en-GB' => 'Default',
-                        'de-DE' => 'Allgemein',
+                        'en-GB' => 'Fonttype text',
+                        'de-DE' => 'Schriftart Text',
                     ],
                     'type' => 'fontFamily',
                     'value' => '\'Inter\', sans-serif',
                     'editable' => true,
-                    'block' => 'fonts',
-                    'section' => 'generalFonts',
+                    'block' => 'typography',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -834,9 +819,9 @@ class ThemeFixtures
                     'type' => 'fontFamily',
                     'value' => '\'Inter\', sans-serif',
                     'editable' => true,
-                    'block' => 'fonts',
-                    'section' => 'generalFonts',
-                    'order' => 200,
+                    'block' => 'typography',
+                    'section' => null,
+                    'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
                     'extensions' => [
@@ -852,7 +837,7 @@ class ThemeFixtures
                     'value' => '205360eedb64487c924e06cccb1654de',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -869,7 +854,7 @@ class ThemeFixtures
                     'value' => '',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -886,7 +871,7 @@ class ThemeFixtures
                     'value' => '',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -903,7 +888,7 @@ class ThemeFixtures
                     'value' => '',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -920,7 +905,7 @@ class ThemeFixtures
                     'value' => '',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 400,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -937,7 +922,7 @@ class ThemeFixtures
                     'value' => '',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 500,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -954,7 +939,7 @@ class ThemeFixtures
                     'value' => '1854686fef6d4b1eaaa37866784a54ef',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 600,
                     'sectionOrder' => null,
                     'blockOrder' => null,
@@ -971,7 +956,7 @@ class ThemeFixtures
                     'value' => '',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
+                    'section' => null,
                     'order' => 700,
                     'sectionOrder' => null,
                     'blockOrder' => null,

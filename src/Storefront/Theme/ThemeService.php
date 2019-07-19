@@ -353,7 +353,7 @@ class ThemeService
 
     private function getSection($fieldConfig): string
     {
-        $section = 'noSection';
+        $section = '';
 
         if (isset($fieldConfig['section'])) {
             $section = $fieldConfig['section'];

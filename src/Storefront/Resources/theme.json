@@ -21,16 +21,28 @@
   ],
   "config": {
     "blocks": {
-      "colors": {
+      "themeColors": {
         "label": {
-          "en-GB": "Colors",
-          "de-DE": "Farben"
+          "en-GB": "Theme colors",
+          "de-DE": "Theme Farben"
         }
       },
-      "fonts": {
+      "typography": {
         "label": {
-          "en-GB": "Fonts",
-          "de-DE": "Schriftarten"
+          "en-GB": "Typography",
+          "de-DE": "Typografie"
+        }
+      },
+      "eCommerce": {
+        "label": {
+          "en-GB": "E-Commerce",
+          "de-DE": "E-Commerce"
+        }
+      },
+      "statusColors": {
+        "label": {
+          "en-GB": "Status messages",
+          "de-DE": "Status Ausgaben"
         }
       },
       "media": {
@@ -46,115 +58,28 @@
         }
       }
     },
-    "sections": {
-      "generalColors": {
-        "label": {
-          "en-GB": "General colors",
-          "de-DE": "Allgemeine Farben"
-        }
-      },
-      "additionalColors": {
-        "label": {
-          "en-GB": "Additional colors",
-          "de-DE": "Weitere Farben"
-        }
-      },
-      "generalFonts": {
-        "label": {
-          "en-GB": "General fonts",
-          "de-DE": "Allgemeine Schriftarten"
-        }
-      },
-      "logos": {
-        "label": {
-          "en-GB": "Logos",
-          "de-DE": "Logos"
-        }
-      }
-    },
     "fields": {
       "sw-color-brand-primary": {
         "label": {
-          "en-GB": "Primary",
-          "de-DE": "Primär"
+          "en-GB": "Primary color",
+          "de-DE": "Hauptfarbe"
         },
         "type": "color",
         "value": "#399",
         "editable": true,
-        "block": "colors",
-        "section": "generalColors",
+        "block": "themeColors",
         "order": 100
       },
       "sw-color-brand-secondary": {
         "label": {
-          "en-GB": "Secondary",
-          "de-DE": "Sekundär"
+          "en-GB": "Secondary color",
+          "de-DE": "Sekundärfarbe"
         },
         "type": "color",
         "value": "#576574",
         "editable": true,
-        "block": "colors",
-        "section": "generalColors",
+        "block": "themeColors",
         "order": 200
-      },
-      "sw-color-success": {
-        "label": {
-          "en-GB": "Success",
-          "de-DE": "Erfolg"
-        },      "type": "color",
-        "value": "#6ed59f",
-        "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 300
-      },
-      "sw-color-info": {
-        "label": {
-          "en-GB": "Info",
-          "de-DE": "Info"
-        },
-        "type": "color",
-        "value": "#76bce7",
-        "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 400
-      },
-      "sw-color-warning": {
-        "label": {
-          "en-GB": "Warning",
-          "de-DE": "Warnung"
-        },
-        "type": "color",
-        "value": "#fcc679",
-        "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 500
-      },
-      "sw-color-danger": {
-        "label": {
-          "en-GB": "Danger",
-          "de-DE": "Achtung"
-        },
-        "type": "color",
-        "value": "#f27f7f",
-        "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 600
-      },
-      "sw-text-color": {
-        "label": {
-          "en-GB": "Text",
-          "de-DE": "Text"
-        },
-        "type": "color",
-        "value": "#545454",
-        "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 700
       },
       "sw-border-color": {
         "label": {
@@ -164,44 +89,73 @@
         "type": "color",
         "value": "#d4e2e2",
         "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 800
+        "block": "themeColors",
+        "order": 300
       },
-      "sw-color-price": {
+      "sw-color-success": {
         "label": {
-          "en-GB": "Price",
-          "de-DE": "Preis"
+          "en-GB": "Success",
+          "de-DE": "Erfolg"
         },      "type": "color",
-        "value": "#3f4c58",
+        "value": "#6ed59f",
         "editable": true,
-        "block": "colors",
-        "section": "additionalColors",
+        "block": "statusColors",
         "order": 100
       },
-      "sw-color-buy-button": {
+      "sw-color-info": {
         "label": {
-          "en-GB": "Buy button",
-          "de-DE": "Kaufen Schaltfläche"
+          "en-GB": "Information",
+          "de-DE": "Information"
         },
         "type": "color",
-        "value": "#399",
+        "value": "#76bce7",
         "editable": true,
-        "block": "colors",
-        "section": "additionalColors",
+        "block": "statusColors",
         "order": 200
+      },
+      "sw-color-warning": {
+        "label": {
+          "en-GB": "Notice",
+          "de-DE": "Hinweis"
+        },
+        "type": "color",
+        "value": "#fcc679",
+        "editable": true,
+        "block": "statusColors",
+        "order": 300
+      },
+      "sw-color-danger": {
+        "label": {
+          "en-GB": "Error",
+          "de-DE": "Fehler"
+        },
+        "type": "color",
+        "value": "#f27f7f",
+        "editable": true,
+        "block": "statusColors",
+        "order": 400
       },
       "sw-font-family-base": {
         "label": {
-          "en-GB": "Default",
-          "de-DE": "Allgemein"
+          "en-GB": "Fonttype text",
+          "de-DE": "Schriftart Text"
         },
         "type": "fontFamily",
         "value": "'Inter', sans-serif",
         "editable": true,
-        "block": "fonts",
-        "section": "generalFonts",
+        "block": "typography",
         "order": 100
+      },
+      "sw-text-color": {
+        "label": {
+          "en-GB": "Text color",
+          "de-DE": "Textfarbe"
+        },
+        "type": "color",
+        "value": "#545454",
+        "editable": true,
+        "block": "typography",
+        "order": 200
       },
       "sw-font-family-headline": {
         "label": {
@@ -211,8 +165,28 @@
         "type": "fontFamily",
         "value": "'Inter', sans-serif",
         "editable": true,
-        "block": "fonts",
-        "section": "generalFonts",
+        "block": "typography",
+        "order": 300
+      },
+      "sw-color-price": {
+        "label": {
+          "en-GB": "Price color",
+          "de-DE": "Preisfarbe"
+        },      "type": "color",
+        "value": "#3f4c58",
+        "editable": true,
+        "block": "eCommerce",
+        "order": 100
+      },
+      "sw-color-buy-button": {
+        "label": {
+          "en-GB": "Buy button",
+          "de-DE": "Warenkorb Button"
+        },
+        "type": "color",
+        "value": "#399",
+        "editable": true,
+        "block": "eCommerce",
         "order": 200
       },
       "sw-logo-default": {
@@ -224,7 +198,6 @@
         "value": "dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
-        "section": "logos",
         "order": 300
       },
       "sw-logo-default-sm": {
@@ -236,7 +209,6 @@
         "value": "dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
-        "section": "logos",
         "order": 100
       },
       "sw-logo-default-md": {
@@ -248,7 +220,6 @@
         "value": "dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
-        "section": "logos",
         "order": 200
       },
       "sw-logo-default-lg": {
@@ -260,7 +231,6 @@
         "value": "dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
-        "section": "logos",
         "order": 300
       },
       "sw-logo-default-xl": {
@@ -272,7 +242,6 @@
         "value": "dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
-        "section": "logos",
         "order": 400
       },
       "sw-logo-share": {
@@ -284,7 +253,6 @@
         "value": "",
         "editable": true,
         "block": "media",
-        "section": "logos",
         "order": 500
       },
       "sw-logo-favicon": {
@@ -296,7 +264,6 @@
         "value": "dist/assets/logo/favicon.png",
         "editable": true,
         "block": "media",
-        "section": "logos",
         "order": 600
       },
       "sw-logo-app-icon": {
@@ -308,7 +275,6 @@
         "value": "",
         "editable": true,
         "block": "media",
-        "section": "logos",
         "order": 700
       }
     }

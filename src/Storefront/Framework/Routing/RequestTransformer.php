@@ -97,16 +97,17 @@ class RequestTransformer implements RequestTransformerInterface
          * http://localhost:8080/en
          * http://localhost:8080/fr
          */
-        $server = array_merge(
-            $_SERVER,
-            ['REQUEST_URI' => rtrim($request->getBaseUrl(), '/') . '/' . $resolved['pathInfo']]
+        $transformedServerVars = array_merge(
+            $request->server->all(),
+            ['REQUEST_URI' => rtrim($request->getBaseUrl(), '/') . $resolved['pathInfo']]
         );
 
-        $clone = $request->duplicate(null, null, null, null, null, $server);
+        $clone = $request->duplicate(null, null, null, null, null, $transformedServerVars);
 
         $clone->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
         $clone->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
         $clone->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
+
         $clone->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);
         $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
         $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, $salesChannel['locale']);
@@ -223,11 +224,11 @@ class RequestTransformer implements RequestTransformerInterface
             $resolved = (new SeoResolver($this->connection))
                 ->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
 
-            $resolved['pathInfo'] = rtrim($resolved['pathInfo'], '/');
+            $resolved['pathInfo'] = '/' . trim($resolved['pathInfo'], '/');
 
             return $resolved;
         }
 
-        return ['pathInfo' => rtrim($seoPathInfo, '/')];
+        return ['pathInfo' => '/' . trim($seoPathInfo, '/')];
     }
 }

@@ -14,8 +14,8 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
 class Router implements RouterInterface, RequestMatcherInterface, WarmableInterface, ServiceSubscriberInterface
 {
-    /** @var int Used to indicate the router that no custom domain parts should be added to the generated routes */
-    public const BASE_PATH = 10;
+    /** @var int Used to indicate the router that we only need the path info without the sales channel prefix */
+    public const PATH_INFO = 10;
 
     /**
      * @var SymfonyRouter
@@ -76,10 +76,11 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     public function generate($name, $parameters = [], $referenceType = self::ABSOLUTE_PATH)
     {
-        if ($referenceType === self::BASE_PATH) {
+        $basePath = $this->getBasePath();
+        if ($referenceType === self::PATH_INFO) {
             $route = $this->decorated->generate($name);
 
-            return $route;
+            return $this->removePrefix($route, $basePath);
         }
 
         if (!$this->isStorefrontRoute($name)) {
@@ -87,7 +88,6 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         }
 
         $salesChannelBaseUrl = $this->getSalesChannelBaseUrl();
-        $basePath = $this->getBasePath();
 
         // we need to insert the sales channel base url between the baseUrl and the infoPath
         switch ($referenceType) {

@@ -165,7 +165,7 @@ export default {
 
         setNotifications(state, notifications) {
             Object.keys(notifications).forEach((id) => {
-                Application.viewAdapter.setReactive(state.notifications, notifications[id].uuid, notifications[id]);
+                Application.view.setReactive(state.notifications, notifications[id].uuid, notifications[id]);
             });
         },
 
@@ -176,12 +176,12 @@ export default {
                 return;
             }
 
-            Application.viewAdapter.setReactive(state.notifications, notificationUpdate.uuid, notificationUpdate);
+            Application.view.setReactive(state.notifications, notificationUpdate.uuid, notificationUpdate);
             _saveNotifications(state.notifications);
         },
 
         removeNotification(state, notification) {
-            Application.viewAdapter.deleteReactive(state.notifications, notification.uuid);
+            Application.view.deleteReactive(state.notifications, notification.uuid);
             _saveNotifications(state.notifications);
         },
 
@@ -200,16 +200,16 @@ export default {
                 return;
             }
 
-            Application.viewAdapter.setReactive(state.growlNotifications, notificationUpdate.uuid, notificationUpdate);
+            Application.view.setReactive(state.growlNotifications, notificationUpdate.uuid, notificationUpdate);
 
             const growlKeys = Object.keys(state.growlNotifications);
             if (growlKeys.length > state.threshold) {
-                Application.viewAdapter.deleteReactive(state.growlNotifications, growlKeys[0]);
+                Application.view.deleteReactive(state.growlNotifications, growlKeys[0]);
             }
         },
 
         removeGrowlNotification(state, notification) {
-            Application.viewAdapter.deleteReactive(state.growlNotifications, notification.uuid);
+            Application.view.deleteReactive(state.growlNotifications, notification.uuid);
         }
     },
 

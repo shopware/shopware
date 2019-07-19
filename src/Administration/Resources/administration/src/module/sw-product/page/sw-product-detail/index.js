@@ -1,4 +1,4 @@
-import { Application, View, Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
 import { mapPageErrors } from 'src/app/service/map-errors.service';
 import { mapState, mapGetters } from 'vuex';
 import Criteria from 'src/core/data-new/criteria.data';

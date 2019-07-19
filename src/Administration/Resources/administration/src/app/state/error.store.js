@@ -12,11 +12,11 @@ class VuexErrorStore {
         this.mutations = {
             addApiError(state, { expression, error }) {
                 error.selfLink = expression;
-                ErrorStore.addApiError(expression, error, state, Application.viewAdapter.setReactive);
+                ErrorStore.addApiError(expression, error, state, Application.view.setReactive);
             },
 
             removeApiError(state, { expression }) {
-                ErrorStore.removeApiError(expression, state, Application.viewAdapter.deleteReactive);
+                ErrorStore.removeApiError(expression, state, Application.view.deleteReactive);
             },
 
             resetApiErrors(state) {
@@ -24,11 +24,11 @@ class VuexErrorStore {
             },
 
             addSystemError(state, { error, id = utils.createId() }) {
-                ErrorStore.addSystemError(error, id, state, Application.viewAdapter.setReactive);
+                ErrorStore.addSystemError(error, id, state, Application.view.setReactive);
             },
 
             removeSystemError(state, { id }) {
-                ErrorStore.removeSystemError(id, state, Application.viewAdapter.deleteReactive);
+                ErrorStore.removeSystemError(id, state, Application.view.deleteReactive);
             }
         };
 

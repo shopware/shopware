@@ -1,5 +1,3 @@
-// import { mapState, mapMutations, mapGetters, mapActions } from 'vuex';
-// import { mapApiErrors, mapPageErrors } from 'src/app/service/map-errors.service';
 import { Component } from 'src/core/shopware';
 import baseComponents from 'src/app/component/components';
 

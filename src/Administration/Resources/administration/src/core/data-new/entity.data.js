@@ -21,7 +21,7 @@ export default class Entity {
             },
 
             set(target, property, value) {
-                Application.viewAdapter.setReactive(that._draft, property, value);
+                Application.view.setReactive(that._draft, property, value);
                 that._isDirty = true;
 
                 return true;

@@ -30,13 +30,13 @@ import 'src/app/assets/scss/all.scss';
 const factoryContainer = Application.getContainer('factory');
 
 /** Create View Adapter */
-const adapter = VueAdapter(
-    factoryContainer.component,
-    factoryContainer.state,
-    factoryContainer.filter,
-    factoryContainer.directive,
-    factoryContainer.locale
-);
+const adapter = new VueAdapter({
+    componentFactory: factoryContainer.component,
+    stateFactory: factoryContainer.state,
+    filterFactory: factoryContainer.filter,
+    directiveFactory: factoryContainer.directive,
+    localeFactory: factoryContainer.locale
+});
 
 Application.setViewAdapter(adapter);
 

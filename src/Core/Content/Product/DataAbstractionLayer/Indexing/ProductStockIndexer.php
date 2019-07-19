@@ -183,18 +183,18 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
 
         $sql = '
 UPDATE product SET available_stock = stock - (
-	SELECT IFNULL(SUM(order_line_item.quantity), 0)
+    SELECT IFNULL(SUM(order_line_item.quantity), 0)
 
-	FROM order_line_item
+    FROM order_line_item
         INNER JOIN `order`
-	        ON `order`.id = order_line_item.order_id
-	        AND `order`.version_id = order_line_item.order_version_id
-		INNER JOIN state_machine_state
-			ON state_machine_state.id = `order`.state_id
-			AND state_machine_state.technical_name NOT IN (:states)
+            ON `order`.id = order_line_item.order_id
+            AND `order`.version_id = order_line_item.order_version_id
+        INNER JOIN state_machine_state
+            ON state_machine_state.id = `order`.state_id
+            AND state_machine_state.technical_name NOT IN (:states)
 
-	WHERE LOWER(order_line_item.referenced_id) = LOWER(HEX(product.id))
-	AND order_line_item.type = :type
+    WHERE LOWER(order_line_item.referenced_id) = LOWER(HEX(product.id))
+    AND order_line_item.type = :type
     AND order_line_item.version_id = :version
 )
 WHERE product.id IN (:ids);

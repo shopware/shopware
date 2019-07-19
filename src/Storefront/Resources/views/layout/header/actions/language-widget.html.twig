@@ -3,32 +3,32 @@
         {% set position = 'top-bar' %}
     {% endif %}
 
-	{% if  page.header.languages.count > 1 %}
-		<div class="top-bar-nav-item top-bar-language">
-			{% block layout_header_actions_language_widget_form %}
-				<form method="post"
-					  action="{{ path('frontend.checkout.switch-language') }}"
+    {% if  page.header.languages.count > 1 %}
+        <div class="top-bar-nav-item top-bar-language">
+            {% block layout_header_actions_language_widget_form %}
+                <form method="post"
+                      action="{{ path('frontend.checkout.switch-language') }}"
                       class="language-form"
                       data-form-auto-submit="true">
-					{% block layout_header_actions_language_widget_content %}
-					    {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('-') %}
+                    {% block layout_header_actions_language_widget_content %}
+                        {% set isoCode = page.header.activeLanguage.translationCode.code|lower|split('-') %}
                         {% set country = isoCode[0] %}
                         {% set language = isoCode[1] %}
 
-						<div class="languages-menu dropdown">
-							<button class="btn dropdown-toggle top-bar-nav-btn"
-									type="button"
-									id="languagesDropdown-{{ position }}"
-									data-toggle="dropdown"
-									aria-haspopup="true"
-									aria-expanded="false">
-								<div class="top-bar-list-icon language-flag country-{{ country }} language-{{ language }}"></div>
-								<span class="top-bar-nav-text">{{ page.header.activeLanguage.name }}</span>
-							</button>
-							{% block layout_header_actions_languages_widget_form_items %}
-								<div class="top-bar-list dropdown-menu dropdown-menu-right"
-									aria-labelledby="languagesDropdown-{{ position }}">
-									{% for language in  page.header.languages %}
+                        <div class="languages-menu dropdown">
+                            <button class="btn dropdown-toggle top-bar-nav-btn"
+                                    type="button"
+                                    id="languagesDropdown-{{ position }}"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">
+                                <div class="top-bar-list-icon language-flag country-{{ country }} language-{{ language }}"></div>
+                                <span class="top-bar-nav-text">{{ page.header.activeLanguage.name }}</span>
+                            </button>
+                            {% block layout_header_actions_languages_widget_form_items %}
+                                <div class="top-bar-list dropdown-menu dropdown-menu-right"
+                                    aria-labelledby="languagesDropdown-{{ position }}">
+                                    {% for language in  page.header.languages %}
                                             <div class="top-bar-list-item dropdown-item{% if language.id is same as(page.header.activeLanguage.id) %} item-checked{% endif %}"
                                                  title="{{ language.translated.name }}">
                                                 
@@ -50,19 +50,19 @@
                                                     </label>
                                                 {% endblock %}
                                             </div>
-									{% endfor %}
-								</div>
-							{% endblock %}
-						</div>
+                                    {% endfor %}
+                                </div>
+                            {% endblock %}
+                        </div>
 
                         <input name="redirectTo" type="hidden" value="{{ app.request.get('_route') }}"/>
 
                         {% for key, value in app.request.attributes.get('_route_params') %}
                             <input name="redirectParameters[{{ key }}]" type="hidden" value="{{ value }}">
                         {% endfor %}
-					{% endblock %}
-				</form>
-			{% endblock %}
-		</div>
-	{% endif %}
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    {% endif %}
 {% endblock %}

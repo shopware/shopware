@@ -140,6 +140,15 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     margin: 0;
 }
 
+@include media-breakpoint-down(xs) {
+    // override inline style on mobile devices
+    .gallery-slider-item {
+        &.is-cover {
+            min-height: 225px !important;
+        }
+    }
+}
+
 @include media-breakpoint-up(sm) {
     .gallery-slider-single-image {
         height: 430px;

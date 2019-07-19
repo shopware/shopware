@@ -220,6 +220,8 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
                     onInit,
                     ...this._sliderSettings,
                 });
+
+                this._initDots();
             } else {
                 container.style.display = 'none';
             }
@@ -229,8 +231,6 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
             const thumbnailControls = this.el.querySelector(this.options.thumbnailControlsSelector);
 
             const onInitThumbnails = () => {
-                this._initDots();
-
                 this.$emitter.publish('initThumbnailSlider');
             };
 

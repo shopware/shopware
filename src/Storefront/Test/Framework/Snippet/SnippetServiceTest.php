@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Snippet;
+namespace Shopware\Storefront\Test\Framework\Snippet;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -10,12 +10,12 @@ use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\Framework\Snippet\SnippetService;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\MockSnippetFile;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetStoreFrontSnippets\SnippetFile_de;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetStoreFrontSnippets\SnippetFile_en;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Test\Framework\Snippet\_fixtures\MockSnippetFile;
+use Shopware\Storefront\Test\Framework\Snippet\_fixtures\testGetStoreFrontSnippets\SnippetFile_de;
+use Shopware\Storefront\Test\Framework\Snippet\_fixtures\testGetStoreFrontSnippets\SnippetFile_en;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 

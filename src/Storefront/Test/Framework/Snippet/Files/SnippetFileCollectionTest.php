@@ -1,15 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Snippet\Files;
+namespace Shopware\Storefront\Test\Framework\Snippet\Files;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\MockSnippetFile;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Shopware\Storefront\Resources\snippet\de_DE\SnippetFile_de_DE;
-use Shopware\Storefront\Resources\snippet\en_GB\SnippetFile_en_GB;
+use Shopware\Storefront\Test\Framework\Snippet\_fixtures\MockSnippetFile;
 
 class SnippetFileCollectionTest extends TestCase
 {
@@ -105,8 +103,8 @@ class SnippetFileCollectionTest extends TestCase
     {
         $collection = new SnippetFileCollection([]);
         $collection->add(new MockSnippetFile('de-DE'));
-        $collection->add(new SnippetFile_de_DE());
-        $collection->add(new SnippetFile_en_GB());
+        $collection->add(new \Shopware\Storefront\Resources\snippet\de_DE\SnippetFile_de_DE());
+        $collection->add(new \Shopware\Storefront\Resources\snippet\en_GB\SnippetFile_en_GB());
 
         return $collection;
     }

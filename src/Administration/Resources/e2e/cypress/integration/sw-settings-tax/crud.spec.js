@@ -22,7 +22,7 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/tax?_response=true',
+            url: '/api/v1/tax',
             method: 'post'
         }).as('saveData');
 

@@ -22,14 +22,14 @@
     "detail": {
       "textHeadline": "Neue Steuer",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Die Steuer \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelTaxRate": "Steuersatz",
       "placeholderName": "Namen eingeben ...",
       "placeholderTaxRate": "Steuersatz eingeben ...",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern"
+      "buttonSave": "Speichern",
+      "notificationErrorTitle": "Fehler",
+      "notificationErrorMessage": "Fehler beim Speichern des Steuersatzes."
     }
   }
 }

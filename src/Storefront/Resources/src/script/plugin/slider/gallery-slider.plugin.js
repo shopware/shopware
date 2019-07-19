@@ -5,7 +5,7 @@ import SliderSettingsHelper from 'src/script/plugin/slider/helper/slider-setting
 import PluginManager from 'src/script/plugin-system/plugin.manager';
 import Iterator from 'src/script/helper/iterator.helper';
 import BaseSliderPlugin from  'src/script/plugin/slider/base-slider.plugin';
-import DomAccess from "src/script/helper/dom-access.helper";
+import DomAccess from 'src/script/helper/dom-access.helper';
 
 export default class GallerySliderPlugin extends BaseSliderPlugin {
 
@@ -58,7 +58,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
             this._correctIndexSettings();
 
             this._getSettings(ViewportDetection.getCurrentViewport());
-            
+
             this._initSlider();
             this._registerEvents();
         }

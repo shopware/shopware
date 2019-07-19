@@ -1,5 +1,5 @@
 import Plugin from 'src/script/plugin-system/plugin.class';
-import DateFormatHelper from 'src/script/helper/date.helper.js';
+import DateFormatHelper from 'src/script/helper/date.helper';
 
 /**
  * this plugin formats date and converts it to the local timezone

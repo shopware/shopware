@@ -1,6 +1,6 @@
 const TIMEZONE_COOKIE = 'timezone';
 
-import CookieStorageHelper from 'src/script/helper/storage/cookie-storage.helper.js';
+import CookieStorageHelper from 'src/script/helper/storage/cookie-storage.helper';
 
 export default class TimezoneUtil {
 

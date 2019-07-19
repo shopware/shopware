@@ -17,7 +17,7 @@
       "switchLanguageModalTitle": "Wähle die Sprache der Benutzeroberfläche",
       "confirmLanguageSwitch": "Sprache wechseln",
       "cancelLanguageSwitch": "Abbrechen",
-      "switchLanguageMessage": "Das Sprach-Plugin \"%{pluginName}\" wurde erfolgreich installiert. Möchtest du die Spache der Benutzeroberfläche ändern?"
+      "switchLanguageMessage": "Das Sprach-Plugin \"{pluginName}\" wurde erfolgreich installiert. Möchtest du die Spache der Benutzeroberfläche ändern?"
     },
     "demodata": {
       "modalTitle": "Demodaten installieren",
@@ -62,7 +62,8 @@
     },
     "finish": {
       "headlineAllDone": "Herzlichen Glückwunsch!",
-      "message": "Dein Shopware 6 %{edition} is jetzt verifziert.",
+      "message": "Dein Shopware 6 {edition} ist jetzt verifiziert.",
+      "messageNotLicensed": "Dein Shopware 6 ist jetzt vorbereitet.",
       "headlineUsefulLinks": "Nützliche Links",
       "loadingMessage": "Anwendung wird neu gestartet<br>Das könnte einen Moment dauern...",
       "documentationLabel": "Dokumentation",

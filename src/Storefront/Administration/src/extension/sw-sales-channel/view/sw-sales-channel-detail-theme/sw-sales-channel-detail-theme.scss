@@ -23,6 +23,10 @@
         .sw-sales-channel-detail-theme__info-name,
         .sw-sales-channel-detail-theme__info-description {
             font-size: 14px;
+
+            &.is--empty {
+                color: $color-gray-500;
+            }
         }
 
         .sw-sales-channel-detail-theme__info-description {

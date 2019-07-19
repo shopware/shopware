@@ -31,7 +31,7 @@
     "createTheme": "Neues Theme erstellen",
     "editContent": "Theme bearbeiten",
     "defaultTitle": "Standard Theme",
-    "defaultAuthor": "Standard Theme",
+    "defaultAuthor": "Autor",
     "modal": {
       "modalTitleChange": "Theme wechseln",
       "textChangeTheme": "Möchtest du wirklich das Theme ändern? Dies kann die Darstellung deines Shops verändern.",

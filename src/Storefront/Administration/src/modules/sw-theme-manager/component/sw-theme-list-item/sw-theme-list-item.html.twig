@@ -19,7 +19,7 @@
 
         {% block sw_theme_list_item_info %}
             <div class="sw-theme-list-item__info">
-                <div class="sw-theme-list-item__status" :class="componentClasses"></div>
+                <div v-if="theme" class="sw-theme-list-item__status" :class="componentClasses"></div>
                 <div class="sw-theme-list-item__title" v-if="theme" @click="onThemeClick">{{ theme.name }}</div>
                 <sw-icon v-if="theme && !theme.parentThemeId"
                          class="sw-theme-list-item__locked"

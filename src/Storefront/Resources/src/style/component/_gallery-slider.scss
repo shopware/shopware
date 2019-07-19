@@ -6,6 +6,11 @@ Displays images in a slider gallery with thumbnail navigation.
 based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyuan/tiny-slider)
 */
 
+.gallery-slider {
+    // correct perceptual issue with tiny slider
+    width: 99.9%;
+}
+
 .gallery-slider-row {
     margin-bottom: $spacer;
 

@@ -2,33 +2,35 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseHelper;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer;
-use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\CookieJar;
 use Symfony\Component\BrowserKit\History;
+use Symfony\Component\BrowserKit\Request as DomRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class TestBrowser extends KernelBrowser
 {
     /**
-     * @var RequestTransformer
+     * @var RequestTransformerInterface
      */
     private $requestTransformer;
 
-    public function __construct(KernelInterface $kernel, Connection $connection, array $server = [], ?History $history = null, ?CookieJar $cookieJar = null)
+    public function __construct(KernelInterface $kernel, array $server = [], ?History $history = null, ?CookieJar $cookieJar = null)
     {
         parent::__construct($kernel, $server, $history, $cookieJar);
 
-        $this->requestTransformer = new RequestTransformer(new CoreRequestTransformer(), $connection);
+        /** @var RequestTransformerInterface $transformer */
+        $transformer = $this->getContainer()->get(RequestTransformerInterface::class);
+        $this->requestTransformer = $transformer;
     }
 
-    protected function filterRequest($request): Request
+    protected function filterRequest(DomRequest $request): Request
     {
-        $request = parent::filterRequest($request);
+        /** @var Request $filteredRequest */
+        $filteredRequest = parent::filterRequest($request);
 
-        return $this->requestTransformer->transform($request);
+        return $this->requestTransformer->transform($filteredRequest);
     }
 }

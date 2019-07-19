@@ -48,10 +48,10 @@ class FirstRunWizardController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/store/frw/start", name="api.custom.store.frw.start", methods={"POST"})
      */
-    public function frwStart(): JsonResponse
+    public function frwStart(Context $context): JsonResponse
     {
         try {
-            $this->frwClient->startFrw();
+            $this->frwClient->startFrw($context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }

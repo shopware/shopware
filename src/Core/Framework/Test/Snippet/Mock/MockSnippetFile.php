@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Snippet\_fixtures;
+namespace Shopware\Core\Framework\Test\Snippet\Mock;
 
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 
@@ -16,9 +16,15 @@ class MockSnippetFile implements SnippetFileInterface
      */
     private $isBase;
 
-    public function __construct(string $name, string $content = '{}', bool $isBase = true)
+    /**
+     * @var string
+     */
+    private $iso;
+
+    public function __construct(string $name, ?string $iso = null, string $content = '{}', bool $isBase = true)
     {
         $this->name = $name;
+        $this->iso = $iso ?? $name;
         $this->isBase = $isBase;
         file_put_contents($this->getPath(), $content);
     }
@@ -30,12 +36,12 @@ class MockSnippetFile implements SnippetFileInterface
 
     public function getPath(): string
     {
-        return sprintf('%s/%s.json', __DIR__, $this->getName());
+        return sprintf('%s/_fixtures/%s.json', __DIR__, $this->getName());
     }
 
     public function getIso(): string
     {
-        return $this->name;
+        return $this->iso;
     }
 
     public function getAuthor(): string

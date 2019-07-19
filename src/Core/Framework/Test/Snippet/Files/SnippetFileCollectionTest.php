@@ -5,16 +5,11 @@ namespace Shopware\Core\Framework\Test\Snippet\Files;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\MockSnippetFile;
-use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
+use Shopware\Core\Framework\Test\Snippet\Mock\MockSnippetFile;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Shopware\Storefront\Resources\snippet\de_DE\SnippetFile_de_DE;
-use Shopware\Storefront\Resources\snippet\en_GB\SnippetFile_en_GB;
 
 class SnippetFileCollectionTest extends TestCase
 {
-    use AssertArraySubsetBehaviour;
-
     public static function tearDownAfterClass(): void
     {
         foreach (glob(__DIR__ . '/../_fixtures/*.json') as $mockFile) {
@@ -38,11 +33,11 @@ class SnippetFileCollectionTest extends TestCase
     public function testGetIsoList(): void
     {
         $collection = $this->getCollection();
+        $isoList = $collection->getIsoList();
 
-        $expectedResult = ['de-DE', 'en-GB'];
-        $result = $collection->getIsoList();
-
-        $this->silentAssertArraySubset($expectedResult, $result);
+        static::assertCount(2, $isoList);
+        static::assertContains('de-DE', $isoList);
+        static::assertContains('en-GB', $isoList);
     }
 
     public function testGetLanguageFilesByIso(): void
@@ -87,7 +82,9 @@ class SnippetFileCollectionTest extends TestCase
         $result_de_DE = $collection->getBaseFileByIso('de-DE');
 
         static::assertSame('en-GB', $result_en_GB->getIso());
+        static::assertTrue($result_en_GB->isBase());
         static::assertSame('de-DE', $result_de_DE->getIso());
+        static::assertTrue($result_de_DE->isBase());
     }
 
     public function testGetListSortedByIso(): void
@@ -96,17 +93,20 @@ class SnippetFileCollectionTest extends TestCase
         $method = ReflectionHelper::getMethod(SnippetFileCollection::class, 'getListSortedByIso');
 
         $result = $method->invoke($collection);
-        $expectedResult = ['de-DE' => [], 'en-GB' => []];
 
-        $this->silentAssertArraySubset($expectedResult, $result);
+        static::assertCount(2, $result);
+        static::assertArrayHasKey('de-DE', $result);
+        static::assertCount(2, $result['de-DE']);
+        static::assertArrayHasKey('en-GB', $result);
+        static::assertCount(1, $result['en-GB']);
     }
 
     private function getCollection(): SnippetFileCollection
     {
         $collection = new SnippetFileCollection([]);
-        $collection->add(new MockSnippetFile('de-DE'));
-        $collection->add(new SnippetFile_de_DE());
-        $collection->add(new SnippetFile_en_GB());
+        $collection->add(new MockSnippetFile('messages.de-DE', 'de-DE', '{}', true));
+        $collection->add(new MockSnippetFile('messages.de-DE_extension', 'de-DE', '{}', false));
+        $collection->add(new MockSnippetFile('messages.en-GB', 'en-GB', '{}', true));
 
         return $collection;
     }

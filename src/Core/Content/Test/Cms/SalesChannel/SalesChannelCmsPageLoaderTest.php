@@ -11,14 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
-use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
 class SalesChannelCmsPageLoaderTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
-    use StorefrontPageTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -30,16 +27,10 @@ class SalesChannelCmsPageLoaderTest extends TestCase
      */
     private $salesChannelCmsPageLoader;
 
-    /**
-     * @var NavigationPageLoader
-     */
-    private $navigationPageLoader;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->navigationPageLoader = $this->getContainer()->get(NavigationPageLoader::class);
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->salesChannelCmsPageLoader = $this->getContainer()->get(SalesChannelCmsPageLoader::class);
     }
@@ -136,10 +127,5 @@ class SalesChannelCmsPageLoaderTest extends TestCase
             $fieldConfigCollection,
             $page->getBlocks()->getSlots()->first()->getFieldConfig()
         );
-    }
-
-    protected function getPageLoader()
-    {
-        return $this->navigationPageLoader;
     }
 }

@@ -10,10 +10,7 @@ use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\Framework\Snippet\SnippetService;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\MockSnippetFile;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetStoreFrontSnippets\SnippetFile_de;
-use Shopware\Core\Framework\Test\Snippet\_fixtures\testGetStoreFrontSnippets\SnippetFile_en;
-use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
+use Shopware\Core\Framework\Test\Snippet\Mock\MockSnippetFile;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Translation\MessageCatalogue;
@@ -22,39 +19,17 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 class SnippetServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use AssertArraySubsetBehaviour;
 
     public static function tearDownAfterClass(): void
     {
-        foreach (glob(__DIR__ . '/_fixtures/*.json') as $mockFile) {
+        foreach (glob(__DIR__ . '/Mock/_fixtures/*.json') as $mockFile) {
             unlink($mockFile);
         }
     }
 
-    /**
-     * @dataProvider dataProviderForTestGetStoreFrontSnippets
-     */
-    public function testGetStoreFrontSnippets(MessageCatalogueInterface $catalog, array $expectedResult): void
+    public function getStorefrontSnippetsForNotExistingSnippetSet(): void
     {
-        $service = $this->getSnippetService(new SnippetFile_de(), new SnippetFile_en());
-
-        $result = $service->getStorefrontSnippets($catalog, $this->getSnippetSetIdForLocale('en-GB'));
-
-        static::assertSame($expectedResult, $result);
-    }
-
-    public function dataProviderForTestGetStoreFrontSnippets(): array
-    {
-        return [
-            [$this->getCatalog([], 'en-GB'), []],
-            [$this->getCatalog(['messages' => ['a' => 'a']], 'en-GB'), ['a' => 'a']],
-            [$this->getCatalog(['messages' => ['a' => 'a', 'b' => 'b']], 'en-GB'), ['a' => 'a', 'b' => 'b']],
-        ];
-    }
-
-    public function getStorefrontSnippetsForNotExistingSnippetSet()
-    {
-        static::expectException(\InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
 
         $service = $this->getSnippetService();
 
@@ -63,7 +38,7 @@ class SnippetServiceTest extends TestCase
 
     public function testGetRegionFilterItems(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
             <<<json
 {
     "foo": {
@@ -151,6 +126,27 @@ json
         static::assertContains('Admin', $result);
     }
 
+    /**
+     * @dataProvider dataProviderForTestGetStoreFrontSnippets
+     */
+    public function testGetStoreFrontSnippets(MessageCatalogueInterface $catalog, array $expectedResult): void
+    {
+        $service = $this->getSnippetService(new MockSnippetFile('de-DE'), new MockSnippetFile('en-GB'));
+
+        $result = $service->getStorefrontSnippets($catalog, $this->getSnippetSetIdForLocale('en-GB'));
+
+        static::assertSame($expectedResult, $result);
+    }
+
+    public function dataProviderForTestGetStoreFrontSnippets(): array
+    {
+        return [
+            [new MessageCatalogue('en-GB', []), []],
+            [new MessageCatalogue('en-GB', ['messages' => ['a' => 'a']]), ['a' => 'a']],
+            [new MessageCatalogue('en-GB', ['messages' => ['a' => 'a', 'b' => 'b']]), ['a' => 'a', 'b' => 'b']],
+        ];
+    }
+
     public function testGetAuthorsWithoutDBAuthors(): void
     {
         $fooId = Uuid::randomBytes();
@@ -206,7 +202,7 @@ json
 
     public function testGetListMergesFromFileAndDb(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
 <<<json
 {
     "foo": {
@@ -246,7 +242,7 @@ json
 
     public function testGetListDbOverwritesFile(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
             <<<json
 {
     "foo": {
@@ -285,7 +281,7 @@ json
 
     public function testGetListWithMultipleSets(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
             <<<json
 {
     "foo": {
@@ -333,7 +329,7 @@ json
 
     public function testGetListWithSameTranslationKeyInMultipleSets(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
             <<<json
 {
     "foo": {
@@ -391,7 +387,7 @@ json
 
     public function testGetListWithPagination(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
             <<<json
 {
     "foo": {
@@ -449,7 +445,7 @@ json
 
     public function testGetListSortsByTranslationKey(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
             <<<json
 {
     "foo": {
@@ -506,7 +502,7 @@ json
 
     public function testGetListSortsByTranslationKeyDESC(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
             <<<json
 {
     "foo": {
@@ -563,7 +559,7 @@ json
 
     public function testGetListSortsBySnippetSetId(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
             <<<json
 {
     "foo": {
@@ -622,7 +618,7 @@ json
 
     public function testGetListSortsBySnippetSetIdDESC(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
             <<<json
 {
     "foo": {
@@ -681,7 +677,7 @@ json
 
     public function testGetListIgnoresSortingForNotExistingSnippetSetId(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
             <<<json
 {
     "foo": {
@@ -737,7 +733,7 @@ json
 
     public function testGetListFilters(): void
     {
-        $snippetFile = new MockSnippetFile('foo',
+        $snippetFile = new MockSnippetFile('foo', 'foo',
             <<<json
 {
     "foo": {

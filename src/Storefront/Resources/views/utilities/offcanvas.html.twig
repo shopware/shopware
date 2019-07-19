@@ -1,15 +1,15 @@
 {% block utilities_offcanvas %}
-	{% block utilities_offcanvas_close %}
-		<button class="btn btn-light btn-block offcanvas-close js-offcanvas-close sticky-top">
-			{% block utilities_offcanvas_close_icon %}
+    {% block utilities_offcanvas_close %}
+        <button class="btn btn-light btn-block offcanvas-close js-offcanvas-close sticky-top">
+            {% block utilities_offcanvas_close_icon %}
                 {% sw_icon 'x' style { 'size': 'sm' } %}
-			{% endblock %}
+            {% endblock %}
 
-			{% block utilities_offcanvas_close_text %}
-				{{ "general.offcanvasCloseMenu"|trans }}
-			{% endblock %}
-		</button>
-	{% endblock %}
+            {% block utilities_offcanvas_close_text %}
+                {{ "general.offcanvasCloseMenu"|trans }}
+            {% endblock %}
+        </button>
+    {% endblock %}
 
     {% block utilities_offcanvas_content_container %}
         <div class="offcanvas-content-container">

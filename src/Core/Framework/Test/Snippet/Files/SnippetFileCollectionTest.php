@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Test\Snippet\_fixtures\MockSnippetFile;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Storefront\Resources\snippet\de_DE\SnippetFile_de_DE;
+use Shopware\Storefront\Resources\snippet\en_GB\SnippetFile_en_GB;
 
 class SnippetFileCollectionTest extends TestCase
 {
@@ -103,8 +105,8 @@ class SnippetFileCollectionTest extends TestCase
     {
         $collection = new SnippetFileCollection([]);
         $collection->add(new MockSnippetFile('de-DE'));
-        $collection->add(new \Shopware\Storefront\Snippet\de_DE\SnippetFile_de_DE());
-        $collection->add(new \Shopware\Storefront\Snippet\en_GB\SnippetFile_en_GB());
+        $collection->add(new SnippetFile_de_DE());
+        $collection->add(new SnippetFile_en_GB());
 
         return $collection;
     }

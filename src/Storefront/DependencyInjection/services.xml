@@ -230,11 +230,11 @@
         </service>
 
         <!--SnippetFiles-->
-        <service id="Shopware\Storefront\Snippet\de_DE\SnippetFile_de_DE" public="true">
+        <service id="Shopware\Storefront\Resources\snippet\de_DE\SnippetFile_de_DE" public="true">
             <tag name="shopware.snippet.file" priority="100"/>
         </service>
 
-        <service id="Shopware\Storefront\Snippet\en_GB\SnippetFile_en_GB" public="true">
+        <service id="Shopware\Storefront\Resources\snippet\en_GB\SnippetFile_en_GB" public="true">
             <tag name="shopware.snippet.file" priority="100"/>
         </service>
     </services>

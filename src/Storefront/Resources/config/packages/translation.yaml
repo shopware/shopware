@@ -1,7 +1,7 @@
 framework:
     default_locale: '%locale%'
     translator:
-        default_path: "%storefrontRoot%/Snippet"
+        default_path: "%storefrontRoot%/Resources/snippet"
         fallbacks:
             - 'en_GB'
             - 'en'

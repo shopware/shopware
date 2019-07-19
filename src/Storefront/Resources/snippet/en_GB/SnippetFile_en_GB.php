@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Snippet\en_GB;
+namespace Shopware\Storefront\Resources\snippet\en_GB;
 
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 

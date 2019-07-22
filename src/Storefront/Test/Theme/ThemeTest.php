@@ -155,7 +155,6 @@ class ThemeTest extends TestCase
     {
         /** @var IdSearchResult $themes */
         $themes = $this->themeRepository->searchIds(new Criteria(), $this->context);
-        //static::assertSame(0, $themes->getTotal());
         $themeLifecycleService = $this->getContainer()->get(ThemeLifecycleService::class);
         $themeLifecycleService->refreshThemes($this->context);
         $themes = $this->themeRepository->search(new Criteria(), $this->context);
@@ -165,6 +164,36 @@ class ThemeTest extends TestCase
         $theme = $themes->first();
         static::assertSame('Storefront', $theme->getTechnicalName());
         static::assertNotEmpty($theme->getLabels());
+    }
+
+    public function testResetTheme()
+    {
+        /** @var ThemeEntity $theme */
+        $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
+        static::assertEmpty($theme->getConfigValues());
+
+        $data = [
+            'id' => $theme->getId(),
+            'configValues' => [
+                'sw-color-brand-primary' => [
+                    'value' => '#ff00ff',
+                ],
+            ],
+        ];
+
+        $this->themeRepository->update([$data], $this->context);
+
+        /** @var ThemeEntity $updatedTheme */
+        $updatedTheme = $this->themeRepository->search(new Criteria([$theme->getId()]), $this->context)->first();
+        static::assertNotNull($updatedTheme->getConfigValues());
+
+        $this->themeService->resetTheme($theme->getId(), $this->context);
+
+        /** @var ThemeEntity $resetTheme */
+        $resetTheme = $this->themeRepository->search(new Criteria(), $this->context)->first();
+
+        static::assertEmpty($resetTheme->getConfigValues());
+        static::assertNotEmpty($resetTheme->getUpdatedAt());
     }
 
     /**

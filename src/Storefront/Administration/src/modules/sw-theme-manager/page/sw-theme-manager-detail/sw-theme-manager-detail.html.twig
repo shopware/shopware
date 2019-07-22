@@ -120,6 +120,15 @@
                                         </sw-context-menu-item>
                                     {% endblock %}
 
+                                    {% block sw_theme_manager_detail_context_button_option_reset %}
+                                        <sw-context-menu-item
+                                            @click="onReset"
+                                            v-if="theme.configValues !== null"
+                                            variant="danger">
+                                            {{ $tc('sw-theme-manager.actions.buttonReset') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
                                     {% block sw_theme_manager_detail_context_button_option_delete %}
                                         <sw-context-menu-item
                                             v-if="theme.parentThemeId"
@@ -212,7 +221,10 @@
 
                     {% block sw_theme_manager_reset_modal_reset_text %}
                         <p class="sw_theme_manager__confirm-reset-text">
-                            {{ $tc('sw-theme-manager.modal.modalTextResetConfirm') }}?
+                            {{ $tc('sw-theme-manager.modal.modalTextResetInfo') }}
+                        </p>
+                        <p v-if="theme.salesChannels.length > 0" class="sw_theme_manager__confirm-reset-text">
+                            {{ $tc('sw-theme-manager.modal.modalTextResetAssigned') }}
                         </p>
                     {% endblock %}
 
@@ -390,14 +402,6 @@
 
         {% block sw_theme_manager_detail_sidebar %}
             <sw-sidebar slot="sidebar" :propagateWidth="true">
-                {% block sw_theme_manager_detail_sidebar_reset %}
-                    <sw-sidebar-item
-                        icon="default-arrow-360-left"
-                        :title="$tc('sw-theme-manager.actions.buttonReset')"
-                        @click="onReset">
-                    </sw-sidebar-item>
-                {% endblock %}
-
                 {% block sw_theme_manager_detail_sidebar_media %}
                     <sw-sidebar-media-item
                         ref="mediaSidebarItem"

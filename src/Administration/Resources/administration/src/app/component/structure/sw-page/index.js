@@ -181,7 +181,11 @@ export default {
         },
 
         setScrollbarOffset() {
-            const contentEl = document.querySelector('.sw-card-view__content');
+            let contentEl = document.querySelector('.sw-card-view__content');
+
+            if (!contentEl) {
+                contentEl = document.querySelector('.sw-page__main-content-inner');
+            }
 
             if (contentEl !== null) {
                 this.scrollbarOffset = dom.getScrollbarWidth(contentEl);

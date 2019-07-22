@@ -5,6 +5,7 @@
     "en-GB": "Default theme of Shopware 6",
     "de-DE": "Standard Theme von Shopware 6"
   },
+  "previewMedia": "dist/assets/defaultThemePreview.jpg",
   "style": [
     "src/style/base.scss",
     "@Plugins"

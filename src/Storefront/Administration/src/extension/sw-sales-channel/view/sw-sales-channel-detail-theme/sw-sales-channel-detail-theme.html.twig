@@ -6,7 +6,7 @@
                 <div class="sw-sales-channel-detail-theme__preview">
                     {% block sw_sales_channel_detail_theme_preview_item %}
                         <div @click="openThemeModal">
-                            <sw-theme-list-item :theme="theme"></sw-theme-list-item>
+                            <sw-theme-list-item :theme="theme" :active="!!theme"></sw-theme-list-item>
                         </div>
                     {% endblock %}
 

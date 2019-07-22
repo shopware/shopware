@@ -49,10 +49,37 @@
         {% block page_product_detail_buy_container %}
             <div itemprop="offers"
                  itemscope
-                 itemtype="http://schema.org/Offer">
+                 itemtype="{% if page.product.calculatedPrices|length > 1 %}http://schema.org/AggregateOffer{% else %}http://schema.org/Offer{% endif %}">
                 {% block page_product_detail_data %}
-                    <meta itemprop="priceCurrency"
-                          content="{{ context.currency.translated.shortName }}"/>
+                    {% block page_product_detail_data_rich_snippet_url %}
+                        <meta itemprop="url"
+                              content="{{ productUrl(page.product) }}"/>
+                    {% endblock %}
+
+                    {% block page_product_detail_data_rich_snippet_price_range %}
+                        {% if page.product.calculatedPrices|length > 1 %}
+                            {% set lowestPrice = false %}
+                            {% set highestPrice = false %}
+
+                            {% for price in page.product.calculatedPrices %}
+                                {% if not lowestPrice or price.unitPrice < lowestPrice %}
+                                    {% set lowestPrice = price.unitPrice %}
+                                {% endif %}
+                                {% if not highestPrice or price.unitPrice > highestPrice %}
+                                    {% set highestPrice = price.unitPrice %}
+                                {% endif %}
+                            {% endfor %}
+
+                            <meta itemprop="lowPrice" content="{{ lowestPrice }}"/>
+                            <meta itemprop="highPrice" content="{{ highestPrice }}"/>
+                            <meta itemprop="offerCount" content="{{ page.product.calculatedPrices|length }}"/>
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block page_product_detail_data_rich_snippet_price_currency %}
+                        <meta itemprop="priceCurrency"
+                              content="{{ context.currency.translated.shortName }}"/>
+                    {% endblock %}
 
                     {% block page_product_detail_price %}
                         <div class="product-detail-price-container">
@@ -70,7 +97,6 @@
 
                             <p class="product-detail-tax">
                                 {% block page_product_detail_tax_link %}
-
                                     <a class="product-detail-tax-link"
                                        href="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.shippingPaymentInfoPage }) }}"
                                        title="{{ taxText }}"

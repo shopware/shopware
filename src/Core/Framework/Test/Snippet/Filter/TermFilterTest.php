@@ -1,36 +1,36 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Snippet\Filter;
+namespace Shopware\Core\Framework\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Snippet\Filter\AuthorFilter;
+use Shopware\Core\Framework\Snippet\Filter\TermFilter;
 
-class AuthorFilterTest extends TestCase
+class TermFilterTest extends TestCase
 {
     public function testGetFilterName()
     {
-        static::assertSame('author', (new AuthorFilter())->getName());
+        static::assertSame('term', (new TermFilter())->getName());
     }
 
     public function testSupports()
     {
-        static::assertTrue((new AuthorFilter())->supports('author'));
-        static::assertFalse((new AuthorFilter())->supports(''));
-        static::assertFalse((new AuthorFilter())->supports('test'));
+        static::assertTrue((new TermFilter())->supports('term'));
+        static::assertFalse((new TermFilter())->supports(''));
+        static::assertFalse((new TermFilter())->supports('test'));
     }
 
-    public function testFilter()
+    public function testFilterWithValueMatch()
     {
         $snippets = [
             'firstSetId' => [
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
-                        'author' => 'Shopware',
+                        'translationKey' => '1.bar',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
-                        'author' => 'Anonymous',
+                        'translationKey' => '1.bas',
                     ],
                 ],
             ],
@@ -38,11 +38,11 @@ class AuthorFilterTest extends TestCase
                 'snippets' => [
                     '2.bar' => [
                         'value' => '2_bar',
-                        'author' => 'Shopware',
+                        'translationKey' => '2.bar',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
-                        'author' => 'Anonymous',
+                        'translationKey' => '2.bas',
                     ],
                 ],
             ],
@@ -53,7 +53,7 @@ class AuthorFilterTest extends TestCase
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
-                        'author' => 'Shopware',
+                        'translationKey' => '1.bar',
                     ],
                     '2.bar' => [
                         'value' => '',
@@ -77,13 +77,82 @@ class AuthorFilterTest extends TestCase
                     ],
                     '2.bar' => [
                         'value' => '2_bar',
-                        'author' => 'Shopware',
+                        'translationKey' => '2.bar',
                     ],
                 ],
             ],
         ];
 
-        $result = (new AuthorFilter())->filter($snippets, ['Shopware']);
+        $result = (new TermFilter())->filter($snippets, '_bar');
+
+        static::assertEquals($expected, $result);
+    }
+
+    public function testFilterWithKeyMatch()
+    {
+        $snippets = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '1_bar',
+                        'translationKey' => '1.bar',
+                    ],
+                    '1.bas' => [
+                        'value' => '1_bas',
+                        'translationKey' => '1.bas',
+                    ],
+                ],
+            ],
+            'secondSetId' => [
+                'snippets' => [
+                    '2.bar' => [
+                        'value' => '2_bar',
+                        'translationKey' => '2.bar',
+                    ],
+                    '2.baz' => [
+                        'value' => '2_baz',
+                        'translationKey' => '2.bas',
+                    ],
+                ],
+            ],
+        ];
+
+        $expected = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '1_bar',
+                        'translationKey' => '1.bar',
+                    ],
+                    '2.bar' => [
+                        'value' => '',
+                        'origin' => '',
+                        'translationKey' => '2.bar',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => 'firstSetId',
+                    ],
+                ],
+            ],
+            'secondSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '',
+                        'origin' => '',
+                        'translationKey' => '1.bar',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => 'secondSetId',
+                    ],
+                    '2.bar' => [
+                        'value' => '2_bar',
+                        'translationKey' => '2.bar',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = (new TermFilter())->filter($snippets, '.bar');
 
         static::assertEquals($expected, $result);
     }
@@ -93,29 +162,25 @@ class AuthorFilterTest extends TestCase
         $snippets = [
             'firstSetId' => [
                 'snippets' => [
-                    'foo.bar' => [
+                    '1.bar' => [
                         'value' => '1_bar',
-                        'author' => 'Shopware',
+                        'translationKey' => '1.bar',
                     ],
-                    'foo.baz' => [
+                    '1.baz' => [
                         'value' => '1_baz',
-                        'author' => 'Shopware',
-                    ],
-                    'foo.bas' => [
-                        'value' => '1_bas',
-                        'author' => 'Anonymous',
+                        'translationKey' => '1.baz',
                     ],
                 ],
             ],
             'secondSetId' => [
                 'snippets' => [
-                    'foo.bar' => [
+                    '2.bar' => [
                         'value' => '2_bar',
-                        'author' => 'Shopware',
+                        'translationKey' => '2.bar',
                     ],
-                    'foo.baz' => [
+                    '1.baz' => [
                         'value' => '2_baz',
-                        'author' => 'Anonymous',
+                        'translationKey' => '1.baz',
                     ],
                 ],
             ],
@@ -124,96 +189,23 @@ class AuthorFilterTest extends TestCase
         $expected = [
             'firstSetId' => [
                 'snippets' => [
-                    'foo.bar' => [
-                        'value' => '1_bar',
-                        'author' => 'Shopware',
-                    ],
-                    'foo.baz' => [
+                    '1.baz' => [
                         'value' => '1_baz',
-                        'author' => 'Shopware',
+                        'translationKey' => '1.baz',
                     ],
                 ],
             ],
             'secondSetId' => [
                 'snippets' => [
-                    'foo.bar' => [
-                        'value' => '2_bar',
-                        'author' => 'Shopware',
-                    ],
-                    'foo.baz' => [
+                    '1.baz' => [
                         'value' => '2_baz',
-                        'author' => 'Anonymous',
+                        'translationKey' => '1.baz',
                     ],
                 ],
             ],
         ];
 
-        $result = (new AuthorFilter())->filter($snippets, ['Shopware']);
-
-        static::assertEquals($expected, $result);
-    }
-
-    public function testFilterWithMultipleAuthors()
-    {
-        $snippets = [
-            'firstSetId' => [
-                'snippets' => [
-                    'foo.bar' => [
-                        'value' => '1_bar',
-                        'author' => 'Test',
-                    ],
-                    'foo.baz' => [
-                        'value' => '1_baz',
-                        'author' => 'Shopware',
-                    ],
-                    'foo.bas' => [
-                        'value' => '1_bas',
-                        'author' => 'Anonymous',
-                    ],
-                ],
-            ],
-            'secondSetId' => [
-                'snippets' => [
-                    'foo.bar' => [
-                        'value' => '2_bar',
-                        'author' => 'Test',
-                    ],
-                    'foo.baz' => [
-                        'value' => '2_baz',
-                        'author' => 'Anonymous',
-                    ],
-                ],
-            ],
-        ];
-
-        $expected = [
-            'firstSetId' => [
-                'snippets' => [
-                    'foo.bar' => [
-                        'value' => '1_bar',
-                        'author' => 'Test',
-                    ],
-                    'foo.baz' => [
-                        'value' => '1_baz',
-                        'author' => 'Shopware',
-                    ],
-                ],
-            ],
-            'secondSetId' => [
-                'snippets' => [
-                    'foo.bar' => [
-                        'value' => '2_bar',
-                        'author' => 'Test',
-                    ],
-                    'foo.baz' => [
-                        'value' => '2_baz',
-                        'author' => 'Anonymous',
-                    ],
-                ],
-            ],
-        ];
-
-        $result = (new AuthorFilter())->filter($snippets, ['Shopware', 'Test']);
+        $result = (new TermFilter())->filter($snippets, '1_baz');
 
         static::assertEquals($expected, $result);
     }

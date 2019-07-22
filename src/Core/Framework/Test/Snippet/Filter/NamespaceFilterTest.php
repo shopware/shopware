@@ -1,25 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Snippet\Filter;
+namespace Shopware\Core\Framework\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Snippet\Filter\TermFilter;
+use Shopware\Core\Framework\Snippet\Filter\NamespaceFilter;
 
-class TermFilterTest extends TestCase
+class NamespaceFilterTest extends TestCase
 {
     public function testGetFilterName()
     {
-        static::assertSame('term', (new TermFilter())->getName());
+        static::assertSame('namespace', (new NamespaceFilter())->getName());
     }
 
     public function testSupports()
     {
-        static::assertTrue((new TermFilter())->supports('term'));
-        static::assertFalse((new TermFilter())->supports(''));
-        static::assertFalse((new TermFilter())->supports('test'));
+        static::assertTrue((new NamespaceFilter())->supports('namespace'));
+        static::assertFalse((new NamespaceFilter())->supports(''));
+        static::assertFalse((new NamespaceFilter())->supports('test'));
     }
 
-    public function testFilterWithValueMatch()
+    public function testFilter()
     {
         $snippets = [
             'firstSetId' => [
@@ -42,7 +42,7 @@ class TermFilterTest extends TestCase
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
-                        'translationKey' => '2.bas',
+                        'translationKey' => '2.baz',
                     ],
                 ],
             ],
@@ -55,13 +55,9 @@ class TermFilterTest extends TestCase
                         'value' => '1_bar',
                         'translationKey' => '1.bar',
                     ],
-                    '2.bar' => [
-                        'value' => '',
-                        'origin' => '',
-                        'translationKey' => '2.bar',
-                        'author' => '',
-                        'id' => null,
-                        'setId' => 'firstSetId',
+                    '1.bas' => [
+                        'value' => '1_bas',
+                        'translationKey' => '1.bas',
                     ],
                 ],
             ],
@@ -75,20 +71,24 @@ class TermFilterTest extends TestCase
                         'id' => null,
                         'setId' => 'secondSetId',
                     ],
-                    '2.bar' => [
-                        'value' => '2_bar',
-                        'translationKey' => '2.bar',
+                    '1.bas' => [
+                        'value' => '',
+                        'origin' => '',
+                        'translationKey' => '1.bas',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => 'secondSetId',
                     ],
                 ],
             ],
         ];
 
-        $result = (new TermFilter())->filter($snippets, '_bar');
+        $result = (new NamespaceFilter())->filter($snippets, ['1']);
 
         static::assertEquals($expected, $result);
     }
 
-    public function testFilterWithKeyMatch()
+    public function testFilterMultipleNamespaces()
     {
         $snippets = [
             'firstSetId' => [
@@ -111,7 +111,11 @@ class TermFilterTest extends TestCase
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
-                        'translationKey' => '2.bas',
+                        'translationKey' => '2.baz',
+                    ],
+                    '3.foo' => [
+                        'value' => '3_foo',
+                        'translationKey' => '3.foo',
                     ],
                 ],
             ],
@@ -124,10 +128,14 @@ class TermFilterTest extends TestCase
                         'value' => '1_bar',
                         'translationKey' => '1.bar',
                     ],
-                    '2.bar' => [
+                    '1.bas' => [
+                        'value' => '1_bas',
+                        'translationKey' => '1.bas',
+                    ],
+                    '3.foo' => [
                         'value' => '',
                         'origin' => '',
-                        'translationKey' => '2.bar',
+                        'translationKey' => '3.foo',
                         'author' => '',
                         'id' => null,
                         'setId' => 'firstSetId',
@@ -144,68 +152,23 @@ class TermFilterTest extends TestCase
                         'id' => null,
                         'setId' => 'secondSetId',
                     ],
-                    '2.bar' => [
-                        'value' => '2_bar',
-                        'translationKey' => '2.bar',
+                    '1.bas' => [
+                        'value' => '',
+                        'origin' => '',
+                        'translationKey' => '1.bas',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => 'secondSetId',
+                    ],
+                    '3.foo' => [
+                        'value' => '3_foo',
+                        'translationKey' => '3.foo',
                     ],
                 ],
             ],
         ];
 
-        $result = (new TermFilter())->filter($snippets, '.bar');
-
-        static::assertEquals($expected, $result);
-    }
-
-    public function testFilterDoesntRemoveSnippetInOtherSet()
-    {
-        $snippets = [
-            'firstSetId' => [
-                'snippets' => [
-                    '1.bar' => [
-                        'value' => '1_bar',
-                        'translationKey' => '1.bar',
-                    ],
-                    '1.baz' => [
-                        'value' => '1_baz',
-                        'translationKey' => '1.baz',
-                    ],
-                ],
-            ],
-            'secondSetId' => [
-                'snippets' => [
-                    '2.bar' => [
-                        'value' => '2_bar',
-                        'translationKey' => '2.bar',
-                    ],
-                    '1.baz' => [
-                        'value' => '2_baz',
-                        'translationKey' => '1.baz',
-                    ],
-                ],
-            ],
-        ];
-
-        $expected = [
-            'firstSetId' => [
-                'snippets' => [
-                    '1.baz' => [
-                        'value' => '1_baz',
-                        'translationKey' => '1.baz',
-                    ],
-                ],
-            ],
-            'secondSetId' => [
-                'snippets' => [
-                    '1.baz' => [
-                        'value' => '2_baz',
-                        'translationKey' => '1.baz',
-                    ],
-                ],
-            ],
-        ];
-
-        $result = (new TermFilter())->filter($snippets, '1_baz');
+        $result = (new NamespaceFilter())->filter($snippets, ['1', '3']);
 
         static::assertEquals($expected, $result);
     }

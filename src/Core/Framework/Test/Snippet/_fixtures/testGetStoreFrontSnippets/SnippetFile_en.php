@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Snippet\_fixtures\testGetStoreFrontSnippets;
+namespace Shopware\Core\Framework\Test\Snippet\_fixtures\testGetStoreFrontSnippets;
 
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 
-class SnippetFile_de implements SnippetFileInterface
+class SnippetFile_en implements SnippetFileInterface
 {
     public function getName(): string
     {
-        return 'snippets_de';
+        return 'snippets_en';
     }
 
     public function getPath(): string
     {
-        return __DIR__ . '/de.json';
+        return __DIR__ . '/en.json';
     }
 
     public function getIso(): string
     {
-        return 'de-DE';
+        return 'en-GB';
     }
 
     public function getAuthor(): string

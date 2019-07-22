@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Snippet\_fixtures;
+namespace Shopware\Core\Framework\Test\Snippet\_fixtures;
 
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 

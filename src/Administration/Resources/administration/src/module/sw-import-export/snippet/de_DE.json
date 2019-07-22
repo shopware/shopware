@@ -12,6 +12,10 @@
     "buttonClose": "Schließen",
     "buttonCancel": "Abbrechen",
     "buttonDownload": "Download",
+    "notificationTitle": {
+      "import": "Import",
+      "export": "Export"
+    },
     "messages": {
       "progress": "Daten werden verarbeitet ...",
       "failed": "Daten konnten nicht vollständig verarbeitet werden. Bitte prüfen sie die Log-Dateien für Fehlerdetails.",

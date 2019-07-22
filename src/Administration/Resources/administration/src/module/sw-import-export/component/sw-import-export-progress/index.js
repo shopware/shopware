@@ -1,10 +1,14 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-import-export-progress.html.twig';
 
 Component.register('sw-import-export-progress', {
     template,
 
     inject: ['importExportService'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         log: {
@@ -25,21 +29,6 @@ Component.register('sw-import-export-progress', {
         },
         succeeded() {
             return this.state === 'succeeded';
-        },
-        alertVariant() {
-            switch (this.state) {
-                case 'aborted':
-                    return 'warning';
-                case 'failed':
-                    return 'error';
-                case 'succeeded':
-                    return 'success';
-                default:
-                    return 'info';
-            }
-        },
-        alertMessage() {
-            return this.$tc(`sw-import-export-progress.messages.${this.state}`);
         }
     },
 
@@ -58,6 +47,11 @@ Component.register('sw-import-export-progress', {
     methods: {
         createdComponent() {
             if (this.log.records > 0) {
+                this.state = 'progress';
+                this.createNotificationInfo({
+                    title: this.notificationTitle(),
+                    message: this.notificationMessage()
+                });
                 this.process(0);
             } else {
                 this.complete();
@@ -66,7 +60,6 @@ Component.register('sw-import-export-progress', {
 
         process(offset) {
             this.percentage = offset / this.log.records * 100;
-            this.state = 'progress';
             this.importExportService.process(this.log.id, offset).then((response) => {
                 if (this.aborted || this.failed) {
                     return;
@@ -87,6 +80,11 @@ Component.register('sw-import-export-progress', {
         complete() {
             this.percentage = 100;
             this.state = 'succeeded';
+            this.createNotificationSuccess({
+                title: this.notificationTitle(),
+                message: this.notificationMessage(),
+                autoClose: false
+            });
             if (this.log.activity === 'export') {
                 this.downloadUrl = this.importExportService.getDownloadUrl(this.log.file.id, this.log.file.accessToken);
             }
@@ -94,10 +92,20 @@ Component.register('sw-import-export-progress', {
 
         abort() {
             this.state = 'aborted';
+            this.createNotificationWarning({
+                title: this.notificationTitle(),
+                message: this.notificationMessage(),
+                autoClose: false
+            });
         },
 
         fail() {
             this.state = 'failed';
+            this.createNotificationError({
+                title: this.notificationTitle(),
+                message: this.notificationMessage(),
+                autoClose: false
+            });
         },
 
         closeModal() {
@@ -110,6 +118,14 @@ Component.register('sw-import-export-progress', {
         onUserCancel() {
             this.abort();
             this.importExportService.cancel(this.log.id);
+        },
+
+        notificationTitle() {
+            return this.$tc(`sw-import-export-progress.notificationTitle.${this.log.activity}`);
+        },
+
+        notificationMessage() {
+            return this.$tc(`sw-import-export-progress.messages.${this.state}`);
         }
     }
 });

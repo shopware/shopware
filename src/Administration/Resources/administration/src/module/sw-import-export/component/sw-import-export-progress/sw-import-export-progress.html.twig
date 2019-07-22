@@ -3,11 +3,7 @@
               :title="$tc('sw-import-export-progress.title')"
               @modal-close="closeModal">
 
-        <sw-alert :variant="alertVariant">
-            {{ alertMessage }}
-        </sw-alert>
-
-        <sw-progress-bar :value="percentage" v-if="progress"></sw-progress-bar>
+        <sw-progress-bar :value="percentage"></sw-progress-bar>
 
         {% block sw_import_export_progress_footer %}
             <template #modal-footer>

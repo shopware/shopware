@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Twig;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Kernel;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
 
@@ -18,21 +19,11 @@ class TemplateFinder
      */
     private $loader;
 
-    public function __construct(FilesystemLoader $loader)
+    public function __construct(FilesystemLoader $loader, Kernel $kernel)
     {
         $this->loader = $loader;
 
-        $bundles = [];
-
-        foreach ($loader->getNamespaces() as $namespace) {
-            if ($namespace[0] === '!' || $namespace === '__main__') {
-                continue;
-            }
-
-            $bundles[] = $namespace;
-        }
-
-        $this->bundles = $bundles;
+        $this->addBundles($kernel);
     }
 
     public function addBundle(Bundle $bundle): void
@@ -98,5 +89,28 @@ class TemplateFinder
             return $template;
         }
         throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $template, implode(', ', array_values($queue))));
+    }
+
+    private function addBundles(Kernel $kernel): void
+    {
+        $bundles = [];
+
+        foreach ($this->loader->getNamespaces() as $namespace) {
+            if ($namespace[0] === '!' || $namespace === '__main__') {
+                continue;
+            }
+
+            $bundles[] = $namespace;
+        }
+
+        $this->bundles = $bundles;
+
+        $kernelBundles = $kernel->getBundles();
+
+        foreach ($kernelBundles as $bundle) {
+            if ($bundle instanceof Bundle) {
+                $this->addBundle($bundle);
+            }
+        }
     }
 }

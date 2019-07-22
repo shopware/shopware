@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework;
 use Shopware\Core\Framework\Asset\AssetPackageService;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Filesystem\PrefixFilesystem;
-use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -32,10 +31,6 @@ abstract class Bundle extends SymfonyBundle
 
     public function boot(): void
     {
-        /** @var TemplateFinder $templateFinder */
-        $templateFinder = $this->container->get(TemplateFinder::class);
-        $templateFinder->addBundle($this);
-
         /** @var AssetPackageService $assetPackageService */
         $assetPackageService = $this->container->get(AssetPackageService::class);
         $assetPackageService->addAssetPackage($this->getName());

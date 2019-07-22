@@ -117,7 +117,7 @@
                                     {% block page_checkout_cart_shipping_costs_form_group_country %}
                                         <div class="form-group">
                                             <label for="countryId">{{ "checkout.shippingCountry"|trans }}</label>
-                                            <select class="form-control" type="text" id="countryId" name="countryId">
+                                            <select class="custom-select" type="text" id="countryId" name="countryId">
                                                 {% for country in page.countries %}
                                                     <option value="{{ country.id }}"
                                                         {% if country.id == context.shippingLocation.country.id %}selected="selected"{% endif %}>
@@ -131,7 +131,7 @@
                                     {% block page_checkout_cart_shipping_costs_form_group_payment_method %}
                                         <div class="form-group">
                                             <label for="paymentMethodId">{{ "checkout.paymentMethod"|trans }}</label>
-                                            <select class="form-control" type="text" id="paymentMethodId" name="paymentMethodId">
+                                            <select class="custom-select" type="text" id="paymentMethodId" name="paymentMethodId">
                                                 {% for payment in page.paymentMethods %}
                                                     <option value="{{ payment.id }}"
                                                         {% if payment.id == context.paymentMethod.id %} selected="selected"{% endif %}>
@@ -145,7 +145,7 @@
                                     {% block page_checkout_cart_shipping_costs_form_group_shipping_method %}
                                         <div class="form-group">
                                             <label for="shippingMethodId">{{ "checkout.shippingMethod"|trans }}</label>
-                                            <select class="form-control" type="text" id="shippingMethodId" name="shippingMethodId">
+                                            <select class="custom-select" type="text" id="shippingMethodId" name="shippingMethodId">
                                                 {% for shipping in page.shippingMethods %}
                                                     <option value="{{ shipping.id }}"
                                                         {% if shipping.id == context.shippingMethod.id %} selected="selected"{% endif %}>

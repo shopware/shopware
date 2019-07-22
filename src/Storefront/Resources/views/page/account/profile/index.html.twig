@@ -116,18 +116,18 @@
                         {% block page_account_profile_mail_collapse %}
                             <div class="collapse{% if emailFormViolation and formViolations %} show{% endif %}" id="profile-email-form" data-parent=".profile-content">
                                 <div class="card account-email">
-                                    {% block page_account_profile_mail_title %}
-                                        <div class="card-title">
-                                            {{ "account.profileMailTitle"|trans }}
-                                        </div>
-                                    {% endblock %}
-
                                     {% block page_account_profile_mail_form %}
                                         <form id="profileMailForm"
                                               class="card-body"
                                               method="post"
                                               action="{{ path('frontend.account.profile.email.save') }}"
                                               data-form-validation="true">
+                                            {% block page_account_profile_mail_title %}
+                                                <div class="card-title">
+                                                    {{ "account.profileMailTitle"|trans }}
+                                                </div>
+                                            {% endblock %}
+
                                             {% block page_account_profile_mail_container %}
                                                 <div class="form-row">
                                                     {% block page_account_profile_mail %}

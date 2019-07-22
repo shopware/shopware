@@ -38,6 +38,7 @@ class ThemeTranslationDefinition extends EntityTranslationDefinition
         return new FieldCollection([
             new StringField('description', 'description'),
             new JsonField('labels', 'labels'),
+            new JsonField('help_texts', 'helpTexts'),
             new CustomFields(),
         ]);
     }

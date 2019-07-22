@@ -201,6 +201,7 @@
                                                     v-else
                                                     :type="mapSwFieldTypes(field.type)"
                                                     :label="!field.label ? '' : field.label"
+                                                    :helpText="!field.helpText ? null : field.helpText"
                                                     v-model="themeConfig[fieldIndex].value">
                                                 </sw-field>
                                             </div>

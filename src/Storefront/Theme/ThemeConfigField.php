@@ -17,6 +17,11 @@ class ThemeConfigField extends Struct
     protected $label;
 
     /**
+     * @var array|null
+     */
+    protected $helpText;
+
+    /**
      * @var string
      */
     protected $type;
@@ -154,5 +159,15 @@ class ThemeConfigField extends Struct
     public function setBlockOrder(?int $blockOrder): void
     {
         $this->blockOrder = $blockOrder;
+    }
+
+    public function getHelpText(): ?array
+    {
+        return $this->helpText;
+    }
+
+    public function setHelpText(?array $helpText): void
+    {
+        $this->helpText = $helpText;
     }
 }

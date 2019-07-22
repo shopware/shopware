@@ -56,9 +56,12 @@ export default class AjaxModalExtensionUtil {
         event.preventDefault();
         event.stopPropagation();
 
-        const trigger = event.target;
+        const trigger = event.currentTarget;
         const url = DomAccess.getAttribute(trigger, URL_DATA_ATTRIBUTE);
         PageLoadingIndicatorUtil.create();
+
+        this._currentModalClass = trigger.getAttribute('data-modal-class');
+
         this._client.get(url, response => this._openModal(response));
     }
 
@@ -70,8 +73,14 @@ export default class AjaxModalExtensionUtil {
      */
     _openModal(response) {
         PageLoadingIndicatorUtil.remove();
-        const modal = new PseudoModalUtil(response);
+        const pseudoModal = new PseudoModalUtil(response);
 
-        modal.open();
+        pseudoModal.open();
+
+        const modal = pseudoModal.getModal();
+
+        if (this._currentModalClass) {
+            modal.classList.add(this._currentModalClass);
+        }
     }
 }

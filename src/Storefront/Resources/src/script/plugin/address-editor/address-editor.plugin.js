@@ -174,21 +174,21 @@ export default class AddressEditorPlugin extends Plugin {
             Iterator.iterate(ajaxForms, ajaxForm => {
 
                 /** @type FormAjaxSubmitPlugin **/
-                const instance = PluginManager.getPluginInstanceFromElement(ajaxForm, 'FormAjaxSubmit');
+                const FormAjaxSubmitInstance = PluginManager.getPluginInstanceFromElement(ajaxForm, 'FormAjaxSubmit');
 
-                if (instance) {
-                    const shouldBeClosed = ajaxForm.classList.contains(this.options.closeEditorClass);
+                if (FormAjaxSubmitInstance) {
+                    FormAjaxSubmitInstance.addCallback(() => {
+                        this._registerAjaxSubmitCallback(pseudoModal);
 
-                    if (shouldBeClosed) {
-                        instance.addCallback(() => {
+                        const shouldBeClosed = ajaxForm.classList.contains(this.options.closeEditorClass);
+                        if (shouldBeClosed) {
                             pseudoModal.close();
-
                             PageLoadingIndicatorUtil.create();
-
                             window.location.reload();
-                        });
-                    }
+                        }
+                    });
                 }
+
             });
         }
 

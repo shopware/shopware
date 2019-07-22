@@ -101,6 +101,18 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 }
 
+.gallery-slider-modal-controls {
+    z-index: 10;
+
+    .gallery-slider-thumbnails-controls-prev {
+        left: 0;
+    }
+
+    .gallery-slider-thumbnails-controls-next {
+        right: 0;
+    }
+}
+
 .gallery-slider-thumbnails {
     &.is-underneath {
         display: flex;

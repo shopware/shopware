@@ -358,6 +358,19 @@
                                                             {% if imageCount > 1 %}
                                                                 {% block element_image_gallery_inner_zoom_modal_footer %}
                                                                     <div class="modal-footer">
+                                                                        {% block element_image_gallery_inner_zoom_modal_thumbnails_controls %}
+                                                                            <div class="gallery-slider-modal-controls">
+                                                                                <div data-thumbnail-slider-controls="true" class="gallery-slider-modal-thumbnails">
+                                                                                    <button class="base-slider-controls-prev gallery-slider-thumbnails-controls-prev">
+                                                                                        {% sw_icon 'arrow-head-left' %}
+                                                                                    </button>
+                                                                                    <button class="base-slider-controls-next gallery-slider-thumbnails-controls-next">
+                                                                                        {% sw_icon 'arrow-head-right' %}
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        {% endblock %}
+                                                                        
                                                                         {% block element_image_gallery_inner_zoom_modal_thumbnails %}
                                                                             <div class="gallery-slider-thumbnails"
                                                                                  data-gallery-slider-thumbnails=true>

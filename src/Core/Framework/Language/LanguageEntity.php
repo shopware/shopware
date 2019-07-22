@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Language;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
@@ -247,6 +248,11 @@ class LanguageEntity extends Entity
      * @var NewsletterRecipientCollection|null
      */
     protected $newsletterRecipients;
+
+    /**
+     * @var OrderCollection|null
+     */
+    protected $orders;
 
     /**
      * @var NumberRangeTypeTranslationCollection|null
@@ -686,6 +692,16 @@ class LanguageEntity extends Entity
     public function setNewsletterRecipients(NewsletterRecipientCollection $newsletterRecipients): void
     {
         $this->newsletterRecipients = $newsletterRecipients;
+    }
+
+    public function getOrders(): ?OrderCollection
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(?OrderCollection $orders): void
+    {
+        $this->orders = $orders;
     }
 
     public function getNumberRangeTypeTranslations(): ?NumberRangeTypeTranslationCollection

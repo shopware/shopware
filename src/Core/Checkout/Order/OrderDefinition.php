@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Language\LanguageDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -73,6 +74,7 @@ class OrderDefinition extends EntityDefinition
             (new ReferenceVersionField(OrderAddressDefinition::class, 'billing_address_version_id'))->addFlags(new Required()),
 
             (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
 
             (new DateTimeField('order_date_time', 'orderDateTime'))->addFlags(new Required()),
@@ -95,6 +97,7 @@ class OrderDefinition extends EntityDefinition
 
             (new OneToOneAssociationField('orderCustomer', 'id', 'order_id', OrderCustomerDefinition::class))->addFlags(new CascadeDelete(), new SearchRanking(0.5)),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
             (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('addresses', OrderAddressDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('deliveries', OrderDeliveryDefinition::class, 'order_id'))->addFlags(new CascadeDelete()),

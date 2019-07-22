@@ -206,6 +206,7 @@ class OrderTransactionActionControllerTest extends TestCase
             'stateId' => $stateId,
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'currencyFactor' => 1.0,
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'billingAddressId' => $billingAddressId,

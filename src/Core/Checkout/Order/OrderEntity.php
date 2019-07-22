@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
@@ -99,6 +100,16 @@ class OrderEntity extends Entity
      * @var CurrencyEntity|null
      */
     protected $currency;
+
+    /**
+     * @var string
+     */
+    protected $languageId;
+
+    /**
+     * @var LanguageEntity
+     */
+    protected $language;
 
     /**
      * @var SalesChannelEntity|null
@@ -283,6 +294,26 @@ class OrderEntity extends Entity
     public function setCurrency(CurrencyEntity $currency): void
     {
         $this->currency = $currency;
+    }
+
+    public function getLanguageId(): string
+    {
+        return $this->languageId;
+    }
+
+    public function setLanguageId(string $languageId): void
+    {
+        $this->languageId = $languageId;
+    }
+
+    public function getLanguage(): LanguageEntity
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(LanguageEntity $language): void
+    {
+        $this->language = $language;
     }
 
     public function getSalesChannel(): ?SalesChannelEntity

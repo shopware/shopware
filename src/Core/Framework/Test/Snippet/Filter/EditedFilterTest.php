@@ -1,36 +1,38 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Snippet\Filter;
+namespace Shopware\Core\Framework\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Snippet\Filter\NamespaceFilter;
+use Shopware\Core\Framework\Snippet\Filter\EditedFilter;
 
-class NamespaceFilterTest extends TestCase
+class EditedFilterTest extends TestCase
 {
     public function testGetFilterName()
     {
-        static::assertSame('namespace', (new NamespaceFilter())->getName());
+        static::assertSame('edited', (new EditedFilter())->getName());
     }
 
     public function testSupports()
     {
-        static::assertTrue((new NamespaceFilter())->supports('namespace'));
-        static::assertFalse((new NamespaceFilter())->supports(''));
-        static::assertFalse((new NamespaceFilter())->supports('test'));
+        static::assertTrue((new EditedFilter())->supports('edited'));
+        static::assertFalse((new EditedFilter())->supports(''));
+        static::assertFalse((new EditedFilter())->supports('test'));
     }
 
-    public function testFilter()
+    public function testFilterOnlyCustomSnippets()
     {
         $snippets = [
             'firstSetId' => [
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
-                        'translationKey' => '1.bar',
+                        'id' => 1,
+                        'author' => 'shopware',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
-                        'translationKey' => '1.bas',
+                        'id' => null,
+                        'author' => 'shopware',
                     ],
                 ],
             ],
@@ -38,11 +40,13 @@ class NamespaceFilterTest extends TestCase
                 'snippets' => [
                     '2.bar' => [
                         'value' => '2_bar',
-                        'translationKey' => '2.bar',
+                        'id' => 2,
+                        'author' => 'shopware',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
-                        'translationKey' => '2.baz',
+                        'id' => null,
+                        'author' => 'shopware',
                     ],
                 ],
             ],
@@ -53,89 +57,13 @@ class NamespaceFilterTest extends TestCase
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
-                        'translationKey' => '1.bar',
+                        'id' => 1,
+                        'author' => 'shopware',
                     ],
-                    '1.bas' => [
-                        'value' => '1_bas',
-                        'translationKey' => '1.bas',
-                    ],
-                ],
-            ],
-            'secondSetId' => [
-                'snippets' => [
-                    '1.bar' => [
-                        'value' => '',
-                        'origin' => '',
-                        'translationKey' => '1.bar',
-                        'author' => '',
-                        'id' => null,
-                        'setId' => 'secondSetId',
-                    ],
-                    '1.bas' => [
-                        'value' => '',
-                        'origin' => '',
-                        'translationKey' => '1.bas',
-                        'author' => '',
-                        'id' => null,
-                        'setId' => 'secondSetId',
-                    ],
-                ],
-            ],
-        ];
-
-        $result = (new NamespaceFilter())->filter($snippets, ['1']);
-
-        static::assertEquals($expected, $result);
-    }
-
-    public function testFilterMultipleNamespaces()
-    {
-        $snippets = [
-            'firstSetId' => [
-                'snippets' => [
-                    '1.bar' => [
-                        'value' => '1_bar',
-                        'translationKey' => '1.bar',
-                    ],
-                    '1.bas' => [
-                        'value' => '1_bas',
-                        'translationKey' => '1.bas',
-                    ],
-                ],
-            ],
-            'secondSetId' => [
-                'snippets' => [
                     '2.bar' => [
-                        'value' => '2_bar',
-                        'translationKey' => '2.bar',
-                    ],
-                    '2.baz' => [
-                        'value' => '2_baz',
-                        'translationKey' => '2.baz',
-                    ],
-                    '3.foo' => [
-                        'value' => '3_foo',
-                        'translationKey' => '3.foo',
-                    ],
-                ],
-            ],
-        ];
-
-        $expected = [
-            'firstSetId' => [
-                'snippets' => [
-                    '1.bar' => [
-                        'value' => '1_bar',
-                        'translationKey' => '1.bar',
-                    ],
-                    '1.bas' => [
-                        'value' => '1_bas',
-                        'translationKey' => '1.bas',
-                    ],
-                    '3.foo' => [
                         'value' => '',
                         'origin' => '',
-                        'translationKey' => '3.foo',
+                        'translationKey' => '2.bar',
                         'author' => '',
                         'id' => null,
                         'setId' => 'firstSetId',
@@ -152,23 +80,78 @@ class NamespaceFilterTest extends TestCase
                         'id' => null,
                         'setId' => 'secondSetId',
                     ],
-                    '1.bas' => [
-                        'value' => '',
-                        'origin' => '',
-                        'translationKey' => '1.bas',
-                        'author' => '',
-                        'id' => null,
-                        'setId' => 'secondSetId',
-                    ],
-                    '3.foo' => [
-                        'value' => '3_foo',
-                        'translationKey' => '3.foo',
+                    '2.bar' => [
+                        'value' => '2_bar',
+                        'id' => 2,
+                        'author' => 'shopware',
                     ],
                 ],
             ],
         ];
 
-        $result = (new NamespaceFilter())->filter($snippets, ['1', '3']);
+        $result = (new EditedFilter())->filter($snippets, true);
+
+        static::assertEquals($expected, $result);
+    }
+
+    public function testFilterDoesntIncludeAddedSnippets()
+    {
+        $snippets = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '1_bar',
+                        'id' => 1,
+                        'author' => 'shopware',
+                    ],
+                    '1.bas' => [
+                        'value' => '1_bas',
+                        'id' => null,
+                        'author' => 'shopware',
+                    ],
+                ],
+            ],
+            'secondSetId' => [
+                'snippets' => [
+                    '2.bar' => [
+                        'value' => '2_bar',
+                        'id' => 2,
+                        'author' => 'user/admin',
+                    ],
+                    '2.baz' => [
+                        'value' => '2_baz',
+                        'id' => null,
+                        'author' => 'shopware',
+                    ],
+                ],
+            ],
+        ];
+
+        $expected = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '1_bar',
+                        'id' => 1,
+                        'author' => 'shopware',
+                    ],
+                ],
+            ],
+            'secondSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '',
+                        'origin' => '',
+                        'translationKey' => '1.bar',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => 'secondSetId',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = (new EditedFilter())->filter($snippets, true);
 
         static::assertEquals($expected, $result);
     }

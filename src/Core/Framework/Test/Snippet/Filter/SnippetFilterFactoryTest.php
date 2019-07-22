@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Snippet\Filter;
+namespace Shopware\Core\Framework\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Snippet\Exception\FilterNotFoundException;

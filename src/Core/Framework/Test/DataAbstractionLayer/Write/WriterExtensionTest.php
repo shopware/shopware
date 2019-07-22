@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -9,9 +9,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
@@ -19,25 +17,19 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Produ
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class EntityExtensionReadTest extends TestCase
+class WriterExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
     /**
-     * @var Connection
+     * @var Connection|object
      */
     private $connection;
-
     /**
-     * @var EntityRepositoryInterface
+     * @var object
      */
     private $productRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
 
     protected function setUp(): void
     {
@@ -48,7 +40,6 @@ class EntityExtensionReadTest extends TestCase
         $this->registerDefinitionWithExtensions(ProductDefinition::class, ProductExtension::class);
 
         $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $this->connection->rollBack();
 
@@ -81,58 +72,50 @@ class EntityExtensionReadTest extends TestCase
         parent::tearDown();
     }
 
-    public function testICanReadNestedAssociationsFromToOneExtensions(): void
+    public function testWriteExtensionWithExtensionKey(): void
     {
         $productId = Uuid::randomHex();
+        $this->createProduct($productId);
 
-        $this->productRepository->create([
+        $this->productRepository->update([
             [
                 'id' => $productId,
-                'productNumber' => Uuid::randomHex(),
-                'stock' => 1,
-                'name' => 'Test product',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
-                'tax' => ['name' => 'test', 'taxRate' => 5],
-                'manufacturer' => [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'shopware AG',
-                    'link' => 'https://shopware.com',
-                ],
-                'toOne' => [
-                    'name' => 'test',
+                'extensions' => [
+                    'oneToMany' => [
+                        ['name' => 'test 1', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                        ['name' => 'test 2', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                    ],
                 ],
             ],
         ], Context::createDefaultContext());
 
         $criteria = new Criteria([$productId]);
-        $criteria->addAssociationPath('toOne.toOne');
+        $criteria->addAssociation('oneToMany');
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
-        static::assertTrue($product->hasExtension('toOne'));
+        static::assertTrue($product->hasExtension('oneToMany'));
 
-        /** @var ArrayEntity $extension */
-        $extension = $product->getExtension('toOne');
-        static::assertInstanceOf(ProductEntity::class, $extension->get('toOne'));
+        /** @var EntityCollection $productExtensions */
+        $productExtensions = $product->getExtension('oneToMany');
+        $productExtensions->sort(static function (ArrayEntity $a, ArrayEntity $b) {
+            return $a->get('name') <=> $b->get('name');
+        });
+
+        static::assertInstanceOf(EntityCollection::class, $productExtensions);
+        static::assertCount(2, $productExtensions);
+        static::assertEquals('test 1', $productExtensions->first()->get('name'));
+        static::assertEquals('test 2', $productExtensions->last()->get('name'));
     }
 
-    public function testICanReadNestedAssociationsFromToManyExtensions(): void
+    public function testCanWriteExtensionWithoutExtensionKey(): void
     {
         $productId = Uuid::randomHex();
+        $this->createProduct($productId);
 
-        $this->productRepository->create([
+        $this->productRepository->update([
             [
                 'id' => $productId,
-                'productNumber' => Uuid::randomHex(),
-                'stock' => 1,
-                'name' => 'Test product',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
-                'tax' => ['name' => 'test', 'taxRate' => 5],
-                'manufacturer' => [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'shopware AG',
-                    'link' => 'https://shopware.com',
-                ],
                 'oneToMany' => [
                     ['name' => 'test 1', 'languageId' => Defaults::LANGUAGE_SYSTEM],
                     ['name' => 'test 2', 'languageId' => Defaults::LANGUAGE_SYSTEM],
@@ -141,19 +124,40 @@ class EntityExtensionReadTest extends TestCase
         ], Context::createDefaultContext());
 
         $criteria = new Criteria([$productId]);
-        $criteria->addAssociationPath('oneToMany.language');
+        $criteria->addAssociation('oneToMany');
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
-
         static::assertTrue($product->hasExtension('oneToMany'));
 
         /** @var EntityCollection $productExtensions */
         $productExtensions = $product->getExtension('oneToMany');
+        $productExtensions->sort(static function (ArrayEntity $a, ArrayEntity $b) {
+            return $a->get('name') <=> $b->get('name');
+        });
+
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
         static::assertCount(2, $productExtensions);
+        static::assertEquals('test 1', $productExtensions->first()->get('name'));
+        static::assertEquals('test 2', $productExtensions->last()->get('name'));
+    }
 
-        $productExtension = $productExtensions->first();
-        static::assertInstanceOf(LanguageEntity::class, $productExtension->get('language'));
+    private function createProduct(string $productId): void
+    {
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'name' => 'Test product',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
+                'manufacturer' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'shopware AG',
+                    'link' => 'https://shopware.com',
+                ],
+            ],
+        ], Context::createDefaultContext());
     }
 }

@@ -39,7 +39,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\Sale
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
-use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 
 class LanguageEntity extends Entity
 {
@@ -278,11 +277,6 @@ class LanguageEntity extends Entity
      * @var NumberRangeTranslationCollection|null
      */
     protected $numberRangeTranslations;
-
-    /**
-     * @var ThemeTranslationCollection|null
-     */
-    protected $themeTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -752,15 +746,5 @@ class LanguageEntity extends Entity
     public function setNumberRangeTranslations(NumberRangeTranslationCollection $numberRangeTranslations): void
     {
         $this->numberRangeTranslations = $numberRangeTranslations;
-    }
-
-    public function getThemeTranslations(): ?ThemeTranslationCollection
-    {
-        return $this->themeTranslations;
-    }
-
-    public function setThemeTranslations(?ThemeTranslationCollection $themeTranslations): void
-    {
-        $this->themeTranslations = $themeTranslations;
     }
 }

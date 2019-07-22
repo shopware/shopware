@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Twig;
+namespace Shopware\Storefront\Framework\Twig;
 
-use Shopware\Core\Framework\Twig\TokenParser\IconTokenParser;
+use Shopware\Core\Framework\Twig\TemplateFinder;
+use Shopware\Storefront\Framework\Twig\TokenParser\IconTokenParser;
 use Twig\Extension\AbstractExtension;
 
 class IconExtension extends AbstractExtension

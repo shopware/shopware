@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Twig\TokenParser;
+namespace Shopware\Storefront\Framework\Twig\TokenParser;
 
 use Shopware\Core\Framework\Twig\Node\SwInclude;
 use Twig\Node\Expression\ArrayExpression;
@@ -9,7 +9,7 @@ use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-final class ThumbnailTokenParser extends AbstractTokenParser
+final class IconTokenParser extends AbstractTokenParser
 {
     /**
      * @var Parser
@@ -19,13 +19,16 @@ final class ThumbnailTokenParser extends AbstractTokenParser
     public function parse(Token $token): SwInclude
     {
         $expr = $this->parser->getExpressionParser()->parseExpression();
+
+        $icon = $expr->getAttribute('value');
+
+        $expr->setAttribute('value', '@Storefront/utilities/icon.html.twig');
+
         $stream = $this->parser->getStream();
 
-        $className = $expr->getAttribute('value');
-        $expr->setAttribute('value', '@Storefront/utilities/thumbnail.html.twig');
-
         $variables = new ArrayExpression([], $token->getLine());
-        if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
+
+        if ($stream->nextIf(Token::NAME_TYPE, 'style')) {
             /** @var ArrayExpression $variables */
             $variables = $this->parser->getExpressionParser()->parseExpression();
         }
@@ -33,7 +36,7 @@ final class ThumbnailTokenParser extends AbstractTokenParser
         $stream->next();
 
         $variables->addElement(
-            new ConstantExpression($className, $token->getLine()),
+            new ConstantExpression($icon, $token->getLine()),
             new ConstantExpression('name', $token->getLine())
         );
 
@@ -42,6 +45,6 @@ final class ThumbnailTokenParser extends AbstractTokenParser
 
     public function getTag(): string
     {
-        return 'sw_thumbnails';
+        return 'sw_icon';
     }
 }

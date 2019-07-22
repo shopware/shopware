@@ -70,7 +70,6 @@
 
         <service id="test.browser" class="Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser" shared="false" public="true">
             <argument type="service" id="kernel" />
-            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument>%test.client.parameters%</argument>
             <argument type="service" id="test.client.history" />
             <argument type="service" id="test.client.cookiejar" />

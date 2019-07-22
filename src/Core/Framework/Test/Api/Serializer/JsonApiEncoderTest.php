@@ -84,8 +84,13 @@ class JsonApiEncoderTest extends TestCase
     public function testEncodeComplexStructs(EntityDefinition $definition, SerializationFixture $fixture): void
     {
         $actual = $this->encoder->encode($definition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
+        $actual = json_decode($actual, true);
 
-        static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+        // remove extensions from test
+        $actual = $this->array_remove($actual, 'extensions');
+        $actual['included'] = $this->removeIncludedExtensions($actual['included']);
+
+        static::assertEquals($fixture->getAdminJsonApiFixtures(), $actual);
     }
 
     /**
@@ -105,5 +110,32 @@ class JsonApiEncoderTest extends TestCase
         $actual = $this->encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
         static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+    }
+
+    private function array_remove($haystack, $keyToRemove): array
+    {
+        foreach ($haystack as $key => $value) {
+            if (is_array($value)) {
+                $haystack[$key] = $this->array_remove($haystack[$key], $keyToRemove);
+            }
+
+            if ($key === $keyToRemove) {
+                unset($haystack[$key]);
+            }
+        }
+
+        return $haystack;
+    }
+
+    private function removeIncludedExtensions($array): array
+    {
+        $filtered = [];
+        foreach ($array as $item) {
+            if ($item['type'] !== 'extension') {
+                $filtered[] = $item;
+            }
+        }
+
+        return $filtered;
     }
 }

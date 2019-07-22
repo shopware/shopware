@@ -106,6 +106,14 @@ export default class ImageZoomPlugin extends Plugin {
     }
 
     /**
+     * updates the zoom values
+     */
+    update() {
+        this._updateTransform();
+        this._setActionButtonState();
+    }
+
+    /**
      * init hammer instance
      *
      * @private
@@ -335,8 +343,17 @@ export default class ImageZoomPlugin extends Plugin {
         this.$emitter.publish('updateTransform');
     }
 
+    /**
+     * sets the button state according to the zoom value
+     *
+     * @private
+     */
     _setActionButtonState() {
         if (this._transform.z === 1 && this._getMaxZoomValue() === 1) {
+            this._setButtonDisabledState(this._zoomResetActionElement);
+            this._setButtonDisabledState(this._zoomOutActionElement);
+            this._setButtonDisabledState(this._zoomInActionElement);
+        } else if (this._getMaxZoomValue() === this._transform.z && this._isTranslatable()) {
             this._setButtonDisabledState(this._zoomResetActionElement);
             this._setButtonDisabledState(this._zoomOutActionElement);
             this._setButtonDisabledState(this._zoomInActionElement);
@@ -355,6 +372,15 @@ export default class ImageZoomPlugin extends Plugin {
         }
 
         this.$emitter.publish('setActionButtonState');
+    }
+
+    /**
+     * returns if the element has a translatable range or not
+     * @returns {boolean}
+     * @private
+     */
+    _isTranslatable(){
+        return this._translateRange.x === 0 && this._translateRange.y === 0;
     }
 
     /**

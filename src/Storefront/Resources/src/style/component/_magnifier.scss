@@ -7,10 +7,11 @@ Displays a lens over a single image or gallery slider and shows the magnified ve
 
 .magnifier-overlay,
 .magnifier-zoom-image {
-    pointer-events: none;
     background-clip: padding-box;
     opacity: 0;
     animation: magnifyLensFade 0.5s forwards;
+    pointer-events: none;
+    z-index: $magnifier-overlay-zindex;
 }
 
 .magnifier-overlay {

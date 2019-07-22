@@ -4,6 +4,9 @@ import { Vector2 } from 'src/script/helper/vector.helper';
 import ViewportDetection from 'src/script/helper/viewport-detection.helper';
 import Iterator from 'src/script/helper/iterator.helper';
 
+const PORTRAIT_ORIENTATION = 1;
+const LANDSCAPE_ORIENTATION = 0;
+
 /**
  * handles the magnifier lens functionality
  * on the detail page
@@ -153,23 +156,12 @@ export default class MagnifierPlugin extends Plugin {
                 const mousePos = new Vector2(event.pageX, event.pageY).subtract(imagePos);
                 const mousePosPercent = mousePos.divide(imageSize).clamp(0, 1);
 
-                this._setZoomImageSize(imageSize);
-                const overlayPos = this._setOverlayPosition(imageOffset, overlaySize, imageSize, mousePosPercent);
-                this._setZoomImage(overlayPos, overlaySize, imageOffset, imageDimensions, imageSize);
+                this._setOverlayPosition(imageOffset, overlaySize, imageSize, mousePosPercent);
+                this._setZoomImage(mousePos, imageSize, overlaySize, imageDimensions);
             }
         }
 
         this.$emitter.publish('onMouseMove');
-    }
-
-    /**
-     * @param {Vector2} imageSize
-     * @private
-     */
-    _setZoomImageSize(imageSize) {
-        const zoomImageSize = this._getZoomImageSize();
-        const height = imageSize.y * (zoomImageSize.x / imageSize.x);
-        this._zoomImage.height = `${height}px`;
     }
 
     /**
@@ -195,58 +187,94 @@ export default class MagnifierPlugin extends Plugin {
     /**
      *  sets the background position of the zoomed image
      *
-     * @param {Vector2} overlayPos
-     * @param {Vector2} overlaySize
-     * @param {Vector2} imageOffset
-     * @param {Vector2} imageDimensions
+     * @param {Vector2} mousePos
      * @param {Vector2} imageSize
+     * @param {Vector2} overlaySize
+     * @param {Vector2} imageDimensions
      *
      * @private
      */
-    _setZoomImage(overlayPos, overlaySize, imageOffset, imageDimensions, imageSize) {
+    _setZoomImage(mousePos, imageSize, overlaySize, imageDimensions) {
+        this._setZoomImageSize(imageSize);
+
         // set background image
         this._zoomImage.style.backgroundImage = `url('${this._imageUrl}')`;
 
         // set background image size
-        const relativeImageSize = this.calculateRelativeImageSize(imageDimensions, imageSize);
-        const zoomImageBackgroundSize = relativeImageSize.multiply(this.options.zoomFactor).ceil();
+        const zoomImageBackgroundSize = this.calculateZoomBackgroundImageSize(imageDimensions, imageSize);
         this._zoomImage.style.backgroundSize = `${zoomImageBackgroundSize.x}px ${zoomImageBackgroundSize.y}px`;
 
         // set background image position
-        const overlayPosPercent = this.caclulateRelativeOverlayPosInPercent(overlayPos, overlaySize, imageDimensions, imageSize);
-        this._zoomImage.style.backgroundPosition = `${overlayPosPercent.x}% ${overlayPosPercent.y}%`;
+        const zoomImagePosPercent = this.calculateZoomImageBackgroundPosition(mousePos, imageSize, overlaySize, imageDimensions, zoomImageBackgroundSize);
+        this._zoomImage.style.backgroundPosition = `-${zoomImagePosPercent.x}px -${zoomImagePosPercent.y}px`;
 
         this.$emitter.publish('setZoomImagePosition');
+    }
+
+    /**
+     * @param {Vector2} imageSize
+     * @private
+     */
+    _setZoomImageSize(imageSize) {
+        const factor = imageSize.y / imageSize.x;
+        const zoomImageSize = this._getZoomImageSize();
+        const height = zoomImageSize.x * factor;
+        this._zoomImage.style.height = `${height}px`;
+        this._zoomImage.style.minHeight = `${height}px`;
     }
 
     /**
      * calculate the percentage position
      * when the image factors mismatch
      *
-     * @param {Vector2} overlayPos
+     * @param {Vector2} mousePos
+     * @param {Vector2} imageSize
      * @param {Vector2} overlaySize
      * @param {Vector2} imageDimensions
-     * @param {Vector2} imageSize
+     * @param {Vector2} zoomImageBackgroundSize
+     *
      * @returns {Vector2}
      */
-    caclulateRelativeOverlayPosInPercent(overlayPos, overlaySize, imageDimensions, imageSize) {
+    calculateZoomImageBackgroundPosition(mousePos, imageSize, overlaySize, imageDimensions, zoomImageBackgroundSize) {
+        const maxOverlayRange = imageSize.subtract(imageSize.divide(this.options.zoomFactor)).subtract(1);
+        let position = mousePos.subtract(overlaySize.divide(2)).clamp(0, imageSize.subtract(overlaySize)).divide(maxOverlayRange).clamp(0, 1);
         const orientation = this.getImageOrientation(imageDimensions, imageSize);
+        const percentWidthWithoutLens = 1 - 1 / this.options.zoomFactor;
 
-        if (orientation === 'landscape') {
-            const imageFactor = imageDimensions.y / imageDimensions.x;
-            const height = imageSize.x * imageFactor;
-            const difference = (height - imageSize.y) / 2;
-            overlayPos.y += difference;
-            overlayPos = overlayPos.divide(imageSize.x - overlaySize.x, height - overlaySize.y);
-        } else if (orientation === 'portrait') {
-            const imageFactor = imageDimensions.x / imageDimensions.y;
-            const width = imageSize.y * imageFactor;
-            const difference = (width - imageSize.x) / 2;
-            overlayPos.x += difference;
-            overlayPos = overlayPos.divide(width - overlaySize.x, imageSize.y - overlaySize.y);
+        if (orientation === LANDSCAPE_ORIENTATION) {
+            position = position.multiply(percentWidthWithoutLens, 1);
+            position = this.calculateImagePosition(position, imageSize, imageDimensions, 'y', 'x');
+            position = position.multiply(1, percentWidthWithoutLens);
+        } else if (orientation === PORTRAIT_ORIENTATION) {
+            position = position.multiply(1, percentWidthWithoutLens);
+            position = this.calculateImagePosition(position, imageSize, imageDimensions, 'x', 'y');
+            position = position.multiply(percentWidthWithoutLens, 1);
+
         }
 
-        return overlayPos.multiply(100);
+        return zoomImageBackgroundSize.multiply(position);
+    }
+
+    /**
+     * @param position
+     * @param imageSize
+     * @param imageDimensions
+     * @param coordOne
+     * @param coordTwo
+     *
+     * @returns {*}
+     */
+    // calculateImagePosition(position, imageSize, imageDimensions, coordOne, coordTwo) {
+    calculateImagePosition(position, imageSize, imageDimensions, coordOne, coordTwo) {
+        const compressedImageSize = (imageDimensions[coordOne] * (imageSize[coordTwo] / imageSize[coordOne]));
+        const offsetPercent = (1 - (compressedImageSize / (imageDimensions[coordTwo] / 1))) / 2;
+        position[coordTwo] = this.calculateOffsetPercent(offsetPercent, position[coordTwo]);
+
+        return position;
+    }
+
+    calculateOffsetPercent(offset, percent) {
+        return offset + ((1 - (offset * 2)) * percent);
     }
 
     /**
@@ -254,19 +282,18 @@ export default class MagnifierPlugin extends Plugin {
      * @param {Vector2} imageSize
      * @returns {Vector2}
      */
-    calculateRelativeImageSize(imageDimensions, imageSize) {
+    calculateZoomBackgroundImageSize(imageDimensions, imageSize) {
         const orientation = this.getImageOrientation(imageDimensions, imageSize);
         const zoomImageSize = this._getZoomImageSize();
+        let size = new Vector2();
 
-        if (orientation === 'landscape') {
-            const imageFactor = imageDimensions.y / imageDimensions.x;
-            return new Vector2(zoomImageSize.x, zoomImageSize.x * imageFactor);
-        } else if (orientation === 'portrait') {
-            const imageFactor = imageDimensions.x / imageDimensions.y;
-            return new Vector2(zoomImageSize.y * imageFactor, zoomImageSize.y);
+        if (orientation === PORTRAIT_ORIENTATION) {
+            size = new Vector2(zoomImageSize.x, zoomImageSize.x * imageDimensions.y / imageDimensions.x);
+        } else if (orientation === LANDSCAPE_ORIENTATION) {
+            size = new Vector2(zoomImageSize.y * imageDimensions.x / imageDimensions.y, zoomImageSize.y);
         }
 
-        return new Vector2();
+        return size.multiply(this.options.zoomFactor);
     }
 
     /**
@@ -275,15 +302,28 @@ export default class MagnifierPlugin extends Plugin {
      *
      * @param imageDimensions
      * @param imageSize
-     * @returns {string}
+     * @returns {LANDSCAPE_ORIENTATION|PORTRAIT_ORIENTATION}
      */
     getImageOrientation(imageDimensions, imageSize) {
-        const isLandscape = (imageSize.x > imageSize.y > imageDimensions.x / imageDimensions.y);
-        if (isLandscape) {
-            return 'landscape';
-        } else {
-            return 'portrait';
+        if (this._assertEqualFactors(imageDimensions, imageSize)) {
+            return (imageSize.x > imageSize.y) ? LANDSCAPE_ORIENTATION : PORTRAIT_ORIENTATION;
         }
+
+        return (imageSize.x / imageSize.y > imageDimensions.x / imageDimensions.y) ? PORTRAIT_ORIENTATION : LANDSCAPE_ORIENTATION;
+    }
+
+    /**
+     * @param imageDimensions
+     * @param imageSize
+     * @returns {boolean}
+     *
+     * @private
+     */
+    _assertEqualFactors(imageDimensions, imageSize) {
+        const imageDimensionFactor = this._roundToTwoDigits(imageDimensions.x / imageDimensions.y);
+        const imageSizeFactor = this._roundToTwoDigits(imageSize.x / imageSize.y);
+
+        return imageSizeFactor === imageDimensionFactor;
     }
 
     /**
@@ -444,5 +484,17 @@ export default class MagnifierPlugin extends Plugin {
         Iterator.iterate(images, image => this._setCursor(image, 'default'));
 
         this.$emitter.publish('stopMagnify');
+    }
+
+    /**
+     * rounds value to two decimal places
+     *
+     * @param value
+     * @returns {*}
+     *
+     * @private
+     */
+    _roundToTwoDigits(value) {
+        return Math.round(value * 1000) / 1000;
     }
 }

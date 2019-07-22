@@ -116,6 +116,7 @@ class SalesChannelContextFactory
         $criteria = new Criteria([$salesChannelId]);
         $criteria->addAssociation('currency');
 
+        /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)
             ->get($salesChannelId);
 
@@ -153,8 +154,8 @@ class SalesChannelContextFactory
             $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);
         }
 
-        $groupId = Defaults::FALLBACK_CUSTOMER_GROUP;
-        $groupIds = [Defaults::FALLBACK_CUSTOMER_GROUP];
+        $groupId = $salesChannel->getCustomerGroupId();
+        $groupIds = [$salesChannel->getCustomerGroupId(), Defaults::FALLBACK_CUSTOMER_GROUP];
 
         if ($customer) {
             $groupIds[] = $customer->getGroupId();

@@ -46,10 +46,7 @@
       "placeholderPackUnit": "Karton, Flasche ...",
       "optionLitre": "Liter",
       "optionKilogram": "Kilogramm",
-      "optionMetre": "Meter",
-      "closeWindow": "Fenster schließen",
-      "maintainCurrencies": "Währungen pflegen",
-      "columnPrice": "Preise (Brutto / Netto)"
+      "optionMetre": "Meter"
     },
     "settingsForm": {
       "labelCreatedAt": "Erstelldatum",
@@ -259,6 +256,12 @@
         "save": "Speichern",
         "useForListing": "Im Listing auffächern"
       }
+    },
+    "maintainCurrenciesModal": {
+      "apply": "Übernehmen",
+      "cancel": "Abbrechen",
+      "maintainCurrencies": "Währungen pflegen",
+      "columnPrice": "Preise (Brutto / Netto)"
     }
   }
 }

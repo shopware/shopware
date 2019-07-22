@@ -25,23 +25,3 @@ $sw-product-price-suffix-font-weight: 400;
         }
     }
 }
-
-.sw-modal.sw-product-price-form__maintain-currencies-modal {
-    .sw-modal__body {
-        padding: 0;
-        border-bottom: 1px solid $color-steam-cloud;
-
-        .sw-data-grid__cell--header {
-            border-width: 0;
-        }
-
-        .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
-            height: auto;
-        }
-
-        .sw-product-price-form__inherited-icon.sw-inheritance-switch {
-            cursor: pointer;
-            margin-right: 5px;
-        }
-    }
-}

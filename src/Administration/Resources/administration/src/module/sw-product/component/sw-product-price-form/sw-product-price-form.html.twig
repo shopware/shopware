@@ -95,63 +95,14 @@
             {% endblock %}
         </sw-container>
 
-        {% block sw_product_price_form_modal_maintain_currencies %}
-            <sw-modal v-if="displayMaintainCurrencies"
-                      @modal-close="displayMaintainCurrencies = false"
-                      :title="$tc('sw-product.priceForm.maintainCurrencies')"
-                      class="sw-product-price-form__maintain-currencies-modal">
-
-                {% block sw_product_price_form_modal_maintain_currencies_grid %}
-                    <sw-data-grid :dataSource="currencies"
-                                  :columns="maintainCurrencyColumns"
-                                  :showSelection="false"
-                                  :compactMode="false"
-                                  :showActions="false">
-
-                        {% block sw_product_price_form_modal_maintain_currencies_grid_column_name %}
-                            <template slot="column-name" slot-scope="{ item }">
-                                {% block sw_product_price_form_modal_maintain_currencies_grid_column_name_inherit_field %}
-                                    <sw-inheritance-switch :isInherited="isCurrencyInherited(item)"
-                                                      v-if="!item.isDefault"
-                                                      class="sw-product-price-form__inherited-icon"
-                                                      @inheritance-restore="onInheritanceRestore(item.id)"
-                                                      @inheritance-remove="onInheritanceRemove(item)">
-                                    </sw-inheritance-switch>
-                                {% endblock %}
-
-                                {% block sw_product_price_form_modal_maintain_currencies_grid_column_name_item_name %}
-                                    <p>{{ item.translated.name || item.name }}</p>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
-                        {% block sw_product_price_form_modal_maintain_currencies_grid_column_price %}
-                            <template slot="column-price" slot-scope="{ item }">
-                                {% block sw_product_price_form_modal_maintain_currencies_grid_column_price_field %}
-                                    <sw-price-field :price="product.price"
-                                                    :defaultPrice="defaultPrice"
-                                                    :taxRate="productTaxRate"
-                                                    :label="false"
-                                                    enableInheritance
-                                                    :currency="item">
-                                    </sw-price-field>
-                                {% endblock %}
-                            </template>
-                        {% endblock %}
-
-                    </sw-data-grid>
-                {% endblock %}
-
-                {% block sw_product_price_form_modal_maintain_currencies_footer %}
-                    <template slot="modal-footer">
-                        {% block sw_product_price_form_modal_maintain_currencies_footer_button %}
-                            <sw-button variant="primary" size="small" @click="displayMaintainCurrencies = false">
-                                {{ $tc('sw-product.priceForm.closeWindow') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                {% endblock %}
-            </sw-modal>
+        {% block sw_product_price_form_maintain_currencies_modal %}
+            <sw-product-maintain-currencies-modal v-if="displayMaintainCurrencies"
+                                                  :currencies="currencies"
+                                                  :product="product"
+                                                  :defaultPrice="defaultPrice"
+                                                  :productTaxRate="productTaxRate"
+                                                  @modal-close="onMaintainCurrenciesClose">
+            </sw-product-maintain-currencies-modal>
         {% endblock %}
     </div>
 {% endblock %}

@@ -47,10 +47,7 @@
       "placeholderPackUnit": "Package, bottle, crate...",
       "optionLitre": "Litre",
       "optionKilogram": "Kilogram",
-      "optionMetre": "Metre",
-      "closeWindow": "Accept",
-      "maintainCurrencies": "Currency dependent pricing",
-      "columnPrice": "Prices (gross / net)"
+      "optionMetre": "Metre"
     },
     "settingsForm": {
       "labelCreatedAt": "Creation date",
@@ -260,6 +257,12 @@
         "save": "Save",
         "useForListing": "Display in listings"
       }
+    },
+    "maintainCurrenciesModal": {
+      "apply": "Apply",
+      "cancel": "Cancel",
+      "maintainCurrencies": "Currency dependent pricing",
+      "columnPrice": "Prices (gross / net)"
     }
   }
 }

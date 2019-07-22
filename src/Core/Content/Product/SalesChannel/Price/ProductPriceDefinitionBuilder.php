@@ -239,7 +239,12 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
     private function buildReferencePriceDefinition(ProductEntity $product): ?ReferencePriceDefinition
     {
         $referencePrice = null;
-        if ($product->getPurchaseUnit() && $product->getReferenceUnit() && $product->getPurchaseUnit() !== $product->getReferenceUnit()) {
+        if (
+            $product->getPurchaseUnit()
+            && $product->getReferenceUnit()
+            && $product->getUnit() !== null
+            && $product->getPurchaseUnit() !== $product->getReferenceUnit()
+        ) {
             $referencePrice = new ReferencePriceDefinition(
                 $product->getPurchaseUnit(),
                 $product->getReferenceUnit(),

@@ -9,6 +9,8 @@ use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\Filesystem\Filesystem;
@@ -36,14 +38,21 @@ class ThemeCompiler
      */
     private $scssCompiler;
 
+    /**
+     * @var ThemeFileResolver
+     */
+    private $themeFileResolver;
+
     public function __construct(
         FilesystemInterface $publicFilesystem,
         Filesystem $localFileSystem,
+        ThemeFileResolver $themeFileResolver,
         string $cacheDir,
         bool $debug
     ) {
         $this->publicFilesystem = $publicFilesystem;
         $this->localFileSystem = $localFileSystem;
+        $this->themeFileResolver = $themeFileResolver;
         $this->cacheDir = $cacheDir;
 
         $this->scssCompiler = new Compiler();
@@ -65,17 +74,25 @@ class ThemeCompiler
             $this->publicFilesystem->deleteDir($outputPath);
         }
 
-        // styles
-        $compiled = $this->compileStyles($themeConfig, $configurationCollection);
+        $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
+        /** @var FileCollection $styleFiles */
+        $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
+
+        $concatenatedStyles = '';
+        /** @var File $file */
+        foreach ($styleFiles as $file) {
+            $concatenatedStyles .= '@import \'' . $file->getFilepath() . '\';' . PHP_EOL;
+        }
+        $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings());
         $cssFilepath = $outputPath . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'all.css';
         $this->publicFilesystem->put($cssFilepath, $compiled);
 
-        // scripts
-        $scriptFile = $this->concatenateScripts($themeConfig->getScriptFiles(), $configurationCollection);
+        /** @var FileCollection $scriptFiles */
+        $scriptFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
+        $concatenatedScripts = implode(PHP_EOL, $scriptFiles->getFilepaths());
         $scriptFilepath = $outputPath . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'all.js';
-        $this->publicFilesystem->put($scriptFilepath, $scriptFile);
+        $this->publicFilesystem->put($scriptFilepath, $concatenatedScripts);
 
-        // assets
         $this->copyAssets($themeConfig, $configurationCollection, $outputPath);
     }
 
@@ -89,11 +106,11 @@ class ThemeCompiler
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $outputPath
     ) {
-        if (!$configuration->getAssetFiles()) {
+        if (!$configuration->getAssetPaths()) {
             return;
         }
 
-        foreach ($configuration->getAssetFiles() as $asset) {
+        foreach ($configuration->getAssetPaths() as $asset) {
             if (strpos($asset, '@') === 0) {
                 $name = substr($asset, 1);
                 $config = $configurationCollection->getByTechnicalName($name);
@@ -134,104 +151,16 @@ class ThemeCompiler
         }
     }
 
-    private function concatenateScripts(
-        array $jsFiles,
-        StorefrontPluginConfigurationCollection $configurationCollection
-    ): string {
-        $output = '';
-
-        foreach ($jsFiles as $jsFile) {
-            $output .= $this->resolveScripts($jsFile, $configurationCollection);
-        }
-
-        return $output;
-    }
-
-    private function resolveScripts(
-        string $scriptFile,
-        StorefrontPluginConfigurationCollection $configurationCollection
-    ): string {
-        if (strpos($scriptFile, '@') !== 0) {
-            if (file_exists($scriptFile)) {
-                return file_get_contents($scriptFile) . PHP_EOL;
-            }
-            throw new ThemeCompileException('', sprintf('Unable to load script file "%s". Did you forget to build the theme? Try running ./psh.phar storefront:build ', $scriptFile));
-        }
-
-        if ($scriptFile === '@Plugins') {
-            $output = '';
-            foreach ($configurationCollection->getNoneThemes() as $plugin) {
-                $output .= $this->concatenateScripts($plugin->getScriptFiles(), $configurationCollection);
-            }
-
-            return $output;
-        }
-
-        // Resolve @ dependencies
-        $name = substr($scriptFile, 1);
-        $config = $configurationCollection->getByTechnicalName($name);
-
-        if (!$config) {
-            throw new InvalidThemeException($name);
-        }
-
-        return $this->concatenateScripts($config->getScriptFiles(), $configurationCollection);
-    }
-
-    private function concatenateCss(
-        array $cssFiles,
-        StorefrontPluginConfigurationCollection $configurationCollection,
-        StorefrontPluginConfiguration $config
-    ): string {
-        $output = '';
-        foreach ($cssFiles as $cssFile) {
-            $output .= $this->resolveCss($cssFile, $configurationCollection, $config);
-        }
-
-        return $output;
-    }
-
-    private function resolveCss(
-        string $cssFile,
-        StorefrontPluginConfigurationCollection $configurationCollection,
-        StorefrontPluginConfiguration $originalConfig
-    ): string {
-        if (strpos($cssFile, '@') !== 0) {
-            return '@import \'' . $cssFile . '\';' . PHP_EOL;
-        }
-
-        if ($cssFile === '@Plugins') {
-            $output = '';
-            foreach ($configurationCollection->getNoneThemes() as $plugin) {
-                $output .= $this->concatenateCss($plugin->getStyleFiles(), $configurationCollection, $originalConfig);
-            }
-
-            return $output;
-        }
-
-        $name = substr($cssFile, 1);
-        $config = $configurationCollection->getByTechnicalName($name);
-
-        if (!$config) {
-            throw new InvalidThemeException($name);
-        }
-
-        $originalConfig->setEntries(array_replace_recursive($originalConfig->getEntries(), $config->getEntries()));
-
-        return $this->concatenateCss($config->getStyleFiles(), $configurationCollection, $originalConfig);
-    }
-
     private function compileStyles(
-        StorefrontPluginConfiguration $config,
-        StorefrontPluginConfigurationCollection $configurationCollection
+        string $concatenatedStyles,
+        StorefrontPluginConfiguration $configuration,
+        array $resolveMappings
     ): string {
-        $concatenated = $this->concatenateCss($config->getStyleFiles(), $configurationCollection, $config);
-
-        $this->scssCompiler->addImportPath(function ($originalPath) use ($config) {
-            foreach ($config->getEntries() as $entry => $entryPath) {
-                $entry = '~' . $entry;
-                if (strpos($originalPath, $entry) === 0) {
-                    $dirname = $entryPath . dirname(substr($originalPath, strlen($entry)));
+        $this->scssCompiler->addImportPath(function ($originalPath) use ($resolveMappings) {
+            foreach ($resolveMappings as $resolve => $resolvePath) {
+                $resolve = '~' . $resolve;
+                if (strpos($originalPath, $resolve) === 0) {
+                    $dirname = $resolvePath . dirname(substr($originalPath, strlen($resolve)));
                     $filename = basename($originalPath);
                     $extension = pathinfo($filename, PATHINFO_EXTENSION) === '' ? '.scss' : '';
                     $path = $dirname . DIRECTORY_SEPARATOR . $filename . $extension;
@@ -249,12 +178,11 @@ class ThemeCompiler
             return null;
         });
 
-        $variables = $this->dumpVariables($config->getConfig());
-        $cssOutput = $this->scssCompiler->compile($variables . $concatenated);
+        $variables = $this->dumpVariables($configuration->getConfig());
+        $cssOutput = $this->scssCompiler->compile($variables . $concatenatedStyles);
         $autoPreFixer = new Autoprefixer($cssOutput);
-        $prefixedCssOutput = $autoPreFixer->compile();
 
-        return $prefixedCssOutput;
+        return $autoPreFixer->compile();
     }
 
     private function dumpVariables(array $config): string

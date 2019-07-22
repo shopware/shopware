@@ -41,19 +41,19 @@ class StorefrontPluginConfiguration
     private $isTheme;
 
     /**
-     * @var array
+     * @var FileCollection
      */
-    private $styleFiles = [];
+    private $styleFiles;
 
     /**
-     * @var array
+     * @var FileCollection
      */
-    private $entries = [];
+    private $scriptFiles;
 
     /**
-     * @var array
+     * @var string|null
      */
-    private $scriptFiles = [];
+    private $storefrontEntryFilepath;
 
     /**
      * @var string|null
@@ -63,7 +63,7 @@ class StorefrontPluginConfiguration
     /**
      * @var array
      */
-    private $assetFiles = [];
+    private $assetPaths = [];
 
     /**
      * @var string
@@ -110,44 +110,34 @@ class StorefrontPluginConfiguration
         $this->isTheme = $isTheme;
     }
 
-    public function getStyleFiles(): array
+    public function getStyleFiles(): FileCollection
     {
         return $this->styleFiles;
     }
 
-    public function setStyleFiles(array $styleFiles): void
+    public function setStyleFiles(FileCollection $styleFiles): void
     {
         $this->styleFiles = $styleFiles;
     }
 
-    public function addStyleFile(string $cssFile, ?string $group = 'unsorted'): void
-    {
-        $this->styleFiles[$group][] = $cssFile;
-    }
-
-    public function getEntries(): array
-    {
-        return $this->entries;
-    }
-
-    public function setEntries(array $entries): void
-    {
-        $this->entries = $entries;
-    }
-
-    public function getScriptFiles(): array
+    public function getScriptFiles(): FileCollection
     {
         return $this->scriptFiles;
     }
 
-    public function setScriptFiles(array $scriptFiles): void
+    public function setScriptFiles(FileCollection $scriptFiles): void
     {
         $this->scriptFiles = $scriptFiles;
     }
 
-    public function addScriptFile(string $jsFile): void
+    public function getStorefrontEntryFilepath(): ?string
     {
-        $this->scriptFiles[] = $jsFile;
+        return $this->storefrontEntryFilepath;
+    }
+
+    public function setStorefrontEntryFilepath(?string $storefrontEntryFilepath): void
+    {
+        $this->storefrontEntryFilepath = $storefrontEntryFilepath;
     }
 
     public function getBasePath(): string
@@ -160,14 +150,14 @@ class StorefrontPluginConfiguration
         $this->basePath = $basePath;
     }
 
-    public function getAssetFiles(): array
+    public function getAssetPaths(): array
     {
-        return $this->assetFiles;
+        return $this->assetPaths;
     }
 
-    public function setAssetFiles(array $assetFiles): void
+    public function setAssetPaths(array $assetPaths): void
     {
-        $this->assetFiles = $assetFiles;
+        $this->assetPaths = $assetPaths;
     }
 
     public function getConfig(): ?array
@@ -205,15 +195,16 @@ class StorefrontPluginConfiguration
         $config = new self();
         $config->setIsTheme(false);
         $config->setTechnicalName($bundle->getName());
+        $config->setStorefrontEntryFilepath(self::getEntryFile($bundle));
         $config->setBasePath($bundle->getPath());
         if ($bundle->getStorefrontStylePath()) {
             $path = $bundle->getPath() . DIRECTORY_SEPARATOR . ltrim($bundle->getStorefrontStylePath(), DIRECTORY_SEPARATOR);
-            $config->setStyleFiles(self::getFilesInDir($path));
+            $config->setStyleFiles(FileCollection::createFromArray(self::getFilesInDir($path)));
         }
 
         if ($bundle->getStorefrontScriptPath()) {
             $path = $bundle->getPath() . DIRECTORY_SEPARATOR . ltrim($bundle->getStorefrontScriptPath(), DIRECTORY_SEPARATOR);
-            $config->setScriptFiles(self::getFilesInDir($path));
+            $config->setScriptFiles(FileCollection::createFromArray(self::getFilesInDir($path)));
         }
 
         return $config;
@@ -233,28 +224,53 @@ class StorefrontPluginConfiguration
         $config = new self();
         try {
             $data = json_decode(file_get_contents($pathname), true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new ThemeCompileException(
+                    $bundle->getName(),
+                    'Unable to parse theme.json. Message: ' . json_last_error_msg()
+                );
+            }
+
             $basePath = realpath(pathinfo($pathname, PATHINFO_DIRNAME));
 
             $config->setBasePath($basePath);
             $config->setTechnicalName($bundle->getName());
+            $config->setStorefrontEntryFilepath(self::getEntryFile($bundle));
             $config->setIsTheme(true);
             $config->setName($data['name']);
             $config->setAuthor($data['author']);
 
             if (array_key_exists('style', $data) && is_array($data['style'])) {
-                $config->setStyleFiles(self::addBasePath($data['style'], $basePath));
-            }
+                $fileCollection = new FileCollection();
+                foreach ($data['style'] as $style) {
+                    if (!is_array($style)) {
+                        $fileCollection->add(new File($style));
+                        continue;
+                    }
 
-            if (array_key_exists('entries', $data)) {
-                $config->setEntries(self::addBasePath($data['entries'], $basePath));
+                    foreach ($style as $filename => $additional) {
+                        if (!array_key_exists('resolve', $additional)) {
+                            $fileCollection->add(new File($filename));
+                        }
+
+                        foreach ($additional['resolve'] as $resolve => &$path) {
+                            $path = self::addBasePath($path, $basePath);
+                        }
+                        unset($path);
+
+                        $fileCollection->add(new File($filename, $additional['resolve'] ?? []));
+                    }
+                }
+                $config->setStyleFiles(self::addBasePathToCollection($fileCollection, $basePath));
             }
 
             if (array_key_exists('script', $data) && is_array($data['script'])) {
-                $config->setScriptFiles(self::addBasePath($data['script'], $basePath));
+                $fileCollection = FileCollection::createFromArray($data['script']);
+                $config->setScriptFiles(self::addBasePathToCollection($fileCollection, $basePath));
             }
 
             if (array_key_exists('asset', $data)) {
-                $config->setAssetFiles(self::addBasePath($data['asset'], $basePath));
+                $config->setAssetPaths(self::addBasePathToArray($data['asset'], $basePath));
             }
 
             if (array_key_exists('previewMedia', $data)) {
@@ -264,8 +280,10 @@ class StorefrontPluginConfiguration
             if (array_key_exists('config', $data)) {
                 $config->setConfig($data['config']);
             }
+        } catch (ThemeCompileException $e) {
+            throw $e;
         } catch (\Exception $e) {
-            throw new ThemeCompileException($pathname,
+            throw new ThemeCompileException($bundle->getName(),
                 sprintf(
                     'Got exception while parsing theme config. Exception message "%s"',
                     $e->getMessage()
@@ -276,16 +294,48 @@ class StorefrontPluginConfiguration
         return $config;
     }
 
-    private static function addBasePath(array $files, string $basePath): array
+    private static function getEntryFile(Bundle $bundle): ?string
+    {
+        $path = rtrim($bundle->getPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $bundle->getStorefrontEntryPath();
+
+        if (file_exists($path . DIRECTORY_SEPARATOR . 'main.ts')) {
+            return $path . DIRECTORY_SEPARATOR . 'main.ts';
+        }
+
+        if (file_exists($path . DIRECTORY_SEPARATOR . 'main.js')) {
+            return $path . DIRECTORY_SEPARATOR . 'main.js';
+        }
+
+        return null;
+    }
+
+    private static function addBasePathToCollection(FileCollection $fileCollection, string $basePath): FileCollection
+    {
+        foreach ($fileCollection as $file) {
+            if (strpos($file->getFilepath(), '@') === 0) {
+                continue;
+            }
+            $file->setFilepath(self::addBasePath($file->getFilepath(), $basePath));
+        }
+
+        return $fileCollection;
+    }
+
+    private static function addBasePathToArray(array $files, string $basePath): array
     {
         array_walk($files, function (&$path) use ($basePath) {
             if (strpos($path, '@') === 0) {
                 return;
             }
-            $path = $basePath . DIRECTORY_SEPARATOR . $path;
+            $path = self::addBasePath($path, $basePath);
         });
 
         return $files;
+    }
+
+    private static function addBasePath(string $path, string $basePath): string
+    {
+        return $basePath . DIRECTORY_SEPARATOR . $path;
     }
 
     private static function getFilesInDir(string $path): array

@@ -21,18 +21,6 @@ const buildDirectory = utils.getBuildPath();
 const context = utils.getPath('src/script');
 
 /**
- * Configuration of the applications entry points
- * https://webpack.js.org/configuration/entry-context#entry
- *
- * relative to the webpack context
- *
- * @type {{main: string}}
- */
-const entries = {
-    app: ['./base.js'],
-};
-
-/**
  * Options how webpack should output the compiled build
  * https://webpack.js.org/configuration/output
  * @type {{path: *, filename: string, publicPath: string}}
@@ -195,7 +183,6 @@ module.exports = {
     cache: true,
     devServer: devServer,
     devtool: 'inline-cheap-source-map',
-    entry: entries,
     context: context,
     mode: 'development',
     module: modules,

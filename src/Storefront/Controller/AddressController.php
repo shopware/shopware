@@ -74,13 +74,16 @@ class AddressController extends StorefrontController
      *
      * @throws CustomerNotLoggedInException
      */
-    public function accountCreateAddress(Request $request, SalesChannelContext $context): Response
+    public function accountCreateAddress(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $this->denyAccessUnlessLoggedIn();
 
         $page = $this->addressDetailPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/account/addressbook/create.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/page/account/addressbook/create.html.twig', [
+            'page' => $page,
+            'data' => $data,
+        ]);
     }
 
     /**
@@ -154,8 +157,8 @@ class AddressController extends StorefrontController
     }
 
     /**
-     * @Route("/account/address/{addressId}", name="frontend.account.address.edit.save", options={"seo"="false"}, methods={"POST"})
      * @Route("/account/address/create", name="frontend.account.address.create", options={"seo"="false"}, methods={"POST"})
+     * @Route("/account/address/{addressId}", name="frontend.account.address.edit.save", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      */
@@ -172,8 +175,8 @@ class AddressController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
         }
 
-        if ($address->get('id')) {
-            return $this->forwardToRoute('frontend.account.address.create', ['formViolations' => $formViolations]);
+        if (!$address->get('id')) {
+            return $this->forwardToRoute('frontend.account.address.create.page', ['formViolations' => $formViolations]);
         }
 
         return $this->forwardToRoute(

@@ -229,7 +229,7 @@
                             {% endblock %}
                         </div>
                     {% endblock %}
-
+                    
                     {% block component_account_register_address %}
                         <div class="register-address">
                             {% block component_account_register_address_fields %}
@@ -237,7 +237,7 @@
                                     <div class="register-billing">
                                         {% block component_account_register_address_billing_header %}
                                             <div class="card-title">
-                                                {{ "account.registerAddressBillingHeader"|trans }} details
+                                                {{ "account.registerAddressBillingHeader"|trans }}
                                             </div>
                                         {% endblock %}
 
@@ -263,7 +263,7 @@
                                                            {% if data.get('differentShippingAddress') %}checked="checked"{% endif %}
                                                            data-form-field-toggle="true"
                                                            data-form-field-toggle-target=".js-form-field-toggle-shipping-address"
-                                                           data-form-field-toggle-value="false">
+                                                           data-form-field-toggle-value="true">
                                                 {% endblock %}
 
                                                 {% block component_account_register_address_different_shipping_label %}
@@ -276,7 +276,7 @@
                                         {% endblock %}
 
                                         {% block component_account_register_address_shipping %}
-                                            <div class="register-shipping d-none js-form-field-toggle-shipping-address">
+                                            <div class="register-shipping js-form-field-toggle-shipping-address d-none">
                                                 {% block component_account_register_address_shipping_header %}
                                                     <div class="card-title">
                                                         {{ "account.registerAddressShippingHeader"|trans }}
@@ -287,7 +287,8 @@
                                                     {% block component_account_register_address_shipping_fields_personal %}
                                                         {% sw_include '@Storefront/component/address/address-personal.html.twig' with {
                                                             'prefix': 'shippingAddress',
-                                                            'data': data.get('shippingAddress')
+                                                            'data': data.get('shippingAddress'),
+                                                            'hideCustomerTypeSelect': true
                                                         } %}
                                                     {% endblock %}
 

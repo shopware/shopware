@@ -82,6 +82,9 @@
         "registerPersonalHeader": "I'm a new customer",
         "registerAddressBillingHeader": "Your address",
         "registerAddressShippingHeader": "Alternative shipping address",
+        "personalTypeLabel": "I am",
+        "personalTypePrivate": "Private",
+        "personalTypeBusiness": "Commercial",
         "personalSalutationLabel": "Salutation",
         "personalSalutationPlaceholder": "Salutation",
         "personalTitleLabel": "Title",
@@ -228,7 +231,13 @@
         "countryLabel": "Country",
         "countryPlaceholder": "Country",
         "phoneNumberLabel": "Phone number",
-        "phoneNumberPlaceholder": "Phone number"
+        "phoneNumberPlaceholder": "Phone number",
+        "companyNameLabel": "Company",
+        "companyNamePlaceholder": "Company",
+        "companyDepartmentLabel": "Department",
+        "companyDepartmentPlaceholder": "Department",
+        "companyVatLabel": "VAT-ID",
+        "companyVatPlaceholder": "VAT-ID"
     },
     "checkout": {
         "itemCounter": "{1} 1 item|]1,Inf[ %count% items",

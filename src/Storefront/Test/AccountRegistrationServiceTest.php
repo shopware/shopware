@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class AccountRegistrationServiceTest extends TestCase
 {
@@ -29,6 +30,11 @@ class AccountRegistrationServiceTest extends TestCase
     private $accountService;
 
     /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
+    /**
      * @var SalesChannelContext
      */
     private $salesChannelContext;
@@ -37,6 +43,7 @@ class AccountRegistrationServiceTest extends TestCase
     {
         $this->accountRegistrationService = $this->getContainer()->get(AccountRegistrationService::class);
         $this->accountService = $this->getContainer()->get(AccountService::class);
+        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         $token = Uuid::randomHex();
@@ -104,9 +111,40 @@ class AccountRegistrationServiceTest extends TestCase
         static::assertEquals($data->get('lastName'), $customer->getLastName());
     }
 
+    public function testRegistrationWithBusinessAccount(): void
+    {
+        $this->systemConfigService->set('core.loginRegistration.showAccountTypeSelection', true);
+
+        $guestData = $this->getRegistrationData();
+        $guestData->set('accountType', CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+
+        $data = $this->getRegistrationData();
+        $data->set('accountType', CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+
+        $this->expectException(ConstraintViolationException::class);
+        $this->accountRegistrationService->register($guestData, true, $this->salesChannelContext);
+
+        $this->expectException(ConstraintViolationException::class);
+        $this->accountRegistrationService->register($data, true, $this->salesChannelContext);
+
+        /** @var DataBag $guestBillingAddress */
+        $guestBillingAddress = $guestData->get('billingAddress');
+        $guestBillingAddress->set('company', 'shopware');
+        /** @var DataBag $billingAddress */
+        $billingAddress = $data->get('billingAddress');
+        $billingAddress->set('company', 'shopware');
+
+        $customerId = $this->accountRegistrationService->register($guestData, true, $this->salesChannelContext);
+        static::assertNotEmpty($customerId);
+
+        $customerId = $this->accountRegistrationService->register($data, true, $this->salesChannelContext);
+        static::assertNotEmpty($customerId);
+    }
+
     private function getRegistrationData($isGuest = false): DataBag
     {
         $data = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
             'email' => 'max.mustermann@example.com',
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',

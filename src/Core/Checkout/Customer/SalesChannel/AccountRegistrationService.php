@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
@@ -137,10 +138,11 @@ class AccountRegistrationService
             }
         }
 
-        $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($context));
+        $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+        $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($accountType, true, $context));
 
         if ($data->has('shippingAddress')) {
-            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($context));
+            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($accountType, false, $context));
         }
 
         $violations = $this->validator->getViolations($data->all(), $definition);
@@ -179,6 +181,8 @@ class AccountRegistrationService
             'street',
             'zipcode',
             'city',
+            'company',
+            'department',
             'vatId',
             'countryStateId',
             'countryId',
@@ -202,6 +206,8 @@ class AccountRegistrationService
             'street',
             'zipcode',
             'city',
+            'company',
+            'department',
             'vatId',
             'countryStateId',
             'countryId',
@@ -252,9 +258,12 @@ class AccountRegistrationService
         return $customer;
     }
 
-    private function getCreateAddressValidationDefinition(Context $context): DataValidationDefinition
+    private function getCreateAddressValidationDefinition(string $accountType, bool $isBillingAddress, Context $context): DataValidationDefinition
     {
         $validation = $this->addressValidationService->buildCreateValidation($context);
+        if ($isBillingAddress && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')) {
+            $validation->add('company', new NotBlank());
+        }
 
         $validationEvent = new BuildValidationEvent($validation, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

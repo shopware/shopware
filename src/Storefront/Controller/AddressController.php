@@ -191,7 +191,9 @@ class AddressController extends StorefrontController
      */
     public function addressBook(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
+        if (!$context->getCustomer()) {
+            throw new CustomerNotLoggedInException();
+        }
 
         $viewData = [];
         $viewData = $this->handleChangeableAddresses($viewData, $dataBag);

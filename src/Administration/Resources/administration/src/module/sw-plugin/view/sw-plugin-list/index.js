@@ -121,6 +121,11 @@ Component.register('sw-plugin-list', {
                 });
                 this.getList();
                 this.cacheApiService.clear();
+
+                // Reload if plugin gets uninstalled while active
+                if (plugin.active === true) {
+                    window.location.reload();
+                }
             });
         },
 

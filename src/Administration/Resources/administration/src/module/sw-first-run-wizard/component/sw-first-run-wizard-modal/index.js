@@ -40,6 +40,7 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 0,
                     next: 'sw.first.run.wizard.index.demodata',
+                    install: false,
                     skip: false,
                     back: false,
                     finish: false
@@ -48,7 +49,8 @@ Component.register('sw-first-run-wizard-modal', {
                     name: 'sw.first.run.wizard.index.demodata',
                     variant: 'large',
                     navigationIndex: 1,
-                    next: 'sw.first.run.wizard.index.paypal.info',
+                    next: false,
+                    install: 'sw.first.run.wizard.index.paypal.info',
                     skip: 'sw.first.run.wizard.index.paypal.info',
                     back: false,
                     finish: false
@@ -58,6 +60,7 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 2,
                     next: 'sw.first.run.wizard.index.paypal.credentials',
+                    install: false,
                     skip: 'sw.first.run.wizard.index.plugins',
                     back: 'sw.first.run.wizard.index.demodata',
                     finish: false
@@ -67,6 +70,7 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 2,
                     next: 'sw.first.run.wizard.index.plugins',
+                    install: false,
                     skip: 'sw.first.run.wizard.index.plugins',
                     back: 'sw.first.run.wizard.index.paypal.info',
                     finish: false
@@ -76,6 +80,7 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 3,
                     next: 'sw.first.run.wizard.index.shopware.account',
+                    install: false,
                     skip: false,
                     back: 'sw.first.run.wizard.index.paypal.info',
                     finish: false
@@ -85,6 +90,7 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 4,
                     next: 'sw.first.run.wizard.index.shopware.domain',
+                    install: false,
                     skip: 'sw.first.run.wizard.index.finish',
                     back: 'sw.first.run.wizard.index.plugins',
                     finish: false
@@ -94,6 +100,7 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 4,
                     next: 'sw.first.run.wizard.index.finish',
+                    install: false,
                     skip: false,
                     back: 'sw.first.run.wizard.index.shopware.account',
                     finish: false
@@ -103,6 +110,7 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 5,
                     next: false,
+                    install: false,
                     skip: false,
                     back: 'sw.first.run.wizard.index.shopware.account',
                     finish: true
@@ -134,6 +142,10 @@ Component.register('sw-first-run-wizard-modal', {
 
         nextVisible() {
             return !!this.currentStep.next;
+        },
+
+        installable() {
+            return !!this.currentStep.install;
         },
 
         backVisible() {
@@ -208,6 +220,22 @@ Component.register('sw-first-run-wizard-modal', {
             callbackPromise.then((abort) => {
                 if (!abort) {
                     this.redirect(next);
+                }
+            });
+        },
+
+        onInstall() {
+            const { install } = this.currentStep;
+
+            let callbackPromise = Promise.resolve(false);
+
+            if (this.nextCallback !== null && typeof this.nextCallback === 'function') {
+                callbackPromise = this.nextCallback.call();
+            }
+
+            callbackPromise.then((abort) => {
+                if (!abort) {
+                    this.redirect(install);
                 }
             });
         },

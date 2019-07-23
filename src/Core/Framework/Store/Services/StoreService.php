@@ -94,6 +94,7 @@ final class StoreService
             return null;
         }
 
+        $additionalData['shopwareVersion'] = $this->getShopwareVersion();
         $payload = [
             'additionalData' => $additionalData,
             'instanceId' => $this->instanceId,
@@ -102,7 +103,7 @@ final class StoreService
 
         $client = new Client($this->getClientBaseConfig());
         try {
-            $response = $client->post('/swplatfrom/tracking/events', ['json' => $payload]);
+            $response = $client->post('/swplatform/tracking/events', ['json' => $payload]);
 
             return json_decode($response->getBody()->getContents(), true);
         } catch (\Exception $e) {

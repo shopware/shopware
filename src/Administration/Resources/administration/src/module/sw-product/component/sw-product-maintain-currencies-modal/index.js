@@ -1,4 +1,5 @@
 import { Component } from 'src/core/shopware';
+import { deepCopyObject } from 'src/core/service/utils/object.utils';
 import template from './sw-product-maintain-currencies-modal.html.twig';
 import './sw-product-maintain-currencies-modal.scss';
 
@@ -27,6 +28,12 @@ Component.register('sw-product-maintain-currencies-modal', {
         }
     },
 
+    data() {
+        return {
+            prices: null
+        };
+    },
+
     computed: {
         maintainCurrencyColumns() {
             return [
@@ -50,7 +57,15 @@ Component.register('sw-product-maintain-currencies-modal', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.prices = deepCopyObject(this.product.price);
+        },
+
         convertPrice(value, currency) {
             const calculatedPrice = value * currency.factor;
             const priceRounded = calculatedPrice.toFixed(currency.decimalPrecision);
@@ -59,7 +74,7 @@ Component.register('sw-product-maintain-currencies-modal', {
         },
 
         isCurrencyInherited(currency) {
-            const priceForCurrency = this.product.price.find((price) => {
+            const priceForCurrency = this.prices.find((price) => {
                 return price.currencyId === currency.id;
             });
 
@@ -67,17 +82,17 @@ Component.register('sw-product-maintain-currencies-modal', {
         },
 
         onInheritanceRestore(currencyId) {
-            // create entry for currency in product price
-            const indexOfPrice = this.product.price.findIndex((price) => {
+            // create entry for currency in prices
+            const indexOfPrice = this.prices.findIndex((price) => {
                 return price.currencyId === currencyId;
             });
 
-            this.$delete(this.product.price, indexOfPrice);
+            this.$delete(this.prices, indexOfPrice);
         },
 
         onInheritanceRemove(currency) {
-            // create new entry for currency in product price
-            this.$set(this.product.price, this.product.price.length, {
+            // create new entry for currency in prices
+            this.$set(this.prices, this.prices.length, {
                 currencyId: currency.id,
                 gross: this.convertPrice(this.defaultPrice.gross, currency),
                 linked: this.defaultPrice.linked,
@@ -93,9 +108,11 @@ Component.register('sw-product-maintain-currencies-modal', {
         },
 
         onApply() {
+            const price = this.prices;
+
             this.$emit('modal-close', {
                 action: 'apply',
-                changeSet: { foo: 'bar' }
+                changeSet: { price }
             });
         }
     }

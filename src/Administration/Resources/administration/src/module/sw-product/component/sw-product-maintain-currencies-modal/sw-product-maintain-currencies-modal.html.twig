@@ -32,7 +32,7 @@
                     <template slot="column-price" slot-scope="{ item }">
 
                         {% block sw_product_maintain_currencies_modal_grid_column_price_field %}
-                            <sw-price-field :price="product.price"
+                            <sw-price-field :price="prices"
                                             :defaultPrice="defaultPrice"
                                             :taxRate="productTaxRate"
                                             :label="false"

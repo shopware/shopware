@@ -47,7 +47,13 @@ Component.register('sw-product-price-form', {
             }];
         },
 
-        onMaintainCurrenciesClose() {
+        onMaintainCurrenciesClose(event) {
+            const { action, changeSet } = event;
+
+            if (action === 'apply' && changeSet !== null) {
+                Object.assign(this.product, changeSet);
+            }
+
             this.displayMaintainCurrencies = false;
         }
     }

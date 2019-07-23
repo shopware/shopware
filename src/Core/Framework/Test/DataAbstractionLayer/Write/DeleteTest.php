@@ -76,6 +76,15 @@ ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_man
         ');
     }
 
+    public function tearDown(): void
+    {
+        $this->getContainer()->get(Connection::class)->exec('
+            DROP TABLE IF EXISTS delete_cascade_child;
+            DROP TABLE IF EXISTS delete_cascade_parent;
+            DROP TABLE IF EXISTS delete_cascade_many_to_one;'
+        );
+    }
+
     public function testDeleteOneToManyIfParentHasVersionId(): void
     {
         $id = Uuid::randomHex();

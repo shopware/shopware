@@ -84,21 +84,12 @@
                 {% block sw_order_document_card_grid_actions %}
                     <template #actions="{ item }">
                         {% block sw_order_document_card_grid_action_download %}
-                            <sw-context-menu-item v-if="!item.static" @click="onDownload(item.id, item.deepLinkCode)">
+                            <sw-context-menu-item @click="onDownload(item.id, item.deepLinkCode)">
                                 {% block sw_order_document_card_grid_action_download_label %}
                                     {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
                                 {% endblock %}
                             </sw-context-menu-item>
                         {% endblock %}
-
-                        {% block sw_order_document_card_grid_action_static_document %}
-                            <sw-context-menu-item v-else :disabled="true">
-                                {% block sw_order_document_card_grid_action_static_document_label %}
-                                    {{ $tc('sw-order.documentCard.labelDocumentStatic') }}
-                                {% endblock %}
-                            </sw-context-menu-item>
-                        {% endblock %}
-
                     </template>
                 {% endblock %}
 

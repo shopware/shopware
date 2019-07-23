@@ -138,8 +138,7 @@
       "labelDownloadPdf": "Download as PDF",
       "labelCreateNew": "Create new",
       "messageEmptyTitle": "No documents yet",
-      "messageEmptySubline": "Manage documents here.",
-      "labelDocumentStatic": "Unable to edit: documents from external sources are imported read-only."
+      "messageEmptySubline": "Manage documents here."
     },
     "documentModal": {
       "modalTitle": "Create document",

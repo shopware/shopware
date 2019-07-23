@@ -13,14 +13,17 @@ The plugin in this example will be called `StorefrontAssets`.
 
 ## Injecting into the storefront
 
-In Shopware 6 all of the frontend assets have to be located in the `public` directory of the Shopware 6 development template
-in order to be accessible by the browser. Your plugin shouldn't put its assets into another directory outside of its scope though - 
-but how do those assets from plugins actually work then?
+If you want to add static assets like images or fonts, you can place them in the public folder of your Plugin.
+They will be copied to the public folder of Shopware 6 when you build the storefront. Your plugin shouldn't
+put its assets into another directory outside of its scope though -  but how do those assets from plugins actually work then?
 
-All of those assets, such as CSS and javascript, are processed by [webpack](https://webpack.js.org/) to automatically
-handle that issue, as well as several other helpful things, e.g. compiling [SCSS files](http://compass-style.org/).
+For CSS and Javascript things are a bit different. CSS and SCSS is handled by a PHP SASS compiler.
 
-For that reason, you have to define an entry-point, so webpack knows where to get started.
+Javascript can't be compiled by PHP so [webpack](https://webpack.js.org/) is used for compilation.
+This also means that you have to ship your plugin with the javascript already build.
+
+If you don't want to create a custom webpack configuration, you can use the Shopware webpack build 
+configuration. In order to do that, you have to define an entry-point, so webpack knows where to get started.
 In Shopware 6, this entry-point is a `main.js` file inside of the following directory:
 `<plugin root>/src/Resources/storefront/`
 
@@ -30,24 +33,13 @@ Go ahead and create a `main.js` in that directory.
 
 ### Adding styles
 
-Yes, this is a javascript file and you might wonder, how you're supposed to add custom styles now.
-This is **not** done by adding a `main.css` file as well. How comes?
+By default, Shopware looks in the `<plugin root>/src/Resources/storefront/style` folder of your plugin
+and collects all *.css and *.scss file in that folder (non recursive).
 
-In Shopware 6, you can use `.scss` files as well, and you might know, that those needs to be compiled first.
-As already mentioned, that's just another thing webpack can do for you - but that also means, that your styles have to be part of 
-the webpack entry point somehow.
+To try it out, create a main.scss file in the folder mentioned above 
 
-The solution to all this, is importing the styles into your javascript `main.js` file.
-
-```js
-import './styles/main.scss';
-```
-
-This is now requesting a `main.scss` file inside of a `styles` directory, so create that one.
-The directory has to be created inside your `storefront` directory, next to the `main.js` file.
-Of course, you can choose whatever location and directory you want here.
-
-Inside of the `.scss` file, add some styles to see if it's working. In this example, the background of the `body` will be changed.
+Inside of the `.scss` file, add some styles to see if it's working. In this example, 
+the background of the `body` will be changed.
 
 ```scss
 body {
@@ -57,65 +49,29 @@ body {
 
 ### Loading the assets
 
-You've added the `main.js` file, which will be automatically loaded by Shopware 6 as an entry point for webpack.
-In there, you've imported your custom styles and webpack will now take care of that and generate a separate `.js` and compiled `.css` file
-inside of the development template's `public` directory.
+Since Shopware knows where your style files are located, they are automatically compiled, compressed 
+and loaded in the storefront. For javascript you normally would have two locations where your *.js files
+are located. You have your main.js as an entry point and by default the compiled js file is saved at
+`<plugin root>/src/Resources/dist/storefront/js/<plugin-name>.js`
+You can tell shopware to include this file by changing the storefront script path in your plugin
+bootstrap file.
 
-You've never loaded those files from the `public` directory though.
+Example:
+```php
+<?php declare(strict_types=1);
 
-For that purpose, you'll have to extend the templates.
-If you don't know how to extend a Storefront template via plugin, head over to our explanation on [How to extend a Storefront block](https://docs.shopware.com/en/shopware-platform-dev-en/how-to/extending-storefront-block).
+namespace Swag\PluginQuickStart;
 
-The proper files for that are the files `base.html.twig`, which includes the javascript files, and `layout/meta.html.twig`, which includes all style files.
+use Shopware\Core\Framework\Plugin;
 
-First of all, there's the block `layout_head_stylesheet`, responsible for the styles, inside of the file `layout/meta.html.twig`.
-Simply extend from the template mentioned above in your plugin, and overwrite this block to add your custom styles.
-
-```twig
-{% sw_extends '@Storefront/layout/meta.html.twig' %}
-
-{% block layout_head_stylesheet %}
-    {{ parent() }}
-
-    <link rel="stylesheet" href="{{ asset('bundles/storefrontassets/storefront/css/storefront-assets.css') }}" />
-{% endblock %}
+class PluginQuickStart extends Plugin
+{
+    public function getStorefrontScriptPath(): string
+    {
+        return 'Resources/dist/storefront/js';
+    }
+}
 ```
-
-This file's path would now look like this: `<plugin root/Resources/views/layout/meta.html.twig`.
-
-Technically, that would be it already - your styles are now loaded. You wouldn't load any custom javascript code as of now though.
-
-Imagine you didn't only import your custom styles via your `main.js` file, but also added some actual javascript code to it.
-You also have to load the generated `.js` file from the `public` directory.
-For that case, you should use the block `base_script_hmr_mode` from the file `base.html.twig`.
-
-```twig
-{% sw_extends '@Storefront/base.html.twig' %}
-
-{% block layout_head_stylesheet %}
-    {{ parent() }}
-
-    <link rel="stylesheet" href="{{ asset('bundles/storefrontassets/storefront/css/storefront-assets.css') }}" />
-{% endblock %}
-
-{% block base_script_hmr_mode %}
-    {{ parent() }}
-
-    {% if isHMRMode %}
-        <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/storefront-assets.js"></script>
-    {% else %}
-        <script type="text/javascript" src="{{ asset('bundles/storefrontassets/storefront/js/storefront-assets.js') }}"></script>
-    {% endif %}
-{% endblock %}
-```
-
-The condition `isHMRMode` is actually true, if you're using the Hot Module Replacement server by using the following command from inside the development template directory:
-```bash
-./psh.phar storefront:hot
-```
-
-In that case, the URL to load your javascript from differs a little.
-Otherwise, fetch the `.js` file the same way like you've fetched your custom `.css` files.
 
 ### Testing its functionality
 
@@ -127,10 +83,10 @@ This is done using the following command from inside the development template di
 ./psh.phar storefront:build
 ```
 
-**Important note: This will also generate a `public` directory inside your plugin. Always ship this directory with your plugin,
+**Important note: This might also generate a `public` directory inside your plugin. Always ship this directory with your plugin,
 do not exclude or remove it!**
 
-And that's it! Open the Storefront and see it turning blue, due to your custom styles!
+That's it! Open the Storefront and see it turning blue, due to your custom styles!
 
 ## Source
 

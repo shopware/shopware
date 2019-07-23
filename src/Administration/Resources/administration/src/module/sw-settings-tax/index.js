@@ -3,7 +3,6 @@ import { Module } from 'src/core/shopware';
 import './extension/sw-settings-index';
 import './page/sw-settings-tax-list';
 import './page/sw-settings-tax-detail';
-import './page/sw-settings-tax-create';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
@@ -36,10 +35,17 @@ Module.register('sw-settings-tax', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.tax.index'
+            },
+            props: {
+                default(route) {
+                    return {
+                        taxId: route.params.id
+                    };
+                }
             }
         },
         create: {
-            component: 'sw-settings-tax-create',
+            component: 'sw-settings-tax-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.tax.index'

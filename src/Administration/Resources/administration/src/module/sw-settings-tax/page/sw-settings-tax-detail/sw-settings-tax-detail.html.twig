@@ -11,7 +11,7 @@
         {% block sw_settings_tax_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_tax_detail_actions_abort %}
-                    <sw-button :disabled="tax.isLoading" :routerLink="{ name: 'sw.settings.tax.index' }">
+                    <sw-button :disabled="isLoading" :routerLink="{ name: 'sw.settings.tax.index' }">
                         {{ $tc('sw-settings-tax.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
@@ -20,10 +20,9 @@
                     <sw-button-process
                         class="sw-settings-tax-detail__save-action"
                         :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="tax.isLoading"
+                        v-model="isSaveSuccessful"
+                        :disabled="isLoading"
                         variant="primary"
-                        @process-finish="saveFinish"
                         @click.prevent="onSave">
                         {{ $tc('sw-settings-tax.detail.buttonSave') }}
                     </sw-button-process>
@@ -43,6 +42,7 @@
                                           required
                                           :label="$tc('sw-settings-tax.detail.labelName')"
                                           :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
+                                          :error="taxNameError"
                                           v-model="tax.name">
                                 </sw-field>
                             {% endblock %}
@@ -52,6 +52,7 @@
                                           required
                                           :label="$tc('sw-settings-tax.detail.labelTaxRate')"
                                           :placeholder="$tc('sw-settings-tax.detail.placeholderTaxRate')"
+                                          :error="taxTaxRateError"
                                           v-model="tax.taxRate">
                                     <template #suffix>
                                        <span>

@@ -22,14 +22,14 @@
     "detail": {
       "textHeadline": "New tax",
       "titleCard": "Settings",
-      "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Tax \"{name}\" has been saved.",
       "labelName": "Name",
       "labelTaxRate": "Tax rate",
       "placeholderName": "Enter name...",
       "placeholderTaxRate": "Enter tax rate...",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save"
+      "buttonSave": "Save",
+      "notificationErrorTitle": "Error",
+      "notificationErrorMessage": "An error occurred while saving your tax rate."
     }
   }
 }

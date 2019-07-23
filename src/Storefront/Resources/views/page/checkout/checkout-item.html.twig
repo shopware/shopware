@@ -115,6 +115,19 @@
                                                     </span>
                                                 {% endif %}
 
+                                                {% block page_checkout_item_info_variants %}
+                                                    {% if lineItem.payload.options %}
+                                                        <div class="cart-item-variants">
+                                                            {% for option in lineItem.payload.options %}
+                                                                <dl>
+                                                                    <dt>{{ option.group.translated.name }}:</dt>
+                                                                    <dd>{{ option.translated.name }}</dd>
+                                                                </dl>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                {% endblock %}
+
                                                 {% block page_checkout_item_delivery_date %}
                                                     {% if deliveryPosition and deliveryPosition.deliveryDate %}
                                                         <div class="cart-item-delivery-date">

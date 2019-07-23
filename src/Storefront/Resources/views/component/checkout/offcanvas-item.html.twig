@@ -69,6 +69,19 @@
                                     </div>
                                 {% endblock %}
 
+                                {% block component_offcanvas_product_variants %}
+                                    {% if lineItem.payload.options %}
+                                        <div class="cart-item-variants">
+                                            {% for option in lineItem.payload.options %}
+                                                <dl>
+                                                    <dt>{{ option.group.translated.name }}:</dt>
+                                                    <dd>{{ option.translated.name }}</dd>
+                                                </dl>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                {% endblock %}
+
                                 {% block component_offcanvas_product_quantity_price %}
                                     <div class="cart-quantity-price">
                                         {% block component_offcanvas_product_quantity %}

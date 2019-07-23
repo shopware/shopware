@@ -206,6 +206,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'categories' => $product->getCategoryTree(),
             'properties' => $product->getPropertyIds(),
             'productNumber' => $product->getProductNumber(),
+            'options' => $product->getOptions() !== null ? $product->getOptions()->getElements() : [],
         ]);
 
         if ($product->hasExtension('canonicalUrl')) {

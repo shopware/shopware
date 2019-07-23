@@ -64,6 +64,19 @@
                                 </strong> </a>
                         {% endblock %}
 
+                        {% block page_account_order_item_detail_variants %}
+                            {% if lineItem.payload.options %}
+                                <div class="order-item-variants">
+                                    {% for option in lineItem.payload.options %}
+                                        <dl>
+                                            <dt>{{ option.group.translated.name }}:</dt>
+                                            <dd>{{ option.translated.name }}</dd>
+                                        </dl>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+
                         {% block page_account_order_item_detail_unitprice %}
                             {% set referencePrice = lineItem.price.referencePrice %}
                             

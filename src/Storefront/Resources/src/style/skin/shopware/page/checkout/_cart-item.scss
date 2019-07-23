@@ -23,8 +23,11 @@
 }
 
 .cart-item-variants {
-    margin-bottom: $spacer-sm;
     font-size: $font-size-sm;
+}
+
+.cart-item-variants-properties-name {
+    font-weight: bold;
 }
 
 .cart-item-label {

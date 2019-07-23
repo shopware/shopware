@@ -70,13 +70,13 @@
                                 {% endblock %}
 
                                 {% block component_offcanvas_product_variants %}
-                                    {% if lineItem.payload.options %}
+                                    {% if lineItem.payload.options|length >= 1 %}
                                         <div class="cart-item-variants">
                                             {% for option in lineItem.payload.options %}
-                                                <dl>
-                                                    <dt>{{ option.group.translated.name }}:</dt>
-                                                    <dd>{{ option.translated.name }}</dd>
-                                                </dl>
+                                                <div class="cart-item-variants-properties">
+                                                    <div class="cart-item-variants-properties-name">{{ option.group.translated.name }}:</div>
+                                                    <div class="cart-item-variants-properties-value">{{ option.translated.name }}</div>
+                                                </div>
                                             {% endfor %}
                                         </div>
                                     {% endif %}

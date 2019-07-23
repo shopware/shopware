@@ -98,6 +98,18 @@
     margin-bottom: $spacer-sm;
 }
 
+.cart-item-variants {
+    margin-bottom: $spacer-sm;
+}
+
+.cart-item-variants-properties {
+    display: flex;
+}
+
+.cart-item-variants-properties-name {
+    margin-right: $spacer-sm;
+}
+
 @include media-breakpoint-up(sm) {
     .cart-item-quantity-container {
         width: 70px;

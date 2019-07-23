@@ -117,6 +117,14 @@
     margin-bottom: 0;
 }
 
+.order-item-variants-properties {
+    display: flex;
+}
+
+.order-item-variants-properties-name {
+    margin-right: $spacer-sm;
+}
+
 @include media-breakpoint-up(md) {
     .order-detail-content-header {
         display: block;

@@ -39,7 +39,8 @@
     "fileUpload":{
       "buttonFileUpload":"Plugin hochladen",
       "titleUploadSuccess":"Plugin hochgeladen",
-      "messageUploadSuccess":"Das Plugin wurde erfolgreich hochgeladen"
+      "messageUploadSuccess":"Das Plugin wurde erfolgreich hochgeladen",
+      "buttonRefreshPlugins":"Übersicht aktualisieren"
     },
     "store-login":{
       "headline":"Shopware Account",

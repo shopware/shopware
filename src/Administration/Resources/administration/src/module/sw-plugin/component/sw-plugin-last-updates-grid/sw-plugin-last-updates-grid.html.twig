@@ -7,7 +7,7 @@
         {% endblock %}
 
         {% block sw_plugin_last_updates_card %}
-            <sw-card :isLoading="isLoading" class="sw-card--grid">
+            <sw-card :isLoading="isLoading || pageLoading" class="sw-card--grid">
                 {% block sw_plugin_last_updates_card_grid %}
                     <template slot="grid">
                         <sw-grid v-show="isLoading || total"

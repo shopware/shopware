@@ -84,6 +84,16 @@ class PluginApiService extends ApiService {
             });
     }
 
+    refresh() {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .post(`/_action/${this.getApiBasePath()}/refresh`, {}, { params: { }, headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     getLastUpdates() {
         const headers = this.getBasicHeaders();
 

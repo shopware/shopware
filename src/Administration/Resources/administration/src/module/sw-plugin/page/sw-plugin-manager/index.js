@@ -5,13 +5,14 @@ import './sw-plugin-manager.scss';
 Component.register('sw-plugin-manager', {
     template,
 
-    inject: ['storeService'],
+    inject: ['storeService', 'pluginService'],
 
     data() {
         return {
             searchTerm: '',
             availableUpdates: 0,
-            storeAvailable: true
+            storeAvailable: true,
+            isLoading: false
         };
     },
 
@@ -53,7 +54,16 @@ Component.register('sw-plugin-manager', {
             });
         },
 
-        successfulUpload() {
+        refreshPlugins() {
+            this.isLoading = true;
+            this.pluginService.refresh().then(() => {
+                this.reloadPluginListing();
+            }).finally(() => {
+                this.isLoading = false;
+            });
+        },
+
+        reloadPluginListing() {
             this.$root.$emit('force-refresh');
             this.$router.push({ name: 'sw.plugin.index.list' });
         }

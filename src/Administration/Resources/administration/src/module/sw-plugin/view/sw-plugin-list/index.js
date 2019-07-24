@@ -9,6 +9,12 @@ Component.register('sw-plugin-list', {
         searchTerm: {
             type: String,
             required: false
+        },
+
+        pageLoading: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

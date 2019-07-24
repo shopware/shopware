@@ -12,11 +12,6 @@ class OneToOneAssociationField extends AssociationField
     /**
      * @var string
      */
-    protected $referenceField;
-
-    /**
-     * @var string
-     */
     protected $storageName;
 
     public function __construct(
@@ -32,11 +27,6 @@ class OneToOneAssociationField extends AssociationField
         $this->storageName = $storageName;
         $this->referenceField = $referenceField;
         $this->autoload = $autoload;
-    }
-
-    public function getReferenceField(): string
-    {
-        return $this->referenceField;
     }
 
     public function getStorageName(): string

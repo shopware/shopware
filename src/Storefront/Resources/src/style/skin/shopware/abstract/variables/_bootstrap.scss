@@ -24,12 +24,13 @@ $danger: $sw-color-danger;
 $light: $gray-100;
 $dark: $gray-800;
 
-$headings-color: $gray-800;
+$headings-color: $sw-headline-color;
 
 // Grid
 $grid-gutter-width: 40px;
 
 // Body
+$body-bg: $sw-background-color;
 $body-color: $sw-text-color;
 
 // Components
@@ -101,6 +102,7 @@ $breadcrumb-border-radius: 0;
 
 // Cards
 $card-border-color: transparent;
+$card-bg: transparent;
 
 // Tables
 $table-accent-bg: #f9f9f9;

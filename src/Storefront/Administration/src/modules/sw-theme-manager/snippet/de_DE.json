@@ -6,7 +6,9 @@
       "descriptionTextModule": "Verwaltung von Themes",
       "mainMenuHeader": "Deine Themes",
       "captionMediaUpload": "Lade ein Bild hoch",
-      "lockedToolTip": "Themes die von einem Plugin installiert wurden sind gesperrt und können nicht gelöscht werden."
+      "lockedToolTip": "Themes die von einem Plugin installiert wurden sind gesperrt und können nicht gelöscht werden.",
+      "titleError": "Fehler",
+      "messageSaveError": "Theme konnte dem Verkaufskanal nicht zugewiesen werden"
     },
     "sorting": {
       "labelSort": "Sortieren nach:",

@@ -20,11 +20,6 @@ Component.register('sw-sales-channel-detail-theme', {
     props: {
         salesChannel: {
             required: true
-        },
-
-        isLoading: {
-            type: Boolean,
-            default: false
         }
     },
 
@@ -33,7 +28,8 @@ Component.register('sw-sales-channel-detail-theme', {
             theme: null,
             showThemeSelectionModal: false,
             showChangeModal: false,
-            newThemeId: null
+            newThemeId: null,
+            isLoading: false
         };
     },
 
@@ -125,8 +121,17 @@ Component.register('sw-sales-channel-detail-theme', {
         },
 
         onThemeSelect(selectedThemeId) {
-            this.themeService.assignTheme(selectedThemeId, this.salesChannel.id);
+            this.isLoading = true;
             this.getTheme(selectedThemeId);
+            this.themeService.assignTheme(selectedThemeId, this.salesChannel.id).then(() => {
+                this.isLoading = false;
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-theme-manager.general.titleError'),
+                    message: this.$tc('sw-theme-manager.general.messageSaveError')
+                });
+                this.isLoading = false;
+            });
         }
     }
 });

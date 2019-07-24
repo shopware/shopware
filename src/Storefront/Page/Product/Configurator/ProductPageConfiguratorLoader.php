@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -47,7 +48,7 @@ class ProductPageConfiguratorLoader
 
         $groups = $this->loadSettings($product, $salesChannelContext);
 
-        $groups = $this->sortSettings($product, $groups);
+        $groups = $this->sortSettings($groups);
 
         $combinations = $this->combinationLoader->load(
             $product->getParentId(),
@@ -131,37 +132,49 @@ class ProductPageConfiguratorLoader
         return $groups;
     }
 
-    private function sortSettings(SalesChannelProductEntity $product, array $groups): PropertyGroupCollection
+    private function sortSettings(array $groups): PropertyGroupCollection
     {
-        $sorting = $product->getConfiguratorGroupConfig() ?? [];
-
-        $sorting = array_column($sorting, 'id');
+        if (!$groups) {
+            return new PropertyGroupCollection();
+        }
 
         $sorted = [];
-
-        foreach ($sorting as $groupId) {
-            if (!isset($groups[$groupId])) {
-                continue;
-            }
-            $sorted[$groupId] = $groups[$groupId];
-        }
-
-        foreach ($groups as $groupId => $group) {
-            if (isset($sorted[$groupId])) {
-                continue;
-            }
-            $sorted[$groupId] = $group;
-        }
-
         foreach ($groups as $group) {
-            if (!$group->getOptions()) {
+            if (!$group) {
                 continue;
             }
 
-            /* @var PropertyGroupEntity $group */
+            if (!$group->getOptions()) {
+                $group->setOptions(new PropertyGroupOptionCollection());
+            }
+
+            $sorted[$group->getId()] = $group;
+        }
+
+        usort(
+            $sorted,
+            static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
+                return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+            }
+        );
+
+        /** @var PropertyGroupEntity $group */
+        foreach ($sorted as $group) {
             $group->getOptions()->sort(
-                static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) {
-                    return $a->getConfiguratorSetting()->getPosition() <=> $b->getConfiguratorSetting()->getPosition();
+                static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {
+                    if ($a->getConfiguratorSetting()->getPosition() !== $b->getConfiguratorSetting()->getPosition()) {
+                        return $a->getConfiguratorSetting()->getPosition() <=> $b->getConfiguratorSetting()->getPosition();
+                    }
+
+                    if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
+                        return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+                    }
+
+                    if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_NUMERIC) {
+                        return $a->getTranslation('name') <=> $b->getTranslation('name');
+                    }
+
+                    return $a->getPosition() <=> $b->getPosition();
                 }
             );
         }

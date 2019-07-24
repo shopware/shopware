@@ -233,6 +233,41 @@ class RecalculationServiceTest extends TestCase
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
+    public function testRecalculationControllerWithNonSystemLanguage(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $orderId = $this->persistCart($cart, $this->getDeDeLanguageId())['orderId'];
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+
+        // recalculate order
+        $this->getBrowser()->request(
+            'POST',
+            sprintf(
+                '/api/v%s/_action/order/%s/recalculate',
+                PlatformRequest::API_VERSION,
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ]
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        // read order
+        $versionContext = $this->context->createWithVersionId($versionId);
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$orderId]), $versionContext)->get($orderId);
+
+        static::assertEquals($this->getDeDeLanguageId(), $order->getLanguageId());
+    }
+
     public function testRecalculationWithDeletedCustomer(): void
     {
         // create order
@@ -838,8 +873,11 @@ class RecalculationServiceTest extends TestCase
         return $cart;
     }
 
-    private function persistCart(Cart $cart): array
+    private function persistCart(Cart $cart, ?string $languageId = null): array
     {
+        if ($languageId !== null) {
+            $this->salesChannelContext->getSalesChannel()->setLanguageId($languageId);
+        }
         $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
 
         $criteria = new Criteria([$orderId]);

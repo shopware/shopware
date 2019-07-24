@@ -5,7 +5,7 @@
               @modal-close="onCloseModal">
         {% block sw_import_export_profile_csv_mapping_modal_grid %}
             <sw-data-grid :columns="columns"
-                          :data-source="selectedMapping"
+                          :data-source="mappingDefinitions"
                           :showSelection="false">
                 {% block sw_import_export_profile_csv_mapping_modal_grid_columns_file_field %}
                     <template #column-fileField="{ item }">
@@ -28,6 +28,13 @@
                         <sw-text-field v-model="item.valueSubstitution"
                                        v-if="availableEntityFields[item.entityField] == 'uuid'"></sw-text-field>
                         <span v-else></span>
+                    </template>
+                {% endblock %}
+
+                {% block sw_import_export_profile_csv_mapping_modal_grid_columns_is_identifier %}
+                    <template #column-isIdentifier="{ item, itemIndex }">
+                        <sw-checkbox-field v-model="item.isIdentifier" @change="onIdentifierChange(itemIndex)">
+                        </sw-checkbox-field>
                     </template>
                 {% endblock %}
 

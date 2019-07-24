@@ -113,6 +113,7 @@
       "columnFileField": "Dateispalte",
       "columnEntityField": "Internes Feld",
       "columnValueSubstitution": "Trennzeichen",
+      "columnIsIdentifier": "Identitätskriterium",
       "addCsvMappingItem": "Zuordnung hinzufügen",
       "deleteCsvMappingItem": "Zuordnung löschen",
       "saveButton": "Speichern"

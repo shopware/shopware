@@ -18,6 +18,18 @@ class FieldDefinitionCollection extends Collection
         return $collection;
     }
 
+    public function getIdentityFieldDefinition(): ?FieldDefinition
+    {
+        /** @var FieldDefinition $fieldDefinition */
+        foreach ($this as $fieldDefinition) {
+            if ($fieldDefinition->getIsIdentifier()) {
+                return $fieldDefinition;
+            }
+        }
+
+        return null;
+    }
+
     protected function getExpectedClass(): ?string
     {
         return FieldDefinition::class;

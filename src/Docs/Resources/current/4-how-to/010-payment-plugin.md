@@ -14,8 +14,8 @@ You can create your own payment handler by implementing one of the following int
 
 |               Interface             |   DI container tag            |                               Usage                                 |
 |-------------------------------------|-------------------------------|---------------------------------------------------------------------|
-| SynchronousPaymentHandlerInterface  | shopware.payment.method.sync  | A redirect to an external payment provider is required, e.g. PayPal |
-| AsynchronousPaymentHandlerInterface | shopware.payment.method.async | Payment can be handled locally, e.g. pre-payment                   |
+| SynchronousPaymentHandlerInterface  | shopware.payment.method.sync  | Payment can be handled locally, e.g. pre-payment                    |
+| AsynchronousPaymentHandlerInterface | shopware.payment.method.async | A redirect to an external payment provider is required, e.g. PayPal |
 
 Depending on the interface, those two methods are required:
 
@@ -52,6 +52,7 @@ You also need to make sure to register your custom payment in the DI container.
 
     <services>
         <service id="Swag\PaymentPlugin\Service\ExamplePayment">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.async" />
         </service>
     </services>
@@ -129,7 +130,7 @@ class ExamplePayment implements AsynchronousPaymentHandlerInterface
         $context = $salesChannelContext->getContext();
         if ($paymentState === 'completed') {
             // Payment completed, set transaction status to "paid"
-            $this->transactionStateHandler->complete($transaction->getOrderTransaction()->getId(), $context);
+            $this->transactionStateHandler->pay($transaction->getOrderTransaction()->getId(), $context);
         } else {
             // Payment not completed, set transaction status to "open"
             $this->transactionStateHandler->open($transaction->getOrderTransaction()->getId(), $context);
@@ -179,7 +180,7 @@ class ExamplePayment implements SynchronousPaymentHandlerInterface
     public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
     {
         $context = $salesChannelContext->getContext();
-        $this->transactionStateHandler->complete($transaction->getOrderTransaction()->getId(), $context);
+        $this->transactionStateHandler->pay($transaction->getOrderTransaction()->getId(), $context);
     }
 }
 ```

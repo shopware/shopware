@@ -10,5 +10,23 @@
             <p v-html="$tc('sw-first-run-wizard.demodata.loadingMessage')"
                class="sw-loader-info-text"></p>
         </div>
+
+        <sw-modal class="sw-first-run-wizard-demodata__warning"
+                  :title="$tc('sw-first-run-wizard.demodata.installationWarning.headline')"
+                  v-if="showInstallWarning"
+                  @modal-close="cancelInstallation"
+                  variant="small">
+            <p>{{ $tc('sw-first-run-wizard.demodata.installationWarning.message') }}</p>
+
+            <template slot="modal-footer">
+                <sw-button size="small" @click="cancelInstallation">
+                    {{ $tc('sw-first-run-wizard.demodata.installationWarning.cancel') }}
+                </sw-button>
+
+                <sw-button variant="primary" size="small" @click="continueInstallation">
+                    {{ $tc('sw-first-run-wizard.demodata.installationWarning.forceInstall') }}
+                </sw-button>
+            </template>
+        </sw-modal>
     </div>
 {% endblock %}

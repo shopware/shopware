@@ -59,10 +59,6 @@ Component.register('sw-import-export-index', {
                 this.selectedImportExpireDate,
                 this.selectedImportFile
             ).then((response) => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-import-export-index.cards.import.notification.initSuccess.title'),
-                    message: this.$tc('sw-import-export-index.cards.import.notification.initSuccess.message')
-                });
                 this.processingLog = response.log;
             }).catch((exception) => {
                 if (!exception.response || !exception.response.data || !exception.response.data.errors) {

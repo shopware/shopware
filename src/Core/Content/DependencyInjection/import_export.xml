@@ -70,6 +70,7 @@
             <argument type="tagged" tag="shopware.import_export.iterator_factory"/>
             <argument type="tagged" tag="shopware.import_export.mapper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="logger"/>
             <argument>%import_export.write_buffer_size%</argument>
         </service>
 

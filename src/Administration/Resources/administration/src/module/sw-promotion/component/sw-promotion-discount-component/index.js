@@ -75,7 +75,8 @@ Component.register('sw-promotion-discount-component', {
         types() {
             return [
                 { key: DiscountTypes.ABSOLUTE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeAbsolute') },
-                { key: DiscountTypes.PERCENTAGE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypePercentage') }
+                { key: DiscountTypes.PERCENTAGE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypePercentage') },
+                { key: DiscountTypes.FIXED, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed') }
             ];
         },
 

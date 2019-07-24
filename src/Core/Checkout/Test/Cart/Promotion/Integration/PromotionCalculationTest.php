@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
@@ -245,6 +246,107 @@ class PromotionCalculationTest extends TestCase
     }
 
     /**
+     * This test verifies that our promotion components are really involved in our checkout.
+     * We add a product to the cart and apply a code for a promotion with a currency dependent discount.
+     * The standard value of discount would be 15, but our currency price value is 30
+     * Our cart should have a total value of 70,00 (and not 85 as standard) in the end.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testFixedDiscount(): void
+    {
+        $productId = Uuid::randomHex();
+        $productIdTwo = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $code = 'BF19';
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
+
+        // add second sample product
+        $this->createTestFixtureProduct($productIdTwo, 100, 7, $this->getContainer());
+
+        // add a new promotion
+        $this->createTestFixtureFixedPricePromotion($promotionId, $code, 40, $this->getContainer());
+
+        /** @var Cart $cart */
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // create first product and add to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        // create promotion and add to cart
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        static::assertCount(2, $cart->getLineItems(), 'We expect two lineItems in cart');
+
+        // create second product and add to cart
+        $cart = $this->addProduct($productIdTwo, 1, $cart, $this->cartService, $this->context);
+
+        static::assertCount(4, $cart->getLineItems(), 'We expect four lineItems in cart');
+
+        static::assertEquals(80, $cart->getPrice()->getPositionPrice());
+        static::assertEquals(80, $cart->getPrice()->getTotalPrice());
+        static::assertEquals(71.00, $cart->getPrice()->getNetPrice(), 'Products have different tax rates (19 and 7), so the discounts must have same tax rate as the product');
+
+        $firstPromoId = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first()->getId();
+
+        // and remove again
+        $cart = $this->cartService->remove($cart, $firstPromoId, $this->context);
+
+        static::assertCount(2, $cart->getLineItems(), 'We expect two lineItems in cart');
+
+        static::assertEquals(200, $cart->getPrice()->getPositionPrice());
+        static::assertEquals(200, $cart->getPrice()->getTotalPrice());
+        static::assertEquals(177.49, $cart->getPrice()->getNetPrice(), 'Products have different tax rates (19 and 7), so the discounts must have same tax rate as the product');
+    }
+
+    /**
+     * if a automatic fixed price promotion (no code necessary) discount is removed
+     * it should be added automatically. => Deletion is not possible
+     *
+     * @test
+     * @group promotions
+     */
+    public function testRemoveOfFixedPromotionsWithoutCode()
+    {
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $code = 'BF19';
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
+
+        // add a new promotion
+        $this->createFixedAutoPromotion($promotionId, 40);
+
+        /** @var Cart $cart */
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // create first product and add to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        static::assertCount(2, $cart->getLineItems(), 'We expect two lineItems in cart');
+
+        static::assertEquals(40, $cart->getPrice()->getPositionPrice());
+        static::assertEquals(40, $cart->getPrice()->getTotalPrice());
+        static::assertEquals(33.61, $cart->getPrice()->getNetPrice(), 'Discounted cart does not have expected net price');
+
+        $discountLineItem = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first();
+        $discountId = $discountLineItem->getId();
+
+        // and try to remove promotion
+        $cart = $this->cartService->remove($cart, $discountId, $this->context);
+
+        static::assertCount(2, $cart->getLineItems(), 'We expect two lineItems in cart');
+
+        static::assertEquals(40, $cart->getPrice()->getPositionPrice());
+        static::assertEquals(40, $cart->getPrice()->getTotalPrice());
+        static::assertEquals(33.61, $cart->getPrice()->getNetPrice(), 'Even after promotion delete try it should be present and product should be discounted');
+    }
+
+    /**
      * This test verifies that we can successfully remove an added
      * promotion by code and get the original price again.
      *
@@ -317,6 +419,34 @@ class PromotionCalculationTest extends TestCase
                                     'price' => $advancedPrice,
                                 ],
                             ],
+                        ],
+                    ],
+                ],
+            ],
+            $this->context->getContext()
+        );
+    }
+
+    private function createFixedAutoPromotion(string $promotionId, float $fixedPrice)
+    {
+        $this->promotionRepository->create(
+            [
+                [
+                    'id' => $promotionId,
+                    'name' => 'Black Friday',
+                    'active' => true,
+                    'code' => null,
+                    'useCodes' => false,
+                    'salesChannels' => [
+                        ['salesChannelId' => Defaults::SALES_CHANNEL, 'priority' => 1],
+                    ],
+                    'discounts' => [
+                        [
+                            'id' => Uuid::randomHex(),
+                            'scope' => PromotionDiscountEntity::SCOPE_CART,
+                            'type' => PromotionDiscountEntity::TYPE_FIXED,
+                            'value' => $fixedPrice,
+                            'considerAdvancedRules' => false,
                         ],
                     ],
                 ],

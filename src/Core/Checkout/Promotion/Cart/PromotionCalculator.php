@@ -9,18 +9,22 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Checkout\Promotion\Exception\PriceDefinitionNotValidForDiscountTypeException;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -43,11 +47,21 @@ class PromotionCalculator
      */
     private $absolutePriceCalculator;
 
-    public function __construct(AmountCalculator $amountCalculator, PercentagePriceCalculator $percentagePriceCalculator, AbsolutePriceCalculator $absolutePriceCalculator)
-    {
+    /**
+     * @var QuantityPriceCalculator
+     */
+    private $quantityPriceCalculator;
+
+    public function __construct(
+        AmountCalculator $amountCalculator,
+        PercentagePriceCalculator $percentagePriceCalculator,
+        AbsolutePriceCalculator $absolutePriceCalculator,
+        QuantityPriceCalculator $quantityPriceCalculator
+    ) {
         $this->amountCalculator = $amountCalculator;
         $this->percentagePriceCalculator = $percentagePriceCalculator;
         $this->absolutePriceCalculator = $absolutePriceCalculator;
+        $this->quantityPriceCalculator = $quantityPriceCalculator;
     }
 
     /**
@@ -74,22 +88,186 @@ class PromotionCalculator
                 continue;
             }
 
-            /** @var LineItem $discountItem */
-            $discountItem = $this->calculateStandardDiscount($discountItem, $calculated, $context);
+            /** @var string $discountType */
+            $discountType = $discountItem->getPayloadValue('discountType');
 
-            // if we our price is 0,00 because of whatever reason, make sure to skip it.
-            // this can be if the price-definition filter is none,
-            // or if a fixed price is set to the price of the product itself.
-            if ($discountItem->getPrice() === null || abs($discountItem->getPrice()->getTotalPrice()) <= 0.0) {
+            $discountItems = new LineItemCollection();
+
+            switch ($discountType) {
+                case PromotionDiscountEntity::TYPE_FIXED:
+                    $this->calculateFixedDiscount($discountItem, $original, $calculated, $discountItems, $context);
+                    break;
+                default:
+                    $discountItem = $this->calculateStandardDiscount($discountItem, $calculated, $context);
+
+                    // if we our price is 0,00 because of whatever reason, make sure to skip it.
+                    // this can be if the price-definition filter is none,
+                    // or if a fixed price is set to the price of the product itself.
+                    if ($discountItem->getPrice() === null || abs($discountItem->getPrice()->getTotalPrice()) === 0.0) {
+                        continue 2;
+                    }
+
+                    $discountItems->add($discountItem);
+            }
+
+            if ($discountItems->count() === 0) {
                 continue;
             }
 
-            $calculated->addLineItems(new LineItemCollection([$discountItem]));
+            // add discount lineItems to cart
+            $calculated->addLineItems($discountItems);
+
+            // calculate cart to get correct prices for next iterations
             $this->calculateCart($calculated, $context);
         }
     }
 
     /**
+     * calculates fixed discounts dynamically. Our product should have a fixed price, the discount
+     * has to be calculated depending on the unit price of the product
+     *
+     * @throws PriceDefinitionNotValidForDiscountTypeException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
+     */
+    private function calculateFixedDiscount(LineItem $discount, Cart $original, Cart $calculated, LineItemCollection $discountLineItems, SalesChannelContext $context): void
+    {
+        /** @var LineItemCollection $cartLineItems */
+        $cartLineItems = $calculated->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        // do only select these lineitems that the discount filter matches
+        $eligibleLineItems = $this->getEligibleDiscountLineItems($discount, $cartLineItems, $context);
+
+        // get the cart total price => discount may never be higher than this value
+        /** @var float $maxDiscountValue */
+        $maxDiscountValue = $calculated->getPrice()->getTotalPrice();
+
+        if ($maxDiscountValue < 0.01) {
+            return;
+        }
+
+        $discountedPriceValue = 0.0;
+
+        $fixedProductPrice = (float) $discount->getPayloadValue('value');
+
+        // iterate over every lineItem that may be discounted and create a separate discount for each
+        /** @var LineItem $lineItem */
+        foreach ($eligibleLineItems as $lineItem) {
+            // it may occure that other discount with higher priority discount more than cart value
+            // if this happens we may not discount this lineItem
+            if ($discountedPriceValue >= $maxDiscountValue) {
+                continue;
+            }
+
+            $unitPrice = $lineItem->getPrice()->getUnitPrice();
+
+            // if unitPrice of product is higher than the fixed price we may reduce to fixed price
+            if ($unitPrice > $fixedProductPrice) {
+                $quantity = $lineItem->getPrice()->getQuantity();
+                if ($quantity <= 0) {
+                    continue;
+                }
+
+                // check if discount exceeds or not, beware of quantity
+                $discountUnitPrice = $unitPrice - $fixedProductPrice;
+
+                $totalDiscountPrice = $discountUnitPrice * $quantity;
+
+                if ($totalDiscountPrice > $maxDiscountValue) {
+                    $discountUnitPrice = $maxDiscountValue / $quantity;
+                }
+
+                $discountedPriceValue += ($discountUnitPrice * $quantity);
+
+                $this->createFixedPriceDiscount($discount, $lineItem, $discountUnitPrice, $discountLineItems, $context, $original);
+            }
+        }
+    }
+
+    /**
+     * create a discount lineItem for a product lineItem and add this discount to the
+     * collection $discountLineItems
+     *
+     * @throws PriceDefinitionNotValidForDiscountTypeException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     */
+    private function createFixedPriceDiscount(
+        LineItem $discount,
+        LineItem $product,
+        float $discountUnitPrice,
+        LineItemCollection $discountLineItems,
+        SalesChannelContext $context,
+        Cart $original
+    ): void {
+        $quantity = $product->getQuantity();
+        /** @var PriceDefinitionInterface|null $productPriceDefinition */
+        $productPriceDefinition = $product->getPriceDefinition();
+
+        if (!$productPriceDefinition instanceof QuantityPriceDefinition) {
+            throw new PriceDefinitionNotValidForDiscountTypeException('Product are expected to have a QuantityPriceDefinition!');
+        }
+
+        // a fixed price discount may discount more than one product lineItem
+        // the problem is, we need an unique lineItem id for our discount
+        // as we may not create a new uuid each time we calculate, we
+        // have to lookup our original cart if we have created a uuid before
+        // if we don't use same uuid we couldn't update, delete any lineItem
+        // because we would get a new uuid in the next calculation process
+        $uuid = $this->getCartLineItemUuid($discount->getId(), $product->getId(), $original);
+
+        $taxRules = $productPriceDefinition->getTaxRules();
+
+        $discountPriceDefinition = new QuantityPriceDefinition((-1 * $discountUnitPrice), $taxRules, $productPriceDefinition->getPrecision(), $quantity, true);
+
+        $promotionItem = new LineItem($uuid, PromotionProcessor::LINE_ITEM_TYPE, $discount->getReferencedId(), $quantity);
+        $promotionItem->setLabel($discount->getLabel() . ' (' . $product->getLabel() . ')');
+        $promotionItem->setDescription($discount->getLabel() . ' (' . $product->getLabel() . ')');
+        $promotionItem->setGood(false);
+        $promotionItem->setRemovable(true);
+        $promotionItem->setPriceDefinition($discountPriceDefinition);
+        $promotionItem->setPrice($this->quantityPriceCalculator->calculate($discountPriceDefinition, $context));
+
+        /** @var array $payload */
+        $payload = $discount->getPayload();
+
+        // add the discounted product id to payload of the discount item
+        $payload['productLineItemId'] = $product->getId();
+        $promotionItem->setPayload($payload);
+
+        $discountLineItems->add($promotionItem);
+    }
+
+    /**
+     * lookup the cart if we have a discount for a product in the cart.
+     * If yes => take this uuid
+     * If no => create a new uuid
+     */
+    private function getCartLineItemUuid(string $discountId, string $productId, Cart $original): string
+    {
+        $filteredPromotionLineItem = $original->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->filter(function ($lineItem) use ($discountId, $productId) {
+            if (!$lineItem->hasPayloadValue('discountId') || !$lineItem->hasPayloadValue('productLineItemId')) {
+                return false;
+            }
+
+            if ($lineItem->getPayloadValue('discountId') === $discountId && $lineItem->getPayloadValue('productLineItemId') === $productId) {
+                return true;
+            }
+
+            return false;
+        });
+
+        if ($filteredPromotionLineItem->count() < 1) {
+            return Uuid::randomHex();
+        }
+
+        return $filteredPromotionLineItem->first()->getId();
+    }
+
+    /**
+     * create discount for absolute and percentage discount type
+     *
      * @throws InvalidPriceDefinitionException
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException

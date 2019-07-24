@@ -93,7 +93,7 @@ class PromotionItemBuilder
         // our promotion values are always negative values.
         // either type percentage or absolute needs to be negative to get
         // automatically subtracted within the calculation process
-        $promotionValue = -$discount->getValue();
+        $promotionValue = -abs($discount->getValue());
 
         switch ($discount->getType()) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
@@ -103,6 +103,10 @@ class PromotionItemBuilder
 
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
                 $promotionDefinition = new PercentagePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
+                break;
+
+            case PromotionDiscountEntity::TYPE_FIXED:
+                $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
                 break;
 
             default:
@@ -131,7 +135,7 @@ class PromotionItemBuilder
 
         // add custom content to our payload.
         // we need this as meta data information.
-        $promotionItem->setPayload($this->buildPayload($discount->getType(), $promotion));
+        $promotionItem->setPayload($this->buildPayload($discount, $promotion));
 
         // add our lazy-validation rules.
         // this is required within the recalculation process.
@@ -147,15 +151,21 @@ class PromotionItemBuilder
      * This will make sure we have our eligible items referenced as meta data
      * and also have the code in our payload.
      */
-    private function buildPayload(string $discountType, PromotionEntity $promotion): array
+    private function buildPayload(PromotionDiscountEntity $discount, PromotionEntity $promotion): array
     {
         $payload = [];
 
         // to save how many times a promotion has been used, we need to know the promotion's id during checkout
         $payload['promotionId'] = $promotion->getId();
 
+        // set discountId
+        $payload['discountId'] = $discount->getId();
+
         // set the discount type absolute, percentage, ...
-        $payload['discountType'] = $discountType;
+        $payload['discountType'] = $discount->getType();
+
+        // set value of discount in payload
+        $payload['value'] = (string) $discount->getValue();
 
         return $payload;
     }

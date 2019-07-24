@@ -50,6 +50,11 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         .gallery-slider-image {
             object-fit: cover;
             height: 100%;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
         }
     }
 }

@@ -23,8 +23,15 @@
 
         {% block sw_plugin_manager_smart_bar_actions %}
             <template slot="smart-bar-actions">
+
+                {% block sw_plugin_list_top_actions_refresh%}
+                    <sw-button @click="refreshPlugins">
+                        {{ $tc('sw-plugin.fileUpload.buttonRefreshPlugins') }}
+                    </sw-button>
+                {% endblock %}
+
                 {% block sw_plugin_list_top_actions_upload %}
-                    <sw-plugin-file-upload @upload-success="successfulUpload"></sw-plugin-file-upload>
+                    <sw-plugin-file-upload @upload-success="reloadPluginListing"></sw-plugin-file-upload>
                 {% endblock %}
             </template>
         {% endblock %}
@@ -93,7 +100,7 @@
                     {% endblock %}
 
                     {% block sw_plugin_manager_content_view %}
-                        <router-view :searchTerm="searchTerm"></router-view>
+                        <router-view :searchTerm="searchTerm" :pageLoading="isLoading"></router-view>
                     {% endblock %}
                 </sw-card-view>
             </template>

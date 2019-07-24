@@ -13,6 +13,14 @@ Component.register('sw-plugin-license-list', {
         Mixin.getByName('plugin-error-handler')
     ],
 
+    props: {
+        pageLoading: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
     data() {
         return {
             licenses: [],

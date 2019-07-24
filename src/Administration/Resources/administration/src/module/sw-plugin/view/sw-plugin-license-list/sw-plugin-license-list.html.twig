@@ -10,7 +10,7 @@
         {% endblock %}
 
         {% block sw_plugin_license_list_content %}
-            <sw-card :isLoading="isLoading">
+            <sw-card :isLoading="isLoading || pageLoading">
                 {% block sw_plugin_license_list_grid %}
                     <template slot="grid">
                         <sw-grid v-show="isLoading || total"

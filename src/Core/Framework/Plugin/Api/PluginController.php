@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PluginController extends AbstractController
@@ -47,7 +48,7 @@ class PluginController extends AbstractController
     /**
      * @Route("/api/v{version}/_action/plugin/upload", name="api.action.plugin.upload", methods={"POST"})
      */
-    public function uploadPlugin(Request $request, Context $context): JsonResponse
+    public function uploadPlugin(Request $request, Context $context): Response
     {
         /** @var UploadedFile $file */
         $file = $request->files->get('file');
@@ -65,7 +66,7 @@ class PluginController extends AbstractController
         }
         $this->pluginService->refreshPlugins($context, new NullIO());
 
-        return new JsonResponse();
+        return new Response();
     }
 
     /**
@@ -89,6 +90,16 @@ class PluginController extends AbstractController
         $this->pluginService->refreshPlugins($context, new NullIO());
 
         return new JsonResponse($plugin);
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/plugin/refresh", name="api.action.plugin.refresh", methods={"POST"})
+     */
+    public function refreshPlugin(Request $request, Context $context): Response
+    {
+        $this->pluginService->refreshPlugins($context, new NullIO());
+
+        return new Response();
     }
 
     /**

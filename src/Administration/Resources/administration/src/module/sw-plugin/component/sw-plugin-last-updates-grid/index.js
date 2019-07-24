@@ -12,6 +12,14 @@ Component.register('sw-plugin-last-updates-grid', {
         Mixin.getByName('plugin-error-handler')
     ],
 
+    props: {
+        pageLoading: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
     data() {
         return {
             limit: 25,

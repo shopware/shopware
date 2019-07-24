@@ -163,6 +163,7 @@
             <argument type="service" id="Shopware\Core\Framework\Snippet\Files\SnippetFileCollection"/>
             <argument type="service" id="snippet.repository"/>
             <argument type="service" id="snippet_set.repository"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory"/>
         </service>
 
@@ -296,6 +297,15 @@
         <!-- Util -->
         <service id="Shopware\Core\Framework\Log\LoggerFactory">
             <argument type="string">%kernel.logs_dir%/%%s_%kernel.environment%.log</argument>
+        </service>
+
+        <!--SnippetFiles-->
+        <service id="Shopware\Core\Framework\Resources\snippet\de_DE\SnippetFile_de_DE" public="true">
+            <tag name="shopware.snippet.file" priority="100"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Resources\snippet\en_GB\SnippetFile_en_GB" public="true">
+            <tag name="shopware.snippet.file" priority="100"/>
         </service>
     </services>
 </container>

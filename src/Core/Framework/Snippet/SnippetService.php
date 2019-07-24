@@ -8,12 +8,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\Framework\Snippet\Files\SnippetFileInterface;
 use Shopware\Core\Framework\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class SnippetService
@@ -43,11 +45,17 @@ class SnippetService
      */
     private $snippetFilterFactory;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $salesChannelDomain;
+
     public function __construct(
         Connection $connection,
         SnippetFileCollection $snippetFileCollection,
         EntityRepositoryInterface $snippetRepository,
         EntityRepositoryInterface $snippetSetRepository,
+        EntityRepositoryInterface $salesChannelDomain,
         SnippetFilterFactory $snippetFilterFactory
     ) {
         $this->connection = $connection;
@@ -55,6 +63,7 @@ class SnippetService
         $this->snippetRepository = $snippetRepository;
         $this->snippetSetRepository = $snippetSetRepository;
         $this->snippetFilterFactory = $snippetFilterFactory;
+        $this->salesChannelDomain = $salesChannelDomain;
     }
 
     /**
@@ -191,6 +200,28 @@ class SnippetService
         sort($result);
 
         return $result;
+    }
+
+    public function getSnippetSet(string $salesChannelId, string $languageId, string $locale, Context $context): ?SnippetSetEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('salesChannelId', $salesChannelId),
+            new EqualsFilter('languageId', $languageId)
+        );
+        $criteria->addAssociation('snippetSet');
+        /** @var SalesChannelDomainEntity|null $salesChannelDomain */
+        $salesChannelDomain = $this->salesChannelDomain->search($criteria, $context)->first();
+
+        if ($salesChannelDomain === null) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('iso', $locale));
+            $snippetSet = $this->snippetSetRepository->search($criteria, $context)->first();
+        } else {
+            $snippetSet = $salesChannelDomain->getSnippetSet();
+        }
+
+        return $snippetSet;
     }
 
     private function fetchSnippetsFromDatabase(string $snippetSetId): array

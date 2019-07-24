@@ -62,12 +62,21 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
             }
         }
 
-        return $this->documentTemplateRenderer->render($templatePath, [
-            'order' => $order,
-            'creditItems' => $creditItems,
-            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
-            'rootDir' => $this->rootDir,
-            'context' => $context,
-        ]);
+        $documentString = $this->documentTemplateRenderer->render(
+            $templatePath,
+            [
+                'order' => $order,
+                'creditItems' => $creditItems,
+                'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
+                'rootDir' => $this->rootDir,
+                'context' => $context,
+            ],
+            $context,
+            $order->getSalesChannelId(),
+            $order->getLanguageId(),
+            $order->getLanguage()->getLocale()->getCode()
+        );
+
+        return $documentString;
     }
 }

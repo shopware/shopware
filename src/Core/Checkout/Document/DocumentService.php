@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Document;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorInterface;
@@ -22,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -74,10 +72,6 @@ class DocumentService
     private $mediaService;
 
     /**
-     * @var Translator
-     */
-    private $translator;
-    /**
      * @var EntityRepositoryInterface
      */
     private $customerRepository;
@@ -91,8 +85,7 @@ class DocumentService
         EntityRepositoryInterface $documentConfigRepository,
         EntityRepositoryInterface $customerRepository,
         SystemConfigService $systemConfigService,
-        MediaService $mediaService,
-        Translator $translator
+        MediaService $mediaService
     ) {
         $this->documentGeneratorRegistry = $documentGeneratorRegistry;
         $this->fileGeneratorRegistry = $fileGeneratorRegistry;
@@ -103,7 +96,6 @@ class DocumentService
         $this->systemConfigService = $systemConfigService;
         $this->mediaService = $mediaService;
         $this->customerRepository = $customerRepository;
-        $this->translator = $translator;
     }
 
     public function create(
@@ -218,9 +210,6 @@ class DocumentService
             $config->jsonSerialize()
         );
 
-        $sessionLocale = $this->translator->getLocale();
-        $this->translator->setLocale($order->getOrderCustomer()->getCustomer()->getLanguage()->getLocale()->getCode());
-
         $generatedDocument = new GeneratedDocument();
         $generatedDocument->setHtml($documentGenerator->generate($order, $documentConfiguration, $context));
         $generatedDocument->setFilename(
@@ -230,8 +219,6 @@ class DocumentService
         $generatedDocument->setPageSize($config->getPageSize());
         $generatedDocument->setFileBlob($fileGenerator->generate($generatedDocument));
         $generatedDocument->setContentType($fileGenerator->getContentType());
-
-        $this->translator->setLocale($sessionLocale);
 
         return $generatedDocument;
     }
@@ -259,21 +246,7 @@ class DocumentService
             throw new InvalidOrderException($orderId);
         }
 
-        // Fetch customer and language separately as it would lead to too many joins if we load it directly
-        $customer = $this->getCustomerById($order->getOrderCustomer()->getCustomerId(), $context);
-        $order->getOrderCustomer()->setCustomer($customer);
-
         return $order;
-    }
-
-    private function getCustomerById(
-        string $customerId,
-        Context $context
-    ): ?CustomerEntity {
-        $criteria = new Criteria([$customerId]);
-        $criteria->addAssociationPath('language.locale');
-
-        return $this->customerRepository->search($criteria, $context)->get($customerId);
     }
 
     private function getDocumentTypeByName(string $documentType, Context $context): ?DocumentTypeEntity
@@ -404,10 +377,6 @@ class DocumentService
 
         $order = $this->getOrderById($document->getOrderId(), $document->getOrderVersionId(), $context);
 
-        $sessionLocale = $this->translator->getLocale();
-
-        $this->translator->setLocale($order->getOrderCustomer()->getCustomer()->getLanguage()->getLocale()->getCode());
-
         $generatedDocument->setHtml($documentGenerator->generate($order, $config, $context));
         $generatedDocument->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
         $fileBlob = $fileGenerator->generate($generatedDocument);
@@ -415,8 +384,6 @@ class DocumentService
         if ($this->systemConfigService->get(self::SYSTEM_CONFIG_SAVE_TO_FS) === true) {
             $this->saveDocumentFile($document, $context, $fileBlob, $fileGenerator, $documentGenerator, $config);
         }
-
-        $this->translator->setLocale($sessionLocale);
     }
 
     private function getOrderBaseCriteria(string $orderId): Criteria
@@ -425,6 +392,7 @@ class DocumentService
             ->addAssociation('lineItems')
             ->addAssociationPath('transactions.paymentMethod')
             ->addAssociation('currency')
+            ->addAssociationPath('language.locale')
             ->addAssociation('addresses')
             ->addAssociationPath('deliveries.positions')
             ->addAssociationPath('deliveries.shippingMethod');

@@ -830,6 +830,7 @@ json
             $collection,
             $this->getContainer()->get('snippet.repository'),
             $this->getContainer()->get('snippet_set.repository'),
+            $this->getContainer()->get('sales_channel_domain.repository'),
             $this->getContainer()->get(SnippetFilterFactory::class)
         );
     }

@@ -31,6 +31,7 @@ class CustomerTransformer
             'lastName' => $customer->getLastName(),
             'salutationId' => $customer->getSalutationId(),
             'title' => $customer->getTitle(),
+            'company' => $customer->getCompany(),
             'customerNumber' => $customer->getCustomerNumber(),
         ];
     }

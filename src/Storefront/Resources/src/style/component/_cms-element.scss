@@ -16,6 +16,7 @@ General styling for cms elements
     .cms-image-container {
         display: grid;
         max-width: 100%;
+        position: relative;
 
         &.is-cover {
             height: 100%;
@@ -23,6 +24,11 @@ General styling for cms elements
             .cms-image {
                 object-fit: cover;
                 height: 100%;
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
             }
         }
 

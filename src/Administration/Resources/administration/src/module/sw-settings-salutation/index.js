@@ -2,7 +2,6 @@ import { Module } from 'src/core/shopware';
 import './extension/sw-settings-index';
 import './page/sw-settings-salutation-list';
 import './page/sw-settings-salutation-detail';
-import './page/sw-settings-salutation-create';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
@@ -37,10 +36,17 @@ Module.register('sw-settings-salutation', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.salutation.index'
+            },
+            props: {
+                default(route) {
+                    return {
+                        salutationId: route.params.id
+                    };
+                }
             }
         },
         create: {
-            component: 'sw-settings-salutation-create',
+            component: 'sw-settings-salutation-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.salutation.index'

@@ -22,7 +22,7 @@
                         {% endblock %}
 
                         {% block sw_settings_salutation_list_smart_bar_header_amount %}
-                            <span v-if="!isLoading && items && total"
+                            <span v-if="!isLoading && salutations && total"
                                   class="sw-page__smart-bar-amount">
                                 ({{ total }})
                             </span>
@@ -34,7 +34,7 @@
 
         {% block sw_settings_salutation_list_language_switch %}
             <template slot="language-switch">
-                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+                <sw-language-switch @on-change="onRefresh"></sw-language-switch>
             </template>
         {% endblock %}
 
@@ -58,152 +58,18 @@
 
                             {% block sw_settings_salutation_list_grid %}
                                 <template slot="grid">
-                                    <sw-data-grid :isLoading="isLoading"
-                                                  :dataSource="items"
-                                                  :columns="columns"
-                                                  class="sw-settings-salutation-list-grid"
-                                                  identifier="sw-settings-salutation-list"
-                                                  :skeletonItemAmount="skeletonItemAmount"
-                                                  :sortBy="sortBy"
-                                                  :sortDirection="sortDirection"
-                                                  :allowInlineEdit="true"
-                                                  :allowColumnEdit="true"
-                                                  :showSettings="true"
-                                                  :showSelection="false"
-                                                  @column-sort="onSortColumn"
-                                                  @inline-edit-cancel="onInlineEditCancel"
-                                                  @inline-edit-save="onInlineEditSave">
-
-                                        {% block sw_settings_salutations_list_columns %}
-                                            {% block sw_settings_salutation_list_column_key %}
-                                                <template slot="column-salutationKey" slot-scope="{ item, compact, isInlineEdit }">
-                                                    {% block sw_settings_salutation_list_column_key_inline_edit %}
-                                                        <template v-if="isInlineEdit">
-                                                            <sw-text-field v-model="item.salutationKey"
-                                                                           :placeholder="$tc('sw-settings-salutation.list.fieldSalutationKeyPlaceholder')"
-                                                                           :size="compact ? 'small' : 'default'">
-                                                            </sw-text-field>
-                                                        </template>
-                                                    {% endblock %}
-
-                                                    {% block sw_settings_salutation_column_key_content %}
-                                                        <router-link v-else
-                                                                     class="sw-settings-salutation-list__columns"
-                                                                     :to="{ name: 'sw.settings.salutation.detail', params: { id: item.id } }">
-                                                            {{ item.salutationKey }}
-                                                        </router-link>
-                                                    {% endblock %}
-                                                </template>
-                                            {% endblock %}
-
-                                            {% block sw_settings_salutation_list_column_display_name %}
-                                                <template slot="column-displayName" slot-scope="{ item, compact, isInlineEdit }">
-                                                    {% block sw_settings_salutation_list_column_display_name_inline_edit %}
-                                                        <template v-if="isInlineEdit">
-                                                            <sw-text-field v-model="item.displayName"
-                                                                           :placeholder="getInlinePlaceholder(item, 'displayName')"
-                                                                           :size="compact ? 'small' : 'default'">
-                                                            </sw-text-field>
-                                                        </template>
-                                                    {% endblock %}
-
-                                                    {% block sw_settings_salutation_column_display_name_content %}
-                                                        <template v-else
-                                                                  class="sw-settings-salutation-list__columns">
-                                                            {{ item.translated.displayName }}
-                                                        </template>
-                                                    {% endblock %}
-                                                </template>
-                                            {% endblock %}
-
-                                            {% block sw_settings_salutation_list_column_letter_name %}
-                                                <template slot="column-letterName" slot-scope="{ item, compact, isInlineEdit }">
-                                                    {% block sw_settings_salutation_list_column_letter_name_inline_edit %}
-                                                        <template v-if="isInlineEdit">
-                                                            <sw-text-field v-model="item.letterName"
-                                                                           :placeholder="getInlinePlaceholder(item, 'letterName')"
-                                                                           :size="compact ? 'small' : 'default'">
-                                                            </sw-text-field>
-                                                        </template>
-                                                    {% endblock %}
-
-                                                    {% block sw_settings_salutation_column_letter_name_content %}
-                                                        <template v-else
-                                                                  class="sw-settings-salutation-list__columns">
-                                                            {{ item.translated.letterName }}
-                                                        </template>
-                                                    {% endblock %}
-                                                </template>
-                                            {% endblock %}
-                                        {% endblock %}
-
-                                        {% block sw_settings_salutation_list_column_actions %}
-                                            <template slot="actions" slot-scope="{ item }">
-                                                {% block sw_settings_salutation_list_column_menu_edit %}
-                                                    <sw-context-menu-item :routerLink="{ name: 'sw.settings.salutation.detail', params: { id: item.id } }">
-                                                        {{ $tc('sw-settings-salutation.general.contextMenuEdit') }}
-                                                    </sw-context-menu-item>
-                                                {% endblock %}
-
-                                                {% block sw_settings_salutation_list_column_menu_delete %}
-                                                    <sw-context-menu-item @click="onDelete(item.id)"
-                                                                          variant="danger">
-                                                        {{ $tc('sw-settings-salutation.general.contextMenuDelete') }}
-                                                    </sw-context-menu-item>
-                                                {% endblock %}
-                                            </template>
-                                        {% endblock %}
-
-                                        {% block sw_settings_salutation_list_action_modals %}
-                                            {% block sw_settings_salutation_list_delete_modal %}
-                                                <template slot="action-modals" slot-scope="{ item }">
-                                                    <sw-modal v-if="showDeleteModal === item.id"
-                                                              @modal-close="onCloseDeleteModal"
-                                                              :title="$tc('sw-settings-salutation.general.mainMenuItemGeneral')"
-                                                              variant="small">
-                                                        {% block sw_settings_salutation_list_delete_modal_confirm_delete_text %}
-                                                            <p class="sw-settings-salutation-list__confirm-delete-text">
-                                                                {{ $tc('sw-settings-salutation.list.textDeleteConfirm', 0, { key: item.salutationKey }) }}
-                                                            </p>
-                                                        {% endblock %}
-
-                                                        {% block sw_settings_salutation_list_delete_modal_footer %}
-                                                            <template slot="modal-footer">
-                                                                {% block sw_settings_salutation_list_delete_modal_cancel %}
-                                                                    <sw-button @click="onCloseDeleteModal"
-                                                                               size="small">
-                                                                        {{ $tc('sw-settings-salutation.general.buttonCancel') }}
-                                                                    </sw-button>
-                                                                {% endblock %}
-
-                                                                {% block sw_settings_salutation_list_delete_modal_confirm %}
-                                                                    <sw-button @click="onConfirmDelete(item.id)"
-                                                                               variant="primary"
-                                                                               size="small">
-                                                                        {{ $tc('sw-settings-salutation.general.buttonDelete') }}
-                                                                    </sw-button>
-                                                                {% endblock %}
-                                                            </template>
-                                                        {% endblock %}
-                                                    </sw-modal>
-                                                </template>
-                                            {% endblock %}
-                                        {% endblock %}
-
-
-                                        {% block sw_settings_salutation_list_grid_pagination %}
-                                            <template slot="pagination">
-                                                <sw-pagination :page="page"
-                                                               :limit="limit"
-                                                               :total="total"
-                                                               :total-visible="7"
-                                                               :steps="steps"
-                                                               @page-change="onPageChange">
-                                                </sw-pagination>
-                                            </template>
-                                        {% endblock %}
-
-                                    </sw-data-grid>
+                                    <sw-entity-listing
+                                            class="sw-settings-salutation-list-grid"
+                                            :repository="salutationRepository"
+                                            :isLoading="isLoading"
+                                            :items="salutations"
+                                            :columns="columns"
+                                            identifier="sw-settings-salutation-list"
+                                            :sortBy="sortBy"
+                                            :sortDirection="sortDirection"
+                                            :fullPage="false"
+                                            detailRoute="sw.settings.salutation.detail">
+                                    </sw-entity-listing>
                                 </template>
                             {% endblock %}
 

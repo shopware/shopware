@@ -45,6 +45,11 @@ class OrderCustomerEntity extends Entity
     /**
      * @var string|null
      */
+    protected $company;
+
+    /**
+     * @var string|null
+     */
     protected $customerNumber;
 
     /**
@@ -190,5 +195,15 @@ class OrderCustomerEntity extends Entity
     public function setOrderId(string $orderId): void
     {
         $this->orderId = $orderId;
+    }
+
+    public function getCompany(): ?string
+    {
+        return $this->company;
+    }
+
+    public function setCompany(?string $company): void
+    {
+        $this->company = $company;
     }
 }

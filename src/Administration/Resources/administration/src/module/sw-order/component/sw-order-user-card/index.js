@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import { format } from 'src/core/service/util.service';
 import ApiService from 'src/core/service/api.service';
 import Criteria from 'src/core/data-new/criteria.data';
@@ -13,6 +13,10 @@ Component.register('sw-order-user-card', {
         'orderService',
         'repositoryFactory',
         'context'
+    ],
+
+    mixins: [
+        Mixin.getByName('salutation')
     ],
 
     props: {
@@ -92,6 +96,15 @@ Component.register('sw-order-user-card', {
 
         hasTags() {
             return this.currentOrder.tags.length !== 0;
+        },
+
+        fullName() {
+            const name = {
+                name: this.salutation(this.currentOrder.orderCustomer),
+                company: this.currentOrder.orderCustomer.company
+            };
+
+            return Object.values(name).filter(item => item !== null).join(' - ').trim();
         }
     },
 

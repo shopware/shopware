@@ -394,6 +394,13 @@ class PromotionCalculator
             throw new InvalidPriceDefinitionException($discount);
         }
 
+        // In very rare scenarios where the line item total price is 0,00.
+        // Thus we would get a division by zero problem,
+        // so lets check for a price of 0,00 and then skip a price definition fix.
+        if ((float) $lineItemsTotalPrice === 0.0) {
+            return;
+        }
+
         // the discount value may never push the cart total price to a value lower than zero.
         // Therefore we reduce the discount percentage rate to a value that fits this requirement
         $maxPercentageRate = $maxDiscountValue / $lineItemsTotalPrice;

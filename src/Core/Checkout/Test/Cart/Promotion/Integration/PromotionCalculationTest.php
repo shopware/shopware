@@ -246,6 +246,44 @@ class PromotionCalculationTest extends TestCase
     }
 
     /**
+     * This test verifies that we have fixed our division by zero problem in percentage calculations.
+     * That case is happening in very rare scenarios where somehow the
+     * product total sum is 0,00 but we still have a promotion that will be calculated.
+     * We fake a product with 0,00 price and just try to add our promotion in here.
+     * We must not get a division by zero!
+     *
+     * @test
+     * @group promotions
+     * @ticket NEXT-4146
+     */
+    public function testPercentagePromotionDivisionByZero(): void
+    {
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $code = 'BF19';
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, 0, 19, $this->getContainer());
+        // add a new percentage promotion
+        $this->createTestFixturePercentagePromotion($promotionId, $code, 100.0, $this->getContainer());
+
+        /** @var Cart $cart */
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // create product and add to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        // create promotion and add to cart
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        // make sure we have only 1 product line item in there
+        static::assertCount(1, $cart->getLineItems());
+
+        // now just try to see if we have a valid 0,00 total price
+        static::assertEquals(0, $cart->getPrice()->getTotalPrice());
+    }
+
+    /**
      * This test verifies that our promotion components are really involved in our checkout.
      * We add a product to the cart and apply a code for a promotion with a currency dependent discount.
      * The standard value of discount would be 15, but our currency price value is 30

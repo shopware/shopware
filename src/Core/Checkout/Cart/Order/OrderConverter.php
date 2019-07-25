@@ -128,6 +128,8 @@ class OrderConverter
             $data['orderCustomer'] = CustomerTransformer::transform($context->getCustomer());
         }
 
+        $data['languageId'] = $context->getSalesChannel()->getLanguageId();
+
         $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems());
 
         $shippingAddresses = [];
@@ -241,6 +243,7 @@ class OrderConverter
 
         $options = [
             SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId(),
+            SalesChannelContextService::LANGUAGE_ID => $order->getLanguageId(),
             SalesChannelContextService::CUSTOMER_ID => $customerId,
             SalesChannelContextService::COUNTRY_STATE_ID => $billingAddress->getCountryStateId(),
             SalesChannelContextService::CUSTOMER_GROUP_ID => $customerGroupId,

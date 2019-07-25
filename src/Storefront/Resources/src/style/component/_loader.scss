@@ -30,7 +30,7 @@ Element loader can be applied to any element.
     left: 0;
     position: absolute;
     background-color: $element-backdrop-bg;
-    box-shadow: 0 0 11px 7px rgba($element-backdrop-bg, 1);
+    box-shadow: 0 0 11px 7px $element-backdrop-bg;
     z-index: 15;
 
     &.element-loader-backdrop-open {
@@ -76,7 +76,7 @@ Skeleton screen for reloading product-listing with subtle shimmer effect
         border-radius: $border-radius;
         color: transparent;
         animation: skeletonShimmer 1.5s linear 0s infinite normal forwards running;
-        background: linear-gradient(to right, $gray-200 8%, $gray-100 18%, $gray-200 33%);
+        background: linear-gradient(to right, $gray-300 8%, $gray-100 18%, $gray-300 28%);
         background-size: 800px 100px;
     }
 

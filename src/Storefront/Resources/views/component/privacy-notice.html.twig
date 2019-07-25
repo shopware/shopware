@@ -4,7 +4,7 @@
             <label>
                 <strong>{{ "general.privacyTitle"|trans }}</strong><br />
                 {{ "general.privacyNotice"|trans({
-                    '%tosUrl%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
+                    '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
                 })|raw }}
             </label>
         {% endblock %}

@@ -25,7 +25,7 @@
         "required": "*",
         "requiredFields": "Fields marked with * are required",
         "privacyTitle": "Privacy",
-        "privacyNotice": "I have read the <a data-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"Data protection information\">data protection information</a>."
+        "privacyNotice": "I have read the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Data protection information\">data protection information</a>."
     },
     "header": {
         "logoLink": "Go to homepage",
@@ -284,7 +284,7 @@
         "confirmSubmit": "Send order",
         "confirmTermsHeader": "Terms, conditions and cancellation policy",
         "confirmRevocationNotice": "Please note our cancellation policy.",
-        "confirmTerms": "I have read and accepted the <a data-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"General terms and conditions\">General terms and conditions</a> of your shop.",
+        "confirmTerms": "I have read and accepted the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"General terms and conditions\">General terms and conditions</a> of your shop.",
         "finishInfoPayment": "Payment method:",
         "finishInfoShipping": "Shipping type:",
         "finishHeader": "Thank you for your order with %shop%!",
@@ -369,12 +369,13 @@
         "copyrightInfo": "Realised with Shopware"
     },
     "cookie": {
-        "message": "This website uses cookies to ensure you get the best experience on our website.&nbsp;<a href=\"#\">More information</a>",
+        "message": "This website uses cookies to ensure you get the best experience on our website. <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information</a>.",
         "accept": "Accept"
     },
     "document": {
     "invoiceNumber": "Invoice %invoiceNumber%",
     "invoiceHeadline": "Invoice %invoiceNumber%",
+    "stornoNumber": "Cancellation %stornoNumber%",
     "stornoHeadline": "Cancellation %stornoNumber% for invoice %invoiceNumber%",
     "deliveryNoteNumber": "Delivery note %deliveryNoteNumber%",
     "deliveryNoteHeadline": "Delivery note %deliveryNoteNumber% for order %orderNumber%",

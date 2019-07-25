@@ -1,22 +1,8 @@
-import { mapState, mapMutations, mapGetters, mapActions } from 'vuex';
-import { mapApiErrors, mapPageErrors } from 'src/app/service/map-errors.service';
 import { Component } from 'src/core/shopware';
-import requireComponents from 'src/app/component/components';
+import baseComponents from 'src/app/component/components';
 
 export default function initializeBaseComponents() {
-    Object.assign(
-        Component.getComponentHelper(),
-        {
-            mapState,
-            mapMutations,
-            mapGetters,
-            mapActions,
-            mapApiErrors,
-            mapPageErrors
-        }
-    );
-
-    const components = requireComponents().filter((item) => {
+    const components = baseComponents.filter((item) => {
         return item !== undefined;
     });
 

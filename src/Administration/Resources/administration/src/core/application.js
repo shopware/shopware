@@ -24,6 +24,8 @@ class ApplicationBootstrapper {
         const noop = () => {};
         this.$container = container;
 
+        this.view = null;
+
         // Create an empty DI container for the core initializers & services, so we can separate the core initializers
         // and the providers
         this.$container.service('service', noop);
@@ -315,11 +317,15 @@ class ApplicationBootstrapper {
      * @returns {Boolean|Vue}
      */
     getApplicationRoot() {
-        if (!this.applicationRoot) {
+        if (!this.view.root) {
             return false;
         }
 
-        return this.applicationRoot;
+        return this.view.root;
+    }
+
+    setViewAdapter(viewAdapterInstance) {
+        this.view = viewAdapterInstance;
     }
 
     /**
@@ -333,7 +339,6 @@ class ApplicationBootstrapper {
 
         return this.instantiateInitializers(container).then(() => {
             const router = container.router.getRouterInstance();
-            const view = container.view;
             const contextService = container.contextService;
 
             // We're in a test environment, we're not needing an application root
@@ -341,11 +346,12 @@ class ApplicationBootstrapper {
                 return this;
             }
 
-            this.applicationRoot = view.createInstance(
+            this.view.init(
                 '#app',
                 router,
                 this.getContainer('service')
             );
+
             const firstRunWizard = container.context.firstRunWizard;
             if (firstRunWizard && !router.history.current.name.startsWith('sw.first.run.wizard.')) {
                 router.push({
@@ -356,15 +362,14 @@ class ApplicationBootstrapper {
             return this;
         }).catch((error) => {
             const router = container.router.getRouterInstance();
-            const view = container.view;
 
-            this.applicationRoot = view.createInstance(
+            this.view.init(
                 '#app',
                 router,
                 this.getContainer('service')
             );
 
-            this.applicationRoot.initError = error;
+            this.view.root.initError = error;
 
             router.push({
                 name: 'error'

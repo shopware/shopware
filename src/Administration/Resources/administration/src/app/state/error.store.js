@@ -1,4 +1,4 @@
-import { State, ObservationApi } from 'src/core/shopware';
+import { State, Application } from 'src/core/shopware';
 import ErrorStore from 'src/core/data/error-store.data';
 import utils from 'src/core/service/util.service';
 
@@ -12,11 +12,11 @@ class VuexErrorStore {
         this.mutations = {
             addApiError(state, { expression, error }) {
                 error.selfLink = expression;
-                ErrorStore.addApiError(expression, error, state, ObservationApi.setReactive);
+                ErrorStore.addApiError(expression, error, state, Application.view.setReactive);
             },
 
             removeApiError(state, { expression }) {
-                ErrorStore.removeApiError(expression, state, ObservationApi.deleteReactive);
+                ErrorStore.removeApiError(expression, state, Application.view.deleteReactive);
             },
 
             resetApiErrors(state) {
@@ -24,11 +24,11 @@ class VuexErrorStore {
             },
 
             addSystemError(state, { error, id = utils.createId() }) {
-                ErrorStore.addSystemError(error, id, state, ObservationApi.setReactive);
+                ErrorStore.addSystemError(error, id, state, Application.view.setReactive);
             },
 
             removeSystemError(state, { id }) {
-                ErrorStore.removeSystemError(id, state, ObservationApi.deleteReactive);
+                ErrorStore.removeSystemError(id, state, Application.view.deleteReactive);
             }
         };
 

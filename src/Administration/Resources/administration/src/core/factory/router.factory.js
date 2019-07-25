@@ -339,7 +339,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {Vue|null} - View component or null
      */
     function getViewComponent(componentName) {
-        return View.getComponent(componentName);
+        return Application.view.getComponent(componentName);
     }
 
     function getAssetPath() {

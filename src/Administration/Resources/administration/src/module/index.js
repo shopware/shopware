@@ -1,4 +1,4 @@
-export default function RequireModules() {
+export default (() => {
     const context = require.context('./', true, /\.\/[a-z-]+\/index\.js$/);
 
     // Reversing the order so, for example sw-settings will be included before sw-settings-country.
@@ -7,5 +7,4 @@ export default function RequireModules() {
         accumulator.push(module);
         return accumulator;
     }, []);
-}
-
+})();

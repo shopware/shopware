@@ -1,8 +1,7 @@
 import { Component } from 'src/core/shopware';
+import { mapApiErrors } from 'src/app/service/map-errors.service';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-customer-address-form.html.twig';
-
-const { mapApiErrors } = Component.getComponentHelper();
 
 Component.register('sw-customer-address-form', {
     template,

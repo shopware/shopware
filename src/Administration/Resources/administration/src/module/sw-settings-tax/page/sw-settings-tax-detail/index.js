@@ -1,7 +1,6 @@
 import { Component, Mixin } from 'src/core/shopware';
+import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-tax-detail.html.twig';
-
-const { mapApiErrors } = Component.getComponentHelper();
 
 Component.register('sw-settings-tax-detail', {
     template,

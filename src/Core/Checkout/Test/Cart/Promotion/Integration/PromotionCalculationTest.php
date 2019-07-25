@@ -349,7 +349,7 @@ class PromotionCalculationTest extends TestCase
         // add a new sample product
         $this->createTestFixtureProduct($productId, 0, 19, $this->getContainer());
         // add a new percentage promotion
-        $this->createTestFixturePercentagePromotion($promotionId, $code, 100.0, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId, $code, 100.0, 100.0, $this->getContainer());
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);

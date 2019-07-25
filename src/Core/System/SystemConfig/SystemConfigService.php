@@ -50,12 +50,19 @@ class SystemConfigService
         $criteria->addFilter(new EqualsFilter('configurationKey', $key));
         $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::ASCENDING));
 
-        /** @var SystemConfigEntity|null $last */
-        $last = $this->systemConfigRepository
+        /** @var SystemConfigEntity[]|\Generator $results */
+        $results = $this->systemConfigRepository
             ->search($criteria, Context::createDefaultContext())
-            ->last();
+            ->getIterator();
 
-        return $last ? $last->getConfigurationValue() : null;
+        $result = null;
+        foreach ($results as $resultCandidate) {
+            if ($resultCandidate->getConfigurationValue()) {
+                $result = $resultCandidate->getConfigurationValue();
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -133,7 +140,9 @@ class SystemConfigService
         $merged = [];
         foreach ($collection as $cur) {
             // use the last one with the same key. entities with sales_channel_id === null are sorted before the others
-            $merged[$cur->getConfigurationKey()] = $cur->getConfigurationValue();
+            if (!array_key_exists($cur->getConfigurationKey(), $merged) || !empty($cur->getConfigurationValue())) {
+                $merged[$cur->getConfigurationKey()] = $cur->getConfigurationValue();
+            }
         }
 
         return $merged;

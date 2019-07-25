@@ -3,6 +3,7 @@ import DomAccess from 'src/script/helper/dom-access.helper';
 import PageLoadingIndicatorUtil from 'src/script/utility/loading-indicator/page-loading-indicator.util';
 import PseudoModalUtil from 'src/script/utility/modal-extension/pseudo-modal.util';
 import Iterator from 'src/script/helper/iterator.helper';
+import PluginManager from "src/script/plugin-system/plugin.manager";
 
 const URL_DATA_ATTRIBUTE = 'data-url';
 
@@ -75,7 +76,9 @@ export default class AjaxModalExtensionUtil {
         PageLoadingIndicatorUtil.remove();
         const pseudoModal = new PseudoModalUtil(response);
 
-        pseudoModal.open();
+        pseudoModal.open(() => {
+            PluginManager.initializePlugins();
+        });
 
         const modal = pseudoModal.getModal();
 

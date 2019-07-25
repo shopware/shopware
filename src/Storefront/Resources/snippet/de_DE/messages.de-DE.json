@@ -25,7 +25,7 @@
         "required": "*",
         "requiredFields": "* hierbei handelt es sich um ein Pflichtfeld",
         "privacyTitle": "Datenschutz",
-        "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen."
+        "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen."
     },
     "header": {
         "logoLink": "zur Startseite wechseln",
@@ -229,7 +229,6 @@
         "countryPlaceholder": "Land",
         "phoneNumberLabel": "Telefonnummer",
         "phoneNumberPlaceholder": "Telefonnummer"
-
     },
     "checkout": {
         "itemCounter": "%count% Artikel",
@@ -285,7 +284,7 @@
         "confirmSubmit": "Zahlungspflichtig bestellen",
         "confirmTermsHeader": "AGB und Widerrufsbelehrung",
         "confirmRevocationNotice": "Bitte beachten Sie bei Ihrer Bestellung auch unsere Widerrufsbelehrung.",
-        "confirmTerms": "Ich habe die <a data-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> Ihres Shops gelesen und bin mit deren Geltung einverstanden.",
+        "confirmTerms": "Ich habe die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> Ihres Shops gelesen und bin mit deren Geltung einverstanden.",
         "finishInfoPayment": "Zahlungsart:",
         "finishInfoShipping": "Versandart:",
         "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!",
@@ -370,7 +369,7 @@
         "copyrightInfo": "Realisiert mit Shopware"
     },
     "cookie": {
-        "message": "Diese Website verwendet Cookies, um Ihnen die bestmögliche Funktionalität bieten zu können.&nbsp;<a href=\"#\">Mehr Informationen</a>",
+        "message": "Diese Website verwendet Cookies, um Ihnen die bestmögliche Funktionalität bieten zu können. <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen</a>.",
         "accept": "Einverstanden"
     },
     "document": {

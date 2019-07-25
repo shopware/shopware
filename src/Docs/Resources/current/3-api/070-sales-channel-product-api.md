@@ -15,3 +15,10 @@ You find more information about these operations [here](./../3-api/050-filter-se
 **GET /sales-channel-api/v1/product/{productId}**
 
 Description: Returns detailed information about a specific product.
+
+## Load associations
+
+**GET /sales-channel-api/v1/product/{productId}?associations[media][]**
+
+Description: Not every association of an entity is loaded by default.
+If you are missing an association like the product images, just add them like shown in the example above

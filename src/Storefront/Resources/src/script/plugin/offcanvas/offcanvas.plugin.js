@@ -38,6 +38,11 @@ class OffCanvasSingleton {
      */
     setContent(content, closable, delay) {
         const offCanvas = this.getOffCanvas();
+
+        if (!offCanvas[0]) {
+            return;
+        }
+
         offCanvas[0].innerHTML = content;
 
         //register events again

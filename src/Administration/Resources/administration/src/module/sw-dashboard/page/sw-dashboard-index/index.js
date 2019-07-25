@@ -64,7 +64,7 @@ Component.register('sw-dashboard-index', {
 
             // format data for chart
             const seriesData = this.historyOrderData.order_count_month.map((data) => {
-                return { x: Date.parse(data.key.orderDate.date), y: data.count };
+                return { x: this.parseDate(data.key.orderDate.date), y: data.count };
             });
 
             return [{ name: this.$tc('sw-dashboard.monthStats.numberOfOrders'), data: seriesData }];
@@ -76,7 +76,8 @@ Component.register('sw-dashboard-index', {
                 const findDateStats = this.historyOrderData.order_count_month.find((dateCount) => {
                     // when date exists
                     if (dateCount.key && dateCount.key.orderDate && dateCount.key.orderDate.date) {
-                        const timeConverted = Date.parse(dateCount.key.orderDate.date);
+                        const timeConverted = this.parseDate(dateCount.key.orderDate.date);
+
                         // if time is equal to today
                         return timeConverted === this.today.getTime();
                     }
@@ -99,7 +100,7 @@ Component.register('sw-dashboard-index', {
 
             // format data for chart
             const seriesData = this.historyOrderData.order_sum_month.map((data) => {
-                return { x: Date.parse(data.key.orderDate.date), y: data.sum };
+                return { x: this.parseDate(data.key.orderDate.date), y: data.sum };
             });
 
             return [{ name: 'Total', data: seriesData }];
@@ -111,7 +112,7 @@ Component.register('sw-dashboard-index', {
                 const findDateStats = this.historyOrderData.order_sum_month.find((dateSum) => {
                     // when date exists
                     if (dateSum.key && dateSum.key.orderDate && dateSum.key.orderDate.date) {
-                        const timeConverted = Date.parse(dateSum.key.orderDate.date);
+                        const timeConverted = this.parseDate(dateSum.key.orderDate.date);
                         // if time is equal to today
                         return timeConverted === this.today.getTime();
                     }
@@ -234,6 +235,11 @@ Component.register('sw-dashboard-index', {
 
         getVariantFromOrderState(order) {
             return this.stateStyleDataProviderService.getStyle('order.state', order.stateMachineState.technicalName).variant;
+        },
+
+        parseDate(date) {
+            const parsedDate = new Date(date.replace(/-/g, '/').replace('T', ' ').replace(/\..*|\+.*/, ''));
+            return parsedDate.valueOf();
         }
     }
 });

@@ -1,0 +1,30 @@
+{% block sitemap %}
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    {% block sitemap_content %}
+        {% block sitemap_content_categories %}
+            {% for category in page.categories %}
+                <url>
+                    <loc>{{ url('frontend.navigation.page', { 'navigationId': category.id }) }}</loc>
+                    <lastmod>{% if category.updatedAt %}{{ category.updatedAt|date('c') }}{% else %}{{ category.createdAt|date('c') }}{% endif %}</lastmod>
+                    <changefreq>daily</changefreq>
+                    <priority>0.5</priority>
+                </url>
+            {% endfor %}
+        {% endblock %}
+
+        {% block sitemap_content_products %}
+            {% for product in page.products %}
+                <url>
+                    <loc>{{ url('frontend.detail.page', { 'productId': product.id }) }}</loc>
+                    <lastmod>{% if product.updatedAt %}{{ product.updatedAt|date('c') }}{% else %}{{ product.createdAt|date('c') }}{% endif %}</lastmod>
+                    <changefreq>hourly</changefreq>
+                    <priority>0.5</priority>
+                </url>
+            {% endfor %}
+        {% endblock %}
+    {% endblock %}
+</urlset>
+{% endblock %}

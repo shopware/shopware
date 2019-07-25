@@ -255,6 +255,12 @@
             <argument type="service" id="salutation.repository"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="sales_channel.category.repository"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+        </service>
+
         <!--SnippetFiles-->
         <service id="Shopware\Storefront\Resources\snippet\de_DE\SnippetFile_de_DE" public="true">
             <tag name="shopware.snippet.file" priority="100"/>

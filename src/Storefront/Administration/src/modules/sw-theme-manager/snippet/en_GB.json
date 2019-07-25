@@ -6,7 +6,9 @@
       "descriptionTextModule": "Manage themes here.",
       "mainMenuHeader": "Your Themes",
       "captionMediaUpload": "Upload an image",
-      "lockedToolTip": "Themes installed via plugin are locked and can not be deleted"
+      "lockedToolTip": "Themes installed via plugin are locked and can not be deleted",
+      "titleError": "Error",
+      "messageSaveError": "Theme could not be assigned to the sales channel"
     },
     "sorting": {
       "labelSort": "Sort by:",

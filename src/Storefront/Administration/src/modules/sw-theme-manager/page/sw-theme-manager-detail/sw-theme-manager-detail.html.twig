@@ -169,12 +169,14 @@
                                                     :placeholder="field.placeholder"
                                                     :options="field.options"
                                                     :label="!field.label ? '' : field.label"
+                                                    :helpText="!field.helpText ? null : field.helpText"
                                                     v-model="themeConfig[fieldIndex].value">
                                                 </sw-field>
                                                 <sw-field
                                                     v-else-if="field.type === 'url'"
                                                     type="url"
                                                     :label="!field.label ? '' : field.label"
+                                                    :helpText="!field.helpText ? null : field.helpText"
                                                     v-model="themeConfig[fieldIndex].value">
                                                 </sw-field>
                                                 <div v-else-if="field.type === 'media'">
@@ -189,6 +191,7 @@
                                                         :label="!field.label ? '' : field.label"
                                                         :source="themeConfig[fieldIndex].value"
                                                         :uploadTag="areaIndex + '-' + sectionIndex + '-' + fieldIndex"
+                                                        :helpText="!field.helpText ? null : field.helpText"
                                                         :ref="areaIndex + '-' + sectionIndex + '-' + fieldIndex"
                                                         :defaultFolder="themeRepository.schema.entity"
                                                         :allowMultiSelect="false"
@@ -201,6 +204,7 @@
                                                     v-else
                                                     :type="mapSwFieldTypes(field.type)"
                                                     :label="!field.label ? '' : field.label"
+                                                    :helpText="!field.helpText ? null : field.helpText"
                                                     v-model="themeConfig[fieldIndex].value">
                                                 </sw-field>
                                             </div>

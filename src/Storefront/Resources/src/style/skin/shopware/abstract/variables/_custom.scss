@@ -5,7 +5,7 @@ Contains custom non bootstrap variables.
 */
 
 $buy-btn-bg: $sw-color-buy-button;
-$buy-btn-color: color-yiq($sw-color-buy-button);
+$buy-btn-color: $sw-color-buy-button-text;
 
 $disabled-btn-bg: #eee;
 $disabled-btn-border-color: #eee;

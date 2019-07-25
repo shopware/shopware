@@ -51,6 +51,7 @@ class ThemeDefinition extends EntityDefinition
             (new StringField('author', 'author'))->addFlags(new Required()),
             new TranslatedField('description'),
             new TranslatedField('labels'),
+            new TranslatedField('helpTexts'),
             new TranslatedField('customFields'),
             new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class),
             new FkField('parent_theme_id', 'parentThemeId', self::class),

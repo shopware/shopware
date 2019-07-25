@@ -193,6 +193,10 @@ class ThemeService
             $configFields = $this->translateLabels($configFields, $theme->getLabels());
         }
 
+        if ($translate && $theme->getHelpTexts()) {
+            $configFields = $this->translateHelpTexts($configFields, $theme->getHelpTexts());
+        }
+
         $themeConfig['fields'] = $configFields;
 
         return $themeConfig;
@@ -242,7 +246,6 @@ class ThemeService
             $translations = $this->getTranslations($themeId, $context);
             $mergedConfig = $this->translateLabels($mergedConfig, $translations);
         }
-
         $blocks = [];
         $noblocks = [
             'label' => $this->getBlockLabel('unordered', $translations),
@@ -256,7 +259,8 @@ class ThemeService
                 $noblocks['sections'][$section] = [
                     'label' => $this->getSectionLabel($section, $translations),
                     $fieldName => [
-                        'label' => $fieldName['label'],
+                        'label' => $fieldConfig['label'],
+                        'helpText' => $fieldConfig['helpText'] ?? null,
                         'type' => $fieldConfig['type'],
                     ],
                 ];
@@ -268,6 +272,7 @@ class ThemeService
                             'label' => $this->getSectionLabel($section, $translations),
                             $fieldName => [
                                 'label' => $fieldConfig['label'],
+                                'helpText' => $fieldConfig['helpText'] ?? null,
                                 'type' => $fieldConfig['type'],
                             ],
                         ],
@@ -276,6 +281,7 @@ class ThemeService
             } elseif (isset($blocks[$fieldConfig['block']]['sections'][$section])) {
                 $blocks[$fieldConfig['block']]['sections'][$section][$fieldName] = [
                     'label' => $fieldConfig['label'],
+                    'helpText' => $fieldConfig['helpText'] ?? null,
                     'type' => $fieldConfig['type'],
                 ];
             } else {
@@ -283,6 +289,7 @@ class ThemeService
                     'label' => $this->getSectionLabel($section, $translations),
                     $fieldName => [
                         'label' => $fieldConfig['label'],
+                        'helpText' => $fieldConfig['helpText'] ?? null,
                         'type' => $fieldConfig['type'],
                     ],
                 ];
@@ -391,6 +398,15 @@ class ThemeService
     {
         foreach ($themeConfiguration as $key => &$value) {
             $value['label'] = $translations['fields.' . $key] ?? $key;
+        }
+
+        return $themeConfiguration;
+    }
+
+    private function translateHelpTexts(array $themeConfiguration, array $translations)
+    {
+        foreach ($themeConfiguration as $key => &$value) {
+            $value['helpText'] = $translations['fields.' . $key] ?? null;
         }
 
         return $themeConfiguration;

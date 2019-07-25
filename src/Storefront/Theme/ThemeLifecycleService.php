@@ -71,9 +71,16 @@ class ThemeLifecycleService
                 continue;
             }
 
-            $translations = $this->getLabelsFromConfig($themeConfig->getConfig());
-            foreach ($translations as $locale => $translation) {
+            $translations = [];
+
+            $labelTranslations = $this->getLabelsFromConfig($themeConfig->getConfig());
+            foreach ($labelTranslations as $locale => $translation) {
                 $translations[$locale] = ['labels' => $translation];
+            }
+
+            $helpTextTranslations = $this->getHelpTextsFromConfig($themeConfig->getConfig());
+            foreach ($helpTextTranslations as $locale => $translation) {
+                $translations[$locale]['helpTexts'] = $translation;
             }
 
             $themeData = [
@@ -210,5 +217,32 @@ class ThemeLifecycleService
         }
 
         return $labels;
+    }
+
+    private function getHelpTextsFromConfig(array $config): array
+    {
+        $translations = [];
+
+        if (array_key_exists('fields', $config)) {
+            $translations = array_merge_recursive($translations, $this->extractHelpTexts('fields', $config['fields']));
+        }
+
+        return $translations;
+    }
+
+    private function extractHelpTexts(string $prefix, array $data): array
+    {
+        $helpTexts = [];
+        foreach ($data as $key => $item) {
+            if (!isset($item['helpText'])) {
+                continue;
+            }
+
+            foreach ($item['helpText'] as $locale => $label) {
+                $helpTexts[$locale][$prefix . '.' . $key] = $label;
+            }
+        }
+
+        return $helpTexts;
     }
 }

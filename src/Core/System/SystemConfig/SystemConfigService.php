@@ -135,7 +135,9 @@ class SystemConfigService
         $merged = [];
         foreach ($collection as $cur) {
             // use the last one with the same key. entities with sales_channel_id === null are sorted before the others
-            $merged[$cur->getConfigurationKey()] = $cur->getConfigurationValue();
+            if (!array_key_exists($cur->getConfigurationKey(), $merged) || !empty($cur->getConfigurationValue())) {
+                $merged[$cur->getConfigurationKey()] = $cur->getConfigurationValue();
+            }
         }
 
         return $merged;
@@ -269,6 +271,10 @@ class SystemConfigService
         $key = array_shift($keys);
 
         if (empty($keys)) {
+            if ($value !== false && empty($value)) {
+                return $configValues;
+            }
+
             $configValues[$key] = $value;
         } else {
             if (!\array_key_exists($key, $configValues)) {

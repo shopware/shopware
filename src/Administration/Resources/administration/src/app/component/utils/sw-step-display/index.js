@@ -92,7 +92,7 @@ export default {
         },
 
         setVariantForCurrentItem(variant) {
-            if (this.items.length >= this.itemIndex) {
+            if (this.itemIndex >= this.items.length) {
                 return;
             }
 
@@ -100,7 +100,7 @@ export default {
         },
 
         setItemActive(index, active) {
-            if (this.items.length >= index) {
+            if (index >= this.items.length) {
                 return;
             }
 

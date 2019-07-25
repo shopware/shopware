@@ -74,6 +74,11 @@ class PromotionDiscountEntity extends Entity
     protected $considerAdvancedRules;
 
     /**
+     * @var float|null
+     */
+    protected $maxValue;
+
+    /**
      * @var PromotionDiscountPriceCollection
      */
     protected $promotionDiscountPrices;
@@ -175,5 +180,23 @@ class PromotionDiscountEntity extends Entity
     public function setConsiderAdvancedRules(bool $considerAdvancedRules): void
     {
         $this->considerAdvancedRules = $considerAdvancedRules;
+    }
+
+    /**
+     * Gets the maximum discount value
+     * of a percentage discount if set for the promotion.
+     */
+    public function getMaxValue(): ?float
+    {
+        return $this->maxValue;
+    }
+
+    /**
+     * Sets a maximum discount value for the promotion.
+     * This one will be used to as a threshold for percentage discounts.
+     */
+    public function setMaxValue(?float $maxValue): void
+    {
+        $this->maxValue = $maxValue;
     }
 }

@@ -116,7 +116,7 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixtureProduct($productId, 29, 17, $this->getContainer());
 
         // add a new promotion black friday
-        $this->createTestFixturePercentagePromotion($promotionId, $code, 100, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId, $code, 100, null, $this->getContainer());
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
@@ -152,10 +152,10 @@ class PromotionCalculationTest extends TestCase
         $code = 'BF19';
 
         // add a new sample product
-        $this->createTestFixtureProduct($productId, 30, 17, $this->getContainer());
+        $this->createTestFixtureProduct($productId, 100, 20, $this->getContainer());
 
         // add a new promotion black friday
-        $this->createTestFixturePercentagePromotion($promotionId, $code, 50, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId, $code, 50, null, $this->getContainer());
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
@@ -166,9 +166,93 @@ class PromotionCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(15, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(15, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(12.82, $cart->getPrice()->getNetPrice());
+        static::assertEquals(50, $cart->getPrice()->getTotalPrice());
+        static::assertEquals(50, $cart->getPrice()->getPositionPrice());
+        static::assertEquals(41.67, $cart->getPrice()->getNetPrice());
+    }
+
+    /**
+     * This test verifies that we can set a
+     * maximum absolute value for a percentage discount.
+     * We have a 100 EUR product and 50% OFF but a maximum
+     * of 30 EUR discount. This means our cart should be minimum 70 EUR in the end.
+     * We have
+     *
+     * @test
+     * @group promotions
+     */
+    public function test50PercentageDiscountWithMaximumValue(): void
+    {
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $code = 'BF19';
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, 100, 20, $this->getContainer());
+
+        // add a new promotion with 50% discount but a maximum of 30 EUR.
+        // our product costs 100 EUR, which should now be 70 EUR due to the threshold
+        $this->createTestFixturePercentagePromotion($promotionId, $code, 50, 30.0, $this->getContainer());
+
+        /** @var Cart $cart */
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // create product and add to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        // create promotion and add to cart
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        static::assertEquals(70, $cart->getPrice()->getTotalPrice());
+        static::assertEquals(70, $cart->getPrice()->getPositionPrice());
+        static::assertEquals(58.33, $cart->getPrice()->getNetPrice());
+    }
+
+    /**
+     * This test verifies that we use the max value of our currency
+     * instead of the global max value, if existing.
+     * Thus we create a promotion with 50% for a 100 EUR price.
+     * That would lead to 50 EUR for the product, which we avoid by setting
+     * a max global threshold of 40 EUR.
+     * But for your currency, we use 30 EUR instead.
+     * Our test needs to verify that we use 30 EUR, and end with a product sum of 70 EUR in the end.
+     *
+     * @test
+     * @group promotions
+     */
+    public function test50PercentageDiscountWithMaximumValueAndCurrencies(): void
+    {
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $code = 'BF19';
+
+        $productGross = 100;
+        $percentage = 50;
+        $maxValueGlobal = 40.0;
+        $currencyMaxValue = 30.0;
+
+        $expectedPrice = $productGross - $currencyMaxValue;
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, $productGross, 19, $this->getContainer());
+
+        /** @var string $discountId */
+        $discountId = $this->createTestFixturePercentagePromotion($promotionId, $code, $percentage, $maxValueGlobal, $this->getContainer());
+
+        $this->createTestFixtureAdvancedPrice($discountId, Defaults::CURRENCY, $currencyMaxValue, $this->getContainer());
+
+        /** @var Cart $cart */
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // create product and add to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        // create promotion and add to cart
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        static::assertEquals($expectedPrice, $cart->getPrice()->getPositionPrice());
+        static::assertEquals($expectedPrice, $cart->getPrice()->getTotalPrice());
+        static::assertEquals(58.82, $cart->getPrice()->getNetPrice());
     }
 
     /**
@@ -194,7 +278,7 @@ class PromotionCalculationTest extends TestCase
 
         // add our existing promotions
         $this->createTestFixtureAbsolutePromotion($promotionId1, 'sale', 20, $this->getContainer());
-        $this->createTestFixturePercentagePromotion($promotionId2, '100off', 100, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId2, '100off', 100, null, $this->getContainer());
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
@@ -406,7 +490,7 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
 
         // add a new promotion black friday
-        $this->createTestFixturePercentagePromotion($promotionId, $code, 100, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId, $code, 100, null, $this->getContainer());
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);

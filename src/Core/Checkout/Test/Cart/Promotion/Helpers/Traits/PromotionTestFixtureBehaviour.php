@@ -62,34 +62,40 @@ trait PromotionTestFixtureBehaviour
 
         $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
-        $this->createPromotion(
+        $discountId = $this->createPromotion(
             $promotionId,
             $code,
             PromotionDiscountEntity::TYPE_ABSOLUTE,
             $value,
+            null,
             $promotionRepository,
             $context
         );
+
+        return $discountId;
     }
 
     /**
      * Creates a new percentage promotion in the database.
      */
-    public function createTestFixturePercentagePromotion(string $promotionId, string $code, float $percentage, ContainerInterface $container)
+    public function createTestFixturePercentagePromotion(string $promotionId, string $code, float $percentage, ?float $maxValue, ContainerInterface $container)
     {
         /** @var EntityRepositoryInterface $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
 
         $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
-        $this->createPromotion(
+        $discountId = $this->createPromotion(
             $promotionId,
             $code,
             PromotionDiscountEntity::TYPE_PERCENTAGE,
             $percentage,
+            $maxValue,
             $promotionRepository,
             $context
         );
+
+        return $discountId;
     }
 
     /**
@@ -107,13 +113,38 @@ trait PromotionTestFixtureBehaviour
             $code,
             PromotionDiscountEntity::TYPE_FIXED,
             $fixedPrice,
+            null,
             $promotionRepository,
             $context
         );
     }
 
-    private function createPromotion(string $promotionId, string $code, string $discountType, float $percentage, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context)
+    /**
+     * Creates a new advanced currency price for the provided discount
+     */
+    public function createTestFixtureAdvancedPrice(string $discountId, string $currency, float $price, ContainerInterface $container)
     {
+        /** @var EntityRepositoryInterface $pricesRepository */
+        $pricesRepository = $container->get('promotion_discount_prices.repository');
+
+        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $pricesRepository->create(
+            [
+                [
+                    'discountId' => $discountId,
+                    'currencyId' => $currency,
+                    'price' => $price,
+                ],
+            ],
+            $context->getContext()
+        );
+    }
+
+    private function createPromotion(string $promotionId, string $code, string $discountType, float $value, ?float $maxValue, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context)
+    {
+        $discountId = Uuid::randomHex();
+
         $promotionRepository->create(
             [
                 [
@@ -127,10 +158,11 @@ trait PromotionTestFixtureBehaviour
                     ],
                     'discounts' => [
                         [
-                            'id' => Uuid::randomHex(),
+                            'id' => $discountId,
                             'scope' => PromotionDiscountEntity::SCOPE_CART,
                             'type' => $discountType,
-                            'value' => $percentage,
+                            'value' => $value,
+                            'maxValue' => $maxValue,
                             'considerAdvancedRules' => false,
                         ],
                     ],
@@ -138,5 +170,7 @@ trait PromotionTestFixtureBehaviour
             ],
             $context->getContext()
         );
+
+        return $discountId;
     }
 }

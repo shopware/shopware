@@ -3,7 +3,7 @@ import DiscountTypes from './../../common/discount-type';
 export default class PromotionDiscountHandler {
     // Gets the suffix of the value text field depending
     // on the currently selected type.
-    getValueSuffix(discountType, currencySymbol = '€') {
+    getValueSuffix(discountType, currencySymbol = '?') {
         return (discountType === DiscountTypes.PERCENTAGE) ? '%' : currencySymbol;
     }
 

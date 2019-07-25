@@ -339,6 +339,13 @@ class PromotionCalculator
                     $priceCollection,
                     $context
                 );
+
+                // now that we have calculated our percentage value
+                // verify if we have a maximum value for this  discount
+                // if so, and if it is lower than our actual one, we have to switch over
+                // to an absolute price definition of that fixed value.
+                /** @var CalculatedPrice $discountPrice */
+                $discountPrice = $this->fixPercentageMaxValue($discount, $discountPrice, $priceCollection, $context);
                 break;
         }
 
@@ -421,6 +428,55 @@ class PromotionCalculator
         );
 
         $discount->setPriceDefinition($actualPriceDefinition);
+    }
+
+    /**
+     * This function verifies if we have a maximum value for our
+     * percentage discount and if it would be lower than our current discount.
+     * If so, it applies an absolute discount with that value and returns the calculated price.
+     */
+    private function fixPercentageMaxValue(LineItem $discount, CalculatedPrice $calculatedPrice, PriceCollection $priceCollection, SalesChannelContext $context): CalculatedPrice
+    {
+        // if we dont have a max value
+        // just return our origin price
+        if (!$discount->hasPayloadValue('maxValue')) {
+            return $calculatedPrice;
+        }
+
+        /** @var string $stringValue */
+        $stringValue = $discount->getPayload()['maxValue'];
+
+        // if we have an empty string value
+        // then we convert it to 0.00 when casting it,
+        // thus we create an early return
+        if (trim($stringValue) === '') {
+            return $calculatedPrice;
+        }
+
+        /** @var float $maxValue */
+        $maxValue = (float) $stringValue;
+
+        // check if our max value is lower than our currently calculated price
+        if (abs($calculatedPrice->getTotalPrice()) > $maxValue) {
+            /** @var PercentagePriceDefinition $percentageDefinition */
+            $percentageDefinition = $discount->getPriceDefinition();
+
+            /** @var AbsolutePriceDefinition $absoluteDefinition */
+            $absoluteDefinition = new AbsolutePriceDefinition(
+                -abs($maxValue),
+                $percentageDefinition->getPrecision(),
+                $this->addProductFilter($percentageDefinition)
+            );
+
+            $discount->setPriceDefinition($absoluteDefinition);
+
+            // try to get a new calculated price
+            // by using our absolute calculator this time with
+            // our new definition
+            $calculatedPrice = $this->absolutePriceCalculator->calculate($absoluteDefinition->getPrice(), $priceCollection, $context);
+        }
+
+        return $calculatedPrice;
     }
 
     /**

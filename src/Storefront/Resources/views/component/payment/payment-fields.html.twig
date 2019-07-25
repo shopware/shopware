@@ -22,7 +22,7 @@
 
                                             {% block component_payment_method_image %}
                                                 {% if payment.media.url %}
-                                                    <img src="{{ payment.media.url }}"
+                                                    <img src="{{ payment.media|sw_encode_media_url }}"
                                                          class="payment-method-image"
                                                          alt="{{ payment.media.translated.alt }}"
                                                          title="{{ payment.media.translated.title }}">

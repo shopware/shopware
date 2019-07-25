@@ -50,9 +50,9 @@ Component.register('sw-cms-block', {
 
             if (this.block.backgroundMedia) {
                 if (this.block.backgroundMedia.id) {
-                    backgroundMedia = `url(${this.block.backgroundMedia.url})`;
+                    backgroundMedia = `url("${this.block.backgroundMedia.url}")`;
                 } else {
-                    backgroundMedia = `url(${context.assetsPath}${this.block.backgroundMedia.url})`;
+                    backgroundMedia = `url('${context.assetsPath}${this.block.backgroundMedia.url}')`;
                 }
             }
 

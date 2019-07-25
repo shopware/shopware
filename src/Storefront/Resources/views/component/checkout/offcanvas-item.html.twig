@@ -6,7 +6,7 @@
         <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %} js-cart-item">
             <div class="row cart-item-row">
                 {% block component_offcanvas_product_image %}
-                    <div class="col-3">
+                    <div class="col-auto">
                         {% block component_offcanvas_product_image_inner %}
                             <div class="cart-item-img">
                                 {% if isDiscount %}
@@ -32,7 +32,7 @@
                                                     'default': '100px'
                                                 },
                                                 attributes: {
-                                                    'class': 'img-fluid',
+                                                    'class': 'img-fluid cart-item-img-source',
                                                     'alt': lineItem.label,
                                                     'title': lineItem.label
                                                 }

@@ -13,6 +13,7 @@
 
     .sw-cms-el-image-slider__image-box {
         display: grid;
+        position: relative;
 
         .sw-cms-el-image-slider__image {
             margin: 0 auto;
@@ -24,11 +25,31 @@
                 object-fit: cover;
                 width: 100%;
                 height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
             }
         }
     }
 
     .sw-cms-el-image-slider__navigation {
+        &.is--nav-outside {
+            justify-content: center;
+            background: #fff;
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .sw-cms-el-image-slider__navigation-button {
+            cursor: pointer;
+            color: $color-gray-400;
+
+            &:hover {
+                color: $color-gray-900;
+            }
+        }
 
         .sw-cms-el-image-slider__navigation-arrows {
             .sw-cms-el-image-slider__navigation-button {
@@ -79,7 +100,6 @@
                 .sw-cms-el-image-slider__navigation-buttons {
                     justify-content: center;
                     padding: 7.5px;
-
                 }
             }
 
@@ -96,31 +116,13 @@
                     margin: 0 3px;
 
                     &.is--active {
-                        background: $color-gray-900
+                        background: $color-gray-900;
                     }
 
                     &:hover {
-                        background: $color-gray-900
+                        background: $color-gray-900;
                     }
                 }
-            }
-        }
-    }
-
-    .sw-cms-el-image-slider__navigation {
-        &.is--nav-outside {
-            justify-content: center;
-            background: #fff;
-            border-radius: 5px;
-            padding: 15px;
-        }
-
-        .sw-cms-el-image-slider__navigation-button {
-            cursor: pointer;
-            color: $color-gray-400;
-
-            &:hover {
-                color: $color-gray-900;
             }
         }
     }

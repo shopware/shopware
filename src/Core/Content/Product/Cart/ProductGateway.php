@@ -26,6 +26,7 @@ class ProductGateway implements ProductGatewayInterface
         $criteria->addAssociation('deliveryTime');
         $criteria->addAssociation('cover');
         $criteria->addAssociation('unit');
+        $criteria->addAssociationPath('options.group');
 
         /** @var ProductCollection $result */
         $result = $this->repository->search($criteria, $context->getContext())->getEntities();

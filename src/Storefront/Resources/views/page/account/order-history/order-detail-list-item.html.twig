@@ -64,6 +64,19 @@
                                 </strong> </a>
                         {% endblock %}
 
+                        {% block page_account_order_item_detail_variants %}
+                            {% if lineItem.payload.options|length >= 1 %}
+                                <div class="order-item-variants">
+                                    {% for option in lineItem.payload.options %}
+                                        <div class="order-item-variants-properties">
+                                            <div class="order-item-variants-properties-name">{{ option.group.translated.name }}:</div>
+                                            <div class="order-item-variants-properties-value">{{ option.translated.name }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+
                         {% block page_account_order_item_detail_unitprice %}
                             {% set referencePrice = lineItem.price.referencePrice %}
                             

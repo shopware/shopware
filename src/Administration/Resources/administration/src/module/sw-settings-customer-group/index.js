@@ -2,7 +2,6 @@ import { Module } from 'src/core/shopware';
 import './extension/sw-settings-index';
 import './page/sw-settings-customer-group-list';
 import './page/sw-settings-customer-group-detail';
-import './page/sw-settings-customer-group-create';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
@@ -37,10 +36,17 @@ Module.register('sw-settings-customer-group', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.customer.group.index'
+            },
+            props: {
+                default(route) {
+                    return {
+                        customerGroupId: route.params.id
+                    };
+                }
             }
         },
         create: {
-            component: 'sw-settings-customer-group-create',
+            component: 'sw-settings-customer-group-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.customer.group.index'

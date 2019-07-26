@@ -21,7 +21,7 @@ describe('Customer group: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/customer-group?_response=true',
+            url: '/api/v1/customer-group',
             method: 'post'
         }).as('saveData');
 
@@ -72,7 +72,7 @@ describe('Customer group: Test crud operations', () => {
         // Edit base data
         cy.get('.sw-settings-customer-group-list').should('be.visible');
         cy.clickContextMenuItem(
-            '.sw-settings-customer-group-list__edit-action',
+            '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
@@ -109,13 +109,13 @@ describe('Customer group: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body')
-            .contains('Are you sure you want to delete the customer group "Chuck-Testers"?');
+            .contains('Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify deletion
         cy.wait('@deleteData').then(() => {
-            cy.awaitAndCheckNotification('Customer group has been deleted.');
+
         });
     });
 });

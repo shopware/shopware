@@ -1,22 +1,24 @@
 import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-customer-group-list.html.twig';
 
 Component.register('sw-settings-customer-group-list', {
     template,
 
+    inject: ['repositoryFactory', 'context'],
+
     mixins: [
-        Mixin.getByName('sw-settings-list'),
+        Mixin.getByName('listing'),
         Mixin.getByName('placeholder')
     ],
 
     data() {
         return {
-            entityName: 'customer_group',
             isLoading: false,
             sortBy: 'name',
-            sortDirection: 'ASC',
             limit: 10,
-            skeletonItemAmount: 3
+            customerGroups: null,
+            sortDirection: 'ASC'
         };
     },
 
@@ -29,6 +31,10 @@ Component.register('sw-settings-customer-group-list', {
     computed: {
         columns() {
             return this.getColumns();
+        },
+
+        customerGroupRepository() {
+            return this.repositoryFactory.create('customer_group');
         }
     },
 
@@ -41,67 +47,31 @@ Component.register('sw-settings-customer-group-list', {
             this.getList();
         },
 
+        getList() {
+            this.isLoading = true;
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.setTerm(this.term);
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
+            this.customerGroupRepository.search(criteria, this.context).then((searchResult) => {
+                this.total = searchResult.total;
+                this.customerGroups = searchResult;
+                this.isLoading = false;
+            });
+        },
+
         getColumns() {
             return [{
                 property: 'name',
                 label: this.$tc('sw-settings-customer-group.list.columnName'),
                 inlineEdit: 'string',
+                routerLink: 'sw.settings.customer.group.detail',
                 primary: true
             }, {
                 property: 'displayGross',
                 label: this.$tc('sw-settings-customer-group.list.columnDisplayGross'),
                 inlineEdit: 'boolean'
             }];
-        },
-
-        getInlinePlaceholder(entity) {
-            return this.placeholder(
-                entity,
-                'name',
-                this.$tc('sw-settings-customer-group.list.fieldNamePlaceholder')
-            );
-        },
-
-        onInlineEditSave(item) {
-            this.isLoading = true;
-            const name = item.name || this.placeholder(item, 'name');
-
-            return item.save().then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-customer-group.general.titleSuccess'),
-                    message: this.$tc('sw-settings-customer-group.list.messageSaveSuccess', 0, { name })
-                });
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('sw-settings-customer-group.general.titleError'),
-                    message: this.$tc('sw-settings-customer-group.list.messageSaveError')
-                });
-            }).finally(() => {
-                this.isLoading = false;
-            });
-        },
-
-        onConfirmDelete(id) {
-            this.deleteEntity = this.store.store[id];
-
-            this.onCloseDeleteModal();
-            this.deleteEntity.delete(true).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-customer-group.general.titleSuccess'),
-                    message: this.$tc('sw-settings-customer-group.list.messageDeleteSuccess')
-                });
-
-                this.deleteEntity = null;
-                this.getList();
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('sw-settings-customer-group.general.titleError'),
-                    message: this.$tc('sw-settings-customer-group.list.messageDeleteError')
-                });
-
-                this.deleteEntity = null;
-                this.getList();
-            });
         }
     }
 });

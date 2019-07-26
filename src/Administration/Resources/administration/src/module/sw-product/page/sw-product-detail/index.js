@@ -519,7 +519,7 @@ Component.register('sw-product-detail', {
                 return Promise.reject('A media item with this id exists');
             }
 
-            const newMedia = this.mediaRepository.create(this.context, mediaItem.id);
+            const newMedia = this.mediaRepository.create(this.context);
             newMedia.mediaId = mediaItem.id;
 
             return new Promise((resolve) => {

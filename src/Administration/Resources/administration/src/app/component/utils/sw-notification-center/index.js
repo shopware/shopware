@@ -35,12 +35,15 @@ export default {
 
     created() {
         this.unsubscribeFromStore = this.$store.subscribeAction(this.createNotificationFromSystemError);
+        this.$root.$on('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     beforeDestroyed() {
         if (typeof this.unsubscribeFromStore === 'function') {
             this.unsubscribeFromStore();
         }
+
+        this.$root.$off('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     methods: {
@@ -61,7 +64,20 @@ export default {
         onCloseDeleteModal() {
             this.showDeleteModal = false;
         },
+        changeVisibility(visible) {
+            if (this.$refs.notificationCenterContextButton === undefined) {
+                return;
+            }
 
+            if (visible) {
+                this.$refs.notificationCenterContextButton.openMenu();
+                return;
+            }
+
+            this.$refs.notificationCenterContextButton.showMenu = false;
+            this.$refs.notificationCenterContextButton.removeMenuFromBody();
+            this.$refs.notificationCenterContextButton.$emit('context-menu-after-close');
+        },
         createNotificationFromSystemError({ type, payload }) {
             if (type !== 'addSystemError') {
                 return;

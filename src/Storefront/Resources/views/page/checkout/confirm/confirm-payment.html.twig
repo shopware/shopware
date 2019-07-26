@@ -19,10 +19,17 @@
                 <p class="confirm-payment-current{% if paymentMethodInvalid %} is-invalid{% endif %}">
                     {% block page_checkout_confirm_payment_current_image %}
                         {% if context.paymentMethod.media %}
-                            <img src="{{ context.paymentMethod.media|sw_encode_media_url }}"
-                                 class="payment-method-image"
-                                 alt="{{ context.paymentMethod.media.translated.alt }}"
-                                 title="{{  context.paymentMethod.media.translated.title }}">
+                            {% sw_thumbnails 'confirm-payment-current-image-thumbnails' with {
+                                media: context.paymentMethod.media,
+                                sizes: {
+                                    'default': '100px'
+                                },
+                                attributes: {
+                                    'class': 'payment-method-image',
+                                    'alt': (context.paymentMethod.media.translated.alt ?: context.paymentMethod.translated.name),
+                                    'title': (context.paymentMethod.media.translated.title ?: context.paymentMethod.translated.name)
+                                }
+                            } %}
                         {% endif %}
                     {% endblock %}
 

@@ -56,6 +56,30 @@ Contains custom styles for the footer located at the bottom of the page.
     display: inline-block;
 }
 
+.footer-logos {
+    padding: $spacer;
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.footer-logo {
+    margin-right: $spacer-lg;
+    margin-bottom: $spacer-sm;
+
+    &:last-child {
+        margin-right: 0;
+    }
+}
+
+.footer-logo-image {
+    max-height: 35px;
+    max-width: 100px;
+}
+
 @include media-breakpoint-up(md) {
     .footer-columns {
         padding-bottom: 20px;

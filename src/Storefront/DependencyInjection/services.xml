@@ -112,6 +112,8 @@
         <service id="Shopware\Storefront\Page\GenericPageLoader">
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
+            <argument type="service" id="sales_channel.shipping_method.repository"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Search\SearchPageLoader" public="true">

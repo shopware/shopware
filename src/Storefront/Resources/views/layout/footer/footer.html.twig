@@ -97,6 +97,54 @@
         </div>
     {% endblock %}
 
+    {% block layout_footer_payment_shipping_logos %}
+        <div class="footer-logos">
+            {% block layout_footer_payment_logos %}
+                {% for paymentMethod in page.salesChannelPaymentMethods %}
+                    {% block layout_footer_payment_logo %}
+                        {% if paymentMethod.media %}
+                            <div class="footer-logo is-payment">
+                                {% sw_thumbnails 'footer-payment-image-thumbnails' with {
+                                    media: paymentMethod.media,
+                                    sizes: {
+                                        'default': '100px'
+                                    },
+                                    attributes: {
+                                        'class': 'img-fluid footer-logo-image',
+                                        'alt': (paymentMethod.media.translated.alt ?: paymentMethod.translated.name),
+                                        'title': (paymentMethod.media.translated.title ?: paymentMethod.translated.name)
+                                    }
+                                } %}
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+                {% endfor %}
+            {% endblock %}
+
+            {% block layout_footer_shipping_logos %}
+                {% for shippingMethod in page.salesChannelShippingMethods %}
+                    {% block layout_footer_shipping_logo %}
+                        {% if shippingMethod.media %}
+                            <div class="footer-logo is-shipping">
+                                {% sw_thumbnails 'footer-shipping-image-thumbnails' with {
+                                    media: shippingMethod.media,
+                                    sizes: {
+                                        'default': '100px'
+                                    },
+                                    attributes: {
+                                        'class': 'img-fluid footer-logo-image',
+                                        'alt': (shippingMethod.media.translated.alt ?: shippingMethod.translated.name),
+                                        'title': (shippingMethod.media.translated.title ?: shippingMethod.translated.name)
+                                    }
+                                } %}
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+                {% endfor %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
     {% block layout_footer_bottom %}
         <div class="footer-bottom">
             {% block layout_footer_vat %}

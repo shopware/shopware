@@ -5,7 +5,7 @@ export function mapApiErrors(subject, properties = []) {
     properties.forEach((property) => {
         const getter = string.camelCase(`${subject}.${property}.error`);
         map[getter] = function getterApiError() {
-            if (typeof this[subject].getEntityName === 'function') {
+            if (this[subject] && typeof this[subject].getEntityName === 'function') {
                 return this.$store.getters.getApiError(this[subject], property);
             }
             return null;

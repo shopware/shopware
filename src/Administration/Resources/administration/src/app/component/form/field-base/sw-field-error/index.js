@@ -21,8 +21,9 @@ export default {
             if (!this.error) {
                 return '';
             }
+
             const translationKey = `global.error-codes.${this.error.code}`;
-            const translation = this.$tc(translationKey);
+            const translation = this.$t(translationKey, this.error.parameters || {});
 
             if (translation === translationKey) {
                 return this.error.detail;

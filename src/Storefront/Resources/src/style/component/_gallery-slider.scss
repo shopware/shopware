@@ -40,7 +40,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     position: relative;
     backface-visibility: hidden;
     cursor: default;
-    display: grid;
+    display: block;
     height: 100%;
     max-width: 100%;
 
@@ -55,6 +55,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
             right: 0;
             bottom: 0;
             left: 0;
+            margin: 0 auto;
         }
     }
 }
@@ -154,6 +155,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
 .gallery-slider-thumbnails-image,
 .gallery-slider-image {
+    flex: 0 0 auto;
     max-height: 100%;
     max-width: 100%;
 }

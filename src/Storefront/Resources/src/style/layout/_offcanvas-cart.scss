@@ -49,6 +49,7 @@ Extends the basic offcanvas component with additional cart styles.
         width: 100%;
 
         .cart-item-img-source {
+            flex: 0 0 auto;
             max-height: 100%;
         }
     }

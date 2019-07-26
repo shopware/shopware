@@ -95,6 +95,10 @@
                                                                                 'data-height': image.media.metaData.height
                                                                             } %}
 
+                                                                            {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                                                {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                                                            {% endif %}
+
                                                                             {% if isProduct %}
                                                                                 {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}
                                                                             {% endif %}
@@ -147,6 +151,10 @@
                                                             'data-width': mediaItems|first.media.metaData.width,
                                                             'data-height': mediaItems|first.media.metaData.height
                                                         } %}
+
+                                                        {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                            {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                                        {% endif %}
 
                                                         {% if isProduct %}
                                                             {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}

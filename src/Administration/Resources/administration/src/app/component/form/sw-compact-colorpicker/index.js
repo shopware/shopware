@@ -15,7 +15,7 @@ import './sw-compact-colorpicker.scss';
 
 export default {
     name: 'sw-compact-colorpicker',
-    extends: SwColorPicker,
+    extendsFrom: SwColorPicker.name,
     template,
     inheritAttrs: false,
 

@@ -14,7 +14,7 @@ import './sw-number-field.scss';
  */
 export default {
     name: 'sw-number-field',
-    extends: SwTextField,
+    extendsFrom: SwTextField.name,
     template,
     inheritAttrs: false,
 

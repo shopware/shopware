@@ -12,7 +12,7 @@ import './sw-password-field.scss';
  */
 export default {
     name: 'sw-password-field',
-    extends: SwTextField,
+    extendsFrom: SwTextField.name,
     template,
 
     props: {

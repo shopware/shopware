@@ -13,7 +13,7 @@ import './sw-condition-or-container.scss';
  */
 export default {
     name: 'sw-condition-or-container',
-    extends: AndContainer,
+    extendsFrom: AndContainer.name,
     template,
 
     methods: {

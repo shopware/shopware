@@ -13,7 +13,7 @@ import './sw-url-field.scss';
  */
 export default {
     name: 'sw-url-field',
-    extends: SwTextField,
+    extendsFrom: SwTextField.name,
     template,
     inheritAttrs: false,
 

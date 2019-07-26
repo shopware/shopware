@@ -12,7 +12,7 @@ import './sw-switch-field.scss';
  */
 export default {
     name: 'sw-switch-field',
-    extends: checkbox,
+    extendsFrom: checkbox.name,
     template,
     inheritAttrs: false,
 

@@ -39,7 +39,7 @@ Shopware.Application.$container.factory('service.validationService', () => {
 });
 
 function registerBaseComponents(baseComponents, componentFactory) {
-    const filteredComponents = baseComponents().filter((item) => {
+    const filteredComponents = baseComponents.filter((item) => {
         return item !== undefined;
     });
 

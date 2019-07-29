@@ -48,6 +48,7 @@ class ProductLoader
             ->addAssociation('media')
             ->addAssociation('prices')
             ->addAssociation('manufacturer')
+            ->addAssociationPath('manufacturer.media')
             ->addAssociation('cover')
             ->addAssociationPath('properties.group');
 

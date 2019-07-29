@@ -93,7 +93,7 @@ Jest:
         - ./psh.phar init
         - ./psh.phar administration:install-dependencies
         - ./psh.phar administration:unit
-    coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         reports:
             junit: development/build/artifacts/clover.xml
@@ -176,7 +176,7 @@ Repository Split:
               git push origin $SHA1:master -f
             done
 
-Scrutinizer:
+.Scrutinizer:
     stage: Deploy
     image: php:7.3-alpine
     allow_failure: true

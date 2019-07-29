@@ -64,6 +64,7 @@
         <service id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer">
             <argument type="service" id="Shopware\Core\Framework\Twig\TemplateFinder"/>
             <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\Framework\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentService">
@@ -76,7 +77,6 @@
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <argument type="service" id="Shopware\Core\Framework\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\DocumentGeneratorController" public="true">

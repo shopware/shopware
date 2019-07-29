@@ -247,6 +247,7 @@ class ThemeTest extends TestCase
                     'labels' => $baseTheme->getLabels(),
                     'customFields' => $baseTheme->getCustomFields(),
                     'previewMediaId' => $baseTheme->getPreviewMediaId(),
+                    'active' => true,
                 ],
             ],
             $this->context

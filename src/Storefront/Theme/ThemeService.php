@@ -74,7 +74,8 @@ class ThemeService
         string $salesChannelId,
         string $themeId,
         Context $context,
-        ?StorefrontPluginConfigurationCollection $configurationCollection = null
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
+        bool $withAssets = true
     ) {
         $themePluginConfiguration = $this->getPluginConfiguration(
             $salesChannelId,
@@ -87,7 +88,8 @@ class ThemeService
             $salesChannelId,
             $themeId,
             $themePluginConfiguration,
-            $configurationCollection ?? $this->storefrontPluginRegistry->getConfigurations()
+            $configurationCollection ?? $this->storefrontPluginRegistry->getConfigurations(),
+            $withAssets
         );
 
         // invalidate cache and warm up
@@ -123,7 +125,7 @@ class ThemeService
         $this->themeRepository->update([$data], $context);
 
         foreach ($theme->getSalesChannels() as $salesChannel) {
-            $this->compileTheme($salesChannel->getId(), $themeId, $context);
+            $this->compileTheme($salesChannel->getId(), $themeId, $context, null, false);
         }
     }
 
@@ -340,7 +342,7 @@ class ThemeService
             }
         }
 
-        $pluginConfig->setConfig($this->getThemeConfiguration($theme->getId(), $translate, $context));
+        $pluginConfig->setThemeConfig($this->getThemeConfiguration($theme->getId(), $translate, $context));
 
         return $pluginConfig;
     }
@@ -355,7 +357,7 @@ class ThemeService
         }
 
         if ($pluginConfig !== null) {
-            $configuredTheme = $pluginConfig->getConfig();
+            $configuredTheme = $pluginConfig->getThemeConfig();
         }
 
         if ($theme !== null && $theme->getBaseConfig() !== null) {

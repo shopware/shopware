@@ -95,7 +95,7 @@ Mixin.register('theme', {
             themeDuplicate.baseConfig = parentTheme.baseConfig;
             themeDuplicate.configValues = parentTheme.configValues;
             themeDuplicate.previewMediaId = parentTheme.previewMediaId;
-
+            themeDuplicate.active = true;
 
             this.themeRepository.save(themeDuplicate, this.context).then(() => {
                 this.$router.push({ name: 'sw.theme.manager.detail', params: { id: themeDuplicate.id } });

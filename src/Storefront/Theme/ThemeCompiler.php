@@ -65,12 +65,13 @@ class ThemeCompiler
         string $salesChannelId,
         string $themeId,
         StorefrontPluginConfiguration $themeConfig,
-        StorefrontPluginConfigurationCollection $configurationCollection
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        bool $withAssets = true
     ): void {
         $themePrefix = self::getThemePrefix($salesChannelId, $themeId);
         $outputPath = 'theme' . DIRECTORY_SEPARATOR . $themePrefix;
 
-        if (is_dir('theme' . DIRECTORY_SEPARATOR . $themePrefix)) {
+        if ($withAssets && is_dir('theme' . DIRECTORY_SEPARATOR . $themePrefix)) {
             $this->publicFilesystem->deleteDir($outputPath);
         }
 
@@ -97,7 +98,10 @@ class ThemeCompiler
         $scriptFilepath = $outputPath . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'all.js';
         $this->publicFilesystem->put($scriptFilepath, $concatenatedScripts);
 
-        $this->copyAssets($themeConfig, $configurationCollection, $outputPath);
+        // assets
+        if ($withAssets) {
+            $this->copyAssets($themeConfig, $configurationCollection, $outputPath);
+        }
     }
 
     public static function getThemePrefix(string $salesChannelId, string $themeId): string
@@ -182,7 +186,7 @@ class ThemeCompiler
             return null;
         });
 
-        $variables = $this->dumpVariables($configuration->getConfig());
+        $variables = $this->dumpVariables($configuration->getThemeConfig());
         $cssOutput = $this->scssCompiler->compile($variables . $concatenatedStyles);
         $autoPreFixer = new Autoprefixer($cssOutput);
 

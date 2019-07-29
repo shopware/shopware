@@ -9,6 +9,7 @@ stages:
     - Static analyzes
     - Testing
     - E2E
+    - Deploy
 
 default:
     image: shopware/development:latest
@@ -17,7 +18,7 @@ default:
         - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/development.git
         - unzip -q platform.zip -d development/platform/
         - cd development
-        - git checkout ${CI_COMMIT_REF_NAME} 2>/dev/null
+        - if [ "$(git ls-remote origin $CI_COMMIT_REF_NAME | wc -l)" == "true" ]; then git checkout $CI_COMMIT_REF_NAME; fi
         - cp -v dev-ops/gitlab/.psh.yaml.override .
         - /entrypoint supervisord > /dev/null 2>&1 &
 
@@ -51,11 +52,11 @@ PHP analyze:
 PHPUnit (MySQL):
     stage: Testing
     services:
-        - name: mysql:5.7
-          alias: mysql
-        - name: elastic/elasticsearch:7.1.1
-          alias: elasticsearch
-          command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+        -   name: mysql:5.7
+            alias: mysql
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     script:
         - ./psh.phar init
         - ./psh.phar unit
@@ -67,11 +68,11 @@ PHPUnit (MySQL):
 PHPUnit (MariaDB):
     stage: Testing
     services:
-        - name: mariadb:10.3
-          alias: mysql
-        - name: elastic/elasticsearch:7.1.1
-          alias: elasticsearch
-          command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+        -   name: mariadb:10.3
+            alias: mysql
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     script:
         - ./psh.phar init
         - ./psh.phar unit
@@ -83,8 +84,8 @@ PHPUnit (MariaDB):
 Jest:
     stage: Testing
     services:
-        - name: mariadb:10.3
-          alias: mysql
+        -   name: mariadb:10.3
+            alias: mysql
     script:
         - ./psh.phar init
         - ./psh.phar administration:install-dependencies
@@ -97,10 +98,10 @@ Jest:
 Storefront:
     stage: E2E
     services:
-        - name: docker:dind
-          alias: docker
-        - name: mariadb:10.3
-          alias: mysql
+        -   name: docker:dind
+            alias: docker
+        -   name: mariadb:10.3
+            alias: mysql
     script:
         - ./psh.phar init --APP_ENV="prod"
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
@@ -121,10 +122,10 @@ Storefront:
 Administration:
     stage: E2E
     services:
-        - name: docker:dind
-          alias: docker
-        - name: mariadb:10.3
-          alias: mysql
+        -   name: docker:dind
+            alias: docker
+        -   name: mariadb:10.3
+            alias: mysql
     script:
         - ./psh.phar init --APP_ENV="prod"
         - ./psh.phar administration:init --APP_ENV="prod"
@@ -142,3 +143,29 @@ Administration:
             - development/build/artifacts/e2e/
         reports:
             junit: development/build/artifacts/e2e/*.xml
+
+Repository Split:
+    stage: Deploy
+    image: debian:buster-slim
+    before_script: []
+    only:
+        - master
+    environment:
+        name: Github
+        url: https://github.com/shopware
+    script:
+        - apt update && apt install -y wget git
+
+        # download tool
+        - wget https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz
+        - tar xvfz lite_linux_amd64.tar.gz
+        - chmod +x splitsh-lite
+
+        # split repositories
+        - >
+            for pkg in Administration Docs Storefront Core Elasticsearch; do
+              echo "Splitting ${pkg}"
+              SHA1=`./splitsh-lite --prefix=src/$pkg/ --target=refs/heads/$pkg`
+              git remote set-url origin https://bot:${PERSONAL_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories/$(echo $pkg | awk '{print tolower($0)}').git
+              git push origin $SHA1:master -f
+            done

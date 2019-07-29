@@ -32,7 +32,7 @@ not especially translated field, will stick to the German language `de-DE`.
 Translations in Shopware 6 are supported by two subsystems all correlating to the same basic rules:
 
 Snippets
- : Snippets are dynamic translation texts that can be managed through the Management-API
+ : Snippets are dynamic translation texts that can be managed through the Admin API
  
 [Data Abstraction Layer](./20-data-abstraction-layer/__categoryInfo.md)
  : All customer facing data is by default translatable follow the link to see how.

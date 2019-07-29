@@ -1,4 +1,4 @@
-[titleEn]: <>(Management API extended read)
+[titleEn]: <>(Admin API extended read)
 
 ## Overview
 
@@ -95,11 +95,11 @@ The following aggregations are currently supported:
 
 **GET /api/v1/_info/entity-schema.json**
 
-This endpoint responses with a simple schema describing the whole management API.
+This endpoint responses with a simple schema describing the whole Admin API.
 
 ## OpenAPI 3 schema
 
 **GET /api/v1/_info/openapi3.json**
 
 This endpoint's response with an [OpenAPI 3](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md)
-schema describing the whole management API. 
+schema describing the whole Admin API. 

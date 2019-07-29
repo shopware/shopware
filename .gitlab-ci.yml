@@ -9,6 +9,7 @@ stages:
     - Static analyzes
     - Testing
     - E2E
+    - Build
     - Deploy
 
 default:
@@ -62,6 +63,8 @@ PHPUnit (MySQL):
         - ./psh.phar unit
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
+        paths:
+            - development/build/artifacts/phpunit.clover.xml
         reports:
             junit: development/build/artifacts/phpunit.junit.xml
 
@@ -102,6 +105,7 @@ Storefront:
             alias: docker
         -   name: mariadb:10.3
             alias: mysql
+    dependencies: []
     script:
         - ./psh.phar init --APP_ENV="prod"
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
@@ -126,6 +130,7 @@ Administration:
             alias: docker
         -   name: mariadb:10.3
             alias: mysql
+    dependencies: []
     script:
         - ./psh.phar init --APP_ENV="prod"
         - ./psh.phar administration:init --APP_ENV="prod"
@@ -148,6 +153,7 @@ Repository Split:
     stage: Deploy
     image: debian:buster-slim
     before_script: []
+    dependencies: []
     only:
         - master
     environment:
@@ -169,3 +175,55 @@ Repository Split:
               git remote set-url origin https://bot:${PERSONAL_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories/$(echo $pkg | awk '{print tolower($0)}').git
               git push origin $SHA1:master -f
             done
+
+Scrutinizer:
+    stage: Deploy
+    image: php:7.3-alpine
+    allow_failure: true
+    before_script: []
+    only:
+        - master
+    dependencies:
+        - PHPUnit (MySQL)
+    script:
+        - wget https://scrutinizer-ci.com/ocular.phar
+        - php ocular.phar code-coverage:upload
+            --repository="g/shopware/platform"
+            --revision="$CI_COMMIT_SHA"
+            --format=php-clover
+            development/build/artifacts/phpunit.clover.xml
+
+Component Library:
+    stage: Build
+    image: node:10.8
+    before_script: []
+    dependencies: []
+    variables:
+        PROJECT_ROOT: $CI_PROJECT_DIR
+    only:
+        - master
+    environment:
+        name: Component Library
+        url: https://component-library.shopware.com
+    script:
+        - npm install --prefix src/Administration/Resources/
+        - npm run --prefix src/Administration/Resources lerna -- bootstrap
+        - npm install --prefix src/Administration/Resources/nuxt-component-library/
+        - npm run --prefix src/Administration/Resources/nuxt-component-library/ generate
+    artifacts:
+        paths:
+            - build/artifacts/component-library/
+
+Upload Component Library:
+    stage: Deploy
+    image: python:latest
+    before_script: []
+    only:
+        - master
+    dependencies:
+        - Component Library
+    script:
+        - pip install awscli
+        - cd build/artifacts/component-library
+        - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
+        - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"

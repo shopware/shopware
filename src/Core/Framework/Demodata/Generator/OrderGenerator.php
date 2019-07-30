@@ -133,7 +133,10 @@ SQL;
 
             $cart = $this->cartService->recalculate($cart, $salesChannelContext);
 
-            $payload[] = $this->orderConverter->convertToOrder($cart, $salesChannelContext, new OrderConversionContext());
+            $tempOrder = $this->orderConverter->convertToOrder($cart, $salesChannelContext, new OrderConversionContext());
+            $tempOrder['orderDateTime'] = (new \DateTime())->modify('-' . random_int(0, 30) . ' days')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+            $payload[] = $tempOrder;
 
             if (\count($payload) >= 20) {
                 $this->writer->upsert($this->orderDefinition, $payload, $writeContext);

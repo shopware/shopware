@@ -84,6 +84,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\IsCompanyRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule">
             <tag name="shopware.rule.definition"/>
         </service>

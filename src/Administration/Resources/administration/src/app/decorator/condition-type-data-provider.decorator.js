@@ -16,6 +16,7 @@ import 'src/module/sw-settings-rule/component/sw-condition-goods-count';
 import 'src/module/sw-settings-rule/component/sw-condition-goods-price';
 import 'src/module/sw-settings-rule/component/sw-condition-is-new-customer';
 import 'src/module/sw-settings-rule/component/sw-condition-last-name';
+import 'src/module/sw-settings-rule/component/sw-condition-is-company';
 import 'src/module/sw-settings-rule/component/sw-condition-line-item';
 import 'src/module/sw-settings-rule/component/sw-condition-line-item-of-type';
 import 'src/module/sw-settings-rule/component/sw-condition-line-item-total-price';
@@ -100,6 +101,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('customerLastName', {
         component: 'sw-condition-last-name',
         label: 'global.sw-condition.condition.lastNameRule',
+        scopes: ['checkout']
+    });
+    ruleConditionService.addCondition('customerIsCompany', {
+        component: 'sw-condition-is-company',
+        label: 'global.sw-condition.condition.isCompanyRule',
         scopes: ['checkout']
     });
     ruleConditionService.addCondition('customerShippingCountry', {

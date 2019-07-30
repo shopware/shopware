@@ -412,6 +412,7 @@
         "differentAddressesRule": "Different addresses",
         "isNewCustomerRule": "Is new customer",
         "lastNameRule": "Last name",
+        "isCompanyRule": "Business customer",
         "daysSinceLastOrderRule": "Days since last order",
         "shippingCountryRule": "Shipping country",
         "shippingStreetRule": "Shipping street",

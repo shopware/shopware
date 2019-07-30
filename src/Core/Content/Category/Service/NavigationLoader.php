@@ -49,7 +49,7 @@ class NavigationLoader
             ])
         );
         $criteria->addFilter(new EqualsFilter('category.visible', true));
-        $criteria->addAssociation('media');
+        $this->getMainCategoryAssociations($criteria);
 
         /** @var CategoryCollection $rootLevel */
         $rootLevel = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -65,6 +65,7 @@ class NavigationLoader
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('parentId', $ids));
         $criteria->addFilter(new EqualsFilter('category.visible', true));
+        $this->getSubCategoryAssociations($criteria);
 
         /** @var CategoryCollection $secondLevel */
         $secondLevel = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -102,6 +103,17 @@ class NavigationLoader
         $parentId = $categories->get($categoryId)->getParentId();
 
         return $this->getTree($parentId, $categories, $active);
+    }
+
+    private function getMainCategoryAssociations(Criteria $criteria)
+    {
+        $criteria->addAssociation('media');
+        $criteria->addAssociation('tags');
+    }
+
+    private function getSubCategoryAssociations(Criteria $criteria)
+    {
+        $criteria->addAssociation('tags');
     }
 
     private function getTree(?string $parentId, CategoryCollection $categories, CategoryEntity $active): Tree

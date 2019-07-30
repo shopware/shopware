@@ -129,7 +129,7 @@ Component.register('sw-order-detail-base', {
                 'deliveries.shippingMethod',
                 'deliveries.shippingOrderAddress',
                 'transactions.paymentMethod',
-                'documents',
+                'documents.documentType',
                 'tags'
             ]);
 

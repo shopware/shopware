@@ -35,7 +35,9 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
         },
 
         invoices() {
-            return this.order.documents;
+            return this.order.documents.filter((document) => {
+                return document.documentType.technicalName === 'invoice';
+            });
         }
     },
 

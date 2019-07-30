@@ -39,7 +39,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Smalot\PdfParser\Parser;
 
 class DocumentServiceTest extends TestCase
@@ -162,11 +161,6 @@ class DocumentServiceTest extends TestCase
 
     public function testCreateFileIsWrittenInFs(): void
     {
-        /** @var SystemConfigService $systemConfigService */
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-
-        $systemConfigService->set(DocumentService::SYSTEM_CONFIG_SAVE_TO_FS, true);
-
         /** @var FilesystemInterface $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
         $document = $this->createDocumentWithFile();
@@ -179,18 +173,6 @@ class DocumentServiceTest extends TestCase
         static::assertTrue($fileSystem->has($filePath));
         $fileSystem->delete($filePath);
         static::assertFalse($fileSystem->has($filePath));
-    }
-
-    public function testCreateFileIsNotWrittenInFs(): void
-    {
-        /** @var SystemConfigService $systemConfigService */
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-
-        $systemConfigService->set(DocumentService::SYSTEM_CONFIG_SAVE_TO_FS, false);
-
-        $document = $this->createDocumentWithFile();
-
-        static::assertNull($document->getDocumentMediaFile());
     }
 
     public function testGetStaticDocumentFile(): void
@@ -220,11 +202,6 @@ class DocumentServiceTest extends TestCase
 
         /** @var DocumentTypeEntity $documentType */
         $documentType = $documentTypeRepository->search($criteria, $this->context)->first();
-
-        /** @var SystemConfigService $systemConfigService */
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-
-        $systemConfigService->set(DocumentService::SYSTEM_CONFIG_SAVE_TO_FS, true);
 
         $documentId = Uuid::randomHex();
         $mediaId = Uuid::randomHex();

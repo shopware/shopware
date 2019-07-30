@@ -161,7 +161,7 @@ class DocumentService
         return new DocumentIdStruct($documentId, $deepLinkCode);
     }
 
-    public function getDocument(DocumentEntity $document, Context $context, bool $regenerate = false): GeneratedDocument
+    public function getDocument(DocumentEntity $document, Context $context): GeneratedDocument
     {
         $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
         $fileGenerator = $this->fileGeneratorRegistry->getGenerator($document->getFileType());
@@ -171,8 +171,8 @@ class DocumentService
         $generatedDocument->setPageSize($config->getPageSize());
         $generatedDocument->setContentType($fileGenerator->getContentType());
 
-        if (($regenerate === true || !$this->hasValidFile($document)) && !$document->isStatic()) {
-            $this->regenerateDocument($document, $context, $generatedDocument, $config, $fileGenerator);
+        if (!$this->hasValidFile($document) && !$document->isStatic()) {
+            $this->generateDocument($document, $context, $generatedDocument, $config, $fileGenerator);
         } else {
             $generatedDocument->setFilename($document->getDocumentMediaFile()->getFileName());
             $fileBlob = '';
@@ -363,7 +363,7 @@ class DocumentService
         }
     }
 
-    private function regenerateDocument(
+    private function generateDocument(
         DocumentEntity $document,
         Context $context,
         GeneratedDocument $generatedDocument,
@@ -381,9 +381,8 @@ class DocumentService
         $generatedDocument->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
         $fileBlob = $fileGenerator->generate($generatedDocument);
         $generatedDocument->setFileBlob($fileBlob);
-        if ($this->systemConfigService->get(self::SYSTEM_CONFIG_SAVE_TO_FS) === true) {
-            $this->saveDocumentFile($document, $context, $fileBlob, $fileGenerator, $documentGenerator, $config);
-        }
+
+        $this->saveDocumentFile($document, $context, $fileBlob, $fileGenerator, $documentGenerator, $config);
     }
 
     private function getOrderBaseCriteria(string $orderId): Criteria

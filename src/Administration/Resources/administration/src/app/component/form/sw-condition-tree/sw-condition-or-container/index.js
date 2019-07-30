@@ -1,5 +1,4 @@
 import template from './sw-condition-or-container.html.twig';
-import AndContainer from '../sw-condition-and-container';
 import './sw-condition-or-container.scss';
 
 /**
@@ -13,7 +12,7 @@ import './sw-condition-or-container.scss';
  */
 export default {
     name: 'sw-condition-or-container',
-    extendsFrom: AndContainer.name,
+    extendsFrom: 'sw-condition-and-container',
     template,
 
     methods: {

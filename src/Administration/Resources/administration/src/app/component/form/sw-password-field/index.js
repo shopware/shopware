@@ -1,5 +1,4 @@
 import template from './sw-password-field.html.twig';
-import SwTextField from '../sw-text-field/index';
 import './sw-password-field.scss';
 
 /**
@@ -12,7 +11,7 @@ import './sw-password-field.scss';
  */
 export default {
     name: 'sw-password-field',
-    extendsFrom: SwTextField.name,
+    extendsFrom: 'sw-text-field',
     template,
 
     props: {

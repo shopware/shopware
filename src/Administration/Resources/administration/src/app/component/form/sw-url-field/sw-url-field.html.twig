@@ -1,37 +1,39 @@
-<sw-contextual-field class="sw-field--url" v-bind="$attrs" :name="formFieldName">
-    <template #sw-contextual-field-prefix="{ disabled }">
-        <span class="sw-field__url-input__prefix" :class="prefixClass" @click="changeMode(disabled)">
-            <sw-icon name="default-lock-closed"
-                     :small="true"
-                     v-if="sslActive">
-            </sw-icon>
-            <sw-icon name="default-lock-open"
-                     :small="true"
-                     v-else>
-            </sw-icon>
-            {{ urlPrefix }}
-        </span>
-    </template>
+{% block sw_url_field %}
+    <sw-contextual-field class="sw-field--url" v-bind="$attrs" :name="formFieldName">
+        <template #sw-contextual-field-prefix="{ disabled }">
+            <span class="sw-field__url-input__prefix" :class="prefixClass" @click="changeMode(disabled)">
+                <sw-icon name="default-lock-closed"
+                        :small="true"
+                        v-if="sslActive">
+                </sw-icon>
+                <sw-icon name="default-lock-open"
+                        :small="true"
+                        v-else>
+                </sw-icon>
+                {{ urlPrefix }}
+            </span>
+        </template>
 
-    <template #sw-field-input="{identification, error, disabled, swBlockSize, setFocusClass, removeFocusClass }">
-        <input class="sw-url-input-field__input"
-               :name="identification"
-               :id="identification"
-               :value="currentValue"
-               :placeholder="placeholder"
-               :disabled="disabled"
-               @input="onInput"
-               @change="onChange"
-               @focus="setFocusClass"
-               @blur="removeFocusClass">
-    </template>
+        <template #sw-field-input="{identification, error, disabled, swBlockSize, setFocusClass, removeFocusClass }">
+            <input class="sw-url-input-field__input"
+                :name="identification"
+                :id="identification"
+                :value="currentValue"
+                :placeholder="placeholder"
+                :disabled="disabled"
+                @input="onInput"
+                @change="onChange"
+                @focus="setFocusClass"
+                @blur="removeFocusClass">
+        </template>
 
-    <template v-if="copyable" #sw-contextual-field-suffix="{ identification }">
-        <sw-field-copyable
-            v-if="copyable"
-           :displayName="identification"
-           :copyableText="currentValue"
-           :tooltip="copyableTooltip">
-        </sw-field-copyable>
-    </template>
-</sw-contextual-field>
+        <template v-if="copyable" #sw-contextual-field-suffix="{ identification }">
+            <sw-field-copyable
+                v-if="copyable"
+            :displayName="identification"
+            :copyableText="currentValue"
+            :tooltip="copyableTooltip">
+            </sw-field-copyable>
+        </template>
+    </sw-contextual-field>
+{% endblock %}

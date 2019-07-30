@@ -1,6 +1,5 @@
 import { Mixin } from 'src/core/shopware';
 import Picker from 'vanilla-picker';
-import SwColorPicker from '../sw-colorpicker/index';
 import template from './sw-compact-colorpicker.html.twig';
 import './sw-compact-colorpicker.scss';
 
@@ -15,7 +14,7 @@ import './sw-compact-colorpicker.scss';
 
 export default {
     name: 'sw-compact-colorpicker',
-    extendsFrom: SwColorPicker.name,
+    extendsFrom: 'sw-colorpicker',
     template,
     inheritAttrs: false,
 

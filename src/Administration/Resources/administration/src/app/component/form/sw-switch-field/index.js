@@ -1,4 +1,3 @@
-import checkbox from '../sw-checkbox-field/index';
 import template from './sw-switch-field.html.twig';
 import './sw-switch-field.scss';
 
@@ -12,7 +11,7 @@ import './sw-switch-field.scss';
  */
 export default {
     name: 'sw-switch-field',
-    extendsFrom: checkbox.name,
+    extendsFrom: 'sw-checkbox-field',
     template,
     inheritAttrs: false,
 

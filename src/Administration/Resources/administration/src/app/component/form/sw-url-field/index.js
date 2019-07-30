@@ -1,4 +1,3 @@
-import SwTextField from '../sw-text-field/index';
 import template from './sw-url-field.html.twig';
 import './sw-url-field.scss';
 
@@ -13,7 +12,7 @@ import './sw-url-field.scss';
  */
 export default {
     name: 'sw-url-field',
-    extendsFrom: SwTextField.name,
+    extendsFrom: 'sw-text-field',
     template,
     inheritAttrs: false,
 

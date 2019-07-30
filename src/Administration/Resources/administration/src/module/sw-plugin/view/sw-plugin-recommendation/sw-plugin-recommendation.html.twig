@@ -1,3 +1,5 @@
-<sw-card :isLoading="pageLoading">
-    <sw-first-run-wizard-plugins></sw-first-run-wizard-plugins>
-</sw-card>
+{% block sw_plugin_recommendation %}
+    <sw-card :isLoading="pageLoading">
+        <sw-first-run-wizard-plugins></sw-first-run-wizard-plugins>
+    </sw-card>
+{% endblock %}

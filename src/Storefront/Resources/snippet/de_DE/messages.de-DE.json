@@ -82,6 +82,9 @@
         "registerPersonalHeader": "Ich bin Neukunde",
         "registerAddressBillingHeader": "Ihre Adresse",
         "registerAddressShippingHeader": "Ihre abweichende Lieferadresse",
+        "personalTypeLabel": "Ich bin",
+        "personalTypePrivate": "Privat",
+        "personalTypeBusiness": "Gewerblich",
         "personalSalutationLabel": "Anrede",
         "personalSalutationPlaceholder": "Anrede",
         "personalTitleLabel": "Titel",
@@ -228,7 +231,13 @@
         "countryLabel": "Land",
         "countryPlaceholder": "Land",
         "phoneNumberLabel": "Telefonnummer",
-        "phoneNumberPlaceholder": "Telefonnummer"
+        "phoneNumberPlaceholder": "Telefonnummer",
+        "companyNameLabel": "Firma",
+        "companyNamePlaceholder": "Firma",
+        "companyDepartmentLabel": "Abteilung",
+        "companyDepartmentPlaceholder": "Abteilung",
+        "companyVatLabel": "Umsatzsteuer-ID",
+        "companyVatPlaceholder": "Umsatzsteuer-ID"
     },
     "checkout": {
         "itemCounter": "%count% Artikel",

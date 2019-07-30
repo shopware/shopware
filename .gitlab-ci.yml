@@ -9,6 +9,7 @@ stages:
     - Static analyzes
     - Testing
     - E2E
+    - Security
     - Build
     - Deploy
 
@@ -148,6 +149,18 @@ Administration:
             - development/build/artifacts/e2e/
         reports:
             junit: development/build/artifacts/e2e/*.xml
+
+RIPS security:
+    stage: Security
+    image: php:7.3-alpine
+    before_script: []
+    only:
+        - master
+    script:
+        - apk add --no-cache libzip-dev && docker-php-ext-configure zip --with-libzip=/usr/include && docker-php-ext-install zip
+        - wget https://github.com/rips/rips-cli/releases/download/3.2.0/rips-cli.phar -O /usr/bin/rips-cli
+        - chmod 755 /usr/bin/rips-cli
+        - rips-cli rips:scan:start -p . -t critical:0 -a ${RIPS_APP_ID} --progress
 
 Repository Split:
     stage: Deploy

@@ -13,7 +13,7 @@ describe('Sales Channel: Test crud operations', () => {
             });
     });
 
-    it.skip('@package @general: create and read sales channel', () => {
+    it('@package @general: create and read sales channel', () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later

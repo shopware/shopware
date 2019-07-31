@@ -92,24 +92,24 @@ export default class MediaPageObject extends GeneralPageObject {
         }
     }
 
-    setThumbnailSize(width, height) {
-        cy.get('input[name=sw-field--width').type(width);
+    setThumbnailSize(size, position = 0) {
+        cy.get('input[name=sw-field--width').type(size.width);
         cy.get('input[name=sw-field--width').type('{enter}');
 
-        if (height) {
+        if (size.height) {
             cy.get('.sw-media-add-thumbnail-form__lock').click();
             cy.get('input[name=sw-field--height]').clear();
-            cy.get('input[name=sw-field--height]').type(height);
+            cy.get('input[name=sw-field--height]').type(size.height);
             cy.get('input[name=sw-field--height]').type('{enter}');
             cy.get('.sw-media-folder-settings__add-thumbnail-size-action.is--disabled')
                 .should('not.exist');
             cy.get('.sw-media-folder-settings__add-thumbnail-size-action').click();
-            cy.get('.sw-media-modal-folder-settings__thumbnail-size-entry label')
-                .contains(`${width}x${height}`);
+            cy.get(`.sw-media-modal-folder-settings__entry--${position} label`)
+                .contains(`${size.width}x${size.height}`);
         } else {
             cy.get('.sw-media-folder-settings__add-thumbnail-size-action').click();
-            cy.get('.sw-media-modal-folder-settings__thumbnail-size-entry label')
-                .contains(`${width}x${width}`);
+            cy.get(`.sw-media-modal-folder-settings__entry--${position} label`)
+                .contains(`${size.width}x${size.width}`);
         }
     }
 

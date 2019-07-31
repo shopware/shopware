@@ -207,7 +207,7 @@ Administration (Content):
     <<: *e2e_definition
     script: *administration_definition
     variables:
-        TEST_DIRECTORY: e2e-Administration/cypress/integration/general/**/*
+        TEST_DIRECTORY: e2e-Administration/cypress/integration/content/**/*
 
 Administration (Rules):
     <<: *e2e_definition

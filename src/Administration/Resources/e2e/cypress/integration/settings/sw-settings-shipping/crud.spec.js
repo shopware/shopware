@@ -16,7 +16,7 @@ describe('Shipping: Test crud operations', () => {
             });
     });
 
-    it.skip('@package @settings: create and read shipping method', () => {
+    it('@package @settings: create and read shipping method', () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later
@@ -39,7 +39,7 @@ describe('Shipping: Test crud operations', () => {
         });
     });
 
-    it.skip('@package @settings: update and read shipping method', () => {
+    it('@package @settings: update and read shipping method', () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later

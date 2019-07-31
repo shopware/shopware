@@ -16,7 +16,7 @@ describe('Media: Test thumbnails', () => {
             });
     });
 
-    it.skip('@content: create and use thumbnail sizes', () => {
+    it('@content: create and use thumbnail sizes', () => {
         // TODO: Divide this tests into smaller ones if running time is allowing that
 
         const page = new MediaPageObject();
@@ -41,7 +41,7 @@ describe('Media: Test thumbnails', () => {
         cy.get('input[name=sw-field--configuration-thumbnailQuality]').type('90');
 
         // Create first thumbnail size with locked height
-        page.setThumbnailSize('800');
+        page.setThumbnailSize({width: '800'}, 1);
         cy.get('button.sw-media-modal-folder-settings__switch-mode').click();
         cy.get(page.elements.saveSettingsAction).click();
         cy.awaitAndCheckNotification('Settings have been saved.');
@@ -54,10 +54,10 @@ describe('Media: Test thumbnails', () => {
         );
         cy.get('.sw-media-folder-settings__thumbnails-tab').click();
         cy.get('button.sw-media-modal-folder-settings__switch-mode').click();
-        cy.get('.sw-media-modal-folder-settings__delete-thumbnail').click();
-        cy.get('.sw-media-modal-folder-settings__thumbnail-size-entry').should('not.exist');
+        cy.get('.sw-media-modal-folder-settings__entry--2 .sw-media-modal-folder-settings__delete-thumbnail').click();
+        cy.get('.sw-media-modal-folder-settings__entry--2').should('not.exist');
 
-        page.setThumbnailSize('1920', '1080');
+        page.setThumbnailSize({width: '1920', height: '1080'}, 2);
         cy.get('input[name=thumbnail-size-1920-1080-active]').click();
         cy.get('button.sw-media-modal-folder-settings__switch-mode').click();
         cy.get(page.elements.saveSettingsAction).click();
@@ -86,8 +86,8 @@ describe('Media: Test thumbnails', () => {
         cy.get('input[name=sw-field--folder-useParentConfiguration]').click(false);
         cy.get('input[name=sw-field--configuration-keepAspectRatio]').click();
         cy.get('.sw-media-modal-folder-settings__switch-mode').click();
-        cy.get('.sw-media-modal-folder-settings__delete-thumbnail').click();
-        cy.get('.sw-media-modal-folder-settings__thumbnail-size-entry').should('not.exist');
+        cy.get('.sw-media-modal-folder-settings__entry--2 .sw-media-modal-folder-settings__delete-thumbnail').click();
+        cy.get('.sw-media-modal-folder-settings__thumbnail-size-entry--2').should('not.exist');
         cy.get('.sw-media-modal-folder-settings__switch-mode').click();
         cy.get(page.elements.saveSettingsAction).click();
         cy.awaitAndCheckNotification('Settings have been saved.');

@@ -10,19 +10,23 @@ use Twig\Loader\FilesystemLoader;
 class TemplateFinder
 {
     /**
+     * @var FilesystemLoader
+     */
+    protected $loader;
+
+    /**
+     * @var Kernel
+     */
+    protected $kernel;
+    /**
      * @var array
      */
     private $bundles;
 
-    /**
-     * @var FilesystemLoader
-     */
-    private $loader;
-
     public function __construct(FilesystemLoader $loader, Kernel $kernel)
     {
         $this->loader = $loader;
-
+        $this->kernel = $kernel;
         $this->addBundles($kernel);
     }
 
@@ -66,14 +70,14 @@ class TemplateFinder
     {
         $template = ltrim($template, '@');
 
-        $queue = $this->bundles;
+        $filterdBundles = $queue = $this->filterBundles($this->bundles);
 
         if ($startAt) {
-            $index = array_search($startAt, $this->bundles, true);
+            $index = array_search($startAt, $filterdBundles, true);
 
             $queue = array_merge(
-                array_slice($this->bundles, $index + 1),
-                array_slice($this->bundles, 0, $index + 1)
+                array_slice($filterdBundles, $index + 1),
+                array_slice($filterdBundles, 0, $index + 1)
             );
         }
 
@@ -91,7 +95,12 @@ class TemplateFinder
         throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $template, implode(', ', array_values($queue))));
     }
 
-    private function addBundles(Kernel $kernel): void
+    protected function filterBundles(array $bundles)
+    {
+        return $bundles;
+    }
+
+    protected function addBundles(Kernel $kernel): void
     {
         $bundles = [];
 

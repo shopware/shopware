@@ -142,10 +142,12 @@ class StoreController extends AbstractController
         /** @var UserEntity|null $user */
         $user = $this->userRepository->search($criteria, $context)->getEntities()->first();
 
+        $tokenExists = false;
         if ($user && $user->getStoreToken()) {
-            return new Response();
+            $tokenExists = true;
         }
-        throw new StoreTokenMissingException();
+
+        return new JsonResponse(['storeTokenExists' => $tokenExists]);
     }
 
     /**

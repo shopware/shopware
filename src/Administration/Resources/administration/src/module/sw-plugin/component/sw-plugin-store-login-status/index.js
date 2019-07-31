@@ -53,8 +53,8 @@ Component.register('sw-plugin-store-login-status', {
         },
 
         checkLogin() {
-            this.storeService.checkLogin().then(() => {
-                this.isLoggedIn = true;
+            this.storeService.checkLogin().then((response) => {
+                this.isLoggedIn = response.storeTokenExists;
             }).catch(() => {
                 this.isLoggedIn = false;
             });

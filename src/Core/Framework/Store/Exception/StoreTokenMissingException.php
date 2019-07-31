@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 class StoreTokenMissingException extends ShopwareHttpException
 {
@@ -14,5 +15,10 @@ class StoreTokenMissingException extends ShopwareHttpException
     public function getErrorCode(): string
     {
         return 'FRAMEWORK__STORE_TOKEN_IS_MISSING';
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_UNAUTHORIZED;
     }
 }

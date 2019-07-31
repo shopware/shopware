@@ -87,7 +87,7 @@ PHPUnit (MariaDB):
         reports:
             junit: development/build/artifacts/phpunit.junit.xml
 
-Jest:
+Jest (Administration):
     stage: Testing
     services:
         -   name: mariadb:10.3
@@ -99,7 +99,23 @@ Jest:
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         reports:
-            junit: development/build/artifacts/clover.xml
+            junit: development/build/artifacts/administration.junit.xml
+
+Jest (Storefront):
+    stage: Testing
+    variables:
+        PROJECT_ROOT: $CI_PROJECT_DIR/development
+    services:
+        -   name: mariadb:10.3
+            alias: mysql
+    script:
+        - ./psh.phar init
+        - ./psh.phar storefront:install-dependencies
+        - npm --prefix vendor/shopware/platform/src/Storefront/Resources/ test
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
+    artifacts:
+        reports:
+            junit: development/build/artifacts/storefront.junit.xml
 
 # Stage: e2e
 

@@ -104,6 +104,19 @@ Component.register('sw-promotion-discount-component', {
             return (this.discount.type === DiscountTypes.ABSOLUTE || this.discount.type === DiscountTypes.FIXED);
         },
 
+        // only show advanced max value settings if
+        // at least a base max value has been set
+        showMaxValueAdvancedPrices() {
+            return this.discount.type === DiscountTypes.PERCENTAGE && this.discount.maxValue !== null;
+        },
+
+        maxValueAdvancedPricesTooltip() {
+            if (this.discount.type === DiscountTypes.PERCENTAGE && this.discount.maxValue !== null && this.discount.promotionDiscountPrices.length > 0) {
+                return this.$tc('sw-promotion.detail.main.discounts.helpTextMaxValueAdvancedPrices');
+            }
+            return '';
+        },
+
         isEditingDisabled() {
             return !PromotionPermissions.isEditingAllowed(this.promotion);
         }
@@ -128,13 +141,26 @@ Component.register('sw-promotion-discount-component', {
             this.discount.value = discountHandler.getFixedValue(value, this.discount.type);
         },
 
+        // The number field does not allow a NULL input
+        // so the value cannot be cleared anymore.
+        // If the user removes the value, it will be 0 and converted
+        // into NULL, which means no max value applies anymore.
+        onMaxValueChanged(value) {
+            if (value === 0) {
+                // clear max value
+                this.discount.maxValue = null;
+                // clear any currency values if max value is gone
+                this.clearAdvancedPrices();
+            }
+        },
+
         onClickAdvancedPrices() {
             this.currencies.forEach((currency) => {
                 if (!this.isMemberOfCollection(currency)) {
                     // if we have a max-value setting active
                     // then our advanced prices is for this
                     // otherwise its for the promotion value itself
-                    if (this.showMaxValueField) {
+                    if (this.showMaxValueAdvancedPrices) {
                         this.prepareAdvancedPrices(currency, this.discount.maxValue);
                     } else {
                         this.prepareAdvancedPrices(currency, this.discount.value);
@@ -167,6 +193,14 @@ Component.register('sw-promotion-discount-component', {
             this.discount.promotionDiscountPrices.add(newAdvancedCurrencyPrices);
         },
 
+        clearAdvancedPrices() {
+            const ids = this.discount.promotionDiscountPrices.getIds();
+            let i;
+            for (i = 0; i < ids.length; i += 1) {
+                this.discount.promotionDiscountPrices.remove(ids[i]);
+            }
+        },
+
         isMemberOfCollection(currency) {
             let foundValue = false;
             const currencyID = currency.id;
@@ -180,9 +214,14 @@ Component.register('sw-promotion-discount-component', {
         },
 
         onCloseAdvancedPricesModal() {
-            this.discount.promotionDiscountPrices.forEach((advancedPrice) => {
-                advancedPrice.price = discountHandler.getFixedValue(advancedPrice.price, DiscountTypes.ABSOLUTE);
-            });
+            if (this.discount.maxValue === null) {
+                // clear any currency values if max value is gone
+                this.clearAdvancedPrices();
+            } else {
+                this.discount.promotionDiscountPrices.forEach((advancedPrice) => {
+                    advancedPrice.price = discountHandler.getFixedValue(advancedPrice.price, DiscountTypes.ABSOLUTE);
+                });
+            }
             this.displayAdvancedPrices = false;
         },
 
@@ -200,6 +239,7 @@ Component.register('sw-promotion-discount-component', {
                 this.$emit('discount-delete', this.discount);
             });
         },
+
         onDiscountScopeChanged(value) {
             if (value === DiscountScopes.DELIVERY) {
                 this.discount.considerAdvancedRules = false;
@@ -209,5 +249,6 @@ Component.register('sw-promotion-discount-component', {
                 this.cartScope = true;
             }
         }
+
     }
 });

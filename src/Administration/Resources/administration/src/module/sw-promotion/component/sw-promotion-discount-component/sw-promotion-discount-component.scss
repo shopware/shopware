@@ -16,6 +16,12 @@
     .sw-card__quick-link.advanced-prices {
         cursor: pointer;
     }
+
+    .sw-field .sw-field__help-text {
+        position: relative;
+        top: 40px;
+        right: 65px;
+    }
 }
 
 .sw-promotion-discount-form__advanced-prices-modal.sw-modal .sw-modal__body {

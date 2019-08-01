@@ -6,7 +6,6 @@ import 'src/script/helper/polyfill-loader.helper';
 /*
 import base requirements
  */
-import 'jquery/dist/jquery.slim';
 import 'bootstrap';
 
 /*

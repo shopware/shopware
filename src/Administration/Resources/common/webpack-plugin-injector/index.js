@@ -72,7 +72,12 @@ class WebpackPluginInjector {
             resolve('../administration/test')
         ];
 
-        const content = WebpackPluginInjector.getPluginDefinitionContent(this.filePath);
+        let content;
+        if (typeof this.filePath === 'string') {
+            content = WebpackPluginInjector.getPluginDefinitionContent(this.filePath);
+        } else {
+            content = this.filePath;
+        }
         const plugins = this.getPluginsBySection(content);
 
         if (!plugins.length) {

@@ -12,6 +12,23 @@ describe('Administration: Check module navigation in settings', () => {
             });
     });
 
+    it('@general: navigate to scale unit module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/unit',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('#sw-settings-units').click();
+        cy.wait('@getData').then(() => {
+            cy.get('.sw-settings-units-card-empty').should('be.visible');
+        });
+    });
+
     it('@general: navigate to tax module', () => {
         cy.server();
         cy.route({
@@ -132,6 +149,57 @@ describe('Administration: Check module navigation in settings', () => {
         });
     });
 
+    it('@general: navigate to login registration module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/_action/system-config/schema?domain=core.loginRegistration',
+            method: 'get'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('a[href="#/sw/settings/login/registration/index"]').click();
+        cy.wait('@getData').then(() => {
+            cy.get('.sw-card__title').contains('Login / registration');
+        });
+    });
+
+    it('@general: navigate to logging module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/log-entry',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('#sw-settings-logging').click();
+        cy.wait('@getData').then(() => {
+            cy.get('.sw-data-grid').should('be.visible');
+        });
+    });
+
+    it('@general: navigate to listing setting module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/_action/system-config/schema?domain=core.listing',
+            method: 'get'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('a[href="#/sw/settings/listing/index"]').click();
+        cy.wait('@getData').then(() => {
+            cy.get('.sw-card__title').contains('Listing');
+        });
+    });
+
     it('@general: navigate to language module', () => {
         cy.server();
         cy.route({
@@ -146,6 +214,23 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('#sw-settings-language').click();
         cy.wait('@getData').then(() => {
             cy.get('.sw-settings-language-list').should('be.visible');
+        });
+    });
+
+    it('@general: navigate to document module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/document-base-config',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('a[href="#/sw/settings/document/index').click();
+        cy.wait('@getData').then(() => {
+            cy.get('.sw-settings-document-list-grid').should('be.visible');
         });
     });
 
@@ -200,10 +285,61 @@ describe('Administration: Check module navigation in settings', () => {
         });
     });
 
-    it('@general: navigate to plugin module', () => {
+    it('@general: navigate to cart settings module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/plugin',
+            url: '/api/v1/_action/system-config/schema?domain=core.cart',
+            method: 'get'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('a[href="#/sw/settings/cart/index"]').click();
+        cy.wait('@getData').then(() => {
+            cy.get('.sw-card__title').contains('Cart');
+        });
+    });
+
+    it('@general: navigate to basic information module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/_action/system-config/schema?domain=core.basicInformation',
+            method: 'get'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('a[href="#/sw/settings/basic/information/index"]').click();
+        cy.wait('@getData').then(() => {
+            cy.get('.sw-card__title').contains('Basic information');
+        });
+    });
+
+    it('@general: navigate to address settings module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/_action/system-config/schema?domain=core.address',
+            method: 'get'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('a[href="#/sw/settings/address/index"]').click();
+        cy.wait('@getData').then(() => {
+            cy.get('.sw-card__title').contains('Address');
+        });
+    });
+
+    it('@general: navigate to email templates module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/mail-template',
             method: 'post'
         }).as('getData');
 
@@ -211,10 +347,9 @@ describe('Administration: Check module navigation in settings', () => {
             targetPath: '#/sw/settings/index',
             mainMenuId: 'sw-settings'
         });
-        cy.get('.sw-tabs-item[title="System"]').click();
-        cy.get('a[href="#/sw/plugin/index"]').click();
+        cy.get('#sw-mail-template').click();
         cy.wait('@getData').then(() => {
-            cy.get('.sw-plugin-list').should('be.visible');
+            cy.get('.sw-mail-templates-list-grid').should('be.visible');
         });
     });
 });

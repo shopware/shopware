@@ -12,9 +12,6 @@ describe('Dashboard: Test first sight of the Administration', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                cy.setLocaleToEnGb();
-            })
-            .then(() => {
                 return cy.createProductFixture();
             })
             .then(() => {

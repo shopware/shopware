@@ -145,4 +145,55 @@ describe('Administration: Check module navigation', () => {
             cy.get('.sw-cms-list').should('be.visible');
         });
     });
+
+    it('@package @general: navigate to theme module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/theme',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/theme/manager/index',
+            mainMenuId: 'sw-content',
+            subMenuId: 'sw-theme-manager'
+        });
+        cy.wait('@getData').then(() => {
+            cy.get('.sw-theme-list__list').should('be.visible');
+        });
+    });
+
+    it('@package @general: navigate to promotion module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/promotion',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/promotion/index',
+            mainMenuId: 'sw-marketing',
+            subMenuId: 'sw-promotion'
+        });
+        cy.wait('@getData').then(() => {
+            cy.get('.sw-promotion-list').should('be.visible');
+        });
+    });
+
+    it('@package @general: navigate to newsletter recipients module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/newsletter-recipient',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/newsletter/recipient/index',
+            mainMenuId: 'sw-marketing',
+            subMenuId: 'sw-newsletter-recipient'
+        });
+        cy.wait('@getData').then(() => {
+            cy.get('.sw-newsletter-recipient-list').should('be.visible');
+        });
+    });
 });

@@ -6,10 +6,9 @@ use Shopware\Core\Framework\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void                      set(string $key, SnippetFileInterface $entity)
+ * @method void                      set(?string $key, SnippetFileInterface $entity)
  * @method SnippetFileInterface[]    getIterator()
  * @method SnippetFileInterface[]    getElements()
- * @method SnippetFileInterface|null get(string $key)
  * @method SnippetFileInterface|null first()
  * @method SnippetFileInterface|null last()
  */
@@ -20,7 +19,27 @@ class SnippetFileCollection extends Collection
      */
     public function add($snippetFile): void
     {
-        $this->set($snippetFile->getName(), $snippetFile);
+        $this->set(null, $snippetFile);
+    }
+
+    public function get($key): ?SnippetFileInterface
+    {
+        if ($this->has($key)) {
+            return $this->elements[$key];
+        }
+
+        return $this->getByName($key);
+    }
+
+    public function getByName($key): ?SnippetFileInterface
+    {
+        foreach ($this->elements as $index => $element) {
+            if ($element->getName() === $key) {
+                return $this->elements[$index];
+            }
+        }
+
+        return null;
     }
 
     public function getFilesArray(bool $isBase = true): array
@@ -36,9 +55,8 @@ class SnippetFileCollection extends Collection
         foreach ($this->getListSortedByIso() as $isoFiles) {
             /** @var SnippetFileInterface $snippetFile */
             foreach ($isoFiles as $snippetFile) {
-                $name = $snippetFile->getName();
-                $data[$name] = [
-                    'name' => $name,
+                $data[] = [
+                    'name' => $snippetFile->getName(),
                     'iso' => $snippetFile->getIso(),
                     'path' => $snippetFile->getPath(),
                     'author' => $snippetFile->getAuthor(),

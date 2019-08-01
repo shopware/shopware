@@ -90,8 +90,13 @@ Component.register('sw-settings-snippet-set-list', {
 
         onInlineEditSave(item) {
             this.isLoading = true;
-            if (this.baseFiles[item.baseFile].iso !== null) {
-                item.iso = this.baseFiles[item.baseFile].iso;
+
+            const match = Object.values(this.baseFiles).find((element) => {
+                return element.name === item.baseFile;
+            });
+
+            if (match && match.iso !== null) {
+                item.iso = match.iso;
 
                 item.save().then(() => {
                     this.isLoading = false;

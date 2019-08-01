@@ -1,10 +1,12 @@
 [titleEn]: <>(Installation guide)
 
-Before digging deeper into Shopware 6 we recommend creating a local installation. You should have chosen if you want to install it on your local host or with docker by now and have your system already set up to fulfill the [requirements](./../10-requirements/__categoryInfo.md). 
+Before digging deeper into Shopware 6 we recommend creating a local installation.
+You should have chosen if you want to install it on your local host or with docker by now and have your system already set up to fulfill the [requirements](./../10-requirements/__categoryInfo.md). 
 
 ## Preparation
 
-Either installation method requires you to check out the sources first. Shopware 6 is split into two repositories the [development template](https://github.com/shopware/development) and the [platform](https://github.com/shopware/platform) itself.
+Either installation method requires you to check out the sources first.
+Shopware 6 is split into two repositories the [development template](https://github.com/shopware/development) and the [platform](https://github.com/shopware/platform) itself.
 
 Let's start by cloning the development template:
 
@@ -17,6 +19,11 @@ You now have the application template for Shopware 6 in the directory `developme
 ```bash
 > cd development
 ```
+
+Per default the development template has `shopware/platform` in the version `dev-master` as requirement in its `composer.json` file.
+This always corresponds to the latest commit on the master branch on GitHub.
+If you want to use a specific version change `dev-master` to `6.0.0+ea1` for example.
+Now Shopware 6 Early-Access1 will be installed instead of the latest master state.
 
 Only if you want to work with the Shopware platform code itself, e.g. in order to create a pull request for it, you should clone the `platform` code manually.
 
@@ -62,15 +69,17 @@ To be sure that the installation succeeded, just open the following url in your 
 
 ## Local installation
 
-If you are working on a Mac or it's otherwise impossible to get docker up and running on your development environment you can install Shopware 6 locally. **But be aware that this will be the by far more complex solution since additional or changed system requirements need to be managed by you.**
+If you are working on a Mac or it's otherwise impossible to get docker up and running on your development environment you can install Shopware 6 locally.
+**But be aware that this will be the by far more complex solution since additional or changed system requirements need to be managed by you.**
 
 Once you setup all the required packages mentioned in [requirements](./../10-requirements/__categoryInfo.md) there are two main goals you need to accomplish:
 
 ### Setting up your webserver
 
-First up we need to setup Apache to locate Shopware 6. You should add a vhost to your Apache site configuration that looks like this:
+First up we need to setup Apache to locate Shopware 6.
+You should add a vhost to your Apache site configuration that looks like this:
 
-```xml
+```apacheconfig
 <VirtualHost *:80>
    ServerName "HOST_NAME"
    DocumentRoot _DEVELOPMENT_DIR_/public
@@ -100,9 +109,11 @@ A simple cli installation wizard can be invoked by executing:
 > bin/setup
 ```
 
-> Note: If something goes wrong during installation check if `.psh.yaml.override` exists. If not restart setup, if yes execute `./psh.phar install` to restart the setup process
+> Note: If something goes wrong during installation check if `.psh.yaml.override` exists.
+> If not restart setup, if yes execute `./psh.phar install` to restart the setup process
 
-Voila, Shopware 6 is installed. To be sure that the installation succeeded, just open the configured host url in your favorite browser.
+Voila, Shopware 6 is installed.
+To be sure that the installation succeeded, just open the configured host url in your favorite browser.
 
 ## Specific guides
 
@@ -111,7 +122,8 @@ Voila, Shopware 6 is installed. To be sure that the installation succeeded, just
 
 ## Updating the repositories
 
-It is important to keep the `platform` and the `development` repository in sync. **We highly discourage to update either without the other!**
+It is important to keep the `platform` and the `development` repository in sync.
+**We highly discourage to update either without the other!**
 
 The following steps should always yield a positive result:
 

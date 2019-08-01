@@ -111,7 +111,7 @@ Jest (Storefront):
     script:
         - ./psh.phar init
         - ./psh.phar storefront:install-dependencies
-        - npm --prefix vendor/shopware/platform/src/Storefront/Resources/ test
+        - npm --prefix vendor/shopware/platform/src/Storefront/Resources/ unit
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         reports:

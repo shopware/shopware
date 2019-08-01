@@ -91,12 +91,24 @@
             <tag name="shopware.cart.processor" priority="4900"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryProcessor">
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator"/>
+            <tag name="shopware.cart.processor" priority="-5100"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
+        </service>
+
 
         <!-- SUBSCRIBERS -->
         <!-- ==================================================================================================================== -->
@@ -111,6 +123,11 @@
         <!-- ==================================================================================================================== -->
 
         <service id="Shopware\Core\Checkout\Promotion\PromotionGateway">
+            <argument type="service" id="promotion.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Gateway\PromotionGateway">
             <argument type="service" id="promotion.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeService"/>
         </service>

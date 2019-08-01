@@ -118,6 +118,7 @@
           "placeholder": "Assign product rules...",
           "labelType" : "Type",
           "valueScopeCart": "Cart",
+          "valueScopeDelivery": "Shipping costs",
           "valueTypeAbsolute" : "Absolute",
           "valueTypePercentage": "Percentage",
           "valueTypeFixed": "Fixed price",

@@ -4,9 +4,6 @@ const merge = require('webpack-merge');
 const path = require('path');
 const WebpackPluginInjector = require(path.join(__dirname,  '../../../../', 'Administration/Resources/common/webpack-plugin-injector'));
 
-jest.disableAutomock();
-jest.useRealTimers();
-
 // Fake plugins.json to inject our test entry point for size comparison of the resulting chunk
 const entryPointConfig = {
     ExampleEntryPoint: {

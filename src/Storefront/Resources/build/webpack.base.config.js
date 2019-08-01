@@ -13,7 +13,7 @@ const buildDirectory = utils.getBuildPath();
  * GENERAL WEBPACK CONFIGURATIONS
  * -------------------------------------------------------
  * Impacts all kind of environment modes (dev|watch|hot|prod)
- * Please be careful in case of modifiying this file
+ * Please be careful in case of modifying this file
  * https://webpack.js.org/configuration
  * -------------------------------------------------------
  */
@@ -100,6 +100,17 @@ const modules = {
                 },
             ],
         },
+        // Expose jQuery to the global scope for plugins which don't want to use Webpack
+        {
+            test: require.resolve('jquery/dist/jquery.slim'),
+            use: [{
+                loader: 'expose-loader',
+                options: 'jQuery',
+            }, {
+                loader: 'expose-loader',
+                options: '$',
+            }],
+        },
     ],
 };
 
@@ -114,6 +125,7 @@ const plugins = [
         $: require.resolve('jquery/dist/jquery.slim'),
         jQuery: require.resolve('jquery/dist/jquery.slim'),
         'window.jQuery': require.resolve('jquery/dist/jquery.slim'),
+        Popper: ['popper.js', 'default'],
     }),
     new WebpackBar({
         name: 'Shopware 6 Storefront',
@@ -134,7 +146,20 @@ const plugins = [
  * https://webpack.js.org/configuration/optimization
  * @type {{}}
  */
-const optimization = {};
+const optimization = {
+    runtimeChunk: {
+        name: 'runtime',
+    },
+    splitChunks: {
+        cacheGroups: {
+            vendor: {
+                test: utils.getPath('node_modules'),
+                name: 'vendors',
+                chunks: 'all',
+            },
+        },
+    },
+};
 
 /**
  * Options for the webpack-dev-server (e.g. for HMR mode)
@@ -149,7 +174,7 @@ const devServer = {};
  * @type {{}}}
  */
 const resolve = {
-    extensions: ['.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig'],
+    extensions: [ '.js', '.jsx', '.json', '.less', '.sass', '.scss', '.twig' ],
     modules: [
         // statically add the storefront node_modules folder, so sw plugins can resolve it
         utils.getPath('node_modules'),
@@ -182,6 +207,13 @@ module.exports = {
     },
     plugins: plugins,
     resolve: resolve,
-    stats: 'minimal',
+    stats: {
+        chunks: true,
+        chunkGroups: true,
+        chunkModules: true,
+        errors: true,
+        errorDetails: true,
+        entrypoints: true,
+    },
     target: 'web',
 };

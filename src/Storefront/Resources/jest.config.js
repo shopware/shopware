@@ -20,7 +20,7 @@ module.exports = {
     coverageReporters: [
         'lcov',
         'text',
-        'clover'
+        'clover',
     ],
 
     // Automatically reset mock state between every test
@@ -34,7 +34,7 @@ module.exports = {
 
     // This option allows the use of a custom resolver.
     moduleNameMapper: {
-        '^src/(.*)$': '<rootDir>/src/$1'
+        '^src/(.*)$': '<rootDir>/src/$1',
     },
 
     reporters: [
@@ -42,8 +42,8 @@ module.exports = {
         ['jest-junit', {
             suiteName: 'Shopware 6 Storefront Unit Tests',
             outputDirectory: artifactsPath,
-            outputName: 'storefront.junit.xml'
-        }]
+            outputName: 'storefront.junit.xml',
+        }],
     ],
 
     // The glob patterns Jest uses to detect test files
@@ -51,4 +51,6 @@ module.exports = {
         '**/tests/**/*.test.js',
         '**/tests/*.test.js',
     ],
+
+    testEnvironment: 'node',
 };

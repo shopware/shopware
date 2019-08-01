@@ -1,5 +1,8 @@
-/* eslint-disable */
+/**
+ * @jest-environment jsdom
+ */
 
+/* eslint-disable */
 import NativeEventEmitter from 'src/script/helper/emitter.helper';
 
 describe('NativeEventEmitter tests', () => {

@@ -9,11 +9,29 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 trait PromotionIntegrationTestBehaviour
 {
+    private $context;
+
+    /**
+     * Gets a faked sales channel context
+     * for the unit tests.
+     */
+    public function getContext(): SalesChannelContext
+    {
+        if ($this->context === null) {
+            $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        }
+
+        return $this->context;
+    }
+
     /**
      * This function makes sure all our required session data
      * is gone after clearing it.

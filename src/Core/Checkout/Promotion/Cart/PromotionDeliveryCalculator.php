@@ -122,7 +122,7 @@ class PromotionDeliveryCalculator
                 return false;
             }
 
-            if ($discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED) {
+            if ($discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED_UNIT) {
                 return true;
             }
 
@@ -146,10 +146,10 @@ class PromotionDeliveryCalculator
             $priceDefB = $discountB->getPriceDefinition();
 
             if (!$priceDefA instanceof AbsolutePriceDefinition) {
-                throw new InvalidPriceDefinitionException($discountA);
+                throw new InvalidPriceDefinitionException($discountA->getLabel(), $discountA->getReferencedId());
             }
             if (!$priceDefB instanceof AbsolutePriceDefinition) {
-                throw new InvalidPriceDefinitionException($discountB);
+                throw new InvalidPriceDefinitionException($discountB->getLabel(), $discountB->getReferencedId());
             }
 
             if ($priceDefA->getPrice() === $priceDefB->getPrice()) {
@@ -203,7 +203,7 @@ class PromotionDeliveryCalculator
         switch ($discountType) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
                 if (!$originalPriceDefinition instanceof AbsolutePriceDefinition) {
-                    throw new InvalidPriceDefinitionException($discountLineItem);
+                    throw new InvalidPriceDefinitionException($discountLineItem->getLabel(), $discountLineItem->getReferencedId());
                 }
 
                 $discountAdded = $this->calculateAbsolute($deliveries, $originalPriceDefinition, $context);
@@ -211,7 +211,7 @@ class PromotionDeliveryCalculator
                 break;
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
                 if (!$originalPriceDefinition instanceof PercentagePriceDefinition) {
-                    throw new InvalidPriceDefinitionException($discountLineItem);
+                    throw new InvalidPriceDefinitionException($discountLineItem->getLabel(), $discountLineItem->getReferencedId());
                 }
 
                 $discountMaxValue = '';
@@ -223,9 +223,9 @@ class PromotionDeliveryCalculator
                 $discountAdded = $this->calculatePercentage($deliveries, $originalPriceDefinition, $context, $discountMaxValue);
 
                 break;
-            case PromotionDiscountEntity::TYPE_FIXED:
+            case PromotionDiscountEntity::TYPE_FIXED_UNIT:
                 if (!$originalPriceDefinition instanceof AbsolutePriceDefinition) {
-                    throw new InvalidPriceDefinitionException($discountLineItem);
+                    throw new InvalidPriceDefinitionException($discountLineItem->getLabel(), $discountLineItem->getReferencedId());
                 }
 
                 $discountAdded = $this->calculateFixedDiscount($deliveries, $originalPriceDefinition, $context, $notDiscountedShippingCosts);

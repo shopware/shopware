@@ -304,7 +304,7 @@ class DeliveryPromotionCalculationTest extends TestCase
         $this->createTestFixtureProduct($productId, 60, 17, $this->getContainer());
 
         // add a new promotion black friday
-        $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_FIXED, 200, $this->getContainer(), $this->context, $code);
+        $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT, 200, $this->getContainer(), $this->context, $code);
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
@@ -344,7 +344,7 @@ class DeliveryPromotionCalculationTest extends TestCase
         $this->createTestFixtureProduct($productId, 60, 17, $this->getContainer());
 
         // add a new promotion black friday
-        $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_FIXED, 69, $this->getContainer(), $this->context, $code);
+        $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT, 69, $this->getContainer(), $this->context, $code);
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
@@ -388,7 +388,7 @@ class DeliveryPromotionCalculationTest extends TestCase
         $this->createTestFixtureProduct($productId, 97, 17, $this->getContainer());
 
         // add a new promotion black friday
-        $deliveryId = $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_FIXED, $fixedPrice, $this->getContainer(), $this->context, $code);
+        $deliveryId = $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT, $fixedPrice, $this->getContainer(), $this->context, $code);
 
         $this->createTestFixtureAdvancedPrice($deliveryId, Defaults::CURRENCY, $currencyPrice, $this->getContainer());
 
@@ -435,7 +435,7 @@ class DeliveryPromotionCalculationTest extends TestCase
 
         $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_PERCENTAGE, PromotionDiscountEntity::SCOPE_DELIVERY, 20, null, $this->getContainer(), $this->context);
 
-        $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_FIXED, PromotionDiscountEntity::SCOPE_DELIVERY, 69, null, $this->getContainer(), $this->context);
+        $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT, PromotionDiscountEntity::SCOPE_DELIVERY, 69, null, $this->getContainer(), $this->context);
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
@@ -527,11 +527,11 @@ class DeliveryPromotionCalculationTest extends TestCase
         $this->createTestFixtureProduct($productId, 60, 17, $this->getContainer());
 
         // add a new promotion black friday
-        $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_FIXED, 90, $this->getContainer(), $this->context, $code);
+        $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT, 90, $this->getContainer(), $this->context, $code);
 
-        $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_FIXED, PromotionDiscountEntity::SCOPE_DELIVERY, 20, null, $this->getContainer(), $this->context);
+        $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT, PromotionDiscountEntity::SCOPE_DELIVERY, 20, null, $this->getContainer(), $this->context);
 
-        $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_FIXED, PromotionDiscountEntity::SCOPE_DELIVERY, 50, null, $this->getContainer(), $this->context);
+        $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT, PromotionDiscountEntity::SCOPE_DELIVERY, 50, null, $this->getContainer(), $this->context);
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);

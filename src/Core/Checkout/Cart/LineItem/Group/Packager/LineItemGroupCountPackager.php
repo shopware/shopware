@@ -2,9 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group\Packager;
 
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemGroupCountPackager implements LineItemGroupPackagerInterface
@@ -18,23 +19,22 @@ class LineItemGroupCountPackager implements LineItemGroupPackagerInterface
      * This packager builds a bundle for the first x items
      * until the maximum number of items in the group is reached.
      * If not enough items are found to fill the group, then an empty list will be returned.
-     *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function buildGroupPackage(float $maxItemsInGroup, LineItemCollection $sortedItems, SalesChannelContext $context): LineItemCollection
+    public function buildGroupPackage(float $maxItemsInGroup, LineItemFlatCollection $sortedItems, SalesChannelContext $context): LineItemGroup
     {
-        $matchedItems = new LineItemCollection();
-
         $matchedCount = 0;
+
+        $result = new LineItemGroup();
 
         /** @var LineItem $lineItem */
         foreach ($sortedItems as $lineItem) {
             /** @var int $quantity */
             $quantity = $lineItem->getQuantity();
 
-            $matchedItems->add($lineItem);
+            // add the item to our result
+            // with the current quantity
+            $result->addItem($lineItem->getId(), $quantity);
+
             $matchedCount += $quantity;
 
             // as long as we have not filled our maximum count
@@ -47,9 +47,9 @@ class LineItemGroupCountPackager implements LineItemGroupPackagerInterface
         // if we have less results than our max items
         // return an empty list, because that is not a valid group
         if ($matchedCount < $maxItemsInGroup) {
-            return new LineItemCollection();
+            return new LineItemGroup();
         }
 
-        return $matchedItems;
+        return $result;
     }
 }

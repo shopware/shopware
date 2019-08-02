@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity;
 use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -104,6 +105,7 @@ class PromotionItemBuilder
                 break;
 
             case PromotionDiscountEntity::TYPE_FIXED:
+            case PromotionDiscountEntity::TYPE_FIXED_UNIT:
                 $promotionValue = -abs($this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId));
                 $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
                 break;
@@ -206,14 +208,38 @@ class PromotionItemBuilder
         $payload['value'] = (string) $discount->getValue();
 
         // set our max value for maximum percentage discounts
+        $payload['maxValue'] = '';
         if ($discount->getType() === PromotionDiscountEntity::TYPE_PERCENTAGE && $discount->getMaxValue() !== null) {
             $payload['maxValue'] = (string) $this->getCurrencySpecificValue($discount, $discount->getMaxValue(), $currencyId);
-        } else {
-            $payload['maxValue'] = '';
         }
 
         // set the scope of the discount cart, delivery....
         $payload['discountScope'] = $discount->getScope();
+
+        $payload['groupId'] = '';
+        // if we have set a custom setgroup scope, then the group id
+        // is used as suffix in the scopeKey...
+        if ($discount->isScopeSetGroup()) {
+            $payload['groupId'] = $discount->getSetGroupId();
+            $payload['discountScope'] = PromotionDiscountEntity::SCOPE_SETGROUP;
+        }
+
+        // add all our set groups to our configuration
+        // if existing. always make sure to have at least a node
+        $payload['setGroups'] = [];
+
+        if ($promotion->getSetgroups() !== null) {
+            /** @var PromotionSetGroupEntity $group */
+            foreach ($promotion->getSetgroups() as $group) {
+                $payload['setGroups'][] = [
+                    'groupId' => $group->getId(),
+                    'packagerKey' => $group->getPackagerKey(),
+                    'value' => $group->getValue(),
+                    'sorterKey' => $group->getSorterKey(),
+                    'rules' => $group->getSetGroupRules(),
+                ];
+            }
+        }
 
         return $payload;
     }

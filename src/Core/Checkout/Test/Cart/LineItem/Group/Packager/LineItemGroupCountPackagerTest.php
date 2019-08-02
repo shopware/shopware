@@ -3,9 +3,10 @@
 namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Packager;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -55,20 +56,24 @@ class LineItemGroupCountPackagerTest extends TestCase
      */
     public function testPackageDoneWhenCountReached(): void
     {
-        $items = new LineItemCollection();
-        $items->add($this->createProductItem(50.0, 0));
-        $items->add($this->createProductItem(23.5, 0));
-        $items->add($this->createProductItem(150.0, 0));
+        $p1 = $this->createProductItem(50.0, 0);
+        $p2 = $this->createProductItem(23.5, 0);
+        $p3 = $this->createProductItem(150.0, 0);
 
-        /** @var LineItemCollection $packageItems */
+        $items = new LineItemFlatCollection();
+        $items->add($p1);
+        $items->add($p2);
+        $items->add($p3);
+
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(2, $items, $this->context);
 
         // verify we have only 2 items
-        static::assertCount(2, $packageItems);
+        static::assertCount(2, $packageItems->getItems());
 
         // test that we have the first 2 from our list
-        static::assertEquals(50.0, $packageItems->getFlat()[0]->getPrice()->getUnitPrice());
-        static::assertEquals(23.5, $packageItems->getFlat()[1]->getPrice()->getUnitPrice());
+        static::assertEquals($p1->getId(), $packageItems->getItems()[0]->getLineItemId());
+        static::assertEquals($p2->getId(), $packageItems->getItems()[1]->getLineItemId());
     }
 
     /**
@@ -80,15 +85,15 @@ class LineItemGroupCountPackagerTest extends TestCase
      */
     public function testNoResultsIfNotEnoughtItems(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
         $items->add($this->createProductItem(50.0, 0));
 
-        /** @var LineItemCollection $packageItems */
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(2, $items, $this->context);
 
         // verify we dont have results, because a
         // package of 2 items couldnt be created
-        static::assertCount(0, $packageItems);
+        static::assertCount(0, $packageItems->getItems());
     }
 
     /**
@@ -100,12 +105,12 @@ class LineItemGroupCountPackagerTest extends TestCase
      */
     public function testNoItemsReturnsEmptyList(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
 
-        /** @var LineItemCollection $packageItems */
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(2, $items, $this->context);
 
-        static::assertCount(0, $packageItems);
+        static::assertCount(0, $packageItems->getItems());
     }
 
     /**
@@ -117,12 +122,12 @@ class LineItemGroupCountPackagerTest extends TestCase
      */
     public function testNegativeCountReturnsEmptyList(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
 
-        /** @var LineItemCollection $packageItems */
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(-1, $items, $this->context);
 
-        static::assertCount(0, $packageItems);
+        static::assertCount(0, $packageItems->getItems());
     }
 
     /**
@@ -134,12 +139,12 @@ class LineItemGroupCountPackagerTest extends TestCase
      */
     public function testZeroCountReturnsEmptyList(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
 
-        /** @var LineItemCollection $packageItems */
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(0, $items, $this->context);
 
-        static::assertCount(0, $packageItems);
+        static::assertCount(0, $packageItems->getItems());
     }
 
     /**
@@ -153,16 +158,16 @@ class LineItemGroupCountPackagerTest extends TestCase
      */
     public function testQuantityHigherAsPackage(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
 
         $product = $this->createProductItem(50.0, 0);
         $product->setQuantity(3);
 
         $items->add($product);
 
-        /** @var LineItemCollection $packageItems */
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(2, $items, $this->context);
 
-        static::assertCount(1, $packageItems);
+        static::assertCount(1, $packageItems->getItems());
     }
 }

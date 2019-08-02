@@ -566,6 +566,7 @@ class PromotionEntity extends Entity
                 $groupRule = new LineItemGroupRule();
                 $groupRule->assign(
                     [
+                        'groupId' => $group->getId(),
                         'packagerKey' => $group->getPackagerKey(),
                         'value' => $group->getValue(),
                         'sorterKey' => $group->getSorterKey(),

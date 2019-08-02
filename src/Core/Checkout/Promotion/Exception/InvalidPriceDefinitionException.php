@@ -2,32 +2,31 @@
 
 namespace Shopware\Core\Checkout\Promotion\Exception;
 
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 class InvalidPriceDefinitionException extends ShopwareHttpException
 {
-    public function __construct(LineItem $discount)
+    public function __construct(string $label, ?string $code)
     {
-        if ($discount->getReferencedId() === null) {
+        if ($code === null) {
             parent::__construct(
-                'Invalid price definition for automated promotion "{{ label }}"',
-                ['label' => $discount->getLabel()]
+                'Invalid discount price definition for automated promotion "{{ label }}"',
+                ['label' => $label]
             );
 
             return;
         }
 
         parent::__construct(
-            'Invalid price definition for promotion line item with code "{{ code }}"',
-            ['code' => $discount->getReferencedId()]
+            'Invalid discount price definition for promotion line item with code "{{ code }}"',
+            ['code' => $code]
         );
     }
 
     public function getErrorCode(): string
     {
-        return 'CHECKOUT__INVALID_PROMOTION_PRICE_DEFINITION';
+        return 'CHECKOUT__INVALID_DISCOUNT_PRICE_DEFINITION';
     }
 
     public function getStatusCode(): int

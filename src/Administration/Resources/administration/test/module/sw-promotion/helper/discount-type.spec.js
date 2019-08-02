@@ -15,4 +15,8 @@ describe('module/sw-promotion/helper/discount-type.js', () => {
     it('should have a FIXED property that matches our defined identifier string', () => {
         expect(DiscountTypes.FIXED).toBe('fixed');
     });
+
+    it('should have a FIXED_UNIT property that matches our defined identifier string', () => {
+        expect(DiscountTypes.FIXED_UNIT).toBe('fixed_unit');
+    });
 });

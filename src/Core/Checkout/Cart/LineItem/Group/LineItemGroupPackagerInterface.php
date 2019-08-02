@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface LineItemGroupPackagerInterface
@@ -20,5 +20,5 @@ interface LineItemGroupPackagerInterface
      * The resulting list of items will then be removed from the stack of available
      * available items when building other groups.
      */
-    public function buildGroupPackage(float $value, LineItemCollection $sortedItems, SalesChannelContext $context): LineItemCollection;
+    public function buildGroupPackage(float $value, LineItemFlatCollection $sortedItems, SalesChannelContext $context): LineItemGroup;
 }

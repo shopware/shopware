@@ -168,8 +168,11 @@
           "valueScopeCart": "Cart",
           "valueTypeAbsolute": "Absolute",
           "valueScopeDelivery": "Shipping costs",
+          "valueScopeSet": "Entire Set",
+          "valueScopeSetGroup": "Set Group",
           "valueTypePercentage": "Percentage",
           "valueTypeFixed": "Fixed price",
+          "valueTypeFixedUnit": "Fixed unit price",
           "buttonAddDiscount": "Add discount",
           "buttonDeleteDiscount": "Delete discount",
           "delete": {

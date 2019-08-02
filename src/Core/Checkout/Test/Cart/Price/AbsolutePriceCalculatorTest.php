@@ -62,8 +62,8 @@ class AbsolutePriceCalculatorTest extends TestCase
     public function provider(): array
     {
         return [
-            [$this->getSmallDiscountCase()],
-            [$this->getOneHundredPercentageDiscountCase()],
+            'small-discounts' => [$this->getSmallDiscountCase()],
+            '100%' => [$this->getOneHundredPercentageDiscountCase()],
         ];
     }
 

@@ -36,7 +36,8 @@ Component.register('sw-promotion-discount-component', {
             currencySymbol: null,
             allowProductRules: false,
             cartScope: this.discount.scope === DiscountScopes.CART,
-            considerAdvancedRules: this.discount.considerAdvancedRules
+            considerAdvancedRules: this.discount.considerAdvancedRules,
+            availableSetGroups: []
         };
     },
     created() {
@@ -46,6 +47,10 @@ Component.register('sw-promotion-discount-component', {
     computed: {
         advancedPricesRepo() {
             return this.repositoryFactory.create('promotion_discount_prices');
+        },
+
+        repositoryGroups() {
+            return this.repositoryFactory.create('promotion_setgroup');
         },
 
         currencyRepository() {
@@ -74,18 +79,56 @@ Component.register('sw-promotion-discount-component', {
         },
 
         scopes() {
-            return [
+            const scopes = [
                 { key: DiscountScopes.CART, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeCart') },
-                { key: DiscountScopes.DELIVERY, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeDelivery') }
+                { key: DiscountScopes.DELIVERY, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeDelivery') },
+                { key: DiscountScopes.SET, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeSet') }
             ];
+
+            let index = 1;
+            this.availableSetGroups.forEach(() => {
+                const keyValue = `${DiscountScopes.SETGROUP}-${index}`;
+                const nameValue = `${this.$tc('sw-promotion.detail.main.discounts.valueScopeSetGroup')}-${index}`;
+                scopes.push({ key: keyValue, name: nameValue });
+                index += 1;
+            });
+
+            // if our groups are not yet loaded (async)
+            // make sure that we have at least our selected entry visible
+            // to avoid an accidental save with another value
+            if (this.availableSetGroups.length <= 0) {
+                const nameValue = `${this.$tc('sw-promotion.detail.main.discounts.valueScopeSetGroup')}`;
+                scopes.push({ key: this.discount.scope, name: nameValue });
+            }
+
+            return scopes;
         },
 
         types() {
-            return [
+            const availableTypes = [
                 { key: DiscountTypes.ABSOLUTE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeAbsolute') },
                 { key: DiscountTypes.PERCENTAGE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypePercentage') },
-                { key: DiscountTypes.FIXED, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed') }
+                { key: DiscountTypes.FIXED_UNIT, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixedUnit') }
             ];
+
+            // do not allow a fixed-total price for cart. this would mean the whole
+            // cart is sold for price X.
+            // we do only allow this option if the scope is something else
+            if (!this.cartScope) {
+                availableTypes.push(
+                    { key: DiscountTypes.FIXED, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed') }
+                );
+            }
+
+            // if we do have a cart scope, only allow the fixed value if
+            // at least advanced rules have been activated
+            if (this.cartScope && this.discount.considerAdvancedRules) {
+                availableTypes.push(
+                    { key: DiscountTypes.FIXED, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed') }
+                );
+            }
+
+            return availableTypes;
         },
 
         valueSuffix() {
@@ -119,6 +162,10 @@ Component.register('sw-promotion-discount-component', {
 
         isEditingDisabled() {
             return !PromotionPermissions.isEditingAllowed(this.promotion);
+        },
+
+        displayAdvancedRuleOption() {
+            return (this.discount.scope !== DiscountScopes.DELIVERY);
         }
     },
     methods: {
@@ -127,6 +174,16 @@ Component.register('sw-promotion-discount-component', {
                 this.currencies = response;
                 this.defaultCurrency = this.currencies.find(currency => currency.isSystemDefault);
                 this.currencySymbol = this.defaultCurrency.symbol;
+            });
+
+            // remember the actual scope
+            // our setgroup are loaded async.
+            // so that would reset the dropdown to the first entry "cart".
+            // this means we have to reset it after our loading
+            const previousScope = this.discount.scope;
+
+            this.loadSetGroups().then(() => {
+                this.discount.scope = previousScope;
             });
         },
 
@@ -241,14 +298,28 @@ Component.register('sw-promotion-discount-component', {
         },
 
         onDiscountScopeChanged(value) {
+            this.cartScope = (value === DiscountScopes.CART);
+
             if (value === DiscountScopes.DELIVERY) {
                 this.discount.considerAdvancedRules = false;
-                this.cartScope = false;
             } else {
                 this.discount.considerAdvancedRules = this.considerAdvancedRules;
-                this.cartScope = true;
             }
+        },
+
+        async loadSetGroups() {
+            const criteria = new Criteria();
+            criteria.addFilter(
+                Criteria.equals('promotionId', this.promotion.id)
+            );
+
+            await this.repositoryGroups.search(criteria, this.context).then((groups) => {
+                this.availableSetGroups = groups;
+            });
+
+            return true;
         }
 
     }
+
 });

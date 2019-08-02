@@ -13,7 +13,8 @@
 
         <sw-container columns="1fr 1fr" gap="0px 30px">
             {% block sw_promotion_discount_component_scope %}
-                <sw-select-field v-model="discount.scope"
+                <sw-select-field ref="selectFieldScope"
+                                 v-model="discount.scope"
                                  required
                                  validation="required"
                                  :label="$tc('sw-promotion.detail.main.discounts.labelScope')"
@@ -26,7 +27,7 @@
             {% endblock %}
 
             {% block sw_promotion_discount_condition_consider_product_rules_field %}
-                <template v-if="cartScope">
+                <template v-if="displayAdvancedRuleOption">
                     <sw-field type="switch"
                               bordered
                               :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"

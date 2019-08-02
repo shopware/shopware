@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Sorter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 
 class LineItemGroupPriceAscSorterTest extends TestCase
@@ -48,17 +48,21 @@ class LineItemGroupPriceAscSorterTest extends TestCase
      */
     public function testSortPriceASC(): void
     {
-        $items = new LineItemCollection();
-        $items->add($this->createProductItem(50.0, 0));
-        $items->add($this->createProductItem(23.5, 0));
-        $items->add($this->createProductItem(150.0, 0));
+        $p1 = $this->createProductItem(50.0, 0);
+        $p2 = $this->createProductItem(23.5, 0);
+        $p3 = $this->createProductItem(150.0, 0);
 
-        /** @var LineItemCollection $sortedItems */
+        $items = new LineItemFlatCollection();
+        $items->add($p1);
+        $items->add($p2);
+        $items->add($p3);
+
+        /** @var LineItemFlatCollection $sortedItems */
         $sortedItems = $this->sorter->sort($items);
 
-        static::assertEquals(23.5, $sortedItems->getFlat()[0]->getPrice()->getUnitPrice());
-        static::assertEquals(50.0, $sortedItems->getFlat()[1]->getPrice()->getUnitPrice());
-        static::assertEquals(150.0, $sortedItems->getFlat()[2]->getPrice()->getUnitPrice());
+        static::assertEquals($p2->getId(), $sortedItems->getElements()[0]->getId());
+        static::assertEquals($p1->getId(), $sortedItems->getElements()[1]->getId());
+        static::assertEquals($p3->getId(), $sortedItems->getElements()[2]->getId());
     }
 
     /**
@@ -70,7 +74,7 @@ class LineItemGroupPriceAscSorterTest extends TestCase
      */
     public function testSortWithPriceNullA(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
         $a = $this->createProductItem(50.0, 0);
         $b = $this->createProductItem(23.5, 0);
 
@@ -79,11 +83,11 @@ class LineItemGroupPriceAscSorterTest extends TestCase
         $items->add($a);
         $items->add($b);
 
-        /** @var LineItemCollection $sortedItems */
+        /** @var LineItemFlatCollection $sortedItems */
         $sortedItems = $this->sorter->sort($items);
 
-        static::assertSame($a, $sortedItems->getFlat()[0]);
-        static::assertSame($b, $sortedItems->getFlat()[1]);
+        static::assertSame($a, $sortedItems->getElements()[0]);
+        static::assertSame($b, $sortedItems->getElements()[1]);
     }
 
     /**
@@ -95,7 +99,7 @@ class LineItemGroupPriceAscSorterTest extends TestCase
      */
     public function testSortWithPriceNullB(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
         $a = $this->createProductItem(50.0, 0);
         $b = $this->createProductItem(23.5, 0);
 
@@ -104,10 +108,10 @@ class LineItemGroupPriceAscSorterTest extends TestCase
         $items->add($a);
         $items->add($b);
 
-        /** @var LineItemCollection $sortedItems */
+        /** @var LineItemFlatCollection $sortedItems */
         $sortedItems = $this->sorter->sort($items);
 
-        static::assertSame($b, $sortedItems->getFlat()[0]);
-        static::assertSame($a, $sortedItems->getFlat()[1]);
+        static::assertSame($b, $sortedItems->getElements()[0]);
+        static::assertSame($a, $sortedItems->getElements()[1]);
     }
 }

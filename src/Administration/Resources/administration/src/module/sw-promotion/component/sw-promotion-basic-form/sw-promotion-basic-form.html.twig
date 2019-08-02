@@ -82,15 +82,6 @@
                 {% endblock %}
             </sw-container>
 
-            <sw-container columns="1fr" gap="0px 30px">
-                {% block sw_promotion_basic_form_use_codes %}
-                    <sw-switch-field class="sw-promotion-basic-form__switch-codes"
-                                     :label="$tc('sw-promotion.detail.main.general.codes.switchUseCodes')"
-                                     v-model="promotion.useCodes"
-                                     :disabled="isEditingDisabled">
-                    </sw-switch-field>
-                {% endblock %}
-            </sw-container>
         </template>
     </div>
 {% endblock %}

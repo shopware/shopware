@@ -1,5 +1,16 @@
 {% block sw_promotion_code_form %}
 <div class="sw-promotion-code-form">
+
+    <sw-container columns="1fr" gap="0px 30px">
+        {% block sw_promotion_code_form_use_codes %}
+            <sw-switch-field class="sw-promotion-code-form__switch-codes"
+                             :label="$tc('sw-promotion.detail.main.general.codes.switchUseCodes')"
+                             v-model="promotion.useCodes"
+                             :disabled="isEditingDisabled">
+            </sw-switch-field>
+        {% endblock %}
+    </sw-container>
+
     {% block sw_promotion_code_form_code_field %}
         <sw-field type="text"
                   :label="$tc('sw-promotion.detail.main.general.codes.labelCode')"

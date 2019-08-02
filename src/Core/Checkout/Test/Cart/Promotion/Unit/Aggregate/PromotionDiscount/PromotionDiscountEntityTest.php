@@ -21,6 +21,42 @@ class PromotionDiscountEntityTest extends TestCase
 
     /**
      * This test verifies that our constant for the
+     * delivery scope is not touched without recognizing it.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testScopeDelivery(): void
+    {
+        static::assertEquals('delivery', PromotionDiscountEntity::SCOPE_DELIVERY);
+    }
+
+    /**
+     * This test verifies that our constant for the
+     * set scope is not touched without recognizing it.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testScopeSet(): void
+    {
+        static::assertEquals('set', PromotionDiscountEntity::SCOPE_SET);
+    }
+
+    /**
+     * This test verifies that our constant for the
+     * setgroup scope is not touched without recognizing it.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testScopeSetGroup(): void
+    {
+        static::assertEquals('setgroup', PromotionDiscountEntity::SCOPE_SETGROUP);
+    }
+
+    /**
+     * This test verifies that our constant for the
      * absolute type is not touched without recognizing it.
      *
      * @test
@@ -53,5 +89,17 @@ class PromotionDiscountEntityTest extends TestCase
     public function testTypeFixed(): void
     {
         static::assertEquals('fixed', PromotionDiscountEntity::TYPE_FIXED);
+    }
+
+    /**
+     * This test verifies that our constant for the
+     * fixed unit type is not touched without recognizing it.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testTypeFixedUnit(): void
+    {
+        static::assertEquals('fixed_unit', PromotionDiscountEntity::TYPE_FIXED_UNIT);
     }
 }

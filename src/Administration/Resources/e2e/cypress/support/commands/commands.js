@@ -419,3 +419,21 @@ Cypress.Commands.add('fillAndCheckDateField', {
     cy.get(visibleDateFieldSelector).type(value);
     cy.get(visibleDateFieldSelector).type('{enter}');
 });
+
+/**
+ * Performs a drag and drop operation
+ * @memberOf Cypress.Chainable#
+ * @name dragTo
+ * @function
+ */
+Cypress.Commands.add('dragTo', { prevSubject: 'element' }, (subject, targetEl) => {
+    cy.wrap(subject)
+        .trigger('mousedown', { buttons: 1 });
+
+    cy.get('.is--dragging').should('be.visible');
+    cy.get(targetEl)
+        .trigger('mouseenter')
+        .trigger('mousemove', 'center')
+        .should('have.class', 'is--valid-drop')
+        .trigger('mouseup');
+});

@@ -31,7 +31,7 @@
                     <sw-container v-else columns="repeat(auto-fill, minmax(250px, 1fr))" gap="24px">
 
                         {% block sw_cms_layout_modal_content_listing %}
-                            <div v-for="cmsPage in pages" class="sw-cms-layout-modal__content-item" :class="{ 'is--selected': cmsPage.id === selected }">
+                            <div v-for="(cmsPage, index) in pages" class="sw-cms-layout-modal__content-item" :class="[{ 'is--selected': cmsPage.id === selected }, 'sw-cms-layout-modal__content-item--' + index]">
                                 {% block sw_cms_layout_modal_content_listing_item %}
 
                                     {% block sw_cms_layout_modal_content_listing_item_checkbox %}

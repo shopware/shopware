@@ -140,7 +140,7 @@ describe('Order: Test order state', () => {
             .contains('Done');
     });
 
-    it.skip('@order: check order history', () => {
+    it('@order: check order history', () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later

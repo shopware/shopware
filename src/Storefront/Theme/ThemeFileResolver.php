@@ -23,18 +23,19 @@ class ThemeFileResolver
             self::SCRIPT_FILES => $this->resolve(
                 $themeConfig,
                 $configurationCollection,
-                function (StorefrontPluginConfiguration $configuration) use ($onlySourceFiles) {
+                $onlySourceFiles,
+                function (StorefrontPluginConfiguration $configuration, bool $onlySourceFiles) {
                     $fileCollection = new FileCollection();
 
                     if ($configuration->getStorefrontEntryFilepath() && $onlySourceFiles) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
                     }
 
-                    foreach ($configuration->getStyleFiles() as $styleFile) {
-                        if (strpos('@', $styleFile->getFilepath()) !== 0 && $onlySourceFiles) {
+                    foreach ($configuration->getScriptFiles() as $scriptFile) {
+                        if (strpos($scriptFile->getFilepath(), '@') !== 0 && $onlySourceFiles) {
                             continue;
                         }
-                        $fileCollection->add($styleFile);
+                        $fileCollection->add($scriptFile);
                     }
 
                     return $fileCollection;
@@ -42,7 +43,8 @@ class ThemeFileResolver
             self::STYLE_FILES => $this->resolve(
                 $themeConfig,
                 $configurationCollection,
-                function (StorefrontPluginConfiguration $configuration) {
+                $onlySourceFiles,
+                function (StorefrontPluginConfiguration $configuration, bool $onlySourceFiles) {
                     return $configuration->getStyleFiles();
                 }),
         ];
@@ -51,10 +53,11 @@ class ThemeFileResolver
     private function resolve(
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
+        bool $onlySourceFiles,
         callable $configFileResolver
     ): FileCollection {
         /** @var FileCollection $files */
-        $files = $configFileResolver($themeConfig);
+        $files = $configFileResolver($themeConfig, $onlySourceFiles);
 
         if ($files->count() === 0) {
             return $files;
@@ -78,7 +81,7 @@ class ThemeFileResolver
 
             if ($filepath === '@Plugins') {
                 foreach ($configurationCollection->getNoneThemes() as $plugin) {
-                    foreach ($this->resolve($plugin, $configurationCollection, $configFileResolver) as $item) {
+                    foreach ($this->resolve($plugin, $configurationCollection, $onlySourceFiles, $configFileResolver) as $item) {
                         $resolvedFiles->add($item);
                     }
                 }
@@ -93,7 +96,7 @@ class ThemeFileResolver
                 throw new InvalidThemeException($name);
             }
 
-            foreach ($this->resolve($configuration, $configurationCollection, $configFileResolver) as $item) {
+            foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $configFileResolver) as $item) {
                 $resolvedFiles->add($item);
             }
         }

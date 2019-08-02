@@ -14,6 +14,9 @@ stages:
     - Build
     - Deploy
 
+include:
+    - local: .gitlab/ci/nightly.yml
+
 default:
     image: shopware/development:latest
     before_script:
@@ -90,7 +93,7 @@ PHPUnit (MariaDB):
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     script:
         - ./psh.phar init
-        - php -d pcov.enabled=1 -d pcov.directory=$CI_PROJECT_DIR                                                
+        - php -d pcov.enabled=1 -d pcov.directory=$CI_PROJECT_DIR
            vendor/bin/phpunit
            --configuration vendor/shopware/platform/phpunit.xml.dist
            --log-junit build/artifacts/phpunit.junit.xml

@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Checkout\Promotion;
 
+use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -61,7 +64,12 @@ class PromotionEntity extends Entity
     /**
      * @var bool
      */
-    protected $useCodes;
+    protected $useCodes = false;
+
+    /**
+     * @var bool
+     */
+    protected $useSetGroups = false;
 
     /**
      * stores if the persona condition uses
@@ -101,6 +109,11 @@ class PromotionEntity extends Entity
      * @var PromotionIndividualCodeCollection|null
      */
     protected $individualCodes;
+
+    /**
+     * @var PromotionSetGroupCollection|null
+     */
+    protected $setgroups;
 
     /**
      * @var RuleCollection|null
@@ -228,6 +241,26 @@ class PromotionEntity extends Entity
     public function setUseCodes(bool $useCodes): void
     {
         $this->useCodes = $useCodes;
+    }
+
+    public function isUseSetGroups(): bool
+    {
+        return $this->useSetGroups;
+    }
+
+    public function setUseSetGroups(bool $useSetGroups): void
+    {
+        $this->useSetGroups = $useSetGroups;
+    }
+
+    public function getSetgroups(): ?PromotionSetGroupCollection
+    {
+        return $this->setgroups;
+    }
+
+    public function setSetgroups(?PromotionSetGroupCollection $setgroups): void
+    {
+        $this->setgroups = $setgroups;
     }
 
     /**
@@ -521,6 +554,29 @@ class PromotionEntity extends Entity
             }
 
             $requirements->addRule($cartOR);
+        }
+
+        // verify if we are in SetGroup mode and build
+        // a custom setgroup rule for all groups
+        if ($this->isUseSetGroups() !== null && $this->isUseSetGroups() && $this->getSetgroups() !== null) {
+            $groupsRootRule = new OrRule();
+
+            /** @var PromotionSetGroupEntity $group */
+            foreach ($this->getSetgroups() as $group) {
+                $groupRule = new LineItemGroupRule();
+                $groupRule->assign(
+                    [
+                        'packagerKey' => $group->getPackagerKey(),
+                        'value' => $group->getValue(),
+                        'sorterKey' => $group->getSorterKey(),
+                        'rules' => $group->getSetGroupRules(),
+                    ]
+                );
+
+                $groupsRootRule->addRule($groupRule);
+            }
+
+            $requirements->addRule($groupsRootRule);
         }
 
         if ($this->getOrderRules() !== null && count($this->getOrderRules()->getElements()) > 0) {

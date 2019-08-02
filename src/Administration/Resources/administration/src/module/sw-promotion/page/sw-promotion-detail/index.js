@@ -54,6 +54,14 @@ Component.register('sw-promotion-detail', {
             return this.repositoryFactory.create('promotion');
         },
 
+        promotionGroupRepository() {
+            return this.repositoryFactory.create('promotion_setgroup');
+        },
+
+        repositoryIndividualCodes() {
+            return this.repositoryFactory.create('promotion_individual_code');
+        },
+
         languageStore() {
             return State.getStore('language');
         },
@@ -103,8 +111,8 @@ Component.register('sw-promotion-detail', {
             return this.$store.state.swPromotionDetail.personaCustomerIdsDelete;
         },
 
-        repositoryIndividualCodes() {
-            return this.repositoryFactory.create('promotion_individual_code');
+        setGroupIdsDelete() {
+            return this.$store.state.swPromotionDetail.setGroupIdsDelete;
         },
 
         ...mapPageErrors(errorConfig)
@@ -305,6 +313,18 @@ Component.register('sw-promotion-detail', {
                     customerPersonaRepository.assign(customerId, this.context);
                 });
             }
+
+            // remove deleted groups. UPSERT will be done automatically
+            if (this.setGroupIdsDelete !== null) {
+                await this.setGroupIdsDelete.forEach((groupId) => {
+                    this.promotionGroupRepository.delete(groupId, this.context);
+                });
+            }
+
+            // reset our helper "delta" arrays
+            this.$store.commit('swPromotionDetail/setPersonaCustomerIdsAdd', []);
+            this.$store.commit('swPromotionDetail/setPersonaCustomerIdsDelete', []);
+            this.$store.commit('swPromotionDetail/setSetGroupIdsDelete', []);
         },
 
         onCancel() {

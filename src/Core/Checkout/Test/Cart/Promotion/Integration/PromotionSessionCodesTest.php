@@ -55,6 +55,9 @@ class PromotionSessionCodesTest extends TestCase
         $this->cartService = $this->getContainer()->get(CartService::class);
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        // make sure we always start with a fresh cart
+        $this->cartService->createNew($this->context->getToken());
     }
 
     /**

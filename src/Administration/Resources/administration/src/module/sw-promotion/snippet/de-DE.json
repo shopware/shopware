@@ -11,6 +11,17 @@
     }
   },
   "sw-promotion": {
+    "setgroup": {
+      "packager": {
+        "COUNT": "Anzahl",
+        "PRICE_UNIT_GROSS": "Wert (Brutto)",
+        "PRICE_UNIT_NET": "Wert (Netto)"
+      },
+      "sorter": {
+        "PRICE_ASC": "Preis aufsteigend",
+        "PRICE_DESC": "Preis absteigend"
+      }
+    },
     "general": {
       "mainMenuItemGeneral": "Rabatte & Aktionen",
       "mainMenuItemList": "Rabatte & Aktionen",
@@ -80,7 +91,7 @@
               "helpTextPattern": "Geben Sie hier Ihr gewünschtes Muster der Codes an.. Benutzen Sie dabei Platzhalter wie %s für Buchstaben oder %d für Zahlen an. Beispiel: code-%s%s%d",
               "labelCount": "Anzahl",
               "buttonGenerate": "Speichern und Codes generieren",
-              "labelNoCodesExist" : "Keine Codes vorhanden",
+              "labelNoCodesExist": "Keine Codes vorhanden",
               "columnCode": "Aktionscode",
               "columnRedeemed": "Eingelöst",
               "columnCustomer": "Kunde",
@@ -129,7 +140,18 @@
             "text": "Nutze Regeln aus dem Rule Builder, um zu definieren, welche Eigenschaften eines Warenkorbes vorhanden sein müssen, um die Aktionsauflagen zu erfüllen. Ohne eine Eingrenzung wird die Aktion auf alle Warenkörbe angewendet.",
             "rulesModuleLink": "Regelmodul öffnen",
             "rulesCaption": "Warenkorbregeln",
-            "rulesPlaceholder": "Warenkorbregel zuweisen ..."
+            "rulesPlaceholder": "Warenkorbregel zuweisen ...",
+            "setgroups": {
+              "switchGroupsEnabled": "Aktion auf Produkt-Sets anwenden",
+              "buttonAddGroup": "+ Set-Gruppe hinzufügen",
+              "titleName": "Set-Gruppe",
+              "labelMode": "Modus",
+              "labelValue": "Wert",
+              "labelSorting": "Sortierung",
+              "labelRules": "Produktregeln",
+              "buttonDuplicate": "Duplizieren",
+              "buttonDelete": "Löschen"
+            }
           }
         },
         "discounts": {

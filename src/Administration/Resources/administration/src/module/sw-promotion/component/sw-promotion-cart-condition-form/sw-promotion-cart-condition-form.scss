@@ -1,0 +1,43 @@
+@import "~scss/variables";
+
+.sw-promotion-cart-condition-form {
+    p {
+        margin-bottom: 30px;
+    }
+
+    .sw-multi-select {
+        margin-top: 20px;
+    }
+
+    .sw-promotion-cart-condition-form__setgroup-root-div {
+        margin-top: 20px;
+        margin-bottom: 50px;
+    }
+
+    .sw-promotion-cart-condition-form__setgroup-rules {
+        div {
+            margin-top: 0;
+        }
+    }
+
+    .sw-promotion-cart-condition-form__setgroup-delete-button {
+        float: right;
+        margin-left: 10px;
+        border: 0;
+        background: transparent;
+    }
+
+    .sw-promotion-cart-condition-form__setgroup-duplicate-button {
+        float: right;
+        border: 0;
+        background: transparent;
+    }
+
+    .is--danger {
+        color: $color-crimson-500;
+    }
+
+    .is--default {
+        color: $color-gray;
+    }
+}

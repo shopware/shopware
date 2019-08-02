@@ -305,6 +305,7 @@ class PromotionControllerTest extends TestCase
                     'maxRedemptionsPerCustomer' => 1,
                     'exclusive' => false,
                     'useCodes' => true,
+                    'use_setgroups' => false,
                     'code' => 'super19',
                     'customer_restriction' => true,
                     'discounts' => [

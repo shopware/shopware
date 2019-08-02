@@ -50,6 +50,8 @@ class PromotionCollector implements CartDataCollectorInterface
             'orderRules',
             'discounts.discountRules',
             'discounts.promotionDiscountPrices',
+            'setgroups',
+            'setgroups.setGroupRules',
         ];
     }
 
@@ -87,6 +89,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
         // check if max allowed redemption of promotion have been reached or not
         // if max redemption has been reached promotion will not be added
+        /** @var CartPromotionsDataDefinition $allPromotions */
         $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomer());
 
         $discountLineItems = [];

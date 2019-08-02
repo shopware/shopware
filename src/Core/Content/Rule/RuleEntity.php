@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupCollection;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -81,6 +82,11 @@ class RuleEntity extends Entity
      * @var PromotionDiscountCollection|null
      */
     protected $promotionDiscounts;
+
+    /**
+     * @var PromotionSetGroupCollection|null
+     */
+    protected $promotionSetGroups;
 
     /**
      * @var ShippingMethodPriceCollection|null
@@ -230,6 +236,16 @@ class RuleEntity extends Entity
     public function setPromotionDiscounts(?PromotionDiscountCollection $promotionDiscounts): void
     {
         $this->promotionDiscounts = $promotionDiscounts;
+    }
+
+    public function getPromotionSetGroups(): ?PromotionSetGroupCollection
+    {
+        return $this->promotionSetGroups;
+    }
+
+    public function setPromotionSetGroups(?PromotionSetGroupCollection $promotionSetGroups): void
+    {
+        $this->promotionSetGroups = $promotionSetGroups;
     }
 
     public function getShippingMethodPriceCalculations(): ?ShippingMethodPriceCollection

@@ -25,6 +25,18 @@
             <tag name="shopware.entity.definition" entity="promotion_discount"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule\PromotionDiscountRuleDefinition">
+            <tag name="shopware.entity.definition" entity="promotion_discount_rule"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupDefinition">
+            <tag name="shopware.entity.definition" entity="promotion_setgroup"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroupRule\PromotionSetGroupRuleDefinition">
+            <tag name="shopware.entity.definition" entity="promotion_setgroup_rule"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionOrderRule\PromotionOrderRuleDefinition">
             <tag name="shopware.entity.definition" entity="promotion_order_rule"/>
         </service>
@@ -39,10 +51,6 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionCartRule\PromotionCartRuleDefinition">
             <tag name="shopware.entity.definition" entity="promotion_cart_rule"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountRule\PromotionDiscountRuleDefinition">
-            <tag name="shopware.entity.definition" entity="promotion_discount_rule"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition">
@@ -105,6 +113,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator">
@@ -130,11 +139,11 @@
         <service id="Shopware\Core\Checkout\Promotion\Api\PromotionActionController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
-
 
         <!-- ADDITIONAL SERVICES -->
         <!-- ==================================================================================================================== -->

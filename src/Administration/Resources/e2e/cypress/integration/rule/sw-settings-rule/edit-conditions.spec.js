@@ -16,7 +16,7 @@ describe('Rule builder: Test crud operations', () => {
             });
     });
 
-    it.skip('@rule: edit rule conditions', () => {
+    it('@rule: edit rule conditions', () => {
         // TODO Split up in smaller tests if the test run time won't get too high
         const page = new RulePageObject();
 
@@ -30,13 +30,11 @@ describe('Rule builder: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        // Create first condition
-        page.createDateRangeCondition({
-            type: 'Date range',
+        page.createBasicSelectCondition({
+            type: 'Shipping free product',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
-            fromDate: '2019-05-03 12:12',
-            toDate: '2019-05-04 12:12',
-            useTime: true
+            value: 'No',
+            isMulti: false
         });
 
         // Add an and-condition as subcondition to the rule
@@ -48,7 +46,7 @@ describe('Rule builder: Test crud operations', () => {
         page.createBasicInputCondition({
             type: 'Cart amount',
             inputName: 'amount',
-            operator: 'Greater',
+            operator: 'Is greater than',
             ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--1 ${page.elements.baseCondition}`,
             value: '100'
         });
@@ -107,7 +105,7 @@ describe('Rule builder: Test crud operations', () => {
         page.createBasicInputCondition({
             type: 'Last name',
             inputName: 'lastName',
-            operator: 'Not equals',
+            operator: 'Is not equal to',
             ruleSelector: `${page.elements.conditionOrContainer}--1 ${page.elements.conditionOrContainer}--0 ${page.elements.baseCondition}`,
             value: 'Norris'
         });

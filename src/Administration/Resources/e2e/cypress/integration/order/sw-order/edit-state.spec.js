@@ -9,9 +9,11 @@ describe('Order: Test order state', () => {
                 cy.loginViaApi();
             })
             .then(() => {
+                cy.log('first');
                 return cy.createProductFixture();
             })
             .then(() => {
+                cy.log('Product');
                 return cy.searchViaAdminApi({
                     endpoint: 'product',
                     data: {
@@ -21,20 +23,22 @@ describe('Order: Test order state', () => {
                 });
             })
             .then((result) => {
+                cy.log('createGuestOrder');
                 return cy.createGuestOrder(result.id);
             })
             .then(() => {
+                cy.log('open');
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
             });
     });
 
-    it.skip('@package @order: edit order state', () => {
+    it('@package @order: edit order state', () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/search/order/**/*',
+            url: '/api/v1/search/order',
             method: 'post'
         }).as('orderCall');
 
@@ -137,6 +141,13 @@ describe('Order: Test order state', () => {
     it('@order: check order history', () => {
         const page = new OrderPageObject();
 
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/order',
+            method: 'post'
+        }).as('orderCall');
+
         cy.get(`${page.elements.dataGridRow}--0`).contains('Max Mustermann');
 
         cy.clickContextMenuItem(
@@ -145,8 +156,10 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(`${page.elements.userMetadata}-user-name`)
-            .contains('Max Mustermann');
+        cy.wait('@orderCall').then(() => {
+            cy.get(`${page.elements.userMetadata}-user-name`)
+                .contains('Max Mustermann');
+        });
         cy.get('.sw-order-delivery-metadata').scrollIntoView();
 
         // Check current order and payment status history

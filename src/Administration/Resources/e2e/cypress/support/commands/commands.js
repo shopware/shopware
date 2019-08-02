@@ -124,7 +124,7 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
     }
     // select the first result (or at another position)
     cy.get(`${resultPrefix}-option--${position}`)
-        .click({ force: true });
+        .click({force: true});
 
     // in multi selects we can check if the value is the selected item
     cy.get(`${subject.selector} ${resultPrefix}__selection-item-holder--0`).contains(value);
@@ -150,23 +150,15 @@ Cypress.Commands.add('typeSingleSelect', {
     const searchTerm = options.searchTerm || value;
     const position = options.position || 0;
 
-    // Request we want to wait for later
-    cy.server();
-    cy.route({
-        url: '/api/v1/search/*',
-        method: 'post'
-    }).as('filteredResultCall');
-
     cy.wrap(subject).should('be.visible');
     cy.wrap(subject).click();
 
     // type in the search term if available
     if (searchTerm) {
-        cy.wait('@filteredResultCall').then(() => {
-            cy.get(`${subject.selector} ${inputCssSelector}`).clear();
-            cy.get(`${subject.selector} ${inputCssSelector}`).type(searchTerm);
-            cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', searchTerm);
-        });
+        cy.get('.sw-single-select__results-list').should('be.visible');
+        cy.get(`${subject.selector} ${inputCssSelector}`).clear();
+        cy.get(`${subject.selector} ${inputCssSelector}`).type(searchTerm);
+        cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', searchTerm);
 
         // select the first result
         if (options.searchable) {
@@ -174,19 +166,18 @@ Cypress.Commands.add('typeSingleSelect', {
             cy.get('.sw-loader__element').should('not.exist');
         }
 
-        cy.wait('@filteredResultCall').then(() => {
-            cy.get(`${subject.selector} ${resultPrefix}-option--${position}.is--disabled`)
-                .should('not.exist');
+        cy.get(`${subject.selector} ${resultPrefix}-option--${position}.is--disabled`)
+            .should('not.exist');
 
-            cy.get(`${subject.selector} ${resultPrefix}-option--${position} ${resultPrefix}-option__result-item-text`)
-                .should('be.visible');
+        cy.get(`${subject.selector} ${resultPrefix}-option--${position} ${resultPrefix}-option__result-item-text`)
+            .should('be.visible');
 
-            cy.get(`${subject.selector} ${resultPrefix}-option--${position} ${resultPrefix}-option__result-item-text`)
-                .contains(value);
-        });
+        cy.get(`${resultPrefix}-option--1`).should('not.exist');
+        cy.get(`${subject.selector} ${resultPrefix}-option--${position} ${resultPrefix}-option__result-item-text`)
+            .contains(value);
     }
 
-    cy.get(`${resultPrefix}-option--${position}`).click({ force: true });
+    cy.get(`${resultPrefix}-option--${position}`).click({force: true});
 
     return this;
 });
@@ -315,13 +306,13 @@ Cypress.Commands.add('clickContextMenuItem', (menuButtonSelector, menuOpenSelect
 
     if (scope != null) {
         cy.get(scope).should('be.visible');
-        cy.get(`${scope} ${menuOpenSelector}`).click({ force: true });
+        cy.get(`${scope} ${menuOpenSelector}`).click({force: true});
 
         if (scope.includes('row')) {
             cy.get(`${menuOpenSelector}${activeContextButtonCssSelector}`).should('be.visible');
         }
     } else {
-        cy.get(menuOpenSelector).should('be.visible').click({ force: true });
+        cy.get(menuOpenSelector).should('be.visible').click({force: true});
     }
 
     cy.get(contextMenuCssSelector).should('be.visible');
@@ -339,7 +330,7 @@ Cypress.Commands.add('clickContextMenuItem', (menuButtonSelector, menuOpenSelect
  * @param {String} obj.mainMenuId - Id of the Main Menu item
  * @param {String} [obj.subMenuId=null] - Id of the sub menu item
  */
-Cypress.Commands.add('clickMainMenuItem', ({ targetPath, mainMenuId, subMenuId = null }) => {
+Cypress.Commands.add('clickMainMenuItem', ({targetPath, mainMenuId, subMenuId = null}) => {
     const finalMenuItem = `.sw-admin-menu__item--${mainMenuId}`;
 
     cy.get('.sw-admin-menu').should('be.visible').then(() => {

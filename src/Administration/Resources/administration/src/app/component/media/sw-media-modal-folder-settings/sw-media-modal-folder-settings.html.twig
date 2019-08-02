@@ -129,7 +129,9 @@
                                                 <ul class="sw-media-modal-folder-settings__thumbnails-list" :class="thumbnailListClass">
 
                                                     {% block sw_media_modal_folder_settings_thumbnail_size %}
-                                                        <li v-for="size in thumbnailSizes" class="sw-media-modal-folder-settings__thumbnail-size-entry">
+                                                        <li v-for="(size, index) in thumbnailSizes"
+                                                            class="sw-media-modal-folder-settings__thumbnail-size-entry"
+                                                            :class="'sw-media-modal-folder-settings__entry--' + index">
 
                                                             {% block sw_media_modal_folder_settings_thumbnail_size_switch %}
                                                                 <sw-field type="switch"

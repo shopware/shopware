@@ -119,10 +119,10 @@ As mentioned above, Shopware 6 looks for a `main.js` file in your plugin.
 Its contents get minified into a new file named after your plugin and will be moved to the `public` directory
 of the Shopware 6 root directory.
 Given this plugin is named "CustomComponent", the minified javascript code for this example would be
-located under `<plugin root>/src/Resources/public/static/js/CustomComponent.js`, once you run the command `./psh.phar administration:build` in your shopware root directory.
+located under `<plugin root>/src/Resources/public/administration/js/custom-component.js`, once you run the command `./psh.phar administration:build` in your shopware root directory.
 *Note: Your plugin has to be activated for this to work.*
 Make sure to also include that file when publishing your plugin!
-A copy of this file will then be put into the directory `<shopware root>/public/bundles/customcomponent/static/js/CustomComponent.js`.
+A copy of this file will then be put into the directory `<shopware root>/public/bundles/customcomponent/administration/js/custom-component.js`.
 
 The latter javascript file has to be injected into the template by your plugin as well for production environments.
 In order to do this, create a new file called `index.html.twig` here: `<plugin root>/src/Resources/views/administration/`
@@ -132,7 +132,7 @@ In order to do this, create a new file called `index.html.twig` here: `<plugin r
 
 {% block administration_scripts %}
     {{ parent() }}
-    <script type="text/javascript" src="{{ asset('bundles/customcomponent/static/js/CustomComponent.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('bundles/customcomponent/administration/js/custom-component.js') }}"></script>
 {% endblock %}
 ```
 

@@ -133,7 +133,7 @@ Jest (Storefront):
         paths:
             - development/build/artifacts/e2e/
         reports:
-            junit: development/build/artifacts/e2e/*.xmlvariables
+            junit: development/build/artifacts/e2e/*.xml
 
 .storefront_script:
     script:  &storefront_definition

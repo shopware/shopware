@@ -20,7 +20,7 @@ REST-Resource
 Sales channel
  : A sales channel is the combination of all customer facing data and workflows. It is part of the core.
  
-Management-API
+Admin API
  : A REST-API providing access to all of Shopware 6.
   
 SalesChannel-API

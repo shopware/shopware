@@ -322,7 +322,7 @@ about [external routing resources](https://symfony.com/doc/current/routing/exter
 
 Now the controller should be fully working and accessible using the route mentioned in the method's `@Route` annotation.
 Since we've created an API route here, an authorization token is still necessary to actually access our controller.
-Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how Shopware 6 management API works [here](./../../3-api/010-management-api.md). 
+Remove the 'api' from the route to circumvent the authorization for testing purposes or get more into how Shopware 6 Admin API works [here](./../../3-api/010-admin-api.md). 
 
 ## Creating a service
 

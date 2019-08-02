@@ -99,7 +99,7 @@ Component.register('sw-show-case-list', {
 
 ## How to fetch a single entity
 
-Since the context of an edit or update form is usually a single root entity, the data handling diverges here from the Data Abstraction Layer and provides loading of a single resource from the Management-API
+Since the context of an edit or update form is usually a single root entity, the data handling diverges here from the Data Abstraction Layer and provides loading of a single resource from the Admin API
 
 ```javascript
 Component.register('sw-show-case-list', {
@@ -119,7 +119,7 @@ Component.register('sw-show-case-list', {
 ```
 ## Update an entity
 
-The data handling contains change tracking and sends only changed properties to the Management-API. Please be aware that, in order to be as transparent as possible, updating data will not be handled automatically. A manual update is mandatory. 
+The data handling contains change tracking and sends only changed properties to the Admin API. Please be aware that, in order to be as transparent as possible, updating data will not be handled automatically. A manual update is mandatory. 
 
 ```javascript
 Component.register('sw-show-case-list', {
@@ -158,7 +158,7 @@ Component.register('sw-show-case-list', {
 
 ## Delete an entity
 
-In sync with tha Data Abstraction Layer, you do delete the entity through the Management-API by simply sending the `id`, be aware that updating the UI is entirely left to you.
+In sync with tha Data Abstraction Layer, you do delete the entity through the Admin API by simply sending the `id`, be aware that updating the UI is entirely left to you.
 
 ```javascript
 Component.register('sw-show-case-list', {

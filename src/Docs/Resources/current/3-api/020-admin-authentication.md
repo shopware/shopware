@@ -1,6 +1,6 @@
-[titleEn]: <>(Management API authentication)
+[titleEn]: <>(Admin API authentication)
 
-The management API uses the [oauth2](https://oauth.net/2/) standard to authenticate clients.
+The Admin API uses the [oauth2](https://oauth.net/2/) standard to authenticate clients.
 
 ## Access token
 

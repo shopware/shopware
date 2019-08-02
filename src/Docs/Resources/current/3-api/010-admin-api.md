@@ -1,8 +1,8 @@
-[titleEn]: <>(Management API)
+[titleEn]: <>(Admin API)
 
 ## Getting started
 
-The management API requires an authentication before using it.
+The Admin API requires an authentication before using it.
 It uses the [oauth2](https://oauth.net/2/) standard to authenticate users. The endpoint is located at **/api/oauth/token**.
 At the end of this guide you'll find a short example about the authentication.
 
@@ -25,7 +25,7 @@ If you're using a Date field, make sure to use an ISO 8601 compatible date forma
 
 ## Response body formats
 
-The management API generally supports two response body formats. The first one is a simple JSON formatted response similar to the Shopware 5 API.
+The Admin API generally supports two response body formats. The first one is a simple JSON formatted response similar to the Shopware 5 API.
 The second one is the [json:api](http://jsonapi.org/) standard. By default, the response will be in json:api format.
 
 ### json:api
@@ -149,7 +149,7 @@ You can see a shortened example below:
 ### Example: Authentication
 
 The following example shows how to authenticate a user by his password.
-Detailed information about the authentication can be found [here](./020-management-authentication.md).
+Detailed information about the authentication can be found [here](./020-admin-authentication.md).
 
 ```javascript
     const baseUrl = '{insert your url}';
@@ -176,7 +176,7 @@ Detailed information about the authentication can be found [here](./020-manageme
 
 After fetching an access token you can access all other resources by sending the access token in the **Authorization** header.
 The following example shows how to get a list of products.
-For detailed information take a look at [usage](./030-management-api-usage.md) and [extended read](./040-management-extended-read.md).
+For detailed information take a look at [usage](./030-admin-api-usage.md) and [extended read](./040-admin-extended-read.md).
 
 ```javascript
     const baseUrl = '{insert your url}';

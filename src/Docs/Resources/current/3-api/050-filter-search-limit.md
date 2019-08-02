@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The whole management API and some endpoints of the SalesChannel-API support various operations like filtering, searching and limiting the result set.
+The whole Admin API and some endpoints of the SalesChannel-API support various operations like filtering, searching and limiting the result set.
 For more complex operations we created a special search endpoint:
 
     POST /api/v1/search/{entityName}

@@ -73,7 +73,7 @@
                     <h2 class="no--margin-top">API</h2>
                     <p>
                         Connect your software to Shopware 6.
-                        Whether it is a new <a href="/en/shopware-platform-dev-en/api/sales-channel-api">frontend</a> or an <a href="/en/shopware-platform-dev-en/api/management-api">ERP</a>, look no further.
+                        Whether it is a new <a href="/en/shopware-platform-dev-en/api/sales-channel-api">frontend</a> or an <a href="/en/shopware-platform-dev-en/api/admin-api">ERP</a>, look no further.
                     </p>
                     <a href="/en/shopware-platform-dev-en/api" class="btn is--primary is--transparent is--box ct-button">Start now <i class="icon--arrow-right"></i></a>
                 </div>

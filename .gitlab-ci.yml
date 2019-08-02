@@ -64,7 +64,15 @@ PHPUnit (MySQL):
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     script:
         - ./psh.phar init
-        - ./psh.phar unit
+        - php -d pcov.enabled=1 -d pcov.directory=$CI_PROJECT_DIR
+           vendor/bin/phpunit
+           --configuration vendor/shopware/platform/phpunit.xml.dist
+           --log-junit build/artifacts/phpunit.junit.xml
+           --colors=never
+           --coverage-clover build/artifacts/phpunit.clover.xml
+           --coverage-html build/artifacts/phpunit-coverage-html
+           --coverage-text
+
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
         paths:
@@ -82,7 +90,14 @@ PHPUnit (MariaDB):
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     script:
         - ./psh.phar init
-        - ./psh.phar unit
+        - php -d pcov.enabled=1 -d pcov.directory=$CI_PROJECT_DIR                                                
+           vendor/bin/phpunit
+           --configuration vendor/shopware/platform/phpunit.xml.dist
+           --log-junit build/artifacts/phpunit.junit.xml
+           --colors=never
+           --coverage-clover build/artifacts/phpunit.clover.xml
+           --coverage-html build/artifacts/phpunit-coverage-html
+           --coverage-text
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
         reports:

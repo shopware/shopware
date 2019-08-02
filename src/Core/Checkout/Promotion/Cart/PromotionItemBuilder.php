@@ -241,6 +241,20 @@ class PromotionItemBuilder
             }
         }
 
+        $payload['filter'] = [
+            'sorterKey' => null,
+            'applierKey' => null,
+            'usageKey' => null,
+        ];
+
+        if ($discount->isConsiderAdvancedRules()) {
+            $payload['filter'] = [
+                'sorterKey' => $discount->getSorterKey(),
+                'applierKey' => $discount->getApplierKey(),
+                'usageKey' => $discount->getUsageKey(),
+            ];
+        }
+
         return $payload;
     }
 

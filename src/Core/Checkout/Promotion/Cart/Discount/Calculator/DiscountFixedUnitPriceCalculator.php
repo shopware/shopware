@@ -3,14 +3,14 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -29,7 +29,7 @@ class DiscountFixedUnitPriceCalculator
     /**
      * @throws InvalidPriceDefinitionException
      */
-    public function calculate(DiscountCalculatorDefinition $discount, PriceCollection $targetPrices, LineItemCollection $targetItems, SalesChannelContext $context): DiscountCalculatorResult
+    public function calculate(DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context): DiscountCalculatorResult
     {
         /** @var AbsolutePriceDefinition|null $priceDefinition */
         $priceDefinition = $discount->getPriceDefinition();
@@ -43,35 +43,29 @@ class DiscountFixedUnitPriceCalculator
         /** @var float $totalDiscountSum */
         $totalDiscountSum = 0.0;
 
-        /** @var DiscountCompositionItem[] $refMetaItems */
-        $refMetaItems = [];
+        /** @var DiscountCompositionItem[] $composition */
+        $composition = [];
 
-        /** @var LineItem $lineItem */
-        foreach ($targetItems->getFlat() as $lineItem) {
-            if (!$discount->hasItem($lineItem->getId())) {
-                continue;
-            }
+        /** @var DiscountPackage $package */
+        foreach ($packages as $package) {
+            /** @var LineItem $lineItem */
+            foreach ($package->getCartItems() as $lineItem) {
+                /** @var int $quantity */
+                $quantity = $lineItem->getQuantity();
 
-            /** @var int $quantity */
-            $quantity = $discount->getItem($lineItem->getId())->getQuantity();
+                /** @var float $itemUnitPrice */
+                $itemUnitPrice = $lineItem->getPrice()->getUnitPrice();
 
-            // if no quantity exists, skip
-            if ($quantity <= 0) {
-                continue;
-            }
+                if ($itemUnitPrice > $fixedUnitPrice) {
+                    // check if discount exceeds or not, beware of quantity
+                    /** @var float $discountDiffPrice */
+                    $discountDiffPrice = ($itemUnitPrice - $fixedUnitPrice) * $quantity;
+                    // add to our total discount sum
+                    $totalDiscountSum += $discountDiffPrice;
 
-            /** @var float $itemUnitPrice */
-            $itemUnitPrice = $lineItem->getPrice()->getUnitPrice();
-
-            if ($itemUnitPrice > $fixedUnitPrice) {
-                // check if discount exceeds or not, beware of quantity
-                /** @var float $discountDiffPrice */
-                $discountDiffPrice = ($itemUnitPrice - $fixedUnitPrice) * $quantity;
-                // add to our total discount sum
-                $totalDiscountSum += $discountDiffPrice;
-
-                // add a reference, so we know what items are discounted
-                $refMetaItems[] = new DiscountCompositionItem($lineItem->getId(), $quantity, $discountDiffPrice);
+                    // add a reference, so we know what items are discounted
+                    $composition[] = new DiscountCompositionItem($lineItem->getId(), $quantity, $discountDiffPrice);
+                }
             }
         }
 
@@ -80,13 +74,10 @@ class DiscountFixedUnitPriceCalculator
         /** @var CalculatedPrice $discountPrice */
         $discountPrice = $this->absolutePriceCalculator->calculate(
             -abs($totalDiscountSum),
-            $targetPrices,
+            $packages->getAffectedPrices(),
             $context
         );
 
-        return new DiscountCalculatorResult(
-            $discountPrice,
-            $refMetaItems
-        );
+        return new DiscountCalculatorResult($discountPrice, $composition);
     }
 }

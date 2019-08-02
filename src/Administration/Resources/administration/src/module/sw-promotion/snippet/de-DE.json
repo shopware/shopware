@@ -22,6 +22,20 @@
         "PRICE_DESC": "Preis absteigend"
       }
     },
+    "filter": {
+      "sorter": {
+        "PRICE_ASC": "Preis aufsteigend",
+        "PRICE_DESC": "Preis absteigend"
+      },
+      "applier": {
+        "ALL": "Jedes Ergebnis",
+        "SELECT": "Jedes {count}. Ergebnis"
+      },
+      "counter": {
+        "ALL": "Unbegrenzt",
+        "SELECT": "{count} x"
+      }
+    },
     "general": {
       "mainMenuItemGeneral": "Rabatte & Aktionen",
       "mainMenuItemList": "Rabatte & Aktionen",
@@ -91,7 +105,7 @@
               "helpTextPattern": "Geben Sie hier Ihr gewünschtes Code-Muster an. Benutzen Sie dabei Platzhalter wie %s für Buchstaben oder %d für Zahlen. Beispiel: code-%s%s%d",
               "labelCount": "Anzahl",
               "buttonGenerate": "Speichern und Codes generieren.",
-              "labelNoCodesExist" : "Keine Codes vorhanden.",
+              "labelNoCodesExist": "Keine Codes vorhanden.",
               "columnCode": "Aktionscode",
               "columnRedeemed": "Eingelöst",
               "columnCustomer": "Kunde",
@@ -181,6 +195,9 @@
             "buttonCancel": "Abbrechen",
             "buttonDelete": "Rabatt entfernen"
           },
+          "labelSorting": "Sortieren nach",
+          "labelApplyCount": "Anwenden auf",
+          "labelMaxCount": "Maximale Anwendung",
           "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
           "pricesModal": {
             "advancedPricesHeader": "Erweiterte Preise",

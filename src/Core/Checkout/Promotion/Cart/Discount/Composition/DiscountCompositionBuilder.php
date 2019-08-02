@@ -55,4 +55,32 @@ class DiscountCompositionBuilder
 
         return $compositionItems;
     }
+
+    /**
+     * Iterates through all composition items and removes redundant
+     * occurrences by merging items into single items and
+     * aggregating their values.
+     */
+    public function aggregateCompositionItems(array $items): array
+    {
+        $aggregated = [];
+
+        /** @var DiscountCompositionItem $item */
+        foreach ($items as $item) {
+            if (!array_key_exists($item->getId(), $aggregated)) {
+                $aggregated[$item->getId()] = $item;
+            } else {
+                /** @var DiscountCompositionItem $existing */
+                $existing = $aggregated[$item->getId()];
+
+                $aggregated[$item->getId()] = new DiscountCompositionItem(
+                    $item->getId(),
+                    $existing->getQuantity() + $item->getQuantity(),
+                    $existing->getDiscountValue() + $item->getDiscountValue()
+                );
+            }
+        }
+
+        return array_values($aggregated);
+    }
 }

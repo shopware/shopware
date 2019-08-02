@@ -39,17 +39,54 @@
         </sw-container>
 
         {% block sw_promotion_discount_condition_rules_form %}
-            <template v-if="cartScope && discount.considerAdvancedRules === true">
+            <template v-if="!shippingScope && discount.considerAdvancedRules === true">
+
                 <sw-promotion-rule-select
                         class="sw-promotion-discount-component__select-discount-rules"
                         v-model="discount.discountRules"
                         :localMode="discount.isNew()"
                         :criteria="ruleFilter"
-                        :ruleScope="['lineItem']"
                         :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
                         :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
                         :disabled="isEditingDisabled">
                 </sw-promotion-rule-select>
+
+                <sw-container columns="1fr 1fr" gap="0px 30px">
+                    {% block sw_promotion_cart_condition_setgroup_filter_sorting_field %}
+                        <sw-select-field :label="$tc('sw-promotion.detail.main.discounts.labelSorting')"
+                                         v-model="discount.sorterKey"
+                                         :disabled="isEditingDisabled">
+                            <option v-for="sorter in graduationSorters"
+                                    :value="sorter.key">
+                                {{ sorter.name }}
+                            </option>
+                        </sw-select-field>
+                    {% endblock %}
+                    {% block sw_promotion_cart_condition_setgroup_filter_apply_field %}
+                        <sw-select-field :label="$tc('sw-promotion.detail.main.discounts.labelApplyCount')"
+                                         v-model="discount.applierKey"
+                                         :disabled="isEditingDisabled">
+                            <option v-for="applier in graduationAppliers"
+                                    :value="applier.key">
+                                {{ applier.name }}
+                            </option>
+                        </sw-select-field>
+                    {% endblock %}
+                </sw-container>
+
+                <sw-container columns="1fr 1fr" gap="0px 30px">
+                    {% block sw_promotion_cart_condition_setgroup_filter_usage_field %}
+                        <sw-select-field :label="$tc('sw-promotion.detail.main.discounts.labelMaxCount')"
+                                         v-model="discount.usageKey"
+                                         :disabled="isEditingDisabled">
+                            <option v-for="count in graduationCounts"
+                                    :value="count.key">
+                                {{ count.name }}
+                            </option>
+                        </sw-select-field>
+                    {% endblock %}
+                </sw-container>
+
             </template>
         {% endblock %}
 

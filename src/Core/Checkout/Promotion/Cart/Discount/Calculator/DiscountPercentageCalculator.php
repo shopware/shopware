@@ -2,17 +2,15 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator;
 
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -31,7 +29,7 @@ class DiscountPercentageCalculator
     /**
      * @throws InvalidPriceDefinitionException
      */
-    public function calculate(DiscountCalculatorDefinition $discount, PriceCollection $targetPrices, LineItemCollection $targetItems, SalesChannelContext $context): DiscountCalculatorResult
+    public function calculate(DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context): DiscountCalculatorResult
     {
         /** @var PercentagePriceDefinition $definition */
         $definition = $discount->getPriceDefinition();
@@ -48,7 +46,7 @@ class DiscountPercentageCalculator
         // based on our discount definition.
         // the basis might only be from a few items and quantities of the cart
         /** @var float $assessmentBasis */
-        $assessmentBasis = $this->getAssessmentBasis($discount, $targetItems);
+        $assessmentBasis = $packages->getAffectedPrices()->sum()->getTotalPrice();
 
         // calculate our price from that sum
         /** @var float $discountPrice */
@@ -62,7 +60,7 @@ class DiscountPercentageCalculator
         /** @var CalculatedPrice $calculatedPrice */
         $calculatedPrice = $this->absolutePriceCalculator->calculate(
             -abs($discountPrice),
-            $targetPrices,
+            $packages->getAffectedPrices(),
             $context
         );
 
@@ -80,7 +78,7 @@ class DiscountPercentageCalculator
                 /** @var CalculatedPrice $calculatedPrice */
                 $calculatedPrice = $this->absolutePriceCalculator->calculate(
                     -abs($maxValue),
-                    $targetPrices,
+                    $packages->getAffectedPrices(),
                     $context
                 );
 
@@ -92,31 +90,27 @@ class DiscountPercentageCalculator
             }
         }
 
-        return new DiscountCalculatorResult(
-            $calculatedPrice,
-            $this->getCompositionItems($definedPercentage, $discount, $targetItems)
-        );
+        $composition = $this->getCompositionItems($definedPercentage, $packages);
+
+        return new DiscountCalculatorResult($calculatedPrice, $composition);
     }
 
-    private function getCompositionItems(float $percentage, DiscountCalculatorDefinition $discount, LineItemCollection $cartItems): array
+    private function getCompositionItems(float $percentage, DiscountPackageCollection $packages): array
     {
         $items = [];
 
-        /** @var LineItem $lineItem */
-        foreach ($cartItems->getFlat() as $lineItem) {
-            $id = $lineItem->getId();
-
-            if ($discount->hasItem($id)) {
-                /** @var LineItemQuantity $discountData */
-                $discountData = $discount->getItem($id);
+        /** @var DiscountPackage $package */
+        foreach ($packages as $package) {
+            /** @var LineItem $lineItem */
+            foreach ($package->getCartItems() as $lineItem) {
                 /** @var float $itemTotal */
-                $itemTotal = $discountData->getQuantity() * $lineItem->getPrice()->getUnitPrice();
+                $itemTotal = $lineItem->getQuantity() * $lineItem->getPrice()->getUnitPrice();
                 /** @var float $percentageFactor */
                 $percentageFactor = abs($percentage) / 100.0;
 
                 $items[] = new DiscountCompositionItem(
-                    $discountData->getLineItemId(),
-                    $discountData->getQuantity(),
+                    $lineItem->getId(),
+                    $lineItem->getQuantity(),
                     $itemTotal * $percentageFactor
                 );
             }
@@ -125,7 +119,7 @@ class DiscountPercentageCalculator
         return $items;
     }
 
-    private function hasMaxValue(DiscountCalculatorDefinition $discount): bool
+    private function hasMaxValue(DiscountLineItem $discount): bool
     {
         if (!array_key_exists('maxValue', $discount->getPayload())) {
             return false;
@@ -144,7 +138,7 @@ class DiscountPercentageCalculator
         return true;
     }
 
-    private function getMaxValue(DiscountCalculatorDefinition $discount): float
+    private function getMaxValue(DiscountLineItem $discount): float
     {
         /** @var string $stringValue */
         $stringValue = $discount->getPayload()['maxValue'];
@@ -153,24 +147,5 @@ class DiscountPercentageCalculator
         $maxValue = (float) $stringValue;
 
         return $maxValue;
-    }
-
-    private function getAssessmentBasis(DiscountCalculatorDefinition $discount, LineItemCollection $items): float
-    {
-        $price = 0;
-
-        /** @var LineItem $lineItem */
-        foreach ($items->getFlat() as $lineItem) {
-            $id = $lineItem->getId();
-
-            if ($discount->hasItem($id)) {
-                /** @var LineItemQuantity $discountData */
-                $discountData = $discount->getItem($id);
-                // now calculate a new unit sum based on the defined quantity
-                $price += ($discountData->getQuantity() * $lineItem->getPrice()->getUnitPrice());
-            }
-        }
-
-        return $price;
     }
 }

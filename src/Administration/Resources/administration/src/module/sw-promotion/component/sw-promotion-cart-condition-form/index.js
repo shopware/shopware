@@ -34,13 +34,9 @@ Component.register('sw-promotion-cart-condition-form', {
         ruleFilter() {
             const criteria = new Criteria();
 
-            criteria.addFilter(Criteria.multi('AND', [
-                Criteria.equalsAny('conditions.type', [
-                    'cartHasDeliveryFreeItem', 'cartWeight', 'cartLineItemsInCart', 'cartLineItemsInCartCount',
-                    'cartGoodsCount', 'cartGoodsPrice'
-                ]),
+            criteria.addFilter(
                 Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
-            ]));
+            );
 
             return criteria;
         },
@@ -124,7 +120,7 @@ Component.register('sw-promotion-cart-condition-form', {
             newGroup.promotionId = this.promotion.id;
             newGroup.value = 2;
             newGroup.packagerKey = 'COUNT';
-            newGroup.sorterKey = 'PRICE_DESC';
+            newGroup.sorterKey = 'PRICE_ASC';
 
             this.promotion.setgroups.push(newGroup);
         },

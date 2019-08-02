@@ -8,7 +8,10 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackagerInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -24,6 +27,11 @@ class SetScopeDiscountPackager implements DiscountPackagerInterface
         $this->groupBuilder = $groupBuilder;
     }
 
+    public function getResultContext(): string
+    {
+        return DiscountPackagerInterface::RESULT_CONTEXT_PACKAGE;
+    }
+
     /**
      * Gets a list of all line items that are part of all groups in the complete set.
      * This will only return full sets. If a group is missing, then the
@@ -37,7 +45,7 @@ class SetScopeDiscountPackager implements DiscountPackagerInterface
      * @throws \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException
      * @throws \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException
      */
-    public function getMatchingItems(LineItem $discount, Cart $cart, SalesChannelContext $context): array
+    public function getMatchingItems(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {
         /** @var array $groups */
         $groups = $discount->getPayload()['setGroups'];
@@ -54,31 +62,32 @@ class SetScopeDiscountPackager implements DiscountPackagerInterface
         // if no max possible groups that have
         // the same count have been found, then return no items
         if ($lowestCommonCount <= 0) {
-            return [];
+            return new DiscountPackageCollection();
         }
 
-        $allItemTuples = [];
+        /** @var DiscountPackage[] $units */
+        $units = [];
 
-        // now run through all definitions
-        // and check if our set and count is valid
-        /** @var LineItemGroupDefinition $definition */
-        foreach ($definitions as $definition) {
-            /** @var LineItemGroup[] $groupResult */
-            $groupResult = $result->getGroupResult($definition);
+        for ($i = 0; $i < $lowestCommonCount; ++$i) {
+            $itemsInSet = [];
 
-            // now only add the number of groups that
-            // are available for all group definitions
-            for ($i = 0; $i < $lowestCommonCount; ++$i) {
+            // now run through all definitions
+            // and check if our set and count is valid
+            /** @var LineItemGroupDefinition $definition */
+            foreach ($definitions as $definition) {
+                /** @var LineItemGroup[] $groupResult */
+                $groupResult = $result->getGroupResult($definition);
+
                 /** @var LineItemQuantity[] $itemsInGroup */
                 $itemsInGroup = $groupResult[$i]->getItems();
-                // add to our aggregated list
-                $allItemTuples = array_merge($itemsInGroup, $allItemTuples);
+
+                $itemsInSet = array_merge($itemsInSet, $itemsInGroup);
             }
+
+            $units[] = new DiscountPackage(new LineItemQuantityCollection($itemsInSet));
         }
 
-        // if we have found multiple sets
-        // make sure to aggregate all results for a single discount package
-        return $this->buildAggregatedResult($allItemTuples);
+        return new DiscountPackageCollection($units);
     }
 
     /**
@@ -128,39 +137,5 @@ class SetScopeDiscountPackager implements DiscountPackagerInterface
         }
 
         return $lowestCommonCount ?? 0;
-    }
-
-    /**
-     * Runs through all found line items and builds an aggregated
-     * result by having each line item only once, but with
-     * adjusted quantities.
-     *
-     * @param LineItemQuantity[] $allItemTuples
-     */
-    private function buildAggregatedResult(array $allItemTuples): array
-    {
-        $aggregatedList = [];
-
-        /** @var LineItemQuantity $tuple */
-        foreach ($allItemTuples as $tuple) {
-            /** @var LineItemQuantity|null $found */
-            $found = null;
-
-            /** @var LineItemQuantity $existing */
-            foreach ($aggregatedList as $existing) {
-                if ($tuple->getLineItemId() === $existing->getLineItemId()) {
-                    $found = $existing;
-                    break;
-                }
-            }
-
-            if ($found !== null) {
-                $found->setQuantity($found->getQuantity() + $tuple->getQuantity());
-            } else {
-                $aggregatedList[] = $tuple;
-            }
-        }
-
-        return $aggregatedList;
     }
 }

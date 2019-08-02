@@ -4,23 +4,48 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackagerInterface;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartScopeDiscountPackager
 {
     /**
+     * @var LineItemQuantitySplitter
+     */
+    private $lineItemQuantitySplitter;
+
+    public function __construct(LineItemQuantitySplitter $lineItemQuantitySplitter)
+    {
+        $this->lineItemQuantitySplitter = $lineItemQuantitySplitter;
+    }
+
+    public function getResultContext(): string
+    {
+        return DiscountPackagerInterface::RESULT_CONTEXT_LINEITEM;
+    }
+
+    /**
      * Gets all product line items of the entire cart that
      * match the rules and conditions of the provided discount item.
      */
-    public function getMatchingItems(LineItem $discount, Cart $cart, SalesChannelContext $context): array
+    public function getMatchingItems(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {
         /** @var LineItemCollection $allItems */
         $allItems = $cart->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        /** @var LineItemFlatCollection $singleItems */
+        $singleItems = $this->splitQuantities($allItems, $context);
 
         /** @var PriceDefinitionInterface $priceDefinition */
         $priceDefinition = $discount->getPriceDefinition();
@@ -29,16 +54,20 @@ class CartScopeDiscountPackager
         $foundItems = [];
 
         /** @var LineItem $cartLineItem */
-        foreach ($allItems as $cartLineItem) {
+        foreach ($singleItems as $cartLineItem) {
             if ($this->isRulesFilterValid($cartLineItem, $priceDefinition, $context)) {
-                $foundItems[] = new LineItemQuantity(
+                $item = new LineItemQuantity(
                     $cartLineItem->getId(),
                     $cartLineItem->getQuantity()
                 );
+
+                $foundItems[] = $item;
             }
         }
 
-        return $foundItems;
+        $package = new DiscountPackage(new LineItemQuantityCollection($foundItems));
+
+        return new DiscountPackageCollection([$package]);
     }
 
     private function isRulesFilterValid(LineItem $item, PriceDefinitionInterface $priceDefinition, SalesChannelContext $context): bool
@@ -67,5 +96,26 @@ class CartScopeDiscountPackager
         }
 
         return false;
+    }
+
+    /**
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
+     */
+    private function splitQuantities(LineItemCollection $cartItems, SalesChannelContext $context): LineItemFlatCollection
+    {
+        $items = [];
+
+        /** @var LineItem $item */
+        foreach ($cartItems as $item) {
+            for ($i = 1; $i <= $item->getQuantity(); ++$i) {
+                /** @var LineItem $tmpItem */
+                $tmpItem = $this->lineItemQuantitySplitter->split($item, 1, $context);
+
+                $items[] = $tmpItem;
+            }
+        }
+
+        return new LineItemFlatCollection($items);
     }
 }

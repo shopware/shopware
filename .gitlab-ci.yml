@@ -1,6 +1,7 @@
 variables:
     DOCKER_DRIVER: overlay2
     DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: "/certs"
     MYSQL_ROOT_PASSWORD: app
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/development/public
     GIT_STRATEGY: clone
@@ -122,7 +123,7 @@ Jest (Storefront):
 .job_template: &e2e_definition
     stage: E2E
     services:
-        -   name: docker:dind
+        -   name: docker:18.09.7-dind
             alias: docker
         -   name: mariadb:10.3
             alias: mysql

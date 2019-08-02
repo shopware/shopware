@@ -60,10 +60,10 @@ As mentioned above, Shopware 6 is looking for a `main.js` file in your plugin.
 Its contents get minified into a new file named after your plugin and will be moved to the `public` directory
 of the Shopware 6 root directory.
 Given this plugin would be named "AdministrationNewColumn", the minified javascript code for this example would be
-located under `<plugin root>/src/Resources/public/static/js/AdministrationNewColumn.js`, once you run the command `./psh.phar administration:build` in your shopware root directory.
+located under `<plugin root>/src/Resources/public/administration/js/administration-new-column.js`, once you run the command `./psh.phar administration:build` in your shopware root directory.
 *Note: Your plugin has to be activated for this to work.*
 Make sure to also include that file when publishing your plugin!
-A copy of this file will then be put into the directory `<shopware root>/public/bundles/administrationnewcolumn/static/js/AdministrationNewColumn.js`.
+A copy of this file will then be put into the directory `<shopware root>/public/bundles/administrationnewcolumn/administration/js/administration-new-column.js`.
 
 The latter javascript file has to be injected into the template by your plugin as well for production environments.
 In order to do this, create a new file called `index.html.twig` here: `<plugin root>/src/Resources/views/administration/`
@@ -73,7 +73,7 @@ In order to do this, create a new file called `index.html.twig` here: `<plugin r
 
 {% block administration_scripts %}
     {{ parent() }}
-    <script type="text/javascript" src="{{ asset('bundles/administrationnewcolumn/static/js/AdministrationNewColumn.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('bundles/administrationnewcolumn/administration/js/administration-new-column.js') }}"></script>
 {% endblock %}
 ```
 

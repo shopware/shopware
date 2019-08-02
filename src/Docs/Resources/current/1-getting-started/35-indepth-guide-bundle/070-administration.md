@@ -1433,7 +1433,7 @@ The file's contents should look like this:
 
 {% block administration_scripts %}
     {{ parent() }}
-    <script type="text/javascript" src="{{ asset('bundles/bundleexample/static/js/BundleExample.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('bundles/bundleexample/administration/js/bundle-example.js') }}"></script>
 {% endblock %}
 ```
 

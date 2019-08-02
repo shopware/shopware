@@ -53,7 +53,7 @@ Create a file called `sw-product-settings-form.html.twig` in the following direc
     {% parent %}
 
     <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
-        <sw-field type="text" label="Manufacturer ID" v-model="product.manufacturer.id" disabled="true"> </sw-field>
+        <sw-text-field label="Manufacturer ID" v-model="product.manufacturerId" disabled></sw-text-field>
     </sw-container>
 {% endblock %}
 ```
@@ -73,10 +73,10 @@ As mentioned above, Shopware 6 is looking for a `main.js` file in your plugin.
 Its contents get minified into a new file named after your plugin and will be moved to the `public` directory
 of Shopware 6 root directory.
 Given this plugin would be named "AdministrationNewField", the minified javascript code for this example would be
-located under `<plugin root>/src/Resources/public/static/js/AdministrationNewField.js`, once you run the command `./psh.phar administration:build` in your shopware root directory.
+located under `<plugin root>/src/Resources/public/administration/js/administration-new-field.js`, once you run the command `./psh.phar administration:build` in your shopware root directory.
 *Note: Your plugin has to be activated for this to work.*
 Make sure to also include that file when publishing your plugin!
-A copy of this file will then be put into the directory `<shopware root>/public/bundles/administrationnewfield/static/js/AdministrationNewField.js`.
+A copy of this file will then be put into the directory `<shopware root>/public/bundles/administrationnewfield/administration/js/administration-new-field.js`.
 
 The latter javascript file has to be injected into the template by your plugin as well for production environments.
 In order to do this, create a new file called `index.html.twig` here: `<plugin root>/src/Resources/views/administration/`
@@ -86,7 +86,7 @@ In order to do this, create a new file called `index.html.twig` here: `<plugin r
 
 {% block administration_scripts %}
     {{ parent() }}
-    <script type="text/javascript" src="{{ asset('bundles/administrationnewfield/static/js/AdministrationNewField.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('bundles/administrationnewfield/administration/js/administration-new-field.js') }}"></script>
 {% endblock %}
 ```
 

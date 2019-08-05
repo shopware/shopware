@@ -113,8 +113,6 @@ class ProductDefinition extends EntityDefinition
             (new BlacklistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new WhitelistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
 
-            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
-
             //not inherited fields
             new BoolField('active', 'active'),
             (new IntField('stock', 'stock'))->addFlags(new Required()),

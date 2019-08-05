@@ -40,11 +40,6 @@ class ProductEntity extends Entity
     protected $childCount;
 
     /**
-     * @var int
-     */
-    protected $autoIncrement;
-
-    /**
      * @var string|null
      */
     protected $taxId;
@@ -910,16 +905,6 @@ class ProductEntity extends Entity
     public function setCategoriesRo(CategoryCollection $categoriesRo): void
     {
         $this->categoriesRo = $categoriesRo;
-    }
-
-    public function getAutoIncrement(): int
-    {
-        return $this->autoIncrement;
-    }
-
-    public function setAutoIncrement(int $autoIncrement): void
-    {
-        $this->autoIncrement = $autoIncrement;
     }
 
     public function getCoverId(): ?string

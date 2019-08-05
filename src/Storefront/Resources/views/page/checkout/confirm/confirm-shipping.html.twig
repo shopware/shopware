@@ -19,7 +19,7 @@
                 <p class="confirm-shipping-current{% if shippingMethodInvalid %} is-invalid{% endif %}">
                     {% block page_checkout_confirm_shipping_current_image %}
                         {% if context.shippingMethod.media %}
-                            <img src="{{ context.shippingMethod.media.url }}"
+                            <img src="{{ context.shippingMethod.media|sw_encode_media_url }}"
                                  class="confirm-shipping-method-image"
                                  alt="{{ context.shippingMethod.media.translated.alt }}"
                                  title="{{ context.shippingMethod.media.translated.title }}">
@@ -112,7 +112,7 @@
 
                                                                                 {% block page_checkout_confirm_shipping_form_image %}
                                                                                     {% if shipping.media %}
-                                                                                        <img src="{{ shipping.media.url }}"
+                                                                                        <img src="{{ shipping.media|sw_encode_media_url }}"
                                                                                              class="confirm-shipping-method-image"
                                                                                              alt="{{ shipping.media.translated.alt }}"
                                                                                              title="{{ shipping.media.translated.title }}">

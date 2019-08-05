@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Twig\InheritanceExtension;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Storefront\Test\fixtures\BundleFixture;
@@ -11,6 +12,8 @@ use Twig\Loader\FilesystemLoader;
 
 class TwigSwIncludeTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     public function testMultipleInheritance(): void
     {
         $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
@@ -18,7 +21,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader);
+        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
         $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
@@ -36,7 +39,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader);
+        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
         $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
@@ -54,7 +57,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader);
+        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
         $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
@@ -72,7 +75,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader);
+        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
         $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
@@ -90,7 +93,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader);
+        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
         $twig->addExtension(new InheritanceExtension($templateFinder));
         $twig->getExtension(InheritanceExtension::class)->getFinder();
         $template = $twig->loadTemplate('frontend/notemplatefound.html.twig');
@@ -104,7 +107,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader);
+        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
         $twig->addExtension(new InheritanceExtension($templateFinder));
 
         $template = $twig->loadTemplate('frontend/dynamic_include.html.twig');
@@ -119,7 +122,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader);
+        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
         $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);

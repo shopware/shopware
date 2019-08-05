@@ -24,7 +24,9 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AddressService
 {
@@ -53,18 +55,25 @@ class AddressService
      */
     private $eventDispatcher;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $customerAddressRepository,
         AddressValidationService $addressValidationService,
         DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SystemConfigService $systemConfigService
     ) {
         $this->countryRepository = $countryRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->addressValidationService = $addressValidationService;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -117,7 +126,8 @@ class AddressService
     {
         $this->validateCustomerIsLoggedIn($context);
 
-        $definition = $this->getCreateValidationDefinition($context->getContext());
+        $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+        $definition = $this->getCreateValidationDefinition($accountType, $context->getContext());
         $this->validator->validate($data->all(), $definition);
 
         if ($id = $data->get('id')) {
@@ -212,9 +222,13 @@ class AddressService
         return $address;
     }
 
-    private function getCreateValidationDefinition(Context $context): DataValidationDefinition
+    private function getCreateValidationDefinition(string $accountType, Context $context): DataValidationDefinition
     {
         $validation = $this->addressValidationService->buildCreateValidation($context);
+
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')) {
+            $validation->add('company', new NotBlank());
+        }
 
         $validationEvent = new BuildValidationEvent($validation, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

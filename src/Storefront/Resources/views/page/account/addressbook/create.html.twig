@@ -21,14 +21,14 @@
                               data-form-validation="true">
                             {% block page_account_address_form_create_personal %}
                                 {% sw_include '@Storefront/component/address/address-personal.html.twig' with {
-                                    'data': page.address,
+                                    'data': data.get('address'),
                                     'prefix': 'address'
                                 } %}
                             {% endblock %}
 
                             {% block page_account_address_form_create_general %}
                                 {% sw_include '@Storefront/component/address/address-form.html.twig' with {
-                                    'data': page.address,
+                                    'data': data.get('address'),
                                     'prefix': 'address'
                                 } %}
                             {% endblock %}

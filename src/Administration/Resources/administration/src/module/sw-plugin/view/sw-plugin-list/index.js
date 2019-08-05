@@ -9,6 +9,12 @@ Component.register('sw-plugin-list', {
         searchTerm: {
             type: String,
             required: false
+        },
+
+        pageLoading: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -121,6 +127,11 @@ Component.register('sw-plugin-list', {
                 });
                 this.getList();
                 this.cacheApiService.clear();
+
+                // Reload if plugin gets uninstalled while active
+                if (plugin.active === true) {
+                    window.location.reload();
+                }
             });
         },
 

@@ -6,7 +6,9 @@
       "descriptionTextModule": "Verwaltung von Themes",
       "mainMenuHeader": "Deine Themes",
       "captionMediaUpload": "Lade ein Bild hoch",
-      "lockedToolTip": "Themes die von einem Plugin installiert wurden sind gesperrt und können nicht gelöscht werden."
+      "lockedToolTip": "Themes die von einem Plugin installiert wurden sind gesperrt und können nicht gelöscht werden.",
+      "titleError": "Fehler",
+      "messageSaveError": "Theme konnte dem Verkaufskanal nicht zugewiesen werden"
     },
     "sorting": {
       "labelSort": "Sortieren nach:",
@@ -41,7 +43,8 @@
       "labelRenameThemeName": "Neuer Theme Name",
       "placeholderRenameThemeName": "Namen eintragen",
       "buttonRenameTheme": "Speichern",
-      "modalTextResetConfirm": "Sind Sie sicher, dass Sie die aktuellen Änderungen zurücksetzen möchten?",
+      "modalTextResetInfo": "Bist du sicher, dass du das Theme auf die Standardeinstellungen zurücksetzen möchtest?",
+      "modalTextResetAssigned": "Dies kann die Visualisierung Ihres Shops verändern.",
       "modalTitleReset": "Theme zurücksetzen",
       "buttonSave": "Speichern",
       "modalTitleSave": "Theme speichern",
@@ -61,7 +64,7 @@
       "delete": "Löschen",
       "duplicate": "Duplikat erstellen",
       "useImageAs": "Benutze Bild als",
-      "buttonReset": "Änderungen zurücksetzen",
+      "buttonReset": "Theme zurücksetzen",
       "buttonCancel": "Abbrechen",
       "buttonUseTheme": "Theme benutzen",
       "deleteDisablesToolTip": "Das Theme ist noch mindestens einem Verkaufskanal zugewiesen"

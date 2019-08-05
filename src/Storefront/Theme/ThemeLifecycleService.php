@@ -71,9 +71,16 @@ class ThemeLifecycleService
                 continue;
             }
 
-            $translations = $this->getLabelsFromConfig($themeConfig->getConfig());
-            foreach ($translations as $locale => $translation) {
+            $translations = [];
+
+            $labelTranslations = $this->getLabelsFromConfig($themeConfig->getConfig());
+            foreach ($labelTranslations as $locale => $translation) {
                 $translations[$locale] = ['labels' => $translation];
+            }
+
+            $helpTextTranslations = $this->getHelpTextsFromConfig($themeConfig->getConfig());
+            foreach ($helpTextTranslations as $locale => $translation) {
+                $translations[$locale]['helpTexts'] = $translation;
             }
 
             $themeData = [
@@ -92,6 +99,18 @@ class ThemeLifecycleService
                 continue;
             }
 
+            if ($themeConfig->getPreviewMedia()) {
+                $mediaId = Uuid::randomHex();
+                $path = $themeConfig->getPreviewMedia();
+
+                $mediaItem = $this->createMedia($path, $mediaId, $themeFolderId);
+
+                if ($mediaItem) {
+                    $themeData['previewMediaId'] = $mediaId;
+                    $media[$path] = $mediaItem;
+                }
+            }
+
             $config = $themeConfig->getConfig();
 
             foreach ($config['fields'] as $key => $field) {
@@ -101,24 +120,16 @@ class ThemeLifecycleService
 
                 $path = $themeConfig->getBasePath() . DIRECTORY_SEPARATOR . $field['value'];
 
-                $pathinfo = pathinfo($path);
-
-                if (!file_exists($path) || is_dir($path)) {
-                    continue;
-                }
-
                 if (!array_key_exists($path, $media)) {
                     $mediaId = Uuid::randomHex();
-                    $media[$path] = [
-                        'basename' => $pathinfo['filename'],
-                        'media' => ['id' => $mediaId, 'mediaFolderId' => $themeFolderId],
-                        'mediaFile' => new MediaFile(
-                            $path,
-                            mimetype_from_filename($pathinfo['basename']),
-                            $pathinfo['extension'],
-                            filesize($path)
-                        ),
-                    ];
+                    $mediaItem = $this->createMedia($path, $mediaId, $themeFolderId);
+
+                    if (!$mediaItem) {
+                        continue;
+                    }
+
+                    $media[$path] = $mediaItem;
+
                     $config['fields'][$key]['value'] = $mediaId;
                 } else {
                     $config['fields'][$key]['value'] = $media[$path]['media']['id'];
@@ -141,6 +152,26 @@ class ThemeLifecycleService
         }
 
         $this->themeRepository->create($data, $context);
+    }
+
+    private function createMedia(string $path, string $mediaId, string $themeFolderId): ?array
+    {
+        if (!file_exists($path) || is_dir($path)) {
+            return null;
+        }
+
+        $pathinfo = pathinfo($path);
+
+        return [
+            'basename' => $pathinfo['filename'],
+            'media' => ['id' => $mediaId, 'mediaFolderId' => $themeFolderId],
+            'mediaFile' => new MediaFile(
+                $path,
+                mimetype_from_filename($pathinfo['basename']),
+                $pathinfo['extension'],
+                filesize($path)
+            ),
+        ];
     }
 
     private function getMediaDefaultFolderId(string $folder, Context $context): ?string
@@ -186,5 +217,32 @@ class ThemeLifecycleService
         }
 
         return $labels;
+    }
+
+    private function getHelpTextsFromConfig(array $config): array
+    {
+        $translations = [];
+
+        if (array_key_exists('fields', $config)) {
+            $translations = array_merge_recursive($translations, $this->extractHelpTexts('fields', $config['fields']));
+        }
+
+        return $translations;
+    }
+
+    private function extractHelpTexts(string $prefix, array $data): array
+    {
+        $helpTexts = [];
+        foreach ($data as $key => $item) {
+            if (!isset($item['helpText'])) {
+                continue;
+            }
+
+            foreach ($item['helpText'] as $locale => $label) {
+                $helpTexts[$locale][$prefix . '.' . $key] = $label;
+            }
+        }
+
+        return $helpTexts;
     }
 }

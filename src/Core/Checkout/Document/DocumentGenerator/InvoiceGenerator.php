@@ -46,12 +46,21 @@ class InvoiceGenerator implements DocumentGeneratorInterface
     ): string {
         $templatePath = $templatePath ?? self::DEFAULT_TEMPLATE;
 
-        return $this->documentTemplateRenderer->render($templatePath, [
-            'order' => $order,
-            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
-            'rootDir' => $this->rootDir,
-            'context' => $context,
-        ]);
+        $documentString = $this->documentTemplateRenderer->render(
+            $templatePath,
+            [
+                'order' => $order,
+                'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
+                'rootDir' => $this->rootDir,
+                'context' => $context,
+            ],
+            $context,
+            $order->getSalesChannelId(),
+            $order->getLanguageId(),
+            $order->getLanguage()->getLocale()->getCode()
+        );
+
+        return $documentString;
     }
 
     public function getFileName(DocumentConfiguration $config): string

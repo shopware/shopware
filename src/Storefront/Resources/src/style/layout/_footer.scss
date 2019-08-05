@@ -4,7 +4,7 @@ Footer
 Contains custom styles for the footer located at the bottom of the page.
 */
 
-.footer-column-content {
+.footer-column-content-inner {
     padding-bottom: $spacer;
 }
 
@@ -52,7 +52,8 @@ Contains custom styles for the footer located at the bottom of the page.
 }
 
 .footer-service-menu-link {
-    padding: $spacer-sm 0;
+    padding: 14px 0;
+    display: inline-block;
 }
 
 @include media-breakpoint-up(md) {

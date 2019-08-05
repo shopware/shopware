@@ -10,6 +10,7 @@ Component.register('sw-first-run-wizard-finish', {
     data() {
         return {
             licenceDomains: [],
+            licensed: false,
             restarting: false
         };
     },
@@ -23,6 +24,16 @@ Component.register('sw-first-run-wizard-finish', {
             }
 
             return activeDomain.edition;
+        },
+
+        successMessage() {
+            if (!this.licensed) {
+                return this.$tc('sw-first-run-wizard.finish.messageNotLicensed');
+            }
+
+            const { edition } = this;
+
+            return this.$tc('sw-first-run-wizard.finish.message', {}, { edition });
         }
     },
 
@@ -44,6 +55,9 @@ Component.register('sw-first-run-wizard-finish', {
                 }
 
                 this.licenceDomains = items;
+                this.licensed = true;
+            }).catch(() => {
+                this.licensed = false;
             });
 
             this.addNextCallback(this.onFinish);

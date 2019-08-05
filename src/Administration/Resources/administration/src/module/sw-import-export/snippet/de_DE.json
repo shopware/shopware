@@ -11,7 +11,17 @@
     "title": "Fortschritt",
     "buttonClose": "Schließen",
     "buttonCancel": "Abbrechen",
-    "buttonDownload": "Download"
+    "buttonDownload": "Download",
+    "notificationTitle": {
+      "import": "Import",
+      "export": "Export"
+    },
+    "messages": {
+      "progress": "Daten werden verarbeitet ...",
+      "failed": "Daten konnten nicht vollständig verarbeitet werden. Bitte prüfen sie die Log-Dateien für Fehlerdetails.",
+      "succeeded": "Daten erfolgreich verarbeitet",
+      "aborted": "Datenverarbeitung durch Benutzer abgebrochen."
+    }
   },
   "sw-import-export-index": {
     "cards": {
@@ -22,10 +32,6 @@
         "expireDateLabel": "Ablauf-Datum",
         "action": "Import starten",
         "notification": {
-          "initSuccess": {
-            "title": "Upload erfolgreich",
-            "message": "Datei wurde erfolgreich hochgeladen. Beginne mit der Verarbeitung ..."
-          },
           "initFailed": {
             "title": "Upload fehlgeschlagen",
             "messages": {
@@ -113,6 +119,7 @@
       "columnFileField": "Dateispalte",
       "columnEntityField": "Internes Feld",
       "columnValueSubstitution": "Trennzeichen",
+      "columnIsIdentifier": "Identitätskriterium",
       "addCsvMappingItem": "Zuordnung hinzufügen",
       "deleteCsvMappingItem": "Zuordnung löschen",
       "saveButton": "Speichern"

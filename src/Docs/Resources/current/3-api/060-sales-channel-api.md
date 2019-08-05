@@ -3,7 +3,7 @@
 The SalesChannel-API is part of our API family. It allows access to all sales channel operations, such as creating new customers, customer login
 and logout, various cart operations and a lot more.
 
-It's ideal if you want to build your own storefront. You could create a mobile app based on the Storefront API or just embed it into your
+It's ideal if you want to build your own storefront. You could create a mobile app based on the Sales Channel API or just embed it into your
 existing application to have a solid base for payment and transaction handling.
 
 ## Getting started

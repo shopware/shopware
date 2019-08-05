@@ -46,10 +46,7 @@
       "placeholderPackUnit": "Karton, Flasche ...",
       "optionLitre": "Liter",
       "optionKilogram": "Kilogramm",
-      "optionMetre": "Meter",
-      "closeWindow": "Fenster schließen",
-      "maintainCurrencies": "Währungen pflegen",
-      "columnPrice": "Preise (Brutto / Netto)"
+      "optionMetre": "Meter"
     },
     "settingsForm": {
       "labelCreatedAt": "Erstelldatum",
@@ -69,7 +66,7 @@
       "labelIsCloseout": "Abverkauf",
       "labelDeliveryTime": "Lieferzeit",
       "labelRestockTime": "Auffüllzeit in Tagen",
-      "placeholderDeliveryTime": "Gib ein Lieferzeit ein ...",
+      "placeholderDeliveryTime": "Gib eine Lieferzeit ein ...",
       "placeholderCreatedAt": "Gib ein Erstelldatum ein ...",
       "placeholderReleaseDate": "Gib ein Einstelldatum ein ...",
       "placeholderWidth": "500 ...",
@@ -114,7 +111,7 @@
       "buttonPriceRuleDuplicate": "Preisregel duplizieren",
       "buttonPriceRuleCurrencyAdd": "Währung hinzufügen",
       "buttonAddAdditionalPriceRule": "Preisregel hinzufügen",
-      "buttonAddAdditionalPriceRuleGroup": "Preiseregel-Gruppe hinzufügen",
+      "buttonAddAdditionalPriceRuleGroup": "Preisregel-Gruppe hinzufügen",
       "textCurrencyDefault": "(Standard)",
       "textPriceRuleForCurrency": "Preisregel für Währung",
       "columnQuantityStart": "Menge von",
@@ -259,6 +256,12 @@
         "save": "Speichern",
         "useForListing": "Im Listing auffächern"
       }
+    },
+    "maintainCurrenciesModal": {
+      "apply": "Übernehmen",
+      "cancel": "Abbrechen",
+      "maintainCurrencies": "Währungen pflegen",
+      "columnPrice": "Preise (Brutto / Netto)"
     }
   }
 }

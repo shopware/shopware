@@ -13,7 +13,8 @@ Component.register('sw-first-run-wizard-plugins', {
             regions: [],
             categories: [],
             selectedRegion: null,
-            selectedCategory: null
+            selectedCategory: null,
+            isLoading: false
         };
     },
 
@@ -77,22 +78,32 @@ Component.register('sw-first-run-wizard-plugins', {
             const region = this.selectedRegion.name;
             const category = this.selectedCategory.name;
 
+            this.isLoading = true;
+
             this.recommendationsService.getRecommendations({
                 language,
                 region,
                 category
             }).then((response) => {
                 this.plugins = response.items;
+                this.isLoading = false;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 
         getRecommendationRegions() {
             const language = window.localStorage.getItem('sw-admin-locale');
 
+            this.isLoading = true;
+
             this.recommendationsService.getRecommendationRegions({
                 language
             }).then((response) => {
                 this.regions = response.items;
+                this.isLoading = false;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 

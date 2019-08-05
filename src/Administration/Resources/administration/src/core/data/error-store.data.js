@@ -57,12 +57,20 @@ function removeApiError(expression, state, deleteReactive = null) {
         }
 
         return null;
-    }, state);
+    }, state.api);
+
+    if (store === null) {
+        return;
+    }
 
     if (typeof deleteReactive === 'function') {
         deleteReactive(store, field);
     } else {
         delete store.field;
+    }
+
+    if (path.length <= 0) {
+        return;
     }
 
     if (types.isEmpty(store)) {

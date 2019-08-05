@@ -4,250 +4,250 @@ import ViewportDetection from 'src/script/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/script/plugin/slider/helper/slider-settings.helper';
 import PluginManager from 'src/script/plugin-system/plugin.manager';
 import Iterator from 'src/script/helper/iterator.helper';
-import BaseSliderPlugin from  'src/script/plugin/slider/base-slider.plugin';
-import DomAccess from "src/script/helper/dom-access.helper";
+import BaseSliderPlugin from 'src/script/plugin/slider/base-slider.plugin';
+import DomAccess from 'src/script/helper/dom-access.helper';
 
 export default class GallerySliderPlugin extends BaseSliderPlugin {
 
-    /**
-     * default slider options
-     *
-     * @type {*}
-     */
-    static options = deepmerge(BaseSliderPlugin.options, {
-        containerSelector: '[data-gallery-slider-container=true]',
-        thumbnailsSelector: '[data-gallery-slider-thumbnails=true]',
-        controlsSelector: '[data-gallery-slider-controls=true]',
-        thumbnailControlsSelector: '[data-thumbnail-slider-controls=true]',
-        dotActiveClass: 'tns-nav-active',
-        navDotDataAttr: 'data-nav-dot',
-        slider: {
-            startIndex: 1,
-            responsive: {
-                xs: {},
-                sm: {},
-                md: {},
-                lg: {},
-                xl: {},
-            },
-        },
-        thumbnailSlider: {
-            enabled: true,
-            loop: false,
-            nav: false,
-            items: 5,
-            gutter: 10,
-            startIndex: 1,
-            responsive: {
-                xs: {},
-                sm: {},
-                md: {},
-                lg: {},
-                xl: {},
-            },
-        },
-    });
+  /**
+   * default slider options
+   *
+   * @type {*}
+   */
+  static options = deepmerge(BaseSliderPlugin.options, {
+      containerSelector: '[data-gallery-slider-container=true]',
+      thumbnailsSelector: '[data-gallery-slider-thumbnails=true]',
+      controlsSelector: '[data-gallery-slider-controls=true]',
+      thumbnailControlsSelector: '[data-thumbnail-slider-controls=true]',
+      dotActiveClass: 'tns-nav-active',
+      navDotDataAttr: 'data-nav-dot',
+      slider: {
+          startIndex: 1,
+          responsive: {
+              xs: {},
+              sm: {},
+              md: {},
+              lg: {},
+              xl: {},
+          },
+      },
+      thumbnailSlider: {
+          enabled: true,
+          loop: false,
+          nav: false,
+          items: 5,
+          gutter: 10,
+          startIndex: 1,
+          responsive: {
+              xs: {},
+              sm: {},
+              md: {},
+              lg: {},
+              xl: {},
+          },
+      },
+  });
 
-    init() {
-        this._slider = false;
-        this._thumbnailSlider = false;
+  init() {
+      this._slider = false;
+      this._thumbnailSlider = false;
 
-        if (!this.el.classList.contains(this.options.initializedCls)) {
-            this.options.slider = SliderSettingsHelper.prepareBreakpointPxValues(this.options.slider);
-            this.options.thumbnailSlider = SliderSettingsHelper.prepareBreakpointPxValues(this.options.thumbnailSlider);
-            this._correctIndexSettings();
+      if (!this.el.classList.contains(this.options.initializedCls)) {
+          this.options.slider = SliderSettingsHelper.prepareBreakpointPxValues(this.options.slider);
+          this.options.thumbnailSlider = SliderSettingsHelper.prepareBreakpointPxValues(this.options.thumbnailSlider);
+          this._correctIndexSettings();
 
-            this._getSettings(ViewportDetection.getCurrentViewport());
-            
-            this._initSlider();
-            this._registerEvents();
-        }
-    }
+          this._getSettings(ViewportDetection.getCurrentViewport());
 
-    /**
-     * since the tns slider indexes internally with 0
-     * but the setting starts at 1 we have to subtract 1
-     * to have the correct index
-     *
-     * @private
-     */
-    _correctIndexSettings() {
-        super._correctIndexSettings();
+          this._initSlider();
+          this._registerEvents();
+      }
+  }
 
-        this.options.thumbnailSlider.startIndex -= 1;
-        this.options.thumbnailSlider.startIndex = (this.options.thumbnailSlider.startIndex < 0) ? 0 : this.options.thumbnailSlider.startIndex;
-    }
+  /**
+   * since the tns slider indexes internally with 0
+   * but the setting starts at 1 we have to subtract 1
+   * to have the correct index
+   *
+   * @private
+   */
+  _correctIndexSettings() {
+      super._correctIndexSettings();
 
-    /**
-     * destroys the slider
-     */
-    destroy() {
-        if (this._slider && typeof this._slider.destroy === 'function') {
-            try {
-                this._slider.destroy();
-            } catch (e) {
-                // don't handle
-            }
-        }
+      this.options.thumbnailSlider.startIndex -= 1;
+      this.options.thumbnailSlider.startIndex = (this.options.thumbnailSlider.startIndex < 0) ? 0 : this.options.thumbnailSlider.startIndex;
+  }
 
-        if (this._thumbnailSlider && typeof this._thumbnailSlider.destroy === 'function') {
-            try {
-                this._thumbnailSlider.destroy();
-            } catch (e) {
-                // don't handle
-            }
-        }
+  /**
+   * destroys the slider
+   */
+  destroy() {
+      if (this._slider && typeof this._slider.destroy === 'function') {
+          try {
+              this._slider.destroy();
+          } catch (e) {
+              // don't handle
+          }
+      }
 
-        this.el.classList.remove(this.options.initializedCls);
-    }
+      if (this._thumbnailSlider && typeof this._thumbnailSlider.destroy === 'function') {
+          try {
+              this._thumbnailSlider.destroy();
+          } catch (e) {
+              // don't handle
+          }
+      }
 
-    /**
-     * reinitialise the slider
-     * with the options for our viewport
-     *
-     * @param viewport
-     */
-    rebuild(viewport = ViewportDetection.getCurrentViewport()) {
-        this._getSettings(viewport.toLowerCase());
+      this.el.classList.remove(this.options.initializedCls);
+  }
 
-        // get the current index and use it as the start index
-        try {
-            if (this._slider) {
-                const currentIndex = this.getCurrentSliderIndex();
-                this._sliderSettings.startIndex = currentIndex;
-                this._thumbnailSliderSettings.startIndex = currentIndex;
-            }
+  /**
+   * reinitialise the slider
+   * with the options for our viewport
+   *
+   * @param viewport
+   */
+  rebuild(viewport = ViewportDetection.getCurrentViewport()) {
+      this._getSettings(viewport.toLowerCase());
 
-            this.destroy();
-            this._initSlider();
-        } catch (e) {
-            // something went wrong
-        }
+      // get the current index and use it as the start index
+      try {
+          if (this._slider) {
+              const currentIndex = this.getCurrentSliderIndex();
+              this._sliderSettings.startIndex = currentIndex;
+              this._thumbnailSliderSettings.startIndex = currentIndex;
+          }
 
-        this.$emitter.publish('rebuild');
-    }
+          this.destroy();
+          this._initSlider();
+      } catch (e) {
+      // something went wrong
+      }
 
-    /**
-     * returns the slider settings for the current viewport
-     *
-     * @param viewport
-     * @private
-     */
-    _getSettings(viewport) {
-        super._getSettings(viewport);
+      this.$emitter.publish('rebuild');
+  }
 
-        this._thumbnailSliderSettings = SliderSettingsHelper.getViewportSettings(this.options.thumbnailSlider, viewport);
-    }
+  /**
+   * returns the slider settings for the current viewport
+   *
+   * @param viewport
+   * @private
+   */
+  _getSettings(viewport) {
+      super._getSettings(viewport);
 
-    /**
-     * sets the active dot depending on the slider index
-     *
-     * @private
-     */
-    _setActiveDot() {
-        const currentIndex = this.getCurrentSliderIndex();
+      this._thumbnailSliderSettings = SliderSettingsHelper.getViewportSettings(this.options.thumbnailSlider, viewport);
+  }
 
-        Iterator.iterate(this._dots, dot => dot.classList.remove(this.options.dotActiveClass));
+  /**
+   * sets the active dot depending on the slider index
+   *
+   * @private
+   */
+  _setActiveDot() {
+      const currentIndex = this.getCurrentSliderIndex();
 
-        const currentDot = this._dots[currentIndex];
+      Iterator.iterate(this._dots, dot => dot.classList.remove(this.options.dotActiveClass));
 
-        if (!currentDot) return;
+      const currentDot = this._dots[currentIndex];
 
-        currentDot.classList.add(this.options.dotActiveClass);
-    }
+      if (!currentDot) return;
 
-    /**
-     * initializes the dot navigation for the gallery slider
-     *
-     * @private
-     */
-    _initDots() {
-        this._dots = this.el.querySelectorAll('[' + this.options.navDotDataAttr + ']');
+      currentDot.classList.add(this.options.dotActiveClass);
+  }
 
-        if (!this._dots) return;
+  /**
+   * initializes the dot navigation for the gallery slider
+   *
+   * @private
+   */
+  _initDots() {
+      this._dots = this.el.querySelectorAll('[' + this.options.navDotDataAttr + ']');
 
-        Iterator.iterate(this._dots, dot => {
-            dot.addEventListener('click', this._onDotClick.bind(this));
-        });
+      if (!this._dots) return;
 
-        this._setActiveDot();
+      Iterator.iterate(this._dots, dot => {
+          dot.addEventListener('click', this._onDotClick.bind(this));
+      });
 
-        if (this._slider) {
-            this._slider.events.on('indexChanged', () => {
-                this._setActiveDot();
-            });
-        }
-    }
+      this._setActiveDot();
 
-    /**
-     * navigates the gallery slider on dot click
-     *
-     * @private
-     */
-    _onDotClick(event) {
-        const currentIndex = DomAccess.getDataAttribute(event.target, this.options.navDotDataAttr);
+      if (this._slider) {
+          this._slider.events.on('indexChanged', () => {
+              this._setActiveDot();
+          });
+      }
+  }
 
-        this._slider.goTo(currentIndex - 1);
-    }
+  /**
+   * navigates the gallery slider on dot click
+   *
+   * @private
+   */
+  _onDotClick(event) {
+      const currentIndex = DomAccess.getDataAttribute(event.target, this.options.navDotDataAttr);
 
-    /**
-     * initialize the slider
-     *
-     * @private
-     */
-    _initSlider() {
-        this.el.classList.add(this.options.initializedCls);
+      this._slider.goTo(currentIndex - 1);
+  }
 
-        const container = this.el.querySelector(this.options.containerSelector);
-        const navContainer = this.el.querySelector(this.options.thumbnailsSelector);
-        const controlsContainer = this.el.querySelector(this.options.controlsSelector);
+  /**
+   * initialize the slider
+   *
+   * @private
+   */
+  _initSlider() {
+      this.el.classList.add(this.options.initializedCls);
 
-        if (container) {
-            const onInit = () => {
-                PluginManager.initializePlugin('Magnifier', '[data-magnifier]');
-                PluginManager.initializePlugin('ZoomModal', '[data-zoom-modal]');
+      const container = this.el.querySelector(this.options.containerSelector);
+      const navContainer = this.el.querySelector(this.options.thumbnailsSelector);
+      const controlsContainer = this.el.querySelector(this.options.controlsSelector);
 
-                this.$emitter.publish('initGallerySlider');
-            };
+      if (container) {
+          const onInit = () => {
+              PluginManager.initializePlugin('Magnifier', '[data-magnifier]');
+              PluginManager.initializePlugin('ZoomModal', '[data-zoom-modal]');
 
-            if (this._sliderSettings.enabled) {
-                container.style.display = '';
+              this.$emitter.publish('initGallerySlider');
+          };
 
-                this._slider = tns({
-                    container,
-                    controlsContainer,
-                    navContainer,
-                    onInit,
-                    ...this._sliderSettings,
-                });
-            } else {
-                container.style.display = 'none';
-            }
-        }
+          if (this._sliderSettings.enabled) {
+              container.style.display = '';
 
-        if (navContainer) {
-            const thumbnailControls = this.el.querySelector(this.options.thumbnailControlsSelector);
+              this._slider = tns({
+                  container,
+                  controlsContainer,
+                  navContainer,
+                  onInit,
+                  ...this._sliderSettings,
+              });
 
-            const onInitThumbnails = () => {
-                this._initDots();
+              this._initDots();
+          } else {
+              container.style.display = 'none';
+          }
+      }
 
-                this.$emitter.publish('initThumbnailSlider');
-            };
+      if (navContainer) {
+          const thumbnailControls = this.el.querySelector(this.options.thumbnailControlsSelector);
 
-            if (this._thumbnailSliderSettings.enabled) {
-                navContainer.style.display = '';
+          const onInitThumbnails = () => {
+              this.$emitter.publish('initThumbnailSlider');
+          };
 
-                this._thumbnailSlider = tns({
-                    container: navContainer,
-                    controlsContainer: thumbnailControls,
-                    onInit: onInitThumbnails,
-                    ...this._thumbnailSliderSettings,
-                });
-            } else {
-                navContainer.style.display = 'none';
-            }
-        }
+          if (this._thumbnailSliderSettings.enabled) {
+              navContainer.style.display = '';
 
-        this.$emitter.publish('afterInitSlider');
-    }
+              this._thumbnailSlider = tns({
+                  container: navContainer,
+                  controlsContainer: thumbnailControls,
+                  onInit: onInitThumbnails,
+                  ...this._thumbnailSliderSettings,
+              });
+          } else {
+              navContainer.style.display = 'none';
+          }
+      }
+
+      this.$emitter.publish('afterInitSlider');
+  }
 }

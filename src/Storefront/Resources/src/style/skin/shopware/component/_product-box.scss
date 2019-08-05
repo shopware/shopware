@@ -6,8 +6,13 @@ Styling for productbox component.
 
 .product-box {
     border-color: $border-color;
+    background-color: $white;
 
     .card-body {
         padding: $spacer;
     }
+}
+
+.product-price {
+    color: $price-color;
 }

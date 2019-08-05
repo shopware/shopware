@@ -1,4 +1,5 @@
 const TerserPlugin = require('terser-webpack-plugin');
+const utils = require('./utils');
 
 /**
  * -------------------------------------------------------
@@ -16,6 +17,18 @@ const TerserPlugin = require('terser-webpack-plugin');
  * @type {{}}
  */
 const optimization = {
+    runtimeChunk: {
+        name: 'runtime',
+    },
+    splitChunks: {
+        cacheGroups: {
+            vendor: {
+                test: utils.getPath('node_modules'),
+                name: 'vendors',
+                chunks: 'all',
+            },
+        },
+    },
     minimizer: [
         new TerserPlugin({
             terserOptions: {
@@ -34,6 +47,6 @@ const optimization = {
  */
 module.exports = {
     mode: 'production',
-    optimization: optimization,
     devtool: 'none',
+    optimization,
 };

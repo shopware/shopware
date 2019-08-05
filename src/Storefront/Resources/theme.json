@@ -5,6 +5,7 @@
     "en-GB": "Default theme of Shopware 6",
     "de-DE": "Standard Theme von Shopware 6"
   },
+  "previewMedia": "dist/assets/defaultThemePreview.jpg",
   "style": [
     "src/style/base.scss",
     "@Plugins"
@@ -13,6 +14,8 @@
     "vendor": "vendor"
   },
   "script": [
+    "dist/js/vendors.js",
+    "dist/js/runtime.js",
     "dist/js/app.js",
     "@Plugins"
   ],
@@ -21,16 +24,28 @@
   ],
   "config": {
     "blocks": {
-      "colors": {
+      "themeColors": {
         "label": {
-          "en-GB": "Colors",
-          "de-DE": "Farben"
+          "en-GB": "Theme colours",
+          "de-DE": "Theme-Farben"
         }
       },
-      "fonts": {
+      "typography": {
         "label": {
-          "en-GB": "Fonts",
-          "de-DE": "Schriftarten"
+          "en-GB": "Typography",
+          "de-DE": "Typografie"
+        }
+      },
+      "eCommerce": {
+        "label": {
+          "en-GB": "E-Commerce",
+          "de-DE": "E-Commerce"
+        }
+      },
+      "statusColors": {
+        "label": {
+          "en-GB": "Status messages",
+          "de-DE": "Status-Ausgaben"
         }
       },
       "media": {
@@ -46,115 +61,28 @@
         }
       }
     },
-    "sections": {
-      "generalColors": {
-        "label": {
-          "en-GB": "General colors",
-          "de-DE": "Allgemeine Farben"
-        }
-      },
-      "additionalColors": {
-        "label": {
-          "en-GB": "Additional colors",
-          "de-DE": "Weitere Farben"
-        }
-      },
-      "generalFonts": {
-        "label": {
-          "en-GB": "General fonts",
-          "de-DE": "Allgemeine Schriftarten"
-        }
-      },
-      "logos": {
-        "label": {
-          "en-GB": "Logos",
-          "de-DE": "Logos"
-        }
-      }
-    },
     "fields": {
       "sw-color-brand-primary": {
         "label": {
-          "en-GB": "Primary",
-          "de-DE": "Primär"
+          "en-GB": "Primary colour",
+          "de-DE": "Primärfarbe"
         },
         "type": "color",
         "value": "#399",
         "editable": true,
-        "block": "colors",
-        "section": "generalColors",
+        "block": "themeColors",
         "order": 100
       },
       "sw-color-brand-secondary": {
         "label": {
-          "en-GB": "Secondary",
-          "de-DE": "Sekundär"
+          "en-GB": "Secondary colour",
+          "de-DE": "Sekundärfarbe"
         },
         "type": "color",
         "value": "#576574",
         "editable": true,
-        "block": "colors",
-        "section": "generalColors",
+        "block": "themeColors",
         "order": 200
-      },
-      "sw-color-success": {
-        "label": {
-          "en-GB": "Success",
-          "de-DE": "Erfolg"
-        },      "type": "color",
-        "value": "#6ed59f",
-        "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 300
-      },
-      "sw-color-info": {
-        "label": {
-          "en-GB": "Info",
-          "de-DE": "Info"
-        },
-        "type": "color",
-        "value": "#76bce7",
-        "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 400
-      },
-      "sw-color-warning": {
-        "label": {
-          "en-GB": "Warning",
-          "de-DE": "Warnung"
-        },
-        "type": "color",
-        "value": "#fcc679",
-        "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 500
-      },
-      "sw-color-danger": {
-        "label": {
-          "en-GB": "Danger",
-          "de-DE": "Achtung"
-        },
-        "type": "color",
-        "value": "#f27f7f",
-        "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 600
-      },
-      "sw-text-color": {
-        "label": {
-          "en-GB": "Text",
-          "de-DE": "Text"
-        },
-        "type": "color",
-        "value": "#545454",
-        "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 700
       },
       "sw-border-color": {
         "label": {
@@ -164,128 +92,196 @@
         "type": "color",
         "value": "#d4e2e2",
         "editable": true,
-        "block": "colors",
-        "section": "generalColors",
-        "order": 800
+        "block": "themeColors",
+        "order": 300
+      },
+      "sw-background-color": {
+        "label": {
+          "en-GB": "Background",
+          "de-DE": "Hintergrund"
+        },
+        "type": "color",
+        "value": "#fff",
+        "editable": true,
+        "block": "themeColors",
+        "order": 400
+      },
+      "sw-color-success": {
+        "label": {
+          "en-GB": "Success",
+          "de-DE": "Erfolg"
+        },
+        "type": "color",
+        "value": "#6ed59f",
+        "editable": true,
+        "block": "statusColors",
+        "order": 100
+      },
+      "sw-color-info": {
+        "label": {
+          "en-GB": "Information",
+          "de-DE": "Information"
+        },
+        "type": "color",
+        "value": "#76bce7",
+        "editable": true,
+        "block": "statusColors",
+        "order": 200
+      },
+      "sw-color-warning": {
+        "label": {
+          "en-GB": "Notice",
+          "de-DE": "Hinweis"
+        },
+        "type": "color",
+        "value": "#fcc679",
+        "editable": true,
+        "block": "statusColors",
+        "order": 300
+      },
+      "sw-color-danger": {
+        "label": {
+          "en-GB": "Error",
+          "de-DE": "Fehler"
+        },
+        "type": "color",
+        "value": "#f27f7f",
+        "editable": true,
+        "block": "statusColors",
+        "order": 400
+      },
+      "sw-font-family-base": {
+        "label": {
+          "en-GB": "Fonttype text",
+          "de-DE": "Schriftart Text"
+        },
+        "type": "fontFamily",
+        "value": "'Inter', sans-serif",
+        "editable": true,
+        "block": "typography",
+        "order": 100
+      },
+      "sw-text-color": {
+        "label": {
+          "en-GB": "Text colour",
+          "de-DE": "Textfarbe"
+        },
+        "type": "color",
+        "value": "#545454",
+        "editable": true,
+        "block": "typography",
+        "order": 200
+      },
+      "sw-font-family-headline": {
+        "label": {
+          "en-GB": "Fonttype headline",
+          "de-DE": "Schriftart Überschrift"
+        },
+        "type": "fontFamily",
+        "value": "'Inter', sans-serif",
+        "editable": true,
+        "block": "typography",
+        "order": 300
+      },
+      "sw-headline-color": {
+        "label": {
+          "en-GB": "Headline colour",
+          "de-DE": "Überschriftfarbe"
+        },
+        "type": "color",
+        "value": "#3f4c58",
+        "editable": true,
+        "block": "typography",
+        "order": 400
       },
       "sw-color-price": {
         "label": {
           "en-GB": "Price",
           "de-DE": "Preis"
-        },      "type": "color",
+        },
+        "type": "color",
         "value": "#3f4c58",
         "editable": true,
-        "block": "colors",
-        "section": "additionalColors",
+        "block": "eCommerce",
         "order": 100
       },
       "sw-color-buy-button": {
         "label": {
           "en-GB": "Buy button",
-          "de-DE": "Kaufen Schaltfläche"
+          "de-DE": "Kaufen-Button"
         },
         "type": "color",
         "value": "#399",
         "editable": true,
-        "block": "colors",
-        "section": "additionalColors",
+        "block": "eCommerce",
         "order": 200
       },
-      "sw-font-family-base": {
+      "sw-color-buy-button-text": {
         "label": {
-          "en-GB": "Default",
-          "de-DE": "Allgemein"
+          "en-GB": "Buy button text",
+          "de-DE": "Kaufen-Button Text"
         },
-        "type": "fontFamily",
-        "value": "'Inter', sans-serif",
+        "type": "color",
+        "value": "#fff",
         "editable": true,
-        "block": "fonts",
-        "section": "generalFonts",
-        "order": 100
-      },
-      "sw-font-family-headline": {
-        "label": {
-          "en-GB": "Headline",
-          "de-DE": "Überschrift"
-        },
-        "type": "fontFamily",
-        "value": "'Inter', sans-serif",
-        "editable": true,
-        "block": "fonts",
-        "section": "generalFonts",
-        "order": 200
-      },
-      "sw-logo-default": {
-        "label": {
-          "en-GB": "Default",
-          "de-DE": "Standard"
-        },
-        "type": "media",
-        "value": "dist/assets/logo/demostore-logo.png",
-        "editable": true,
-        "block": "media",
-        "section": "logos",
+        "block": "eCommerce",
         "order": 300
       },
-      "sw-logo-default-sm": {
+      "sw-logo-desktop": {
         "label": {
-          "en-GB": "Small",
-          "de-DE": "Klein"
+          "en-GB": "Desktop",
+          "de-DE": "Desktop"
+        },
+        "helpText": {
+          "en-GB": "Displayed for viewports of above 991px",
+          "de-DE": "Wird über einem Viewport von 991px angezeigt"
         },
         "type": "media",
         "value": "dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
-        "section": "logos",
         "order": 100
       },
-      "sw-logo-default-md": {
+      "sw-logo-tablet": {
         "label": {
-          "en-GB": "Medium",
-          "de-DE": "Mittel"
+          "en-GB": "Tablet",
+          "de-DE": "Tablet"
+        },
+        "helpText": {
+          "en-GB": "Displayed between a viewport of 767px to 991px",
+          "de-DE": "Wird zwischen einem viewport von 767px bis 991px angezeigt"
         },
         "type": "media",
         "value": "dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
-        "section": "logos",
         "order": 200
       },
-      "sw-logo-default-lg": {
+      "sw-logo-mobile": {
         "label": {
-          "en-GB": "Large",
-          "de-DE": "Groß"
+          "en-GB": "Mobile",
+          "de-DE": "Mobil"
+        },
+        "helpText": {
+          "en-GB": "Displayed up to a viewport of 767px",
+          "de-DE": "Wird bis zu einem Viewport von 767px angezeigt"
         },
         "type": "media",
         "value": "dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
-        "section": "logos",
         "order": 300
-      },
-      "sw-logo-default-xl": {
-        "label": {
-          "en-GB": "Extra large",
-          "de-DE": "Sehr groß"
-        },
-        "type": "media",
-        "value": "dist/assets/logo/demostore-logo.png",
-        "editable": true,
-        "block": "media",
-        "section": "logos",
-        "order": 400
       },
       "sw-logo-share": {
         "label": {
-          "en-GB": "Share",
-          "de-DE": "Teilen"
+          "en-GB": "App & share icon",
+          "de-DE": "App- & Share-Icon"
         },
         "type": "media",
         "value": "",
         "editable": true,
         "block": "media",
-        "section": "logos",
-        "order": 500
+        "order": 400
       },
       "sw-logo-favicon": {
         "label": {
@@ -296,20 +292,7 @@
         "value": "dist/assets/logo/favicon.png",
         "editable": true,
         "block": "media",
-        "section": "logos",
-        "order": 600
-      },
-      "sw-logo-app-icon": {
-        "label": {
-          "en-GB": "App-Icon",
-          "de-DE": "App-Icon"
-        },
-        "type": "media",
-        "value": "",
-        "editable": true,
-        "block": "media",
-        "section": "logos",
-        "order": 700
+        "order": 500
       }
     }
   }

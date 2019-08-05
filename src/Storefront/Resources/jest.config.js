@@ -1,6 +1,10 @@
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 const path = require('path');
+const { join } = require('path');
+
+const artifactsPath = join(process.env.PROJECT_ROOT, '/build/artifacts');
+
 
 module.exports = {
 
@@ -11,7 +15,13 @@ module.exports = {
     clearMocks: true,
 
     // The directory where Jest should output its coverage files
-    coverageDirectory: 'coverage',
+    collectCoverage: true,
+    coverageDirectory: artifactsPath,
+    coverageReporters: [
+        'lcov',
+        'text',
+        'clover',
+    ],
 
     // Automatically reset mock state between every test
     resetMocks: true,
@@ -24,12 +34,23 @@ module.exports = {
 
     // This option allows the use of a custom resolver.
     moduleNameMapper: {
-        '^src/(.*)$': '<rootDir>/src/$1'
+        '^src/(.*)$': '<rootDir>/src/$1',
     },
+
+    reporters: [
+        'default',
+        ['jest-junit', {
+            suiteName: 'Shopware 6 Storefront Unit Tests',
+            outputDirectory: artifactsPath,
+            outputName: 'storefront.junit.xml',
+        }],
+    ],
 
     // The glob patterns Jest uses to detect test files
     testMatch: [
         '**/tests/**/*.test.js',
         '**/tests/*.test.js',
     ],
+
+    testEnvironment: 'node',
 };

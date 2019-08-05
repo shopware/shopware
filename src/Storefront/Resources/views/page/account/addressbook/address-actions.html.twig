@@ -42,7 +42,7 @@
             {% endblock %}
 
             {% block page_account_address_actions_delete %}
-                {% if defaultShippingAddress.id != address.id and defaultBillingAddress != address.id %}
+                {% if defaultShippingAddress.id != address.id and defaultBillingAddress.id != address.id %}
                     <div class="col-auto">
                         <form action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}"
                               class="address-action-delete"

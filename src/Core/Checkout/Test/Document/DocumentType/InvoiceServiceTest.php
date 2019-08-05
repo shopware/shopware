@@ -87,6 +87,7 @@ class InvoiceServiceTest extends TestCase
 
     public function testGenerateWithDifferentTaxes()
     {
+        /** @var InvoiceGenerator $invoiceService */
         $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
         $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
 
@@ -338,6 +339,7 @@ class InvoiceServiceTest extends TestCase
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('currency')
+            ->addAssociationPath('language.locale')
             ->addAssociation('transactions');
 
         $order = $this->getContainer()->get('order.repository')

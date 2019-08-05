@@ -7,59 +7,26 @@ class ThemeFixtures
     public static function getThemeFields(): array
     {
         return [
-            'colors' => [
-                'label' => 'colors',
+            'themeColors' => [
+                'label' => 'themeColors',
                 'sections' => [
-                    'generalColors' => [
-                        'label' => 'generalColors',
+                    '' => [
+                        'label' => '',
                         'sw-color-brand-primary' => [
                             'label' => [
-                                'en-GB' => 'Primary',
-                                'de-DE' => 'Primär',
+                                'en-GB' => 'Primary colour',
+                                'de-DE' => 'Primärfarbe',
                             ],
                             'type' => 'color',
+                            'helpText' => null,
                         ],
                         'sw-color-brand-secondary' => [
                             'label' => [
-                                'en-GB' => 'Secondary',
-                                'de-DE' => 'Sekundär',
+                                'en-GB' => 'Secondary colour',
+                                'de-DE' => 'Sekundärfarbe',
                             ],
                             'type' => 'color',
-                        ],
-                        'sw-color-success' => [
-                            'label' => [
-                                'en-GB' => 'Success',
-                                'de-DE' => 'Erfolg',
-                            ],
-                            'type' => 'color',
-                        ],
-                        'sw-color-info' => [
-                            'label' => [
-                                'en-GB' => 'Info',
-                                'de-DE' => 'Info',
-                            ],
-                            'type' => 'color',
-                        ],
-                        'sw-color-warning' => [
-                            'label' => [
-                                'en-GB' => 'Warning',
-                                'de-DE' => 'Warnung',
-                            ],
-                            'type' => 'color',
-                        ],
-                        'sw-color-danger' => [
-                            'label' => [
-                                'en-GB' => 'Danger',
-                                'de-DE' => 'Achtung',
-                            ],
-                            'type' => 'color',
-                        ],
-                        'sw-text-color' => [
-                            'label' => [
-                                'en-GB' => 'Text',
-                                'de-DE' => 'Text',
-                            ],
-                            'type' => 'color',
+                            'helpText' => null,
                         ],
                         'sw-border-color' => [
                             'label' => [
@@ -67,88 +34,104 @@ class ThemeFixtures
                                 'de-DE' => 'Rahmen',
                             ],
                             'type' => 'color',
+                            'helpText' => null,
                         ],
-                    ],
-                    'additionalColors' => [
-                        'label' => 'additionalColors',
-                        'sw-color-price' => [
+                        'sw-background-color' => [
                             'label' => [
-                                'en-GB' => 'Price',
-                                'de-DE' => 'Preis',
+                                'en-GB' => 'Background',
+                                'de-DE' => 'Hintergrund',
                             ],
                             'type' => 'color',
-                        ],
-                        'sw-color-buy-button' => [
-                            'label' => [
-                                'en-GB' => 'Buy button',
-                                'de-DE' => 'Kaufen Schaltfläche',
-                            ],
-                            'type' => 'color',
+                            'helpText' => null,
                         ],
                     ],
                 ],
             ],
-            'fonts' => [
-                'label' => 'fonts',
+            'typography' => [
+                'label' => 'typography',
                 'sections' => [
-                    'generalFonts' => [
-                        'label' => 'generalFonts',
+                    '' => [
                         'sw-font-family-base' => [
                             'label' => [
-                                'en-GB' => 'Default',
-                                'de-DE' => 'Allgemein',
+                                'en-GB' => 'Fonttype text',
+                                'de-DE' => 'Schriftart Text',
                             ],
                             'type' => 'fontFamily',
+                            'helpText' => null,
                         ],
                         'sw-font-family-headline' => [
                             'label' => [
-                                'en-GB' => 'Headline',
-                                'de-DE' => 'Überschrift',
+                                'en-GB' => 'Fonttype headline',
+                                'de-DE' => 'Schriftart Überschrift',
                             ],
                             'type' => 'fontFamily',
+                            'helpText' => null,
                         ],
+                        'sw-headline-color' => [
+                            'label' => [
+                                'en-GB' => 'Headline colour',
+                                'de-DE' => 'Überschriftfarbe',
+                            ],
+                            'type' => 'color',
+                            'helpText' => null,
+                        ],
+                        'sw-text-color' => [
+                            'label' => [
+                                'en-GB' => 'Text colour',
+                                'de-DE' => 'Textfarbe',
+                            ],
+                            'type' => 'color',
+                            'helpText' => null,
+                        ],
+                        'label' => '',
                     ],
                 ],
             ],
             'media' => [
                 'label' => 'media',
                 'sections' => [
-                    'logos' => [
-                        'label' => 'logos',
-                        'sw-logo-default' => [
+                    '' => [
+                        'label' => '',
+                        'sw-logo-desktop' => [
                             'label' => [
-                                'en-GB' => 'Default',
-                                'de-DE' => 'Standard',
+                                'en-GB' => 'Desktop',
+                                'de-DE' => 'Desktop',
+                            ],
+                            'helpText' => [
+                                'en-GB' => 'Displayed for viewports of above 991px',
+                                'de-DE' => 'Wird über einem Viewport von 991px angezeigt',
                             ],
                             'type' => 'media',
                         ],
-                        'sw-logo-default-sm' => [
+                        'sw-logo-tablet' => [
                             'label' => [
-                                'en-GB' => 'Small',
-                                'de-DE' => 'Klein',
+                                'en-GB' => 'Tablet',
+                                'de-DE' => 'Tablet',
+                            ],
+                            'helpText' => [
+                                'en-GB' => 'Displayed between a viewport of 767px to 991px',
+                                'de-DE' => 'Wird zwischen einem viewport von 767px bis 991px angezeigt',
                             ],
                             'type' => 'media',
                         ],
-                        'sw-logo-default-md' => [
+                        'sw-logo-mobile' => [
                             'label' => [
-                                'en-GB' => 'Medium',
-                                'de-DE' => 'Mittel',
+                                'en-GB' => 'Mobile',
+                                'de-DE' => 'Mobil',
                             ],
-                            'type' => 'media',
-                        ],
-                        'sw-logo-default-lg' => [
-                            'label' => [
-                                'en-GB' => 'Large',
-                                'de-DE' => 'Groß',
+                            'helpText' => [
+                                'en-GB' => 'Displayed up to a viewport of 767px',
+                                'de-DE' => 'Wird bis zu einem Viewport von 767px angezeigt',
                             ],
                             'type' => 'media',
                         ],
                         'sw-logo-share' => [
                             'label' => [
-                                'en-GB' => 'Share',
-                                'de-DE' => 'Teilen',
+                                'en-GB' => 'App & share icon',
+                                'de-DE' => 'App- & Share-Icon',
                             ],
                             'type' => 'media',
+                            'helpText' => null,
                         ],
                         'sw-logo-favicon' => [
                             'label' => [
@@ -156,20 +139,79 @@ class ThemeFixtures
                                 'de-DE' => 'Favicon',
                             ],
                             'type' => 'media',
+                            'helpText' => null,
                         ],
-                        'sw-logo-app-icon' => [
+                    ],
+                ],
+            ],
+            'eCommerce' => [
+                'label' => 'eCommerce',
+                'sections' => [
+                    '' => [
+                        'label' => '',
+                        'sw-color-price' => [
                             'label' => [
-                                'en-GB' => 'App-Icon',
-                                'de-DE' => 'App-Icon',
+                                'en-GB' => 'Price',
+                                'de-DE' => 'Preis',
                             ],
-                            'type' => 'media',
+                            'type' => 'color',
+                            'helpText' => null,
                         ],
-                        'sw-logo-default-xl' => [
+                        'sw-color-buy-button' => [
                             'label' => [
-                                'en-GB' => 'Extra large',
-                                'de-DE' => 'Sehr groß',
+                                'en-GB' => 'Buy button',
+                                'de-DE' => 'Kaufen-Button',
                             ],
-                            'type' => 'media',
+                            'type' => 'color',
+                            'helpText' => null,
+                        ],
+                        'sw-color-buy-button-text' => [
+                            'label' => [
+                                'en-GB' => 'Buy button text',
+                                'de-DE' => 'Kaufen-Button Text',
+                            ],
+                            'type' => 'color',
+                            'helpText' => null,
+                        ],
+                    ],
+                ],
+            ],
+            'statusColors' => [
+                'label' => 'statusColors',
+                'sections' => [
+                    '' => [
+                        'label' => '',
+                        'sw-color-success' => [
+                            'label' => [
+                                'en-GB' => 'Success',
+                                'de-DE' => 'Erfolg',
+                            ],
+                            'type' => 'color',
+                            'helpText' => null,
+                        ],
+                        'sw-color-info' => [
+                            'label' => [
+                                'en-GB' => 'Information',
+                                'de-DE' => 'Information',
+                            ],
+                            'type' => 'color',
+                            'helpText' => null,
+                        ],
+                        'sw-color-warning' => [
+                            'label' => [
+                                'en-GB' => 'Notice',
+                                'de-DE' => 'Hinweis',
+                            ],
+                            'type' => 'color',
+                            'helpText' => null,
+                        ],
+                        'sw-color-danger' => [
+                            'label' => [
+                                'en-GB' => 'Error',
+                                'de-DE' => 'Fehler',
+                            ],
+                            'type' => 'color',
+                            'helpText' => null,
                         ],
                     ],
                 ],
@@ -186,22 +228,34 @@ class ThemeFixtures
     {
         return [
             'blocks' => [
-                'colors' => [
+                'themeColors' => [
                     'label' => [
-                        'en-GB' => 'Colors',
-                        'de-DE' => 'Farben',
+                        'en-GB' => 'Theme colours',
+                        'de-DE' => 'Theme-Farben',
                     ],
                 ],
-                'fonts' => [
+                'typography' => [
                     'label' => [
-                        'en-GB' => 'Fonts',
-                        'de-DE' => 'Schriftarten',
+                        'en-GB' => 'Typography',
+                        'de-DE' => 'Typografie',
                     ],
                 ],
                 'media' => [
                     'label' => [
                         'en-GB' => 'Media',
                         'de-DE' => 'Medien',
+                    ],
+                ],
+                'eCommerce' => [
+                    'label' => [
+                        'en-GB' => 'E-Commerce',
+                        'de-DE' => 'E-Commerce',
+                    ],
+                ],
+                'statusColors' => [
+                    'label' => [
+                        'en-GB' => 'Status messages',
+                        'de-DE' => 'Status-Ausgaben',
                     ],
                 ],
                 'unordered' => [
@@ -211,66 +265,40 @@ class ThemeFixtures
                     ],
                 ],
             ],
-            'sections' => [
-                'generalColors' => [
-                    'label' => [
-                        'en-GB' => 'General colors',
-                        'de-DE' => 'Allgemeine Farben',
-                    ],
-                ],
-                'additionalColors' => [
-                    'label' => [
-                        'en-GB' => 'Additional colors',
-                        'de-DE' => 'Weitere Farben',
-                    ],
-                ],
-                'generalFonts' => [
-                    'label' => [
-                        'en-GB' => 'General fonts',
-                        'de-DE' => 'Allgemeine Schriftarten',
-                    ],
-                ],
-                'logos' => [
-                    'label' => [
-                        'en-GB' => 'Logos',
-                        'de-DE' => 'Logos',
-                    ],
-                ],
-            ],
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
                     'label' => [
-                        'en-GB' => 'Primary',
-                        'de-DE' => 'Primär',
+                        'en-GB' => 'Primary colour',
+                        'de-DE' => 'Primärfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#ff00ff',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
+                    'block' => 'themeColors',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-brand-secondary' => [
                     'name' => 'sw-color-brand-secondary',
                     'label' => [
-                        'en-GB' => 'Secondary',
-                        'de-DE' => 'Sekundär',
+                        'en-GB' => 'Secondary colour',
+                        'de-DE' => 'Sekundärfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#576574',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
+                    'block' => 'themeColors',
+                    'section' => null,
                     'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-success' => [
                     'name' => 'sw-color-success',
@@ -281,81 +309,81 @@ class ThemeFixtures
                     'type' => 'color',
                     'value' => '#6ed59f',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 300,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-info' => [
                     'name' => 'sw-color-info',
                     'label' => [
-                        'en-GB' => 'Info',
-                        'de-DE' => 'Info',
+                        'en-GB' => 'Information',
+                        'de-DE' => 'Information',
                     ],
                     'type' => 'color',
                     'value' => '#76bce7',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 400,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-warning' => [
                     'name' => 'sw-color-warning',
                     'label' => [
-                        'en-GB' => 'Warning',
-                        'de-DE' => 'Warnung',
+                        'en-GB' => 'Notice',
+                        'de-DE' => 'Hinweis',
                     ],
                     'type' => 'color',
                     'value' => '#fcc679',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 500,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-danger' => [
                     'name' => 'sw-color-danger',
                     'label' => [
-                        'en-GB' => 'Danger',
-                        'de-DE' => 'Achtung',
+                        'en-GB' => 'Error',
+                        'de-DE' => 'Fehler',
                     ],
                     'type' => 'color',
                     'value' => '#f27f7f',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 600,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 400,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-text-color' => [
                     'name' => 'sw-text-color',
                     'label' => [
-                        'en-GB' => 'Text',
-                        'de-DE' => 'Text',
+                        'en-GB' => 'Text colour',
+                        'de-DE' => 'Textfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#545454',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 700,
+                    'block' => 'typography',
+                    'section' => null,
+                    'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-border-color' => [
                     'name' => 'sw-border-color',
@@ -366,13 +394,30 @@ class ThemeFixtures
                     'type' => 'color',
                     'value' => '#d4e2e2',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 800,
+                    'block' => 'themeColors',
+                    'section' => null,
+                    'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
+                    'extensions' => [],
+                    'helpText' => null,
+                ],
+                'sw-background-color' => [
+                    'label' => [
+                        'en-GB' => 'Background',
+                        'de-DE' => 'Hintergrund',
                     ],
+                    'type' => 'color',
+                    'value' => '#fff',
+                    'editable' => true,
+                    'block' => 'themeColors',
+                    'order' => 400,
+                    'name' => 'sw-background-color',
+                    'helpText' => null,
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
                 ],
                 'sw-color-price' => [
                     'name' => 'sw-color-price',
@@ -383,200 +428,192 @@ class ThemeFixtures
                     'type' => 'color',
                     'value' => '#3f4c58',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'additionalColors',
+                    'block' => 'eCommerce',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-buy-button' => [
                     'name' => 'sw-color-buy-button',
                     'label' => [
                         'en-GB' => 'Buy button',
-                        'de-DE' => 'Kaufen Schaltfläche',
+                        'de-DE' => 'Kaufen-Button',
                     ],
                     'type' => 'color',
                     'value' => '#399',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'additionalColors',
+                    'block' => 'eCommerce',
+                    'section' => null,
                     'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
+                    'extensions' => [],
+                    'helpText' => null,
+                ],
+                'sw-color-buy-button-text' => [
+                    'label' => [
+                        'en-GB' => 'Buy button text',
+                        'de-DE' => 'Kaufen-Button Text',
                     ],
+                    'type' => 'color',
+                    'value' => '#fff',
+                    'editable' => true,
+                    'block' => 'eCommerce',
+                    'order' => 300,
+                    'name' => 'sw-color-buy-button-text',
+                    'helpText' => null,
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
                 ],
                 'sw-font-family-base' => [
                     'name' => 'sw-font-family-base',
                     'label' => [
-                        'en-GB' => 'Default',
-                        'de-DE' => 'Allgemein',
+                        'en-GB' => 'Fonttype text',
+                        'de-DE' => 'Schriftart Text',
                     ],
                     'type' => 'fontFamily',
                     'value' => '\'Inter\', sans-serif',
                     'editable' => true,
-                    'block' => 'fonts',
-                    'section' => 'generalFonts',
+                    'block' => 'typography',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-font-family-headline' => [
                     'name' => 'sw-font-family-headline',
                     'label' => [
-                        'en-GB' => 'Headline',
-                        'de-DE' => 'Überschrift',
+                        'en-GB' => 'Fonttype headline',
+                        'de-DE' => 'Schriftart Überschrift',
                     ],
                     'type' => 'fontFamily',
                     'value' => '\'Inter\', sans-serif',
                     'editable' => true,
-                    'block' => 'fonts',
-                    'section' => 'generalFonts',
-                    'order' => 200,
-                    'sectionOrder' => null,
-                    'blockOrder' => null,
-                    'extensions' => [
-                    ],
-                ],
-                'sw-logo-default' => [
-                    'name' => 'sw-logo-default',
-                    'label' => [
-                        'en-GB' => 'Default',
-                        'de-DE' => 'Standard',
-                    ],
-                    'type' => 'media',
-                    'value' => '*',
-                    'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
+                    'block' => 'typography',
+                    'section' => null,
                     'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
-                'sw-logo-default-sm' => [
-                    'name' => 'sw-logo-default-sm',
+                'sw-headline-color' => [
                     'label' => [
-                        'en-GB' => 'Small',
-                        'de-DE' => 'Klein',
+                        'en-GB' => 'Headline colour',
+                        'de-DE' => 'Überschriftfarbe',
                     ],
-                    'type' => 'media',
-                    'value' => '*',
+                    'type' => 'color',
+                    'value' => '#3f4c58',
                     'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 100,
-                    'sectionOrder' => null,
-                    'blockOrder' => null,
-                    'extensions' => [
-                    ],
-                ],
-                'sw-logo-default-md' => [
-                    'name' => 'sw-logo-default-md',
-                    'label' => [
-                        'en-GB' => 'Medium',
-                        'de-DE' => 'Mittel',
-                    ],
-                    'type' => 'media',
-                    'value' => '*',
-                    'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 200,
-                    'sectionOrder' => null,
-                    'blockOrder' => null,
-                    'extensions' => [
-                    ],
-                ],
-                'sw-logo-default-lg' => [
-                    'name' => 'sw-logo-default-lg',
-                    'label' => [
-                        'en-GB' => 'Large',
-                        'de-DE' => 'Groß',
-                    ],
-                    'type' => 'media',
-                    'value' => '*',
-                    'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 300,
-                    'sectionOrder' => null,
-                    'blockOrder' => null,
-                    'extensions' => [
-                    ],
-                ],
-                'sw-logo-default-xl' => [
-                    'name' => 'sw-logo-default-xl',
-                    'label' => [
-                        'en-GB' => 'Extra large',
-                        'de-DE' => 'Sehr groß',
-                    ],
-                    'type' => 'media',
-                    'value' => '*',
-                    'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
+                    'block' => 'typography',
                     'order' => 400,
+                    'name' => 'sw-headline-color',
+                    'helpText' => null,
+                    'section' => null,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
+                    'extensions' => [],
+                ],
+                'sw-logo-desktop' => [
+                    'label' => [
+                        'en-GB' => 'Desktop',
+                        'de-DE' => 'Desktop',
                     ],
+                    'helpText' => [
+                        'en-GB' => 'Displayed for viewports of above 991px',
+                        'de-DE' => 'Wird über einem Viewport von 991px angezeigt',
+                    ],
+                    'type' => 'media',
+                    'value' => 'dist/assets/logo/demostore-logo.png',
+                    'editable' => true,
+                    'block' => 'media',
+                    'order' => 100,
+                    'name' => 'sw-logo-desktop',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                ],
+                'sw-logo-tablet' => [
+                    'label' => [
+                        'en-GB' => 'Tablet',
+                        'de-DE' => 'Tablet',
+                    ],
+                    'helpText' => [
+                        'en-GB' => 'Displayed between a viewport of 767px to 991px',
+                        'de-DE' => 'Wird zwischen einem viewport von 767px bis 991px angezeigt',
+                    ],
+                    'type' => 'media',
+                    'value' => 'dist/assets/logo/demostore-logo.png',
+                    'editable' => true,
+                    'block' => 'media',
+                    'order' => 200,
+                    'name' => 'sw-logo-tablet',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                ],
+                'sw-logo-mobile' => [
+                    'label' => [
+                        'en-GB' => 'Mobile',
+                        'de-DE' => 'Mobil',
+                    ],
+                    'helpText' => [
+                        'en-GB' => 'Displayed up to a viewport of 767px',
+                        'de-DE' => 'Wird bis zu einem Viewport von 767px angezeigt',
+                    ],
+                    'type' => 'media',
+                    'value' => 'dist/assets/logo/demostore-logo.png',
+                    'editable' => true,
+                    'block' => 'media',
+                    'order' => 300,
+                    'name' => 'sw-logo-mobile',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
                 ],
                 'sw-logo-share' => [
-                    'name' => 'sw-logo-share',
                     'label' => [
-                        'en-GB' => 'Share',
-                        'de-DE' => 'Teilen',
+                        'en-GB' => 'App & share icon',
+                        'de-DE' => 'App- & Share-Icon',
                     ],
                     'type' => 'media',
-                    'value' => '*',
+                    'value' => '',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 500,
+                    'order' => 400,
+                    'name' => 'sw-logo-share',
+                    'section' => null,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-logo-favicon' => [
-                    'name' => 'sw-logo-favicon',
                     'label' => [
                         'en-GB' => 'Favicon',
                         'de-DE' => 'Favicon',
                     ],
                     'type' => 'media',
-                    'value' => '*',
+                    'value' => 'dist/assets/logo/favicon.png',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 600,
+                    'order' => 500,
+                    'name' => 'sw-logo-favicon',
+                    'section' => null,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
-                ],
-                'sw-logo-app-icon' => [
-                    'name' => 'sw-logo-app-icon',
-                    'label' => [
-                        'en-GB' => 'App-Icon',
-                        'de-DE' => 'App-Icon',
-                    ],
-                    'type' => 'media',
-                    'value' => '*',
-                    'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 700,
-                    'sectionOrder' => null,
-                    'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
             ],
         ];
@@ -586,22 +623,34 @@ class ThemeFixtures
     {
         return [
             'blocks' => [
-                'colors' => [
+                'themeColors' => [
                     'label' => [
-                        'en-GB' => 'Colors',
-                        'de-DE' => 'Farben',
+                        'en-GB' => 'Theme colours',
+                        'de-DE' => 'Theme-Farben',
                     ],
                 ],
-                'fonts' => [
+                'typography' => [
                     'label' => [
-                        'en-GB' => 'Fonts',
-                        'de-DE' => 'Schriftarten',
+                        'en-GB' => 'Typography',
+                        'de-DE' => 'Typografie',
                     ],
                 ],
                 'media' => [
                     'label' => [
                         'en-GB' => 'Media',
                         'de-DE' => 'Medien',
+                    ],
+                ],
+                'eCommerce' => [
+                    'label' => [
+                        'en-GB' => 'E-Commerce',
+                        'de-DE' => 'E-Commerce',
+                    ],
+                ],
+                'statusColors' => [
+                    'label' => [
+                        'en-GB' => 'Status messages',
+                        'de-DE' => 'Status-Ausgaben',
                     ],
                 ],
                 'unordered' => [
@@ -611,66 +660,40 @@ class ThemeFixtures
                     ],
                 ],
             ],
-            'sections' => [
-                'generalColors' => [
-                    'label' => [
-                        'en-GB' => 'General colors',
-                        'de-DE' => 'Allgemeine Farben',
-                    ],
-                ],
-                'additionalColors' => [
-                    'label' => [
-                        'en-GB' => 'Additional colors',
-                        'de-DE' => 'Weitere Farben',
-                    ],
-                ],
-                'generalFonts' => [
-                    'label' => [
-                        'en-GB' => 'General fonts',
-                        'de-DE' => 'Allgemeine Schriftarten',
-                    ],
-                ],
-                'logos' => [
-                    'label' => [
-                        'en-GB' => 'Logos',
-                        'de-DE' => 'Logos',
-                    ],
-                ],
-            ],
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
                     'label' => [
-                        'en-GB' => 'Primary',
-                        'de-DE' => 'Primär',
+                        'en-GB' => 'Primary colour',
+                        'de-DE' => 'Primärfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#399',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
+                    'block' => 'themeColors',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-brand-secondary' => [
                     'name' => 'sw-color-brand-secondary',
                     'label' => [
-                        'en-GB' => 'Secondary',
-                        'de-DE' => 'Sekundär',
+                        'en-GB' => 'Secondary colour',
+                        'de-DE' => 'Sekundärfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#576574',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
+                    'block' => 'themeColors',
+                    'section' => null,
                     'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-success' => [
                     'name' => 'sw-color-success',
@@ -681,81 +704,81 @@ class ThemeFixtures
                     'type' => 'color',
                     'value' => '#6ed59f',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 300,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-info' => [
                     'name' => 'sw-color-info',
                     'label' => [
-                        'en-GB' => 'Info',
-                        'de-DE' => 'Info',
+                        'en-GB' => 'Information',
+                        'de-DE' => 'Information',
                     ],
                     'type' => 'color',
                     'value' => '#76bce7',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 400,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-warning' => [
                     'name' => 'sw-color-warning',
                     'label' => [
-                        'en-GB' => 'Warning',
-                        'de-DE' => 'Warnung',
+                        'en-GB' => 'Notice',
+                        'de-DE' => 'Hinweis',
                     ],
                     'type' => 'color',
                     'value' => '#fcc679',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 500,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-danger' => [
                     'name' => 'sw-color-danger',
                     'label' => [
-                        'en-GB' => 'Danger',
-                        'de-DE' => 'Achtung',
+                        'en-GB' => 'Error',
+                        'de-DE' => 'Fehler',
                     ],
                     'type' => 'color',
                     'value' => '#f27f7f',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 600,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 400,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-text-color' => [
                     'name' => 'sw-text-color',
                     'label' => [
-                        'en-GB' => 'Text',
-                        'de-DE' => 'Text',
+                        'en-GB' => 'Text colour',
+                        'de-DE' => 'Textfarbe',
                     ],
                     'type' => 'color',
                     'value' => '#545454',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 700,
+                    'block' => 'typography',
+                    'section' => null,
+                    'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-border-color' => [
                     'name' => 'sw-border-color',
@@ -766,13 +789,30 @@ class ThemeFixtures
                     'type' => 'color',
                     'value' => '#d4e2e2',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'generalColors',
-                    'order' => 800,
+                    'block' => 'themeColors',
+                    'section' => null,
+                    'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
+                    'extensions' => [],
+                    'helpText' => null,
+                ],
+                'sw-background-color' => [
+                    'label' => [
+                        'en-GB' => 'Background',
+                        'de-DE' => 'Hintergrund',
                     ],
+                    'type' => 'color',
+                    'value' => '#fff',
+                    'editable' => true,
+                    'block' => 'themeColors',
+                    'order' => 400,
+                    'name' => 'sw-background-color',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'helpText' => null,
+                    'extensions' => [],
                 ],
                 'sw-color-price' => [
                     'name' => 'sw-color-price',
@@ -783,200 +823,192 @@ class ThemeFixtures
                     'type' => 'color',
                     'value' => '#3f4c58',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'additionalColors',
+                    'block' => 'eCommerce',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-color-buy-button' => [
                     'name' => 'sw-color-buy-button',
                     'label' => [
                         'en-GB' => 'Buy button',
-                        'de-DE' => 'Kaufen Schaltfläche',
+                        'de-DE' => 'Kaufen-Button',
                     ],
                     'type' => 'color',
                     'value' => '#399',
                     'editable' => true,
-                    'block' => 'colors',
-                    'section' => 'additionalColors',
+                    'block' => 'eCommerce',
+                    'section' => null,
                     'order' => 200,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
+                    'extensions' => [],
+                    'helpText' => null,
+                ],
+                'sw-color-buy-button-text' => [
+                    'label' => [
+                        'en-GB' => 'Buy button text',
+                        'de-DE' => 'Kaufen-Button Text',
                     ],
+                    'type' => 'color',
+                    'value' => '#fff',
+                    'editable' => true,
+                    'block' => 'eCommerce',
+                    'order' => 300,
+                    'name' => 'sw-color-buy-button-text',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'helpText' => null,
+                    'extensions' => [],
                 ],
                 'sw-font-family-base' => [
                     'name' => 'sw-font-family-base',
                     'label' => [
-                        'en-GB' => 'Default',
-                        'de-DE' => 'Allgemein',
+                        'en-GB' => 'Fonttype text',
+                        'de-DE' => 'Schriftart Text',
                     ],
                     'type' => 'fontFamily',
                     'value' => '\'Inter\', sans-serif',
                     'editable' => true,
-                    'block' => 'fonts',
-                    'section' => 'generalFonts',
+                    'block' => 'typography',
+                    'section' => null,
                     'order' => 100,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-font-family-headline' => [
                     'name' => 'sw-font-family-headline',
                     'label' => [
-                        'en-GB' => 'Headline',
-                        'de-DE' => 'Überschrift',
+                        'en-GB' => 'Fonttype headline',
+                        'de-DE' => 'Schriftart Überschrift',
                     ],
                     'type' => 'fontFamily',
                     'value' => '\'Inter\', sans-serif',
                     'editable' => true,
-                    'block' => 'fonts',
-                    'section' => 'generalFonts',
-                    'order' => 200,
-                    'sectionOrder' => null,
-                    'blockOrder' => null,
-                    'extensions' => [
-                    ],
-                ],
-                'sw-logo-default' => [
-                    'name' => 'sw-logo-default',
-                    'label' => [
-                        'en-GB' => 'Default',
-                        'de-DE' => 'Standard',
-                    ],
-                    'type' => 'media',
-                    'value' => '205360eedb64487c924e06cccb1654de',
-                    'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
+                    'block' => 'typography',
+                    'section' => null,
                     'order' => 300,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
-                'sw-logo-default-sm' => [
-                    'name' => 'sw-logo-default-sm',
+                'sw-headline-color' => [
                     'label' => [
-                        'en-GB' => 'Small',
-                        'de-DE' => 'Klein',
+                        'en-GB' => 'Headline colour',
+                        'de-DE' => 'Überschriftfarbe',
                     ],
-                    'type' => 'media',
-                    'value' => '',
+                    'type' => 'color',
+                    'value' => '#3f4c58',
                     'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 100,
-                    'sectionOrder' => null,
-                    'blockOrder' => null,
-                    'extensions' => [
-                    ],
-                ],
-                'sw-logo-default-md' => [
-                    'name' => 'sw-logo-default-md',
-                    'label' => [
-                        'en-GB' => 'Medium',
-                        'de-DE' => 'Mittel',
-                    ],
-                    'type' => 'media',
-                    'value' => '',
-                    'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 200,
-                    'sectionOrder' => null,
-                    'blockOrder' => null,
-                    'extensions' => [
-                    ],
-                ],
-                'sw-logo-default-lg' => [
-                    'name' => 'sw-logo-default-lg',
-                    'label' => [
-                        'en-GB' => 'Large',
-                        'de-DE' => 'Groß',
-                    ],
-                    'type' => 'media',
-                    'value' => '',
-                    'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 300,
-                    'sectionOrder' => null,
-                    'blockOrder' => null,
-                    'extensions' => [
-                    ],
-                ],
-                'sw-logo-default-xl' => [
-                    'name' => 'sw-logo-default-xl',
-                    'label' => [
-                        'en-GB' => 'Extra large',
-                        'de-DE' => 'Sehr groß',
-                    ],
-                    'type' => 'media',
-                    'value' => '',
-                    'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
+                    'block' => 'typography',
                     'order' => 400,
+                    'name' => 'sw-headline-color',
+                    'section' => null,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
+                    'helpText' => null,
+                    'extensions' => [],
+                ],
+                'sw-logo-desktop' => [
+                    'label' => [
+                        'en-GB' => 'Desktop',
+                        'de-DE' => 'Desktop',
                     ],
+                    'helpText' => [
+                        'en-GB' => 'Displayed for viewports of above 991px',
+                        'de-DE' => 'Wird über einem Viewport von 991px angezeigt',
+                    ],
+                    'type' => 'media',
+                    'value' => 'dist/assets/logo/demostore-logo.png',
+                    'editable' => true,
+                    'block' => 'media',
+                    'order' => 100,
+                    'name' => 'sw-logo-desktop',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                ],
+                'sw-logo-tablet' => [
+                    'label' => [
+                        'en-GB' => 'Tablet',
+                        'de-DE' => 'Tablet',
+                    ],
+                    'helpText' => [
+                        'en-GB' => 'Displayed between a viewport of 767px to 991px',
+                        'de-DE' => 'Wird zwischen einem viewport von 767px bis 991px angezeigt',
+                    ],
+                    'type' => 'media',
+                    'value' => 'dist/assets/logo/demostore-logo.png',
+                    'editable' => true,
+                    'block' => 'media',
+                    'order' => 200,
+                    'name' => 'sw-logo-tablet',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                ],
+                'sw-logo-mobile' => [
+                    'label' => [
+                        'en-GB' => 'Mobile',
+                        'de-DE' => 'Mobil',
+                    ],
+                    'helpText' => [
+                        'en-GB' => 'Displayed up to a viewport of 767px',
+                        'de-DE' => 'Wird bis zu einem Viewport von 767px angezeigt',
+                    ],
+                    'type' => 'media',
+                    'value' => 'dist/assets/logo/demostore-logo.png',
+                    'editable' => true,
+                    'block' => 'media',
+                    'order' => 300,
+                    'name' => 'sw-logo-mobile',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
                 ],
                 'sw-logo-share' => [
-                    'name' => 'sw-logo-share',
                     'label' => [
-                        'en-GB' => 'Share',
-                        'de-DE' => 'Teilen',
+                        'en-GB' => 'App & share icon',
+                        'de-DE' => 'App- & Share-Icon',
                     ],
                     'type' => 'media',
                     'value' => '',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 500,
+                    'order' => 400,
+                    'name' => 'sw-logo-share',
+                    'section' => null,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
                 'sw-logo-favicon' => [
-                    'name' => 'sw-logo-favicon',
                     'label' => [
                         'en-GB' => 'Favicon',
                         'de-DE' => 'Favicon',
                     ],
                     'type' => 'media',
-                    'value' => '1854686fef6d4b1eaaa37866784a54ef',
+                    'value' => 'dist/assets/logo/favicon.png',
                     'editable' => true,
                     'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 600,
+                    'order' => 500,
+                    'name' => 'sw-logo-favicon',
+                    'section' => null,
                     'sectionOrder' => null,
                     'blockOrder' => null,
-                    'extensions' => [
-                    ],
-                ],
-                'sw-logo-app-icon' => [
-                    'name' => 'sw-logo-app-icon',
-                    'label' => [
-                        'en-GB' => 'App-Icon',
-                        'de-DE' => 'App-Icon',
-                    ],
-                    'type' => 'media',
-                    'value' => '',
-                    'editable' => true,
-                    'block' => 'media',
-                    'section' => 'logos',
-                    'order' => 700,
-                    'sectionOrder' => null,
-                    'blockOrder' => null,
-                    'extensions' => [
-                    ],
+                    'extensions' => [],
+                    'helpText' => null,
                 ],
             ],
         ];

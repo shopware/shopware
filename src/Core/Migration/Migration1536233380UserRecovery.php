@@ -24,7 +24,7 @@ class Migration1536233380UserRecovery extends MigrationStep
                 CONSTRAINT `uniq.user_recovery.user_id` UNIQUE (`user_id`),
                 CONSTRAINT `fk.user_recovery.user_id` FOREIGN KEY (`user_id`)
                     REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            )
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
         $connection->executeQuery($query);

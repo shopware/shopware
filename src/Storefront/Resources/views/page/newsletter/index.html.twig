@@ -51,7 +51,7 @@
                                                                 class="custom-select newsletter-select-field"
                                                                 data-form-field-toggle="true"
                                                                 data-form-field-toggle-target=".js-field-toggle-newsletter-additional"
-                                                                data-form-field-toggle-value="unsubscribe">
+                                                                data-form-field-toggle-value="subscribe">
                                                             <option value="subscribe">
                                                                 {{ "newsletter.subscribeOption"|trans }}
                                                             </option>
@@ -102,7 +102,7 @@
                                     {% endblock %}
     
                                     {% block page_newsletter_form_additional_fields %}
-                                        <div class="js-field-toggle-newsletter-additional">
+                                        <div class="js-field-toggle-newsletter-additional d-none">
                                             {% block page_newsletter_form_field_salutation %}
                                                 <div class="form-row">
                                                     <div class="form-group col-md-4 newsletter-salutation">

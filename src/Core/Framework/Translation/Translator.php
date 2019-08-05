@@ -64,6 +64,16 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
      */
     private $languageRepository;
 
+    /**
+     * @var string|null
+     */
+    private $snippetSetId = null;
+
+    /**
+     * @var string|null
+     */
+    private $localeBeforeInject = null;
+
     public function __construct(
         TranslatorInterface $translator,
         RequestStack $requestStack,
@@ -156,19 +166,49 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     }
 
     /**
+     * Injects temporary settings for translation which differ from Context.
+     * Call resetInjection() when specific translation is done
+     */
+    public function injectSettings(string $salesChannelId, string $languageId, string $locale, Context $context): void
+    {
+        $this->localeBeforeInject = $this->getLocale();
+        $this->setLocale($locale);
+        $this->resolveSnippetSetId($salesChannelId, $languageId, $locale, $context);
+        $this->getCatalogue($locale);
+    }
+
+    public function resetInjection(): void
+    {
+        $this->setLocale($this->localeBeforeInject);
+        $this->snippetSetId = null;
+    }
+
+    private function resolveSnippetSetId(string $salesChannelId, string $languageId, string $locale, Context $context): void
+    {
+        $snippetSet = $this->snippetService->getSnippetSet($salesChannelId, $languageId, $locale, $context);
+        if ($snippetSet === null) {
+            $this->snippetSetId = null;
+        } else {
+            $this->snippetSetId = $snippetSet->getId();
+        }
+    }
+
+    /**
      * Add language specific snippets provided by the admin
      */
     private function getCustomizedCatalog(MessageCatalogueInterface $catalog): MessageCatalogueInterface
     {
-        $request = $this->requestStack->getMasterRequest();
-        if (!$request) {
-            return $catalog;
-        }
-
-        $snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
-
-        if ($snippetSetId === null) {
-            return $catalog;
+        if ($this->snippetSetId === null) {
+            $request = $this->requestStack->getMasterRequest();
+            if (!$request) {
+                return $catalog;
+            }
+            $snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
+            if ($snippetSetId === null) {
+                return $catalog;
+            }
+        } else {
+            $snippetSetId = $this->snippetSetId;
         }
 
         if (array_key_exists($snippetSetId, $this->isCustomized)) {

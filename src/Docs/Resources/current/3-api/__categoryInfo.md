@@ -3,14 +3,14 @@
 
 ## Overview
 
-The management API can be used to complete all administrative tasks, like creating products, updating prices and much more.
+The Admin API can be used to complete all administrative tasks, like creating products, updating prices and much more.
 For building a storefront or extending it, you can use the [SalesChannel-API](./060-sales-channel-api.md).
 
-The management API makes it really easy to integrate *Shopware* into your environment.
+The Admin API makes it really easy to integrate *Shopware* into your environment.
 
 ## Versioning
 
-The management API is versioned by adding a version string to the query path. Currently, the only available version is **v1**.
+The Admin API is versioned by adding a version string to the query path. Currently, the only available version is **v1**.
 
 ## Schema overview
 

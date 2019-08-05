@@ -21,7 +21,12 @@ class FieldDefinition extends Struct
      */
     protected $valueSubstitutions;
 
-    public function __construct(?string $fileField = null, ?string $entityField = null, array $valueSubstitutions = [])
+    /**
+     * @var bool
+     */
+    protected $isIdentifier;
+
+    public function __construct(?string $fileField = null, ?string $entityField = null, array $valueSubstitutions = [], bool $isIdentifier = false)
     {
         if ($fileField !== null) {
             $this->setFileField($fileField);
@@ -30,6 +35,7 @@ class FieldDefinition extends Struct
             $this->setEntityField($entityField);
         }
         $this->setValueSubstitutions($valueSubstitutions);
+        $this->setIsIdentifier($isIdentifier);
     }
 
     public function getFileField(): string
@@ -63,5 +69,15 @@ class FieldDefinition extends Struct
             throw new \RuntimeException('FieldDefinition only supports bijective value substitutions');
         }
         $this->valueSubstitutions = $valueSubstitutions;
+    }
+
+    public function getIsIdentifier(): bool
+    {
+        return $this->isIdentifier;
+    }
+
+    public function setIsIdentifier(bool $isIdentifier): void
+    {
+        $this->isIdentifier = $isIdentifier;
     }
 }

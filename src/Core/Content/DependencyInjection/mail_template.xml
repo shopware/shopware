@@ -75,6 +75,7 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber">

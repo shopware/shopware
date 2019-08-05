@@ -101,6 +101,7 @@ export default class SearchWidgetPlugin extends Plugin {
 
         this.$emitter.publish('beforeSearch');
 
+        this._client.abort();
         this._client.get(url, (response) => {
             // remove existing search results popover first
             this._clearSearchResults();

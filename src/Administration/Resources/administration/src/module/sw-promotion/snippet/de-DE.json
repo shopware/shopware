@@ -111,6 +111,7 @@
         "discounts": {
           "card": "Rabatt",
           "labelValue": "Wert",
+          "labelMaxValue": "Maximaler Rabatt",
           "placeholderValue": "Gib den Wert der Rabattaktion an ...",
           "labelScope": "Anwenden auf:",
           "flagProductScopeLabel": "Nur auf ausgewählte Produkte anwenden",
@@ -118,8 +119,10 @@
           "placeholder": "Produktregeln zuweisen ...",
           "labelType": "Art",
           "valueScopeCart": "Warenkorb",
+          "valueScopeDelivery": "Versandkosten",
           "valueTypeAbsolute": "Absolut",
           "valueTypePercentage": "Prozentual",
+          "valueTypeFixed": "Festpreis",
           "buttonAddDiscount": "Rabatt hinzufügen",
           "buttonDeleteDiscount": "Rabatt entfernen",
           "delete": {

@@ -32,6 +32,11 @@ class SalesChannelProductEntity extends ProductEntity
      */
     protected $sortedProperties;
 
+    /**
+     * @var bool
+     */
+    protected $isNew = false;
+
     public function getCalculatedListingPrice(): CalculatedListingPrice
     {
         return $this->calculatedListingPrice;
@@ -75,5 +80,15 @@ class SalesChannelProductEntity extends ProductEntity
     public function hasPriceRange(): bool
     {
         return $this->getCalculatedListingPrice()->hasRange() || $this->getCalculatedPrices()->count() > 1;
+    }
+
+    public function isNew(): bool
+    {
+        return $this->isNew;
+    }
+
+    public function setIsNew(bool $isNew): void
+    {
+        $this->isNew = $isNew;
     }
 }

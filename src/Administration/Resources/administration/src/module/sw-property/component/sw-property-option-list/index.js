@@ -20,7 +20,8 @@ Component.register('sw-property-option-list', {
             deleteButtonDisabled: true,
             disableRouteParams: true,
             sortings: [],
-            isSystemLanguage: false
+            isSystemLanguage: false,
+            fieldData: null
         };
     },
 
@@ -182,7 +183,24 @@ Component.register('sw-property-option-list', {
         },
 
         onInlineEditCancel(option) {
-            option.discardChanges();
+            // replace values with the previous values
+            const prevOption = this.fieldData;
+
+            option.name = prevOption.name;
+            option.colorHexCode = prevOption.colorHexCode;
+            option.position = prevOption.position;
+
+            // reset previous option
+            this.fieldData = null;
+        },
+
+        onInlineEditStart(option) {
+            // save current values
+            this.fieldData = {
+                name: option.name,
+                colorHexCode: option.colorHexCode,
+                position: option.position
+            };
         },
 
         onOptionEdit(option) {

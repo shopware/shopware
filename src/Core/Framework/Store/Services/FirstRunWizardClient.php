@@ -4,13 +4,11 @@ namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Client;
 use League\Flysystem\FilesystemInterface;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
+use Shopware\Core\Framework\Store\Event\FirstRunWizardStartedEvent;
 use Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException;
 use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
@@ -25,9 +23,7 @@ use Shopware\Core\Framework\Store\Struct\PluginRegionStruct;
 use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
 use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Theme\ThemeEntity;
-use Shopware\Storefront\Theme\ThemeLifecycleService;
-use Shopware\Storefront\Theme\ThemeService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class FirstRunWizardClient
 {
@@ -64,41 +60,16 @@ final class FirstRunWizardClient
     private $frwAutoRun;
 
     /**
-     * @var ThemeService
+     * @var EventDispatcherInterface
      */
-    private $themeService;
-
-    /**
-     * @var ThemeLifecycleService
-     */
-    private $themeLifecycleService;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeSalesChannelRepository;
+    private $eventDispatcher;
 
     public function __construct(
         StoreService $storeService,
         SystemConfigService $configService,
         FilesystemInterface $filesystem,
         bool $frwAutoRun,
-
-        ThemeService $themeService,
-        ThemeLifecycleService $themeLifecycleService,
-        EntityRepositoryInterface $themeRepository,
-        EntityRepositoryInterface $themeSalesChannelRepository,
-        EntityRepositoryInterface $salesChannelRepository
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->storeService = $storeService;
         $this->client = $this->storeService->createClient();
@@ -108,18 +79,15 @@ final class FirstRunWizardClient
 
         $this->frwAutoRun = $frwAutoRun;
 
-        $this->themeService = $themeService;
-        $this->themeLifecycleService = $themeLifecycleService;
-
-        $this->themeRepository = $themeRepository;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->themeSalesChannelRepository = $themeSalesChannelRepository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function startFrw(): void
+    public function startFrw(Context $context): void
     {
         $this->client->get('/ping');
         $this->storeService->fireTrackingEvent(self::TRACKING_EVENT_FRW_STARTED);
+
+        $this->eventDispatcher->dispatch(new FirstRunWizardStartedEvent($this->getFrwState(), $context));
     }
 
     /**
@@ -177,21 +145,17 @@ final class FirstRunWizardClient
     public function finishFrw(bool $failed, Context $context): void
     {
         $currentState = $this->getFrwState();
-        try {
-            if ($currentState->isOpen()) {
-                $this->installDefaultThemes($context);
-            }
-        } catch (\Exception $e) {
-        }
 
         if ($failed) {
-            $this->setFrwStatus(FrwState::failedState());
-
-            return;
+            $newState = FrwState::failedState();
+        } else {
+            $this->storeService->fireTrackingEvent(self::TRACKING_EVENT_FRW_FINISHED);
+            $newState = FrwState::completedState();
         }
 
-        $this->storeService->fireTrackingEvent(self::TRACKING_EVENT_FRW_FINISHED);
-        $this->setFrwStatus(FrwState::completedState());
+        $this->setFrwStatus($newState);
+
+        $this->eventDispatcher->dispatch(new FirstRunWizardFinishedEvent($newState, $currentState, $context));
     }
 
     public function getFrwState(): FrwState
@@ -357,30 +321,6 @@ final class FirstRunWizardClient
         $this->configService->set(StoreService::CONFIG_KEY_STORE_LICENSE_EDITION, $existing->getEdition());
 
         return $existing;
-    }
-
-    private function installDefaultThemes(Context $context): void
-    {
-        $this->themeLifecycleService->refreshThemes($context);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
-        /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository->search($criteria, $context)->first();
-        if (!$theme) {
-            throw new \RuntimeException('Default theme not found');
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
-        $salesChannelIds = $this->salesChannelRepository->search($criteria, $context)->getIds();
-        foreach ($salesChannelIds as $id) {
-            $this->themeService->compileTheme($id, $theme->getId(), $context);
-            $this->themeSalesChannelRepository->upsert([[
-                'themeId' => $theme->getId(),
-                'salesChannelId' => $id,
-            ]], $context);
-        }
     }
 
     private function setFrwStatus(FrwState $newState): void

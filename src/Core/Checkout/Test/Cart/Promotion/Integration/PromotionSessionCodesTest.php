@@ -6,7 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
@@ -14,6 +17,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\CallableClass;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
@@ -22,6 +26,7 @@ class PromotionSessionCodesTest extends TestCase
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
+    use SessionTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -52,18 +57,6 @@ class PromotionSessionCodesTest extends TestCase
         $this->cartService = $this->getContainer()->get(CartService::class);
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-
-        // clear our session before each test
-        $this->clearSession();
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        // clear after each test again
-        // to avoid interferences
-        $this->clearSession();
     }
 
     /**
@@ -85,7 +78,7 @@ class PromotionSessionCodesTest extends TestCase
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
 
         // add a new promotion black friday
-        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, $this->getContainer());
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
@@ -135,7 +128,7 @@ class PromotionSessionCodesTest extends TestCase
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         foreach ($promotions as $promotion) {
-            $this->createTestFixturePercentagePromotion($promotion['id'], $promotion['code'], $promotion['percentage'], $this->getContainer());
+            $this->createTestFixturePercentagePromotion($promotion['id'], $promotion['code'], $promotion['percentage'], null, $this->getContainer());
             $cart = $this->addPromotionCode($promotion['code'], $cart, $this->cartService, $this->context);
 
             static::assertContains($promotion['code'], $this->getSessionCodes());
@@ -174,7 +167,7 @@ class PromotionSessionCodesTest extends TestCase
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
 
         // add a new promotion black friday
-        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, $this->getContainer());
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
@@ -187,6 +180,58 @@ class PromotionSessionCodesTest extends TestCase
 
         /** @var string $discountId */
         $discountId = array_keys($cart->getLineItems()->getElements())[1];
+
+        $this->cartService->remove($cart, $discountId, $this->context);
+
+        static::assertCount(0, $this->getSessionCodes(), json_encode($this->getSessionCodes()));
+    }
+
+    /**
+     * This test verifies that our cart services
+     * does also correctly remove the matching code
+     * within our session, if existing AND a fixed discount has been added that
+     * is discounting TWO products.
+     * We add two products and promotion code, then we grab one promotion discount
+     * line item id and remove it.
+     * After that we verify that our code array is empty in our session (both discounts on the
+     * two products are removed).
+     *
+     * @test
+     * @group promotions
+     */
+    public function testDeleteLineItemFixedDiscountByCode()
+    {
+        $productId = Uuid::randomHex();
+        $productTwoId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $promotionCode = 'BF19';
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productTwoId, 100, 7, $this->getContainer());
+
+        // add a new promotion black friday
+        $this->createTestFixtureFixedDiscountPromotion($promotionId, 30, PromotionDiscountEntity::SCOPE_CART, $promotionCode, $this->getContainer(), $this->context);
+
+        /** @var Cart $cart */
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // add product to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        // add product to cart
+        $cart = $this->addProduct($productTwoId, 1, $cart, $this->cartService, $this->context);
+
+        // add promotion to cart
+        $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
+
+        /** @var LineItemCollection $promotionItems */
+        $promotionItems = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
+
+        /** @var string $discountId */
+        $discountId = array_keys($promotionItems->getElements())[0];
 
         $this->cartService->remove($cart, $discountId, $this->context);
 
@@ -216,7 +261,7 @@ class PromotionSessionCodesTest extends TestCase
 
         // add a new promotion with a
         // minimum line item quantity discount rule of 2
-        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 50, $this->getContainer());
+        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 50, null, $this->getContainer());
 
         /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);

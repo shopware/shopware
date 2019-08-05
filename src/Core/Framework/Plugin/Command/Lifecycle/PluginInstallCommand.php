@@ -65,8 +65,12 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
             ++$installedPluginCount;
 
             if ($activatePlugins) {
-                $this->pluginLifecycleService->activatePlugin($plugin, $context);
-                $activationSuffix = ' and activated';
+                if ($input->getOption('refresh')) {
+                    $io->note('Can not refresh and activate in same request.');
+                } else {
+                    $this->pluginLifecycleService->activatePlugin($plugin, $context);
+                    $activationSuffix = ' and activated';
+                }
             }
 
             $io->text(sprintf($message, $plugin->getName(), $activationSuffix));

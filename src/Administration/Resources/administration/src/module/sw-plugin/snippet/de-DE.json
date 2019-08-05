@@ -39,7 +39,8 @@
     "fileUpload":{
       "buttonFileUpload":"Plugin hochladen",
       "titleUploadSuccess":"Plugin hochgeladen",
-      "messageUploadSuccess":"Das Plugin wurde erfolgreich hochgeladen"
+      "messageUploadSuccess":"Das Plugin wurde erfolgreich hochgeladen",
+      "buttonRefreshPlugins":"Übersicht aktualisieren"
     },
     "store-login":{
       "headline":"Shopware Account",
@@ -54,6 +55,7 @@
       "buttonCancel":"Abbrechen",
       "footerNoAccount":"Du hast noch keinen Account?",
       "footerRegisterAccount":"Neuen Account erstellen",
+      "forgotPassword":"Passwort vergessen?",
       "forgotPasswordUrl":"https://account.shopware.com/recovery?lang=de",
       "registerAccountUrl":"https://account.shopware.com/register?lang=de"
     },

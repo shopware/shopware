@@ -1,8 +1,8 @@
 [titleEn]: <>(API controller)
-[metaDescriptionEn]: <>(This HowTo will give you a brief introduction on how to setup a custom management API controller with your plugin.)
+[metaDescriptionEn]: <>(This HowTo will give you a brief introduction on how to setup a custom Admin API controller with your plugin.)
 
-This HowTo will give you a brief introduction on how to setup a custom management API controller with your plugin.
-Read [here](./../3-api/010-management-api.md) for more information about the management API itself.
+This HowTo will give you a brief introduction on how to setup a custom Admin API controller with your plugin.
+Read [here](./../3-api/010-admin-api.md) for more information about the Admin API itself.
 
 ## Plugin base class
 

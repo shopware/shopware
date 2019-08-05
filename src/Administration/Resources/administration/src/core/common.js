@@ -21,7 +21,6 @@ const WorkerNotificationFactory = require('src/core/factory/worker-notification.
 const FeatureConfig = require('src/core/feature-config').default;
 
 const utils = require('src/core/service/util.service').default;
-const ObservationApiService = require('src/core/service/observation-api.service').default;
 const ApplicationBootstrapper = require('src/core/application').default;
 
 const container = new Bottle({
@@ -187,12 +186,6 @@ module.exports = {
      * @type {module:core/service/utils}
      */
     Utils: utils,
-
-    /**
-     * @memberOf module:Shopware
-     * @type {module:core/service/observation-api}
-     */
-    ObservationApiService: ObservationApiService,
 
     /**
      * @memberOf module:Shopware

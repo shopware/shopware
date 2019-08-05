@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -116,15 +117,16 @@ class ThemeChangeCommand extends Command
                 exit(1);
             }
 
-            $themeId = $themes->first()->getId();
+            /** @var ThemeEntity $theme */
+            $theme = $themes->first();
 
             $this->themeSalesChannelRepository->upsert([[
-                'themeId' => $themeId,
+                'themeId' => $theme->getId(),
                 'salesChannelId' => $salesChannel->getId(),
             ]], $this->context);
 
-            $this->io->writeln('Compile theme');
-            $this->themeService->compileTheme($salesChannel->getId(), $themeId, $this->context);
+            $this->io->writeln(sprintf('Compiling theme %s for sales channel %s', $theme->getId(), $theme->getName()));
+            $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $this->context);
         }
     }
 

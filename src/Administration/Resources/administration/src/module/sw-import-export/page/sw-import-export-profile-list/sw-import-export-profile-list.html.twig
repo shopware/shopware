@@ -87,7 +87,7 @@
                                     {% endblock %}
 
                                     {% block sw_import_export_profile_list_grid_columns_actions_delete %}
-                                        <sw-context-menu-item @click="onDeleteImportExportProfile(item.id)" variant="danger">
+                                        <sw-context-menu-item v-if="!item.systemDefault" @click="onDeleteImportExportProfile(item.id)" variant="danger">
                                             {{ $tc('sw-import-export-profile.list.contextMenuDelete') }}
                                         </sw-context-menu-item>
                                     {% endblock %}

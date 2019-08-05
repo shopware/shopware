@@ -131,6 +131,7 @@
         <service id="Shopware\Storefront\Controller\ProductController">
             <argument type="service" id="Shopware\Storefront\Page\Product\ProductPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder"/>
+            <argument type="service" id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -151,6 +152,13 @@
         <service id="Shopware\Storefront\Controller\SearchController">
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Suggest\SuggestPageLoader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Storefront\Controller\SitemapController">
+            <argument type="service" id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

@@ -57,7 +57,7 @@ class RestService
 
 ## OAuth Token
 
-The Management-API is secured via [OAuth authentication](https://de.wikipedia.org/wiki/OAuth), so we need some helpers to get
+The Admin API is secured via [OAuth authentication](https://de.wikipedia.org/wiki/OAuth), so we need some helpers to get
 the authentication token before we do any further requests. Therefore, we extend our `RestService` class to do this
 during the constructor.
 
@@ -224,7 +224,7 @@ For further information about the `config.xml`, see the
 
 ## Authorization problems
 
-One of the problems that can occur when working with the Management-API is that your access token has expired. To 
+One of the problems that can occur when working with the Admin API is that your access token has expired. To 
 avoid having to deal with this problem we have already included the refresh token and expiration time in our properties,
 so let's start automatically generating a new access token.
 
@@ -302,7 +302,7 @@ class RestService
 ```
 
 The `request` function makes it easy to send API requests. It requests the API credentials if they do not already exist,
-and converts your request into a Management-API request. All you have to do is call the `request` function as follows:
+and converts your request into a Admin API request. All you have to do is call the `request` function as follows:
 
 ```php
 $this->restService->request('GET', 'product');

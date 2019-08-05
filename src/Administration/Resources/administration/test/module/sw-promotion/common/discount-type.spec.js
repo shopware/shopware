@@ -11,4 +11,8 @@ describe('module/sw-promotion/common/discount-type.js', () => {
     it('should have a PERCENTAGE property that matches our defined identifier string', () => {
         expect(DiscountTypes.PERCENTAGE).toBe('percentage');
     });
+
+    it('should have a FIXED property that matches our defined identifier string', () => {
+        expect(DiscountTypes.FIXED).toBe('fixed');
+    });
 });

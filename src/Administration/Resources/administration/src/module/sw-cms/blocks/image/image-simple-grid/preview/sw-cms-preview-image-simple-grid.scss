@@ -13,14 +13,8 @@
 
     .sw-cms-preview-image-simple-grid__side-images {
         height: 100%;
-    }
-
-    .sw-cms-preview-image-simple-grid__image-top {
-        margin-bottom: 20px;
-    }
-
-    .sw-cms-preview-image-simple-grid__image-top,
-    .sw-cms-preview-image-simple-grid__image-bottom {
-        height: 80px;
+        display: grid;
+        grid-template-rows: 96px 96px;
+        grid-gap: 24px;
     }
 }

@@ -1,0 +1,45 @@
+{
+    "document": {
+        "invoiceNumber": "Invoice %invoiceNumber%",
+        "invoiceHeadline": "Invoice %invoiceNumber%",
+        "stornoHeadline": "Cancellation %stornoNumber% for invoice %invoiceNumber%",
+        "deliveryNoteNumber": "Delivery note %deliveryNoteNumber%",
+        "deliveryNoteHeadline": "Delivery note %deliveryNoteNumber% for order %orderNumber%",
+        "creditNoteNumber": "Credit note %deliveryNoteNumber%",
+        "creditNoteHeadline": "Credit note %creditNoteNumber% for invoice no. %invoiceNumber%",
+        "customerNumber": "Customer %customerNumber%",
+        "date": "Date: %date%",
+        "orderDate": "Order date: %orderDate%",
+        "deliveryDate": "Delivery date: %deliveryDate%",
+        "page": "Page %pageNumber%",
+        "orderNumber": "Order no. %orderNumber%",
+        "taxNumber": "Tax no. %taxNumber%",
+        "vatId": "VAT Reg. no. %vatId%",
+        "taxOffice": "Tax office %taxOffice%",
+        "bankAccount": "Bank account",
+        "bankIban": "IBAN: %bankIban%",
+        "bankBic": "BIC: %bankBic%",
+        "placeOfJurisdiction": "Place of jurisdiction: %placeOfJurisdiction%",
+        "placeOfFulfillment": "Place of fulfillment: %placeOfFulfillment%",
+        "ceo": "CEO",
+        "lineItems": {
+            "header": {
+                "position": "Pos.",
+                "label": "Label",
+                "tax": "VAT",
+                "quantity": "QTY",
+                "unitPrice": "Unit price",
+                "articleNumber": "Art no.",
+                "total": "Total"
+            },
+            "tax": "plus %taxRate%% VAT:",
+            "total": "Total:",
+            "totalNet": "Net total:"
+        },
+        "paymentShippingInfo": {
+            "paymentMethod": "Payment method: %paymentMethod%",
+            "shippingMethod": "Shipping method: %shippingMethod%",
+            "additionalInfo": "Delivered goods remain our property until full payment has been made."
+        }
+    }
+}

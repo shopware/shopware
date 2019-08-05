@@ -31,6 +31,8 @@ class MigrationRuntime
     {
         $migrations = $this->getExecutableMigrations($until, $limit);
 
+        $this->setDefaultStorageEngine();
+
         foreach ($migrations as $migration) {
             /** @var MigrationStep $migration */
             $migration = new $migration();
@@ -51,6 +53,8 @@ class MigrationRuntime
     public function migrateDestructive(?int $until = null, ?int $limit = null): \Generator
     {
         $migrations = $this->getExecutableDestructiveMigrations($until, $limit);
+
+        $this->setDefaultStorageEngine();
 
         foreach ($migrations as $migration) {
             /** @var MigrationStep $migration */
@@ -84,6 +88,11 @@ class MigrationRuntime
             ->andWhere('`update_destructive` IS NULL')
             ->execute()
             ->fetchAll(FetchMode::COLUMN);
+    }
+
+    protected function setDefaultStorageEngine(): void
+    {
+        $this->connection->exec('SET default_storage_engine=InnoDB');
     }
 
     private function getExecutableMigrationsBaseQuery(?int $until = null, ?int $limit = null): QueryBuilder

@@ -167,6 +167,10 @@ export default {
             this.$emit('inline-edit-finish', item);
         },
 
+        onInlineEditStart(item) {
+            this.$emit('inline-edit-start', item);
+        },
+
         registerInlineEditingEvents() {
             this.$on('sw-row-inline-edit-start', this.inlineEditingStart);
             this.$on('sw-row-inline-edit-cancel', this.disableActiveInlineEditing);

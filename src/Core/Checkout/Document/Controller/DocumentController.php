@@ -41,7 +41,6 @@ class DocumentController extends AbstractController
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
         $download = $request->query->getBoolean('download', false);
-        $regenerate = $request->query->getBoolean('regenerate', false);
 
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
@@ -57,7 +56,7 @@ class DocumentController extends AbstractController
             throw new InvalidDocumentException($documentId);
         }
 
-        $generatedDocument = $this->documentService->getDocument($document, $context, $regenerate);
+        $generatedDocument = $this->documentService->getDocument($document, $context);
 
         return $this->createResponse(
             $generatedDocument->getFilename(),

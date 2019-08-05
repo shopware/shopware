@@ -13,7 +13,8 @@
                 <sw-select-field v-model="discount.scope"
                                  required
                                  validation="required"
-                                 :label="$tc('sw-promotion.detail.main.discounts.labelScope')">
+                                 :label="$tc('sw-promotion.detail.main.discounts.labelScope')"
+                                 @change="onDiscountScopeChanged">
                     <option v-for="scope in scopes" :value="scope.key">
                         {{ scope.name }}
                     </option>
@@ -21,16 +22,18 @@
             {% endblock %}
 
             {% block sw_promotion_discount_condition_consider_product_rules_field %}
-                <sw-field type="switch"
-                          bordered
-                          :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
-                          v-model="discount.considerAdvancedRules">
-                </sw-field>
+                <template v-if="cartScope">
+                    <sw-field type="switch"
+                              bordered
+                              :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
+                              v-model="discount.considerAdvancedRules">
+                    </sw-field>
+                </template>
             {% endblock %}
         </sw-container>
 
         {% block sw_promotion_discount_condition_rules_form %}
-            <template v-if="discount.considerAdvancedRules === true">
+            <template v-if="cartScope && discount.considerAdvancedRules === true">
                 <sw-promotion-rule-select
                         class="sw-promotion-discount-component__select-discount-rules"
                         v-model="discount.discountRules"
@@ -47,7 +50,7 @@
             {% block sw_promotion_discount_component_type %}
                 <sw-select-field v-model="discount.type"
                                  :label="$tc('sw-promotion.detail.main.discounts.labelType')"
-                                 @change="verifyValueMax">
+                                 @change="onDiscountTypeChanged">
                     <option v-for="type in types" :value="type.key">
                         {{ type.name }}
                     </option>
@@ -60,7 +63,7 @@
                           :value="discount.value"
                           :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
                           :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
-                          @change="changeValue">
+                          @change="onDiscountValueChanged">
                     <template #suffix>
                         {{ valueSuffix }}
                     </template>
@@ -68,8 +71,29 @@
             {% endblock %}
         </sw-container>
 
+
+        {% block sw_promotion_discount_max_value %}
+            <sw-container :key="1" v-if="showMaxValueSettings" columns="1fr 1fr" justify="end">
+                {% block sw_promotion_discount_max_value_field %}
+                    <sw-field type="number"
+                              v-model="discount.maxValue"
+                              :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')">
+                        <template #suffix>
+                            {{ maxValueSuffix }}
+                        </template>
+                    </sw-field>
+                {% endblock %}
+                {% block sw_promotion_discount_max_value_advanced_prices %}
+                    <a @click="onClickAdvancedPrices" class="sw-card__quick-link advanced-prices">
+                        {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
+                        <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                    </a>
+                {% endblock %}
+            </sw-container>
+        {% endblock %}
+
         {% block sw_promotion_discount_advanced_prices_link %}
-            <sw-container v-if="showAdvancedPricesLink" columns="1fr" justify="end">
+            <sw-container :key="2" v-if="showAbsoluteAdvancedPricesSettings" columns="1fr" justify="end">
                 <a @click="onClickAdvancedPrices" class="sw-card__quick-link advanced-prices">
                     {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
                     <sw-icon name="default-arrow-simple-right" small></sw-icon>

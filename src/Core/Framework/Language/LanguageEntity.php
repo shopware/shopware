@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Language;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
@@ -39,7 +40,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\Sale
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
-use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 
 class LanguageEntity extends Entity
 {
@@ -250,6 +250,11 @@ class LanguageEntity extends Entity
     protected $newsletterRecipients;
 
     /**
+     * @var OrderCollection|null
+     */
+    protected $orders;
+
+    /**
      * @var NumberRangeTypeTranslationCollection|null
      */
     protected $numberRangeTypeTranslations;
@@ -278,11 +283,6 @@ class LanguageEntity extends Entity
      * @var NumberRangeTranslationCollection|null
      */
     protected $numberRangeTranslations;
-
-    /**
-     * @var ThemeTranslationCollection|null
-     */
-    protected $themeTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -694,6 +694,16 @@ class LanguageEntity extends Entity
         $this->newsletterRecipients = $newsletterRecipients;
     }
 
+    public function getOrders(): ?OrderCollection
+    {
+        return $this->orders;
+    }
+
+    public function setOrders(?OrderCollection $orders): void
+    {
+        $this->orders = $orders;
+    }
+
     public function getNumberRangeTypeTranslations(): ?NumberRangeTypeTranslationCollection
     {
         return $this->numberRangeTypeTranslations;
@@ -752,15 +762,5 @@ class LanguageEntity extends Entity
     public function setNumberRangeTranslations(NumberRangeTranslationCollection $numberRangeTranslations): void
     {
         $this->numberRangeTranslations = $numberRangeTranslations;
-    }
-
-    public function getThemeTranslations(): ?ThemeTranslationCollection
-    {
-        return $this->themeTranslations;
-    }
-
-    public function setThemeTranslations(?ThemeTranslationCollection $themeTranslations): void
-    {
-        $this->themeTranslations = $themeTranslations;
     }
 }

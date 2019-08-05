@@ -26,6 +26,11 @@ class StorefrontPluginConfiguration
     /**
      * @var string|null
      */
+    private $previewMedia;
+
+    /**
+     * @var string|null
+     */
     private $author;
 
     /**
@@ -183,6 +188,16 @@ class StorefrontPluginConfiguration
         $this->themeVariableFile = $themeVariableFile;
     }
 
+    public function getPreviewMedia(): ?string
+    {
+        return $this->previewMedia;
+    }
+
+    public function setPreviewMedia(string $previewMedia): void
+    {
+        $this->previewMedia = $previewMedia;
+    }
+
     public static function createFromBundle(Bundle $bundle): self
     {
         $config = new self();
@@ -229,6 +244,10 @@ class StorefrontPluginConfiguration
 
             if (array_key_exists('asset', $data)) {
                 $config->setAssetFiles(self::addBasePath($data['asset'], $basePath));
+            }
+
+            if (array_key_exists('previewMedia', $data)) {
+                $config->setPreviewMedia($basePath . DIRECTORY_SEPARATOR . $data['previewMedia']);
             }
 
             if (array_key_exists('config', $data)) {

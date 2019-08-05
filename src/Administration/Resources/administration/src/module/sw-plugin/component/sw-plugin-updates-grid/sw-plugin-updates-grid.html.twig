@@ -19,7 +19,7 @@
         {% endblock %}
 
         {% block sw_plugin_updates_grid_card %}
-            <sw-card :isLoading="isLoading">
+            <sw-card :isLoading="isLoading || pageLoading">
                 {% block sw_plugin_updates_list_grid %}
                     <template slot="grid">
                         <sw-grid v-show="isLoading || total"

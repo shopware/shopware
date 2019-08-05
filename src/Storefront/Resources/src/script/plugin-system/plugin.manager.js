@@ -9,7 +9,7 @@ import Iterator from 'src/script/helper/iterator.helper';
  *
  * to use the PluginManager import:
  * ```
- *     import PluginManager from 'src/script/helper/plugin/plugin.manager.js';
+ *     import PluginManager from 'src/script/helper/plugin/plugin.manager';
  *
  *     PluginManager.register(.....);
  *
@@ -18,7 +18,7 @@ import Iterator from 'src/script/helper/iterator.helper';
  *
  * to extend from the base plugin import:
  * ```
- *     import Plugin from 'src/script/helper/plugin/plugin.class.js';
+ *     import Plugin from 'src/script/helper/plugin/plugin.class';
  *
  *     export default MyFancyPlugin extends Plugin {}
  * ```

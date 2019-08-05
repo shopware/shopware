@@ -9,9 +9,10 @@ export default class FormFieldTogglePlugin extends Plugin {
 
         /**
          * the class which should be applied
-         * when the target should be hidden
+         * when the target should be hidden or shown
          */
         hiddenCls: 'd-none',
+        showCls: 'd-block',
 
         /**
          * the attribute for the target selector
@@ -83,13 +84,13 @@ export default class FormFieldTogglePlugin extends Plugin {
      * @private
      */
     _onChange() {
-        const shouldHide = this._shouldHideTarget();
+        const shouldShow = this._shouldShowTarget();
 
         Iterator.iterate(this._targets, node => {
-            if (shouldHide) {
-                this._hideTarget(node);
-            } else {
+            if (shouldShow) {
                 this._showTarget(node);
+            } else {
+                this._hideTarget(node);
             }
         });
 
@@ -103,7 +104,7 @@ export default class FormFieldTogglePlugin extends Plugin {
      * @returns {*}
      * @private
      */
-    _shouldHideTarget() {
+    _shouldShowTarget() {
         const type = this.el.type;
         if (type === 'checkbox' || type === 'radio') {
             return this.el.checked === this._value;
@@ -127,13 +128,14 @@ export default class FormFieldTogglePlugin extends Plugin {
                 field.removeAttribute('required');
             }
 
-            const isDisabled = DomAccess.hasAttribute(field, 'disabled');
             field.setAttribute('disabled', 'disabled');
+            const isDisabled = DomAccess.hasAttribute(field, 'disabled');
             if (isDisabled) {
-                field.classList.add(this.options.wasDisabledCls);
+                field.classList.remove(this.options.wasDisabledCls);
             }
         });
 
+        target.classList.remove(this.options.showCls);
         target.classList.add(this.options.hiddenCls);
     }
 
@@ -151,12 +153,15 @@ export default class FormFieldTogglePlugin extends Plugin {
                 field.setAttribute('required', 'required');
             }
 
-            if (!field.classList.contains(this.options.wasDisabledCls)) {
+            const wasDisabled = DomAccess.hasAttribute(field, 'disabled');
+            if (wasDisabled) {
                 field.removeAttribute('disabled');
+                field.classList.add(this.options.wasDisabledCls);
             }
         });
 
         target.classList.remove(this.options.hiddenCls);
+        target.classList.add(this.options.showCls);
     }
 
     /**

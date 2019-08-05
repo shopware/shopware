@@ -13,11 +13,11 @@
       "modalTitle": "Willkommen",
       "headlineWelcome": "Willkommen in der Shopware 6 Administration",
       "messageWelcome": "Dieser Einrichtungs-Assistent begleitet Dich durch die wichtigsten Einstellungen und gibt Dir wertvolle Tipps zur Konfiguration.<br>Willst Du Deinen Shop in einer anderen Sprache verwenden und dadurch auch Kunden in anderen Ländern erreichen? Dann kannst Du hier einfach die gewünschten Sprachpakete installieren.",
-      "headlineChangeLanguage": "Wechsel die Sprache der Benutzeroberfläche",
+      "headlineChangeLanguage": "Installiere zusätzliche Sprachpakete",
       "switchLanguageModalTitle": "Wähle die Sprache der Benutzeroberfläche",
       "confirmLanguageSwitch": "Sprache wechseln",
       "cancelLanguageSwitch": "Abbrechen",
-      "switchLanguageMessage": "Das Sprach-Plugin \"%{pluginName}\" wurde erfolgreich installiert. Möchtest du die Spache der Benutzeroberfläche ändern?"
+      "switchLanguageMessage": "Das Sprach-Plugin \"{pluginName}\" wurde erfolgreich installiert. Möchtest du die Spache der Benutzeroberfläche ändern?"
     },
     "demodata": {
       "modalTitle": "Demodaten installieren",
@@ -62,7 +62,8 @@
     },
     "finish": {
       "headlineAllDone": "Herzlichen Glückwunsch!",
-      "message": "Dein Shopware 6 %{edition} is jetzt verifziert.",
+      "message": "Dein Shopware 6 {edition} ist jetzt verifiziert.",
+      "messageNotLicensed": "Dein Shopware 6 ist jetzt vorbereitet.",
       "headlineUsefulLinks": "Nützliche Links",
       "loadingMessage": "Anwendung wird neu gestartet<br>Das könnte einen Moment dauern...",
       "documentationLabel": "Dokumentation",

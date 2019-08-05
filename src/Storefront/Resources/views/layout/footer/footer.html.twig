@@ -28,11 +28,13 @@
                         <div id="collapseFooterHotline"
                              class="footer-column-content collapse js-footer-column-content footer-contact"
                              aria-labelledby="headingOne">
-                            <p class="footer-contact-hotline">
-                                {{ 'footer.serviceHotline'|trans|raw }}
-                            </p>
-                            <div class="footer-contact-form">
-                                {{ 'footer.serviceContactLink'|trans({'%link%': path('frontend.page.contact') })|raw }}
+                            <div class="footer-column-content-inner">
+                                <p class="footer-contact-hotline">
+                                    {{ 'footer.serviceHotline'|trans|raw }}
+                                </p>
+                                <div class="footer-contact-form">
+                                    {{ 'footer.serviceContactLink'|trans({'%link%': path('frontend.page.contact') })|raw }}
+                                </div>
                             </div>
                         </div>
                     {% endblock %}
@@ -67,24 +69,25 @@
                                 <div id="collapseFooter{{ loop.index }}"
                                      class="footer-column-content collapse js-footer-column-content"
                                      aria-labelledby="headingThree">
-
-                                    {% block layout_footer_navigation_information_links %}
-                                        <ul class="list-unstyled">
-                                            {% for treeItem in root.children %}
-                                                {% block layout_footer_navigation_information_link_item %}
-                                                    <li class="footer-link-item">
-                                                        {% block layout_footer_navigation_information_link %}
-                                                            <a class="footer-link"
-                                                               href="{{ navigationUrl(treeItem.category) }}"
-                                                               title="{{ treeItem.category.translated.name }}">
-                                                                {{ treeItem.category.translated.name }}
-                                                            </a>
-                                                        {% endblock %}
-                                                    </li>
-                                                {% endblock %}
-                                            {% endfor %}
-                                        </ul>
-                                    {% endblock %}
+                                    <div class="footer-column-content-inner">
+                                        {% block layout_footer_navigation_information_links %}
+                                            <ul class="list-unstyled">
+                                                {% for treeItem in root.children %}
+                                                    {% block layout_footer_navigation_information_link_item %}
+                                                        <li class="footer-link-item">
+                                                            {% block layout_footer_navigation_information_link %}
+                                                                <a class="footer-link"
+                                                                   href="{{ navigationUrl(treeItem.category) }}"
+                                                                   title="{{ treeItem.category.translated.name }}">
+                                                                    {{ treeItem.category.translated.name }}
+                                                                </a>
+                                                            {% endblock %}
+                                                        </li>
+                                                    {% endblock %}
+                                                {% endfor %}
+                                            </ul>
+                                        {% endblock %}
+                                    </div>
                                 </div>
                             {% endblock %}
                         </div>
@@ -97,7 +100,6 @@
     {% block layout_footer_bottom %}
         <div class="footer-bottom">
             {% block layout_footer_vat %}
-                {#TODO: NEXT-2667 - shop page link: footer VAT links#}
                 <div class="footer-vat">
                     {% if context.taxState == "gross" %}
                         <p>{{ "footer.includeVat"|trans|raw }}</p>

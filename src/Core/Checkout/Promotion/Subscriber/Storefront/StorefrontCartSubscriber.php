@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Event\LineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -91,16 +92,21 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
     {
         $this->setupSession();
 
+        $cart = $event->getCart();
+
         if ($event->getLineItem()->getType() === PromotionProcessor::LINE_ITEM_TYPE) {
+            $lineItem = $event->getLineItem();
+
             /** @var string|null $code */
-            $code = $event->getLineItem()->getReferencedId();
+            $code = $lineItem->getReferencedId();
 
             if (!empty($code)) {
+                $this->checkFixedDiscountItems($cart, $lineItem);
                 $this->removeFromSession($code);
             }
         }
 
-        $this->reAddPromotionsFromSession($event->getCart(), $event->getContext());
+        $this->reAddPromotionsFromSession($cart, $event->getContext());
     }
 
     /**
@@ -139,6 +145,46 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
                 /* @var Cart $cart */
                 $cart->add($lineItem);
             }
+        }
+    }
+
+    /**
+     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
+     */
+    private function checkFixedDiscountItems(Cart $cart, LineItem $lineItem): void
+    {
+        $lineItems = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
+        if ($lineItems->count() < 1) {
+            return;
+        }
+
+        if (!$lineItem->hasPayloadValue('discountType')) {
+            return;
+        }
+
+        if ($lineItem->getPayloadValue('discountType') !== PromotionDiscountEntity::TYPE_FIXED) {
+            return;
+        }
+
+        if (!$lineItem->hasPayloadValue('discountId')) {
+            return;
+        }
+
+        /** @var string $discountId */
+        $discountId = $lineItem->getPayloadValue('discountId');
+
+        $removeThisDiscounts = $lineItems->filter(function ($lineItem) use ($discountId) {
+            if ($lineItem->hasPayloadValue('discountId') && $lineItem->getPayloadValue('discountId') === $discountId) {
+                return true;
+            }
+
+            return false;
+        });
+
+        foreach ($removeThisDiscounts as $discountItem) {
+            $cart->remove($discountItem->getId());
         }
     }
 

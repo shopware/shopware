@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
+use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,13 +23,19 @@ class ProductController extends StorefrontController
      * @var ProductCombinationFinder
      */
     private $combinationFinder;
+    /**
+     * @var MinimalQuickViewPageLoader
+     */
+    private $minimalQuickViewPageLoader;
 
     public function __construct(
         ProductPageLoader $productPageLoader,
-        ProductCombinationFinder $combinationFinder
+        ProductCombinationFinder $combinationFinder,
+        MinimalQuickViewPageLoader $minimalQuickViewPageLoader
     ) {
         $this->productPageLoader = $productPageLoader;
         $this->combinationFinder = $combinationFinder;
+        $this->minimalQuickViewPageLoader = $minimalQuickViewPageLoader;
     }
 
     /**
@@ -57,5 +64,15 @@ class ProductController extends StorefrontController
         );
 
         return $this->redirectToRoute('frontend.detail.page', ['productId' => $redirect->getVariantId()]);
+    }
+
+    /**
+     * @Route("/quickview/{productId}", name="widgets.quickview.minimal", methods={"GET"}, defaults={"XmlHttpRequest": true})
+     */
+    public function quickviewMinimal(Request $request, SalesChannelContext $context): Response
+    {
+        $page = $this->minimalQuickViewPageLoader->load($request, $context);
+
+        return $this->renderStorefront('@Storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
     }
 }

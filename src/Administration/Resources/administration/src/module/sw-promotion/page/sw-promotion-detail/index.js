@@ -1,15 +1,14 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import { mapPageErrors } from 'src/app/service/map-errors.service';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-detail.html.twig';
 import errorConfig from './error-config.json';
 import swPromotionDetailState from './state';
 
-const { mapPageErrors } = Component.getComponentHelper();
-
 Component.register('sw-promotion-detail', {
     template,
 
-    inject: ['numberRangeService', 'repositoryFactory', 'context'],
+    inject: ['repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -125,8 +124,6 @@ Component.register('sw-promotion-detail', {
 
     methods: {
         createdComponent() {
-            // TODO check if numberrange is configured
-            // if not show modal and link to settings!
             this.isLoading = true;
             if (!this.promotionId) {
                 this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
@@ -184,15 +181,8 @@ Component.register('sw-promotion-detail', {
         },
 
         createPromotion() {
-            this.numberRangeService.reserve('promotion').then((promotionNumber) => {
-                this.promotion.promotionNumber = promotionNumber;
-                return this.savePromotion().then(() => {
-                    this.$router.push({ name: 'sw.promotion.detail', params: { id: this.promotion.id } });
-                });
-            }).catch(() => {
-                return this.savePromotion().then(() => {
-                    this.$router.push({ name: 'sw.promotion.detail', params: { id: this.promotion.id } });
-                });
+            return this.savePromotion().then(() => {
+                this.$router.push({ name: 'sw.promotion.detail', params: { id: this.promotion.id } });
             });
         },
 

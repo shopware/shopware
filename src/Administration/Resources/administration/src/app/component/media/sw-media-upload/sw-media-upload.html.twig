@@ -45,6 +45,10 @@
                             </label>
                         {% endblock %}
 
+                        {% block sw_media_upload_regular_header_helptext %}
+                            <sw-help-text class="sw-media-upload__help-text" :text="helpText" v-if="helpText"></sw-help-text>
+                        {% endblock %}
+
                         {% block sw_media_upload_regular_header_switch %}
                             <a v-if="!source" class="sw-media-upload__switch-mode" @click="toggleShowUrlFields">
                                 {{ toggleButtonCaption }}

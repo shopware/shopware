@@ -1,8 +1,7 @@
 import { Component } from 'src/core/shopware';
+import { mapState } from 'vuex';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-visibility-select.html.twig';
-
-const { mapState } = Component.getComponentHelper();
 
 Component.extend('sw-product-visibility-select', 'sw-multi-select', {
     template,

@@ -1,21 +1,20 @@
-import { Component, Mixin, State } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-manufacturer-list.html.twig';
 
 Component.register('sw-manufacturer-list', {
     template,
 
+    inject: ['repositoryFactory', 'context'],
+
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('listing')
     ],
 
     data() {
         return {
-            manufacturers: [],
-            showDeleteModal: false,
-            isLoading: false,
-            entityName: 'manufacturer',
-            sortBy: 'name'
+            manufacturers: null,
+            isLoading: true
         };
     },
 
@@ -26,61 +25,57 @@ Component.register('sw-manufacturer-list', {
     },
 
     computed: {
-        manufacturerStore() {
-            return State.getStore('product_manufacturer');
+        manufacturerRepository() {
+            return this.repositoryFactory.create('product_manufacturer');
+        },
+
+        manufacturerColumns() {
+            return [{
+                property: 'name',
+                dataIndex: 'name',
+                allowResize: true,
+                routerLink: 'sw.manufacturer.detail',
+                label: this.$tc('sw-manufacturer.list.columnName'),
+                inlineEdit: 'string',
+                primary: true
+            }, {
+                property: 'link',
+                label: this.$t('sw-manufacturer.list.columnLink'),
+                inlineEdit: 'string'
+            }];
+        },
+
+        manufacturerCriteria() {
+            const criteria = new Criteria();
+            const params = this.getListingParams();
+
+            // Default sorting
+            params.sortBy = params.sortBy || 'name';
+            params.sortDirection = params.sortDirection || 'ASC';
+
+            criteria.addSorting(Criteria.sort(params.sortBy, params.sortDirection));
+
+            return criteria;
         }
     },
 
     methods: {
-        onInlineEditSave(manufacturer) {
-            this.isLoading = true;
-
-            return manufacturer.save().then(() => {
-                this.isLoading = false;
-            }).catch(() => {
-                this.isLoading = false;
-            });
-        },
-
         onChangeLanguage(languageId) {
             this.getList(languageId);
         },
 
-        onDeleteManufacturer(id) {
-            this.showDeleteModal = id;
-        },
-
-        onCloseDeleteModal() {
-            this.showDeleteModal = false;
-        },
-
-        onConfirmDelete(id) {
-            this.showDeleteModal = false;
-
-            return this.manufacturerStore.store[id].delete(true).then(() => {
-                this.getList();
-            });
-        },
-
         getList() {
             this.isLoading = true;
-            const params = this.getListingParams();
 
-            // Default sorting
-            if (!params.sortBy && !params.sortDirection) {
-                params.sortBy = 'name';
-                params.sortDirection = 'ASC';
-            }
-
-            this.manufacturers = [];
-
-            return this.manufacturerStore.getList(params).then((response) => {
-                this.total = response.total;
-                this.manufacturers = response.items;
+            return this.manufacturerRepository.search(this.manufacturerCriteria, this.context).then((searchResult) => {
+                this.manufacturers = searchResult;
+                this.total = searchResult.total;
                 this.isLoading = false;
-
-                return this.manufacturers;
             });
+        },
+
+        updateTotal({ total }) {
+            this.total = total;
         }
     }
 });

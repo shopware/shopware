@@ -416,6 +416,7 @@
         "differentAddressesRule": "Abweichende Adressen",
         "isNewCustomerRule": "Neuer Kunde",
         "lastNameRule": "Nachname",
+        "isCompanyRule": "Firmenkunde",
         "daysSinceLastOrderRule": "Tage seit letzter Bestellung",
         "shippingCountryRule": "Lieferland",
         "shippingStreetRule": "Lieferstraße",

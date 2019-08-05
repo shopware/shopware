@@ -8,9 +8,9 @@
         {% block sw_import_export_progress_footer %}
             <template #modal-footer>
                 {% block sw_import_export_progress_footer_actions_cancel %}
-                    <sw-button @click="onCancel"
-                               v-if="processing"
-                               :disabled="cancelled"
+                    <sw-button @click="onUserCancel"
+                               v-if="progress"
+                               :disabled="aborted"
                                size="small">
                         {{ $tc('sw-import-export-progress.buttonCancel') }}
                     </sw-button>
@@ -18,7 +18,7 @@
 
                 {% block sw_import_export_progress_footer_actions_close %}
                     <sw-button @click="closeModal"
-                               :disabled="processing"
+                               :disabled="progress"
                                :variant="downloadUrl ? '' : 'primary'"
                                size="small">
                         {{ $tc('sw-import-export-progress.buttonClose') }}

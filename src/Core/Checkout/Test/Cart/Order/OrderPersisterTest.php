@@ -143,6 +143,7 @@ class OrderPersisterTest extends TestCase
     {
         $customer = $this->getCustomer();
         $salesChannel = new SalesChannelEntity();
+        $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 

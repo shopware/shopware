@@ -13,11 +13,11 @@
       "modalTitle": "Welcome",
       "headlineWelcome": "Welcome in the Shopware 6 Administration",
       "messageWelcome": "This setup wizard guides you through the most important settings and gives you valuable tips for configuration.<br>Do you want to use your shop in a different language and reach customers in other countries? Then you can simply install the desired language packs here.",
-      "headlineChangeLanguage": "Change your interface language",
+      "headlineChangeLanguage": "Install additional language plugins",
       "switchLanguageModalTitle": "Select your interface language",
       "confirmLanguageSwitch": "Change language",
       "cancelLanguageSwitch": "Cancel",
-      "switchLanguageMessage": "Your language plugin was installed successfully. Would you like to change your interface language?"
+      "switchLanguageMessage": "Your language plugin \"{pluginName}\" was installed successfully. Would you like to change your interface language?"
     },
     "demodata": {
       "modalTitle": "Install Demodata",
@@ -63,7 +63,8 @@
     },
     "finish": {
       "headlineAllDone": "All done!",
-      "message": "Your Shopware 6 %{edition} is now verified.",
+      "message": "Your Shopware 6 {edition} is now verified.",
+      "messageNotLicensed": "Your Shopware 6 is now prepared.",
       "headlineUsefulLinks": "Useful Links",
       "loadingMessage": "Restarting Application<br>This may take a while...",
       "documentationLabel": "Documentation",

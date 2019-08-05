@@ -14,11 +14,12 @@ Component.register('sw-import-export-profile-csv-mapping-modal', {
 
     data() {
         return {
-            selectedMapping: [
+            mappingDefinitions: [
                 {
                     fileField: null,
                     entityField: null,
-                    valueSubstitution: null
+                    valueSubstitution: null,
+                    isIdentifier: false
                 }
             ],
             availableEntityFields: []
@@ -29,7 +30,7 @@ Component.register('sw-import-export-profile-csv-mapping-modal', {
         this.createdComponent();
 
         if (this.importExportProfile.mapping) {
-            this.selectedMapping = this.importExportProfile.mapping;
+            this.mappingDefinitions = this.importExportProfile.mapping;
         }
     },
 
@@ -52,14 +53,25 @@ Component.register('sw-import-export-profile-csv-mapping-modal', {
             this.availableEntityFields = this.buildFlattenedFieldSet();
         },
 
+        onIdentifierChange(selectedIndex) {
+            // Make sure only one field is specified as identifier
+            this.mappingDefinitions.forEach((mapping, index) => {
+                if (index === selectedIndex) {
+                    return;
+                }
+                mapping.isIdentifier = false;
+            });
+        },
+
+
         onCloseModal() {
-            this.filterSelectedMapping();
-            this.importExportProfile.mapping = this.selectedMapping;
+            this.filterMappingDefinitions();
+            this.importExportProfile.mapping = this.mappingDefinitions;
             this.$emit('closeMappingModal');
         },
 
-        filterSelectedMapping() {
-            this.selectedMapping = this.selectedMapping.filter((item) => {
+        filterMappingDefinitions() {
+            this.mappingDefinitions = this.mappingDefinitions.filter((item) => {
                 return item.fileField !== null || item.entityField !== null;
             });
         },
@@ -93,26 +105,27 @@ Component.register('sw-import-export-profile-csv-mapping-modal', {
         },
 
         addMappingField() {
-            this.selectedMapping.push({
+            this.mappingDefinitions.push({
                 fileField: null,
                 entityField: null,
-                valueSubstitution: null
+                valueSubstitution: null,
+                isIdentifier: false
             });
         },
 
         onConfirmDelete(item) {
-            const index = this.selectedMapping.findIndex((selected) => {
+            const index = this.mappingDefinitions.findIndex((selected) => {
                 return selected === item;
             });
 
             if (index > -1) {
-                this.selectedMapping.splice(index, 1);
+                this.mappingDefinitions.splice(index, 1);
             }
         },
 
         onSaveMapping() {
-            this.filterSelectedMapping();
-            this.importExportProfile.mapping = this.selectedMapping;
+            this.filterMappingDefinitions();
+            this.importExportProfile.mapping = this.mappingDefinitions;
 
             this.$emit('saveMapping');
         },
@@ -133,6 +146,11 @@ Component.register('sw-import-export-profile-csv-mapping-modal', {
                 property: 'valueSubstitution',
                 dataIndex: 'valueSubstitution',
                 label: this.$tc('sw-import-export-profile.mapping.columnValueSubstitution'),
+                allowResize: true
+            }, {
+                property: 'isIdentifier',
+                dataIndex: 'isIdentifier',
+                label: this.$tc('sw-import-export-profile.mapping.columnIsIdentifier'),
                 allowResize: true
             }];
         }

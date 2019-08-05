@@ -6,7 +6,6 @@ import 'src/script/helper/polyfill-loader.helper';
 /*
 import base requirements
  */
-import 'jquery/dist/jquery.slim';
 import 'bootstrap';
 
 /*
@@ -19,8 +18,8 @@ import ViewportDetection from 'src/script/helper/viewport-detection.helper';
 import utils
  */
 import AjaxModalExtensionUtil from 'src/script/utility/modal-extension/ajax-modal-extension.util';
-import TimezoneUtil from 'src/script/utility/timezone/timezone.util.js';
-import TooltipUtil from 'src/script/utility/tooltip/tooltip.util.js';
+import TimezoneUtil from 'src/script/utility/timezone/timezone.util';
+import TooltipUtil from 'src/script/utility/tooltip/tooltip.util';
 
 /*
 import plugins
@@ -53,7 +52,7 @@ import CmsSlotReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-relo
 import CmsSlotHistoryReloadPlugin from 'src/script/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
 import RemoteClickPlugin from 'src/script/plugin/remote-click/remote-click.plugin';
 import AddressEditorPlugin from 'src/script/plugin/address-editor/address-editor.plugin';
-import DateFormat from 'src/script/plugin/date-format/date-format.plugin.js';
+import DateFormat from 'src/script/plugin/date-format/date-format.plugin';
 import SetBrowserClassPlugin from 'src/script/plugin/set-browser-class/set-browser-class.plugin';
 import NativeEventEmitter from 'src/script/helper/emitter.helper';
 

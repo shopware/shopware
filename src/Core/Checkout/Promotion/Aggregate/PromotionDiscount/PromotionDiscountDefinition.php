@@ -49,6 +49,7 @@ class PromotionDiscountDefinition extends EntityDefinition
             (new StringField('type', 'type', 32))->addFlags(new Required()),
             (new FloatField('value', 'value'))->addFlags(new Required()),
             (new BoolField('consider_advanced_rules', 'considerAdvancedRules'))->addFlags(new Required()),
+            new FloatField('max_value', 'maxValue'),
 
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
             (new ManyToManyAssociationField('discountRules', RuleDefinition::class, PromotionDiscountRuleDefinition::class, 'discount_id', 'rule_id'))->addFlags(new CascadeDelete()),

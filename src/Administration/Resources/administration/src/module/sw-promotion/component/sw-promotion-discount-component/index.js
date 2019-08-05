@@ -29,7 +29,11 @@ Component.register('sw-promotion-discount-component', {
             defaultCurrency: null,
             isLoading: false,
             showRuleModal: false,
-            showDeleteModal: false
+            showDeleteModal: false,
+            currencySymbol: null,
+            allowProductRules: false,
+            cartScope: this.discount.scope === DiscountScopes.CART,
+            considerAdvancedRules: this.discount.considerAdvancedRules
         };
     },
     created() {
@@ -68,26 +72,33 @@ Component.register('sw-promotion-discount-component', {
 
         scopes() {
             return [
-                { key: DiscountScopes.CART, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeCart') }
+                { key: DiscountScopes.CART, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeCart') },
+                { key: DiscountScopes.DELIVERY, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeDelivery') }
             ];
         },
 
         types() {
             return [
                 { key: DiscountTypes.ABSOLUTE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeAbsolute') },
-                { key: DiscountTypes.PERCENTAGE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypePercentage') }
+                { key: DiscountTypes.PERCENTAGE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypePercentage') },
+                { key: DiscountTypes.FIXED, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed') }
             ];
         },
 
         valueSuffix() {
-            return discountHandler.getValueSuffix(
-                this.discount.type,
-                this.defaultCurrency !== null ? this.defaultCurrency.suffix : null
-            );
+            return discountHandler.getValueSuffix(this.discount.type, this.currencySymbol);
         },
 
-        showAdvancedPricesLink() {
-            return this.discount.type === DiscountTypes.ABSOLUTE;
+        maxValueSuffix() {
+            return this.currencySymbol;
+        },
+
+        showMaxValueSettings() {
+            return this.discount.type === DiscountTypes.PERCENTAGE;
+        },
+
+        showAbsoluteAdvancedPricesSettings() {
+            return (this.discount.type === DiscountTypes.ABSOLUTE || this.discount.type === DiscountTypes.FIXED);
         }
 
     },
@@ -96,24 +107,32 @@ Component.register('sw-promotion-discount-component', {
             this.currencyRepository.search(new Criteria(), this.context).then((response) => {
                 this.currencies = response;
                 this.defaultCurrency = this.currencies.find(currency => currency.isDefault);
+                this.currencySymbol = this.defaultCurrency.symbol;
             });
         },
 
         // This function verifies the currently set value
         // depending on the discount type, and fixes it if
         // the min or maximum thresholds have been exceeded.
-        verifyValueMax() {
+        onDiscountTypeChanged() {
             this.discount.value = discountHandler.getFixedValue(this.discount.value, this.discount.type);
         },
 
-        changeValue(value) {
+        onDiscountValueChanged(value) {
             this.discount.value = discountHandler.getFixedValue(value, this.discount.type);
         },
 
         onClickAdvancedPrices() {
             this.currencies.forEach((currency) => {
                 if (!this.isMemberOfCollection(currency)) {
-                    this.prepareAdvancedPrices(currency, this.discount.value);
+                    // if we have a max-value setting active
+                    // then our advanced prices is for this
+                    // otherwise its for the promotion value itself
+                    if (this.showMaxValueField) {
+                        this.prepareAdvancedPrices(currency, this.discount.maxValue);
+                    } else {
+                        this.prepareAdvancedPrices(currency, this.discount.value);
+                    }
                 }
             });
             this.displayAdvancedPrices = true;
@@ -138,6 +157,7 @@ Component.register('sw-promotion-discount-component', {
             newAdvancedCurrencyPrices.price = setPrice;
             newAdvancedCurrencyPrices.currencyId = currency.id;
             newAdvancedCurrencyPrices.currency = currency;
+
             this.discount.promotionDiscountPrices.add(newAdvancedCurrencyPrices);
         },
 
@@ -155,10 +175,7 @@ Component.register('sw-promotion-discount-component', {
 
         onCloseAdvancedPricesModal() {
             this.discount.promotionDiscountPrices.forEach((advancedPrice) => {
-                const fixedPrice = discountHandler.getFixedValue(advancedPrice.price, DiscountTypes.ABSOLUTE);
-                if (advancedPrice.price !== fixedPrice) {
-                    advancedPrice.price = fixedPrice;
-                }
+                advancedPrice.price = discountHandler.getFixedValue(advancedPrice.price, DiscountTypes.ABSOLUTE);
             });
             this.displayAdvancedPrices = false;
         },
@@ -176,6 +193,15 @@ Component.register('sw-promotion-discount-component', {
             this.$nextTick(() => {
                 this.$emit('discount-delete', this.discount);
             });
+        },
+        onDiscountScopeChanged(value) {
+            if (value === DiscountScopes.DELIVERY) {
+                this.discount.considerAdvancedRules = false;
+                this.cartScope = false;
+            } else {
+                this.discount.considerAdvancedRules = this.considerAdvancedRules;
+                this.cartScope = true;
+            }
         }
     }
 });

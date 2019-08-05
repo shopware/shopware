@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Language\LanguageEntity;
@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Exten
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
 
 class EntityExtensionReadTest extends TestCase
 {
@@ -55,15 +53,17 @@ class EntityExtensionReadTest extends TestCase
         $this->connection->rollBack();
 
         $this->connection->executeQuery('
+            DROP TABLE IF EXISTS `extended_product`; 
             CREATE TABLE `extended_product` (
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NULL,
                 `product_id` BINARY(16) NULL,
+                `language_id` BINARY(16) NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                CONSTRAINT `fk.product.id` FOREIGN KEY (`product_id`)
-                    REFERENCES `product` (`id`)
+                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
+                CONSTRAINT `fk.extended_product.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
             )
         ');
 
@@ -118,70 +118,42 @@ class EntityExtensionReadTest extends TestCase
 
     public function testICanReadNestedAssociationsFromToManyExtensions(): void
     {
-        $salesChannelId = Uuid::randomHex();
-        $this->createSalesChannel($salesChannelId);
+        $productId = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $salesChannelRepo */
-        $salesChannelRepo = $this->getContainer()->get('sales_channel.repository');
-        $context = Context::createDefaultContext();
-
-        $salesChannelRepo->update([
+        $this->productRepository->create([
             [
-                'id' => $salesChannelId,
-                'seoUrls' => [
-                    [
-                        'languageId' => Defaults::LANGUAGE_SYSTEM,
-                        'foreignKey' => $salesChannelId,
-                        'routeName' => 'test',
-                        'pathInfo' => 'test',
-                        'seoPathInfo' => 'test',
-                    ],
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'name' => 'Test product',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
+                'manufacturer' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'shopware AG',
+                    'link' => 'https://shopware.com',
+                ],
+                'oneToMany' => [
+                    ['name' => 'test 1', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                    ['name' => 'test 2', 'languageId' => Defaults::LANGUAGE_SYSTEM],
                 ],
             ],
-        ], $context);
+        ], Context::createDefaultContext());
 
-        $criteria = new Criteria([$salesChannelId]);
-        $criteria->addAssociationPath('seoUrls.language');
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociationPath('oneToMany.language');
 
-        /** @var SalesChannelEntity $salesChannel */
-        $salesChannel = $salesChannelRepo->search($criteria, $context)->get($salesChannelId);
-        static::assertTrue($salesChannel->hasExtension('seoUrls'));
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
 
-        /** @var SeoUrlCollection $seoUrls */
-        $seoUrls = $salesChannel->getExtension('seoUrls');
-        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
-        static::assertCount(1, $seoUrls);
+        static::assertTrue($product->hasExtension('oneToMany'));
 
-        $seoUrl = $seoUrls->first();
-        static::assertInstanceOf(LanguageEntity::class, $seoUrl->getLanguage());
-    }
+        /** @var EntityCollection $productExtensions */
+        $productExtensions = $product->getExtension('oneToMany');
+        static::assertInstanceOf(EntityCollection::class, $productExtensions);
+        static::assertCount(2, $productExtensions);
 
-    private function createSalesChannel($id): void
-    {
-        $data = [
-            'id' => $id,
-            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
-            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'currencyId' => Defaults::CURRENCY,
-            'currencyVersionId' => Defaults::LIVE_VERSION,
-            'paymentMethodId' => $this->getValidPaymentMethodId(),
-            'paymentMethodVersionId' => Defaults::LIVE_VERSION,
-            'shippingMethodId' => $this->getValidShippingMethodId(),
-            'shippingMethodVersionId' => Defaults::LIVE_VERSION,
-            'navigationCategoryId' => $this->getValidCategoryId(),
-            'navigationCategoryVersionId' => Defaults::LIVE_VERSION,
-            'countryId' => $this->getValidCountryId(),
-            'countryVersionId' => Defaults::LIVE_VERSION,
-            'currencies' => [['id' => Defaults::CURRENCY]],
-            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
-            'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
-            'countries' => [['id' => $this->getValidCountryId()]],
-            'name' => 'first sales-channel',
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-        ];
-
-        $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
+        $productExtension = $productExtensions->first();
+        static::assertInstanceOf(LanguageEntity::class, $productExtension->get('language'));
     }
 }

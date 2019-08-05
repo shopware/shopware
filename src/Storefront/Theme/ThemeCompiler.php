@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use League\Flysystem\FilesystemInterface;
+use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
@@ -249,8 +250,11 @@ class ThemeCompiler
         });
 
         $variables = $this->dumpVariables($config->getConfig());
+        $cssOutput = $this->scssCompiler->compile($variables . $concatenated);
+        $autoPreFixer = new Autoprefixer($cssOutput);
+        $prefixedCssOutput = $autoPreFixer->compile();
 
-        return $this->scssCompiler->compile($variables . $concatenated);
+        return $prefixedCssOutput;
     }
 
     private function dumpVariables(array $config): string

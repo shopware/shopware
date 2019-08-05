@@ -1,10 +1,11 @@
 .sw-modal.sw-import-export-profile-csv-mapping-modal {
-	.sw-modal__body {
+    .sw-modal__body {
         padding: 0;
-		.sw-data-grid.is--compact {
-			.sw-data-grid__cell-content {
-				height: auto;
-			}
-		}
-	}
+
+        .sw-data-grid.is--compact {
+            .sw-data-grid__cell-content {
+                height: auto;
+            }
+        }
+    }
 }

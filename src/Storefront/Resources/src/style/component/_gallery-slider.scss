@@ -6,6 +6,11 @@ Displays images in a slider gallery with thumbnail navigation.
 based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyuan/tiny-slider)
 */
 
+.gallery-slider {
+    // correct perceptual issue with tiny slider
+    width: 99.9%;
+}
+
 .gallery-slider-row {
     margin-bottom: $spacer;
 
@@ -30,11 +35,12 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 }
 
-.gallery-slider-item {
+.gallery-slider-item,
+.gallery-slider-single-image {
     position: relative;
     backface-visibility: hidden;
     cursor: default;
-    display: grid;
+    display: block;
     height: 100%;
     max-width: 100%;
 
@@ -44,6 +50,12 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         .gallery-slider-image {
             object-fit: cover;
             height: 100%;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            margin: 0 auto;
         }
     }
 }
@@ -95,6 +107,18 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 }
 
+.gallery-slider-modal-controls {
+    z-index: 10;
+
+    .gallery-slider-thumbnails-controls-prev {
+        left: 0;
+    }
+
+    .gallery-slider-thumbnails-controls-next {
+        right: 0;
+    }
+}
+
 .gallery-slider-thumbnails {
     &.is-underneath {
         display: flex;
@@ -131,6 +155,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
 .gallery-slider-thumbnails-image,
 .gallery-slider-image {
+    flex: 0 0 auto;
     max-height: 100%;
     max-width: 100%;
 }
@@ -140,9 +165,20 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     margin: 0;
 }
 
-@include media-breakpoint-up(sm) {
+@include media-breakpoint-down(xs) {
+    // override inline style on mobile devices
+    .gallery-slider-item {
+        &.is-cover {
+            min-height: 225px !important;
+        }
+    }
+}
+
+@include media-breakpoint-down(sm) {
     .gallery-slider-single-image {
-        height: 430px;
+        &.is-cover {
+            min-height: 225px !important;
+        }
     }
 }
 

@@ -11,7 +11,7 @@ export default class ProductSliderPlugin extends BaseSliderPlugin {
     static options = deepmerge(BaseSliderPlugin.options, {
         containerSelector: '[data-product-slider-container=true]',
         controlsSelector: '[data-product-slider-controls=true]',
-        productboxMinWidth: '300px'
+        productboxMinWidth: '300px',
     });
 
     /**

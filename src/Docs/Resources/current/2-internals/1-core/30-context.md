@@ -7,7 +7,7 @@ For example it might be important to know what language the user prefers to offe
 There are two different context classes. 
 
 [`\Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/master/src/Core/Framework/Context.php)
-  : Supplying the Management-API and foremost the Data Abstraction Layer with necessary calculation and decision making information.
+  : Supplying the Admin API and foremost the Data Abstraction Layer with necessary calculation and decision making information.
   : Containing such information as `currencyFactor` or `language`.
   
 [`\Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/master/src/Core/System/SalesChannel/SalesChannelContext.php)

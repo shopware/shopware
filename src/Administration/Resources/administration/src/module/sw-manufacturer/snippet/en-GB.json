@@ -10,17 +10,7 @@
       "textTotalManufacturer": "No manufacturers | One manufacturer | {count} manufacturers",
       "buttonAddManufacturer": "Add manufacturer",
       "columnName": "Manufacturer",
-      "columnLink": "Website",
-      "columnDescription": "Description",
-      "columnActions": "Actions",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
-      "contextMenuDuplicate": "Duplicate",
-      "modalTitleDelete": "Delete manufacturer",
-      "textDeleteConfirm": "Are you sure you want to delete the manufacturer \"{name}\"?",
-      "buttonCancel": "Cancel",
-      "buttonDelete": "Delete",
-      "titleSidebarItemRefresh": "Refresh"
+      "columnLink": "Website"
     },
     "detail": {
       "textHeadline": "New manufacturer",

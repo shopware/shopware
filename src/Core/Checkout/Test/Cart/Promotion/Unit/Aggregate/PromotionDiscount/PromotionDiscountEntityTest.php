@@ -42,4 +42,16 @@ class PromotionDiscountEntityTest extends TestCase
     {
         static::assertEquals('percentage', PromotionDiscountEntity::TYPE_PERCENTAGE);
     }
+
+    /**
+     * This test verifies that our constant for the
+     * fixed type is not touched without recognizing it.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testTypeFixed()
+    {
+        static::assertEquals('fixed', PromotionDiscountEntity::TYPE_FIXED);
+    }
 }

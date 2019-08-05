@@ -123,12 +123,13 @@ Component.register('sw-order-detail-base', {
                 'lineItems',
                 'currency',
                 'orderCustomer',
-                'salesChannel.language',
+                'language',
+                'salesChannel',
                 'addresses.country',
                 'deliveries.shippingMethod',
                 'deliveries.shippingOrderAddress',
                 'transactions.paymentMethod',
-                'documents',
+                'documents.documentType',
                 'tags'
             ]);
 

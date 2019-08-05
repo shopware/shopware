@@ -83,6 +83,11 @@ abstract class AbstractPluginLifecycleCommand extends Command
     ): ?PluginCollection {
         $io->title('Shopware Plugin Lifecycle Service');
 
+        if ($input->getOption('refresh')) {
+            $io->note('Refreshing plugin list');
+            $this->refreshPlugins();
+        }
+
         $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $lifecycleMethod, $io, $context);
 
         if ($plugins === null) {
@@ -94,11 +99,6 @@ abstract class AbstractPluginLifecycleCommand extends Command
             $io->text('Try the plugin:refresh command first, or change your search term');
 
             return $plugins;
-        }
-
-        if ($input->getOption('refresh')) {
-            $io->note('Refreshing plugin list');
-            $this->refreshPlugins();
         }
 
         $io->text(sprintf('%s %d plugin(s):', ucfirst($lifecycleMethod), \count($plugins)));
@@ -131,15 +131,20 @@ abstract class AbstractPluginLifecycleCommand extends Command
             return;
         }
 
-        $io->note(sprintf(
-            'You may want to clear the cache after %s plugin(s).'
-            . 'To do so run either the cache:clear command or ./psh.phar cache',
-            $action)
+        $io->note(
+            sprintf(
+                'You may want to clear the cache after %s plugin(s). To do so run either the cache:clear command or ./psh.phar cache',
+                $action
+            )
         );
     }
 
-    private function parsePluginArgument(array $arguments, string $lifecycleMethod, SymfonyStyle $io, Context $context): ?PluginCollection
-    {
+    private function parsePluginArgument(
+        array $arguments,
+        string $lifecycleMethod,
+        SymfonyStyle $io,
+        Context $context
+    ): ?PluginCollection {
         $plugins = array_unique($arguments);
         $filter = [];
         foreach ($plugins as $plugin) {

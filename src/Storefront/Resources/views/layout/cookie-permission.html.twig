@@ -5,8 +5,9 @@
             <div class="row align-items-center">
                 {% block layout_cookie_permission_inner_content %}
                     <div class="col cookie-permission-content">
-                        {#TODO: NEXT-2667 - add shop page link to cookie message#}
-                        {{ "cookie.message"|trans|raw }}
+                        {{ "cookie.message"|trans({
+                            '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage })
+                        })|raw }}
                     </div>
                 {% endblock %}
 
@@ -14,7 +15,7 @@
                     <div class="col-12 col-md-auto cookie-permission-button js-cookie-permission-button">
                         <button type="submit"
                                 class="btn btn-primary">
-                            {{ "cookie.accept"|trans|raw }}
+                            {{ "cookie.accept"|trans }}
                         </button>
                     </div>
                 {% endblock %}

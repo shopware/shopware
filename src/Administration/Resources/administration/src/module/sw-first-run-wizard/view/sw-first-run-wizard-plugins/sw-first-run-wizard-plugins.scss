@@ -1,6 +1,9 @@
 @import "~scss/variables";
 
 .sw-first-run-wizard-plugins {
+    height: 100%;
+    position: relative;
+
     .recommended-plugins__headline {
         font-size: $font-size-large;
         font-weight: 600;

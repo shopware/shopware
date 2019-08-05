@@ -46,7 +46,7 @@ module.exports = {
     build: {
         extend(config, { isDev }) {
             if (!isDev) {
-                config.output.publicPath = './_nuxt/';
+                config.output.publicPath = '/_nuxt/';
             }
             config.resolve.alias.src = path.resolve(__dirname, '..', 'administration/src/');
             config.resolve.alias.scss = path.resolve(__dirname, '..', 'administration/src/app/assets/scss');

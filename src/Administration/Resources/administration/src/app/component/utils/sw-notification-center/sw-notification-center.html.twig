@@ -7,7 +7,8 @@
                        :menuOffsetLeft="24"
                        :additionalContextMenuClasses="additionalContextMenuClasses"
                        @context-menu-after-open="onContextMenuOpen"
-                       @context-menu-after-close="onContextMenuClose">
+                       @context-menu-after-close="onContextMenuClose"
+                       ref="notificationCenterContextButton">
         <template #button>
             {% block sw_notification_center_context_button_button_slot %}
                 <sw-icon name="default-bell-bell" size="20px"></sw-icon>

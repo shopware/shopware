@@ -59,5 +59,8 @@ return Config::create()
         Fixer\PhpdocNoIncorrectVarAnnotationFixer::name() => true,
         Fixer\NoUnneededConcatenationFixer::name() => true,
         Fixer\NullableParamStyleFixer::name() => true,
+        'general_phpdoc_annotation_remove' => [
+            'annotations' => ['copyright', 'category'],
+        ],
     ])
     ->setFinder($finder);

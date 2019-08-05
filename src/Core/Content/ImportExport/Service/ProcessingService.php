@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Iterator\IteratorFactoryInterface;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\ShopwareHttpException;
 
 class ProcessingService
 {
@@ -43,6 +45,11 @@ class ProcessingService
     private $entityDefinitionRegistry;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @var int
      */
     private $writeBufferSize;
@@ -53,6 +60,7 @@ class ProcessingService
         iterable $iteratorFactories,
         iterable $mappers,
         DefinitionInstanceRegistry $entityDefinitionRegistry,
+        LoggerInterface $logger,
         int $writeBufferSize
     ) {
         $this->logRepository = $logRepository;
@@ -60,6 +68,7 @@ class ProcessingService
         $this->iteratorFactories = $iteratorFactories;
         $this->mappers = $mappers;
         $this->entityDefinitionRegistry = $entityDefinitionRegistry;
+        $this->logger = $logger;
         $this->writeBufferSize = $writeBufferSize;
     }
 
@@ -98,19 +107,37 @@ class ProcessingService
 
         $processed = 0;
         $lastIndex = -1;
-        foreach ($iterator as $index => $record) {
-            $writer->append($mapper->map($record, $fieldDefinitions, $entityDefinition), $index);
-            if ($index % $this->writeBufferSize === 0) {
-                $writer->flush();
-            }
-            ++$processed;
-            $lastIndex = $index;
-        }
-        $writer->flush();
 
-        if ($lastIndex >= 0 && ++$lastIndex >= $logEntity->getRecords()) {
-            $writer->finish();
-            $this->updateState($context, $logEntity->getId(), ImportExportLogEntity::STATE_SUCCEEDED);
+        try {
+            foreach ($iterator as $index => $record) {
+                $writer->append($mapper->map($record, $fieldDefinitions, $entityDefinition), $index);
+                ++$processed;
+                $lastIndex = $index;
+                if ($processed % $this->writeBufferSize === 0) {
+                    $writer->flush();
+                }
+            }
+            $writer->flush();
+
+            if (++$lastIndex >= $logEntity->getRecords()) {
+                $writer->finish();
+                $this->updateState($context, $logEntity->getId(), ImportExportLogEntity::STATE_SUCCEEDED);
+            }
+        } catch (\Exception $exception) {
+            $meta = [
+                'logId' => $logEntity->getId(),
+            ];
+
+            if ($exception instanceof ShopwareHttpException) {
+                $meta['errors'] = iterator_to_array($exception->getErrors());
+            } else {
+                $meta['exception'] = $exception;
+            }
+
+            $this->logger->error('Failed to process import/export', $meta);
+            $this->updateState($context, $logEntity->getId(), ImportExportLogEntity::STATE_FAILED);
+
+            throw $exception;
         }
 
         return $processed;

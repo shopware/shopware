@@ -1,10 +1,14 @@
-import { Component } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-import-export-progress.html.twig';
 
 Component.register('sw-import-export-progress', {
     template,
 
     inject: ['importExportService'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         log: {
@@ -13,11 +17,25 @@ Component.register('sw-import-export-progress', {
         }
     },
 
+    computed: {
+        aborted() {
+            return this.state === 'aborted';
+        },
+        failed() {
+            return this.state === 'failed';
+        },
+        progress() {
+            return this.state === 'progress';
+        },
+        succeeded() {
+            return this.state === 'succeeded';
+        }
+    },
+
     data() {
         return {
+            state: null,
             percentage: 0,
-            processing: false,
-            cancelled: false,
             downloadUrl: null
         };
     },
@@ -28,50 +46,86 @@ Component.register('sw-import-export-progress', {
 
     methods: {
         createdComponent() {
-            this.process(this.log.id, 0, this.log.records);
+            if (this.log.records > 0) {
+                this.state = 'progress';
+                this.createNotificationInfo({
+                    title: this.notificationTitle(),
+                    message: this.notificationMessage()
+                });
+                this.process(0);
+            } else {
+                this.complete();
+            }
         },
 
-        process(logId, offset, total) {
-            if (total <= 0) {
-                this.complete();
-                return;
-            }
+        process(offset) {
+            this.percentage = offset / this.log.records * 100;
+            this.importExportService.process(this.log.id, offset).then((response) => {
+                if (this.aborted || this.failed) {
+                    return;
+                }
 
-            this.percentage = offset / total * 100;
-            this.processing = true;
-            this.importExportService.process(logId, offset).then((response) => {
                 offset += response.processed;
-
-                if (!this.cancelled && offset < this.log.records) {
-                    this.process(logId, offset, total);
+                if (offset < this.log.records) {
+                    this.process(offset);
                     return;
                 }
 
                 this.complete();
             }).catch(() => {
-                this.processing = false;
-                this.onCancel();
+                this.fail();
             });
         },
 
         complete() {
             this.percentage = 100;
-            this.processing = false;
+            this.state = 'succeeded';
+            this.createNotificationSuccess({
+                title: this.notificationTitle(),
+                message: this.notificationMessage(),
+                autoClose: false
+            });
             if (this.log.activity === 'export') {
                 this.downloadUrl = this.importExportService.getDownloadUrl(this.log.file.id, this.log.file.accessToken);
             }
         },
 
+        abort() {
+            this.state = 'aborted';
+            this.createNotificationWarning({
+                title: this.notificationTitle(),
+                message: this.notificationMessage(),
+                autoClose: false
+            });
+        },
+
+        fail() {
+            this.state = 'failed';
+            this.createNotificationError({
+                title: this.notificationTitle(),
+                message: this.notificationMessage(),
+                autoClose: false
+            });
+        },
+
         closeModal() {
-            if (this.processing) {
+            if (this.progress) {
                 return;
             }
             this.$emit('modal-close');
         },
 
-        onCancel() {
-            this.cancelled = true;
+        onUserCancel() {
+            this.abort();
             this.importExportService.cancel(this.log.id);
+        },
+
+        notificationTitle() {
+            return this.$tc(`sw-import-export-progress.notificationTitle.${this.log.activity}`);
+        },
+
+        notificationMessage() {
+            return this.$tc(`sw-import-export-progress.messages.${this.state}`);
         }
     }
 });

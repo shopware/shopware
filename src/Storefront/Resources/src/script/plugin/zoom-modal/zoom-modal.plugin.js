@@ -172,24 +172,26 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _registerImageZoom() {
-        this._updateButtonState();
-        this.gallerySliderPlugin._slider.events.on('indexChanged', this._updateButtonState.bind(this));
+        this._updateImageZoom();
+        this.gallerySliderPlugin._slider.events.on('indexChanged', this._updateImageZoom.bind(this));
     }
 
     /**
-     * updates the image zoom button state
+     * updates the image zoom instance after a slider event
      *
      * @private
      */
-    _updateButtonState() {
+    _updateImageZoom() {
         const activeSlideElement = this.gallerySliderPlugin.getActiveSlideElement();
         if (!activeSlideElement) return;
         const activeImageZoomElement = activeSlideElement.querySelector(this.options.imageZoomInitSelector);
         if (!activeImageZoomElement) return;
         const imageZoomPlugin = PluginManager.getPluginInstanceFromElement(activeImageZoomElement, 'ImageZoom');
         if (!imageZoomPlugin) return;
-        imageZoomPlugin._setActionButtonState();
+
+        imageZoomPlugin.update();
     }
+
 
     /**
      * returns the current index of the parent slider

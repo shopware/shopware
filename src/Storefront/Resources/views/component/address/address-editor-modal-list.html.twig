@@ -44,8 +44,7 @@
                                                                                               method="post"
                                                                                               data-form-ajax-submit="true"
                                                                                               data-form-ajax-submit-options='{
-                                                                                                  "replaceSelectors": [ ".js-address-editor" {% if replaceSelector %}, "{{ replaceSelector }}"{% endif %}]
-                                                                                                  {% if redirectRoute %}, "redirectTo": "{{ redirectRoute }}"{% endif %}
+                                                                                                  "replaceSelectors": ".js-address-editor"
                                                                                               }'>
                                                                                             {% block component_address_address_editor_modal_list_address_action_billing_form_hidden_inputs %}
                                                                                                 <input type="hidden"
@@ -88,8 +87,7 @@
                                                                                               method="post"
                                                                                               data-form-ajax-submit="true"
                                                                                               data-form-ajax-submit-options='{
-                                                                                                  "replaceSelectors": [ ".js-address-editor" {% if replaceSelector %}, "{{ replaceSelector }}"{% endif %}]
-                                                                                                  {% if redirectRoute %}, "redirectTo": "{{ redirectRoute }}"{% endif %}
+                                                                                                  "replaceSelectors": ".js-address-editor"
                                                                                               }'>
                                                                                             {% block component_address_address_editor_modal_list_address_action_shipping_form_hidden_inputs %}
                                                                                                 <input type="hidden"

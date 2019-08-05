@@ -1,43 +1,27 @@
 /**
  * @module app/adapter/view/vue
  */
+import ViewAdapter from 'src/core/adapter/view.adapter';
+
 import Vue from 'vue';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import VuePlugins from 'src/app/plugin';
-import { ObservationApi, Component, State, Mixin } from 'src/core/shopware';
+import { Component, State, Mixin } from 'src/core/shopware';
 import EntityStore from 'src/core/data/EntityStore';
 import { warn } from 'src/core/service/utils/debug.utils';
 
-/**
- * Contains the global Vue.js components
- * @type {{}}
- */
-const vueComponents = {};
+export default class VueAdapter extends ViewAdapter {
+    /**
+     * @constructor
+     */
+    constructor({ componentFactory, stateFactory, filterFactory, directiveFactory, localeFactory }) {
+        super({ componentFactory, stateFactory, filterFactory, directiveFactory, localeFactory });
 
-/**
- * @method VueAdapter
- * @memberOf module:app/adapter/view/vue
- * @param context
- * @param componentFactory
- * @param stateFactory
- * @param filterFactory
- * @param directiveFactory
- * @param localeFactory
- * @returns {VueAdapter}
- */
-export default function VueAdapter(context, componentFactory, stateFactory, filterFactory, directiveFactory, localeFactory) {
-    return {
-        createInstance,
-        initComponents,
-        createComponent,
-        getComponent,
-        getComponents,
-        getWrapper,
-        getName
-    };
+        this.vueComponents = {};
+    }
 
     /**
      * Creates the main instance for the view layer.
@@ -49,18 +33,16 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      * @returns {Vue}
      */
-    function createInstance(renderElement, router, providers) {
-        ObservationApi.setObservationApiFunctions(Vue.set, Vue.delete);
+    init(renderElement, router, providers) {
+        this.initPlugins();
+        this.initDirectives();
+        this.initFilters();
+        this.initInheritance();
+        this.initTitle();
 
-        initPlugins();
-        initDirectives();
-        initFilters();
-        initInheritance();
-        initTitle();
-
-        const store = initStore();
-        const i18n = initLocales(store);
-        const components = getComponents();
+        const store = this.initStore();
+        const i18n = this.initLocales(store);
+        const components = this.getComponents();
 
         // Enable performance measurements in development mode
         Vue.config.performance = process.env.NODE_ENV !== 'production';
@@ -72,7 +54,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
             }
         });
 
-        return new Vue({
+        this.root = new Vue({
             el: renderElement,
             template: '<sw-admin />',
             router,
@@ -88,6 +70,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
                 return providers;
             }
         });
+
+        return this.root;
     }
 
     /**
@@ -96,14 +80,14 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      * @returns {Object}
      */
-    function initComponents() {
-        const componentRegistry = componentFactory.getComponentRegistry();
+    initComponents() {
+        const componentRegistry = this.componentFactory.getComponentRegistry();
 
         componentRegistry.forEach((component) => {
-            createComponent(component.name);
+            this.createComponent(component.name);
         });
 
-        return vueComponents;
+        return this.vueComponents;
     }
 
     /**
@@ -114,7 +98,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      * @returns {Function}
      */
-    function createComponent(componentName) {
+    createComponent(componentName) {
         const componentConfig = Component.build(componentName);
 
         if (!componentConfig) {
@@ -133,7 +117,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
         }
 
         const vueComponent = Vue.component(componentName, componentConfig);
-        vueComponents[componentName] = vueComponent;
+        this.vueComponents[componentName] = vueComponent;
 
         return vueComponent;
     }
@@ -145,12 +129,12 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      * @returns {null|Component}
      */
-    function getComponent(componentName) {
-        if (!vueComponents[componentName]) {
+    getComponent(componentName) {
+        if (!this.vueComponents[componentName]) {
             return null;
         }
 
-        return vueComponents[componentName];
+        return this.vueComponents[componentName];
     }
 
     /**
@@ -159,9 +143,53 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      * @returns {Object}
      */
-    function getComponents() {
-        return vueComponents;
+    getComponents() {
+        return this.vueComponents;
     }
+
+    /**
+     * Returns the adapter wrapper
+     *
+     * @memberOf module:app/adapter/view/vue
+     * @returns {Vue}
+     */
+    getWrapper() {
+        return Vue;
+    }
+
+    /**
+     * Returns the name of the adapter
+     *
+     * @memberOf module:app/adapter/view/vue
+     * @returns {string}
+     */
+    getName() {
+        return 'Vue.js';
+    }
+
+    /**
+     * Returns the Vue.set function
+     *
+     * @memberOf module:app/adapter/view/vue
+     * @returns {function}
+     */
+    setReactive(target, propertyName, value) {
+        return Vue.set(target, propertyName, value);
+    }
+
+    /**
+     * Returns the Vue.delete function
+     *
+     * @memberOf module:app/adapter/view/vue
+     * @returns {function}
+     */
+    deleteReactive(target, propertyName) {
+        return Vue.delete(target, propertyName);
+    }
+
+    /**
+     * Private methods
+     */
 
     /**
      * Initialises all plugins for VueJS
@@ -169,7 +197,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @private
      * @memberOf module:app/adapter/view/vue
      */
-    function initPlugins() {
+    initPlugins() {
         // Add the community plugins to the plugin list
         VuePlugins.push(Vuex, VueRouter, VueI18n, VueMeta);
         VuePlugins.forEach((plugin) => {
@@ -186,8 +214,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      * @returns {Boolean}
      */
-    function initDirectives() {
-        const registry = directiveFactory.getDirectiveRegistry();
+    initDirectives() {
+        const registry = this.directiveFactory.getDirectiveRegistry();
 
         registry.forEach((directive, name) => {
             Vue.directive(name, directive);
@@ -203,8 +231,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      * @returns {Boolean}
      */
-    function initFilters() {
-        const registry = filterFactory.getRegistry();
+    initFilters() {
+        const registry = this.filterFactory.getRegistry();
 
         registry.forEach((factoryMethod, name) => {
             Vue.filter(name, factoryMethod);
@@ -220,32 +248,14 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      * @returns {Vuex.Store}
      */
-    function initStore() {
+    initStore() {
         const store = new Vuex.Store({
-            modules: filterStateRegistry(State.getStoreRegistry()),
+            modules: this.filterStateRegistry(State.getStoreRegistry()),
             strict: false
         });
         State.registerStore('vuex', store);
 
         return store;
-    }
-
-    /**
-     * Returns only parts from state namespace that should be registered at Vuex
-     * This will become unnecessary when old data handling is removed
-     * @param registry
-     */
-    function filterStateRegistry(registry) {
-        const storeModules = {};
-        registry.forEach((value, key) => {
-            if (value instanceof EntityStore) {
-                return;
-            }
-
-            storeModules[key] = value;
-        });
-
-        return storeModules;
     }
 
     /**
@@ -255,8 +265,8 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @memberOf module:app/adapter/view/vue
      * @return {VueI18n}
      */
-    function initLocales(store) {
-        const registry = localeFactory.getLocaleRegistry();
+    initLocales(store) {
+        const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
         const systemFallbackLocale = 'en-GB';
 
@@ -265,7 +275,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
             messages[key] = localeMessages;
         });
 
-        const lastKnownLocale = localeFactory.getLastKnownLocale();
+        const lastKnownLocale = this.localeFactory.getLastKnownLocale();
         store.dispatch('setAdminLocale', lastKnownLocale);
         store.commit('setAdminFallbackLocale', systemFallbackLocale);
 
@@ -300,7 +310,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @private
      * @memberOf module:app/adapter/view/vue
      */
-    function initInheritance() {
+    initInheritance() {
         if (Vue.prototype.hasOwnProperty('$super')) {
             return;
         }
@@ -356,7 +366,7 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
      * @private
      * @memberOf module:app/adapter/view/vue
      */
-    function initTitle() {
+    initTitle() {
         if (Vue.prototype.hasOwnProperty('$createTitle')) {
             return;
         }
@@ -386,22 +396,20 @@ export default function VueAdapter(context, componentFactory, stateFactory, filt
     }
 
     /**
-     * Returns the adapter wrapper
-     *
-     * @memberOf module:app/adapter/view/vue
-     * @returns {Vue}
+     * Returns only parts from state namespace that should be registered at Vuex
+     * This will become unnecessary when old data handling is removed
+     * @param registry
      */
-    function getWrapper() {
-        return Vue;
-    }
+    filterStateRegistry(registry) {
+        const storeModules = {};
+        registry.forEach((value, key) => {
+            if (value instanceof EntityStore) {
+                return;
+            }
 
-    /**
-     * Returns the name of the adapter
-     *
-     * @memberOf module:app/adapter/view/vue
-     * @returns {string}
-     */
-    function getName() {
-        return 'Vue.js';
+            storeModules[key] = value;
+        });
+
+        return storeModules;
     }
 }

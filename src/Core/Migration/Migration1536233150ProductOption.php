@@ -24,7 +24,7 @@ class Migration1536233150ProductOption extends MigrationStep
                 REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE,
               CONSTRAINT `fk.product_option.property_group_option_id` FOREIGN KEY (`property_group_option_id`)
                 REFERENCES `property_group_option` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            );
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }
 

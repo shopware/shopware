@@ -2,7 +2,7 @@ import Plugin from 'src/script/plugin-system/plugin.class';
 import { tns } from 'tiny-slider/src/tiny-slider.module';
 import ViewportDetection from 'src/script/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/script/plugin/slider/helper/slider-settings.helper';
-import PluginManager from "src/script/plugin-system/plugin.manager";
+import PluginManager from 'src/script/plugin-system/plugin.manager';
 
 export default class BaseSliderPlugin extends Plugin {
     /**
@@ -23,7 +23,7 @@ export default class BaseSliderPlugin extends Plugin {
                 lg: {},
                 xl: {},
             },
-        }
+        },
     };
 
     init() {
@@ -154,7 +154,7 @@ export default class BaseSliderPlugin extends Plugin {
         const controlsContainer = this.el.querySelector(this.options.controlsSelector);
         const onInit = () => {
             PluginManager.initializePlugins();
-            
+
             this.$emitter.publish('initSlider');
         };
 

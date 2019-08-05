@@ -24,18 +24,18 @@
 
                 {% block element_image_gallery_inner %}
                     <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% endif %} js-gallery-zoom-modal-container"
-                        {% if zoom %}
-                            data-magnifier="true"
-                            {% if magnifierOverGallery %}
-                                data-magnifier-options='{
+                            {% if zoom %}
+                                data-magnifier="true"
+                                {% if magnifierOverGallery %}
+                                    data-magnifier-options='{
                                     "magnifierOverGallery": true,
                                     "cursorType": "crosshair"
                                 }'
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                        {% if imageCount > 1 %}
-                            data-gallery-slider="true"
-                            data-gallery-slider-options='{
+                            {% if imageCount > 1 %}
+                                data-gallery-slider="true"
+                                data-gallery-slider-options='{
                                 "slider": {
                                     "navPosition": "bottom",
                                     "speed": 500,
@@ -68,7 +68,7 @@
                                     }
                                 }
                             }'
-                        {% endif %}>
+                            {% endif %}>
 
                         {% block element_image_gallery_inner_col %}
                             <div class="gallery-slider-col{% if galleryPosition == "left" %} col order-1 order-md-2{% elseif galleryPosition == "underneath" %} col-12 order-1{% endif %}"
@@ -86,16 +86,25 @@
                                                                 {% block element_image_gallery_inner_item %}
                                                                     <div class="gallery-slider-item-container">
                                                                         <div class="gallery-slider-item is-{{ displayMode }} js-magnifier-container"{% if minHeight and  displayMode == "cover" %} style="min-height: {{ minHeight }}"{% endif %}>
+                                                                            {% set attributes = {
+                                                                                'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
+                                                                                'alt': (image.media.translated.alt ?: ''),
+                                                                                'title': (image.media.translated.title ?: ''),
+                                                                                'data-full-image': image.media.url,
+                                                                                'data-width': image.media.metaData.width,
+                                                                                'data-height': image.media.metaData.height
+                                                                            } %}
+
+                                                                            {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                                                {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                                                            {% endif %}
+
+                                                                            {% if isProduct %}
+                                                                                {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}
+                                                                            {% endif %}
+
                                                                             {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
-                                                                                media: image.media,
-                                                                                attributes: {
-                                                                                    'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
-                                                                                    'alt': (image.media.translated.alt ?: ''),
-                                                                                    'title': (image.media.translated.title ?: ''),
-                                                                                    'data-full-image': image.media.url,
-                                                                                    'data-width': image.media.metaData.width,
-                                                                                    'data-height': image.media.metaData.height
-                                                                                }
+                                                                                media: image.media
                                                                             } %}
                                                                         </div>
                                                                     </div>
@@ -132,16 +141,27 @@
                                             {% endblock %}
                                         {% else %}
                                             {% block element_image_gallery_inner_single %}
-                                                <div class="gallery-slider-single-image js-magnifier-container">
+                                                <div class="gallery-slider-single-image is-{{ displayMode }} js-magnifier-container"{% if minHeight and  displayMode == "cover" %} style="min-height: {{ minHeight }}"{% endif %}>
                                                     {% if mediaItems %}
+                                                        {% set attributes = {
+                                                            'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
+                                                            'alt': (mediaItems|first.media.translated.alt ?: ''),
+                                                            'title': (mediaItems|first.media.translated.title ?: ''),
+                                                            'data-full-image': mediaItems|first.media.url,
+                                                            'data-width': mediaItems|first.media.metaData.width,
+                                                            'data-height': mediaItems|first.media.metaData.height
+                                                        } %}
+
+                                                        {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                            {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                                        {% endif %}
+
+                                                        {% if isProduct %}
+                                                            {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}
+                                                        {% endif %}
+
                                                         {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
-                                                            media: mediaItems|first.media,
-                                                            attributes: {
-                                                                'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
-                                                                'alt': (mediaItems|first.media.translated.alt ?: ''),
-                                                                'title': (mediaItems|first.media.translated.title ?: ''),
-                                                                'data-full-image': mediaItems|first.media.url
-                                                            }
+                                                            media: mediaItems|first.media
                                                         } %}
                                                     {% else %}
                                                         {% sw_icon 'placeholder' style {
@@ -185,15 +205,20 @@
                                                             <div class="gallery-slider-thumbnails-item">
                                                                 {% block element_image_gallery_inner_thumbnails_item_inner %}
                                                                     <div class="gallery-slider-thumbnails-item-inner">
+                                                                        {% set attributes = {
+                                                                            'class': 'gallery-slider-thumbnails-image',
+                                                                            'alt': (image.media.translated.alt ?: ''),
+                                                                            'title': (image.media.translated.title ?: '')
+                                                                        } %}
+
+                                                                        {% if isProduct %}
+                                                                            {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}
+                                                                        {% endif %}
+
                                                                         {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
                                                                             media: image.media,
                                                                             sizes: {
                                                                                 'default': '200px'
-                                                                            },
-                                                                            attributes: {
-                                                                                'class': 'gallery-slider-thumbnails-image',
-                                                                                'alt': (image.media.translated.alt ?: ''),
-                                                                                'title': (image.media.translated.title ?: '')
                                                                             }
                                                                         } %}
                                                                     </div>
@@ -294,7 +319,7 @@
                                                                                                      data-image-zoom="true">
                                                                                                     {% block element_image_gallery_inner_zoom_modal_slider_item_image %}
                                                                                                         {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
-                                                                                                            media: mediaItems|first.media,
+                                                                                                            media: image.media,
                                                                                                             attributes: {
                                                                                                                 'class': 'gallery-slider-image js-image-zoom-element',
                                                                                                                 'alt': (image.media.translated.alt ?: ''),
@@ -341,6 +366,19 @@
                                                             {% if imageCount > 1 %}
                                                                 {% block element_image_gallery_inner_zoom_modal_footer %}
                                                                     <div class="modal-footer">
+                                                                        {% block element_image_gallery_inner_zoom_modal_thumbnails_controls %}
+                                                                            <div class="gallery-slider-modal-controls">
+                                                                                <div data-thumbnail-slider-controls="true" class="gallery-slider-modal-thumbnails">
+                                                                                    <button class="base-slider-controls-prev gallery-slider-thumbnails-controls-prev">
+                                                                                        {% sw_icon 'arrow-head-left' %}
+                                                                                    </button>
+                                                                                    <button class="base-slider-controls-next gallery-slider-thumbnails-controls-next">
+                                                                                        {% sw_icon 'arrow-head-right' %}
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        {% endblock %}
+                                                                        
                                                                         {% block element_image_gallery_inner_zoom_modal_thumbnails %}
                                                                             <div class="gallery-slider-thumbnails"
                                                                                  data-gallery-slider-thumbnails=true>

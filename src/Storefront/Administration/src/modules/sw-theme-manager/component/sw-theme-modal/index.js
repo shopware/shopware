@@ -38,6 +38,7 @@ Component.register('sw-theme-modal', {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia');
+            criteria.addAssociation('salesChannels');
 
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
@@ -61,8 +62,8 @@ Component.register('sw-theme-modal', {
             this.closeModal();
         },
 
-        selectItem(layout) {
-            this.selected = layout;
+        selectItem(themeId) {
+            this.selected = themeId;
         },
 
         onSearch(value) {
@@ -72,8 +73,8 @@ Component.register('sw-theme-modal', {
             this.getList();
         },
 
-        onSelection(selection) {
-            this.selected = selection;
+        onSelection(themeId) {
+            this.selected = themeId;
         },
 
         closeModal() {

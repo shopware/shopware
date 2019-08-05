@@ -6,7 +6,7 @@
         <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{% if isNested %} is-nested{% endif %}{% if isChild %} is-child{% endif %} js-cart-item">
             <div class="row cart-item-row">
                 {% block component_offcanvas_product_image %}
-                    <div class="col-3">
+                    <div class="col-auto">
                         {% block component_offcanvas_product_image_inner %}
                             <div class="cart-item-img">
                                 {% if isDiscount %}
@@ -32,7 +32,7 @@
                                                     'default': '100px'
                                                 },
                                                 attributes: {
-                                                    'class': 'img-fluid',
+                                                    'class': 'img-fluid cart-item-img-source',
                                                     'alt': lineItem.label,
                                                     'title': lineItem.label
                                                 }
@@ -67,6 +67,19 @@
                                             </div>
                                         {% endif  %}
                                     </div>
+                                {% endblock %}
+
+                                {% block component_offcanvas_product_variants %}
+                                    {% if lineItem.payload.options|length >= 1 %}
+                                        <div class="cart-item-variants">
+                                            {% for option in lineItem.payload.options %}
+                                                <div class="cart-item-variants-properties">
+                                                    <div class="cart-item-variants-properties-name">{{ option.group.translated.name }}:</div>
+                                                    <div class="cart-item-variants-properties-value">{{ option.translated.name }}</div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 {% endblock %}
 
                                 {% block component_offcanvas_product_quantity_price %}

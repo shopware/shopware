@@ -1,7 +1,6 @@
 import { Component } from 'src/core/shopware';
+import { mapState, mapGetters } from 'vuex';
 import template from './sw-product-detail-base.html.twig';
-
-const { mapState, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-product-detail-base', {
     template,

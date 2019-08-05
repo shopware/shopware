@@ -90,6 +90,7 @@ Mixin.register('theme', {
             themeDuplicate.author = parentTheme.author;
             themeDuplicate.description = parentTheme.description;
             themeDuplicate.labels = parentTheme.labels;
+            themeDuplicate.helpTexts = parentTheme.helpTexts;
             themeDuplicate.customFields = parentTheme.customFields;
             themeDuplicate.baseConfig = parentTheme.baseConfig;
             themeDuplicate.configValues = parentTheme.configValues;

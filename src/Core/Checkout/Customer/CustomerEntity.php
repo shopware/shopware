@@ -19,6 +19,9 @@ class CustomerEntity extends Entity
 {
     use EntityIdTrait;
 
+    public const ACCOUNT_TYPE_PRIVATE = 'private';
+    public const ACCOUNT_TYPE_BUSINESS = 'business';
+
     /**
      * @var string
      */

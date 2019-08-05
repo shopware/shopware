@@ -1,3 +1,21 @@
+$order-grid-gutter-width: 20px;
+
+.order-table-header,
+.order-item-header,
+.order-detail-content-header,
+.order-detail-content-footer {
+    .row {
+        margin-right: -$order-grid-gutter-width / 2;
+        margin-left: -$order-grid-gutter-width / 2;
+
+        > .col,
+        > [class*='col-'] {
+            padding-right: $order-grid-gutter-width / 2;
+            padding-left: $order-grid-gutter-width / 2;
+        }
+    }
+}
+
 .order-table-header {
     font-weight: bold;
 }
@@ -49,4 +67,16 @@
 
 .order-detail-table-footer {
     @extend .bg-light;
+}
+
+.order-price-unit {
+    font-size: $font-size-sm;
+}
+
+.order-item-variants {
+    font-size: $font-size-sm;
+}
+
+.order-item-variants-properties-name {
+    font-weight: bold;
 }

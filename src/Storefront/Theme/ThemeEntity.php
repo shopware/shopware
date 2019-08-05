@@ -38,6 +38,11 @@ class ThemeEntity extends Entity
     protected $labels;
 
     /**
+     * @var array|null
+     */
+    protected $helpTexts;
+
+    /**
      * @var string|null
      */
     protected $previewMediaId;
@@ -140,6 +145,16 @@ class ThemeEntity extends Entity
     public function setLabels(?array $labels): void
     {
         $this->labels = $labels;
+    }
+
+    public function getHelpTexts(): ?array
+    {
+        return $this->helpTexts;
+    }
+
+    public function setHelpTexts(?array $helpTexts): void
+    {
+        $this->helpTexts = $helpTexts;
     }
 
     public function getBaseConfig(): ?array

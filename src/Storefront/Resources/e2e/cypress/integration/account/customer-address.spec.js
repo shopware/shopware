@@ -5,7 +5,7 @@ describe('Account: Login as customer', () => {
         return cy.createCustomerFixture()
     });
 
-    it('Add new address and swap roles of these two addresses', () => {
+    it.skip('Add new address and swap roles of these two addresses', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 

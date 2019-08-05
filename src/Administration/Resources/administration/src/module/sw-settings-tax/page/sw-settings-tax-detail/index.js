@@ -1,13 +1,23 @@
-import { Component, State, Mixin } from 'src/core/shopware';
+import { Component, Mixin } from 'src/core/shopware';
+import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-tax-detail.html.twig';
 
 Component.register('sw-settings-tax-detail', {
     template,
 
+    inject: ['repositoryFactory', 'context'],
+
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('discard-detail-page-changes')('tax')
+        Mixin.getByName('notification')
     ],
+
+    props: {
+        taxId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
 
     data() {
         return {
@@ -28,8 +38,18 @@ Component.register('sw-settings-tax-detail', {
             return this.tax.name || '';
         },
 
-        taxStore() {
-            return State.getStore('tax');
+        taxRepository() {
+            return this.repositoryFactory.create('tax');
+        },
+
+        ...mapApiErrors('tax', ['name', 'taxRate'])
+    },
+
+    watch: {
+        taxId() {
+            if (!this.taxId) {
+                this.createdComponent();
+            }
         }
     },
 
@@ -39,24 +59,39 @@ Component.register('sw-settings-tax-detail', {
 
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
+            this.isLoading = true;
+            if (this.taxId) {
                 this.taxId = this.$route.params.id;
-                this.tax = this.taxStore.getById(this.taxId);
+                this.taxRepository.get(this.taxId, this.context).then((tax) => {
+                    this.tax = tax;
+                    this.isLoading = false;
+                });
+                return;
             }
-        },
 
-        saveFinish() {
-            this.isSaveSuccessful = false;
+            this.tax = this.taxRepository.create(this.context);
+            this.isLoading = false;
         },
 
         onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.tax.save().then(() => {
-                this.isLoading = false;
+            return this.taxRepository.save(this.tax, this.context).then(() => {
                 this.isSaveSuccessful = true;
+                if (!this.taxId) {
+                    this.$router.push({ name: 'sw.settings.tax.detail', params: { id: this.tax.id } });
+                }
+
+                this.taxRepository.get(this.tax.id, this.context).then((updatedTax) => {
+                    this.tax = updatedTax;
+                    this.isLoading = false;
+                });
             }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-tax.detail.notificationErrorTitle'),
+                    message: this.$tc('sw-settings-tax.detail.notificationErrorMessage')
+                });
                 this.isLoading = false;
             });
         }

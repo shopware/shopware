@@ -36,6 +36,24 @@ Extends the basic offcanvas component with additional cart styles.
         }
     }
 
+    .cart-item-img {
+        height: 75px;
+        width: 75px;
+    }
+
+    .cart-item-img-link {
+        align-items: center;
+        display: flex;
+        height: 100%;
+        justify-content: center;
+        width: 100%;
+
+        .cart-item-img-source {
+            flex: 0 0 auto;
+            max-height: 100%;
+        }
+    }
+
     .cart-item-details {
         margin-bottom: $spacer;
     }

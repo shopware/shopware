@@ -65,6 +65,16 @@ class ThemeController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/theme/{themeId}/reset", name="api.action.theme.reset", methods={"PATCH"})
+     */
+    public function resetTheme(string $themeId, Context $context): JsonResponse
+    {
+        $this->themeService->resetTheme($themeId, $context);
+
+        return new JsonResponse([]);
+    }
+
+    /**
      * @Route("/api/v{version}/_action/theme/{themeId}/fields", name="api.action.theme.fields", methods={"GET"})
      */
     public function fields(string $themeId, Context $context): JsonResponse

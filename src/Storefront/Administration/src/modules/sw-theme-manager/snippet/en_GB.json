@@ -6,7 +6,9 @@
       "descriptionTextModule": "Manage themes here.",
       "mainMenuHeader": "Your Themes",
       "captionMediaUpload": "Upload an image",
-      "lockedToolTip": "Themes installed via plugin are locked and can not be deleted"
+      "lockedToolTip": "Themes installed via plugin are locked and can not be deleted",
+      "titleError": "Error",
+      "messageSaveError": "Theme could not be assigned to the sales channel"
     },
     "sorting": {
       "labelSort": "Sort by:",
@@ -42,7 +44,8 @@
       "placeholderRenameThemeName": "Enter name",
       "buttonRenameTheme": "Save",
       "modalTitleReset": "Reset theme",
-      "modalTextResetConfirm": "Are you sure you want to reset the current changes",
+      "modalTextResetInfo": "Are you sure you want to reset the theme to the default settings?",
+      "modalTextResetAssigned": "This will change the visualization of your shop.",
       "buttonSave": "Save",
       "modalTitleSave": "Save theme",
       "textSaveInfo": "Do you really want to save the changes? This will change the visualization of your shop."
@@ -61,7 +64,7 @@
       "delete": "Delete",
       "duplicate": "Create duplicate",
       "useImageAs": "Use image as",
-      "buttonReset": "Reset changes",
+      "buttonReset": "Reset to default",
       "buttonCancel": "Cancel",
       "buttonUseTheme": "Use Theme",
       "deleteDisablesToolTip": "Theme is still assigned to Saleschannels"

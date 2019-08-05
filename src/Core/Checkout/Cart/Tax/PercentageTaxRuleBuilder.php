@@ -15,10 +15,15 @@ class PercentageTaxRuleBuilder
 
         /** @var CalculatedTax $tax */
         foreach ($price->getCalculatedTaxes() as $tax) {
+            $percentage = 0;
+            if ($price->getTotalPrice() > 0) {
+                $percentage = $tax->getPrice() / $price->getTotalPrice() * 100;
+            }
+
             $rules->add(
                 new TaxRule(
                     $tax->getTaxRate(),
-                    $tax->getPrice() / $price->getTotalPrice() * 100
+                    $percentage
                 )
             );
         }

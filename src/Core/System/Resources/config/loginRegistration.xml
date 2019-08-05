@@ -58,6 +58,12 @@
         </input-field>
 
         <input-field type="bool">
+            <name>showAccountTypeSelection</name>
+            <label>Show selection between company and customer account</label>
+            <label lang="de-DE">Auswahl zwischen Firmen- und Kundenkonto anzeigen</label>
+        </input-field>
+
+        <input-field type="bool">
             <name>showAdditionalAddressField1</name>
             <label>Show additional address field 1</label>
             <label lang="de-DE">Adresszusatzzeile 1 anzeigen</label>

@@ -21,6 +21,8 @@ GitHub mirror:
               git checkout $branch
               git push github $branch -f
             done
+        - echo "Mirroring tags"
+        - git push github --tags
 
 Repository Split:
     stage: Deploy

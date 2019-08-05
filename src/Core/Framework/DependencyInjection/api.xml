@@ -175,7 +175,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\ScopeRepository"/>
             <argument type="service" id="shopware.private_key"/>
-            <argument>wDTnGpRDScEiY/6F+nfMyKnQFyMHwWPm+K7uMuOFU88=</argument>
+            <argument>%env(APP_SECRET)%</argument>
         </service>
 
         <service class="League\OAuth2\Server\ResourceServer" id="shopware.api.resource_server">

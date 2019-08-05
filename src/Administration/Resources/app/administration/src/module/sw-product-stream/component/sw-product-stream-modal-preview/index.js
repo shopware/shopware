@@ -1,35 +1,71 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Context } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-stream-modal-preview', {
     template,
 
-    mixins: [
-        Mixin.getByName('listing')
-    ],
+    inject: ['repositoryFactory'],
+
     props: {
-        associationStore: {
-            type: Object,
+        filters: {
+            type: Array,
             required: true
         }
     },
     data() {
         return {
             products: [],
-            criteria: '',
+            systemCurrency: null,
+            criteria: null,
+            searchTerm: '',
+            page: 1,
             total: false,
-            isLoading: false,
-            disableRouteParams: true
+            limit: 25,
+            isLoading: false
         };
     },
+
     computed: {
-        productStore() {
-            return StateDeprecated.getStore('product');
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
+        currencyRepository() {
+            return this.repositoryFactory.create('currency');
+        },
+
+        productColumns() {
+            return [
+                {
+                    property: 'name',
+                    label: this.$tc('sw-product-stream.filter.values.product'),
+                    type: 'text',
+                    routerLink: 'sw.product.detail'
+                }, {
+                    property: 'manufacturer.name',
+                    label: this.$tc('sw-product-stream.filter.values.manufacturer')
+
+                }, {
+                    property: 'active',
+                    label: this.$tc('sw-product-stream.filter.values.active'),
+                    align: 'center',
+                    type: 'bool'
+                }, {
+                    property: 'price',
+                    label: this.$tc('sw-product-stream.filter.values.price')
+
+                }, {
+                    property: 'stock',
+                    label: this.$tc('sw-product-stream.filter.values.stock'),
+                    align: 'right'
+                }
+            ];
         }
     },
+
     filters: {
         stockColorVariant(value) {
             if (value > 25) {
@@ -42,105 +78,83 @@ Component.register('sw-product-stream-modal-preview', {
             return 'error';
         }
     },
+
+    watch: {
+        searchTerm() {
+            this.page = 1;
+            this.isLoading = true;
+            this.loadEntityData()
+                .then(() => {
+                    this.isLoading = false;
+                });
+        }
+    },
+
     created() {
         this.createdComponent();
     },
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
+
     methods: {
         createdComponent() {
-            this.getList();
-        },
-        beforeDestroyComponent() {
-            this.$emit('destroy');
-        },
-        getList() {
             this.isLoading = true;
-            if (!this.criteria) {
-                this.buildCriteria();
-            }
-            const params = this.getListingParams();
-            params.term = this.searchTerm;
-            params.criteria = this.criteria;
 
-            this.products = [];
+            return this.loadSystemCurrency()
+                .then(this.loadEntityData())
+                .then(() => {
+                    this.isLoading = false;
+                });
+        },
 
-            return this.productStore.getList(params).then((response) => {
-                this.total = response.total;
-                this.products = response.items;
-                this.isLoading = false;
-                return this.products;
-            }).catch(() => {
-                this.total = 0;
-                this.products = [];
-                this.isLoading = false;
+        loadEntityData() {
+            const criteria = new Criteria(this.page, this.limit);
+            criteria.term = this.searchTerm || null;
+            criteria.filters = this.mapFiltersForSearch(this.filters);
+            criteria.addAssociation('manufacturer');
+
+            return this.productRepository.search(criteria, Context.api).then((products) => {
+                this.products = products;
+                this.total = products.total;
+                this.criteria = products.criteria;
             });
         },
-        buildCriteria() {
-            if (this.associationStore.store) {
-                const defaultContainer = Object.values(this.associationStore.store).find(
-                    (filter) => {
-                        return !filter.parentId && filter.type === 'multi' && filter.operator === 'OR';
-                    }
-                );
-                this.criteria = this.handleFilter(defaultContainer);
-            }
+
+        loadSystemCurrency() {
+            return this.currencyRepository
+                .get(Shopware.Context.app.systemCurrencyId, Context.api)
+                .then((systemCurrency) => {
+                    this.systemCurrency = systemCurrency;
+                });
         },
-        handleFilter(filter) {
-            if (filter.isDeleted) {
-                return null;
-            }
-            if (filter.type === 'multi' || filter.type === 'not') {
-                return this.buildMultiFilter(filter.operator, filter.queries, filter.type);
-            }
-            if (filter.type === 'range') {
-                return CriteriaFactory.range(filter.field, filter.parameters);
-            }
-            if (filter.type === 'equals') {
-                return CriteriaFactory.equals(filter.field, filter.value);
-            }
-            if (filter.type === 'equalsAny') {
-                return CriteriaFactory.equalsAny(filter.field, filter.value.split('|'));
-            }
-            if (filter.type === 'contains') {
-                return CriteriaFactory.contains(filter.field, filter.value);
-            }
-            return null;
-        },
-        buildMultiFilter(operator, filters, type) {
-            if ((!operator && type !== 'not') || filters.length === 0) {
-                return null;
-            }
-            const handledFilters = [];
-            filters.forEach((filter) => {
-                const handledFilter = this.handleFilter(filter);
-                if (!handledFilter) {
-                    return;
-                }
-                handledFilters.push(handledFilter);
+
+        mapFiltersForSearch(filters) {
+            return filters.map((condition) => {
+                const { field, type, operator, value, parameters, queries } = condition;
+                const mappedQueries = this.mapFiltersForSearch(queries);
+
+                return { field, type, operator, value, parameters, queries: mappedQueries };
             });
-            if (type === 'not') {
-                return CriteriaFactory.not(operator || 'AND', ...handledFilters);
-            }
-            return CriteriaFactory.multi(operator, ...handledFilters);
         },
+
         closeModal() {
-            this.$emit('close');
-        },
-        searchTermChanged(term) {
-            this.searchTerm = String(term);
-            this.page = 1;
-            this.getList();
+            this.$emit('modal-close');
         },
 
-        getPriceOfDefaultCurrency(price) {
-            // TODO: Refactor without hardcoded string when the module get refactored
-            const foundPrice = price.find((item) => {
-                return item.currencyId === 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
+        getPriceForDefaultCurrency(product, currency) {
+            return product.price.find((productPrice) => {
+                return productPrice.currencyId === currency.id;
             });
+        },
 
-            return foundPrice || null;
+        onPageChange({ page = 1, limit = 25 }) {
+            this.isLoading = true;
+
+            this.page = page;
+            this.limit = limit;
+
+            this.loadEntityData()
+                .then(() => {
+                    this.isLoading = false;
+                });
         }
     }
 });

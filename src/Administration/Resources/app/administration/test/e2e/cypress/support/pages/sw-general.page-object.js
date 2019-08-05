@@ -50,7 +50,8 @@ export default class GeneralPageObject {
             ruleFieldCondition: '.field--condition',
             orSpacer: '.condition-content__spacer--or',
             andSpacer: '.condition-content__spacer--and',
-            baseCondition: '.sw-condition-base'
+            baseCondition: '.sw-condition-base',
+            productStreamFilter: '.sw-product-stream-filter'
         };
     }
 }

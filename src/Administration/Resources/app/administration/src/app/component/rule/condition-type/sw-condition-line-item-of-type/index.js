@@ -1,7 +1,7 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-line-item-of-type.html.twig';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -13,9 +13,12 @@ const { Component } = Shopware;
  */
 Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
 
     computed: {
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('string');
+        },
+
         lineItemTypes() {
             return [
                 {
@@ -28,16 +31,22 @@ Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
                 }
             ];
         },
-        lineItemTypeStore() {
-            return new LocalStore(this.lineItemTypes, 'value');
+
+        lineItemType: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.lineItemType;
+            },
+            set(lineItemType) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, lineItemType };
+            }
         },
-        fieldNames() {
-            return ['operator', 'lineItemType'];
-        },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.equals.identifier
-            };
+
+        ...mapApiErrors('condition', ['value.operator', 'value.lineItemType']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueLineItemTypeError;
         }
     }
 });

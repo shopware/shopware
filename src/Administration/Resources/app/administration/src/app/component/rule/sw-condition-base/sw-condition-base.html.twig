@@ -1,77 +1,48 @@
 {% block sw_condition_base %}
-<div class="sw-condition-base" :class="[conditionClass, hasErrorsClass, isApiCLass]">
-    {% block sw_condition_base_before_container %}{% endblock %}
-    <div class="sw-condition-base__container">
-        {% block sw_condition_base_field_condition %}
-            <sw-select :id="createId()"
-                       itemValueKey="type"
-                       displayName="label"
-                       :store="conditionStore"
-                       v-model="condition.type"
-                       :placeholder="$tc('global.sw-condition.condition.placeholder')"
-                       :previewResultsLimit="500"
-                       :required="true"
-                       class="field--condition"
-                       sortField="translated.label"
-                       sortDirection="ASC"
-                       :title="$tc(getLabel(condition.type))"
-                       @input="conditionChanged">
-            </sw-select>
-        {% endblock %}
+    <div class="sw-condition">
+        {% block sw_condition_base_content %}
+            <div class="sw-condition__container" :class="conditionClasses">
+                {% block sw_condition_base_field_condition %}
+                    <sw-condition-type-select v-bind="{ condition, availableTypes, hasError }">
+                    </sw-condition-type-select>
+                {% endblock %}
 
-        {% block sw_condition_base_fields %}
-            <slot name="condition-fields">
-                <sw-field type="text" class="field--main" size="medium"
-                          :placeholder="$tc('global.sw-condition.condition.placeholder-warning')"
-                          :disabled="true">
-                </sw-field>
-            </slot>
-        {% endblock %}
+                {% block sw_condition_value_content %}
+                    <sw-text-field
+                        class="sw-condition__placeholder"
+                        size="medium"
+                        :placeholder="$tc('global.sw-condition.condition.placeholder-warning')"
+                        disabled>
+                    </sw-text-field>
+                {% endblock %}
 
-        {% block sw_condition_base_field_before_actions %}{% endblock %}
-        {% block sw_condition_base_field_actions %}
-            <div class="field--actions"
-                 :class="{'is--disabled' : isApi()}">
-                <sw-context-button :disabled="isApi()">
-                    <template slot="button">
-                        <button class="sw-context-button__button">
-                            <sw-icon name="small-more" decorative></sw-icon>
-                        </button>
-                    </template>
-                    <sw-context-menu-item class="sw-condition-base__create-before-action" @click="$emit('create-before', condition)">
-                        {{ $tc('global.sw-condition.condition.createBefore') }}
-                    </sw-context-menu-item>
-                    <sw-context-menu-item class="sw-condition-base__create-after-action" @click="$emit('create-after', condition)">
-                        {{ $tc('global.sw-condition.condition.createAfter') }}
-                    </sw-context-menu-item>
-                    <sw-context-menu-item @click="deleteCondition"
-                                          :disabled="parentDisabledDelete"
-                                          variant="danger">
-                        {{ $tc('global.default.delete') }}
-                    </sw-context-menu-item>
-                </sw-context-button>
+                {% block sw_condition_base_field_actions %}
+                    <sw-context-button class="sw-condition__context-button">
+                        {% block sw_condition_base_field_create_before_action %}
+                        <sw-context-menu-item class="sw-condition__create-before-action" @click="onCreateBefore">
+                            {{ $tc('global.sw-condition.condition.createBefore') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_condition_base_field_create_after_action %}
+                        <sw-context-menu-item class="sw-condition__create-after-action" @click="onCreateAfter">
+                            {{ $tc('global.sw-condition.condition.createAfter') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_condition_base_field_delete_action %}
+                        <sw-context-menu-item @click="onDeleteCondition"
+                                              variant="danger">
+                            {{ $tc('global.default.delete') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+                    </sw-context-button>
+                {% endblock %}
             </div>
+        {% endblock %}
+
+        {% block sw_condition_base_error %}
+            <sw-field-error :error="currentError"></sw-field-error>
         {% endblock %}
     </div>
-    {% block sw_condition_base_errors %}
-        <div v-if="hasErrors" class="sw-condition-base__error-container">
-            {# TODO: Error Handling must be fixed NEXT-3271 #}
-{#            <div v-for="(error, fieldName) in formErrors">#}
-{#                <span v-if="error.detail">#}
-{#                    {{ error.detail }}#}
-{#                </span>#}
-{#            </div>#}
-            <div v-for="error in condition.errors">
-                <template v-if="error.id === 'clientValidationError'">
-                    <span v-if="error.type === 'placeholder'">
-                        {{ $tc('global.sw-condition.placeholderErrorMessage') }}
-                    </span>
-                    <span v-else-if="error.type === 'data'">
-                        {{ $tc('global.sw-condition.dataErrorMessage') }}
-                    </span>
-                </template>
-            </div>
-        </div>
-    {% endblock %}
-</div>
 {% endblock %}

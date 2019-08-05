@@ -2,7 +2,8 @@
   "global": {
     "error-codes": {
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
-      "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen."
+      "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen.",
+      "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen."
     },
     "default": {
       "add": "Hinzufügen",
@@ -12,7 +13,9 @@
       "edit": "Bearbeiten",
       "error": "Fehler",
       "save": "Speichern",
-      "success": "Erfolg"
+      "success": "Erfolg",
+      "yes": "Ja",
+      "no": "Nein"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -347,7 +350,10 @@
       "typeLabelCms": "CMS"
     },
     "sw-search-more-results": {
-      "labelShowResultsInModule": "Ergebnisse im Modul anzeigen({count})"
+        "labelShowResultsInModule": "Ergebnisse im Modul anzeigen({count})"
+    },
+    "sw-tagged-field": {
+      "text-default-placeholder": "Enter Taste benutzen um die Werte einzufügen."
     },
     "sw-condition": {
       "operator": {
@@ -362,9 +368,6 @@
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
-      "tag": {
-        "placeholder": "Enter Taste benutzen um die Werte einzufügen."
-      },
       "condition": {
         "dateRangeRule": {
           "label":  "Datumsbereich",
@@ -388,8 +391,8 @@
         "shippingStreetRule": "Lieferstraße",
         "shippingZipCodeRule": "Lieferadresse-PLZ",
         "cartAmountRule": "Warenkorbwert",
-        "goodsCountRule": "Anzahl Warenkorb-Güter",
-        "goodsPriceRule": "Preis Warenkorb-Güter",
+        "goodsCountRule": "Anzahl Warenkorbgüter",
+        "goodsPriceRule": "Preis Warenkorbgüter",
         "lineItemOfTypeRule": {
           "label": "Position des Typs",
           "product": "Produkt",
@@ -619,7 +622,7 @@
     "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten."
   },
   "sw-select-rule-create": {
-    "addNewRule": "Neue Regel erstellen"
+    "addNewRule": "Neue Regel erstellen..."
   },
   "sw-shortcut-overview": {
     "title": "Tastenkürzel",

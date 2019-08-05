@@ -17,29 +17,24 @@
         "valid": "Valid",
         "invalid": "Invalid"
       },
-      "contextMenuEdit": "Edit",
-      "contextMenuDuplicate": "Duplicate",
-      "contextMenuDelete": "Delete",
-      "messageEmpty": "No dynamic product groups yet",
-      "modalTitleDelete": "Delete dynamic product groups",
-      "textDeleteConfirm": "Are you sure you want to delete the dynamic product group \"{name}\"?",
-      "buttonCancel": "Cancel",
-      "buttonDelete": "Delete"
+      "messageEmpty": "No dynamic product groups yet"
     },
     "filter": {
+      "placeholderFieldSelect": "Choose a property",
+      "placeholderOperatorSelect": "Choose an operator",
       "valid": "Show valid dynamic product groups only",
       "type": {
-      "equals": "Is equal to",
-      "equalsAny": "Is equal to any of",
-      "contains": "Contains",
-      "greaterThan": "Is greater than",
-      "lessThan": "Is less than",
-      "greaterThanEquals": "Is greater than/equal to",
-      "lessThanEquals": "Is less than/equal to",
-      "notEquals": "Is not equal to",
-      "notEqualsAny": "Is not equal to any of",
-      "notContains": "Does not contain",
-      "range": "Range"
+        "equals": "Is equal to",
+        "equalsAny": "Is equal to any of",
+        "contains": "Contains",
+        "greaterThan": "Is greater than",
+        "lessThan": "Is less than",
+        "greaterThanEquals": "Is greater than/equal to",
+        "lessThanEquals": "Is less than/equal to",
+        "notEquals": "Is not equal to",
+        "notEqualsAny": "Is not equal to any of",
+        "notContains": "Does not contain",
+        "range": "Range"
       },
     "values": {
       "active": "Active",

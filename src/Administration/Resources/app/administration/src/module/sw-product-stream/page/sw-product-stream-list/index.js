@@ -7,7 +7,9 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-stream-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory'
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -38,7 +40,7 @@ Component.register('sw-product-stream-list', {
 
     methods: {
         onInlineEditSave(promise, productStream) {
-            promise.then(() => {
+            return promise.then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-product-stream.detail.titleSaveSuccess'),
                     message: this.$tc('sw-product-stream.detail.messageSaveSuccess', 0, { name: productStream.name })
@@ -52,12 +54,8 @@ Component.register('sw-product-stream-list', {
             });
         },
 
-        onInlineEditCancel(productStream) {
-            productStream.discardChanges();
-        },
-
         onChangeLanguage() {
-            this.getList();
+            return this.getList();
         },
 
         getList() {
@@ -67,7 +65,7 @@ Component.register('sw-product-stream-list', {
             const naturalSort = this.sortBy === 'createdAt';
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, naturalSort));
 
-            this.productStreamRepository.search(criteria, Shopware.Context.api).then((items) => {
+            return this.productStreamRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.productStreams = items;
                 this.isLoading = false;
@@ -75,35 +73,6 @@ Component.register('sw-product-stream-list', {
                 return items;
             }).catch(() => {
                 this.isLoading = false;
-            });
-        },
-
-        onDelete(id) {
-            this.showDeleteModal = id;
-        },
-
-        onCloseDeleteModal() {
-            this.showDeleteModal = false;
-        },
-
-        onConfirmDelete(id) {
-            this.showDeleteModal = false;
-
-            return this.productStreamRepository.delete(id, Shopware.Context.api).then(() => {
-                this.getList();
-            });
-        },
-
-        onDuplicate(id) {
-            const productStream = this.productStreamStore.getById(id);
-            productStream.getAssociation('filters').getList().then(() => {
-                const duplicatedEntity = this.productStreamStore.duplicate(id, true);
-                this.$router.push(
-                    {
-                        name: 'sw.product.stream.detail',
-                        params: { id: duplicatedEntity.id }
-                    }
-                );
             });
         },
 

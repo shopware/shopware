@@ -1,9 +1,9 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-settings-shipping-price-matrix.html.twig';
 import './sw-settings-shipping-price-matrix.scss';
 
 const { Component, Mixin, StateDeprecated } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-shipping-price-matrix', {
     template,
@@ -114,16 +114,24 @@ Component.register('sw-settings-shipping-price-matrix', {
             return Object.values(this.priceRuleGroups).some((priceGroup) => {
                 return !priceGroup.ruleId;
             });
+        },
+
+        ruleFilter() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.multi(
+                'OR',
+                [
+                    Criteria.contains('rule.moduleTypes.types', 'price'),
+                    Criteria.equals('rule.moduleTypes', null)
+                ]
+            ));
+
+            return criteria;
         }
     },
 
     data() {
         return {
-            ruleFilter: CriteriaFactory.multi(
-                'OR',
-                CriteriaFactory.contains('rule.moduleTypes.types', 'price'),
-                CriteriaFactory.equals('rule.moduleTypes', null)
-            ),
             propertyStore: new LocalStore([
                 { name: this.$tc('sw-settings-shipping.priceMatrix.calculationLineItemCount'), value: 1 },
                 { name: this.$tc('sw-settings-shipping.priceMatrix.calculationPrice'), value: 2 },

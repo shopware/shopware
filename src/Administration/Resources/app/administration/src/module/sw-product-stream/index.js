@@ -1,6 +1,7 @@
 import './page/sw-product-stream-list';
 import './page/sw-product-stream-detail';
-import './page/sw-product-stream-create';
+import './component/sw-product-stream-field-select';
+import './component/sw-product-stream-value';
 import './component/sw-product-stream-modal-preview';
 import './component/sw-product-stream-filter';
 
@@ -34,7 +35,7 @@ Module.register('sw-product-stream', {
             path: 'index'
         },
         create: {
-            component: 'sw-product-stream-create',
+            component: 'sw-product-stream-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.product.stream.index'
@@ -45,6 +46,11 @@ Module.register('sw-product-stream', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.product.stream.index'
+            },
+            props: {
+                default(route) {
+                    return { productStreamId: route.params.id };
+                }
             }
         }
     },

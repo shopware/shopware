@@ -1,6 +1,7 @@
 import template from './sw-condition-line-item-unit-price.html.twig';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -12,16 +13,27 @@ const { Component } = Shopware;
  */
 Component.extend('sw-condition-line-item-unit-price', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        fieldNames() {
-            return ['operator', 'amount'];
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('number');
         },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.equals.identifier
-            };
+
+        amount: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.amount;
+            },
+            set(amount) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, amount };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.amount']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueAmountError;
         }
     }
 });

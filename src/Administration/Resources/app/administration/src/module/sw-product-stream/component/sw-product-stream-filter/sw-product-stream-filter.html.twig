@@ -1,178 +1,59 @@
-{% block sw_condition_base_field_condition %}
-{% endblock %}
+{% block sw_condition_base %}
+    {% block sw_product_stream_filter %}
+        <div class="sw-product-stream-filter" :class="conditionClasses">
+            {% block sw_product_stream_filter_container %}
+                <div class="sw-product-stream-filter__container">
+                    {% block sw_product_stream_filter_selects %}
+                        <div class="sw-product-stream-filter__selects">
+                            {% block sw_product_stream_filter_fields %}
+                                <template v-for="(definition, index) in fieldDefinitions">
+                                    {% block sw_product_stream_filter_field_select %}
+                                        <sw-product-stream-field-select
+                                            v-bind="{ field: fields[index], definition, index }"
+                                            @field-changed="updateFields">
+                                        </sw-product-stream-field-select>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
 
-{% block sw_condition_base_fields %}
-    {% block sw_product_stream_filter_field_select %}
-        <template v-if="!isApi()">
-            <sw-select v-for="definition, index in definitions"
-                       :key="index"
-                       :store="getDefinitionStore(definition)"
-                       v-model="fields[index].name"
-                       itemValueKey="name"
-                       displayName="label"
-                       :id="createId()"
-                       :previewResultsLimit="500"
-                       class="field--condition"
-                       :class="{ 'field--not-last' : (index!=(definitions.length-1)) }"
-                       required
-                       @input="selectFilter(index, $event)">
-            </sw-select>
-        </template>
-        <template v-else>
-            <div v-for="field, index in conditionFieldPath"
-                 :class="{ 'field--not-last' : (index!=(conditionFieldPath.length-1)) }"
-                 class="field--condition condition--api">
-                <div class="condition--api-value">{{ field }}</div>
-            </div>
-        </template>
-    {% endblock %}
-
-    {% block sw_product_stream_filter_type_select %}
-        <sw-select v-if="lastField.type !== 'boolean'"
-                   :store="getTypeStore()"
-                   v-model="type"
-                   :id="createId()"
-                   itemValueKey="type"
-                   displayName="name"
-                   :criteria="typeCriteria"
-                   required
-                   :disabled="isApi()"
-                   class="field--operator has--arrow"
-                   @input="selectType">
-        </sw-select>
-    {% endblock %}
-
-    {% block sw_product_stream_filter_single_value %}
-        <sw-select v-if="lastField.name === 'id' && isEquals(actualCondition.type)"
-                   :store="getStore(definition.name)"
-                   :id="createId()"
-                   class="field--main"
-                   required
-                   v-model="actualCondition.value">
-        </sw-select>
-    {% endblock %}
-
-    {% block sw_product_stream_filter_multi_value %}
-        <sw-condition-value v-else-if="lastField.name === 'id' && isEqualsAny(actualCondition.type)"
-                            multi
-                            size="small"
-                            :store="getStore(definition.name)"
-                            :id="createId()"
-                            class="field--main"
-                            v-model="multiValues"
-                            required
-                            @input="updateMultiValue">
-        </sw-condition-value>
-    {% endblock %}
-
-    {% block sw_product_stream_filter_multi_tagged_value %}
-        <sw-tagged-field v-else-if="isEqualsAny(actualCondition.type)"
-                         v-model="multiValues"
-                         class="field--main"
-                         :disabled="isApi()"
-                         @input="updateTaggedValue">
-        </sw-tagged-field>
-    {% endblock %}
-
-    {% block sw_product_stream_filter_range %}
-        <template v-else-if="isTypeRange()">
-            {% block sw_product_stream_filter_less_than_field %}
-                <sw-field v-if="isTypeLower()"
-                          :type="isDateTime() ? 'date' : 'number'"
-                          dateType="datetime"
-                          class="field--main"
-                          size="medium"
-                          v-model="actualCondition.parameters.lt"
-                          :disabled="isApi()"
-                          :placeholder="$tc('global.sw-condition.operator.lessThan')">
-                </sw-field>
-            {% endblock %}
-
-            {% block sw_product_stream_filter_greater_than_field %}
-                <sw-field v-else-if="isTypeGreater()"
-                          :type="isDateTime() ? 'date' : 'number'"
-                          dateType="datetime"
-                          class="field--main"
-                          size="medium"
-                          v-model="actualCondition.parameters.gt"
-                          :disabled="isApi()"
-                          :placeholder="$tc('global.sw-condition.operator.greaterThan')">
-                </sw-field>
-            {% endblock %}
-
-            {% block sw_product_stream_filter_less_than_equals_field %}
-                <sw-field v-else-if="isTypeLowerEquals()"
-                          :type="isDateTime() ? 'date' : 'number'"
-                          dateType="datetime"
-                          class="field--main"
-                          size="medium"
-                          v-model="actualCondition.parameters.lte"
-                          :disabled="isApi()"
-                          :placeholder="$tc('global.sw-condition.operator.lessThanEquals')">
-                </sw-field>
-            {% endblock %}
-
-            {% block sw_product_stream_filter_greater_than_equals_field %}
-                <sw-field v-else-if="isTypeGreaterEquals()"
-                          :type="isDateTime() ? 'date' : 'number'"
-                          dateType="datetime"
-                          class="field--main"
-                          size="medium"
-                          v-model="actualCondition.parameters.gte"
-                          :disabled="isApi()"
-                          :placeholder="$tc('global.sw-condition.operator.greaterThanEquals')">
-                </sw-field>
-            {% endblock %}
-
-            {% block sw_product_stream_filter_range_fields %}
-                <template v-else>
-                    {% block sw_product_stream_filter_range_field_gte %}
-                        <sw-field :type="isDateTime() ? 'date' : 'number'"
-                                  dateType="datetime"
-                                  class="field--main has--arrow"
-                                  size="medium"
-                                  v-model="actualCondition.parameters.gte"
-                                  :disabled="isApi()"
-                                  :placeholder="$tc('sw-product-stream.filter.type.greaterThanEquals')">
-                        </sw-field>
+                            {% block sw_product_stream_filter_value %}
+                                <sw-product-stream-value
+                                    v-bind="{ condition, ...lastField }"
+                                    @type-change="changeType">
+                                </sw-product-stream-value>
+                            {% endblock %}
+                        </div>
                     {% endblock %}
-                    {% block sw_product_stream_filter_range_field_lte %}
-                        <sw-field :type="isDateTime() ? 'date' : 'number'"
-                                  dateType="datetime"
-                                  class="field--main"
-                                  size="medium"
-                                  v-model="actualCondition.parameters.lte"
-                                  :disabled="isApi()"
-                                  :placeholder="$tc('sw-product-stream.filter.type.lessThanEquals')">
-                        </sw-field>
+
+
+                    {% block sw_product_stream_filter_field_actions %}
+                        <sw-context-button class="sw-product-stream-filter__context-button">
+                            {% block sw_product_stream_filter_field_create_before_action %}
+                                <sw-context-menu-item class="sw-product-stream-filter__create-before-action" @click="onCreateBefore">
+                                    {{ $tc('global.sw-condition.condition.createBefore') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_product_stream_filter_field_create_after_action %}
+                                <sw-context-menu-item class="sw-product-stream-filter__create-after-action" @click="onCreateAfter">
+                                    {{ $tc('global.sw-condition.condition.createAfter') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_product_stream_filter_field_delete_action %}
+                                <sw-context-menu-item @click="onDeleteCondition"
+                                                      variant="danger">
+                                    {{ $tc('global.default.delete') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+                        </sw-context-button>
                     {% endblock %}
-                </template>
+                </div>
             {% endblock %}
-        </template>
-    {% endblock %}
 
-    {% block sw_product_stream_filter_boolean %}
-        <sw-select v-else-if="lastField.type === 'boolean'"
-                   :store="selectValues"
-                   :id="createId()"
-                   itemValueKey="value"
-                   displayName="label"
-                   :required="true"
-                   required
-                   class="field--main"
-                   :disabled="isApi()"
-                   v-model="actualCondition.value">
-        </sw-select>
-    {% endblock %}
-
-    {% block sw_product_stream_filter_type_field %}
-        <sw-field v-else
-                  :type="getValueFieldByType(lastField.type)"
-                  dateType="datetime"
-                  class="field--main"
-                  size="medium"
-                  :disabled="isApi()"
-                  v-model="filterValue">
-        </sw-field>
+            {% block sw_product_stream_filter_error %}
+                <sw-field-error :error="currentError"></sw-field-error>
+            {% endblock %}
+        </div>
     {% endblock %}
 {% endblock %}

@@ -1,6 +1,7 @@
 import template from './sw-condition-billing-customer-number.html.twig';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -12,16 +13,27 @@ const { Component } = Shopware;
  */
 Component.extend('sw-condition-customer-number', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
 
     computed: {
-        fieldNames() {
-            return ['operator', 'numbers'];
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('multiStore');
         },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
-            };
+
+        customerNumbers: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.numbers || [];
+            },
+            set(numbers) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, numbers };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.numbers']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueNumbersError;
         }
     }
 });

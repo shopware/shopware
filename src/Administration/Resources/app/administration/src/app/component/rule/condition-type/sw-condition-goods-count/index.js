@@ -2,6 +2,7 @@ import template from './sw-condition-goods-count.html.twig';
 import './sw-condition-goods-count.scss';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -13,40 +14,33 @@ const { Component } = Shopware;
  */
 Component.extend('sw-condition-goods-count', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
 
-    computed: {
-        fieldNames() {
-            return ['operator', 'count'];
-        },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.equals.identifier
-            };
-        },
-        conditionClass() {
-            return 'sw-condition-goods-count';
-        }
-    },
-
-    // TODO: extract data, methods and template (see sw-condition-goods-price)
-    // Wait for extending an extended component
     data() {
         return {
             showFilterModal: false
         };
     },
 
-    methods: {
-        deleteCondition() {
-            this.deleteChildren(this.condition.children);
-
-            this.$super('deleteCondition');
+    computed: {
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('number');
         },
-        deleteChildren(children) {
-            children.forEach((child) => {
-                child.delete();
-            });
+
+        count: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.count;
+            },
+            set(count) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, count };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.count']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueCountError;
         }
     }
 });

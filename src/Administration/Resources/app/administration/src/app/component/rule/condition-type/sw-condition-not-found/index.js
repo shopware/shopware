@@ -2,6 +2,7 @@ import template from './sw-condition-not-found.html.twig';
 import './sw-condition-not-found.scss';
 
 const { Component } = Shopware;
+const { debounce } = Shopware.Utils;
 
 /**
  * @public
@@ -16,19 +17,28 @@ Component.extend('sw-condition-not-found', 'sw-condition-base', {
     template,
 
     computed: {
-        errorMessage() {
-            const fields = JSON.stringify(this.condition.value);
-            return this.$tc('global.sw-condition.condition.not-found.error-message',
-                Object.keys(this.condition.value).length,
-                { type: this.condition.type, fields });
+        extendedTypes() {
+            return [
+                {
+                    label: this.condition.type,
+                    type: this.condition.type
+                },
+                ...this.availableTypes
+            ];
         },
-        conditionClass() {
-            return 'sw-condition-not-found';
-        }
-    },
-    methods: {
-        mountedComponent() {
-            // Override "sw-condition-base" mounted behaviour
+
+        value: {
+            get() {
+                this.ensureValueExist();
+                return JSON.stringify(this.condition.value, null, 4);
+            },
+            set: debounce(function updateValue(value) {
+                try {
+                    this.condition.value = JSON.parse(value);
+                } catch (e) {
+                    /* eslint-ignore-line */
+                }
+            }, 300)
         }
     }
 });

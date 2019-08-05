@@ -1,7 +1,7 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-is-new-customer.html.twig';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -16,40 +16,33 @@ Component.extend('sw-condition-is-new-customer', 'sw-condition-base', {
 
     computed: {
         selectValues() {
-            const values = [
+            return [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: 'true'
+                    value: true
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.no'),
-                    value: 'false'
+                    value: false
                 }
             ];
-
-            return new LocalStore(values, 'value');
         },
-        fieldNames() {
-            return ['isNew'];
-        },
-        defaultValues() {
-            return {
-                isNew: true
-            };
-        }
-    },
 
-    watch: {
-        isNew: {
-            handler(newValue) {
-                this.condition.value.isNew = newValue === 'true';
+        isNewCustomer: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.isNew;
+            },
+            set(isNew) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, isNew };
             }
-        }
-    },
+        },
 
-    data() {
-        return {
-            isNew: this.condition.value.isNew ? String(this.condition.value.isNew) : String(true)
-        };
+        ...mapApiErrors('condition', ['value.isNew']),
+
+        currentError() {
+            return this.conditionValueIsNewError;
+        }
     }
 });

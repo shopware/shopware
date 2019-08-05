@@ -65,6 +65,9 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Due to the redesign of the cms blocks and elements you can now translate the label of your blocks and elements
     * The Layouts which can be assigned under settings > basic information > Shop Pages now have to be of the type `shop page`
     * You can now assign a 404 error page layout in settings > basic information > Shop Pages which will be rolled out in a 404 not found error.
+    * Moved all rule specific components to `src/app/components/rule`
+    * Added error handling for multiple errors per request
+    * Replaced `repository.sync` with a request against the `sync` endpoint. The former behavior of `sync` ist now available as `repository.saveAll`
    
 * Core
     * Added DAL support for multi primary keys.
@@ -162,6 +165,24 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Move context to the Store
     * Make vuex store initially available
     * Moved `Resources/administration` directory to `Resources/app/administration`
+    * Added component `sw-entitiy-multi-id-select` which can be used to select entities but only emit their ids
+        * The v-model is bound to `change` event and sets the `ids` property
+        * exposes the same slots as any `select` component
+    * Added component `sw-arrow-field` which can be used to wrap components in a breadcrumb like visualization
+        * It takes two props `primary` and `secondary` which are color keys for the arrow's background and border color
+        * Additional content can be placed in the default slot of the component
+    * `sw-tagged-field` now works with `event.key` instead of `event.keycode`
+    * `sw-tagged-field` v-model event changed to `change` instead of `input` an does not mutate the original prop anymore
+    * Removed component `sw-condition-value`
+    * Added component `sw-condition-type-select` 
+    * Removed `config` property from `sw-condition-tree`.
+    * Refactored
+    * Replaced Store based datahandling with repository based datahandling in `sw-settings-rule`, `sw-product-stream` modules and rule/product stream specific components
+    * Removed client side validation for rules and product streams
+    * Added APi validation for rules and product streams
+    * Split `sw-product-stream-filter` component into smaler subcomponents `sw-product-stream-field-select` and `sw-product-stream-value`
+    * Removed `sw-product-stream-create` page
+* Removed `sw-settings-rule-create` page
 * Core
     * Moved the seo module from the storefront into the core.
     * Switched the execution condition of `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` to match the execution conditions in the methods documentation.

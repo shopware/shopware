@@ -1,44 +1,32 @@
 {% block sw_condition_and_container %}
     <div class="sw-condition-and-container" :class="containerRowClass">
-        {% block sw_condition_and_container_content %}
-            <div class="sw-condition-and-container__condition-content">
-                {% block sw_condition_and_container_children %}
-                    <div v-for="(child, index) in sortedChildren"
-                         :class="'sw-condition-container__and-child--' + index"
-                         :key="index">
-                        {% block sw_condition_and_container_children_spacer %}
-                            <div v-if="index"
-                                 class="condition-content__spacer--and">
-                                {{ $tc('global.sw-condition.condition.and') }}
-                            </div>
-                        {% endblock %}
-                        {% block sw_condition_and_container_children_component %}
-                            <component :is="getComponent(child)"
-                                       :condition="child"
-                                       :level="level + 1"
-                                       :parentDisabledDelete="disabledDeleteButton"
-                                       @condition-delete="onDeleteCondition"
-                                       @create-before="createPlaceholderBefore"
-                                       @create-after="createPlaceholderAfter">
-                            </component>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-                {% block sw_condition_and_container_actions %}
-                    <div class="sw-condition-and-container__actions">
-                        <sw-button class="sw-condition-and-container__actions--and" @click="onAddAndClick" :disabled="isApi()">
-                            {{ $tc('global.sw-condition.condition.and') }}
-                        </sw-button>
-                        <sw-button class="sw-condition-and-container__actions--sub" @click="onAddChildClick" :disabled="isApi()">
-                            {{ $tc('global.sw-condition.condition.subCondition') }}
-                        </sw-button>
-                        <sw-button class="sw-condition-and-container__actions--delete"
-                                   :disabled="disabledDeleteButton || isApi()"
-                                   @click="onDeleteAll">
-                            {{ $tc('global.sw-condition.condition.deleteConditions') }}
-                        </sw-button>
-                    </div>
-                {% endblock %}
+        {% block sw_condition_and_container_children %}
+            <template v-for="(child, index) in condition[childAssociationField]">
+                <div v-if="index > 0"class="condition-content__spacer--and">
+                    {{ $tc('global.sw-condition.condition.and') }}
+                </div>
+
+                <sw-condition-tree-node
+                        :key="`sw-condition-container__or-child--${index}`"
+                        :parentCondition="condition"
+                        :condition="child"
+                        :level="level + 1">
+                </sw-condition-tree-node>
+            </template>
+        {% endblock %}
+
+        {% block sw_condition_and_container_actions %}
+            <div class="sw-condition-and-container__actions">
+                <sw-button class="sw-condition-and-container__actions--and" @click="onAddPlaceholder">
+                    {{ $tc('global.sw-condition.condition.and') }}
+                </sw-button>
+                <sw-button class="sw-condition-and-container__actions--sub" @click="onAddOrContainer">
+                    {{ $tc('global.sw-condition.condition.subCondition') }}
+                </sw-button>
+                <sw-button class="sw-condition-and-container__actions--delete"
+                           @click="onDeleteAll">
+                    {{ $tc('global.sw-condition.condition.deleteConditions') }}
+                </sw-button>
             </div>
         {% endblock %}
     </div>

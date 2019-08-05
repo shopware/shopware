@@ -1,0 +1,108 @@
+{% block sw_product_stream_value %}
+    <div class="sw-product-stream-value"
+         :class="componentClasses">
+
+        <template v-if="!fieldDefinition">
+            {% block sw_product_stream_value_no_definition_placeholder %}
+                <sw-container class="sw-product-stream-value__placeholder"></sw-container>
+            {% endblock %}
+        </template>
+        <template v-else-if="fieldType === 'boolean'">
+            {% block sw_product_stream_value_boolean_value %}
+                <sw-single-select
+                    size="medium"
+                    :options="booleanOptions"
+                    :value="condition.value"
+                    @change="setBooleanValue">
+                </sw-single-select>
+            {% endblock %}
+        </template>
+
+        <template v-else>
+            {% block sw_product_stream_value_operator_select %}
+                <sw-arrow-field>
+                    <sw-single-select
+                        size="medium"
+                        :options="operators"
+                        :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"
+                        v-model="filterType">
+                    </sw-single-select>
+                </sw-arrow-field>
+            {% endblock %}
+
+            <template v-if="fieldType === 'uuid'">
+                {% block sw_product_stream_value_entity_single_value %}
+                    <sw-entity-single-select
+                        v-if="actualCondition.type === 'equals'"
+                        size="medium"
+                        :entity="definition.entity"
+                        v-model="actualCondition.value">
+                    </sw-entity-single-select>
+                {% endblock %}
+
+                {% block sw_product_stream_value_entity_multi_value %}
+                    <sw-entity-multi-id-select
+                        v-else-if="actualCondition.type === 'equalsAny'"
+                        size="medium"
+                        :repository="repository"
+                        v-model="multiValue">
+                    </sw-entity-multi-id-select>
+                {% endblock %}
+
+                {% block sw_product_stream_value_entity_no_operator_selected_placeholder %}
+                    <sw-container class="sw-product-stream-value__placeholder" v-else></sw-container>
+                {% endblock %}
+            </template>
+
+            <template v-else-if="getConditionType(condition) === 'range'">
+                {% block sw_product_stream_value_range_value %}
+                    <template v-if="filterType === 'range'">
+                        {% block sw_product_stream_value_range_from_value %}
+                            <sw-arrow-field>
+                                <component
+                                    :is="inputComponent"
+                                    size="medium"
+                                    v-model="gte">
+                                </component>
+                            </sw-arrow-field>
+                        {% endblock %}
+
+                        {% block sw_product_stream_value_range_to_value %}
+                            <component
+                                :is="inputComponent"
+                                size="medium"
+                                v-model="lte">
+                            </component>
+                        {% endblock %}
+                    </template>
+
+                    <template v-else>
+                        {% block sw_product_stream_value_range_one_limit %}
+                            <component
+                                :is="inputComponent"
+                                size="medium"
+                                v-model="currentParameter">
+                            </component>
+                        {% endblock%}
+                    </template>
+                {% endblock %}
+            </template>
+
+            <template v-else-if="actualCondition.type === 'equalsAny'">
+                {% block sw_product_stream_value_multi_value %}
+                    <sw-tagged-field size="medium" v-model="multiValue"></sw-tagged-field>
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                {% block sw_product_stream_value_single_value %}
+                    <component
+                        :is="inputComponent"
+                        size="medium"
+                        v-model="stringValue">
+                    </component>
+                {% endblock %}
+            </template>
+        </template>
+    </div>
+{% endblock %}

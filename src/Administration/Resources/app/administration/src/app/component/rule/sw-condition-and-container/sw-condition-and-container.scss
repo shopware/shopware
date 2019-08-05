@@ -4,6 +4,8 @@ $sw-condition-and-container-background-even: $color-white;
 $sw-condition-and-container-background-odd: #F0F2F5;
 
 .sw-condition-and-container {
+    padding: 32px 32px 16px 32px;
+
     &.container-condition-level__is--even {
         background-color: $sw-condition-and-container-background-even;
     }

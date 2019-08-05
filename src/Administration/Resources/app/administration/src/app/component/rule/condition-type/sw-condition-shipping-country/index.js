@@ -1,6 +1,8 @@
 import template from './sw-condition-shipping-country.html.twig';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component, Context } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
+const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @public
@@ -12,22 +14,68 @@ const { Component, StateDeprecated } = Shopware;
  */
 Component.extend('sw-condition-shipping-country', 'sw-condition-base', {
     template,
-    inject: ['ruleConditionDataProviderService'],
+    inject: ['repositoryFactory'],
+
+    data() {
+        return {
+            shippingCountries: null
+        };
+    },
 
     computed: {
-        fieldNames() {
-            return ['operator', 'countryIds'];
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('multiStore');
         },
-        defaultValues() {
-            return {
-                operator: this.ruleConditionDataProviderService.operators.isOneOf.identifier
-            };
+
+        countryRepository() {
+            return this.repositoryFactory.create('country');
+        },
+
+        countryIds: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.countryIds || [];
+            },
+            set(countryIds) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, countryIds };
+            }
+        },
+
+        ...mapApiErrors('condition', ['value.operator', 'value.countryIds']),
+
+        currentError() {
+            return this.conditionValueOperatorError || this.conditionValueCountryIdsError;
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        getCountryStore() {
-            return StateDeprecated.getStore('country');
+        createdComponent() {
+            this.shippingCountries = new EntityCollection(
+                this.countryRepository.route,
+                this.countryRepository.entityName,
+                Context.api
+            );
+
+            if (this.countryIds.length <= 0) {
+                return Promise.resolve();
+            }
+
+            const criteria = new Criteria();
+            criteria.setIds(this.countryIds);
+
+            return this.countryRepository.search(criteria, Context.api).then((countries) => {
+                this.shippingCountries = countries;
+            });
+        },
+
+        setCountryIds(countries) {
+            this.countryIds = countries.getIds();
+            this.shippingCountries = countries;
         }
     }
 });

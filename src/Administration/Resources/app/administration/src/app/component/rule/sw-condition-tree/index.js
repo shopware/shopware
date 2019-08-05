@@ -2,7 +2,7 @@ import template from './sw-condition-tree.html.twig';
 import './sw-condition-tree.scss';
 
 const { Component } = Shopware;
-const utils = Shopware.Utils;
+const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
@@ -10,50 +10,99 @@ const utils = Shopware.Utils;
 Component.register('sw-condition-tree', {
     template,
 
-    data() {
-        return {
-            nestedConditions: {},
-            associationStore: {},
-            isApi: false
-        };
-    },
-
     provide() {
         return {
-            conditionStore: this.conditionStore,
-            entityAssociationStore: () => this.associationStore,
-            config: this.config,
-            isApi: () => this.isApi
+            availableTypes: this.availableTypes,
+            createCondition: this.createCondition,
+            insertNodeIntoTree: this.insertNodeIntoTree,
+            removeNodeFromTree: this.removeNodeFromTree,
+            childAssociationField: this.childAssociationField,
+            conditionDataProviderService: this.conditionDataProviderService
         };
     },
 
     props: {
-        entity: {
+        conditionDataProviderService: {
             type: Object,
             required: true
         },
-        conditionStore: {
-            type: Object,
-            required: true
-        },
-        config: {
-            type: Object,
-            required: true
-        },
-        parentId: {
-            type: String,
-            required: false,
-            default: null
-        },
-        entityAssociationStore: {
+
+        conditionRepository: {
             type: Object,
             required: false,
             default: null
         },
-        conditions: {
+
+        initialConditions: {
             type: Array,
             required: false,
             default: null
+        },
+
+        rootCondition: {
+            type: Object,
+            required: false,
+            default: null
+        },
+
+        allowedTypes: {
+            type: Array,
+            required: false,
+            default: null
+        },
+
+        scopes: {
+            type: Array,
+            required: false,
+            default: null
+        },
+
+        associationField: {
+            type: String,
+            required: true
+        },
+
+        associationValue: {
+            type: String,
+            required: true
+        },
+
+        childAssociationField: {
+            type: String,
+            required: false,
+            default: 'children'
+        }
+    },
+
+    data() {
+        return {
+            conditionTree: null
+        };
+    },
+
+    computed: {
+        availableTypes() {
+            if (this.allowedTypes) {
+                return this.allowedTypes.map((type) => {
+                    return this.conditionDataProviderService.getByType(type);
+                });
+            }
+            return this.conditionDataProviderService.getConditions(this.scopes);
+        },
+
+        rootId() {
+            return this.rootCondition !== null ? this.rootCondition.id : null;
+        }
+    },
+
+    watch: {
+        initialConditions(newVal) {
+            if (this.isNotDefined(newVal)) {
+                this.conditionTree = null;
+                return;
+            }
+
+            this.buildTree();
         }
     },
 
@@ -61,122 +110,141 @@ Component.register('sw-condition-tree', {
         this.createdComponent();
     },
 
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
         createdComponent() {
-            this.associationStore = this.entityAssociationStore
-                || this.entity.getAssociation(this.config.conditionIdentifier);
+            if (!this.isNotDefined(this.initialConditions)) {
+                this.buildTree();
+            }
+        },
 
-            if (this.conditions) {
-                this.nestedConditions = this.checkRootContainer(
-                    this.buildNestedConditions(this.conditions, this.parentId)
-                );
-                this.entity[this.config.conditionIdentifier] = [this.nestedConditions];
-            } else {
-                this.loadConditions();
+        buildTree() {
+            const rootCondition = this.applyRootIfNecessary();
+            this.conditionTree = this.createTreeRecursive(rootCondition, this.initialConditions);
+            this.emitChange([]);
+        },
+
+        createTreeRecursive(condition, conditions) {
+            const children = conditions.filter(c => c.parentId === condition.id)
+                .sort((a, b) => a.position - b.position)
+                .map(c => this.createTreeRecursive(c, conditions));
+
+            condition[this.childAssociationField] = new EntityCollection(
+                condition[this.childAssociationField].source,
+                condition[this.childAssociationField].entity,
+                condition[this.childAssociationField].context,
+                null,
+                [...children, ...condition[this.childAssociationField]]
+            );
+            return condition;
+        },
+
+        applyRootIfNecessary() {
+            const rootNodes = this.initialConditions.filter((condition) => {
+                return condition.parentId === this.rootId;
+            });
+
+            if (rootNodes.length === 1 && this.conditionDataProviderService.isOrContainer(rootNodes[0])) {
+                return rootNodes[0];
             }
 
-            this.$on('entity-save', this.onSave);
+            const rootContainer = this.createCondition(
+                this.conditionDataProviderService.getOrContainerData(),
+                this.rootId,
+                0
+            );
+
+            rootNodes.forEach(root => { root.parentId = rootContainer.id; });
+            return rootContainer;
         },
 
-        beforeDestroyComponent() {
-            this.$off('entity-save');
+        createCondition(conditionData, parentId, position) {
+            let condition = this.conditionRepository.create(this.initialConditions.context);
+            condition = Object.assign(
+                condition,
+                conditionData,
+                {
+                    parentId,
+                    position,
+                    [this.associationField]: this.associationValue
+                }
+            );
+            return condition;
         },
 
-        onSave(loadConditions) {
-            if (!loadConditions) {
+        insertNodeIntoTree(parentCondition, childToInsert) {
+            if (!parentCondition) {
+                throw new Error('[sw-condition-tree] Can not insert into non existing tree');
+            }
+
+            this.validatePosition(parentCondition, childToInsert);
+            parentCondition[this.childAssociationField].forEach((child) => {
+                if (child.position >= childToInsert.position) {
+                    child.position += 1;
+                }
+            });
+
+            parentCondition[this.childAssociationField].addAt(childToInsert, childToInsert.position);
+            this.emitChange([]);
+        },
+
+        removeNodeFromTree(parentCondition, childToRemove) {
+            if (!parentCondition) {
+                throw new Error('[sw-condition-tree] Can not remove from non existing tree');
+            }
+
+            const deletedIds = this.getDeletedIds(childToRemove);
+
+            parentCondition[this.childAssociationField].forEach((child) => {
+                if (child.position > childToRemove.position) {
+                    child.position -= 1;
+                }
+            });
+
+            parentCondition[this.childAssociationField].remove(childToRemove.id);
+            this.emitChange(deletedIds);
+        },
+
+        validatePosition(parentCondition, condition) {
+            if (typeof condition.position !== 'number' || condition.position < 0) {
+                condition.position = 0;
+            }
+            if (condition.position > parentCondition[this.childAssociationField].length) {
+                condition.position = parentCondition[this.childAssociationField].length;
+            }
+        },
+
+        getDeletedIds(condition) {
+            const deletedIds = [];
+            this.getDeletedIdsRecursive(condition, deletedIds);
+            return deletedIds;
+        },
+
+        getDeletedIdsRecursive(condition, deletedIs) {
+            if (!condition.isNew()) {
+                deletedIs.push(condition.id);
                 return;
             }
 
-            this.loadConditions();
+            condition[this.childAssociationField].forEach((child) => { this.getDeletedIdsRecursive(child, deletedIs); });
         },
 
-        loadConditions() {
-            this.associationStore.getList({
-                page: 1,
-                limit: 500,
-                sortBy: 'position'
-            }).then((conditionCollection) => {
-                this.nestedConditions = this.checkRootContainer(
-                    this.buildNestedConditions(conditionCollection.items, this.parentId)
-                );
-                this.entity[this.config.conditionIdentifier] = [this.nestedConditions];
+        emitChange(deletedIds) {
+            const conditions = new EntityCollection(
+                this.initialConditions.source,
+                this.initialConditions.entity,
+                this.initialConditions.context,
+                this.initialConditions.criteria,
+                [this.conditionTree]
+            );
+
+            this.$emit('conditions-changed', {
+                conditions,
+                deletedIds
             });
         },
 
-        buildNestedConditions(conditions, parentId) {
-            return conditions.reduce((accumulator, current) => {
-                if (current.parentId === parentId) {
-                    const children = this.buildNestedConditions(conditions, current.id);
-                    children.forEach((child) => {
-                        if (current[this.config.childName].indexOf(child) === -1) {
-                            current[this.config.childName].push(child);
-                        }
-                    });
-
-                    accumulator.push(current);
-                }
-
-                return accumulator;
-            }, []);
-        },
-
-        checkRootContainer(nestedConditions) {
-            if (nestedConditions.length === 1
-                && this.config.isOrContainer(nestedConditions[0])) {
-                if (nestedConditions[0][this.config.childName].length > 0) {
-                    return nestedConditions[0];
-                }
-
-                nestedConditions[0][this.config.childName] = [
-                    this.createCondition(
-                        this.config.andContainer,
-                        nestedConditions[0].id
-                    )
-                ];
-
-                return nestedConditions[0];
-            }
-
-            const rootCondition = this.createCondition(this.config.orContainer, this.parentId);
-            const subCondition = this.createCondition(
-                this.config.andContainer,
-                rootCondition.id,
-                nestedConditions
-            );
-            rootCondition[this.config.childName] = [subCondition];
-
-            if (!nestedConditions.length) {
-                return rootCondition;
-            }
-
-            this.associationStore.removeById(rootCondition.id);
-            this.associationStore.removeById(subCondition.id);
-            this.associationStore.store = Object.assign(
-                { [rootCondition.id]: rootCondition },
-                { [subCondition.id]: subCondition },
-                this.associationStore.store
-            );
-
-            return rootCondition;
-        },
-
-        createCondition(conditionData, parentId, children) {
-            const conditionId = utils.createId();
-            const condition = Object.assign(this.associationStore.create(conditionId), conditionData);
-            condition.parentId = parentId;
-
-            if (children) {
-                children.forEach((child) => {
-                    child.parentId = conditionId;
-                });
-                condition[this.config.childName] = children;
-            }
-
-            return condition;
+        isNotDefined(val) {
+            return val === null || typeof val === 'undefined';
         }
     }
 });

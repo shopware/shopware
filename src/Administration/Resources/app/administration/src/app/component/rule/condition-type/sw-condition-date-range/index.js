@@ -1,7 +1,8 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-date-range.html.twig';
+import './sw-condition-date-range.scss';
 
 const { Component } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
 
 /**
  * @public
@@ -16,62 +17,63 @@ Component.extend('sw-condition-date-range', 'sw-condition-base', {
 
     computed: {
         selectValues() {
-            const values = [
+            return [
                 {
                     label: this.$tc('global.sw-condition.condition.withTime'),
-                    value: 'true'
+                    value: true
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.withoutTime'),
-                    value: 'false'
+                    value: false
                 }
             ];
-
-            return new LocalStore(values, 'value');
         },
-        fieldNames() {
-            return ['fromDate', 'toDate', 'useTime'];
-        },
-        defaultValues() {
-            return {
-                useTime: false
-            };
-        }
-    },
 
-    watch: {
         useTime: {
-            handler(newValue) {
-                this.condition.value.useTime = newValue === String(true);
-                this.$set(this.datepickerConfig, 'enableTime', this.condition.value.useTime);
-            }
-        },
-        fromDate: {
-            handler(newValue) {
-                if (!newValue) {
-                    this.condition.value.fromDate = null;
-                    return;
+            get() {
+                this.ensureValueExist();
+                if (typeof this.condition.value.useTime === 'undefined') {
+                    this.condition.value = { ...this.condition.value, useTime: false };
                 }
-                this.condition.value.fromDate = newValue;
-            }
-        },
-        toDate: {
-            handler(newValue) {
-                if (!newValue) {
-                    this.condition.value.toDate = null;
-                    return;
-                }
-                this.condition.value.toDate = newValue;
-            }
-        }
-    },
 
-    data() {
-        return {
-            datepickerConfig: {},
-            fromDate: this.condition.value.fromDate,
-            toDate: this.condition.value.toDate,
-            useTime: this.condition.value.useTime ? String(this.condition.value.useTime) : String(false)
-        };
+                return this.condition.value.useTime;
+            },
+            set(useTime) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, useTime };
+            }
+        },
+
+        fromDate: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.fromDate || null;
+            },
+            set(fromDate) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, fromDate };
+            }
+        },
+
+        toDate: {
+            get() {
+                this.ensureValueExist();
+                return this.condition.value.toDate || null;
+            },
+            set(toDate) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, toDate };
+            }
+        },
+
+        isDateTime() {
+            return this.useTime ? 'datetime' : 'date';
+        },
+
+        ...mapApiErrors('condition', ['value.useTime', 'value.fromDate', 'value.toDate']),
+
+        currentError() {
+            return this.conditionValueUseTimeError || this.conditionValueFromDateError || this.conditionValueToDateError;
+        }
     }
 });

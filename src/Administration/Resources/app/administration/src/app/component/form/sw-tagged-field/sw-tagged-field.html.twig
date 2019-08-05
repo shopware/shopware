@@ -1,51 +1,32 @@
 {% block sw_tagged_field %}
-    <div class="sw-tagged-field"
-         :class="taggedClasses"
-         tabindex="0">
-        {% block sw_tagged_field_label %}
-            <label v-if="label" :for="id" class="sw-tagged-field__label">{{ label }}</label>
-        {% endblock %}
-
-        {% block sw_tagged_field_inner %}
-            <div class="sw-tagged-field__inner">
-
-                <transition-group
-                    name="sw-tagged-field-mangify"
-                    class="sw-tagged-field__tags"
-                    mode="out-in"
-                    tag="ul">
-
-                    {% block sw_tagged_field_tag_items %}
-                        <li class="sw-tagged-field__tags-wrapper sw-tagged-field__selection" v-for="(tag, index) in tags" :key="tag + index">
-                            <sw-label size="medium" @dismiss="dismissTag(index)">
-                                <span class="sw-tagged-field__selection-item">{{ tag }}</span>
-                            </sw-label>
-                        </li>
-                    {% endblock %}
-
+    <sw-block-field class="sw-tagged-field" :class="taggedFieldClasses" v-bind="$attrs" v-on="$listeners">
+        <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+            {% block sw_tagged_field_inner %}
+                <ul class="sw-tagged-field__tag-list" @click="setFocus(true)">
+                    <li v-for="(tag, index) in value" :key="`sw-tagged-field-value--${index}`">
+                        <sw-label :size="size" @selected="setFocus(true)" @dismiss="dismissTag(index)">
+                            {{ tag }}
+                        </sw-label>
+                    </li>
                     {% block sw_tagged_field_item_input %}
-                        <li class="sw-tagged-field__tag-item-input" key="tagInput">
+                        <li>
                             {% block sw_tagged_field_input %}
-                                <input :id="id"
+                                <input type="text"
+                                       ref="taggedFieldInput"
                                        class="sw-tagged-field__input"
-                                       type="text"
+                                       :class="taggedFieldInputClasses"
+                                       v-model="newTagName"
+                                       :disabled="disabled"
                                        :placeholder="placeholder"
-                                       v-model="newTag"
+                                       @focus="setFocus(true)"
+                                       @blur="setFocus(false)"
                                        @keydown="performAddTag"
                                        @keydown.delete="dismissLastTag">
                             {% endblock %}
                         </li>
                     {% endblock %}
-                </transition-group>
-
-                {% block sw_tagged_field_indicators %}
-                    <div class="sw-tagged-field__indicators">
-                        {% block sw_tagged_field_indicators_helptext %}
-                            <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </div>
-        {% endblock %}
-    </div>
+                </ul>
+            {% endblock %}
+        </template>
+    </sw-block-field>
 {% endblock %}

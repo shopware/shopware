@@ -24,43 +24,42 @@ describe('Dynamic product group: Test various filters', () => {
 
         // Verify product stream details
         cy.clickContextMenuItem(
-            '.sw_product_stream_list__edit-action',
+            '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
         cy.get(page.elements.loader).should('not.exist');
         cy.get(page.elements.smartBarHeader).contains('1st Productstream');
 
-        page.createBasicSelectCondition({
-            type: 'Active',
-            ruleSelector: `${page.elements.baseCondition}`,
-            value: 'Yes'
-        });
-        cy.clickContextMenuItem(
-            '.sw-condition-base__create-before-action',
-            page.elements.contextMenuButton,
-            `${page.elements.conditionAndContainer}--0`
-        );
-        page.createBasicSelectCondition({
-            type: 'Product',
-            operator: 'Is equal to any of',
-            ruleSelector: `${page.elements.conditionOrContainer}--0 ${page.elements.conditionAndContainer}--0 ${page.elements.baseCondition}`,
-            value: 'Product name',
-            isMulti: true
-        });
-
-        cy.get(`${page.elements.conditionAndContainer}--0 .sw-select__single-selection`).contains('Product');
-        cy.get('.sw-product-stream-detail__condition_container').scrollIntoView();
-        cy.clickContextMenuItem(
-            `${page.elements.contextMenu}-item--danger`,
-            page.elements.contextMenuButton,
-            `${page.elements.conditionAndContainer}--1`
+        cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
+        page.fillFilterWithSelect(
+            '@currentProductStreamFilter',
+            {
+                field: 'Active',
+                operator: null,
+                value: 'Yes'
+            }
         );
 
-        cy.get(`${page.elements.conditionAndContainer}--1 ${page.elements.baseCondition}`)
-            .should('not.exist');
-        cy.contains('Delete container').click();
-        cy.get(`${page.elements.conditionOrContainer}--1 ${page.elements.subConditionContainer}`).should('not.exist');
-        cy.contains('Delete container').should('be.disabled');
+        page.clickProductStreamFilterOption(cy.get('.sw-product-stream-filter'), 'Create before');
+
+        cy.get('.sw-product-stream-filter').first().as('first');
+        page.fillFilterWithEntitySelect(
+           '@first',
+            {
+                field: 'Product',
+                operator: 'Is equal to',
+                value: 'Product name'
+            }
+        );
+
+        page.clickProductStreamFilterOption(cy.get('.sw-product-stream-filter').last(), 'Delete');
+
+        cy.get('.sw-product-stream-filter').should(($productStreamFilter) => {
+            expect($productStreamFilter).to.have.length(1);
+        });
+
+        cy.get('button.sw-button').contains('Save').click();
+        cy.get('button.sw-button .icon--small-default-checkmark-line-medium').should('be.visible');
     });
 });

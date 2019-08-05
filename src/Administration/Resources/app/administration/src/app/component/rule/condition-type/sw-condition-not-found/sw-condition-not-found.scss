@@ -13,13 +13,6 @@ $sw-condition-not-found-color-background: $color-white;
         }
     }
 
-    &.sw-condition-base {
-        .sw-field.field--main, .sw-select.field--condition {
-            border-top-color: $sw-condition-not-found-color-error;
-            border-bottom-color: $sw-condition-not-found-color-error;
-        }
-    }
-
     &.sw-condition-base .field--actions {
         border-color: $sw-condition-not-found-color-error;
     }

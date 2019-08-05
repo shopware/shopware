@@ -1,8 +1,7 @@
 {
   "namespaces": [
     {
-      "namespace": "Storefront",
-      "path": "."
+      "namespace": "Storefront"
     }
   ]
 }

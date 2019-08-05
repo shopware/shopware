@@ -144,7 +144,7 @@ $criteria->addFilter(
 
 ```php
 $criteria->addFilter(new MultiFilter(
-    MultiFilter::OPERATOR_OR,
+    MultiFilter::CONNECTION_OR,
     [
         new EqualsFilter('product.name', 'Dagger'),
         new RangeFilter('product.stock', ['gt' => 10, 'lt' => 20]),

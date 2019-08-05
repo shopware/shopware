@@ -1,14 +1,24 @@
-import { Component, State, Mixin } from 'src/core/shopware';
+import { Component, Mixin, State } from 'src/core/shopware';
+import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-currency-detail.html.twig';
 
 Component.register('sw-settings-currency-detail', {
     template,
 
+    inject: ['repositoryFactory', 'context'],
+
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('currency')
+        Mixin.getByName('placeholder')
     ],
+
+    props: {
+        currencyId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -34,8 +44,12 @@ Component.register('sw-settings-currency-detail', {
             return this.placeholder(this.currency, 'name');
         },
 
-        currencyStore() {
-            return State.getStore('currency');
+        languageStore() {
+            return State.getStore('language');
+        },
+
+        currencyRepository() {
+            return this.repositoryFactory.create('currency');
         },
 
         tooltipSave() {
@@ -52,6 +66,16 @@ Component.register('sw-settings-currency-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        ...mapApiErrors('currency', ['name', 'isoCode', 'shortName', 'symbol', 'isDefault', 'decimalPrecision', 'factor'])
+    },
+
+    watch: {
+        currencyId() {
+            if (!this.currencyId) {
+                this.createdComponent();
+            }
         }
     },
 
@@ -61,14 +85,25 @@ Component.register('sw-settings-currency-detail', {
 
     methods: {
         createdComponent() {
-            if (this.$route.params.id) {
+            this.isLoading = true;
+            if (this.currencyId) {
                 this.currencyId = this.$route.params.id;
-                this.loadEntityData();
+                this.currencyRepository.get(this.currencyId, this.context).then((currency) => {
+                    this.currency = currency;
+                    this.isLoading = false;
+                });
+                return;
             }
+
+            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            this.currency = this.currencyRepository.create(this.context);
+            this.isLoading = false;
         },
 
         loadEntityData() {
-            this.currency = this.currencyStore.getById(this.currencyId);
+            this.currency = this.currencyRepository.get(this.currencyId, this.context).then((currency) => {
+                this.currency = currency;
+            });
         },
 
         saveFinish() {
@@ -79,10 +114,21 @@ Component.register('sw-settings-currency-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.currency.save().then(() => {
-                this.isLoading = false;
+            return this.currencyRepository.save(this.currency, this.context).then(() => {
                 this.isSaveSuccessful = true;
+                if (!this.currencyId) {
+                    this.$router.push({ name: 'sw.settings.currency.detail', params: { id: this.currency.id } });
+                }
+
+                this.currencyRepository.get(this.currency.id, this.context).then((updatedCurrency) => {
+                    this.currency = updatedCurrency;
+                    this.isLoading = false;
+                });
             }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-currency.detail.notificationErrorTitle'),
+                    message: this.$tc('sw-settings-currency.detail.notificationErrorMessage')
+                });
                 this.isLoading = false;
             });
         },
@@ -92,7 +138,7 @@ Component.register('sw-settings-currency-detail', {
         },
 
         abortOnLanguageChange() {
-            return Object.keys(this.currency.getChanges()).length > 0;
+            return this.currencyRepository.hasChanges(this.currency);
         },
 
         saveOnLanguageChange() {

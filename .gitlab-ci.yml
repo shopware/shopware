@@ -15,7 +15,8 @@ stages:
     - Deploy
 
 include:
-    - local: .gitlab/ci/nightly.yml
+    -   local: .gitlab/ci/nightly.yml
+    -   local: .gitlab/ci/sync.yml
 
 default:
     image: shopware/development:latest
@@ -68,13 +69,13 @@ PHPUnit (MySQL):
     script:
         - ./psh.phar init
         - php -d pcov.enabled=1 -d pcov.directory=$CI_PROJECT_DIR
-           vendor/bin/phpunit
-           --configuration vendor/shopware/platform/phpunit.xml.dist
-           --log-junit build/artifacts/phpunit.junit.xml
-           --colors=never
-           --coverage-clover build/artifacts/phpunit.clover.xml
-           --coverage-html build/artifacts/phpunit-coverage-html
-           --coverage-text
+            vendor/bin/phpunit
+            --configuration vendor/shopware/platform/phpunit.xml.dist
+            --log-junit build/artifacts/phpunit.junit.xml
+            --colors=never
+            --coverage-clover build/artifacts/phpunit.clover.xml
+            --coverage-html build/artifacts/phpunit-coverage-html
+            --coverage-text
 
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
@@ -94,13 +95,13 @@ PHPUnit (MariaDB):
     script:
         - ./psh.phar init
         - php -d pcov.enabled=1 -d pcov.directory=$CI_PROJECT_DIR
-           vendor/bin/phpunit
-           --configuration vendor/shopware/platform/phpunit.xml.dist
-           --log-junit build/artifacts/phpunit.junit.xml
-           --colors=never
-           --coverage-clover build/artifacts/phpunit.clover.xml
-           --coverage-html build/artifacts/phpunit-coverage-html
-           --coverage-text
+            vendor/bin/phpunit
+            --configuration vendor/shopware/platform/phpunit.xml.dist
+            --log-junit build/artifacts/phpunit.junit.xml
+            --colors=never
+            --coverage-clover build/artifacts/phpunit.clover.xml
+            --coverage-html build/artifacts/phpunit-coverage-html
+            --coverage-text
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
         reports:
@@ -262,33 +263,6 @@ Component Library:
             - build/artifacts/component-library/
 
 # Stage: deploy
-
-Repository Split:
-    stage: Deploy
-    image: debian:buster-slim
-    before_script: []
-    dependencies: []
-    only:
-        - master
-    environment:
-        name: Github
-        url: https://github.com/shopware
-    script:
-        - apt update && apt install -y wget git
-
-        # download tool
-        - wget https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz
-        - tar xvfz lite_linux_amd64.tar.gz
-        - chmod +x splitsh-lite
-
-        # split repositories
-        - >
-            for pkg in Administration Docs Storefront Core Elasticsearch; do
-              echo "Splitting ${pkg}"
-              SHA1=`./splitsh-lite --prefix=src/$pkg/ --target=refs/heads/$pkg`
-              git remote set-url origin https://bot:${PERSONAL_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories/$(echo $pkg | awk '{print tolower($0)}').git
-              git push origin $SHA1:master -f
-            done
 
 .Scrutinizer:
     stage: Deploy

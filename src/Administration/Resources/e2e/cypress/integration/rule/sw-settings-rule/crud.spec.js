@@ -59,8 +59,8 @@ describe('Rule builder: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get('.sw-settings-rule-list__confirm-delete-text')
-            .contains('Are you sure you want to delete the rule "Ruler"?');
+        cy.get('.sw-listing__confirm-delete-text')
+            .contains('Are you sure you want to delete this item?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
         cy.wait('@deleteData').then(() => {
             cy.get(page.elements.modal).should('not.exist');

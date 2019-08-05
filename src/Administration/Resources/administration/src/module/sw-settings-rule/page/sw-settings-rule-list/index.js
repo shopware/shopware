@@ -12,16 +12,14 @@ Component.register('sw-settings-rule-list', {
     ],
 
     mixins: [
-        Mixin.getByName('sw-settings-list'),
+        Mixin.getByName('listing'),
         Mixin.getByName('notification')
     ],
 
     data() {
         return {
             rules: null,
-            showDeleteModal: false,
             isLoading: false,
-            entityName: 'rule',
             sortBy: 'name'
         };
     },
@@ -57,53 +55,12 @@ Component.register('sw-settings-rule-list', {
             });
         },
 
-        onDelete(id) {
-            this.showDeleteModal = id;
-        },
-
-        onCloseDeleteModal() {
-            this.showDeleteModal = false;
-        },
-
-        onConfirmDelete(id) {
-            this.showDeleteModal = false;
-
-            return this.ruleRepository.delete(id, this.context).then(() => {
-                this.getList();
-            });
-        },
-
-        onBulkDelete() {
-            this.showDeleteModal = true;
-        },
-
-        onConfirmBulkDelete() {
-            this.showDeleteModal = false;
-
-            const selectedRules = this.$refs.swRuleGrid.selection;
-
-            if (!selectedRules) {
-                return;
-            }
-
-            Object.values(selectedRules).forEach((rule) => {
-                this.ruleRepository.delete(rule.id, this.context).then(() => {
-                    return this.getList();
-                });
-            });
-        },
-
         onDuplicate(referenceRule) {
-            this.ruleRepository.clone(referenceRule.id, this.context).then((rule) => {
-                this.ruleRepository
-                    .get(rule.id, this.context)
-                    .then((entity) => {
-                        this.rules.add(entity);
-                    });
+            this.ruleRepository.clone(referenceRule.id, this.context).then(() => {
                 this.$router.push(
                     {
                         name: 'sw.settings.rule.detail',
-                        params: { id: rule.id }
+                        params: { id: referenceRule.id }
                     }
                 );
             });

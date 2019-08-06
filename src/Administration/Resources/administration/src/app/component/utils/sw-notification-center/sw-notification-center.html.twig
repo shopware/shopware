@@ -37,7 +37,8 @@
                     <div class="sw-notification-center__notification-container">
                         <sw-notification-center-item v-for="notification in notifications"
                                                      :notification="notification"
-                                                     :key="notification.uuid">
+                                                     :key="notification.uuid"
+                                                     @center-close="changeVisibility(false)">
                         </sw-notification-center-item>
                         <div v-if="notifications.length === 0"
                              class="sw-notification-center__empty-text">

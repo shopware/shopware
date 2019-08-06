@@ -7,30 +7,15 @@
     "sw-settings-salutation": {
         "general": {
             "mainMenuItemGeneral": "Anreden",
-            "description": "Verwaltung von Anreden.",
             "buttonCancel": "Abbrechen",
             "buttonCreate": "Anrede anlegen",
-            "buttonDelete": "Löschen",
             "buttonSave": "Speichern",
-            "contextMenuDelete": "Löschen",
-            "contextMenuEdit": "Bearbeiten",
-            "placeholderSearchBar": "Durchsuche alle Anreden",
-            "titleError": "Fehler",
-            "titleSuccess": "Erfolg"
+            "placeholderSearchBar": "Durchsuche alle Anreden"
         },
         "list": {
-            "buttonAdd": "Anrede hinzufügen",
             "columnSalutationKey": "Technischer Name",
             "columnDisplayName": "Anrede",
-            "columnLetterName": "Briefanrede",
-            "fieldDisplayNamePlaceholder": "Bitte gib eine Anrede an ...",
-            "fieldLetterNamePlaceholder": "Bitte gib eine Briefanrede an ...",
-            "fieldSalutationKeyPlaceholder": "Bitte gib einen technischen Namen an ...",
-            "messageDeleteError": "Die Anrede konnte nicht gelöscht werden.",
-            "messageDeleteSuccess": "Die Anrede \"{key}\" wurde erfolgreich gelöscht.",
-            "messageSaveError": "Die Anrede konnte nicht gespeichert werden.",
-            "messageSaveSuccess": "Die Anrede \"{key}\" wurde erfolgreich gespeichert.",
-            "textDeleteConfirm": "Möchtest Du die Anrede \"{key}\" wirklich löschen?"
+            "columnLetterName": "Briefanrede"
         },
         "detail": {
             "cardTitle": "Anrede",
@@ -41,12 +26,9 @@
             "fieldSalutationKeyTooltip": "Ein eindeutiger, technischer Name, der zur Einbindung der Anreden in z.B. E-Mail-Vorlagen benötigt wird.",
             "fieldSalutationKeyLabel": "Technischer Name",
             "fieldSalutationKeyPlaceholder": "Bitte gib einen technischen Namen an ...",
-            "messageSaveError": "Die Anrede konnte nicht gespeichert werden.",
-            "messageSaveSuccess": "Die Anrede \"{key}\" wurde erfolgreich gespeichert.",
-            "placeholderNewSalutation": "Neue Anrede anlegen"
+            "placeholderNewSalutation": "Neue Anrede anlegen",
+            "notificationErrorTitle": "Fehler",
+            "notificationErrorMessage": "Fehler beim Speichern der Anrede."
         }
     }
 }
-
-
-

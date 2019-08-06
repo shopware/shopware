@@ -19,10 +19,17 @@
                 <p class="confirm-shipping-current{% if shippingMethodInvalid %} is-invalid{% endif %}">
                     {% block page_checkout_confirm_shipping_current_image %}
                         {% if context.shippingMethod.media %}
-                            <img src="{{ context.shippingMethod.media|sw_encode_media_url }}"
-                                 class="confirm-shipping-method-image"
-                                 alt="{{ context.shippingMethod.media.translated.alt }}"
-                                 title="{{ context.shippingMethod.media.translated.title }}">
+                            {% sw_thumbnails 'confirm-shipping-current-image-thumbnails' with {
+                                media: context.shippingMethod.media,
+                                sizes: {
+                                    'default': '100px'
+                                },
+                                attributes: {
+                                    'class': 'confirm-shipping-method-image',
+                                    'alt': (context.shippingMethod.media.translated.alt ?: context.shippingMethod.translated.name),
+                                    'title': (context.shippingMethod.media.translated.title ?: context.shippingMethod.translated.name)
+                                }
+                            } %}
                         {% endif %}
                     {% endblock %}
 
@@ -112,20 +119,27 @@
 
                                                                                 {% block page_checkout_confirm_shipping_form_image %}
                                                                                     {% if shipping.media %}
-                                                                                        <img src="{{ shipping.media|sw_encode_media_url }}"
-                                                                                             class="confirm-shipping-method-image"
-                                                                                             alt="{{ shipping.media.translated.alt }}"
-                                                                                             title="{{ shipping.media.translated.title }}">
+                                                                                        {% sw_thumbnails 'confirm-shipping-image-thumbnails' with {
+                                                                                            media: shipping.media,
+                                                                                            sizes: {
+                                                                                                'default': '100px'
+                                                                                            },
+                                                                                            attributes: {
+                                                                                                'class': 'confirm-shipping-method-image',
+                                                                                                'alt': (shipping.media.translated.alt ?: shipping.translated.name),
+                                                                                                'title': (shipping.media.translated.title ?: shipping.translated.name)
+                                                                                            }
+                                                                                        } %}
                                                                                     {% endif %}
                                                                                 {% endblock %}
 
                                                                                 {% block page_checkout_confirm_shipping_form_description %}
-                                                                                        <div class="shipping-method-description">
-                                                                                            <strong>{{ shipping.translated.name }}</strong>
-                                                                                            {% if shipping.description %}
-                                                                                                <p>{{ shipping.description|raw }}</p>
-                                                                                            {% endif %}
-                                                                                        </div>
+                                                                                    <div class="shipping-method-description">
+                                                                                        <strong>{{ shipping.translated.name }}</strong>
+                                                                                        {% if shipping.translated.description %}
+                                                                                            <p>{{ shipping.translated.description|raw }}</p>
+                                                                                        {% endif %}
+                                                                                    </div>
                                                                                 {% endblock %}
                                                                             </label>
                                                                         {% endblock %}

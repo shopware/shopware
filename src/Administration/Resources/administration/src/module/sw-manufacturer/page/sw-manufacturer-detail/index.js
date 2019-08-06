@@ -1,4 +1,5 @@
 import { Component, Mixin, State } from 'src/core/shopware';
+import { mapApiErrors } from 'src/app/service/map-errors.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
@@ -88,9 +89,7 @@ Component.register('sw-manufacturer-detail', {
             };
         },
 
-        manufacturerNameError() {
-            return this.$store.getters.getApiError(this.manufacturer, 'name');
-        }
+        ...mapApiErrors('manufacturer', ['name'])
     },
 
     watch: {

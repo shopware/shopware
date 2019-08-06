@@ -10,7 +10,7 @@
                 {% block sw_settings_salutation_detail_smart_bar_header_title %}
                     <h2>
                         {% block sw_settings_salutation_detail_smart_bar_header_title_text %}
-                            {{ salutation.salutationKey || $tc('sw-settings-salutation.detail.placeholderNewSalutation') }}
+                            {{ placeholder(salutation, 'salutationKey', $tc('sw-settings-salutation.detail.placeholderNewSalutation')) }}
                         {% endblock %}
                     </h2>
                 {% endblock %}
@@ -19,7 +19,9 @@
 
         {% block sw_settings_salutation_detail_language_switch %}
             <template slot="language-switch">
-                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"
+                                    :disabled="salutationId == null">
+                </sw-language-switch>
             </template>
         {% endblock %}
 
@@ -37,7 +39,7 @@
                         class="sw-settings-salutation-detail__save"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="!salutation.salutationKey || isLoading || invalidKey || isKeyChecking"
+                        :disabled="isLoading || invalidKey || isKeyChecking"
                         variant="primary"
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"
@@ -60,37 +62,40 @@
                         <sw-card :isLoading="isLoading"
                                  :title="$tc('sw-settings-salutation.detail.cardTitle')">
 
-                            {% block sw_settings_salutation_detail_content_card_salutation_key %}
-                                <sw-field v-model="salutation.salutationKey"
-                                          class="sw-settings-salutation-detail__salutation_key"
-                                          :label="$tc('sw-settings-salutation.detail.fieldSalutationKeyLabel')"
-                                          :placeholder="$tc('sw-settings-salutation.detail.fieldSalutationKeyPlaceholder')"
-                                          :helpText="$tc('sw-settings-salutation.detail.fieldSalutationKeyTooltip')"
-                                          :error="invalidKeyError"
-                                          validation="required"
-                                          required
-                                          @input="onChange">
-                                </sw-field>
-                            {% endblock %}
+                            <template v-if="salutation">
+                                {% block sw_settings_salutation_detail_content_card_salutation_key %}
+                                    <sw-field v-model="salutation.salutationKey"
+                                              class="sw-settings-salutation-detail__salutation_key"
+                                              :label="$tc('sw-settings-salutation.detail.fieldSalutationKeyLabel')"
+                                              :placeholder="$tc('sw-settings-salutation.detail.fieldSalutationKeyPlaceholder')"
+                                              :helpText="$tc('sw-settings-salutation.detail.fieldSalutationKeyTooltip')"
+                                              :error="invalidKeyError"
+                                              validation="required"
+                                              required
+                                              @input="onChange">
+                                    </sw-field>
+                                {% endblock %}
 
-                            {% block sw_settings_salutation_detail_content_card_display_name %}
-                                <sw-field v-model="salutation.displayName"
-                                          required
-                                          class="sw-settings-salutation-detail__displayName"
-                                          :label="$tc('sw-settings-salutation.detail.fieldDisplayNameLabel')"
-                                          :placeholder="placeholder(salutation, 'displayName', $tc('sw-settings-salutation.detail.fieldDisplayNamePlaceholder'))">
-                                </sw-field>
-                            {% endblock %}
+                                {% block sw_settings_salutation_detail_content_card_display_name %}
+                                    <sw-field v-model="salutation.displayName"
+                                              required
+                                              class="sw-settings-salutation-detail__displayName"
+                                              :label="$tc('sw-settings-salutation.detail.fieldDisplayNameLabel')"
+                                              :error="salutationDisplayNameError"
+                                              :placeholder="placeholder(salutation, 'displayName', $tc('sw-settings-salutation.detail.fieldDisplayNamePlaceholder'))">
+                                    </sw-field>
+                                {% endblock %}
 
-                            {% block sw_settings_salutation_detail_content_card_letter_name %}
-                                <sw-field v-model="salutation.letterName"
-                                          required
-                                          class="sw-settings-salutation-detail__letterName"
-                                          :label="$tc('sw-settings-salutation.detail.fieldLetterNameLabel')"
-                                          :placeholder="placeholder(salutation, 'letterName', $tc('sw-settings-salutation.detail.fieldLetterNamePlaceholder'))">
-                                </sw-field>
-                            {% endblock %}
-
+                                {% block sw_settings_salutation_detail_content_card_letter_name %}
+                                    <sw-field v-model="salutation.letterName"
+                                              required
+                                              class="sw-settings-salutation-detail__letterName"
+                                              :label="$tc('sw-settings-salutation.detail.fieldLetterNameLabel')"
+                                              :error="salutationLetterNameError"
+                                              :placeholder="placeholder(salutation, 'letterName', $tc('sw-settings-salutation.detail.fieldLetterNamePlaceholder'))">
+                                    </sw-field>
+                                {% endblock %}
+                            </template>
                         </sw-card>
                     {% endblock %}
                 </sw-card-view>

@@ -40,7 +40,9 @@
       "placeholderSymbol": "Enter currency symbol...",
       "placeholderFactor": "Enter conversion factor...",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save"
+      "buttonSave": "Save",
+      "notificationErrorTitle": "Error",
+      "notificationErrorMessage": "An error occured while saving your currency."
     }
   }
 }

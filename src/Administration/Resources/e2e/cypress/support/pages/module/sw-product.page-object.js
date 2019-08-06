@@ -47,8 +47,10 @@ export default class ProductPageObject extends GeneralPageObject {
 
         cy.get(`.sw-grid__row--0 ${optionsIndicator}`)
             .contains(`${optionPosition.length} ${optionString} selected`);
-        cy.get(`.sw-modal__footer ${this.elements.primaryButton}`).contains('Generate variants');
-        cy.get(`.sw-modal__footer ${this.elements.primaryButton}`).click();
+        cy.get('.sw-product-variant-generation__generate-action').click();
+        cy.get('.sw-product-modal-variant-generation__notification-modal').should('be.visible');
+        cy.get('.sw-product-modal-variant-generation__notification-modal .sw-modal__body')
+            .contains('3 variants will be added');
         cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary')
             .click();
         cy.get('.sw-product-modal-variant-generation').should('not.exist');

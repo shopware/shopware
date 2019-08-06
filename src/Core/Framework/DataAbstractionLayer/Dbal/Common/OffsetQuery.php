@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 
 class OffsetQuery implements IterableQuery
 {
@@ -24,8 +24,7 @@ class OffsetQuery implements IterableQuery
 
     public function fetch(): array
     {
-        $data = $this->query->execute()->fetchAll();
-        $data = FetchModeHelper::keyPair($data);
+        $data = $this->query->execute()->fetchAll(FetchMode::COLUMN);
 
         $this->offset += \count($data);
         $this->query->setFirstResult($this->offset);

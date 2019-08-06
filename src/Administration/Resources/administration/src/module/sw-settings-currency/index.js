@@ -3,7 +3,6 @@ import { Module } from 'src/core/shopware';
 import './extension/sw-settings-index';
 import './page/sw-settings-currency-list';
 import './page/sw-settings-currency-detail';
-import './page/sw-settings-currency-create';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
@@ -36,10 +35,17 @@ Module.register('sw-settings-currency', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.currency.index'
+            },
+            props: {
+                default(route) {
+                    return {
+                        currencyId: route.params.id
+                    };
+                }
             }
         },
         create: {
-            component: 'sw-settings-currency-create',
+            component: 'sw-settings-currency-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.currency.index'

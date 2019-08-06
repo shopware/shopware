@@ -23,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -93,7 +92,6 @@ class CategoryDefinition extends EntityDefinition
             new FkField('media_id', 'mediaId', MediaDefinition::class),
 
             (new BoolField('display_nested_products', 'displayNestedProducts'))->addFlags(new Required()),
-            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
 
             (new TranslatedField('breadcrumb'))->addFlags(new WriteProtected()),
             new TreeLevelField('level', 'level'),

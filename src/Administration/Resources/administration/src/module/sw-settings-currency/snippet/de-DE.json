@@ -40,7 +40,9 @@
       "placeholderSymbol": "Symbol eingeben ...",
       "placeholderFactor": "Faktor eingeben ...",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern"
+      "buttonSave": "Speichern",
+      "notificationErrorTitle": "Fehler",
+      "notificationErrorMessage": "Fehler beim Speichern der Währung."
     }
   }
 }

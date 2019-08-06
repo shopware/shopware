@@ -8,14 +8,14 @@ variables:
 
 stages:
     - Static analyzes
-    - Testing
+    - unit
     - E2E
     - Security
     - Build
     - Deploy
 
 include:
-    - local: .gitlab/ci/nightly.yml
+    -   local: .gitlab/ci/sync.yml
 
 default:
     image: shopware/development:latest
@@ -55,10 +55,9 @@ PHP analyze:
         reports:
             junit: php-cs-fixer.xml
 
-# Stage: testing
-
-PHPUnit (MySQL):
-    stage: Testing
+# stage: unit
+.phpunit_base:
+    stage: unit
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -68,13 +67,13 @@ PHPUnit (MySQL):
     script:
         - ./psh.phar init
         - php -d pcov.enabled=1 -d pcov.directory=$CI_PROJECT_DIR
-           vendor/bin/phpunit
-           --configuration vendor/shopware/platform/phpunit.xml.dist
-           --log-junit build/artifacts/phpunit.junit.xml
-           --colors=never
-           --coverage-clover build/artifacts/phpunit.clover.xml
-           --coverage-html build/artifacts/phpunit-coverage-html
-           --coverage-text
+            vendor/bin/phpunit
+            --configuration vendor/shopware/platform/phpunit.xml.dist
+            --log-junit build/artifacts/phpunit.junit.xml
+            --colors=never
+            --coverage-clover build/artifacts/phpunit.clover.xml
+            --coverage-html build/artifacts/phpunit-coverage-html
+            --coverage-text
 
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
@@ -83,31 +82,86 @@ PHPUnit (MySQL):
         reports:
             junit: development/build/artifacts/phpunit.junit.xml
 
-PHPUnit (MariaDB):
-    stage: Testing
+PHP 7.2:
+    extends: .phpunit_base
+    image: shopware/development:7.2
+    stage: unit
+    services:
+        -   name: mysql:5.7
+            alias: mysql
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+
+PHP 7.3:
+    extends: .phpunit_base
+    image: shopware/development:7.3
+    stage: unit
+    services:
+        -   name: mysql:5.7
+            alias: mysql
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+
+PHP 7.4:
+    allow_failure: true
+    extends: .phpunit_base
+    image: shopware/development:7.4
+    stage: unit
+    services:
+        -   name: mysql:5.7
+            alias: mysql
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+
+MySQL 5.7:
+    extends: .phpunit_base
+    stage: unit
+    services:
+        -   name: mysql:5.7
+            alias: mysql
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+
+MySQL 8.0:
+    extends: .phpunit_base
+    stage: unit
+    services:
+        -   name: mysql:8.0
+            alias: mysql
+            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password"]
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+
+
+MariaDB 10.3:
+    extends: .phpunit_base
+    stage: unit
     services:
         -   name: mariadb:10.3
             alias: mysql
         -   name: elastic/elasticsearch:7.1.1
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-    script:
-        - ./psh.phar init
-        - php -d pcov.enabled=1 -d pcov.directory=$CI_PROJECT_DIR
-           vendor/bin/phpunit
-           --configuration vendor/shopware/platform/phpunit.xml.dist
-           --log-junit build/artifacts/phpunit.junit.xml
-           --colors=never
-           --coverage-clover build/artifacts/phpunit.clover.xml
-           --coverage-html build/artifacts/phpunit-coverage-html
-           --coverage-text
-    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
-    artifacts:
-        reports:
-            junit: development/build/artifacts/phpunit.junit.xml
 
-Jest (Administration):
-    stage: Testing
+
+MariaDB 10.4:
+    extends: .phpunit_base
+    stage: unit
+    services:
+        -   name: mariadb:10.4
+            alias: mysql
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+
+
+Administration (Jest):
+    stage: unit
     services:
         -   name: mariadb:10.3
             alias: mysql
@@ -120,8 +174,8 @@ Jest (Administration):
         reports:
             junit: development/build/artifacts/administration.junit.xml
 
-Jest (Storefront):
-    stage: Testing
+Storefront (Jest):
+    stage: unit
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR/development
     services:
@@ -262,33 +316,6 @@ Component Library:
             - build/artifacts/component-library/
 
 # Stage: deploy
-
-Repository Split:
-    stage: Deploy
-    image: debian:buster-slim
-    before_script: []
-    dependencies: []
-    only:
-        - master
-    environment:
-        name: Github
-        url: https://github.com/shopware
-    script:
-        - apt update && apt install -y wget git
-
-        # download tool
-        - wget https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz
-        - tar xvfz lite_linux_amd64.tar.gz
-        - chmod +x splitsh-lite
-
-        # split repositories
-        - >
-            for pkg in Administration Docs Storefront Core Elasticsearch; do
-              echo "Splitting ${pkg}"
-              SHA1=`./splitsh-lite --prefix=src/$pkg/ --target=refs/heads/$pkg`
-              git remote set-url origin https://bot:${PERSONAL_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories/$(echo $pkg | awk '{print tolower($0)}').git
-              git push origin $SHA1:master -f
-            done
 
 .Scrutinizer:
     stage: Deploy

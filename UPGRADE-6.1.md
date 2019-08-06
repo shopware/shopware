@@ -14,7 +14,9 @@ Administration
 Storefront
 ----------
 
-*No changes yet*
+**Changes**
+
+* A theme must now implement the `Shopware\Storefront\Framework\ThemeInterface`.
 
 Elasticsearch
 -------------

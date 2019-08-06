@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -38,10 +39,9 @@ class StorefrontPluginRegistry
             if (!$bundle instanceof Bundle) {
                 continue;
             }
-            $configPath = $bundle->getPath() . DIRECTORY_SEPARATOR . ltrim($bundle->getThemeConfigPath(), DIRECTORY_SEPARATOR);
 
-            if (file_exists($configPath)) {
-                $config = StorefrontPluginConfiguration::createFromConfigFile($configPath, $bundle);
+            if ($bundle instanceof ThemeInterface) {
+                $config = StorefrontPluginConfiguration::createFromConfigFile($bundle);
             } else {
                 $config = StorefrontPluginConfiguration::createFromBundle($bundle);
 
@@ -52,5 +52,7 @@ class StorefrontPluginRegistry
 
             $this->pluginConfigurations->add($config);
         }
+
+        return $this->pluginConfigurations;
     }
 }

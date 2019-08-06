@@ -16,11 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class StorefrontController extends AbstractController
 {
-    /**
-     * @var string
-     */
-    protected $baseThemeId;
-
     protected function renderStorefront(string $view, array $parameters = [], ?Response $response = null): Response
     {
         $request = $this->get('request_stack')->getCurrentRequest();

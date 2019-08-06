@@ -38,7 +38,7 @@ class SalesChannelContextResolvedSubscriber implements EventSubscriberInterface
     public function resolved(SalesChannelContextResolvedEvent $event): void
     {
         // Set individual saleschannel twig cache
-        // TODO performance can be improved if indivudal cache keys are used instead (NEXT-4137)
+        // TODO performance can be improved if indivudal cache keys are used instead (NEXT-4386)
         $this->twig->setCache(
             $this->cacheDir . '/'
             . $event->getSalesChannelContext()->getSalesChannel()->getId()

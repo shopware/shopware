@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeFixtures;
@@ -36,12 +35,44 @@ class ThemeTest extends TestCase
      */
     private $themeRepository;
 
+    /** @var string */
+    private $createdStorefrontTheme = '';
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->themeService = $this->getContainer()->get(ThemeService::class);
         $this->themeRepository = $this->getContainer()->get('theme.repository');
+
         $this->context = Context::createDefaultContext();
+
+        $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
+        if ($theme === null) {
+            $this->createdStorefrontTheme = Uuid::randomHex();
+            $this->themeRepository->create([
+                [
+                    'id' => $this->createdStorefrontTheme,
+                    'name' => 'Storefront',
+                    'technicalName' => 'Storefront',
+                    'author' => 'Shopware AG',
+                    'labels' => [
+                        'en-GB' => [
+                            'sw-color-brand-primary' => 'Primary colour',
+                        ],
+                        'de-DE' => [
+                            'sw-color-brand-primary' => 'Primärfarbe',
+                        ],
+                    ],
+                ],
+            ], $this->context);
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->createdStorefrontTheme !== '') {
+            $this->themeRepository->delete([['id' => $this->createdStorefrontTheme]], $this->context);
+        }
     }
 
     public function testDefaultThemeConfig()
@@ -153,8 +184,6 @@ class ThemeTest extends TestCase
 
     public function testRefreshPlugin()
     {
-        /** @var IdSearchResult $themes */
-        $themes = $this->themeRepository->searchIds(new Criteria(), $this->context);
         $themeLifecycleService = $this->getContainer()->get(ThemeLifecycleService::class);
         $themeLifecycleService->refreshThemes($this->context);
         $themes = $this->themeRepository->search(new Criteria(), $this->context);

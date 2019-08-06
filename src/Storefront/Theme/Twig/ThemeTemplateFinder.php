@@ -3,7 +3,8 @@
 namespace Shopware\Storefront\Theme\Twig;
 
 use Shopware\Core\Framework\Twig\TemplateFinder;
-use Shopware\Storefront\Framework\ThemePlugin;
+use Shopware\Storefront\Framework\ThemeInterface;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Twig\Error\LoaderError;
 
 class ThemeTemplateFinder extends TemplateFinder
@@ -46,12 +47,13 @@ class ThemeTemplateFinder extends TemplateFinder
         foreach ($prefilteredBundles as $bundle) {
             $kernelBundles = $this->kernel->getBundles();
             $bundleClass = null;
-            if (key_exists($bundle, $kernelBundles)) {
+            if (array_key_exists($bundle, $kernelBundles)) {
                 $bundleClass = $this->kernel->getBundle($bundle);
             }
             if (
                 $bundleClass === null
-                || !($bundleClass instanceof ThemePlugin)
+                || !($bundleClass instanceof ThemeInterface)
+                || $bundle === StorefrontPluginRegistry::BASE_THEME_NAME
                 || $this->activeThemeName === $bundle
                 || $this->activeThemeBaseName === $bundle
             ) {

@@ -280,7 +280,8 @@
       "titleModal": "Medien ersetzen",
       "buttonUpload": "Upload",
       "buttonCancel": "Abbrechen",
-      "buttonReplace": "Ersetzen"
+      "buttonReplace": "Ersetzen",
+      "warningFileExtension": "Die neue Datei hat eine andere Dateiendung ({extension}). Die Datei muss bei Suchmaschinen ggf. neu indexiert werden."
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Ihr Browser unterstützt diesen Video-Tag nicht",

@@ -25,7 +25,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get(page.elements.loader).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Ruler');
         cy.clickContextMenuItem(
-            '.sw-rule-list__rule-edit-action',
+            '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );

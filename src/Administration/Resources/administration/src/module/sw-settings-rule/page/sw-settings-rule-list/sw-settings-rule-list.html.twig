@@ -54,8 +54,8 @@
                                     :repository="ruleRepository"
                                     :showSelection="true"
                                     :isLoading="isLoading"
-                                    @inline-edit-save="onInlineEditSave"
-                                    detailRoute="sw.settings.rule.detail">
+                                    detailRoute="sw.settings.rule.detail"
+                                    @inline-edit-save="onInlineEditSave">
 
                                     <template #column-invalid="{item}">
                                         <template v-if="item.invalid">
@@ -76,59 +76,13 @@
                                     </template>
 
                                     {% block sw_settings_rule_list_grid_columns_actions %}
-                                    <template #actions="{ item }">
-                                        {% block sw_settings_rule_list_grid_columns_actions_edit %}
-                                            <sw-context-menu-item class="sw-rule-list__rule-edit-action"
-                                                    :routerLink="{ name: 'sw.settings.rule.detail', params: { id: item.id, edit: 'edit' }}">
-                                                {{ $tc('sw-settings-rule.list.contextMenuEdit') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-
-                                        {% block sw_settings_rule_list_grid_columns_actions_duplicate %}
-                                            <sw-context-menu-item @click="onDuplicate(item)">
-                                                {{ $tc('sw-settings-rule.list.contextMenuDuplicate') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-
-                                        {% block sw_settings_rule_list_grid_columns_actions_delete %}
-                                            <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
-                                                {{ $tc('sw-settings-rule.list.contextMenuDelete') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-                                    </template>
-                                    {% endblock %}
-
-                                    {% block sw_settings_rule_list_grid_action_modals %}
-                                    <template #action-modals="{ item }">
-                                        {% block sw_settings_rule_list_delete_modal %}
-                                        <sw-modal v-if="showDeleteModal === item.id"
-                                                  @modal-close="onCloseDeleteModal"
-                                                  :title="$tc('sw-settings-rule.list.modalTitleDelete')"
-                                                  variant="small">
-                                            {% block sw_settings_rule_list_delete_modal_confirm_delete_text %}
-                                                <p class="sw-settings-rule-list__confirm-delete-text">
-                                                    {{ $tc('sw-settings-rule.list.textDeleteConfirm', 0, { name: `${item.name}` }) }}
-                                                </p>
+                                        <template #more-actions="{ item }">
+                                            {% block sw_settings_rule_list_grid_columns_actions_duplicate %}
+                                                <sw-context-menu-item @click="onDuplicate(item)">
+                                                    {{ $tc('sw-settings-rule.list.contextMenuDuplicate') }}
+                                                </sw-context-menu-item>
                                             {% endblock %}
-
-                                            {% block sw_settings_rule_list_delete_modal_footer %}
-                                                <template #modal-footer>
-                                                    {% block sw_settings_rule_list_delete_modal_cancel %}
-                                                        <sw-button @click="onCloseDeleteModal" size="small">
-                                                            {{ $tc('sw-settings-rule.list.buttonCancel') }}
-                                                        </sw-button>
-                                                    {% endblock %}
-
-                                                    {% block sw_settings_rule_list_delete_modal_confirm %}
-                                                        <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
-                                                            {{ $tc('sw-settings-rule.list.buttonDelete') }}
-                                                        </sw-button>
-                                                    {% endblock %}
-                                                </template>
-                                            {% endblock %}
-                                        </sw-modal>
-                                        {% endblock %}
-                                    </template>
+                                        </template>
                                     {% endblock %}
                                 </sw-entity-listing>
                             {% endblock %}
@@ -147,58 +101,17 @@
                 </template>
 
                 {% block sw_settings_rule_list_sidebar %}
-                    <sw-sidebar slot="sidebar">
-                        {% block sw_settings_rule_list_sidebar_refresh %}
-                        <sw-sidebar-item
-                                icon="default-arrow-360-left"
-                                :title="$tc('sw-settings-rule.list.titleSidebarItemRefresh')"
-                                @click="onRefresh">
-                        </sw-sidebar-item>
-                        {% endblock %}
-
-                        {% block sw_settings_rule_list_sidebar_delete %}
-                        <sw-sidebar-item
-                                icon="default-action-trash"
-                                :title="$tc('sw-settings-rule.list.titleSidebarBulkTrash')"
-                                position="bottom"
-                                @click="onBulkDelete">
-                        </sw-sidebar-item>
-                        {% endblock %}
-
-                        {% block sw_settings_rule_list_sidebar_delete_modal %}
-                        <sw-modal v-if="showDeleteModal === true"
-                                  @modal-close="onCloseDeleteModal"
-                                  :title="$tc('sw-settings-rule.list.modalTitleBulkDelete')"
-                                  variant="small">
-
-                            {% block sw_settings_rule_list_sidebar_delete_modal_confirm_text %}
-                            <p class="sw-settings-rule-list__confirm-bulk-delete-text">
-                                {{ $tc('sw-settings-rule.list.textBulkDeleteConfirm') }}
-                            </p>
+                    <template #sidebar>
+                        <sw-sidebar>
+                            {% block sw_settings_rule_list_sidebar_refresh %}
+                                <sw-sidebar-item
+                                    icon="default-arrow-360-left"
+                                    :title="$tc('sw-settings-rule.list.titleSidebarItemRefresh')"
+                                    @click="onRefresh">
+                                </sw-sidebar-item>
                             {% endblock %}
-
-                            {% block sw_settings_rule_list_sidebar_delete_modal_footer %}
-                            <template slot="modal-footer">
-
-                                {% block sw_settings_rule_list_sidebar_delete_modal_actions_cancel %}
-                                <sw-button @click="onCloseDeleteModal"
-                                           size="small">
-                                    {{ $tc('sw-settings-rule.list.buttonCancel') }}
-                                </sw-button>
-                                {% endblock %}
-
-                                {% block sw_settings_rule_list_sidebar_delete_modal_actions_delete %}
-                                <sw-button @click="onConfirmBulkDelete"
-                                           variant="primary"
-                                           size="small">
-                                    {{ $tc('sw-settings-rule.list.buttonDelete') }}
-                                </sw-button>
-                                {% endblock %}
-                            </template>
-                            {% endblock %}
-                        </sw-modal>
-                        {% endblock %}
-                    </sw-sidebar>
+                        </sw-sidebar>
+                    </template>
                 {% endblock %}
             {% endblock %}
         </sw-page>

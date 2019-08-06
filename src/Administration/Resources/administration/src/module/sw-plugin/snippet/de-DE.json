@@ -29,7 +29,7 @@
       "messageGenericFailure": "Es ist ein unbekannter Fehler aufgetreten",
       "titleUploadFailure": "Hochladen fehlgeschlagen",
       "messageUploadFailureNotAZipFile": "Die hochgeladenen Datei ist keine Zip-Datei",
-      "messageUploadFailureUnzipFailed": "Die Zip-Datei konnt nicht entpackt werden",
+      "messageUploadFailureUnzipFailed": "Die Zip-Datei konnte nicht entpackt werden",
       "messageUploadFailureNoPluginFoundInZipFile": "In der hochgeladenen Zip-Datei wurde kein Plugin gefunden",
       "titleLoginDataInvalid": "Logindaten unvollständig",
       "messageLoginDataInvalid": "Logindaten wurden nicht vollständig angegeben",

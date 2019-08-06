@@ -312,7 +312,11 @@ Component.register('sw-mail-template-detail', {
         enrichAssocStores(responseAssoc) {
             this.mailTemplateSalesChannelsAssoc = responseAssoc;
             this.mailTemplateSalesChannelsAssoc.forEach((salesChannelAssoc) => {
-                if (salesChannelAssoc.salesChannelId !== null) {
+                // Check if sales channel id already exists in mailTemplateSalesChannel
+                const found = this.mailTemplateSalesChannels.some((item) => {
+                    return item.id === salesChannelAssoc.salesChannelId;
+                });
+                if (salesChannelAssoc.salesChannelId !== null && !found) {
                     this.mailTemplateSalesChannels.push(salesChannelAssoc.salesChannel);
                 }
             });

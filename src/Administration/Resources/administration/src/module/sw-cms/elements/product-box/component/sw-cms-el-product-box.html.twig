@@ -2,7 +2,7 @@
     <div class="sw-cms-el-product-box" :class="`box-${element.config.boxLayout.value}`" v-if="product">
 
         {% block sw_cms_element_product_box_content %}
-            <div class="sw-cms-el-product-box__content">
+            <div class="sw-cms-el-product-box__content" :style="verticalAlignStyle">
 
                 {% block sw_cms_element_product_box_badges %}
                     <div class="sw-cms-el-product-box__badges">

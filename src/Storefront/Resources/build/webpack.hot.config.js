@@ -3,6 +3,8 @@ const { join } = require('path');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const utils = require('./utils');
 
+console.log(utils.getProjectRootPath());
+
 /**
  * -------------------------------------------------------
  * WEBPACK CONFIGURATIONS
@@ -39,6 +41,15 @@ const modules = {
                 {
                     loader: 'sass-loader',
                 },
+                // Provides our theme variables to the hot replacement mode
+                {
+                    loader: 'sass-resources-loader',
+                    options: {
+                        resources: [
+                            join(utils.getProjectRootPath(), 'var/theme-variables.scss'),
+                        ],
+                    },
+                },
             ],
         },
     ],
@@ -61,6 +72,7 @@ const plugins = [
  */
 const devServer = {
     contentBase: utils.getBuildPath(),
+    publicPath: utils.getPublicPath(),
     open: false,
     overlay: {
         warnings: false,
@@ -71,7 +83,7 @@ const devServer = {
     },
     quiet: false,
     hot: true,
-    compress: true,
+    compress: false,
     disableHostCheck: true,
     port: 9999,
     host: '0.0.0.0',

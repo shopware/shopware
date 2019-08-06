@@ -220,6 +220,10 @@ class WebpackPluginInjector {
      * @return {Object} modified webpack config
      */
     registerPluginsToWebpackConfig(plugins) {
+        if (process.env.MODE === 'hot' && this.section === 'storefront') {
+            this.webpackConfig.entry.app.unshift(resolveFromRootPath('var/theme-variables.scss'));
+            this.webpackConfig.entry.storefront = [];
+        }
         plugins.forEach((plugin) => {
             const name = plugin.pluginName;
             const technicalName = plugin.technicalName;
@@ -238,8 +242,8 @@ class WebpackPluginInjector {
             }
 
             if (process.env.MODE === 'hot' && this.section === 'storefront') {
-                this.webpackConfig.entry['storefront'].push(plugin.entryFile);
-                this.webpackConfig.entry['storefront'].push(...plugin.styleFiles);
+                this.webpackConfig.entry.storefront.push(plugin.entryFile);
+                this.webpackConfig.entry.storefront.push(...plugin.styleFiles);
             } else {
                 // Add plugin as a new entry in the webpack config, respect NODE_ENV and insert the 'dev-client' if necessary
                 this.webpackConfig.entry[technicalName] = (this.env === 'development' && this.section === 'administration')

@@ -65,7 +65,9 @@ export default {
             if (!action.route) {
                 return;
             }
+
             this.$router.push(action.route);
+            this.$emit('center-close');
         }
     }
 };

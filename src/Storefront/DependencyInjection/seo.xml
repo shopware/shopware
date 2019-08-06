@@ -49,8 +49,12 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\Entity\Dbal\SeoUrlAssociationFieldResolver">
+            <argument type="service" id="Shopware\Storefront\Framework\Seo\Entity\Dbal\SeoUrlJoinBuilder"/>
+
             <tag name="shopware.field_resolver" priority="200"/>
         </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\Entity\Dbal\SeoUrlJoinBuilder" />
 
         <service id="Shopware\Storefront\Framework\Seo\SeoUrlGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>

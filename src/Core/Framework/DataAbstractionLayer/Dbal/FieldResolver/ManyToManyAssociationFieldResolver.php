@@ -4,17 +4,30 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\JoinBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 
 class ManyToManyAssociationFieldResolver implements FieldResolverInterface
 {
+    /**
+     * @var JoinBuilderInterface
+     */
+    private $joinBuilder;
+
+    public function __construct(JoinBuilderInterface $joinBuilder)
+    {
+        $this->joinBuilder = $joinBuilder;
+    }
+
+    public function getJoinBuilder(): JoinBuilderInterface
+    {
+        return $this->joinBuilder;
+    }
+
     public function resolve(
         EntityDefinition $definition,
         string $root,
@@ -26,91 +39,26 @@ class ManyToManyAssociationFieldResolver implements FieldResolverInterface
         if (!$field instanceof ManyToManyAssociationField) {
             return false;
         }
+
         $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
 
-        /** @var EntityDefinition $mapping */
-        $mapping = $field->getMappingDefinition();
-        $table = $mapping->getEntityName();
-
-        $mappingAlias = $root . '.' . $field->getPropertyName() . '.mapping';
-
-        if ($query->hasState($mappingAlias)) {
+        $alias = $root . '.' . $field->getPropertyName();
+        if ($query->hasState($alias)) {
             return true;
         }
-        $query->addState($mappingAlias);
+        $query->addState($alias);
 
-        $versionJoinCondition = '';
-        if ($definition->isVersionAware() && $field->is(CascadeDelete::class)) {
-            $versionField = $definition->getEntityName() . '_version_id';
-            $versionJoinCondition = ' AND #root#.version_id = #alias#.' . $versionField;
-        }
-
-        $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
-        if ($field->is(Inherited::class) && $context->considerInheritance()) {
-            $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
-        }
-
-        $parameters = [
-            '#root#' => EntityDefinitionQueryHelper::escape($root),
-            '#source#' => $source,
-            '#alias#' => EntityDefinitionQueryHelper::escape($mappingAlias),
-            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getMappingLocalColumn()),
-        ];
-
-        $query->leftJoin(
-            EntityDefinitionQueryHelper::escape($root),
-            EntityDefinitionQueryHelper::escape($table),
-            EntityDefinitionQueryHelper::escape($mappingAlias),
-            str_replace(
-                array_keys($parameters),
-                array_values($parameters),
-                '#source# = #alias#.#reference_column#' . $versionJoinCondition
-            )
+        $this->getJoinBuilder()->join(
+            $definition,
+            JoinBuilderInterface::LEFT_JOIN,
+            $field,
+            $root,
+            $alias,
+            $query,
+            $context
         );
 
         $reference = $field->getToManyReferenceDefinition();
-        $table = $reference->getEntityName();
-
-        $alias = $root . '.' . $field->getPropertyName();
-
-        $versionJoinCondition = '';
-        if ($reference->isVersionAware()) {
-            $versionField = '`' . $reference->getEntityName() . '_version_id`';
-            $versionJoinCondition = ' AND #alias#.`version_id` = #mapping#.' . $versionField;
-        }
-
-        $referenceColumn = EntityDefinitionQueryHelper::escape($field->getReferenceField());
-        if ($field->is(ReverseInherited::class) && $context->considerInheritance()) {
-            /** @var ReverseInherited $flag */
-            $flag = $field->getFlag(ReverseInherited::class);
-
-            $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getReversedPropertyName());
-        }
-
-        $ruleCondition = $queryHelper->buildRuleCondition($reference, $query, $alias, $context);
-        if ($ruleCondition !== null) {
-            $ruleCondition = ' AND ' . $ruleCondition;
-        }
-
-        $parameters = [
-            '#mapping#' => EntityDefinitionQueryHelper::escape($mappingAlias),
-            '#source_column#' => EntityDefinitionQueryHelper::escape($field->getMappingReferenceColumn()),
-            '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-            '#reference_column#' => $referenceColumn,
-            '#root#' => EntityDefinitionQueryHelper::escape($root),
-        ];
-
-        $query->leftJoin(
-            EntityDefinitionQueryHelper::escape($mappingAlias),
-            EntityDefinitionQueryHelper::escape($table),
-            EntityDefinitionQueryHelper::escape($alias),
-            str_replace(
-                array_keys($parameters),
-                array_values($parameters),
-                '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoinCondition . $ruleCondition
-            )
-        );
-
         if ($definition->getClass() === $reference->getClass()) {
             return true;
         }

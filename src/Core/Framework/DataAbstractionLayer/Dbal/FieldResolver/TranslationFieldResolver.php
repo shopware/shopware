@@ -4,14 +4,29 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\JoinBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 class TranslationFieldResolver implements FieldResolverInterface
 {
+    /**
+     * @var JoinBuilderInterface
+     */
+    private $joinBuilder;
+
+    public function __construct(JoinBuilderInterface $joinBuilder)
+    {
+        $this->joinBuilder = $joinBuilder;
+    }
+
+    public function getJoinBuilder(): JoinBuilderInterface
+    {
+        return $this->joinBuilder;
+    }
+
     public function resolve(
         EntityDefinition $definition,
         string $root,
@@ -24,48 +39,14 @@ class TranslationFieldResolver implements FieldResolverInterface
             return false;
         }
 
-        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $definition->isInheritanceAware() && $context->considerInheritance());
-
-        foreach ($chain as $part) {
-            $this->joinTranslationTable($part, $definition, $query);
+        $alias = $root . '.' . $definition->getEntityName() . '_translation';
+        if ($query->hasState($alias)) {
+            return false;
         }
+        $query->addState($alias);
+
+        $this->getJoinBuilder()->join($definition, JoinBuilderInterface::LEFT_JOIN, $field, $root, $alias, $query, $context);
 
         return true;
-    }
-
-    private function joinTranslationTable(array $part, EntityDefinition $definition, QueryBuilder $query): void
-    {
-        $table = $definition->getEntityName() . '_translation';
-        $parameterName = str_replace('.', '_', $part['name']) . 'LanguageId';
-
-        if ($query->hasState($part['alias'])) {
-            return;
-        }
-        $query->addState($part['alias']);
-
-        $versionJoin = '';
-        if ($definition->isVersionAware()) {
-            $versionJoin = ' AND #alias#.`#entity#_version_id` = #root#.`version_id`';
-        }
-
-        $parameters = [
-            '#alias#' => EntityDefinitionQueryHelper::escape($part['alias']),
-            '#entity#' => $definition->getEntityName(),
-            '#root#' => EntityDefinitionQueryHelper::escape($part['root']),
-        ];
-
-        $query->leftJoin(
-            EntityDefinitionQueryHelper::escape($part['root']),
-            EntityDefinitionQueryHelper::escape($table),
-            EntityDefinitionQueryHelper::escape($part['alias']),
-            str_replace(
-                array_keys($parameters),
-                array_values($parameters),
-                    '#alias#.`#entity#_id` = #root#.`id` AND #alias#.`language_id` = :' . $parameterName . $versionJoin
-            )
-        );
-
-        $languageId = Uuid::fromHexToBytes($part['id']);
-        $query->setParameter($parameterName, $languageId);
     }
 }

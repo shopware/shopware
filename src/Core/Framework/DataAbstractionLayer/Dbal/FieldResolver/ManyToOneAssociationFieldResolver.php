@@ -2,21 +2,32 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\JoinBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 
 class ManyToOneAssociationFieldResolver implements FieldResolverInterface
 {
+    /**
+     * @var JoinBuilderInterface
+     */
+    private $joinBuilder;
+
+    public function __construct(JoinBuilderInterface $joinBuilder)
+    {
+        $this->joinBuilder = $joinBuilder;
+    }
+
+    public function getJoinBuilder(): JoinBuilderInterface
+    {
+        return $this->joinBuilder;
+    }
+
     public function resolve(
         EntityDefinition $definition,
         string $root,
@@ -36,7 +47,7 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         }
         $query->addState($alias);
 
-        $this->join($definition, $root, $field, $query, $context, $queryHelper);
+        $this->getJoinBuilder()->join($definition, JoinBuilderInterface::LEFT_JOIN, $field, $root, $alias, $query, $context);
 
         if ($definition === $reference) {
             return true;
@@ -52,138 +63,5 @@ class ManyToOneAssociationFieldResolver implements FieldResolverInterface
         $queryHelper->resolveField($parent, $reference, $alias, $query, $context);
 
         return true;
-    }
-
-    private function join(
-        EntityDefinition $definition,
-        string $root,
-        AssociationField $field,
-        QueryBuilder $query,
-        Context $context,
-        EntityDefinitionQueryHelper $queryHelper
-    ): void {
-        if (!$field instanceof ManyToOneAssociationField && !$field instanceof OneToOneAssociationField) {
-            return;
-        }
-
-        $reference = $field->getReferenceDefinition();
-
-        $table = $reference->getEntityName();
-
-        $alias = $root . '.' . $field->getPropertyName();
-
-        $versionAware = ($definition->isVersionAware() && $reference->isVersionAware());
-
-        $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
-
-        if ($field->is(Inherited::class) && $context->considerInheritance()) {
-            $inherited = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
-
-            $fk = $definition->getFields()->getByStorageName($field->getStorageName());
-            if ($fk && $fk->is(Required::class)) {
-                $parent = $root . '.parent';
-
-                $inherited = sprintf(
-                    'IFNULL(%s, %s)',
-                    $source,
-                    EntityDefinitionQueryHelper::escape($parent) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
-                );
-            }
-
-            $source = $inherited;
-        }
-
-        $referenceColumn = EntityDefinitionQueryHelper::escape($field->getReferenceField());
-        if ($field->is(ReverseInherited::class) && $context->considerInheritance()) {
-            /** @var ReverseInherited $flag */
-            $flag = $field->getFlag(ReverseInherited::class);
-
-            $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getReversedPropertyName());
-        }
-
-        //specified version requested, use sub version call to solve live version or specified
-        if ($versionAware && $context->getVersionId() !== Defaults::LIVE_VERSION) {
-            $versionQuery = $this->createSubVersionQuery($field, $query, $context, $queryHelper);
-
-            $parameters = [
-                '#source#' => $source,
-                '#root#' => EntityDefinitionQueryHelper::escape($root),
-                '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-                '#reference_column#' => $referenceColumn,
-            ];
-
-            $query->leftJoin(
-                EntityDefinitionQueryHelper::escape($root),
-                '(' . $versionQuery->getSQL() . ')',
-                EntityDefinitionQueryHelper::escape($alias),
-                str_replace(
-                    array_keys($parameters),
-                    array_values($parameters),
-                    '#source# = #alias#.#reference_column#'
-                )
-            );
-
-            foreach ($versionQuery->getParameters() as $key => $value) {
-                $query->setParameter($key, $value, $query->getParameterType($key));
-            }
-
-            return;
-        }
-
-        if ($versionAware) {
-            $parameters = [
-                '#source#' => $source,
-                '#root#' => EntityDefinitionQueryHelper::escape($root),
-                '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-                '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
-            ];
-
-            $query->leftJoin(
-                EntityDefinitionQueryHelper::escape($root),
-                EntityDefinitionQueryHelper::escape($table),
-                EntityDefinitionQueryHelper::escape($alias),
-                str_replace(
-                    array_keys($parameters),
-                    array_values($parameters),
-                    '#source# = #alias#.#reference_column# AND #root#.`version_id` = #alias#.`version_id`'
-                )
-            );
-
-            return;
-        }
-
-        //No Blacklisting Whitelisting for ManyToOne Association because of possible Dependencies on subentities
-        $parameters = [
-            '#source#' => $source,
-            '#root#' => EntityDefinitionQueryHelper::escape($root),
-            '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-            '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
-        ];
-
-        $query->leftJoin(
-            EntityDefinitionQueryHelper::escape($root),
-            EntityDefinitionQueryHelper::escape($table),
-            EntityDefinitionQueryHelper::escape($alias),
-            str_replace(
-                array_keys($parameters),
-                array_values($parameters),
-                '#source# = #alias#.#reference_column#'
-            )
-        );
-    }
-
-    private function createSubVersionQuery(AssociationField $field, QueryBuilder $query, Context $context, EntityDefinitionQueryHelper $queryHelper): QueryBuilder
-    {
-        $subRoot = $field->getReferenceDefinition()->getEntityName();
-
-        $versionQuery = new QueryBuilder($query->getConnection());
-        $versionQuery->select(EntityDefinitionQueryHelper::escape($subRoot) . '.*');
-        $versionQuery->from(
-            EntityDefinitionQueryHelper::escape($subRoot),
-            EntityDefinitionQueryHelper::escape($subRoot)
-        );
-        $queryHelper->joinVersion($versionQuery, $field->getReferenceDefinition(), $subRoot, $context);
-
-        return $versionQuery;
     }
 }

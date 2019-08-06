@@ -19,16 +19,6 @@ abstract class StorefrontController extends AbstractController
     /**
      * @var string
      */
-    protected $activeThemeName;
-
-    /**
-     * @var string
-     */
-    protected $activeThemeBaseName;
-
-    /**
-     * @var string
-     */
     protected $baseThemeId;
 
     protected function renderStorefront(string $view, array $parameters = [], ?Response $response = null): Response
@@ -39,10 +29,10 @@ abstract class StorefrontController extends AbstractController
 
         $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
-        $this->activeThemeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
-        $this->activeThemeBaseName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
+        $activeThemeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
+        $activeThemeBaseName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
 
-        $view = $this->resolveView($view);
+        $view = $this->resolveView($view, $activeThemeName, $activeThemeBaseName);
 
         $event = new StorefrontRenderEvent($view, $parameters, $request, $context);
 
@@ -102,7 +92,7 @@ abstract class StorefrontController extends AbstractController
         return $this->forward($route['_controller'], $parameters);
     }
 
-    protected function resolveView(string $view): string
+    protected function resolveView(string $view, ?string $activeThemeName, ?string $activeThemeBaseName): string
     {
         //remove static template inheritance prefix
         if (strpos($view, '@') === 0) {
@@ -114,7 +104,7 @@ abstract class StorefrontController extends AbstractController
         /** @var ThemeTemplateFinder $templateFinder */
         $templateFinder = $this->get(ThemeTemplateFinder::class);
 
-        return $templateFinder->find($view, false, null, $this->activeThemeName, $this->activeThemeBaseName);
+        return $templateFinder->find($view, false, null, $activeThemeName, $activeThemeBaseName);
     }
 
     /**

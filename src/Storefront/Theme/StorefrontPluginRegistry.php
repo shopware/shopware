@@ -12,15 +12,29 @@ class StorefrontPluginRegistry
     const BASE_THEME_NAME = 'Storefront';
 
     /**
-     * @var StorefrontPluginConfigurationCollection
+     * @var StorefrontPluginConfigurationCollection|null
      */
     private $pluginConfigurations;
 
+    /**
+     * @var KernelInterface
+     */
+    private $kernel;
+
     public function __construct(KernelInterface $kernel)
     {
+        $this->kernel = $kernel;
+    }
+
+    public function getConfigurations(): StorefrontPluginConfigurationCollection
+    {
+        if ($this->pluginConfigurations) {
+            return $this->pluginConfigurations;
+        }
+
         $this->pluginConfigurations = new StorefrontPluginConfigurationCollection();
 
-        foreach ($kernel->getBundles() as $bundle) {
+        foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {
                 continue;
             }
@@ -38,10 +52,5 @@ class StorefrontPluginRegistry
 
             $this->pluginConfigurations->add($config);
         }
-    }
-
-    public function getConfigurations(): StorefrontPluginConfigurationCollection
-    {
-        return $this->pluginConfigurations;
     }
 }

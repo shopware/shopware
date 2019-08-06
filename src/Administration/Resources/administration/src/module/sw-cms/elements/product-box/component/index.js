@@ -36,6 +36,14 @@ Component.register('sw-cms-el-product-box', {
             }
 
             return `is--${this.element.config.displayMode.value}`;
+        },
+
+        verticalAlignStyle() {
+            if (!this.element.config.verticalAlign.value) {
+                return null;
+            }
+
+            return `align-content: ${this.element.config.verticalAlign.value};`;
         }
     },
 

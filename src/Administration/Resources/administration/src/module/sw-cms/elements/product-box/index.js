@@ -21,6 +21,10 @@ Application.getContainer('service').cmsService.registerCmsElement({
         displayMode: {
             source: 'static',
             value: 'standard'
+        },
+        verticalAlign: {
+            source: 'static',
+            value: null
         }
     },
     defaultData: {

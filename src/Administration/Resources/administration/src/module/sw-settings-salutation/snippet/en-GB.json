@@ -7,30 +7,15 @@
     "sw-settings-salutation": {
         "general": {
             "mainMenuItemGeneral": "Salutations",
-            "description": "Manage salutations here.",
             "buttonCancel": "Cancel",
             "buttonCreate": "Add salutation",
-            "buttonDelete": "Delete",
             "buttonSave": "Save",
-            "contextMenuDelete": "Delete",
-            "contextMenuEdit": "Edit",
-            "placeholderSearchBar": "Search salutations",
-            "titleError": "Error",
-            "titleSuccess": "Success"
+            "placeholderSearchBar": "Search salutations"
         },
         "list": {
-            "buttonAdd": "Add salutation",
             "columnSalutationKey": "Technical name",
             "columnDisplayName": "Salutation",
-            "columnLetterName": "Letter salutation",
-            "fieldDisplayNamePlaceholder": "Enter a new salutation...",
-            "fieldLetterNamePlaceholder": "Enter a letter salutation...",
-            "fieldSalutationKeyPlaceholder": "Enter a technical name...",
-            "messageDeleteError": "Salutation could not be deleted.",
-            "messageDeleteSuccess": "Salutation \"{key}\" has been deleted.",
-            "messageSaveError": "Salutation could not be saved.",
-            "messageSaveSuccess": "Salutation \"{key}\" has been saved.",
-            "textDeleteConfirm": "Are you sure you want to delete the salutation \"{key}\"?"
+            "columnLetterName": "Letter salutation"
         },
         "detail": {
             "cardTitle": "Salutation",
@@ -41,9 +26,9 @@
             "fieldSalutationKeyTooltip": "Choose a unique technical name that is required to include the salutations, e.g. in email templates.",
             "fieldSalutationKeyLabel": "Technical name",
             "fieldSalutationKeyPlaceholder": "Enter a technical name...",
-            "messageSaveError": "Salutation could not be saved.",
-            "messageSaveSuccess": "Salutation \"{key}\" has been saved.",
-            "placeholderNewSalutation": "New salutation"
+            "placeholderNewSalutation": "New salutation",
+            "notificationErrorTitle": "Error",
+            "notificationErrorMessage": "An error occured while saving your salutation."
         }
     }
 }

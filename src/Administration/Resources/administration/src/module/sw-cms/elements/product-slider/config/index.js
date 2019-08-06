@@ -48,7 +48,7 @@ Component.register('sw-cms-el-config-product-slider', {
 
         onChangeDisplayMode(value) {
             if (value === 'cover') {
-                this.element.config.verticalAlign.value = '';
+                this.element.config.verticalAlign.value = null;
             }
 
             this.$emit('element-update', this.element);

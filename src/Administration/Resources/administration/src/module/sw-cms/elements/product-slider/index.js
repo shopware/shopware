@@ -44,7 +44,7 @@ Application.getContainer('service').cmsService.registerCmsElement({
         },
         verticalAlign: {
             source: 'static',
-            value: ''
+            value: null
         }
     }
 });

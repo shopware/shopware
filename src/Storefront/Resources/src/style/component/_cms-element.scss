@@ -55,13 +55,6 @@ General styling for cms elements
     width: 100%;
 }
 
-.cms-element-text {
-    &.has-vertical-alignment {
-        display: flex;
-        height: 100%;
-    }
-}
-
 .cms-element-product-slider {
     .cms-element-title {
         font-size: $font-size-lg;
@@ -76,6 +69,9 @@ General styling for cms elements
     }
 }
 
+.cms-element-text,
+.cms-element-image,
+.cms-element-product-box,
 .cms-element-product-slider,
 .cms-element-image-slider,
 .cms-element-image-gallery {

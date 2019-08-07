@@ -41,9 +41,7 @@ Component.extend('sw-customer-create', 'sw-customer-detail', {
             this.customer.addresses.add(defaultAddress);
             this.customer.defaultBillingAddressId = defaultAddress.id;
             this.customer.defaultShippingAddressId = defaultAddress.id;
-
-            // ToDo: Change to actual password strategy
-            this.customer.password = 'shopware';
+            this.customer.password = '';
 
             this.$super.createdComponent();
 

@@ -10,7 +10,7 @@
                 {% block sw_settings_customer_group_detail_smart_bar_header_title %}
                     <h2>
                         {% block sw_settings_customer_group_detail_smart_bar_header_title_text %}
-                            {{ customerGroup.translated.name || $tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup') }}
+                            {{ placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup')) }}
                         {% endblock %}
                     </h2>
                 {% endblock %}
@@ -19,7 +19,9 @@
 
         {% block sw_settings_customer_group_detail_language_switch %}
             <template slot="language-switch">
-                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"
+                                    :disabled="customerGroupId == null">
+                </sw-language-switch>
             </template>
         {% endblock %}
 
@@ -36,10 +38,9 @@
                     <sw-button-process
                             class="sw-settings-customer-group-detail__save"
                             :isLoading="isLoading"
-                            :processSuccess="isSaveSuccessful"
-                            :disabled="!customerGroup.name || isLoading"
+                            v-model="isSaveSuccessful"
+                            :disabled="isLoading"
                             variant="primary"
-                            @process-finish="saveFinish"
                             v-tooltip.bottom="tooltipSave"
                             @click="onSave">
                         {{ $tc('sw-settings-customer-group.general.buttonSave') }}
@@ -51,7 +52,6 @@
         {% block sw_settings_customer_group_detail_cardview %}
             <template slot="content">
                 <sw-card-view>
-
                     {% block sw_settings_customer_group_detail_content_language_info %}
                         <sw-language-info :entityDescription="entityDescription"></sw-language-info>
                     {% endblock %}
@@ -60,28 +60,29 @@
                     {% block sw_settings_customer_group_detail_content_card %}
                         <sw-card :isLoading="isLoading"
                                  :title="$tc('sw-settings-customer-group.detail.cardTitle')">
-                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                            <template v-if="!isLoading">
+                                <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                                    {% block sw_settings_customer_group_detail_content_card_name %}
+                                        <sw-field v-model="customerGroup.name"
+                                                  class="sw-settings-customer-group-detail__name"
+                                                  :label="$tc('sw-settings-customer-group.detail.fieldNameLabel')"
+                                                  :error="customerGroupNameError"
+                                                  :placeholder="placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderName'))"
+                                                  required
+                                                  validation="required">
+                                        </sw-field>
+                                    {% endblock %}
 
-                            {% block sw_settings_customer_group_detail_content_card_name %}
-                                <sw-field v-model="customerGroup.name"
-                                          class="sw-settings-customer-group-detail__name"
-                                          :label="$tc('sw-settings-customer-group.detail.fieldNameLabel')"
-                                          :placeholder="placeholder(customerGroup, 'name', $tc('sw-settings-customer-group.detail.placeholderName'))"
-                                          required
-                                          validation="required">
-                                </sw-field>
-                            {% endblock %}
-
-                            {% block sw_settings_customer_group_detail_content_card_display_gross %}
-                                <sw-boolean-radio-group v-model="customerGroup.displayGross"
-                                                        :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
-                                                        :labelOptionTrue="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', true)"
-                                                        :labelOptionFalse="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', false)"
-                                                        bordered>
-                                </sw-boolean-radio-group>
-                            {% endblock %}
-
-                            </sw-container>
+                                    {% block sw_settings_customer_group_detail_content_card_display_gross %}
+                                        <sw-boolean-radio-group v-model="customerGroup.displayGross"
+                                                                :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
+                                                                :labelOptionTrue="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', true)"
+                                                                :labelOptionFalse="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', false)"
+                                                                bordered>
+                                        </sw-boolean-radio-group>
+                                    {% endblock %}
+                                </sw-container>
+                            </template>
                         </sw-card>
                     {% endblock %}
 

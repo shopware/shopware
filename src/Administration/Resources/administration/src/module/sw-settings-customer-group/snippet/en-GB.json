@@ -2,38 +2,24 @@
     "sw-settings-customer-group": {
         "general": {
             "mainMenuItemGeneral": "Customer groups",
-            "description": "Manage customer groups here.",
             "buttonCancel": "Cancel",
             "buttonCreate": "Add customer group",
-            "buttonDelete": "Delete",
             "buttonSave": "Save",
-            "contextMenuEdit": "Edit",
-            "contextMenuDelete": "Delete",
-            "placeholderSearchBar": "Search customer groups...",
-            "titleError": "Error",
-            "titleSuccess": "Success"
+            "placeholderSearchBar": "Search customer groups..."
         },
         "list": {
             "columnName": "Name",
-            "columnDisplayGross": "Tax display",
-            "fieldNamePlaceholder": "Enter a name...",
-            "messageDeleteError": "Customer group could not be deleted.",
-            "messageDeleteSuccess": "Customer group has been deleted.",
-            "messageSaveError": "Customer group could not be saved.",
-            "messageSaveSuccess": "Customer group \"{name}\" has been saved.",
-            "textDeleteConfirm": "Are you sure you want to delete the customer group \"{name}\"?",
-            "titleDeleteSuccess": "Success",
-            "textNetGross": "Gross | Net"
+            "columnDisplayGross": "Tax display"
         },
         "detail": {
             "cardTitle": "Customer group",
             "fieldNameLabel": "Name",
             "fieldDisplayGrossLabel": "Tax display",
             "fieldDisplayGrossValues": "Gross | Net",
-            "messageSaveError": "Customer group could not be saved.",
-            "messageSaveSuccess": "Customer group \"{name}\" has been saved.",
             "placeholderName": "Enter a name...",
-            "placeholderNewCustomerGroup": "New customer group"
+            "placeholderNewCustomerGroup": "New customer group",
+            "notificationErrorTitle": "Error",
+            "notificationErrorMessage": "An error occured while saving your customer group."
         }
     }
 }

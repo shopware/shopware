@@ -49,7 +49,7 @@ PHP analyze:
     script:
         - composer install --no-interaction --optimize-autoloader --no-suggest --no-scripts
         - php bin/phpstan.phar analyze --level 5 --configuration phpstan.neon src
-        - php bin/php-cs-fixer.phar fix --dry-run -v --allow-risky=yes --format=junit src > php-cs-fixer.xml
+        - php bin/php-cs-fixer.phar fix --dry-run -v --allow-risky=yes --format=junit src | tee php-cs-fixer.xml
         - php bin/generate-composer.php
     artifacts:
         reports:

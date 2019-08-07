@@ -47,6 +47,26 @@ body {
 }
 ```
 
+In case you want to use the same color in several places, but want to define it just one time you can use variables for this.
+
+Create a `variables.scss` file inside your styles folder and define your background color variable:
+```scss
+// in variables.scss
+$sw-storefront-assets-color-background: blue;
+```
+
+Inside your `main.scss` file you can now import your previously defined variables and use them:
+```scss
+// in main.scss
+@import 'variables.scss';
+
+body {
+    background: $sw-storefront-assets-color-background;
+}
+```
+
+This has the advantage that when you want to change the values of your variables you just have one location to change them and the hard coded values are not cluttered all over the codebase.
+
 ### Loading the assets
 
 Since Shopware knows where your style files are located, they are automatically compiled, compressed 

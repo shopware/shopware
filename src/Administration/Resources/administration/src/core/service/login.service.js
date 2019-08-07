@@ -29,7 +29,8 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         isLoggedIn,
         addOnTokenChangedListener,
         addOnLogoutListener,
-        addOnLoginListener
+        addOnLoginListener,
+        getLocalStorageKey
     };
 
     /**
@@ -180,14 +181,18 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
      */
     function getBearerAuthentication(section = null) {
         if (typeof localStorage !== 'undefined') {
-            bearerAuth = JSON.parse(localStorage.getItem(localStorageKey));
+            try {
+                bearerAuth = JSON.parse(localStorage.getItem(localStorageKey));
+            } catch {
+                bearerAuth = null;
+            }
         }
+
+        context.authToken = bearerAuth;
 
         if (!bearerAuth) {
             return false;
         }
-
-        context.authToken = bearerAuth;
 
         if (!section) {
             return bearerAuth;
@@ -205,9 +210,11 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     function logout() {
         if (typeof localStorage !== 'undefined') {
             localStorage.removeItem(localStorageKey);
-        } else {
-            bearerAuth = null;
         }
+
+        context.authToken = null;
+        bearerAuth = null;
+
         notifyOnLogoutListener();
 
         return true;
@@ -264,5 +271,9 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     function isLoggedIn() {
         const bearerAuthExpiry = getExpiry();
         return validateExpiry(bearerAuthExpiry);
+    }
+
+    function getLocalStorageKey() {
+        return localStorageKey;
     }
 }

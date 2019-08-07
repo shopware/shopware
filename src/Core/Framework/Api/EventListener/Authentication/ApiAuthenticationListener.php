@@ -89,8 +89,8 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $refreshTokenGrant->setRefreshTokenTTL($oneWeekInterval);
 
         $this->authorizationServer->enableGrantType($passwordGrant, $tenMinuteInterval);
-        $this->authorizationServer->enableGrantType($refreshTokenGrant, $oneWeekInterval);
-        $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $oneWeekInterval);
+        $this->authorizationServer->enableGrantType($refreshTokenGrant, $tenMinuteInterval);
+        $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $tenMinuteInterval);
     }
 
     public function validateRequest(ControllerEvent $event): void

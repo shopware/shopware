@@ -8,10 +8,12 @@ export default function initializeConfigDecorator() {
             return configService.getConfig().then((response) => {
                 context.config = response;
                 service();
+            }).catch(() => {
+                loginService.logout();
             });
         }
         if (loginService.isLoggedIn()) {
-            getConfig().catch();
+            getConfig();
             return;
         }
 

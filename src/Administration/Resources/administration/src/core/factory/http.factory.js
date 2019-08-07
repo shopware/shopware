@@ -3,6 +3,7 @@
  */
 import Axios from 'axios';
 import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
+import { Application } from 'src/core/shopware';
 
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as
@@ -58,12 +59,20 @@ function refreshTokenInterceptor(client) {
                 });
             }
 
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 tokenHandler.subscribe((newToken) => {
                     // replace the expired token and retry
                     originalRequest.headers.Authorization = `Bearer ${newToken}`;
                     originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
                     resolve(Axios(originalRequest));
+                }, (err) => {
+                    if (!Application.getApplicationRoot()) {
+                        reject(err);
+                        window.location.reload();
+                        return;
+                    }
+                    Application.getApplicationRoot().$router.push({ name: 'sw.login.index' });
+                    reject(err);
                 });
             });
         }

@@ -1,9 +1,16 @@
 const webpack = require('webpack');
 const { join } = require('path');
+const { existsSync } = require('fs');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const utils = require('./utils');
 
-console.log(utils.getProjectRootPath());
+const themeFilesConfigPath = join(utils.getProjectRootPath(), 'var/theme-files.json');
+if (!existsSync(themeFilesConfigPath)) {
+    throw new Error(`File "${themeFilesConfigPath}" not found`);
+}
+
+// eslint-disable-next-line
+const themeFiles = require(themeFilesConfigPath);
 
 /**
  * -------------------------------------------------------
@@ -81,7 +88,7 @@ const devServer = {
     stats: {
         colors: true,
     },
-    quiet: false,
+    quiet: true,
     hot: true,
     compress: false,
     disableHostCheck: true,
@@ -96,13 +103,20 @@ const devServer = {
 /**
  * Export the webpack configuration
  */
-module.exports = {
+const config = {
     devServer: devServer,
     devtool: 'cheap-module-eval-source-map',
     mode: 'development',
     module: modules,
     entry: {
         app: [utils.getPath('/src/style/base.scss')],
+        storefront: [],
     },
     plugins: plugins,
 };
+
+config.entry.storefront = [...themeFiles.script, ...themeFiles.style].map((file) => {
+    return file.filepath;
+});
+
+module.exports = config;

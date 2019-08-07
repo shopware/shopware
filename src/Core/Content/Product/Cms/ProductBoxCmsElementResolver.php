@@ -46,7 +46,7 @@ class ProductBoxCmsElementResolver extends AbstractCmsElementResolver
         $config = $slot->getFieldConfig();
         $productConfig = $config->get('product');
 
-        if (!$productConfig) {
+        if (!$productConfig || $productConfig->getValue() === null) {
             return;
         }
 

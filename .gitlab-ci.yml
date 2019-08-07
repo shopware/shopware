@@ -104,7 +104,7 @@ PHP 7.3:
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
-PHP 7.4:
+.PHP 7.4: # disabled until available
     allow_failure: true
     extends: .phpunit_base
     image: shopware/development:7.4

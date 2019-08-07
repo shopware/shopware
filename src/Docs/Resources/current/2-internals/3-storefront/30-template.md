@@ -1,6 +1,9 @@
 [titleEn]: <>(Template structure)
 
-The storefronts theme is implemented as a skin on top of the [Boostrap toolkit](https://getbootstrap.com/). Therefore the template structure is a derivate of the [bootstrap starter template](https://getbootstrap.com/docs/4.3/getting-started/introduction/#starter-template). The templating engine used is [Twig](https://twig.symfony.com/)
+The storefront theme is implemented as a skin on top of the [Boostrap toolkit](https://getbootstrap.com/). Therefore the template structure is a derivate of the [bootstrap starter template](https://getbootstrap.com/docs/4.3/getting-started/introduction/#starter-template). 
+The templating engine used is [Twig](https://twig.symfony.com/).
+For styling [SASS](https://sass-lang.com/) is used as CSS preprocessor.
+The bundling and transpiling of the javascript [Webpack](https://webpack.js.org/) is used.
 
 The templates can be found in [`/src/Storefront/Resources/views`](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views) 
 
@@ -50,7 +53,17 @@ The page directory contains the entry points of the templating system. These are
 └── search
 ```
 
-Inside of the directories are the actuial templates rendered by the storefront. The inner structure is dependant on the complexity of the domain context, therefore a system can not be clearly inferred from here on.
+Inside of the directories are the actual templates rendered by the storefront. The inner structure is dependant on the complexity of the domain context, therefore a system can not be clearly inferred from here on.
+
+### Template multi inheritance
+
+Due to the plugin and theme system in shopware it is possible that one storefront template gets extended by multiple plugins or themes, but [Twig](https://twig.symfony.com/) does not allow multi inheritance out of the box. 
+Therefore we created our own twig functions `sw_extends` and `sw_include`, that work exactly like twigs native [`extends`](https://twig.symfony.com/doc/2.x/tags/extends.html) or [`include`](https://twig.symfony.com/doc/2.x/tags/include.html), except that they allow for multi inheritance. 
+So it is really important to use the `sw_extends` and `sw_include`, instead of the native `extends` and `include`.
+
+#### Inheritance order
+
+The order of the inheritance is determined by the order the plugins or themes are loaded in the plugin list through `bin/console plugin:refresh`.
 
 ## Styles Top Level
 

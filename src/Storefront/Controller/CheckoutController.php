@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -82,6 +83,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/cart", name="frontend.checkout.cart.page", options={"seo"="false"}, methods={"GET"})
      */
     public function cartPage(Request $request, SalesChannelContext $context): Response
@@ -92,6 +94,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function confirmPage(Request $request, SalesChannelContext $context): Response
@@ -110,6 +113,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -128,6 +132,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/order", name="frontend.checkout.finish.order", options={"seo"="false"}, methods={"POST"})
      */
     public function order(RequestDataBag $data, SalesChannelContext $context): Response
@@ -161,6 +166,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/checkout/info", name="frontend.checkout.info", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException
@@ -173,6 +179,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/offcanvas", name="frontend.cart.offcanvas", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException

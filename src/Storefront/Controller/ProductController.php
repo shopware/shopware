@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Product\SalesChannel\ProductReviewService;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -57,6 +58,7 @@ class ProductController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/detail/{productId}", name="frontend.detail.page", methods={"GET"})
      */
     public function index(SalesChannelContext $context, Request $request): Response
@@ -69,6 +71,7 @@ class ProductController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/detail/{productId}/switch", name="frontend.detail.switch", methods={"POST"})
      */
     public function switch(string $productId, RequestDataBag $data, SalesChannelContext $context): RedirectResponse
@@ -87,6 +90,7 @@ class ProductController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/quickview/{productId}", name="widgets.quickview.minimal", methods={"GET"}, defaults={"XmlHttpRequest": true})
      */
     public function quickviewMinimal(Request $request, SalesChannelContext $context): Response
@@ -97,6 +101,7 @@ class ProductController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/product/{productId}/rating", name="frontend.detail.review.save", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
@@ -118,6 +123,7 @@ class ProductController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/product/{productId}/reviews", name="frontend.product.reviews", methods={"GET","POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function loadReviews(Request $request, SalesChannelContext $context): Response

@@ -27,6 +27,7 @@ final class PlatformRequest
     public const ATTRIBUTE_CONTEXT_OBJECT = 'sw-context';
     public const ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT = 'sw-sales-channel-context';
     public const ATTRIBUTE_SALES_CHANNEL_ID = 'sw-sales-channel-id';
+    public const ATTRIBUTE_ROUTE_SCOPE = '_routeScope';
 
     /**
      * OAuth attributes

@@ -26,7 +26,24 @@ Core
         $thumbnailCriteria = $criteria->getAssociation('categories.media.thumbnail');
         $thumbnailCriteria->setLimit(5);
         ```
-        
+ * Added RouteScopes as required Annotation for all Routes
+ 
+    We have added Scopes for Routes. The Scopes hold and resolve information of allowed paths and contexts.
+    A RouteScope is mandatory for a Route. From now on every Route defined, needs a defined RouteScope.
+    
+    RouteScopes are defined via Annotation:
+    ```php
+    /**
+     * @RouteScope(scopes={"storefront"})
+     * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
+     */
+     
+     /**
+      * @RouteScope(scopes={"storefront", "my_additional_scope"})
+      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
+      */
+    
+    ```
 
 Administration
 --------------

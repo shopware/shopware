@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -40,6 +41,7 @@ class CmsController extends StorefrontController
     /**
      * Route for stand alone cms pages
      *
+     * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})
      *
      * @throws MissingRequestParameterException
@@ -60,6 +62,7 @@ class CmsController extends StorefrontController
      * Route to load a cms page which assigned to the provided navigation id.
      * Navigation id is required to load the slot config for the navigation
      *
+     * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/cms/navigation/{navigationId}", name="frontend.cms.navigation.page", methods={"GET", "POST"}, defaults={"navigationId"=null, "XmlHttpRequest"=true})
      *
      * @throws CategoryNotFoundException

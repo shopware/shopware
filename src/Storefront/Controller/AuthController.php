@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,6 +33,7 @@ class AuthController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
      */
     public function loginPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -55,6 +57,7 @@ class AuthController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/account/logout", name="frontend.account.logout.page", methods={"GET"})
      */
     public function logout(SalesChannelContext $context): Response
@@ -77,6 +80,7 @@ class AuthController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/account/login", name="frontend.account.login", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function login(Request $request, RequestDataBag $data, SalesChannelContext $context): Response

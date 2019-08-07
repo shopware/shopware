@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
@@ -28,6 +29,7 @@ class SearchController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/search", name="frontend.search.page", options={"seo"=false}, methods={"GET"})
      */
     public function search(SalesChannelContext $context, Request $request): Response
@@ -38,6 +40,7 @@ class SearchController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/suggest", name="frontend.search.suggest", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function suggest(SalesChannelContext $context, Request $request): Response

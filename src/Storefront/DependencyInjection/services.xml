@@ -19,6 +19,10 @@
             <argument type="service" id="request_stack"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\StorefrontRouteScope">
+            <tag name="shopware.route_scope"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Twig\TemplateDataExtension">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>

@@ -4,6 +4,7 @@ namespace Shopware\Administration\Controller;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Twig\TemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,6 +29,7 @@ class AdministrationController extends AbstractController
     }
 
     /**
+     * @RouteScope(scopes={"administration"})
      * @Route("/admin", name="administration.index", methods={"GET"})
      */
     public function index(): Response

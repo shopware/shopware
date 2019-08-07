@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
@@ -29,7 +30,8 @@ class NavigationController extends StorefrontController
     }
 
     /**
-     * @Route("/", name="frontend.home.page", methods={"GET"})
+     * @RouteScope(scopes={"storefront"})
+     * @Route("/", name="frontend.home.page", options={"seo"="true"}, methods={"GET"})
      */
     public function home(Request $request, SalesChannelContext $context): ?Response
     {
@@ -39,6 +41,7 @@ class NavigationController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/navigation/{navigationId}", name="frontend.navigation.page", options={"seo"=true}, methods={"GET"})
      */
     public function index(SalesChannelContext $context, Request $request): Response
@@ -53,6 +56,7 @@ class NavigationController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/menu/offcanvas", name="frontend.menu.offcanvas", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function offcanvas(Request $request, SalesChannelContext $context): Response

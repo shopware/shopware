@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -41,6 +42,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/account", name="frontend.account.home.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -55,6 +57,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -73,6 +76,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/account/profile", name="frontend.account.profile.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -95,6 +99,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -119,6 +124,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException

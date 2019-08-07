@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Sitemap\SitemapPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,7 @@ class SitemapController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/sitemap.xml", name="frontend.sitemap.xml", methods={"GET"}, defaults={"_format"="xml"})
      */
     public function sitemapXml(SalesChannelContext $context, Request $request): Response

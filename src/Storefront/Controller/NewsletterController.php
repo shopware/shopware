@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\NewsletterSubscriptionService;
 use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -59,6 +60,7 @@ class NewsletterController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/newsletter", name="frontend.newsletter.register.page", methods={"GET"})
      */
     public function index(SalesChannelContext $context, Request $request): Response
@@ -69,6 +71,7 @@ class NewsletterController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/newsletter", name="frontend.newsletter.register.handle", methods={"POST"})
      */
     public function handle(Request $request, SalesChannelContext $context, RequestDataBag $requestDataBag): Response
@@ -100,6 +103,7 @@ class NewsletterController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/newsletter/subscribe", name="frontend.newsletter.subscribe", methods={"GET"})
      */
     public function subscribeMail(SalesChannelContext $context, Request $request, QueryDataBag $queryDataBag): Response
@@ -118,6 +122,7 @@ class NewsletterController extends StorefrontController
     }
 
     /**
+     * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/account/newsletter", name="frontend.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response

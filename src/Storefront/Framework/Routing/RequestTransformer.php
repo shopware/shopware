@@ -49,6 +49,8 @@ class RequestTransformer implements RequestTransformerInterface
 
     public function transform(Request $request): Request
     {
+        $request = $this->decorated->transform($request);
+
         if (!$this->isSalesChannelRequired($request->getPathInfo())) {
             return $this->decorated->transform($request);
         }
@@ -150,6 +152,7 @@ class RequestTransformer implements RequestTransformerInterface
                 'CONCAT(TRIM(TRAILING "/" FROM domain.url), "/") url',
                 'LOWER(HEX(domain.id)) id',
                 'LOWER(HEX(sales_channel.id)) salesChannelId',
+                'LOWER(HEX(sales_channel.type_id)) typeId',
                 'LOWER(HEX(domain.snippet_set_id)) snippetSetId',
                 'LOWER(HEX(domain.currency_id)) currencyId',
                 'LOWER(HEX(domain.language_id)) languageId',

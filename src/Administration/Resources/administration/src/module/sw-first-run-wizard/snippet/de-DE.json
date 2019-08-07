@@ -23,7 +23,13 @@
       "modalTitle": "Demodaten installieren",
       "headlineDemodata": "Demodaten",
       "messageDemodata": "Nutze optional die Möglichkeit und statte Deinen Shop mit Demodaten aus.<br><br>Bitte beachte: Die Demodaten dienen nur zu Testzwecken. Du solltest sie nicht in einer Produktivumgebung anwenden.",
-      "loadingMessage": "Installiere Demodaten<br>Es könnte eine Weile dauern..."
+      "loadingMessage": "Installiere Demodaten<br>Es könnte eine Weile dauern...",
+      "installationWarning": {
+        "headline": "Achtung",
+        "message": "Die Demodaten wurden bereits installiert. Eine erneute Installation könnte Deine individuellen Daten überschreiben.",
+        "cancel": "Abbrechen",
+        "forceInstall": "Trotzdem installieren"
+      }
     },
     "paypalInfo": {
       "headline": "Jetzt vorintegriert in Shopware mit noch einfacherer und schnellerer Aktivierung der beliebtesten Zahlarten*",

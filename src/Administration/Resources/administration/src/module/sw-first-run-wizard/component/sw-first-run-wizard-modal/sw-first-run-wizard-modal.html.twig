@@ -56,6 +56,9 @@
                             <sw-button v-if="nextVisible" size="small" variant="primary" @click="onNext">
                                 {{ $tc('sw-first-run-wizard.general.buttonNext') }}
                             </sw-button>
+                            <sw-button v-if="installable" size="small" variant="primary" @click="onInstall">
+                                {{ $tc('sw-first-run-wizard.general.buttonInstall') }}
+                            </sw-button>
                             <sw-button v-if="finishable" size="small" variant="primary" @click="onFinish">
                                 {{ $tc('sw-first-run-wizard.general.buttonFinish') }}
                             </sw-button>

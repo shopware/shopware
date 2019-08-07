@@ -1,16 +1,33 @@
 import { Component } from 'src/core/shopware';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-first-run-wizard-demodata.html.twig';
 import './sw-first-run-wizard-demodata.scss';
 
 Component.register('sw-first-run-wizard-demodata', {
     template,
 
-    inject: ['addNextCallback', 'storeService', 'pluginService'],
+    inject: [
+        'addNextCallback',
+        'storeService',
+        'pluginService',
+        'repositoryFactory',
+        'context'
+    ],
 
     data() {
         return {
-            isInstallingPlugin: false
+            demodataPluginName: 'SwagPlatformDemoData',
+            isPluginAlreadyInstalled: false,
+            isInstallingPlugin: false,
+            showInstallWarning: false,
+            installWarningPromise: null
         };
+    },
+
+    computed: {
+        pluginRepository() {
+            return this.repositoryFactory.create('plugin');
+        }
     },
 
     created() {
@@ -19,13 +36,49 @@ Component.register('sw-first-run-wizard-demodata', {
 
     methods: {
         createdComponent() {
+            this.getInstalledPlugins();
             this.addNextCallback(this.installDemodata);
         },
 
         installDemodata() {
-            const pluginName = 'SwagPlatformDemoData';
+            // check if plugin is already installed
+            if (this.isPluginAlreadyInstalled) {
+                // show warning
+                this.showInstallWarning = true;
 
+                // create global promise
+                this.installWarningPromise = this.createPromise();
+
+                // return global promise which can be resolved from outside
+                return this.installWarningPromise;
+            }
+
+            return this.installPlugin();
+        },
+
+        cancelInstallation() {
+            this.showInstallWarning = false;
+
+            // cancel installation
+            this.installWarningPromise.resolve(true);
+            this.installWarningPromise = null;
+        },
+
+        continueInstallation() {
+            this.showInstallWarning = false;
+
+            // install Plugin
+            this.installPlugin().then(() => {
+                // resolve with success
+                this.installWarningPromise.resolve(false);
+                this.installWarningPromise = null;
+            });
+        },
+
+        installPlugin() {
             this.isInstallingPlugin = true;
+
+            const pluginName = this.demodataPluginName;
 
             return this.storeService.downloadPlugin(pluginName, true)
                 .then(() => {
@@ -44,6 +97,39 @@ Component.register('sw-first-run-wizard-demodata', {
 
                     return true;
                 });
+        },
+
+        getInstalledPlugins() {
+            const pluginCriteria = new Criteria();
+
+            pluginCriteria
+                .addFilter(
+                    Criteria.equals('plugin.name', this.demodataPluginName)
+                )
+                .setLimit(1);
+
+            this.pluginRepository
+                .search(pluginCriteria, this.context)
+                .then((result) => {
+                    if (result.total < 1) {
+                        return;
+                    }
+
+                    this.isPluginAlreadyInstalled = true;
+                });
+        },
+
+        createPromise() {
+            // create promise which can be resolved from outside
+            let _resolve;
+
+            const newPromise = new Promise((resolve) => {
+                _resolve = resolve;
+            });
+
+            newPromise.resolve = _resolve;
+
+            return newPromise;
         }
     }
 });

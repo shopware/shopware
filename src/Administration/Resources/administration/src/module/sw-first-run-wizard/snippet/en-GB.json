@@ -23,7 +23,13 @@
       "modalTitle": "Install Demodata",
       "headlineDemodata": "Demo data",
       "messageDemodata": "Optionally use the possibility and equip your shop with demo data.<br><br>Please note: The demo data is for testing purposes only. You should not use them in a productive environment.",
-      "loadingMessage": "Installing demo data plugin<br>This may take a while..."
+      "loadingMessage": "Installing demo data plugin<br>This may take a while...",
+      "installationWarning": {
+        "headline": "Caution",
+        "message": "The demo data has already been installed. A new installation may overwrite any customized data.",
+        "cancel": "Cancel",
+        "forceInstall": "Install anyway"
+      }
     },
     "paypalInfo": {
       "headline": "Now pre-integrated in Shopware with even easier and faster activation of the most popular payment methods*",

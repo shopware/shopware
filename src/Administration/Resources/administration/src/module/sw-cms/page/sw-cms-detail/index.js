@@ -561,14 +561,30 @@ Component.register('sw-cms-detail', {
                     title: warningTitle,
                     message: warningMessage
                 });
+
                 return Promise.reject();
             }
 
             const blockStore = this.page.getAssociation('blocks');
+            let foundEmptyRequiredField = [];
             blockStore.forEach((block) => {
                 block.original.backgroundMedia = null;
                 block.draft.backgroundMedia = null;
+
+                foundEmptyRequiredField = this.checkRequiredSlotConfigFields(block.slots);
             });
+
+            if (foundEmptyRequiredField.length > 0) {
+                const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingBlockFields');
+                const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingBlockFields');
+                this.createNotificationWarning({
+                    title: warningTitle,
+                    message: warningMessage
+                });
+
+                foundEmptyRequiredField = [];
+                return Promise.reject();
+            }
 
             this.isLoading = true;
             return this.page.save(true).then(() => {
@@ -610,6 +626,23 @@ Component.register('sw-cms-detail', {
 
                 return Promise.reject(exception);
             });
+        },
+
+        checkRequiredSlotConfigFields(slots) {
+            const found = slots.map((slot) => {
+                return Object.values(slot.config).filter((configField) => {
+                    const returnVal = !!configField.required &&
+                                      (configField.value === null || configField.value.length < 1);
+
+                    if (configField.required) {
+                        delete configField.required;
+                    }
+
+                    return returnVal;
+                });
+            });
+
+            return found.flat();
         },
 
         updateBlockPositions() {

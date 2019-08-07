@@ -12,7 +12,8 @@ Application.getContainer('service').cmsService.registerCmsElement({
     defaultConfig: {
         media: {
             source: 'static',
-            value: null
+            value: null,
+            required: true
         },
         displayMode: {
             source: 'static',

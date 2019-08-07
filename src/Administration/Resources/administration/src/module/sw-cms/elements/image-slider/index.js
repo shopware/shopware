@@ -12,7 +12,8 @@ Application.getContainer('service').cmsService.registerCmsElement({
     defaultConfig: {
         sliderItems: {
             source: 'static',
-            value: []
+            value: [],
+            required: true
         },
         navigationArrows: {
             source: 'static',

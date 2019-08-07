@@ -12,7 +12,8 @@ Application.getContainer('service').cmsService.registerCmsElement({
     defaultConfig: {
         products: {
             source: 'static',
-            value: []
+            value: [],
+            required: true
         },
         title: {
             source: 'static',

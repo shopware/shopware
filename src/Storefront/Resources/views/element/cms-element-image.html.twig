@@ -1,40 +1,46 @@
 {% block element_image %}
-    <div class="cms-element-{{ element.type }}">
-        {% block element_image_inner %}
-            {% set imageElement %}
-                {% block element_image_container %}
-                    {% if element.data.media.url %}
-                        <div class="cms-image-container is-{{ element.translated.config.displayMode.value }}"
-                            {% if element.translated.config.minHeight.value and element.translated.config.displayMode.value == "cover" %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
-                            {% block element_image_media %}
-                                {% set attributes = {
-                                    'class': 'cms-image',
-                                    'alt': (element.data.media.translated.alt ?: ''),
-                                    'title': (element.data.media.translated.title ?: '')
-                                } %}
+    {%  set config = element.fieldConfig.elements %}
 
-                                {% if element.translated.config.displayMode.value == 'cover' or element.translated.config.displayMode.value == 'contain' %}
-                                    {% set attributes = attributes|merge({ 'data-object-fit': element.translated.config.displayMode.value }) %}
-                                {% endif %}
+    <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}">
+        {% block element_product_slider_alignment %}
+            <div class="cms-element-alignment{% if config.verticalAlign.value == "center" %} align-self-center{% elseif config.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+                {% block element_image_inner %}
+                    {% set imageElement %}
+                        {% block element_image_container %}
+                            {% if element.data.media.url %}
+                                <div class="cms-image-container is-{{ element.translated.config.displayMode.value }}"
+                                    {% if element.translated.config.minHeight.value and element.translated.config.displayMode.value == "cover" %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
+                                    {% block element_image_media %}
+                                        {% set attributes = {
+                                            'class': 'cms-image',
+                                            'alt': (element.data.media.translated.alt ?: ''),
+                                            'title': (element.data.media.translated.title ?: '')
+                                        } %}
 
-                                {% sw_thumbnails 'cms-image-thumbnails' with {
-                                    media: element.data.media
-                                } %}
-                            {% endblock %}
-                        </div>
+                                        {% if element.translated.config.displayMode.value == 'cover' or element.translated.config.displayMode.value == 'contain' %}
+                                            {% set attributes = attributes|merge({ 'data-object-fit': element.translated.config.displayMode.value }) %}
+                                        {% endif %}
+
+                                        {% sw_thumbnails 'cms-image-thumbnails' with {
+                                            media: element.data.media
+                                        } %}
+                                    {% endblock %}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                    {% endset %}
+
+                    {% if element.translated.config.url.value %}
+                        <a href="{{ element.translated.config.url.value }}"
+                           class="cms-image-link"
+                           {% if element.translated.config.newTab.value %}target="_blank"{% endif %}>
+                            {{ imageElement }}
+                        </a>
+                    {% else %}
+                        {{ imageElement }}
                     {% endif %}
                 {% endblock %}
-            {% endset %}
-
-            {% if element.translated.config.url.value %}
-                <a href="{{ element.translated.config.url.value }}"
-                   class="cms-image-link"
-                   {% if element.translated.config.newTab.value %}target="_blank"{% endif %}>
-                    {{ imageElement }}
-                </a>
-            {% else %}
-                {{ imageElement }}
-            {% endif %}
+            </div>
         {% endblock %}
     </div>
 {% endblock %}

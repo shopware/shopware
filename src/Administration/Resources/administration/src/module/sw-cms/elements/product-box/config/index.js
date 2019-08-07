@@ -38,14 +38,6 @@ Component.register('sw-cms-el-config-product-box', {
             }
 
             this.$emit('element-update', this.element);
-        },
-
-        onChangeDisplayMode(value) {
-            if (value === 'cover') {
-                this.element.config.verticalAlign.value = null;
-            }
-
-            this.$emit('element-update', this.element);
         }
     }
 });

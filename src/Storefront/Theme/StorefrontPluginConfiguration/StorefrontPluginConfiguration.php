@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Storefront\Framework\ThemeInterface;
+use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Symfony\Component\Finder\Finder;
 
@@ -217,8 +219,17 @@ class StorefrontPluginConfiguration
         return $config;
     }
 
-    public static function createFromConfigFile(string $pathname, Bundle $bundle): self
+    public static function createFromConfigFile(Bundle $bundle): self
     {
+        if (!($bundle instanceof ThemeInterface)) {
+            throw new InvalidThemeBundleException($bundle->getName());
+        }
+        $pathname = $bundle->getPath() . DIRECTORY_SEPARATOR . ltrim($bundle->getThemeConfigPath(), DIRECTORY_SEPARATOR);
+
+        if (!file_exists($pathname)) {
+            throw new InvalidThemeBundleException($bundle->getName());
+        }
+
         $config = new self();
         try {
             $data = json_decode(file_get_contents($pathname), true);

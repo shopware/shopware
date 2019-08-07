@@ -105,5 +105,12 @@
             <argument type="service" id="sales_channel.repository"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <!-- Twig -->
+        <service id="Shopware\Storefront\Theme\Twig\ThemeTemplateFinder" public="true"
+                 decorates="Shopware\Core\Framework\Twig\TemplateFinder">
+            <argument type="service" id="twig.loader"/>
+            <argument type="service" id="kernel"/>
+        </service>
     </services>
 </container>

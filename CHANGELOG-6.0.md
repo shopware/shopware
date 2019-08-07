@@ -13,7 +13,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Added `JoinBuilderInterface` and moved join logic from `FieldResolver` into `JoinBuilder`
 * Added getJoinBuilder to `FieldResolverInterface`
-
+* Fixed Twig template loading for the theme system. Twig files from themes will only be loaded if the theme is active
+ for the requested sales channel.
 [View all changes from v6.0.0+dp1...v6.0.0+ea1](https://github.com/shopware/platform/compare/v6.0.0+dp1...v6.0.0+ea1)
 
  * Placeholder for future releases

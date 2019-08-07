@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -78,10 +79,8 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             );
         }
 
-        $configPath = $plugin->getPath() . DIRECTORY_SEPARATOR . ltrim($plugin->getThemeConfigPath(), DIRECTORY_SEPARATOR);
-
-        if (file_exists($configPath)) {
-            $storefrontPluginConfig = StorefrontPluginConfiguration::createFromConfigFile($configPath, $plugin);
+        if ($plugin instanceof ThemeInterface) {
+            $storefrontPluginConfig = StorefrontPluginConfiguration::createFromConfigFile($plugin);
         } else {
             $storefrontPluginConfig = StorefrontPluginConfiguration::createFromBundle($plugin);
         }

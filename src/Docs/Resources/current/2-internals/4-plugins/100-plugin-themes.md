@@ -7,7 +7,7 @@ Theme plugins can be created like any other plugin
 theme manger of the administration and can be selected and configured by the shop owner.
 
 ## Difference between "themes" and "regular" plugins
-There are basically two ways to change the appearance of the storefront. You can have a "normal" plugins
+There are basically two ways to change the appearance of the storefront. You can have a "regular" plugins
 which main purpose is to add new functions and change the behavior of the shop. 
 These Plugins might also contain scss/css and javascript to be able to embed their new content into
 the storefront correctly.
@@ -21,6 +21,7 @@ is to change the appearance of the storefront and they behave a bit different co
 
 Technically a theme is also a plugin but it will not only appear in the plugin manager of the administration,
 it will also be visible in the theme manger once activated in the plugin manager.
+To distinguish a theme plugin from a "regular" plugin you need to implement the Interface _Shopware\Storefront\Framework\ThemePlugin_ 
 A theme can inherit from other themes, overwrite the default configuration (colors, fonts, media) and
 add new configuration options.
 
@@ -92,12 +93,13 @@ Example:
 namespace Swag\ThemeQuickStart;
 
 use Shopware\Core\Framework\Plugin;
+use Showpare\Storefront\Framework\ThemeInterface;
 
-class ThemeQuickStart extends Plugin
+class ThemeQuickStart extends Plugin implements ThemeInterface
 {
         public function getThemeConfigPath(): string
         {
-            return 'Resources/theme.json';
+            return 'theme.json';
         }
 }
 ```

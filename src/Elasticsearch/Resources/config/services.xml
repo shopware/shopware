@@ -47,12 +47,21 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="language.repository"/>
-            <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
+            <argument type="service" id="Elasticsearch\Client"/>
             <argument>%shopware.ses.index.config%</argument>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="messenger.bus.shopware"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">

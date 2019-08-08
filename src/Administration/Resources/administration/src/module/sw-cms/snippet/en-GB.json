@@ -77,7 +77,7 @@
       "notificationTitleMissingFields": "Error",
       "notificationMessageMissingFields": "Configuration required. Please fill in all required configuration fields.",
       "notificationTitleMissingBlockFields": "Missing configuration",
-      "notificationMessageMissingBlockFields": "Please do not leave dummy data in image/product Blocks.",
+      "notificationMessageMissingBlockFields": "Configuration required. Please fill all elements with data.",
       "notificationTitlePageError": "Layout could not be saved!",
       "notificationTitleMissingElements": "Error",
       "notificationMessageMissingElements": "Configuration required. Please fill in all required configuration elements.",

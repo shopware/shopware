@@ -24,7 +24,7 @@ let webpackConfig = merge(
     require(path) // eslint-disable-line
 );
 
-if (!process.env.MODE === 'hot') {
+if (process.env.MODE !== 'hot') {
     const injector = new WebpackPluginInjector('var/plugins.json', webpackConfig, 'storefront');
     webpackConfig = injector.webpackConfig;
 }

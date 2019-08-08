@@ -194,13 +194,6 @@ module.exports = {
     },
     plugins: plugins,
     resolve: resolve,
-    stats: {
-        chunks: true,
-        chunkGroups: true,
-        chunkModules: true,
-        errors: true,
-        errorDetails: true,
-        entrypoints: true,
-    },
+    stats: 'minimal',
     target: 'web',
 };

@@ -88,8 +88,12 @@ class ThemeCompiler
         $this->publicFilesystem->put($cssFilepath, $compiled);
 
         /** @var FileCollection $scriptFiles */
-        $scriptFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
-        $concatenatedScripts = implode(PHP_EOL, $scriptFiles->getFilepaths());
+        $scriptFiles = $resolvedFiles[ThemeFileResolver::SCRIPT_FILES];
+        $concatenatedScripts = '';
+        foreach ($scriptFiles->getFilepaths() as $scriptPath) {
+            $concatenatedScripts .= file_get_contents($scriptPath) . PHP_EOL;
+        }
+
         $scriptFilepath = $outputPath . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'all.js';
         $this->publicFilesystem->put($scriptFilepath, $concatenatedScripts);
 

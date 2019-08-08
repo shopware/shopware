@@ -86,7 +86,7 @@ class WebpackPluginInjector {
 
         this.registerPluginsToWebpackConfig(plugins);
 
-        if (this.env === 'production') {
+        if (this.env === 'production' || this.env === 'development') {
             this.injectCopyPluginConfig(plugins);
         }
     }

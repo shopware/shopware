@@ -5,7 +5,7 @@
     "changeThemeEmpty": "Assign theme",
     "createTheme": "Create new theme",
     "editContent": "Edit theme",
-    "defaultTitle": "Default theme",
+    "defaultTitle": "No Theme assigned",
     "defaultAuthor": "Author",
     "modal": {
       "modalTitleChange": "Change Theme",

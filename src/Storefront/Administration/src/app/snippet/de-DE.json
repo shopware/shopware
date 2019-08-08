@@ -5,7 +5,7 @@
     "changeLayoutEmpty": "Theme zuweisen",
     "createTheme": "Neues Theme erstellen",
     "editContent": "Theme bearbeiten",
-    "defaultTitle": "Standard Theme",
+    "defaultTitle": "Kein Theme zugewiesen",
     "defaultAuthor": "Autor",
     "modal": {
       "modalTitleChange": "Theme wechseln",

@@ -20,6 +20,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
         $user->setPassword('password');
         $user->setUsername('user1');
         $user->setActive(true);
+        $user->setAdmin(true);
         $user->setEmail('user1@shop.de');
         $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
 
@@ -57,6 +58,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                     'customFields' => null,
                     'createdAt' => '2018-01-15T08:01:16+00:00',
                     'updatedAt' => null,
+                    'admin' => true,
                 ],
                 'links' => [
                     'self' => sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c', $baseUrl),
@@ -107,6 +109,12 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                         'data' => null,
                         'links' => [
                             'related' => sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/recovery-user', $baseUrl),
+                        ],
+                    ],
+                    'aclRoles' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c/acl-roles', $baseUrl),
                         ],
                     ],
                 ],
@@ -314,6 +322,8 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                         'createdAt' => '2018-01-15T08:01:16+00:00',
                         'updatedAt' => null,
                         'extensions' => [],
+                        'admin' => true,
+                        'aclRoles' => null,
                     ],
                     'translations' => null,
                     'categories' => null,
@@ -356,6 +366,8 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
             'createdAt' => '2018-01-15T08:01:16+00:00',
             'updatedAt' => null,
             'extensions' => [],
+            'admin' => true,
+            'aclRoles' => null,
         ];
     }
 

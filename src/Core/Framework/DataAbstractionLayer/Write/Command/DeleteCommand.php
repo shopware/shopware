@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
+use Shopware\Core\Framework\Acl\Resource\AclResourceDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
@@ -47,5 +48,10 @@ class DeleteCommand implements WriteCommandInterface
     public function getEntityExistence(): EntityExistence
     {
         return $this->existence;
+    }
+
+    public function getPrivilege(): string
+    {
+        return AclResourceDefinition::PRIVILEGE_DELETE;
     }
 }

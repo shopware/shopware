@@ -150,6 +150,7 @@
 
         <service id="Shopware\Core\Framework\Api\OAuth\ScopeRepository">
             <argument type="tagged" tag="shopware.oauth.scope"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\OAuth\UserRepository">
@@ -158,6 +159,10 @@
 
         <!-- Scopes -->
         <service id="Shopware\Core\Framework\Api\OAuth\Scope\WriteScope">
+            <tag name="shopware.oauth.scope"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\OAuth\Scope\AdminScope">
             <tag name="shopware.oauth.scope"/>
         </service>
 

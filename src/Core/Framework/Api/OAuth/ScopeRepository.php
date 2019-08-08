@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Api\OAuth;
 
+use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
+use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 
 class ScopeRepository implements ScopeRepositoryInterface
@@ -16,10 +18,16 @@ class ScopeRepository implements ScopeRepositoryInterface
     private $scopes;
 
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
      * @param ScopeEntityInterface[] $scopes
      */
-    public function __construct(iterable $scopes)
+    public function __construct(iterable $scopes, Connection $connection)
     {
+        $this->connection = $connection;
         $scopeIndex = [];
         foreach ($scopes as $scope) {
             $scopeIndex[$scope->getIdentifier()] = $scope;
@@ -65,6 +73,19 @@ class ScopeRepository implements ScopeRepositoryInterface
 
         if ($hasWrite) {
             $scopes[] = new WriteScope();
+        }
+
+        $isAdmin = $this->connection->createQueryBuilder()
+            ->select('admin')
+            ->from('user')
+            ->where('id = UNHEX(:accessKey)')
+            ->setParameter('accessKey', $userIdentifier)
+            ->setMaxResults(1)
+            ->execute()
+            ->fetchColumn();
+
+        if ($isAdmin) {
+            $scopes[] = new AdminScope();
         }
 
         return $scopes;

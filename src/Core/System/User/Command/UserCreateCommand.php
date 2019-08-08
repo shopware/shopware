@@ -31,6 +31,7 @@ class UserCreateCommand extends Command
     {
         $this->setName('user:create')
             ->addArgument('username', InputArgument::REQUIRED, 'Username for the user')
+            ->addOption('admin', 'a', InputOption::VALUE_NONE, 'mark the user as admin')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Password for the user')
             ->addOption('firstName', null, InputOption::VALUE_REQUIRED, 'The user\'s firstname')
             ->addOption('lastName', null, InputOption::VALUE_REQUIRED, 'The user\'s lastname')
@@ -65,6 +66,9 @@ class UserCreateCommand extends Command
         }
         if ($input->getOption('email')) {
             $additionalData['email'] = $input->getOption('email');
+        }
+        if ($input->getOption('admin')) {
+            $additionalData['admin'] = true;
         }
 
         $this->userProvisioner->provision($username, $password, $additionalData);

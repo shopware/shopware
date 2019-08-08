@@ -99,7 +99,7 @@ class MailHeaderFooterApiTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
         $content = json_decode($response->getContent());
 

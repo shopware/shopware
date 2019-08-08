@@ -45,6 +45,7 @@ class Framework extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
+        $loader->load('acl.xml');
         $loader->load('api.xml');
         $loader->load('custom-field.xml');
         $loader->load('data-abstraction-layer.xml');

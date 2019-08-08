@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
+use function Flag\next3722;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -102,7 +103,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
-            return new AdminApiSource($userId);
+            $isAdmin = in_array('admin', $request->attributes->get('oauth_scopes'), true);
+            $adminApiSource = $this->getAdminApiSource($userId);
+            $adminApiSource->setIsAdmin($isAdmin);
+
+            return $adminApiSource;
         }
 
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)) {
@@ -115,13 +120,13 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         if ($keyOrigin === 'user') {
             $userId = $this->getUserIdByAccessKey($clientId);
 
-            return new AdminApiSource($userId);
+            return $this->getAdminApiSource($userId);
         }
 
         if ($keyOrigin === 'integration') {
             $integrationId = $this->getIntegrationIdByAccessKey($clientId);
 
-            return new AdminApiSource(null, $integrationId);
+            return $this->getAdminApiSource(null, $integrationId);
         }
 
         if ($keyOrigin === 'sales-channel') {
@@ -203,5 +208,42 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->fetchColumn();
 
         return Uuid::fromBytesToHex($id);
+    }
+
+    private function getAdminApiSource(?string $userId, ?string $integrationId = null): AdminApiSource
+    {
+        $adminApiSource = new AdminApiSource($userId, $integrationId);
+        if (!next3722()) {
+            $adminApiSource->setIsAdmin(true);
+
+            return $adminApiSource;
+        }
+        if ($userId !== null) {
+            $this->enrichAdminApiSourceWithAclPermissions($adminApiSource);
+        }
+
+        return $adminApiSource;
+    }
+
+    private function enrichAdminApiSourceWithAclPermissions(AdminApiSource $source): AdminApiSource
+    {
+        $source->addPermissions($this->fetchPermissions($source->getUserId()));
+
+        return $source;
+    }
+
+    private function fetchPermissions(string $userId): array
+    {
+        $permissions = $this->connection->createQueryBuilder()
+            ->select(['resource', 'privilege'])
+            ->from('acl_user_role', 'mapping')
+            ->innerJoin('mapping', 'acl_role', 'role', 'mapping.acl_role_id = role.id')
+            ->innerJoin('role', 'acl_resource', 'res', 'res.acl_role_id = role.id')
+            ->where('mapping.user_id = :userId')
+            ->setParameter('userId', Uuid::fromHexToBytes($userId))
+            ->execute()
+            ->fetchAll(FetchMode::ASSOCIATIVE);
+
+        return $permissions;
     }
 }

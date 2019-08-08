@@ -15,6 +15,7 @@ class RequirementsValidatorTest extends TestCase
 
     public function testValidateRequirementsValid(): void
     {
+        static::markTestSkipped('NEXT-4442 - Test does not work if a different development version is checked out');
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementValidTest';
         $path = str_replace($projectDir, '', $path);
@@ -31,6 +32,7 @@ class RequirementsValidatorTest extends TestCase
 
     public function testValidateRequirementsSubpackageValid(): void
     {
+        static::markTestSkipped('NEXT-4442 - Test does not work if a different development version is checked out');
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementValidSubpackageTest';
         $path = str_replace($projectDir, '', $path);
@@ -63,6 +65,7 @@ class RequirementsValidatorTest extends TestCase
 
     public function testValidateRequirementsDoNotMatch(): void
     {
+        static::markTestSkipped('NEXT-4442 - Test does not work if a different development version is checked out');
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         $path = __DIR__ . '/_fixture/SwagRequirementInvalidTest';
         $path = str_replace($projectDir, '', $path);

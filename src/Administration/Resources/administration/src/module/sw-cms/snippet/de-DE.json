@@ -65,6 +65,7 @@
       "labelBlockBackgroundMediaModeContain": "Beinhalten",
       "labelBlockBackgroundMediaModeCover": "Füllen",
       "labelBlockBackgroundMediaModeAuto": "Auto",
+      "labelBlockCssClassField": "CSS-Klasse",
       "labelBlockTopMarginField": "Oberer Abstand",
       "labelBlockBottomMarginField": "Unterer Abstand",
       "labelBlockLeftMarginField": "Linker Abstand",

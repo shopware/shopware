@@ -115,9 +115,11 @@
 
             {% block sw_customer_base_form_password_field %}
                 <sw-field type="password"
+                          required
                           v-model="customer.password"
                           :label="$tc('sw-customer.baseForm.labelPassword')"
                           :helpText="$tc('sw-customer.baseForm.helpTextPassword')"
+                          :error="customerPasswordError"
                           autocomplete="new-password">
                 </sw-field>
             {% endblock %}

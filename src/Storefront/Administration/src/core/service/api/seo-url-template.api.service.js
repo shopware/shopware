@@ -55,6 +55,20 @@ class SeoUrlTemplateApiService extends ApiService {
             return ApiService.handleResponse(response);
         });
     }
+
+    getDefault(route, additionalParams = {}, additionalHeaders = {}) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/default/${route}`;
+
+        return this.httpClient.get(
+            apiRoute,
+            {
+                params: additionalParams,
+                headers: this.getBasicHeaders(additionalHeaders)
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
 }
 
 export default SeoUrlTemplateApiService;

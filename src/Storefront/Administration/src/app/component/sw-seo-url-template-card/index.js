@@ -98,7 +98,7 @@ Component.register('sw-seo-url-template-card', {
             // Iterate over the default seo url templates and create new entities for the actual sales channel
             // if they do not exist
             this.defaultSeoUrlTemplates.forEach(defaultEntity => {
-                const entityAlreadyExists = Object.values(this.seoUrlTemplates.items).some((entity) => {
+                const entityAlreadyExists = Object.values(this.seoUrlTemplates).some((entity) => {
                     return entity.routeName === defaultEntity.routeName && entity.salesChannelId === salesChannelId;
                 });
 
@@ -139,7 +139,7 @@ Component.register('sw-seo-url-template-card', {
                 return '';
             }
 
-            const defaultEntity = Object.values(this.defaultSeoUrlTemplates.items).find(entity => {
+            const defaultEntity = Object.values(this.defaultSeoUrlTemplates).find(entity => {
                 return entity.routeName === seoUrlTemplate.routeName;
             });
 
@@ -155,17 +155,25 @@ Component.register('sw-seo-url-template-card', {
                 return;
             }
 
+            const removalPromises = [];
             this.seoUrlTemplates.forEach(seoUrlTemplate => {
                 if (!seoUrlTemplate.template) {
-                    this.seoUrlTemplates.remove(seoUrlTemplate.id);
+                    removalPromises.push(this.seoUrlTemplateService.getDefault(seoUrlTemplate.routeName).then(response => {
+                        seoUrlTemplate.template = response.defaultTemplate;
+                        return Promise.resolve();
+                    }));
                 }
             });
 
-            this.seoUrlTemplateRepository.sync(this.seoUrlTemplates.items, this.context);
+            Promise.all(removalPromises).then( () => {
+                this.seoUrlTemplateRepository.sync(this.seoUrlTemplates, this.context);
 
-            this.fetchSeoUrlTemplates(this.salesChannelId);
+                this.fetchSeoUrlTemplates(this.salesChannelId);
 
-            this.createSaveSuccessNotification();
+                this.createSaveSuccessNotification();
+            }).catch( () => {
+                this.createSaveErrorNotification();
+            });
         },
         createSaveErrorNotification() {
             const titleSaveSuccess = this.$tc('sw-seo-url-template-card.general.titleSaveError');

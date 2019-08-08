@@ -145,6 +145,16 @@ class SeoActionController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * @Route("/api/v{version}/_action/seo-url-template/default/{routeName}", name="api.seo-url-template.default", methods={"GET"}, requirements={"version"="\d+"})
+     */
+    public function getDefaultSeoTemplate(string $routeName, Context $context): JsonResponse
+    {
+        $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
+
+        return new JsonResponse(['defaultTemplate' => $seoUrlRoute->getConfig()->getTemplate()]);
+    }
+
     private function validateSeoUrlTemplate(Request $request): void
     {
         $keys = ['template', 'salesChannelId', 'routeName', 'entityName'];

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\Context\ContextSource;
 use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\Struct\Struct;
@@ -217,6 +218,15 @@ class Context extends Struct
     public function getUseCache(): bool
     {
         return $this->useCache;
+    }
+
+    public function isAllowed(string $resource, string $privilege): bool
+    {
+        if ($this->source instanceof AdminApiSource) {
+            return $this->source->isAllowed($resource, $privilege);
+        }
+
+        return true;
     }
 
     public function setRuleIds(array $ruleIds): void

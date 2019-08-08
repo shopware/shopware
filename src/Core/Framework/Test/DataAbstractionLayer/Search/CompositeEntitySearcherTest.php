@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -51,23 +50,11 @@ class CompositeEntitySearcherTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->search = $this->getContainer()->get(CompositeEntitySearcher::class);
 
-        $this->userId = Uuid::randomHex();
-
-        $origin = new AdminApiSource($this->userId);
-        $this->context = Context::createDefaultContext($origin);
-
-        $repo = $this->getContainer()->get('user.repository');
-        $repo->upsert([
-            [
-                'id' => $this->userId,
-                'firstName' => 'test-user',
-                'lastName' => 'test',
-                'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                'username' => 'test-user',
-                'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'shopware',
-            ],
-        ], $this->context);
+        /** @var Connection $connection */
+        $connection = $this->getContainer()->get(Connection::class);
+        $userId = (string) $connection->executeQuery('SELECT id FROM `user` WHERE username = "admin"')->fetchColumn();
+        $this->userId = Uuid::fromBytesToHex($userId);
+        $this->context = Context::createDefaultContext();
     }
 
     public function testDefinitionsAreUnique()

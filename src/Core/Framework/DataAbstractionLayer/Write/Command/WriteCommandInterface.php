@@ -14,4 +14,6 @@ interface WriteCommandInterface
     public function getPrimaryKey(): array;
 
     public function getEntityExistence(): EntityExistence;
+
+    public function getPrivilege(): string;
 }

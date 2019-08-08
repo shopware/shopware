@@ -139,6 +139,7 @@ trait AdminApiTestBehaviour
             'locale_id' => $this->getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 1,
         ]);
 
         $this->apiUsernames[] = $username;

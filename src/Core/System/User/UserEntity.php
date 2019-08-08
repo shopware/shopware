@@ -5,6 +5,7 @@ namespace Shopware\Core\System\User;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -55,6 +56,16 @@ class UserEntity extends Entity
      * @var bool
      */
     protected $active;
+
+    /**
+     * @var bool
+     */
+    protected $admin;
+
+    /**
+     * @var AclRoleCollection|null
+     */
+    protected $aclRoles;
 
     /**
      * @var LocaleEntity|null
@@ -269,5 +280,25 @@ class UserEntity extends Entity
     public function setStoreToken(?string $storeToken): void
     {
         $this->storeToken = $storeToken;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->admin;
+    }
+
+    public function setAdmin(bool $admin): void
+    {
+        $this->admin = $admin;
+    }
+
+    public function getAclRoles(): AclRoleCollection
+    {
+        return $this->aclRoles;
+    }
+
+    public function setAclRoles(AclRoleCollection $aclRoles): void
+    {
+        $this->aclRoles = $aclRoles;
     }
 }

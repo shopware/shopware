@@ -31,6 +31,9 @@ class CompositeEntitySearcher
         $entities = [];
 
         foreach ($this->definitions as $definition) {
+            if (!$context->isAllowed($definition->getEntityName(), 'list')) {
+                continue;
+            }
             $criteria = new Criteria();
             $criteria->setLimit($limit);
             $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);

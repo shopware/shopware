@@ -124,7 +124,8 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             $this->themeLifecycleService->refreshThemes($context, $storefrontPluginConfig);
         }
 
-        if (!$storefrontPluginConfig->getStyleFiles() && !$storefrontPluginConfig->getScriptFiles()) {
+        if ($storefrontPluginConfig->getStyleFiles()->count() === 0
+            && $storefrontPluginConfig->getScriptFiles()->count() === 0) {
             return;
         }
 

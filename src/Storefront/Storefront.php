@@ -61,6 +61,11 @@ class Storefront extends Bundle implements ThemeInterface
         return 'Resources/theme.json';
     }
 
+    public function getStorefrontEntryPath(): string
+    {
+        return 'Resources/src/script';
+    }
+
     private function buildConfig(ContainerBuilder $container, $environment): void
     {
         $locator = new FileLocator($this->getConfigPath());

@@ -39,7 +39,7 @@ Component.register('sw-cms-el-product-box', {
         },
 
         verticalAlignStyle() {
-            if (!this.element.config.verticalAlign.value) {
+            if (!this.element.config.verticalAlign || !this.element.config.verticalAlign.value) {
                 return null;
             }
 

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Update\Api;
 
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Update\Event\UpdateFinishedEvent;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
@@ -12,14 +14,19 @@ use Shopware\Core\Framework\Update\Steps\FinishResult;
 use Shopware\Core\Framework\Update\Steps\UnpackStep;
 use Shopware\Core\Framework\Update\Steps\ValidResult;
 use Shopware\Core\Framework\Update\Struct\Version;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UpdateController extends AbstractController
 {
+    public const UPDATE_TOKEN_KEY = 'core.update.token';
+
     /**
      * @var ApiClient
      */
@@ -40,16 +47,30 @@ class UpdateController extends AbstractController
      */
     private $pluginCompatibility;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfig;
+
     public function __construct(
         string $rootDir,
         ApiClient $apiClient,
         RequirementsValidator $requirementsValidator,
-        PluginCompatibility $pluginCompatibility
+        PluginCompatibility $pluginCompatibility,
+        EventDispatcherInterface $eventDispatcher,
+        SystemConfigService $systemConfig
     ) {
         $this->rootDir = $rootDir;
         $this->apiClient = $apiClient;
         $this->requirementsValidator = $requirementsValidator;
         $this->pluginCompatibility = $pluginCompatibility;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->systemConfig = $systemConfig;
     }
 
     /**
@@ -161,6 +182,26 @@ class UpdateController extends AbstractController
         }
 
         return $this->toJson($result);
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/update/finish/{token}", defaults={"auth_required"=false}, name="api.custom.updateapi.finish", methods={"GET"})
+     */
+    public function finish(string $token, Context $context): Response
+    {
+        if (!$token) {
+            return $this->redirectToRoute('administration.index');
+        }
+
+        $dbUpdateToken = $this->systemConfig->get(self::UPDATE_TOKEN_KEY);
+        if (!$dbUpdateToken || $token !== $dbUpdateToken) {
+            return $this->redirectToRoute('administration.index');
+        }
+
+        ignore_user_abort(true);
+        $this->eventDispatcher->dispatch(new UpdateFinishedEvent($context));
+
+        return $this->redirectToRoute('administration.index');
     }
 
     private function toJson($result): JsonResponse

@@ -123,5 +123,25 @@
             <argument type="service" id="twig.loader"/>
             <argument type="service" id="kernel"/>
         </service>
+
+        <service id="Shopware\Storefront\Theme\Subscriber\FirstRunWizardSubscriber">
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
+
+            <argument type="service" id="theme.repository" />
+            <argument type="service" id="theme_sales_channel.repository" />
+            <argument type="service" id="sales_channel.repository" />
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\Subscriber\UpdateSubscriber">
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
+            <argument type="service" id="theme.repository" />
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
     </services>
 </container>

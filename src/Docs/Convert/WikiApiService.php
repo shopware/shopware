@@ -70,7 +70,7 @@ class WikiApiService
                 'title' => $documentMetadata->getTitleDe(),
                 'navigationTitle' => $documentMetadata->getTitleDe(),
                 'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
-                'searchableInAllLanguages' => true,
+                'searchableInAllLanguages' => false,
                 'fromProductVersion' => self::INITIAL_VERSION,
                 'active' => $documentMetadata->isActive(),
                 'metaTitle' => $documentMetadata->getMetaTitleDe(),

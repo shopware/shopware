@@ -14,7 +14,7 @@ Administration
 Storefront
 ----------
 
-*No changes yet*
+* If your javascript lives in `Resources/storefront/script` you have to explicitly define this path in the `getStorefrontScriptPath()` method of your plugin base class as we have changed the default path to `Resources/dist/storefront/js`.
 
 Elasticsearch
 -------------

@@ -75,7 +75,7 @@ abstract class Bundle extends SymfonyBundle
 
     public function getStorefrontScriptPath(): string
     {
-        return 'Resources/storefront/script';
+        return 'Resources/dist/storefront/js';
     }
 
     public function getStorefrontStylePath(): string

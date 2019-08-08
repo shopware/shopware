@@ -66,6 +66,7 @@
       "labelBlockBackgroundMediaModeCover": "Cover",
       "labelBlockBackgroundMediaModeAuto": "Auto",
       "labelBlockTopMarginField": "Top margin",
+      "labelBlockCssClassField": "CSS class",
       "labelBlockBottomMarginField": "Bottom margin",
       "labelBlockLeftMarginField": "Left margin",
       "labelBlockRightMarginField": "Right margin",

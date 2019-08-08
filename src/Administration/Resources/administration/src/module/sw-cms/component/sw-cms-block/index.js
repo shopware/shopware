@@ -43,6 +43,10 @@ Component.register('sw-cms-block', {
             };
         },
 
+        customBlockClass() {
+            return this.block.cssClass;
+        },
+
         blockStyles() {
             const initContainer = Application.getContainer('init');
             const context = initContainer.contextService;

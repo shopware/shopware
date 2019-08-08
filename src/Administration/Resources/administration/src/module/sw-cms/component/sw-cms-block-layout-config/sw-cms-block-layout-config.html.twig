@@ -1,5 +1,9 @@
 {% block sw_cms_block_layout_config %}
     <div class="sw-cms-block-layout-config">
+        {% block sw_cms_block_layout_config_css_class %}
+            <sw-text-field :label="$tc('sw-cms.detail.labelBlockCssClassField')" v-model="block.cssClass"></sw-text-field>
+        {% endblock %}
+
         {% block sw_cms_block_layout_config_top_margin_field %}
             <sw-text-field :label="$tc('sw-cms.detail.labelBlockTopMarginField')" v-model="block.marginTop"></sw-text-field>
         {% endblock %}

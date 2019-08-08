@@ -1,4 +1,4 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
+import Criteria from 'src/core/data-new/criteria.data';
 import EntityProxy from 'src/core/data/EntityProxy';
 import template from './sw-cms-create.html.twig';
 
@@ -40,15 +40,18 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             }
 
             const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
-            this.salesChannelStore.getList({
-                page: 1,
-                limit: 25,
-                criteria: CriteriaFactory.equals('typeId', defaultStorefrontId)
-            }).then((response) => {
-                this.salesChannels = response.items;
+
+            const criteria = new Criteria();
+            criteria.addFilter(
+                Criteria.equals('typeId', defaultStorefrontId)
+            );
+
+            this.salesChannelRepository.search(criteria, this.context).then((response) => {
+                this.salesChannels = response;
 
                 if (this.salesChannels.length > 0) {
                     this.currentSalesChannelKey = this.salesChannels[0].id;
+                    this.page = this.pageRepository.create();
                 }
             });
 

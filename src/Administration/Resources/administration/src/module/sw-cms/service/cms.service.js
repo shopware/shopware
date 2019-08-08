@@ -1,4 +1,5 @@
 const { Application, Entity } = Shopware;
+const Criteria = Shopware.Data.Criteria;
 
 Application.addServiceProvider('cmsService', () => {
     return {
@@ -22,8 +23,96 @@ function registerCmsElement(config) {
         return false;
     }
 
+    if (!config.collect) {
+        config.collect = function collect(elem) {
+            const criteriaList = {};
+
+            Object.keys(elem.config).forEach((configKey) => {
+                const entity = elem.config[configKey].entity;
+
+                if (entity && elem.config[configKey].value) {
+                    const entityKey = entity.name;
+                    const entityData = getEntityData(elem, configKey);
+
+                    entityData.searchCriteria.setIds(entityData.value);
+
+                    criteriaList[`entity-${entityKey}`] = entityData;
+                }
+            });
+
+            return criteriaList;
+        };
+    }
+
+    if (!config.enrich) {
+        config.enrich = function enrich(elem, data) {
+            if (Object.keys(data).length < 1) {
+                return;
+            }
+
+            Object.keys(elem.config).forEach((configKey) => {
+                const entity = elem.config[configKey].entity;
+
+                if (!entity) {
+                    return;
+                }
+
+                const entityKey = entity.name;
+                if (!data[`entity-${entityKey}`]) {
+                    return;
+                }
+
+                if (Array.isArray(elem.config[configKey].value)) {
+                    elem.data[configKey] = [];
+
+                    elem.config[configKey].value.forEach((value) => {
+                        elem.data[configKey].push(data[`entity-${entityKey}`].get(value));
+                    });
+                } else {
+                    elem.data[configKey] = data[`entity-${entityKey}`].get(elem.config[configKey].value);
+                }
+            });
+        };
+    }
+
     elementRegistry[config.name] = config;
+
     return true;
+}
+
+function getEntityData(element, configKey) {
+    const entity = element.config[configKey].entity;
+    const configValue = element.config[configKey].value;
+    let entityData = {};
+
+    // if multiple entities are given in a slot
+    if (Array.isArray(configValue)) {
+        const entityIds = [];
+
+        if (configValue[0].entityId) {
+            configValue.forEach((val) => {
+                entityIds.push(val.entityId);
+            });
+        } else {
+            entityIds.push(...configValue);
+        }
+
+        entityData = {
+            value: entityIds,
+            key: configKey,
+            ...entity
+        };
+    } else {
+        entityData = {
+            value: [configValue],
+            key: configKey,
+            ...entity
+        };
+    }
+
+    entityData.searchCriteria = entity.criteria ? entity.criteria : new Criteria();
+
+    return entityData;
 }
 
 function getCmsElementConfigByName(name) {

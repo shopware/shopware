@@ -1,12 +1,11 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
-import Criteria from '../../../../core/data-new/criteria.data';
 import { types } from '../../../../core/service/util.service';
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
 
-const { Component, State, Application, Mixin } = Shopware;
+const { Component, State, Mixin } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const { warn } = Shopware.Utils.debug;
+const Criteria = Shopware.Data.Criteria;
 
 Component.register('sw-cms-detail', {
     template,
@@ -15,10 +14,10 @@ Component.register('sw-cms-detail', {
         'repositoryFactory',
         'entityFactory',
         'entityHydrator',
-        'context',
         'loginService',
         'cmsPageService',
         'cmsService',
+        'cmsDataResolverService',
         'context'
     ],
 
@@ -46,7 +45,7 @@ Component.register('sw-cms-detail', {
             currentBlock: null,
             currentBlockCategory: 'text',
             currentMappingEntity: null,
-            currentMappingEntityStore: null,
+            currentMappingEntityRepo: null,
             demoEntityId: null
         };
     },
@@ -78,12 +77,12 @@ Component.register('sw-cms-detail', {
             return State.getStore('language');
         },
 
-        salesChannelStore() {
-            return State.getStore('sales_channel');
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
         },
 
-        defaultFolderStore() {
-            return State.getStore('media_default_folder');
+        defaultFolderRepository() {
+            return this.repositoryFactory.create('media_default_folder');
         },
 
         cmsBlocks() {
@@ -200,12 +199,13 @@ Component.register('sw-cms-detail', {
                 this.isLoading = true;
                 const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
 
-                this.salesChannelStore.getList({
-                    page: 1,
-                    limit: 25,
-                    criteria: CriteriaFactory.equals('typeId', defaultStorefrontId)
-                }).then((response) => {
-                    this.salesChannels = response.items;
+                const criteria = new Criteria();
+                criteria.addFilter(
+                    Criteria.equals('typeId', defaultStorefrontId)
+                );
+
+                this.salesChannelRepository.search(criteria, this.context).then((response) => {
+                    this.salesChannels = response;
 
                     if (this.salesChannels.length > 0) {
                         this.currentSalesChannelKey = this.salesChannels[0].id;
@@ -228,18 +228,12 @@ Component.register('sw-cms-detail', {
         },
 
         getDefaultFolderId() {
-            return this.defaultFolderStore.getList({
-                limit: 1,
-                criteria: CriteriaFactory.equals('entity', this.cmsPageState.pageEntityName),
-                associations: {
-                    folder: {}
-                }
-            }).then(({ items }) => {
-                if (items.length !== 1) {
-                    return null;
-                }
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('folder');
+            criteria.addFilter(Criteria.equals('entity', this.cmsPageState.pageEntityName));
 
-                const defaultFolder = items[0];
+            return this.defaultFolderRepository.search(criteria, this.context).then((searchResult) => {
+                const defaultFolder = searchResult.first();
                 if (defaultFolder.folder.id) {
                     return defaultFolder.folder.id;
                 }
@@ -265,22 +259,33 @@ Component.register('sw-cms-detail', {
                 this.page = { blocks: [] };
                 this.page = page;
 
-                this.updateBlockPositions();
-                this.$store.commit('cmsPageState/setCurrentPage', this.page);
+                this.cmsDataResolverService.resolve(this.page).then(() => {
+                    this.updateBlockPositions();
+                    this.$store.commit('cmsPageState/setCurrentPage', this.page);
 
-                if (this.currentBlock !== null) {
-                    this.currentBlock = this.page.blocks.get(this.currentBlock.id);
-                }
+                    if (this.currentBlock !== null) {
+                        this.currentBlock = this.page.blocks.get(this.currentBlock.id);
+                    }
 
-                this.updateDataMapping();
-                this.isLoading = false;
+                    this.updateDataMapping();
+                    this.isLoading = false;
+                }).catch((exception) => {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        title: exception.message,
+                        message: exception.response.statusText
+                    });
+
+                    warn(this._name, exception.message, exception.response);
+                });
             }).catch((exception) => {
                 this.isLoading = false;
-
                 this.createNotificationError({
                     title: exception.message,
                     message: exception.response.statusText
                 });
+
+                warn(this._name, exception.message, exception.response);
             });
         },
 
@@ -293,7 +298,7 @@ Component.register('sw-cms-detail', {
                 this.$store.commit('cmsPageState/removeCurrentDemoEntity');
 
                 this.currentMappingEntity = null;
-                this.currentMappingEntityStore = null;
+                this.currentMappingEntityRepo = null;
                 this.demoEntityId = null;
                 return;
             }
@@ -306,22 +311,22 @@ Component.register('sw-cms-detail', {
                 );
 
                 this.currentMappingEntity = mappingEntity;
-                this.currentMappingEntityStore = State.getStore(mappingEntity);
+                this.currentMappingEntityRepo = this.repositoryFactory.create(mappingEntity);
 
                 this.loadFirstDemoEntity();
             }
         },
 
         loadFirstDemoEntity() {
-            const params = { page: 1, limit: 1 };
+            const criteria = new Criteria();
 
             if (this.cmsPageState.currentMappingEntity === 'category') {
-                params.associations = { media: {} };
+                criteria.addAssociation('media');
             }
 
-            this.currentMappingEntityStore.getList(params).then((response) => {
-                this.demoEntityId = response.items[0].id;
-                this.$store.commit('cmsPageState/setCurrentDemoEntity', response.items[0]);
+            this.currentMappingEntityRepo.search(criteria, this.context).then((response) => {
+                this.demoEntityId = response[0].id;
+                this.$store.commit('cmsPageState/setCurrentDemoEntity', response[0]);
             });
         },
 
@@ -339,8 +344,9 @@ Component.register('sw-cms-detail', {
 
         onChangeLanguage() {
             this.isLoading = true;
-            return this.salesChannelStore.getList({ page: 1, limit: 25 }).then((response) => {
-                this.salesChannels = response.items;
+
+            return this.salesChannelRepository.search(new Criteria(), this.context).then((response) => {
+                this.salesChannels = response;
                 return this.loadPage(this.pageId);
             });
         },
@@ -358,10 +364,8 @@ Component.register('sw-cms-detail', {
         },
 
         onPageTypeChange() {
-            const blockStore = this.page.getAssociation('blocks');
-
             if (this.page.type === 'product_list') {
-                const listingBlock = blockStore.create();
+                const listingBlock = this.blockRepository.create();
                 const blockConfig = this.cmsBlocks['product-listing'];
 
                 listingBlock.type = 'product-listing';
@@ -374,8 +378,7 @@ Component.register('sw-cms-detail', {
                     cloneDeep(blockConfig.defaultConfig || {})
                 );
 
-                const slotStore = listingBlock.getAssociation('slots');
-                const listingEl = slotStore.create();
+                const listingEl = this.slotRepository.create();
                 listingEl.blockId = listingBlock.id;
                 listingEl.slot = 'content';
                 listingEl.type = 'product-listing';
@@ -383,10 +386,9 @@ Component.register('sw-cms-detail', {
                 listingBlock.slots.push(listingEl);
                 this.page.blocks.splice(0, 0, listingBlock);
             } else {
-                this.page.blocks.forEach((block, index) => {
+                this.page.blocks.forEach((block) => {
                     if (block.type === 'product-listing') {
-                        block.delete();
-                        this.page.blocks.splice(index, 1);
+                        this.page.blocks.remove(block.id);
                     }
                 });
             }
@@ -399,16 +401,18 @@ Component.register('sw-cms-detail', {
         checkSlotMappings() {
             this.page.blocks.forEach((block) => {
                 block.slots.forEach((slot) => {
-                    Object.keys(slot.config).forEach((key) => {
-                        if (slot.config[key].source && slot.config[key].source === 'mapped') {
-                            const mappingPath = slot.config[key].value.split('.');
+                    if (slot.config) {
+                        Object.keys(slot.config).forEach((key) => {
+                            if (slot.config[key].source && slot.config[key].source === 'mapped') {
+                                const mappingPath = slot.config[key].value.split('.');
 
-                            if (mappingPath[0] !== this.currentMappingEntity) {
-                                slot.config[key].value = null;
-                                slot.config[key].source = 'static';
+                                if (mappingPath[0] !== this.currentMappingEntity) {
+                                    slot.config[key].value = null;
+                                    slot.config[key].source = 'static';
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 });
             });
         },
@@ -420,14 +424,14 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
-            const demoEntity = this.currentMappingEntityStore.getById(demoEntityId);
+            const demoEntity = this.currentMappingEntityRepo.get(demoEntityId, this.context);
 
             if (!demoEntity) {
                 return;
             }
 
             if (this.cmsPageState.currentMappingEntity === 'category' && demoEntity.mediaId !== null) {
-                State.getStore('media').getByIdAsync(demoEntity.mediaId).then((media) => {
+                this.repositoryFactory.create('media').get(demoEntity.mediaId, this.context).then((media) => {
                     demoEntity.media = media;
                 });
             }
@@ -460,8 +464,7 @@ Component.register('sw-cms-detail', {
         },
 
         onBlockDuplicate(block) {
-            const blockStore = this.page.getAssociation('blocks');
-            const newBlock = blockStore.create();
+            const newBlock = this.blockRepository.create();
 
             const blockClone = cloneDeep(block);
             blockClone.id = newBlock.id;
@@ -471,9 +474,8 @@ Component.register('sw-cms-detail', {
 
             Object.assign(newBlock, blockClone);
 
-            const slotStore = newBlock.getAssociation('slots');
             block.slots.forEach((slot) => {
-                const element = slotStore.create();
+                const element = this.slotRepository.create();
                 element.blockId = newBlock.id;
                 element.slot = slot.slot;
                 element.type = slot.type;
@@ -545,7 +547,6 @@ Component.register('sw-cms-detail', {
 
         onSave() {
             this.isSaveSuccessful = false;
-
             if (!this.page.name || !this.page.type) {
                 this.$refs.pageConfigSidebar.openContent();
 
@@ -559,13 +560,15 @@ Component.register('sw-cms-detail', {
                 return Promise.reject();
             }
 
-            const blockStore = this.page.getAssociation('blocks');
+            const blocks = this.page.blocks;
             let foundEmptyRequiredField = [];
-            blockStore.forEach((block) => {
-                block.original.backgroundMedia = null;
-                block.draft.backgroundMedia = null;
+            blocks.forEach((block) => {
+                block.backgroundMedia = null;
 
-                foundEmptyRequiredField = this.checkRequiredSlotConfigFields(block.slots);
+                block.slots.forEach((slot) => {
+                    this.deleteEntityConfigKey(slot);
+                    foundEmptyRequiredField.push(...this.checkRequiredSlotConfigField(slot));
+                });
             });
 
             if (foundEmptyRequiredField.length > 0) {
@@ -623,21 +626,24 @@ Component.register('sw-cms-detail', {
             });
         },
 
-        checkRequiredSlotConfigFields(slots) {
-            const found = slots.map((slot) => {
-                return Object.values(slot.config).filter((configField) => {
-                    const returnVal = !!configField.required &&
-                                      (configField.value === null || configField.value.length < 1);
-
-                    if (configField.required) {
-                        delete configField.required;
-                    }
-
-                    return returnVal;
-                });
+        deleteEntityConfigKey(slot) {
+            Object.values(slot.config).forEach((configField) => {
+                if (configField.entity) {
+                    delete configField.entity;
+                }
             });
+        },
 
-            return found.flat();
+        checkRequiredSlotConfigField(slot) {
+            return Object.values(slot.config).filter((configField) => {
+                const returnVal = !!configField.required &&
+                    (configField.value === null || configField.value.length < 1);
+
+                if (configField.required) {
+                    delete configField.required;
+                }
+                return returnVal;
+            });
         },
 
         updateBlockPositions() {

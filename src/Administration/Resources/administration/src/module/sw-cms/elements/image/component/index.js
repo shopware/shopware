@@ -65,7 +65,6 @@ Component.register('sw-cms-el-image', {
     methods: {
         createdComponent() {
             this.initElementConfig('image');
-            this.initElementData('image');
         }
     }
 });

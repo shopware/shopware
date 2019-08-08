@@ -13,7 +13,7 @@ Component.register('sw-cms-el-config-product-slider', {
 
     computed: {
         products() {
-            if (this.element.data.products && this.element.data.products.length > 0) {
+            if (this.element.data && this.element.data.products && this.element.data.products.length > 0) {
                 return this.element.data.products;
             }
 
@@ -43,6 +43,10 @@ Component.register('sw-cms-el-config-product-slider', {
             products.forEach((product) => {
                 this.element.config.products.value.push(product.id);
             });
+
+            if (!this.element.data) {
+                this.$set(this.element, 'data', {});
+            }
 
             this.$set(this.element.data, 'products', products);
         }

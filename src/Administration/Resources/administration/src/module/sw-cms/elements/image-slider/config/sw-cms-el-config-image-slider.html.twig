@@ -55,7 +55,7 @@
 
                                 {% block sw_cms_element_image_gallery_config_settings_display_mode %}
                                     <div class="sw-cms-el-config-image-slider__setting-option">
-    
+
                                         {% block sw_cms_element_image_gallery_config_settings_display_mode_select %}
                                             <sw-select-field :label="$tc('sw-cms.elements.labelMediaDisplayMode')"
                                                              v-model="element.config.displayMode.value"
@@ -65,7 +65,7 @@
                                                 <option value="cover">{{ $tc('sw-cms.elements.labelMediaDisplayModeCover') }}</option>
                                             </sw-select-field>
                                         {% endblock %}
-    
+
                                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
                                             <sw-text-field :label="$tc('sw-cms.elements.labelMediaMinHeight')"
                                                            :placeholder="$tc('sw-cms.elements.labelMediaMinHeight')"
@@ -74,7 +74,7 @@
                                                            @input="onChangeMinHeight">
                                             </sw-text-field>
                                         {% endblock %}
-    
+
                                         {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
                                             <sw-select-field :label="$tc('sw-cms.elements.labelVerticalAlign')"
                                                              v-model="element.config.verticalAlign.value"
@@ -143,7 +143,7 @@
                                             {% block sw_cms_element_image_slider_config_settings_link_url %}
                                                 <sw-field v-model="sliderItem.url"
                                                           class="sw-cms-el-config-image-slider__settings-link-input"
-                                                          :key="sliderItem.mediaId"
+                                                          :key="sliderItem.entityId"
                                                           :name="sliderItem.mediaUrl"
                                                           type="text"
                                                           :label="$tc('sw-cms.elements.labelSettingsLinkTo')"
@@ -160,7 +160,7 @@
                                                 <sw-field class="sw-cms-el-config-image-slider__settings-link-tab"
                                                           v-model="sliderItem.newTab"
                                                           type="switch"
-                                                          :name="sliderItem.mediaId"
+                                                          :name="sliderItem.entityId"
                                                           :label="$tc('sw-text-editor-toolbar.link.openInNewTab')">
                                                 </sw-field>
                                             {% endblock %}

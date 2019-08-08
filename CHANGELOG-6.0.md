@@ -37,6 +37,7 @@ You can use them with every URL in your templates
 
 * Administration
     * Moved the global state of the module `sw-cms` to VueX
+    * Moved the `sw-cms` from `State.getStore()` to `Repository` and added clientsided data resolver
 * Core
     * Added DAL support for multi primary keys. 
     * Added API endpoints for translation definitions

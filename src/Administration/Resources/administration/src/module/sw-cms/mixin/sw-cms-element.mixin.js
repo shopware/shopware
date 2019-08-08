@@ -1,7 +1,5 @@
-import { types } from '../../../core/service/util.service';
-
 const { Mixin } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+const { cloneDeep, merge } = Shopware.Utils.object;
 
 Mixin.register('cms-element', {
     inject: ['cmsService'],
@@ -45,18 +43,7 @@ Mixin.register('cms-element', {
                 defaultConfig = elementConfig.defaultConfig || {};
             }
 
-            this.element.config = Object.assign(cloneDeep(defaultConfig), this.element.config || {});
-        },
-
-        initElementData(elementName) {
-            if (types.isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
-                return;
-            }
-
-            const elementConfig = this.cmsElements[elementName];
-            const defaultData = elementConfig.defaultData ? elementConfig.defaultData : {};
-
-            this.element.data = Object.assign(cloneDeep(defaultData), this.element.data || {});
+            this.element.config = merge(cloneDeep(defaultConfig), this.element.config || {});
         },
 
         getDemoValue(mappingPath) {

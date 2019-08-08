@@ -1,13 +1,18 @@
 import template from './sw-cms-el-config-image.html.twig';
 import './sw-cms-el-config-image.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-el-config-image', {
     template,
 
     mixins: [
         Mixin.getByName('cms-element')
+    ],
+
+    inject: [
+        'repositoryFactory',
+        'context'
     ],
 
     data() {
@@ -18,12 +23,8 @@ Component.register('sw-cms-el-config-image', {
     },
 
     computed: {
-        mediaStore() {
-            return State.getStore('media');
-        },
-
-        uploadStore() {
-            return State.getStore('upload');
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
 
         uploadTag() {
@@ -48,12 +49,8 @@ Component.register('sw-cms-el-config-image', {
             this.initElementConfig('image');
         },
 
-        onChangeMedia() {
-            return this.uploadStore.runUploads(this.uploadTag);
-        },
-
         onImageUpload({ targetId }) {
-            this.mediaStore.getByIdAsync(targetId).then((mediaEntity) => {
+            this.mediaRepository.get(targetId, this.context).then((mediaEntity) => {
                 this.element.config.media.value = mediaEntity.id;
 
                 if (this.element.data) {

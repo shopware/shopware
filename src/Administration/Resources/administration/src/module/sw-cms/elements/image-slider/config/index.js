@@ -1,14 +1,20 @@
 import template from './sw-cms-el-config-image-slider.html.twig';
 import './sw-cms-el-config-image-slider.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
+const Criteria = Shopware.Data.Criteria;
 
 Component.register('sw-cms-el-config-image-slider', {
     template,
 
     mixins: [
         Mixin.getByName('cms-element')
+    ],
+
+    inject: [
+        'repositoryFactory',
+        'context'
     ],
 
     data() {
@@ -25,20 +31,8 @@ Component.register('sw-cms-el-config-image-slider', {
             return `cms-element-media-config-${this.element.id}`;
         },
 
-        mediaStore() {
-            return State.getStore('media');
-        },
-
-        pageStore() {
-            return State.getStore('cms_page');
-        },
-
-        items() {
-            if (this.element.config && this.element.config.sliderItems && this.element.config.sliderItems.value) {
-                return this.element.config.sliderItems.value;
-            }
-
-            return [];
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
 
         defaultFolderName() {
@@ -57,13 +51,16 @@ Component.register('sw-cms-el-config-image-slider', {
             if (this.element.config.sliderItems.value.length > 0) {
                 const mediaIds = [];
                 this.element.config.sliderItems.value.forEach((item) => {
-                    mediaIds.push(item.mediaId);
+                    mediaIds.push(item.entityId);
                 });
 
-                this.mediaStore.getList({
-                    ids: mediaIds
-                }).then((response) => {
-                    this.mediaItems = response.items;
+                const criteria = new Criteria();
+                criteria.addFilter(
+                    Criteria.equalsAny('id', mediaIds)
+                );
+
+                this.mediaRepository.search(criteria, this.context).then((response) => {
+                    this.mediaItems = response;
                 });
             }
         },
@@ -71,7 +68,7 @@ Component.register('sw-cms-el-config-image-slider', {
         onImageUpload(mediaItem) {
             this.element.config.sliderItems.value.push({
                 mediaUrl: mediaItem.url,
-                mediaId: mediaItem.id,
+                entityId: mediaItem.id,
                 url: null,
                 newTab: false
             });
@@ -85,7 +82,7 @@ Component.register('sw-cms-el-config-image-slider', {
         onItemRemove(mediaItem) {
             const key = mediaItem.id;
             this.element.config.sliderItems.value = this.element.config.sliderItems.value.filter(
-                (item) => item.mediaId !== key
+                (item) => item.entityId !== key
             );
 
             this.mediaItems = this.mediaItems.filter(
@@ -104,7 +101,7 @@ Component.register('sw-cms-el-config-image-slider', {
             mediaItems.forEach((item) => {
                 this.element.config.sliderItems.value.push({
                     mediaUrl: item.url,
-                    mediaId: item.id,
+                    entityId: item.id,
                     url: null,
                     newTab: false
                 });
@@ -117,16 +114,21 @@ Component.register('sw-cms-el-config-image-slider', {
         },
 
         updateMediaDataValue() {
-            if (this.element.data && this.element.config.sliderItems.value) {
+            if (!this.element.data) {
+                this.$set(this.element, 'data', {});
+            }
+
+            if (this.element.config.sliderItems.value) {
                 const sliderItems = cloneDeep(this.element.config.sliderItems.value);
 
                 sliderItems.forEach((sliderItem) => {
                     this.mediaItems.forEach((mediaItem) => {
-                        if (sliderItem.mediaId === mediaItem.id) {
-                            sliderItem.media = mediaItem;
+                        if (sliderItem.entityId === mediaItem.id) {
+                            sliderItem.entity = mediaItem;
                         }
                     });
                 });
+
 
                 this.$set(this.element.data, 'sliderItems', sliderItems);
             }

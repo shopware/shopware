@@ -48,7 +48,7 @@ Core
 Administration
 --------------
 
-**Important Change:** The admin core framework of shopware from `src/core/` should always be accessed via the global available `Shopware` object and not via static imports. This is important to provide a consistent access point to the core framework of the shopware administration, either you are using Webpack or not. It will also ensure the correct bundling of source files via Webpack. Especially third party plugins have to ensure to access the core framework only via the global `Shopware` object. Using the concept of destructuring can help to access just specific parts of the framework and maintain readability of your code. Nevertheless you can use static imports in your plugins to import other source files of your plugin or NPM dependencies.
+* **Important Change:** The admin core framework of shopware from `src/core/` should always be accessed via the global available `Shopware` object and not via static imports. This is important to provide a consistent access point to the core framework of the shopware administration, either you are using Webpack or not. It will also ensure the correct bundling of source files via Webpack. Especially third party plugins have to ensure to access the core framework only via the global `Shopware` object. Using the concept of destructuring can help to access just specific parts of the framework and maintain readability of your code. Nevertheless you can use static imports in your plugins to import other source files of your plugin or NPM dependencies.
 
 Before:
 
@@ -141,6 +141,26 @@ Component.register('my-component', {
 });
 
 ```
+
+* **Important Change:** The Shopping Experiences data handling has changed. To get an entity resolved in an element you now need to configure a configfield like this: 
+```
+    product: {
+        source: 'static',
+        value: null,
+        required: true,
+        entity: {
+            name: 'product',
+            criteria: criteria
+        }
+    }
+```
+Where the criteria is the required criteria for this entity
+
+(in this case `const criteria = new Criteria(); criteria.addAssociation('cover');`).
+ 
+Furthermore you can now define your custon `collect` and `enrich` method in the `cmsService.registerCmsElement` method.
+
+See `2019-09-02-cms-remove-store.md` for more information
 
 Storefront
 ----------

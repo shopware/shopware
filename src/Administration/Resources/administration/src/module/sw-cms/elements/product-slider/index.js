@@ -3,6 +3,9 @@ import './config';
 import './preview';
 
 const { Application } = Shopware;
+const Criteria = Shopware.Data.Criteria;
+const criteria = new Criteria();
+criteria.addAssociation('cover');
 
 Application.getContainer('service').cmsService.registerCmsElement({
     name: 'product-slider',
@@ -14,7 +17,11 @@ Application.getContainer('service').cmsService.registerCmsElement({
         products: {
             source: 'static',
             value: [],
-            required: true
+            required: true,
+            entity: {
+                name: 'product',
+                criteria: criteria
+            }
         },
         title: {
             source: 'static',

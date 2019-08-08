@@ -1,12 +1,16 @@
 import template from './sw-cms-block-config.html.twig';
 import './sw-cms-block-config.scss';
 
-const { Component, State } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-cms-block-config', {
     template,
 
-    inject: ['cmsService'],
+    inject: [
+        'repositoryFactory',
+        'cmsService',
+        'context'
+    ],
 
     model: {
         prop: 'block',
@@ -28,8 +32,8 @@ Component.register('sw-cms-block-config', {
             return `cms-block-media-config-${this.block.id}`;
         },
 
-        mediaStore() {
-            return State.getStore('media');
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
 
         cmsPageState() {
@@ -56,7 +60,7 @@ Component.register('sw-cms-block-config', {
         successfulUpload(media) {
             this.block.backgroundMediaId = media.targetId;
 
-            this.mediaStore.getByIdAsync(media.targetId).then((mediaItem) => {
+            this.mediaRepository.get(media.targetId, this.context).then((mediaItem) => {
                 this.block.backgroundMedia = mediaItem;
                 this.$emit('block-update', this.block);
             });

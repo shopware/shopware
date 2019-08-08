@@ -1,14 +1,20 @@
 import template from './sw-cms-el-config-image-gallery.html.twig';
 import './sw-cms-el-config-image-gallery.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
+const Criteria = Shopware.Data.Criteria;
 
 Component.register('sw-cms-el-config-image-gallery', {
     template,
 
     mixins: [
         Mixin.getByName('cms-element')
+    ],
+
+    inject: [
+        'repositoryFactory',
+        'context'
     ],
 
     data() {
@@ -21,20 +27,16 @@ Component.register('sw-cms-el-config-image-gallery', {
     },
 
     computed: {
-        mediaStore() {
-            return State.getStore('media');
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
         },
 
         uploadTag() {
             return `cms-element-media-config-${this.element.id}`;
         },
 
-        pageStore() {
-            return State.getStore('cms_page');
-        },
-
         defaultFolderName() {
-            return this.pageStore._entityName;
+            return this.cmsPageState._entityName;
         },
 
         sliderItems() {
@@ -58,11 +60,16 @@ Component.register('sw-cms-el-config-image-gallery', {
                 const mediaIds = [];
 
                 this.element.config.sliderItems.value.forEach((item) => {
-                    mediaIds.push(item.mediaId);
+                    mediaIds.push(item.entityId);
                 });
 
-                this.mediaStore.getList({ ids: mediaIds }).then((response) => {
-                    this.mediaItems = response.items;
+                const criteria = new Criteria();
+                criteria.addFilter(
+                    Criteria.equalsAny('id', mediaIds)
+                );
+
+                this.mediaRepository.search(criteria, this.context).then((response) => {
+                    this.mediaItems = response;
                 });
             }
         },
@@ -78,7 +85,7 @@ Component.register('sw-cms-el-config-image-gallery', {
         onImageUpload(mediaItem) {
             this.element.config.sliderItems.value.push({
                 mediaUrl: mediaItem.url,
-                mediaId: mediaItem.id,
+                entityId: mediaItem.id,
                 url: null,
                 newTab: false
             });
@@ -92,7 +99,7 @@ Component.register('sw-cms-el-config-image-gallery', {
             const key = mediaItem.id;
             this.element.config.sliderItems.value =
                 this.element.config.sliderItems.value.filter(
-                    (item) => item.mediaId !== key
+                    (item) => item.entityId !== key
                 );
 
             this.mediaItems = this.mediaItems.filter(
@@ -107,7 +114,7 @@ Component.register('sw-cms-el-config-image-gallery', {
             mediaItems.forEach((item) => {
                 this.element.config.sliderItems.value.push({
                     mediaUrl: item.url,
-                    mediaId: item.id,
+                    entityId: item.id,
                     url: null,
                     newTab: false
                 });
@@ -119,13 +126,17 @@ Component.register('sw-cms-el-config-image-gallery', {
         },
 
         updateMediaDataValue() {
+            if (!this.element.data) {
+                this.$set(this.element, 'data', {});
+            }
+
             if (this.element.data && this.element.config.sliderItems.value) {
                 const sliderItems = cloneDeep(this.element.config.sliderItems.value);
 
                 sliderItems.forEach((galleryItem) => {
                     this.mediaItems.forEach((mediaItem) => {
-                        if (galleryItem.mediaId === mediaItem.id) {
-                            galleryItem.media = mediaItem;
+                        if (galleryItem.entityId === mediaItem.id) {
+                            galleryItem.entity = mediaItem;
                         }
                     });
                 });

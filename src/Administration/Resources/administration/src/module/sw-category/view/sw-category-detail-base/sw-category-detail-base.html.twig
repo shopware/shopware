@@ -212,7 +212,10 @@
                                 <div class="sw-category-detail-base__layout-desc-actions">
 
                                     {% block sw_category_detail_layout_desc_actions_layout %}
-                                        <sw-button size="small" @click="openLayoutModal">
+                                        <sw-button
+                                            size="small"
+                                            @click="openLayoutModal"
+                                            class="sw-category-detail-layout__change-layout-action">
                                             {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
                                         </sw-button>
                                     {% endblock %}

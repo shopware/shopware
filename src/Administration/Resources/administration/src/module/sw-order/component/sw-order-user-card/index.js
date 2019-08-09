@@ -83,7 +83,7 @@ Component.register('sw-order-user-card', {
         },
 
         hasDeliveryTrackingCode() {
-            return this.hasDeliveries && this.delivery.trackingCode;
+            return this.hasDeliveries && this.delivery.trackingCodes.length;
         },
 
         hasDifferentBillingAndShippingAddress() {

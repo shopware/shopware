@@ -1495,7 +1495,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition, "o
    not_null(shippingOrderAddressVersionId) referenceVersion
    not_null(shippingMethodId) foreignKey
    not_null(stateId) foreignKey
-   trackingCode string
+   trackingCodes json
    not_null(shippingDateEarliest) dateTime
    not_null(shippingDateLatest) dateTime
    shippingCosts calculatedPrice

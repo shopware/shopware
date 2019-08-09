@@ -88,7 +88,7 @@
       "labelNoDeliveryTrackingCodeYet": "None",
       "labelLastChange" : "Last changed",
       "labelNoChangesYet" : "No changes yet",
-      "labelTrackingCode" : "Track and trace code",
+      "labelTrackingCodes" : "Track and trace code(s)",
       "buttonAddDeliveryAddress" : "Add new address",
       "labelSameDeliveryAndBillingAddress" : "Billing and shipping address identical",
       "buttonContinueOnVersionedOrder" : "Load",

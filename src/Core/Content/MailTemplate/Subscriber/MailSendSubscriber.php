@@ -3,14 +3,15 @@
 namespace Shopware\Core\Content\MailTemplate\Subscriber;
 
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
+use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BusinessEvent;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataType;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -45,16 +46,20 @@ class MailSendSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @throws MailEventConfigurationException
+     * @throws SalesChannelNotFoundException
+     * @throws InconsistentCriteriaIdsException
+     */
     public function sendMail(BusinessEvent $event): void
     {
-        /** @var MailActionInterface|BusinessEventInterface $mailEvent */
         $mailEvent = $event->getEvent();
 
         if (!$mailEvent instanceof MailActionInterface) {
             throw new MailEventConfigurationException('Not a instance of MailActionInterface', get_class($mailEvent));
         }
 
-        if (!array_key_exists('mail_template_type_id', $event->getConfig())) {
+        if (!\array_key_exists('mail_template_type_id', $event->getConfig())) {
             throw new MailEventConfigurationException('Configuration mail_template_type_id missing.', get_class($mailEvent));
         }
 
@@ -88,13 +93,14 @@ class MailSendSubscriber implements EventSubscriberInterface
         $this->mailService->send(
             $data->all(),
             $event->getContext(),
-            $this->getTemplateData($mailEvent));
+            $this->getTemplateData($mailEvent)
+        );
     }
 
     /**
-     * @param MailActionInterface|BusinessEventInterface $event
+     * @throws MailEventConfigurationException
      */
-    private function getTemplateData($event): array
+    private function getTemplateData(MailActionInterface $event): array
     {
         $data = [];
         /* @var EventDataType $item */

@@ -12,12 +12,9 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
-use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Route;
@@ -80,6 +77,7 @@ class Kernel extends HttpKernel
         /** @var array $bundles */
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
 
+        /** @var string $class */
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
                 yield new $class();
@@ -111,8 +109,6 @@ class Kernel extends HttpKernel
             $_ENV['SHELL_VERBOSITY'] = 3;
             $_SERVER['SHELL_VERBOSITY'] = 3;
         }
-
-        $this->initializeFeatureFlags();
 
         if ($withPlugins) {
             $this->initializePlugins();
@@ -247,34 +243,6 @@ SQL;
 
         $this->registerPluginNamespaces($plugins);
         $this->instantiatePlugins($plugins);
-    }
-
-    protected function initializeFeatureFlags(): void
-    {
-        $cacheFile = $this->getCacheDir() . '/features.php';
-        $featureCache = new ConfigCache($cacheFile, $this->isDebug());
-
-        if (!$featureCache->isFresh()) {
-            /** @var Finder $files */
-            $files = (new Finder())
-                ->in(__DIR__ . '/Flag/')
-                ->name('feature_*.php')
-                ->files();
-
-            $resources = [new FileResource(__DIR__ . '/Flag/')];
-            $contents = ['<?php declare(strict_types=1);'];
-
-            foreach ($files as $file) {
-                $path = (string) $file;
-
-                $resources[] = new FileResource($path);
-                $contents[] = file_get_contents($path, false, null, 30);
-            }
-
-            $featureCache->write(implode(PHP_EOL, $contents), $resources);
-        }
-
-        require_once $cacheFile;
     }
 
     private function addApiRoutes(RouteCollectionBuilder $routes): void

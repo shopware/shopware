@@ -62,7 +62,7 @@ abstract class Field extends Struct
         return 0;
     }
 
-    public function setFlags(Flag  ...$flags): self
+    public function setFlags(Flag ...$flags): self
     {
         $this->flags = $flags;
 

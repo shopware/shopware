@@ -6,14 +6,13 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\NewsletterEvents;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NewsletterUpdateEvent extends Event implements BusinessEventInterface, MailActionInterface
+class NewsletterUpdateEvent extends Event implements MailActionInterface
 {
     public const EVENT_NAME = NewsletterEvents::NEWSLETTER_UPDATE_EVENT;
 

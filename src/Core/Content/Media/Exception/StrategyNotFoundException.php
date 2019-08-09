@@ -6,7 +6,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class StrategyNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string  $strategyName)
+    public function __construct(string $strategyName)
     {
         parent::__construct(
             'No Strategy with name "{{ strategyName }}" found.',

@@ -382,7 +382,8 @@ class RecalculationServiceTest extends TestCase
         $productName = 'Test';
         $productPrice = 10.0;
         $productTaxRate = 19.0;
-        $productId = $this->addProductToVersionedOrder($productName,
+        $productId = $this->addProductToVersionedOrder(
+            $productName,
             $productPrice,
             $productTaxRate,
             $orderId,

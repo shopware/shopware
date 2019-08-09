@@ -30,6 +30,9 @@ class ListFieldSerializer extends AbstractFieldSerializer
         $this->compositeHandler = $compositeHandler;
     }
 
+    /**
+     * @throws InvalidSerializerFieldException
+     */
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -47,9 +50,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
         if ($value !== null) {
             $value = array_values($value);
 
-            if ($field->getFieldType()) {
-                $this->validateTypes($field, $value, $parameters);
-            }
+            $this->validateTypes($field, $value, $parameters);
 
             $value = JsonFieldSerializer::encodeJson($value);
         }
@@ -74,7 +75,10 @@ class ListFieldSerializer extends AbstractFieldSerializer
     protected function validateTypes(ListField $field, array $values, WriteParameterBag $parameters): void
     {
         $fieldType = $field->getFieldType();
-        $exceptions = [];
+        if ($fieldType === null) {
+            return;
+        }
+
         $existence = new EntityExistence(null, [], false, false, false, []);
 
         /** @var Field $listField */

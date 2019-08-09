@@ -101,7 +101,6 @@
         "bheller/images-generator": "1.0.1",
         "fzaninotto/faker": "1.8.0",
         "johnkary/phpunit-speedtrap": "3.1.0",
-        "kubawerlos/php-cs-fixer-custom-fixers": "1.15.1",
         "league/flysystem-memory": "1.0.2",
         "mbezhanov/faker-provider-collection": "1.2.1",
         "phpunit/phpunit": "8.3.4",
@@ -124,6 +123,12 @@
             "Shopware\\Core\\": "src/Core/",
             "Shopware\\Elasticsearch\\": "src/Elasticsearch/"
         },
+        "files": [
+            "src/Core/Flag/feature_next733.php",
+            "src/Core/Flag/feature_next741.php",
+            "src/Core/Flag/feature_next1797.php",
+            "src/Core/Flag/feature_next3722.php"
+        ],
         "exclude-from-classmap": [
             "src/**/Test/"
         ]

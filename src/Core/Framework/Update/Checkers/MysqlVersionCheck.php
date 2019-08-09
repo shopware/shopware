@@ -29,10 +29,9 @@ class MysqlVersionCheck implements CheckerInterface
     {
         $currentVersion = $this->connection->fetchColumn('SELECT VERSION()');
 
-        $validVersion = (version_compare($currentVersion, $values) >= 0);
         $vars = ['minVersion' => $values, 'currentVersion' => $currentVersion];
 
-        if ($validVersion) {
+        if (version_compare($currentVersion, $values, '>=')) {
             return new ValidationResult('mysqlVersion', self::VALIDATION_SUCCESS, 'mysqlVersion', $vars);
         }
 

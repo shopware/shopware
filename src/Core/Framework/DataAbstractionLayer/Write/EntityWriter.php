@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
@@ -23,6 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Language\LanguageLoaderInterface;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -89,9 +90,8 @@ class EntityWriter implements EntityWriterInterface
     /**
      * @param array[] $ids
      *
-     * @throws RestrictDeleteViolationException
      * @throws IncompletePrimaryKeyException
-     * @throws ImpossibleWriteOrderException
+     * @throws RestrictDeleteViolationException
      */
     public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): DeleteResult
     {
@@ -111,7 +111,7 @@ class EntityWriter implements EntityWriterInterface
                     continue;
                 }
 
-                if (array_key_exists($field->getPropertyName(), $raw)) {
+                if (\array_key_exists($field->getPropertyName(), $raw)) {
                     $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
                     continue;
                 }
@@ -209,6 +209,10 @@ class EntityWriter implements EntityWriterInterface
         );
     }
 
+    /**
+     * @throws InvalidUuidException
+     * @throws InvalidUuidLengthException
+     */
     private function getWriteResults(WriteCommandQueue $queue): array
     {
         $identifiers = [];
@@ -223,7 +227,7 @@ class EntityWriter implements EntityWriterInterface
             $definition = $commands[0]->getDefinition();
 
             $primaryKeys = $definition->getPrimaryKeys()
-                ->filter(function (Field $field) {
+                ->filter(static function (Field $field) {
                     return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
                 });
 
@@ -232,10 +236,10 @@ class EntityWriter implements EntityWriterInterface
             $jsonUpdateCommands = [];
             $writeResults = [];
 
-            /** @var WriteCommandInterface[] $commands */
             foreach ($commands as $command) {
                 $primaryKey = $this->getCommandPrimaryKey($command, $primaryKeys);
-                $uniqueId = is_array($primaryKey) ? implode('-', $primaryKey) : $primaryKey;
+                /** @var string $uniqueId */
+                $uniqueId = \is_array($primaryKey) ? implode('-', $primaryKey) : $primaryKey;
 
                 if ($command instanceof JsonUpdateCommand) {
                     $jsonUpdateCommands[$uniqueId] = $command;
@@ -313,6 +317,9 @@ class EntityWriter implements EntityWriterInterface
         return $writeIdentifiers;
     }
 
+    /**
+     * @throws \InvalidArgumentException
+     */
     private function validateWriteInput(array $data): void
     {
         $valid = array_keys($data) === range(0, \count($data) - 1);
@@ -322,6 +329,9 @@ class EntityWriter implements EntityWriterInterface
         }
     }
 
+    /**
+     * @return array|string
+     */
     private function getCommandPrimaryKey(WriteCommandInterface $command, FieldCollection $fields)
     {
         $primaryKey = $command->getPrimaryKey();
@@ -335,7 +345,6 @@ class EntityWriter implements EntityWriterInterface
             return Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
 
-        /** @var StorageAware|Field $field */
         foreach ($fields as $field) {
             $data[$field->getPropertyName()] = Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
@@ -343,6 +352,9 @@ class EntityWriter implements EntityWriterInterface
         return $data;
     }
 
+    /**
+     * @throws \RuntimeException
+     */
     private function getCommandPayload(WriteCommandInterface $command): array
     {
         $payload = [];
@@ -367,11 +379,11 @@ class EntityWriter implements EntityWriterInterface
 
         /** @var Field|StorageAware $primaryKey */
         foreach ($primaryKeys as $primaryKey) {
-            if (array_key_exists($primaryKey->getPropertyName(), $payload)) {
+            if (\array_key_exists($primaryKey->getPropertyName(), $payload)) {
                 continue;
             }
 
-            if (!array_key_exists($primaryKey->getStorageName(), $command->getPrimaryKey())) {
+            if (!\array_key_exists($primaryKey->getStorageName(), $command->getPrimaryKey())) {
                 throw new \RuntimeException(
                     sprintf(
                         'Primary key field %s::%s not found in payload or command primary key',

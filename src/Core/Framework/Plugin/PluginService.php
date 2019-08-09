@@ -87,10 +87,10 @@ class PluginService
 
             $autoload = $info->getAutoload();
             if (empty($autoload) || (empty($autoload['psr-4']) && empty($autoload['psr-0']))) {
-                $errors[] = new PluginComposerJsonInvalidException(
+                $errors->add(new PluginComposerJsonInvalidException(
                     $pluginPath . '/composer.json',
                     ['Neither a PSR-4 nor PSR-0 autoload information is given.']
-                );
+                ));
                 continue;
             }
 
@@ -135,7 +135,7 @@ class PluginService
                     try {
                         $pluginData['translations'][$languageId]['changelog'] = $this->changelogService->parseChangelog($file);
                     } catch (PluginChangelogInvalidException $e) {
-                        $errors[] = $e;
+                        $errors->add($e);
                     }
                 }
             }

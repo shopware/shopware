@@ -5,14 +5,13 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerRegisterEvent extends Event implements BusinessEventInterface, MailActionInterface
+class CustomerRegisterEvent extends Event implements MailActionInterface
 {
     public const EVENT_NAME = 'checkout.customer.register';
 

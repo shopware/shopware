@@ -12,7 +12,7 @@ class ValidationResult extends Struct
     protected $name;
 
     /**
-     * @var int
+     * @var bool
      */
     protected $result;
 
@@ -26,7 +26,7 @@ class ValidationResult extends Struct
      */
     protected $vars;
 
-    public function __construct(string $name, int $result, string $message, array $vars = [])
+    public function __construct(string $name, bool $result, string $message, array $vars = [])
     {
         $this->name = $name;
         $this->result = $result;

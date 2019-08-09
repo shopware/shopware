@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class SeoUrlPersister
@@ -64,12 +63,12 @@ class SeoUrlPersister
 
         $processed = [];
 
-        /** @var SeoUrlEntity $seoUrl */
         foreach ($seoUrls as $seoUrl) {
             if ($seoUrl instanceof \JsonSerializable) {
                 $seoUrl = $seoUrl->jsonSerialize();
             }
             $fk = $seoUrl['foreignKey'];
+            /** @var string|null $salesChannelId */
             $salesChannelId = $seoUrl['salesChannelId'] = $seoUrl['salesChannelId'] ?? null;
 
             // skip duplicates
@@ -226,8 +225,8 @@ class SeoUrlPersister
          * If we find duplicates for a seo_path_info we need to mark all but one seo_url as invalid.
          * The first created seo_url wins. The ordering is established by the auto_increment column.
          */
-        $dupIds = $this->connection->executeQuery('            
-            SELECT DISTINCT invalid.id
+        $dupIds = $this->connection->executeQuery(
+            'SELECT DISTINCT invalid.id
             FROM seo_url valid
             INNER JOIN seo_url invalid
                 ON valid.seo_path_info = invalid.seo_path_info

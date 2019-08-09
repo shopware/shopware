@@ -78,7 +78,7 @@
       "notificationTitleMissingFields": "Fehlende Konfiguration",
       "notificationMessageMissingFields": "Bitte fülle alle erforderlichen Konfigurationsfelder aus.",
       "notificationTitleMissingBlockFields": "Fehlende Konfiguration",
-      "notificationMessageMissingBlockFields": "Bitte keine Beispieldaten in Bild/Produkt Blöcken lassen",
+      "notificationMessageMissingBlockFields": "Konfiguration erforderlich. Bitte fülle alle Elemente mit Daten.",
       "notificationTitlePageError": "Layout konnte nicht gespeichert werden!",
       "notificationTitleMissingElements": "Fehlende Elementkonfiguration!",
       "notificationMessageMissingElements": "Bitte konfiguriere alle Elemente Deines Layouts.",

@@ -232,7 +232,7 @@
 
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
                             {% block sw_sales_channel_detail_base_domains_input_url %}
-                                <sw-field type="text" label="Url" v-model="domain.url"></sw-field>
+                                <sw-url-field type="text" label="Url" v-model="domain.url"></sw-url-field>
                             {% endblock %}
 
                             {% block sw_sales_channel_detail_base_domains_input_language %}

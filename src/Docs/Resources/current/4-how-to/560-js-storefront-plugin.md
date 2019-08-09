@@ -1,19 +1,19 @@
-[titleEn]: <>(Write your own storefront javascript plugin)
-[metaDescriptionEn]: <>(This HowTo will give an example of writing an own javascript plugin for the storefront.)
+[titleEn]: <>(Write your own storefront JavaScript plugin)
+[metaDescriptionEn]: <>(This HowTo will give an example of writing an own JavaScript plugin for the storefront.)
 
 ## Overview
 
-If you want to add interactivity to your storefront you probably have to write your own javascript plugin.
-This HowTo will guide you through the process of writing and registering your own js plugins.
-We will write an plugin that simply checks if the user has scrolled to the bottom of the page and then creates an alert.
-For basic information on how to load own javascript or styles from plugins take a look at this [HowTo](./330-storefront-assets.md).
+If you want to add interactivity to your storefront you probably have to write your own JavaScript plugin.
+This HowTo will guide you through the process of writing and registering your own JavaScript plugins.
+You will write a plugin that simply checks if the user has scrolled to the bottom of the page and then creates an alert.
+For basic information on how to load own JavaScript or styles from plugins, take a look at this [HowTo](./330-storefront-assets.md).
 
-## Writing a js plugin
+## Writing a JavaScript plugin
 
-Storefront js plugins are vanilla javascript ES6 classes that extend from our Plugin base class.
-For more background information on javascript classes take a look [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes).
+Storefront JavaScript plugins are vanilla JavaScript ES6 classes that extend from our Plugin base class.
+For more background information on JavaScript classes, take a look [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes).
 To get started create a `Resources/storefront/example-plugin` folder and put an `example-plugin.plugin.js` file in there.
-In that file create and export a ExamplePlugin class that extends the base Plugin class:
+Inside that file create and export a ExamplePlugin class that extends the base Plugin class:
 
 ```js
 import Plugin from 'src/script/plugin-system/plugin.class';
@@ -23,8 +23,8 @@ export default class ExamplePlugin extends Plugin {
 ```
 
 Each Plugin has to implement the `init()` method. This method will be called when your plugin gets initialized and is the entrypoint to your custom logic.
-In our case we add an callback to the onScroll event from the window and check if the user has scrolled to the bottom of the page. If so we display an alert.
-Our full plugin now looks like this:
+In your case you add an callback to the onScroll event from the window and check if the user has scrolled to the bottom of the page. If so we display an alert.
+Your full plugin now looks like this:
 
 ```js
 import Plugin from 'src/script/plugin-system/plugin.class';
@@ -33,7 +33,7 @@ export default class ExamplePlugin extends Plugin {
     init() {
         window.onscroll = function() {
             if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight) {
-                alert('seems like there nothing more to see here.');
+                alert('seems like there\'s nothing more to see here.');
             }
         };
     }
@@ -42,7 +42,7 @@ export default class ExamplePlugin extends Plugin {
 
 ## Registering your plugin
 
-Next you have to tell shopware that your plugin should be loaded and executed. Therefore you have to register your plugin in the PluginManager.
+Next you have to tell Shopware that your plugin should be loaded and executed. Therefore you have to register your plugin in the PluginManager.
 Create a `main.js` file inside your `Resources/storefront` folder and get the PluginManager from the global window object. 
 Then register your own plugin:
 
@@ -55,7 +55,7 @@ const PluginManager = window.PluginManager;
 PluginManager.register('ExamplePlugin', ExamplePlugin);
 ```
 
-You also can register your plugin conditionally with an css selector. The best practice is to use data attributes that control if the plugin should be registered:
+You also can bind your plugin to an DOM element by providing an css selector:
 
  ```js
  // Import all necessary Storefront plugins and scss files
@@ -63,13 +63,13 @@ You also can register your plugin conditionally with an css selector. The best p
  
  // Register them via the existing PluginManager
  const PluginManager = window.PluginManager;
- PluginManager.register('ExamplePlugin', ExamplePlugin, '[data-scroll-detector]');
+ PluginManager.register('ExamplePlugin', ExamplePlugin, '[data-example-plugin]');
  ```
 
 In this case the plugin just gets executed if the HTML document contains at least one element with the `data-scroll-detector` attribute.
-But for our use case we register our plugin globally without any selector.
+You could use `this.el` inside your plugin to access the DOM element your plugin is bound to.
 
-Lastly we have to ad a small code snippet for the HotModuleReload server to work with our custom plugins, so our full `main.js` file now looks like this:
+Lastly you have to add a small code snippet for the HotModuleReload server to work with your custom plugins, so your full `main.js` file now looks like this:
 
 ```js
 // Import all necessary Storefront plugins and scss files
@@ -77,7 +77,7 @@ import ExamplePlugin from './example-plugin/example-plugin.plugin';
 
 // Register them via the existing PluginManager
 const PluginManager = window.PluginManager;
-PluginManager.register('ExamplePlugin', ExamplePlugin);
+PluginManager.register('ExamplePlugin', ExamplePlugin, '[data-example-plugin]');
 
 // Necessary for the webpack hot module reloading server
 if (module.hot) {
@@ -85,12 +85,79 @@ if (module.hot) {
 }
 ```
 
+## Loading your plugin
+
+You bound your plugin to the css selector "[data-example-plugin]" so you have to add DOM elements with this attribute on the pages you want your plugin to be active.
+Therefore create an `views/page/content/folder` and create an `index.html.twig` template.
+Inside this template extend from the `@Storefront/page/content/index.html.twig` and overwrite the `base_main_inner` block.
+After the parent content of the blog add an template tag that has the `data-example-plugin` attribute.
+For more information on how template extension works, take a look [here](./250-extending-storefront-block.md).
+
+```twig
+{% sw_extends '@Storefront/page/content/index.html.twig' %}
+
+{% block base_main_inner %}
+    {{ parent() }}
+
+    <template data-example-plugin></template>
+{% endblock %}
+```
+
+With this template extension your plugin is active on every content page, like the homepage or category listing pages.
+
+## Configuring your plugins
+
+You can configure your plugins from inside the templates via data-options.
+Define a static `options` object inside your plugin and assign your options with default values to it.
+In your case define a text option and as a default value use the text you previously directly prompted to the user.
+And instead of the hard coded string inside the `alert()` use your new option value.
+
+```js
+import Plugin from 'src/script/plugin-system/plugin.class';
+
+export default class ExamplePlugin extends Plugin {
+    static options = {
+        /**
+         * Specifies the text that is prompted to the user
+         * @type string
+         */
+        text: 'seems like there\'s nothing more to see here.',
+    };
+
+    init() {
+        const that = this;
+        window.onscroll = function() {
+            if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight) {
+                alert(that.options.text);
+            }
+        };
+    }
+}
+```
+
+Now you are able to override the text that is prompted to the user from inside your templates.
+Therefore create an `product-detail` folder inside your `views/page` folder and add an `index.html.twig` file inside that folder.
+In your template extend from `@Storefront/page/product-detail/index.html.twig` and override the `page_product_detail_content`.
+After the parent content add an template tag with the `data-example-plugin` tag also to activate your plugin on product detail pages.
+Next add an `data-{your-plugin-name-in-kebab-case}-options` (`data-example-plugin-options`) attribute to the DOM element you registered your plugin on (the template tag).
+As the value of this attribute use the options you want to override as a json object.
+
+```twig
+{% sw_extends '@Storefront/page/product-detail/index.html.twig' %}
+
+{% block page_product_detail_content %}
+    {{ parent() }}
+
+    <template data-example-plugin data-example-plugin-options='{ "text": "Are you not interested in this product?" }'></template>
+{% endblock %}
+```
+
 ## Configuring your plugins script path
 
 This can be ignored if you are on version 6.0.0 EA2 or newer. 
 
-You have to tell shopware where your bundled .js files live, therefore you can implement the `getStorefrontScriptPath()` in your plugin base class.
-By default shopware will bundle your javascript files and put them under `Resources/dist/storefront/js` during the build of the storefront.
+You have to tell Shopware where your bundled .js files live, therefore you can implement the `getStorefrontScriptPath()` in your plugin base class.
+By default Shopware will bundle your JavaScript files and put them under `Resources/dist/storefront/js` during the build of the storefront.
 
 ```php
 <?php declare(strict_types=1);

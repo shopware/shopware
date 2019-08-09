@@ -20,11 +20,18 @@ include:
 default:
     image: shopware/development:latest
     before_script:
+        - apt-install jq
+        - 'export CI_TARGET_BRANCH_NAME=$(curl -LsS -H "PRIVATE-TOKEN: $CI_GITLAB_API_TOKEN" "https://gitlab.shopware.com/api/v4/projects/$CI_PROJECT_ID/merge_requests?source_branch=$CI_COMMIT_REF_NAME" | jq --raw-output ".[0].target_branch")'
         - zip -rq platform.zip .
         - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/development.git
         - unzip -q platform.zip -d development/platform/
         - cd development
-        - if [ "$(git ls-remote origin $CI_COMMIT_REF_NAME | wc -l)" == "true" ]; then git checkout $CI_COMMIT_REF_NAME; fi
+        - >
+            if [ "$(git ls-remote origin $CI_COMMIT_REF_NAME | wc -l)" == 1 ]; then
+              git checkout $CI_COMMIT_REF_NAME;
+            elif [ "$(git ls-remote origin $CI_TARGET_BRANCH_NAME | wc -l)" == 1 ]; then
+              git checkout $CI_TARGET_BRANCH_NAME;
+            fi
         - cp -v dev-ops/gitlab/.psh.yaml.override .
         - /entrypoint supervisord > /dev/null 2>&1 &
 

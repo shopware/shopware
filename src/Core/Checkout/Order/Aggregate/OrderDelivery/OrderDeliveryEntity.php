@@ -31,9 +31,9 @@ class OrderDeliveryEntity extends Entity
     protected $shippingMethodId;
 
     /**
-     * @var string|null
+     * @var string[]
      */
-    protected $trackingCode;
+    protected $trackingCodes;
 
     /**
      * @var \DateTimeInterface
@@ -115,14 +115,20 @@ class OrderDeliveryEntity extends Entity
         $this->shippingMethodId = $shippingMethodId;
     }
 
-    public function getTrackingCode(): ?string
+    /**
+     * @return string[]
+     */
+    public function getTrackingCodes(): array
     {
-        return $this->trackingCode;
+        return $this->trackingCodes;
     }
 
-    public function setTrackingCode(?string $trackingCode): void
+    /**
+     * @param string[] $trackingCodes
+     */
+    public function setTrackingCodes(array $trackingCodes): void
     {
-        $this->trackingCode = $trackingCode;
+        $this->trackingCodes = $trackingCodes;
     }
 
     public function getShippingDateEarliest(): \DateTimeInterface

@@ -88,7 +88,7 @@
       "labelNoDeliveryTrackingCodeYet" : "Keine",
       "labelLastChange" : "Zuletzt geändert",
       "labelNoChangesYet" : "Bisher keine Änderungen",
-      "labelTrackingCode" : "Sendungsnummer",
+      "labelTrackingCodes" : "Sendungsnummer(n)",
       "buttonContinueOnVersionedOrder" : "Laden",
       "buttonAddDeliveryAddress" : "Neue Addresse hinzufügen",
       "labelSameDeliveryAndBillingAddress" : "Rechnungs- und Lieferadresse sind identisch",

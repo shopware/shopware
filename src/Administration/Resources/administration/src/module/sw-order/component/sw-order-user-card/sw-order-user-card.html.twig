@@ -228,9 +228,9 @@
                                             <dd>{{ lastChangedDate }}</dd>
                                         {% endblock %}
 
-                                        {% block sw_order_detail_base_secondary_info_tracking_code %}
-                                            <dt>{{ $tc('sw-order.detailBase.labelTrackingCode') }}</dt>
-                                            <dd>{{ hasDeliveryTrackingCode ? delivery.trackingCode :$tc('sw-order.detailBase.labelNoDeliveryTrackingCodeYet') }}</dd>
+                                        {% block sw_order_detail_base_secondary_info_tracking_codes %}
+                                            <dt>{{ $tc('sw-order.detailBase.labelTrackingCodes') }}</dt>
+                                            <dd>{{ hasDeliveryTrackingCode ? delivery.trackingCodes.join(', ') :$tc('sw-order.detailBase.labelNoDeliveryTrackingCodeYet') }}</dd>
                                         {% endblock %}
 
                                         {% block sw_order_detail_base_secondary_info_order_overview_right_column_slot %}

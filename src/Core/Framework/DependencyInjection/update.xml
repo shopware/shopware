@@ -9,6 +9,8 @@
             <argument type="service" id="Shopware\Core\Framework\Update\Services\ApiClient" />
             <argument type="service" id="Shopware\Core\Framework\Update\Services\RequirementsValidator" />
             <argument type="service" id="Shopware\Core\Framework\Update\Services\PluginCompatibility" />
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Update\Services\ApiClient">

@@ -202,7 +202,6 @@ In the original file, you'll find two main parts: One for listing all available 
 
 Start with adding your own tab by overriding the block `page_product_detail_tabs_navigation_description`, so you can add your own `li` tag to the `ul`.
 Copy the original file's tab content as well and replace every occurrence of "description" with "bundle" and replace `{{ "detail.tabsDescription"|trans }}` with `Bundles` for now.
-The icon to be used is the one you already used in your Administration module, so use `shopping-paper-bag-product` here.
 
 Also make sure to add the `{{ parent() }}` to not just override the description tab, but to add a new tab instead.
 This time you want the original content to be loaded first and your new tab afterwards.
@@ -223,12 +222,7 @@ It should now look like this:
                role="tab"
                aria-controls="bundle-tab-pane"
                aria-selected="false">
-                Bundles
-                <span class="nav-link-icon">
-                    {% sw_include '@Storefront/utilities/icon.html.twig' with {
-                        'name': 'shopping-paper-bag-product'
-                    } %}
-                </span>
+                <span>Bundles</span>
             </a>
         </li>
     {% endif %}
@@ -247,8 +241,6 @@ Instead, the really important attributes are `data-toggle`, `data-offcanvas-tab`
 - `href`: Links to the element, which contains the tab's contents and thus must be rendered
 
 Inside the `a` tag, you'll find the tab's label, 'Bundles' in this case. Translations will be added later, don't worry about this yet.
-Additional to that, there's an icon added, just as mentioned above.
-
 
 This would already render a bundle tab, but it has no content to show yet. Looking into the original `tabs.html.twig` file, there's a `div` container
 for the several tab content's. Copy the first block inside this block, which should be `page_product_detail_tabs_content_description`, and override it in your custom
@@ -399,12 +391,7 @@ Your `tabs.html.twig` file should now look like this:
     {% if page.product.extension('bundles').elements|length > 0 %}
         <li class="nav-item">
             <a class="nav-link" id="bundle-tab" data-toggle="tab" data-offcanvas-tab="true" href="#bundle-tab-pane" role="tab" aria-controls="bundle-tab-pane" aria-selected="false">
-                Bundles
-                <span class="nav-link-icon">
-                    {% sw_include '@Storefront/layout/_utilities/icon.html.twig' with {
-                        'name': 'shopping-paper-bag-product'
-                    } %}
-                </span>
+                <span>Bundles</span>
             </a>
         </li>
     {% endif %}

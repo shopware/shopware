@@ -26,7 +26,7 @@ Component.register('sw-category-detail', {
         return {
             category: null,
             cmsPage: null,
-            cmsPageState: State.getStore('cmsPageState'),
+            cmsPageState: this.$store.state.cmsPageState,
             categories: [],
             isLoading: false,
             isLoadingCategory: false,
@@ -173,7 +173,7 @@ Component.register('sw-category-detail', {
         },
 
         getAssignedCmsPage(cmsPageId) {
-            this.cmsPageState.currentPage = null;
+            this.$store.commit('cmsPageState/removeCurrentPage');
 
             if (cmsPageId === null) {
                 this.cmsPage = null;
@@ -210,15 +210,19 @@ Component.register('sw-category-detail', {
                 }
 
                 this.cmsPage = cmsPage;
-                this.cmsPageState.currentPage = this.cmsPage;
+                this.$store.commit('cmsPageState/setCurrentPage', this.cmsPage);
+
                 return this.cmsPage;
             });
         },
 
         updateCmsPageDataMapping() {
-            this.cmsPageState.currentMappingEntity = 'category';
-            this.cmsPageState.currentMappingTypes = this.cmsService.getEntityMappingTypes('category');
-            this.cmsPageState.currentDemoEntity = this.category;
+            this.$store.commit('cmsPageState/setCurrentMappingEntity', 'category');
+            this.$store.commit(
+                'cmsPageState/setCurrentMappingTypes',
+                this.cmsService.getEntityMappingTypes('category')
+            );
+            this.$store.commit('cmsPageState/setCurrentDemoEntity', this.category);
         },
 
         onCmsPageChange(cmsPageId) {

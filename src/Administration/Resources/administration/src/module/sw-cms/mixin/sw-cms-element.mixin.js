@@ -1,4 +1,4 @@
-import { Mixin, State } from 'src/core/shopware';
+import { Mixin } from 'src/core/shopware';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 
 Mixin.register('cms-element', {
@@ -24,7 +24,7 @@ Mixin.register('cms-element', {
 
     data() {
         return {
-            cmsPageState: State.getStore('cmsPageState')
+            cmsPageState: this.$store.state.cmsPageState
         };
     },
 
@@ -58,7 +58,10 @@ Mixin.register('cms-element', {
         },
 
         getDemoValue(mappingPath) {
-            return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
+            return this.cmsService.getPropertyByMappingPath(
+                this.cmsPageState.currentDemoEntity,
+                mappingPath
+            );
         }
     }
 });

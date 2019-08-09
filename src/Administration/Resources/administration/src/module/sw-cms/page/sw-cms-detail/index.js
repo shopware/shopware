@@ -26,7 +26,7 @@ Component.register('sw-cms-detail', {
             page: {
                 blocks: []
             },
-            cmsPageState: State.getStore('cmsPageState'),
+            cmsPageState: this.$store.state.cmsPageState,
             salesChannels: [],
             isLoading: false,
             isSaveSuccessful: false,
@@ -195,15 +195,12 @@ Component.register('sw-cms-detail', {
 
         setPageContext() {
             this.getDefaultFolderId().then((folderId) => {
-                this.cmsPageState.defaultMediaFolderId = folderId;
+                this.$store.commit('cmsPageState/setDefaultMediaFolderId', folderId);
             });
         },
 
         resetCmsPageState() {
-            this.cmsPageState.currentPage = null;
-            this.cmsPageState.currentMappingEntity = null;
-            this.cmsPageState.currentMappingTypes = {};
-            this.cmsPageState.currentDemoEntity = null;
+            this.$store.dispatch('cmsPageState/resetCmsPageState');
         },
 
         getDefaultFolderId() {
@@ -228,7 +225,7 @@ Component.register('sw-cms-detail', {
         },
 
         beforeDestroyedComponent() {
-            this.cmsPageState.currentPage = null;
+            this.$store.commit('cmsPageState/removeCurrentPage');
         },
 
         loadPage(pageId) {
@@ -253,7 +250,7 @@ Component.register('sw-cms-detail', {
                         block.position = index;
                     });
 
-                    this.cmsPageState.currentPage = this.page;
+                    this.$store.commit('cmsPageState/setCurrentPage', this.page);
 
                     if (this.currentBlock !== null) {
                         this.currentBlock = this.page.blocks.find(block => block.id === this.currentBlock.id);
@@ -278,9 +275,9 @@ Component.register('sw-cms-detail', {
             const mappingEntity = this.cmsPageTypeSettings.entity;
 
             if (!mappingEntity) {
-                this.cmsPageState.currentMappingEntity = null;
-                this.cmsPageState.currentMappingTypes = {};
-                this.cmsPageState.currentDemoEntity = null;
+                this.$store.commit('cmsPageState/removeCurrentMappingEntity');
+                this.$store.commit('cmsPageState/removeCurrentMappingTypes');
+                this.$store.commit('cmsPageState/removeCurrentDemoEntity');
 
                 this.currentMappingEntity = null;
                 this.currentMappingEntityStore = null;
@@ -289,8 +286,11 @@ Component.register('sw-cms-detail', {
             }
 
             if (this.cmsPageState.currentMappingEntity !== mappingEntity) {
-                this.cmsPageState.currentMappingEntity = mappingEntity;
-                this.cmsPageState.currentMappingTypes = this.cmsService.getEntityMappingTypes(mappingEntity);
+                this.$store.commit('cmsPageState/setCurrentMappingEntity', mappingEntity);
+                this.$store.commit(
+                    'cmsPageState/setCurrentMappingTypes',
+                    this.cmsService.getEntityMappingTypes(mappingEntity)
+                );
 
                 this.currentMappingEntity = mappingEntity;
                 this.currentMappingEntityStore = State.getStore(mappingEntity);
@@ -308,14 +308,14 @@ Component.register('sw-cms-detail', {
 
             this.currentMappingEntityStore.getList(params).then((response) => {
                 this.demoEntityId = response.items[0].id;
-                this.cmsPageState.currentDemoEntity = response.items[0];
+                this.$store.commit('cmsPageState/setCurrentDemoEntity', response.items[0]);
             });
         },
 
         onDeviceViewChange(view) {
             this.currentDeviceView = view;
 
-            this.cmsPageState.currentCmsDeviceView = view;
+            this.$store.commit('cmsPageState/setCurrentCmsDeviceView', view);
 
             if (view === 'form') {
                 this.currentBlock = null;
@@ -401,7 +401,7 @@ Component.register('sw-cms-detail', {
         },
 
         onDemoEntityChange(demoEntityId) {
-            this.cmsPageState.currentDemoEntity = null;
+            this.$store.commit('cmsPageState/removeCurrentDemoEntity');
 
             if (!demoEntityId) {
                 return;
@@ -419,7 +419,7 @@ Component.register('sw-cms-detail', {
                 });
             }
 
-            this.cmsPageState.currentDemoEntity = demoEntity;
+            this.$store.commit('cmsPageState/setCurrentDemoEntity', demoEntity);
         },
 
         onAddBlockSection() {

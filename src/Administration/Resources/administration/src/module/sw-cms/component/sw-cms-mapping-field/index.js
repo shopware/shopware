@@ -1,4 +1,4 @@
-import { Component, State } from 'src/core/shopware';
+import { Component } from 'src/core/shopware';
 import template from './sw-cms-mapping-field.html.twig';
 import './sw-cms-mapping-field.scss';
 
@@ -45,7 +45,7 @@ Component.register('sw-cms-mapping-field', {
 
     data() {
         return {
-            cmsPageState: State.getStore('cmsPageState'),
+            cmsPageState: this.$store.state.cmsPageState,
             mappingTypes: {},
             allowedMappingTypes: [],
             demoValue: null
@@ -134,7 +134,10 @@ Component.register('sw-cms-mapping-field', {
         },
 
         getDemoValue(mappingPath) {
-            return this.cmsService.getPropertyByMappingPath(this.cmsPageState.currentDemoEntity, mappingPath);
+            return this.cmsService.getPropertyByMappingPath(
+                this.cmsPageState.currentDemoEntity,
+                mappingPath
+            );
         }
     }
 });

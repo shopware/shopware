@@ -38,15 +38,26 @@
 
     .sw-cms-list-item__info {
         display: grid;
-        grid-template-columns: 18px 1fr 18px;
+        grid-template-columns: 8px 1fr 18px;
         grid-column-gap: 10px;
         align-items: center;
         align-content: center;
     }
 
-    .sw-cms-list-item__locked,
-    .sw-cms-list-item__status {
+    .sw-cms-list-item__locked {
         color: $color-steam-cloud;
+    }
+
+    .sw-cms-list-item__status {
+        width: 8px;
+        height: 8px;
+        border-radius: 100%;
+        margin-top: 1px;
+        background: $color-steam-cloud;
+
+        &.is--active {
+            background: $color-module-green-900;
+        }
     }
 
     .sw-cms-list-item__title {

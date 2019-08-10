@@ -22,6 +22,7 @@
     "list": {
       "gridHeaderName": "Name",
       "gridHeaderType": "Typ",
+      "gridHeaderAssignment": "Zugewiesene Kategorien",
       "gridHeaderCreated": "Erstellt"
     },
     "detail": {

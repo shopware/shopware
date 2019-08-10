@@ -19,7 +19,7 @@
 
         {% block sw_cms_list_item_info %}
             <div class="sw-cms-list-item__info">
-                <sw-icon class="sw-cms-list-item__status" name="small-default-circle-medium" small></sw-icon>
+                <div v-if="page" class="sw-cms-list-item__status" :class="componentClasses"></div>
                 <div class="sw-cms-list-item__title" v-if="page" @click="onElementClick">{{ page.translated.name }}</div>
                 <sw-icon v-if="page && page.locked" class="sw-cms-list-item__locked" name="small-lock-closed" small></sw-icon>
             </div>

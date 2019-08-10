@@ -136,7 +136,12 @@
                                                                     {% endblock %}
 
                                                                     {% block sw_cms_list_listing_list_data_grid_actions_edit_delete %}
-                                                                        <sw-context-menu-item variant="danger" @click="onDeleteCmsPage(item)" v-if="!item.locked">
+                                                                        <sw-context-menu-item
+                                                                            variant="danger"
+                                                                            @click="onDeleteCmsPage(item)"
+                                                                            :disabled="item.categories.length > 0"
+                                                                            v-tooltip="deleteDisabledToolTip(item)"
+                                                                            v-if="!item.locked">
                                                                             {{ $tc('sw-cms.components.cmsListItem.delete') }}
                                                                         </sw-context-menu-item>
                                                                     {% endblock %}
@@ -200,6 +205,8 @@
                                                                                 v-if="!cmsPage.locked"
                                                                                 class="sw-cms-list-item__option-delete"
                                                                                 variant="danger"
+                                                                                :disabled="cmsPage.categories.length > 0"
+                                                                                v-tooltip="deleteDisabledToolTip(cmsPage)"
                                                                                 @click="onDeleteCmsPage(cmsPage)">
                                                                             {{ $tc('sw-cms.components.cmsListItem.delete') }}
                                                                         </sw-context-menu-item>

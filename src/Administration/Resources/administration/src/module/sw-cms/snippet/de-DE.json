@@ -5,7 +5,8 @@
       "mainMenuItemGeneral": "Erlebniswelten",
       "moduleTitle": "Erlebniswelten",
       "greeting": "Layouts",
-      "createNewLayout": "Neues Layout anlegen"
+      "createNewLayout": "Neues Layout anlegen",
+      "deleteDisablesToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen"
     },
     "sorting": {
       "labelSort": "Sortieren nach:",

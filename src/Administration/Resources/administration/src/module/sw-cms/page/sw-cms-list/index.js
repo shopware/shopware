@@ -115,6 +115,7 @@ Component.register('sw-cms-list', {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia');
+            criteria.addAssociation('categories');
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             if (this.term !== null) {
@@ -297,6 +298,14 @@ Component.register('sw-cms-list', {
                 property: 'createdAt',
                 label: this.$tc('sw-cms.list.gridHeaderCreated')
             }];
+        },
+
+        deleteDisabledToolTip(page) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-cms.general.deleteDisablesToolTip'),
+                disabled: page.categories.length === 0
+            };
         }
     }
 });

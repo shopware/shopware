@@ -4,6 +4,8 @@
       "mainMenuItemGeneral": "Ersteinrichtungs-Assistent",
       "buttonNext": "Weiter",
       "buttonSkip": "Überspringen",
+      "buttonNextDemoData": "Installieren",
+      "buttonNextPayPalInfo": "Konfigurieren",
       "buttonBack": "Zurück",
       "buttonInstall": "Installieren",
       "buttonFinish": "Fertig",

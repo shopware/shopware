@@ -50,11 +50,19 @@
 
                     {% block sw_first_run_wizard_modal_footer_right %}
                         <div class="footer-right">
-                            <sw-button v-if="skipable" class="skip-button" size="small"cla @click="onSkip">
-                                {{ $tc('sw-first-run-wizard.general.buttonSkip') }}
+                            <sw-button v-if="skipable" class="skip-button" size="small" @click="onSkip">
+                                    {{ $tc('sw-first-run-wizard.general.buttonSkip') }}
                             </sw-button>
                             <sw-button v-if="nextVisible" size="small" variant="primary" @click="onNext">
-                                {{ $tc('sw-first-run-wizard.general.buttonNext') }}
+                                <template v-if="currentStep.name === 'sw.first.run.wizard.index.demodata'">
+                                    {{ $tc('sw-first-run-wizard.general.buttonNextDemoData') }}
+                                </template>
+                                <template v-else-if="currentStep.name === 'sw.first.run.wizard.index.paypal.info'">
+                                    {{ $tc('sw-first-run-wizard.general.buttonNextPayPalInfo') }}
+                                </template>
+                                <template v-else>
+                                    {{ $tc('sw-first-run-wizard.general.buttonNext') }}
+                                </template>
                             </sw-button>
                             <sw-button v-if="finishable" size="small" variant="primary" @click="onFinish">
                                 {{ $tc('sw-first-run-wizard.general.buttonFinish') }}

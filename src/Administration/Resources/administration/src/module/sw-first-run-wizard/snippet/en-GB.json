@@ -4,6 +4,8 @@
       "mainMenuItemGeneral": "First Run Wizard",
       "buttonNext": "Next",
       "buttonSkip": "Skip",
+      "buttonNextDemoData": "Install",
+      "buttonNextPayPalInfo": "Configure",
       "buttonBack": "Back",
       "buttonInstall": "Install",
       "buttonFinish": "Finish",

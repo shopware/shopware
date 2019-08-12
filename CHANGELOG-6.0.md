@@ -18,3 +18,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
 
  * Placeholder for future releases
+ 
+**Removals**
+
+* Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function

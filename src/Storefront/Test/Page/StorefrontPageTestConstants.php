@@ -16,7 +16,7 @@ final class StorefrontPageTestConstants
 
     public const AVAILABLE_PAYMENT_METHOD_COUNT = 1;
 
-    public const COUNTRY_COUNT = 34;
+    public const COUNTRY_COUNT = 1;
 
     private function __construct()
     {

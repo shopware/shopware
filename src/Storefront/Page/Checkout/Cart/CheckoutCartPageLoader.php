@@ -125,7 +125,8 @@ class CheckoutCartPageLoader
      */
     private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection
     {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true));
 
         /** @var CountryCollection $countries */
         $countries = $this->countryRepository->search($criteria, $salesChannelContext)->getEntities();

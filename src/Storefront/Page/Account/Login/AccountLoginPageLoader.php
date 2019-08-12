@@ -2,12 +2,13 @@
 
 namespace Shopware\Storefront\Page\Account\Login;
 
-use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
@@ -23,11 +24,6 @@ class AccountLoginPageLoader
     private $genericLoader;
 
     /**
-     * @var AddressService
-     */
-    private $addressService;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -37,16 +33,21 @@ class AccountLoginPageLoader
      */
     private $salutationRepository;
 
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
+    private $countryRepository;
+
     public function __construct(
         GenericPageLoader $genericLoader,
-        AddressService $addressService,
+        SalesChannelRepositoryInterface $countryRepository,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelRepositoryInterface $salutationRepository
     ) {
         $this->genericLoader = $genericLoader;
-        $this->addressService = $addressService;
         $this->eventDispatcher = $eventDispatcher;
         $this->salutationRepository = $salutationRepository;
+        $this->countryRepository = $countryRepository;
     }
 
     /**
@@ -60,7 +61,8 @@ class AccountLoginPageLoader
 
         $page = AccountLoginPage::createFrom($page);
 
-        $page->setCountries($this->addressService->getCountryList($salesChannelContext));
+        $page->setCountries($this->getCountries($salesChannelContext));
+
         $page->setSalutations($this->getSalutations($salesChannelContext));
 
         $this->eventDispatcher->dispatch(
@@ -81,5 +83,19 @@ class AccountLoginPageLoader
         $salutations = $this->salutationRepository->search($criteria, $salesChannelContext)->getEntities();
 
         return $salutations;
+    }
+
+    private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection
+    {
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('active', true))
+            ->addAssociation('country.states');
+
+        /** @var CountryCollection $countries */
+        $countries = $this->countryRepository->search($criteria, $salesChannelContext)->getEntities();
+
+        $countries->sortCountryAndStates();
+
+        return $countries;
     }
 }

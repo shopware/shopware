@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -83,21 +82,6 @@ class AddressService
     public function getById(string $addressId, SalesChannelContext $context): CustomerAddressEntity
     {
         return $this->validateAddressId($addressId, $context);
-    }
-
-    public function getCountryList(SalesChannelContext $context): CountryCollection
-    {
-        $criteria = new Criteria([]);
-        $criteria->addFilter(new EqualsFilter('country.active', true))
-            ->addAssociation('country.states');
-
-        /** @var CountryCollection $countries */
-        $countries = $this->countryRepository->search($criteria, $context->getContext())
-            ->getEntities();
-
-        $countries->sortCountryAndStates();
-
-        return $countries;
     }
 
     /**

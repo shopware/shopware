@@ -38,7 +38,7 @@ class LoginPageTest extends TestCase
         $context = $this->createSalesChannelContextWithNavigation();
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertSame(34, $page->getCountries()->count());
+        static::assertSame(StorefrontPageTestConstants::COUNTRY_COUNT, $page->getCountries()->count());
     }
 
     /**

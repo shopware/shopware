@@ -1,5 +1,4 @@
 import { warn } from 'src/core/service/utils/debug.utils';
-import SwTextField from '../sw-text-field/index';
 import template from './sw-number-field.html.twig';
 import './sw-number-field.scss';
 
@@ -14,7 +13,7 @@ import './sw-number-field.scss';
  */
 export default {
     name: 'sw-number-field',
-    extends: SwTextField,
+    extendsFrom: 'sw-text-field',
     template,
     inheritAttrs: false,
 

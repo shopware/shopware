@@ -1,24 +1,26 @@
-<sw-base-field class="sw-field--radio"
-               :class="classes"
-               :name="formFieldName"
-               v-bind="$attrs">
-    <template #sw-field-input="{ identification, helpText, error, disabled }">
-        <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
-            <div class="sw-field__radio-group">
-                <div class="sw-field__radio-option group-bordered" v-for="(option, index) in options">
-                    <div class="sw-field__radio-input">
-                        <input type="radio"
-                               :name="`${identification}-${index}`"
-                               :id="`${identification}-${index}`"
-                               :value="option.value"
-                               :disabled="disabled"
-                               :checked="currentValue === option.value ? 'checked' : false"
-                               @change="onChange" />
-                        <div class="sw-field__radio-state"></div>
-                    </div>
+{% block sw_radio_field %}
+    <sw-base-field class="sw-field--radio"
+                :class="classes"
+                :name="formFieldName"
+                v-bind="$attrs">
+        <template #sw-field-input="{ identification, helpText, error, disabled }">
+            <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
+                <div class="sw-field__radio-group">
+                    <div class="sw-field__radio-option group-bordered" v-for="(option, index) in options">
+                        <div class="sw-field__radio-input">
+                            <input type="radio"
+                                :name="`${identification}-${index}`"
+                                :id="`${identification}-${index}`"
+                                :value="option.value"
+                                :disabled="disabled"
+                                :checked="currentValue === option.value ? 'checked' : false"
+                                @change="onChange" />
+                            <div class="sw-field__radio-state"></div>
+                        </div>
 
-                    <label :for="`${identification}-${index}`">{{ option.name }}</label>
+                        <label :for="`${identification}-${index}`">{{ option.name }}</label>
+                    </div>
                 </div>
-            </div>
-    </template>
-</sw-base-field>
+        </template>
+    </sw-base-field>
+{% endblock %}

@@ -1,24 +1,26 @@
-<div class="sw-field--checkbox" :class="swCheckboxFieldClasses">
-    <div class="sw-field--checkbox__content">
-        <div class="sw-field__checkbox">
-            <input type="checkbox"
-                   :id="identification"
-                   :name="identification"
-                   :checked="inputState"
-                   :disabled="disabled"
-                   @change="onChange">
-            <div class="sw-field__checkbox-state">
-                <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+{% block sw_checkbox_field %}
+    <div class="sw-field--checkbox" :class="swCheckboxFieldClasses">
+        <div class="sw-field--checkbox__content">
+            <div class="sw-field__checkbox">
+                <input type="checkbox"
+                    :id="identification"
+                    :name="identification"
+                    :checked="inputState"
+                    :disabled="disabled"
+                    @change="onChange">
+                <div class="sw-field__checkbox-state">
+                    <sw-icon name="small-default-checkmark-line-small" size="16"></sw-icon>
+                </div>
             </div>
-        </div>
 
-        <sw-base-field v-bind="$attrs"
-                       :disabled="disabled"
-                       :isInheritanceField="isInheritanceField"
-                       :isInherited="isInherited"
-                       :name="identification"
-                       @inheritance-restore="restoreInheritance">
-        </sw-base-field>
+            <sw-base-field v-bind="$attrs"
+                        :disabled="disabled"
+                        :isInheritanceField="isInheritanceField"
+                        :isInherited="isInherited"
+                        :name="identification"
+                        @inheritance-restore="restoreInheritance">
+            </sw-base-field>
+        </div>
+        <sw-field-error :error="error"></sw-field-error>
     </div>
-    <sw-field-error :error="error"></sw-field-error>
-</div>
+{% endblock %}

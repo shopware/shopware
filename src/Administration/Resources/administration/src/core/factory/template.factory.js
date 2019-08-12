@@ -125,28 +125,15 @@ function registerComponentTemplate(componentName, componentTemplate = null) {
  * @param templateExtension
  */
 function extendComponentTemplate(componentName, extendComponentName, templateExtension = null) {
-    if (!templateRegistry.has(extendComponentName)) {
-        if (templateExtension !== null) {
-            registerComponentTemplate(componentName, templateExtension);
-        }
-
-        return;
-    }
-
-    const extendTemplate = templateRegistry.get(extendComponentName);
-    const template = templateRegistry.get(componentName) || {};
-
     const templateConfig = {
-        id: `${componentName}-baseTemplate`,
-        data: extendTemplate.baseTemplate.tokens
+        extendsFrom: extendComponentName,
+        baseTemplate: null,
+        overrides: []
     };
-
-    template.baseTemplate = Twig.twig(templateConfig);
-
-    templateRegistry.set(componentName, template);
+    templateRegistry.set(componentName, templateConfig);
 
     if (templateExtension !== null) {
-        registerTemplateOverride(componentName, templateExtension);
+        registerTemplateOverride(componentName, templateExtension, 0);
     }
 }
 
@@ -200,18 +187,42 @@ function getRenderedTemplate(componentName) {
     const template = templateRegistry.get(componentName);
 
     if (!template.baseTemplate) {
-        return '';
+        // build baseTemplate form parent component
+        if (template.extendsFrom) {
+            let templateConfig = {};
+
+            if (hasBlocks(template.extendsFrom)) {
+                // use baseTemplate from parent component
+                const extendTemplate = templateRegistry.get(template.extendsFrom);
+
+                templateConfig = {
+                    id: `${componentName}-baseTemplate`,
+                    data: extendTemplate.baseTemplate.tokens
+                };
+
+                template.baseTemplate = Twig.twig(templateConfig);
+            } else if (template.overrides.length > 0) {
+                // use first override as baseTemplate
+                // and remove it from overrides
+                const firstOverride = template.overrides.shift();
+
+                template.baseTemplate = firstOverride;
+            } else {
+                warn(componentName, 'has no overrides or template to extend from!');
+                return '';
+            }
+        } else {
+            warn('missing baseTemplate', componentName);
+            return '';
+        }
     }
 
     /**
      * The base template is the main template of the component.
      */
-    const baseTemplate = template.baseTemplate;
-    const overrides = template.overrides;
+    const { baseTemplate, overrides } = template;
     const parentPlaceholder = Twig.placeholders.parent;
     const blocks = {};
-
-    baseTemplate.render();
 
     /**
      * Iterate through template extensions and collect all block overrides.
@@ -270,6 +281,38 @@ function getTemplateOverrides(componentName) {
  */
 function getTemplateRegistry() {
     return templateRegistry;
+}
+
+/**
+ * Returns "true" if components baseTemplate contains twig blocks.
+ *
+ * @param componentName
+ * @returns {Boolean}
+ */
+function hasBlocks(componentName) {
+    const { baseTemplate } = templateRegistry.get(componentName);
+
+    if (baseTemplate === null) {
+        return false;
+    }
+
+    const templateBlocks = baseTemplate.render({}, {
+        output: 'blocks'
+    });
+
+    return !isEmptyObject(templateBlocks);
+}
+
+/**
+ * Returns "true" if an object has no properties,
+ * otherwise "false".
+ *
+ * @param {Object} object
+ * @returns {Boolean}
+ */
+function isEmptyObject(object) {
+    return Object.entries(object).length === 0
+        && object.constructor === Object;
 }
 
 /**

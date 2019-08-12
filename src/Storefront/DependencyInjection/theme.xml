@@ -23,6 +23,7 @@
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="media_folder.repository"/>
+            <argument type="service" id="theme_media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
         </service>
 
@@ -51,6 +52,10 @@
             <tag name="shopware.entity.definition" entity="theme_sales_channel"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition">
+            <tag name="shopware.entity.definition" entity="theme_media"/>
+        </service>
+
         <!-- Entity extensions -->
         <service id="Shopware\Storefront\Theme\Extension\SalesChannelExtension">
             <tag name="shopware.entity.extension"/>
@@ -65,7 +70,7 @@
         </service>
 
         <!-- Controller -->
-        <service id="Shopware\Storefront\Theme\ThemeController" public="true">
+        <service id="Shopware\Storefront\Theme\Controller\ThemeController" public="true">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument type="service" id="Shopware\Core\Framework\Translation\Translator"/>
             <call method="setContainer">
@@ -113,6 +118,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="theme.repository"/>
             <argument type="service" id="sales_channel.repository"/>
             <tag name="kernel.event_subscriber"/>
         </service>

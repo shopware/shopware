@@ -11,6 +11,8 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Input\StringInput;
@@ -42,6 +44,11 @@ class GenerateMediaTypesCommandTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var array
+     */
+    private $initialMediaIds;
+
     protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
@@ -51,15 +58,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $this->context = Context::createDefaultContext();
 
-        $medias = $this->mediaRepository->searchIds(new Criteria(), $this->context);
-
-        if ($medias->getTotal() > 0) {
-            $deleteArray = [];
-            foreach ($medias->getIds() as $id) {
-                $deleteArray[]['id'] = $id;
-            }
-            $this->mediaRepository->delete($deleteArray, $this->context);
-        }
+        $this->initialMediaIds = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
     }
 
     public function testExecuteHappyPath(): void
@@ -71,8 +70,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $this->runCommand($this->generateMediaTypesCommand, $input, $output);
 
-        $searchCriteria = new Criteria();
-        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
+        $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             static::assertInstanceOf(MediaType::class, $updatedMedia->getMediaType());
@@ -106,8 +104,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $this->runCommand($this->generateMediaTypesCommand, $input, $output);
 
-        $searchCriteria = new Criteria();
-        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
+        $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             static::assertNull($updatedMedia->getMediaType());
@@ -164,5 +161,23 @@ class GenerateMediaTypesCommandTest extends TestCase
             $filePath,
             fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'rb')
         );
+    }
+
+    private function getNewMediaEntities()
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $this->initialMediaIds));
+        $result = $this->mediaRepository->searchIds($criteria, $this->context);
+        static::assertEquals(count($this->initialMediaIds), $result->getTotal());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotFilter(
+            NotFilter::CONNECTION_AND,
+            [
+                new EqualsAnyFilter('id', $this->initialMediaIds),
+            ]
+        ));
+
+        return $this->mediaRepository->search($criteria, $this->context);
     }
 }

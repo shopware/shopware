@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Theme;
+namespace Shopware\Storefront\Theme\Controller;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Translation\Translator;
+use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

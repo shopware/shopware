@@ -13,7 +13,7 @@ class StorefrontPluginConfiguration
     /**
      * @var array
      */
-    protected $config = [];
+    private $themeConfig = [];
 
     /**
      * @var string
@@ -160,14 +160,14 @@ class StorefrontPluginConfiguration
         $this->assetPaths = $assetPaths;
     }
 
-    public function getConfig(): ?array
+    public function getThemeConfig(): ?array
     {
-        return $this->config;
+        return $this->themeConfig;
     }
 
-    public function setConfig(?array $config): void
+    public function setThemeConfig(?array $themeConfig): void
     {
-        $this->config = $config;
+        $this->themeConfig = $themeConfig;
     }
 
     public function getThemeVariableFile(): string
@@ -278,7 +278,7 @@ class StorefrontPluginConfiguration
             }
 
             if (array_key_exists('config', $data)) {
-                $config->setConfig($data['config']);
+                $config->setThemeConfig($data['config']);
             }
         } catch (ThemeCompileException $e) {
             throw $e;

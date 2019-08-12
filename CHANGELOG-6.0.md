@@ -15,6 +15,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Added getJoinBuilder to `FieldResolverInterface`
 * Fixed Twig template loading for the theme system. Twig files from themes will only be loaded if the theme is active
  for the requested sales channel.
+* Added `active` column to `theme` entity.
+* Improved theme lifecycle handling. Themes will be set to inactive if deactivated/uninstalled. Config will be reloaded
+  when a theme is updated. Themes will automatically be recompiled if the plugin is updated.
+* Improved loading/refresh of theme.json. You can now change the theme.json and use `bin/console theme:refresh` to
+  reload the configuration.
 [View all changes from v6.0.0+dp1...v6.0.0+ea1](https://github.com/shopware/platform/compare/v6.0.0+dp1...v6.0.0+ea1)
 
  * Placeholder for future releases

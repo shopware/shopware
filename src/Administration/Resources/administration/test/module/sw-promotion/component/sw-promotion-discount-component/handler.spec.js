@@ -1,5 +1,6 @@
 import DiscountComponentHandler from 'src/module/sw-promotion/component/sw-promotion-discount-component/handler';
-import DiscountTypes from 'src/module/sw-promotion//common/discount-type';
+import { DiscountTypes } from 'src/module/sw-promotion/helper/promotion.helper';
+
 
 // Disable developer hints in jest output
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());

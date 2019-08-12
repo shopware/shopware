@@ -2,7 +2,10 @@
     <sw-card class="sw-promotion-discount-component" :title="$tc('sw-promotion.detail.main.discounts.card')">
         <sw-context-button class="sw-promotion-discount-component__context-button">
             {% block sw_promotion_detail_discounts_item_context_button_delete %}
-                <sw-context-menu-item variant="danger" class="sw-promotion-context-item__delete-action" @click="onShowDeleteModal">
+                <sw-context-menu-item variant="danger"
+                                      class="sw-promotion-context-item__delete-action"
+                                      @click="onShowDeleteModal"
+                                      :disabled="isEditingDisabled">
                     {{ $tc('sw-promotion.detail.main.discounts.buttonDeleteDiscount') }}
                 </sw-context-menu-item>
             {% endblock %}
@@ -14,6 +17,7 @@
                                  required
                                  validation="required"
                                  :label="$tc('sw-promotion.detail.main.discounts.labelScope')"
+                                 :disabled="isEditingDisabled"
                                  @change="onDiscountScopeChanged">
                     <option v-for="scope in scopes" :value="scope.key">
                         {{ scope.name }}
@@ -26,7 +30,8 @@
                     <sw-field type="switch"
                               bordered
                               :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
-                              v-model="discount.considerAdvancedRules">
+                              v-model="discount.considerAdvancedRules"
+                              :disabled="isEditingDisabled">
                     </sw-field>
                 </template>
             {% endblock %}
@@ -41,7 +46,8 @@
                         :criteria="ruleFilter"
                         :ruleScope="['lineItem']"
                         :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
-                        :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')">
+                        :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
+                        :disabled="isEditingDisabled">
                 </sw-promotion-rule-select>
             </template>
         {% endblock %}
@@ -50,7 +56,8 @@
             {% block sw_promotion_discount_component_type %}
                 <sw-select-field v-model="discount.type"
                                  :label="$tc('sw-promotion.detail.main.discounts.labelType')"
-                                 @change="onDiscountTypeChanged">
+                                 @change="onDiscountTypeChanged"
+                                 :disabled="isEditingDisabled">
                     <option v-for="type in types" :value="type.key">
                         {{ type.name }}
                     </option>
@@ -63,7 +70,8 @@
                           :value="discount.value"
                           :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
                           :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
-                          @change="onDiscountValueChanged">
+                          @change="onDiscountValueChanged"
+                          :disabled="isEditingDisabled">
                     <template #suffix>
                         {{ valueSuffix }}
                     </template>
@@ -77,7 +85,8 @@
                 {% block sw_promotion_discount_max_value_field %}
                     <sw-field type="number"
                               v-model="discount.maxValue"
-                              :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')">
+                              :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')"
+                              :disabled="isEditingDisabled">
                         <template #suffix>
                             {{ maxValueSuffix }}
                         </template>
@@ -111,7 +120,8 @@
                                      :localMode="true"
                                      :columns="currencyPriceColumns"
                                      :showSelection="false"
-                                     :isLoading="isLoading">
+                                     :isLoading="isLoading"
+                                     :showActions="!isEditingDisabled">
 
                     <template #column-currency.translated.name="{ item }">
                         <p>{{ item.currency.translated.name  }}</p>
@@ -120,8 +130,8 @@
                     <template #column-price="{ item }">
                         <sw-number-field type="text"
                                          v-model="item.price"
-                                         size="small">
-
+                                         size="small"
+                                         :disabled="isEditingDisabled">
                             <template #suffix>
                                 {{ item.currency.symbol }}
                             </template>

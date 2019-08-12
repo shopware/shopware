@@ -16,7 +16,8 @@
                             :label="$tc('sw-promotion.detail.main.preconditions.persona.labelRules')"
                             :placeholder="$tc('sw-promotion.detail.main.preconditions.persona.placeholderRules')"
                             :ruleScope="['checkout']"
-                            v-model="promotion.personaRules">
+                            v-model="promotion.personaRules"
+                            :disabled="isEditingDisabled">
                         </sw-promotion-rule-select>
                     {% endblock %}
                     {% block sw_promotion_persona_form_persona_customers_switch %}
@@ -24,7 +25,8 @@
                                   v-if="promotion"
                                   class="sw-promotion-persona-form__customers-switch"
                                   :label="$tc('sw-promotion.detail.main.preconditions.persona.switchAssignCustomers')"
-                                  v-model="promotion.customerRestriction">
+                                  v-model="promotion.customerRestriction"
+                                  :disabled="isEditingDisabled">
                         </sw-field>
                     {% endblock %}
                 </div>
@@ -43,7 +45,8 @@
                                                  :criteria="customerCriteria"
                                                  labelProperty="firstName"
                                                  @option-click="onAddCustomer"
-                                                 value="">
+                                                 value=""
+                                                 :disabled="isEditingDisabled">
                             <template slot="labelProperty" slot-scope="{ item, index }">
                                 {{ item.firstName }} {{ item.lastName }}
                             </template>

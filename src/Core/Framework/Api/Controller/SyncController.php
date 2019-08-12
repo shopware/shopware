@@ -34,13 +34,24 @@ class SyncController extends AbstractController
     }
 
     /**
+     * Starts a sync process for the list of provided actions.
+     * This can be inserts, upserts, updates and deletes on different entities.
+     * To continue upcoming actions on errors, please provide a "fail-on-error" header with value FALSE.
+     *
      * @Route("/api/v{version}/_action/sync", name="api.action.sync", methods={"POST"})
+     *
+     * @throws \Throwable
      */
     public function sync(Request $request, Context $context): JsonResponse
     {
-        $payload = $this->serializer->decode($request->getContent(), 'json');
+        // depending on the request header setting, we either
+        // fail immediately or add any unexpected errors to our exception list
+        /** @var bool $failOnError */
+        $failOnError = filter_var($request->headers->get('fail-on-error', 'true'), FILTER_VALIDATE_BOOLEAN);
 
-        $errors = $result = [];
+        $errors = $result = $exceptions = [];
+
+        $payload = $this->serializer->decode($request->getContent(), 'json');
 
         foreach ($payload as $operation) {
             $action = $operation['action'];
@@ -83,6 +94,14 @@ class SyncController extends AbstractController
                         }
                     } catch (WriteException $exception) {
                         $errors = array_merge($errors, iterator_to_array($exception->getErrors()));
+                    } catch (\Throwable $throwable) {
+                        // we have an unexpected error,
+                        // let's see if we should fail or not
+                        if ($failOnError) {
+                            throw $throwable;
+                        }
+                        // otherwise, add it to our exception stack
+                        $exceptions[$action][$entity][] = $throwable->getMessage();
                     }
 
                     break;
@@ -94,6 +113,7 @@ class SyncController extends AbstractController
         $response = [
             'data' => $result,
             'errors' => $errors,
+            'exceptions' => $exceptions,
         ];
 
         return new JsonResponse($response);

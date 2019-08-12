@@ -1,8 +1,9 @@
 import { Component } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
+import { PromotionPermissions } from 'src/module/sw-promotion/helper/promotion.helper';
+import PersonaCustomerGridService from '../../service/persona-customer-grid.service';
 import template from './sw-promotion-persona-form.html.twig';
 import './sw-promotion-persona-form.scss';
-import PersonaCustomerGridService from '../../service/persona-customer-grid.service';
 
 Component.register('sw-promotion-persona-form', {
     template,
@@ -81,6 +82,10 @@ Component.register('sw-promotion-persona-form', {
 
         customerCriteria() {
             return new Criteria();
+        },
+
+        isEditingDisabled() {
+            return !PromotionPermissions.isEditingAllowed(this.promotion);
         }
     },
     created() {

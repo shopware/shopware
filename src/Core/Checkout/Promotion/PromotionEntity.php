@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -72,6 +73,16 @@ class PromotionEntity extends Entity
     protected $customerRestriction = false;
 
     /**
+     * @var bool
+     */
+    protected $useIndividualCodes;
+
+    /**
+     * @var string
+     */
+    protected $individualCodePattern;
+
+    /**
      * @var PromotionSalesChannelCollection|null
      */
     protected $salesChannels;
@@ -85,6 +96,11 @@ class PromotionEntity extends Entity
      * @var PromotionDiscountCollection|null
      */
     protected $discounts;
+
+    /**
+     * @var PromotionIndividualCodeCollection|null
+     */
+    protected $individualCodes;
 
     /**
      * @var RuleCollection|null
@@ -214,6 +230,44 @@ class PromotionEntity extends Entity
         $this->useCodes = $useCodes;
     }
 
+    /**
+     * Gets if the promotion requires individual codes to be used
+     */
+    public function isUseIndividualCodes(): bool
+    {
+        return $this->useIndividualCodes;
+    }
+
+    /**
+     * Sets if the promotion requires individual codes to be used.
+     */
+    public function setUseIndividualCodes(bool $useCodes): void
+    {
+        $this->useIndividualCodes = $useCodes;
+    }
+
+    /**
+     * Gets the placeholder pattern that will be used
+     * to generate new individual codes.
+     *
+     * @return string the pattern for individual code generation
+     */
+    public function getIndividualCodePattern(): string
+    {
+        return $this->individualCodePattern;
+    }
+
+    /**
+     * Sets the placeholder pattern that will be used
+     * to generate new individual codes.
+     *
+     * @param string $pattern the pattern for individual code generation
+     */
+    public function setIndividualCodePattern(string $pattern): void
+    {
+        $this->individualCodePattern = $pattern;
+    }
+
     public function getDiscounts(): ?PromotionDiscountCollection
     {
         return $this->discounts;
@@ -222,6 +276,24 @@ class PromotionEntity extends Entity
     public function setDiscounts(PromotionDiscountCollection $discounts): void
     {
         $this->discounts = $discounts;
+    }
+
+    /**
+     * Gets all individual codes of the promotion,
+     * if existing.
+     */
+    public function getIndividualCodes(): ?PromotionIndividualCodeCollection
+    {
+        return $this->individualCodes;
+    }
+
+    /**
+     * Sets the list of individual codes
+     * for this promotion.
+     */
+    public function setIndividualCodes(?PromotionIndividualCodeCollection $individualCodes): void
+    {
+        $this->individualCodes = $individualCodes;
     }
 
     /**

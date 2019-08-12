@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Promotion\Fakes;
+namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;

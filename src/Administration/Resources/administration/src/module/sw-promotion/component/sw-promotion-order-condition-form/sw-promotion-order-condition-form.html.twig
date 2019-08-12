@@ -14,7 +14,8 @@
                     :label="$tc('sw-promotion.detail.main.preconditions.order.rulesCaption')"
                     :placeholder="$tc('sw-promotion.detail.main.preconditions.order.rulesPlaceholder')"
                     :criteria="ruleFilter"
-                    :ruleScope="['checkout']">
+                    :ruleScope="['checkout']"
+                    :disabled="isEditingDisabled">
             </sw-promotion-rule-select>
         {% endblock %}
     </sw-card>

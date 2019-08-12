@@ -11,7 +11,8 @@
                 :placeholder="$tc('sw-promotion.detail.main.preconditions.cart.rulesPlaceholder')"
                 :criteria="ruleFilter"
                 :ruleScope="['cart']"
-                v-model="promotion.cartRules">
+                v-model="promotion.cartRules"
+                :disabled="isEditingDisabled">
         </sw-promotion-rule-select>
         {% endblock %}
     </sw-card>

@@ -2,6 +2,7 @@ import { Component, Mixin } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-list.html.twig';
 import './sw-promotion-list.scss';
+import entityHydrator from '../../helper/promotion-entity-hydrator.helper';
 
 Component.register('sw-promotion-list', {
     template,
@@ -47,6 +48,11 @@ Component.register('sw-promotion-list', {
             return this.promotionRepository.search(criteria, this.context).then((searchResult) => {
                 this.total = searchResult.total;
                 this.promotions = searchResult;
+
+                this.promotions.forEach((promotion) => {
+                    entityHydrator.hydrate(promotion);
+                });
+
                 this.isLoading = false;
 
                 return this.promotions;

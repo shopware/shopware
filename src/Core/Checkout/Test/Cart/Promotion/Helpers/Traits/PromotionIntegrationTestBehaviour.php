@@ -74,4 +74,20 @@ trait PromotionIntegrationTestBehaviour
 
         return $cart;
     }
+
+    /**
+     * Gets all promotion codes that have been added
+     * to the current session.
+     */
+    public function getSessionCodes(): array
+    {
+        /** @var Session $session */
+        $session = $this->getContainer()->get('session');
+
+        if (!$session->has(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES)) {
+            return [];
+        }
+
+        return $session->get(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES);
+    }
 }

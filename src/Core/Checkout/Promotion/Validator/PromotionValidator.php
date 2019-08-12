@@ -199,14 +199,24 @@ class PromotionValidator implements EventSubscriberInterface
         /** @var bool $useCodes */
         $useCodes = $this->getValue($payload, 'use_codes', $promotion);
 
-        /** @var string|null $primaryKey */
-        $primaryKey = $this->getValue($payload, 'id', $promotion);
+        /** @var bool $useCodesIndividual */
+        $useCodesIndividual = $this->getValue($payload, 'use_individual_codes', $promotion);
+
+        /** @var string|null $pattern */
+        $pattern = $this->getValue($payload, 'individual_code_pattern', $promotion);
+
+        /** @var string|null $promotionId */
+        $promotionId = $this->getValue($payload, 'id', $promotion);
 
         /** @var string|null $code */
         $code = $this->getValue($payload, 'code', $promotion);
 
         if ($code === null) {
             $code = '';
+        }
+
+        if ($pattern === null) {
+            $pattern = '';
         }
 
         $trimmedCode = trim($code);
@@ -230,7 +240,7 @@ class PromotionValidator implements EventSubscriberInterface
         }
 
         // check if we use global codes
-        if ($useCodes) {
+        if ($useCodes && !$useCodesIndividual) {
             // make sure the code is not empty
             if ($trimmedCode === '') {
                 $violationList->add($this->buildViolation(
@@ -255,8 +265,18 @@ class PromotionValidator implements EventSubscriberInterface
             }
         }
 
+        if ($pattern !== '' && $this->isCodePatternAlreadyUsed($pattern, $promotionId)) {
+            $violationList->add($this->buildViolation(
+                'Code Pattern already exists in other promotion. Please provide a different pattern.',
+                $pattern,
+                'individualCodePattern',
+                'PROMOTION_DUPLICATE_PATTERN_VIOLATION',
+                $index
+            ));
+        }
+
         // lookup global code if it does already exist in database
-        if ($trimmedCode !== '' && !$this->isUnique($trimmedCode, $primaryKey)) {
+        if ($trimmedCode !== '' && $this->isCodeAlreadyUsed($trimmedCode, $promotionId)) {
             $violationList->add($this->buildViolation(
                 'Code already exists in other promotion. Please provide a different code.',
                 $trimmedCode,
@@ -403,26 +423,82 @@ class PromotionValidator implements EventSubscriberInterface
     }
 
     /**
-     * Check if a global code does already exist in database
-     *
-     * @param string $id
-     *
-     * @throws \Doctrine\DBAL\DBALException
+     * Gets if the provided pattern is already used in another promotion.
      */
-    private function isUnique(string $code, ?string $id): bool
+    private function isCodePatternAlreadyUsed(string $pattern, ?string $promotionId): bool
     {
         /** @var QueryBuilder $qb */
         $qb = $this->connection->createQueryBuilder();
 
-        $query = $qb->select('id')
+        $query = $qb
+            ->select('id')
+            ->from('promotion')
+            ->where($qb->expr()->eq('individual_code_pattern', ':pattern'))
+            ->setParameter(':pattern', $pattern);
+
+        /** @var array $promotions */
+        $promotions = $query->execute()->fetchAll();
+
+        /** @var array $p */
+        foreach ($promotions as $p) {
+            // if we have a promotion id to verify
+            // and a promotion with another id exists, then return that is used
+            if ($promotionId !== null && $p['id'] !== $promotionId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Gets if the provided code is already used as global
+     * or individual code in another promotion.
+     */
+    private function isCodeAlreadyUsed(string $code, ?string $promotionId): bool
+    {
+        /** @var QueryBuilder $qb */
+        $qb = $this->connection->createQueryBuilder();
+
+        // check if individual code.
+        // if we dont have a promotion Id only
+        // check if its existing somewhere,
+        // if we have an Id, verify if its existing in another promotion
+        $query = $qb
+            ->select('id')
+            ->from('promotion_individual_code')
+            ->where($qb->expr()->eq('code', ':code'))
+            ->setParameter(':code', $code);
+
+        if ($promotionId !== null) {
+            $query->andWhere($qb->expr()->neq('promotion_id', ':promotion_id'))
+                ->setParameter(':promotion_id', $promotionId);
+        }
+
+        /** @var bool $existingIndividual */
+        $existingIndividual = (count($query->execute()->fetchAll()) > 0);
+
+        if ($existingIndividual) {
+            return true;
+        }
+
+        /** @var QueryBuilder $qb */
+        $qb = $this->connection->createQueryBuilder();
+
+        // check if it is a global promotion code.
+        // again with either an existing promotion Id
+        // or without one.
+        $query
+            = $qb->select('id')
             ->from('promotion')
             ->where($qb->expr()->eq('code', ':code'))
             ->setParameter(':code', $code);
-        if ($id !== null) {
+
+        if ($promotionId !== null) {
             $query->andWhere($qb->expr()->neq('id', ':id'))
-                ->setParameter(':id', $id);
+                ->setParameter(':id', $promotionId);
         }
 
-        return !(count($query->execute()->fetchAll()) > 0);
+        return count($query->execute()->fetchAll()) > 0;
     }
 }

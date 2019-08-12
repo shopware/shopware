@@ -4,6 +4,8 @@ import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-detail.html.twig';
 import errorConfig from './error-config.json';
 import swPromotionDetailState from './state';
+import IndividualCodeGenerator from '../../service/individual-code-generator.service';
+import entityHydrator from '../../helper/promotion-entity-hydrator.helper';
 
 Component.register('sw-promotion-detail', {
     template,
@@ -100,6 +102,10 @@ Component.register('sw-promotion-detail', {
             return this.$store.state.swPromotionDetail.personaCustomerIdsDelete;
         },
 
+        repositoryIndividualCodes() {
+            return this.repositoryFactory.create('promotion_individual_code');
+        },
+
         ...mapPageErrors(errorConfig)
 
     },
@@ -128,10 +134,18 @@ Component.register('sw-promotion-detail', {
             if (!this.promotionId) {
                 this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
                 this.promotion = this.promotionRepository.create(this.context);
+                // hydrate and extend promotion with additional data
+                entityHydrator.hydrate(this.promotion);
                 this.isLoading = false;
                 return;
             }
             this.loadEntityData();
+
+            this.$root.$on('promotion-save-start', this.onShouldSave);
+        },
+
+        destroyedComponent() {
+            this.$root.$off('promotion-save-start', this.onShouldSave);
         },
 
         loadEntityData() {
@@ -140,6 +154,8 @@ Component.register('sw-promotion-detail', {
 
             this.promotionRepository.get(this.promotionId, this.context, criteria).then((promotion) => {
                 this.promotion = promotion;
+                // hydrate and extend promotion with additional data
+                entityHydrator.hydrate(this.promotion);
                 this.isLoading = false;
             });
         },
@@ -180,13 +196,49 @@ Component.register('sw-promotion-detail', {
             return this.savePromotion();
         },
 
+        onShouldSave() {
+            this.onSave()
+                .then(() => {
+                    this.$root.$emit('promotion-save-success');
+                })
+                .catch(() => {
+                    this.$root.$emit('promotion-save-error');
+                });
+        },
+
         createPromotion() {
             return this.savePromotion().then(() => {
                 this.$router.push({ name: 'sw.promotion.detail', params: { id: this.promotion.id } });
             });
         },
 
-        savePromotion() {
+        async savePromotion() {
+            try {
+                // first start by adjusting our promotion data
+                // depending on some circumstances.
+                // we need to ensure the consistency of our data depending on some settings.
+                // it's planned to be integrated within the server side API, but for
+                // now we adjust that data in here.
+                if (this.promotion.useCodes && this.promotion.useIndividualCodes) {
+                    this.promotion.code = null;
+                } else if (this.promotion.useCodes && !this.promotion.useIndividualCodes) {
+                    this.promotion.individualCodePattern = null;
+                    const generator = new IndividualCodeGenerator(this.promotion.id, this.repositoryIndividualCodes, this.context);
+                    await generator.removeExistingCodes();
+                }
+            } catch (error) {
+                this.isLoading = false;
+                this.createNotificationError({
+                    title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                    message: this.$tc(
+                        'global.notification.notificationSaveErrorMessage',
+                        0,
+                        { entityName: this.promotion.name }
+                    )
+                });
+                throw error;
+            }
+
             const discounts = this.discounts === null ? this.promotion.discounts : this.discounts;
             const discountRepository = this.repositoryFactory.create(
                 discounts.entity,
@@ -197,27 +249,31 @@ Component.register('sw-promotion-detail', {
                 // first save our discounts
                 return discountRepository.sync(discounts, discounts.context).then(() => {
                     // finally save our promotion
-                    return this.promotionRepository.save(this.promotion, this.context).then(() => {
-                        this.isSaveSuccessful = true;
-                        const criteria = new Criteria(1, 1);
-                        criteria.addAssociation('salesChannels');
+                    return this.promotionRepository.save(this.promotion, this.context)
+                        .then(() => {
+                            this.isSaveSuccessful = true;
+                            const criteria = new Criteria(1, 1);
+                            criteria.addAssociation('salesChannels');
 
-                        return this.promotionRepository.get(this.promotion.id, this.context, criteria).then((promotion) => {
-                            this.promotion = promotion;
+                            return this.promotionRepository.get(this.promotion.id, this.context, criteria).then((promotion) => {
+                                this.promotion = promotion;
+                                // hydrate and extend promotion with additional data
+                                entityHydrator.hydrate(this.promotion);
+                                this.isLoading = false;
+                            });
+                        })
+                        .catch((error) => {
                             this.isLoading = false;
+                            this.createNotificationError({
+                                title: this.$tc('global.notification.notificationSaveErrorTitle'),
+                                message: this.$tc(
+                                    'global.notification.notificationSaveErrorMessage',
+                                    0,
+                                    { entityName: this.promotion.name }
+                                )
+                            });
+                            throw error;
                         });
-                    }).catch((error) => {
-                        this.isLoading = false;
-                        this.createNotificationError({
-                            title: this.$tc('global.notification.notificationSaveErrorTitle'),
-                            message: this.$tc(
-                                'global.notification.notificationSaveErrorMessage',
-                                0,
-                                { entityName: this.promotion.name }
-                            )
-                        });
-                        throw error;
-                    });
                 });
             });
         },

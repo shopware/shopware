@@ -5,15 +5,23 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
+use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
+use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
+use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedGlobalCodePromotions;
+use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedIndividualCodePromotions;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
-use Shopware\Core\Checkout\Promotion\PromotionGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionCollector implements CartDataCollectorInterface
@@ -28,10 +36,21 @@ class PromotionCollector implements CartDataCollectorInterface
      */
     private $itemBuilder;
 
+    private $requiredDalAssociations;
+
     public function __construct(PromotionGatewayInterface $gateway, PromotionItemBuilder $itemBuilder)
     {
         $this->gateway = $gateway;
         $this->itemBuilder = $itemBuilder;
+
+        $this->requiredDalAssociations = [
+            'personaRules',
+            'personaCustomers',
+            'cartRules',
+            'orderRules',
+            'discounts.discountRules',
+            'discounts.promotionDiscountPrices',
+        ];
     }
 
     /**
@@ -41,9 +60,10 @@ class PromotionCollector implements CartDataCollectorInterface
      * The eligible promotions will then be used in the enrichment process and converted
      * into Line Items which will be passed on to the next processor.
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws UnknownPromotionDiscountTypeException
+     * @throws InconsistentCriteriaIdsException
      */
     public function collect(CartDataCollection $data, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
@@ -53,34 +73,30 @@ class PromotionCollector implements CartDataCollectorInterface
             return;
         }
 
-        /** @var array $autoPromotions */
-        $autoPromotions = $this->searchPromotionsAuto($data, $context);
-
         /** @var array $allCodes */
         $allCodes = $cart
             ->getLineItems()
             ->filterType(PromotionProcessor::LINE_ITEM_TYPE)
             ->getReferenceIds();
 
-        /** @var array $codePromotions */
-        $codePromotions = $this->searchPromotionsByCodes($data, $allCodes, $context);
+        /** @var CartPromotionsDataDefinition $allPromotions */
+        $allPromotions = $this->searchPromotionsByCodes($data, $allCodes, $context);
 
-        /** @var array $allPromotions */
-        $allPromotions = array_merge($autoPromotions, $codePromotions);
+        // add auto promotions
+        $allPromotions->addAutomaticPromotions($this->searchPromotionsAuto($data, $context));
 
         // check if max allowed redemption of promotion have been reached or not
         // if max redemption has been reached promotion will not be added
-        /** @var PromotionEntity[] $eligiblePromotions */
-        $eligiblePromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomer());
+        $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomer());
 
         $discountLineItems = [];
 
-        /** @var PromotionEntity $promotion */
-        foreach ($eligiblePromotions as $promotion) {
+        /** @var PromotionCodeTuple $tuple */
+        foreach ($allPromotions->getPromotionCodeTuples() as $tuple) {
             // lets build separate line items for each
             // of the available discounts within the current promotion
             /** @var array $lineItems */
-            $lineItems = $this->buildDiscountLineItems($promotion, $cart, $context);
+            $lineItems = $this->buildDiscountLineItems($tuple->getCode(), $tuple->getPromotion(), $cart, $context);
 
             // add to our list of all line items
             // that should be added
@@ -102,6 +118,8 @@ class PromotionCollector implements CartDataCollectorInterface
     /**
      * Gets either the cached list of auto-promotions that
      * are valid, or loads them from the database.
+     *
+     * @throws InconsistentCriteriaIdsException
      */
     private function searchPromotionsAuto(CartDataCollection $data, SalesChannelContext $context): array
     {
@@ -109,8 +127,15 @@ class PromotionCollector implements CartDataCollectorInterface
             return $data->get('promotions-auto');
         }
 
+        $criteria = (new Criteria())->addFilter(new PermittedAutomaticPromotions($context->getSalesChannel()->getId()));
+
+        /** @var string $association */
+        foreach ($this->requiredDalAssociations as $association) {
+            $criteria->addAssociationPath($association);
+        }
+
         /** @var PromotionCollection $automaticPromotions */
-        $automaticPromotions = $this->gateway->getAutomaticPromotions($context);
+        $automaticPromotions = $this->gateway->get($criteria, $context);
 
         $data->set('promotions-auto', $automaticPromotions->getElements());
 
@@ -122,34 +147,35 @@ class PromotionCollector implements CartDataCollectorInterface
      * The promotions will be either taken from a cached list of a previous call,
      * or are loaded directly from the database if a certain code is new
      * and has not yet been fetched.
+     *
+     * @throws InconsistentCriteriaIdsException
      */
-    private function searchPromotionsByCodes(CartDataCollection $data, array $allCodes, SalesChannelContext $context): array
+    private function searchPromotionsByCodes(CartDataCollection $data, array $allCodes, SalesChannelContext $context): CartPromotionsDataDefinition
     {
         $keyCacheList = 'promotions-code';
 
         // create a new cached list that is empty at first
         if (!$data->has($keyCacheList)) {
-            $data->set($keyCacheList, []);
+            $data->set($keyCacheList, new CartPromotionsDataDefinition());
         }
 
-        /** @var array $previousCachedPromotions */
-        $previousCachedPromotions = $data->get($keyCacheList);
-        /** @var array $newCachedPromotions */
-        $newCachedPromotions = [];
+        // load it
+        /** @var CartPromotionsDataDefinition $promotionsList */
+        $promotionsList = $data->get($keyCacheList);
 
-        // our data is a runtime cached structure
-        // but when removing a line item, the collect
-        // function gets called multiple times.
+        // our data is a runtime cached structure.
+        // but when line items get removed, the collect function gets called multiple times.
         // in the first iterations we still have a promotion code item
         // and then it is suddenly gone. so we also have to remove
         // entities from our cache if the code is suddenly not provided anymore.
         /*
-         * @var PromotionEntity
+         * @var string
          */
-        foreach ($previousCachedPromotions as $code => $promotion) {
-            // only keep item, if code is still provided and required
-            if (in_array($code, $allCodes, true)) {
-                $newCachedPromotions[$code] = $promotion;
+        foreach ($promotionsList->getAllCodes() as $code) {
+            // if code is not existing anymore,
+            // make sure to remove it in our list
+            if (!in_array($code, $allCodes, true)) {
+                $promotionsList->removeCode((string) $code);
             }
         }
 
@@ -160,7 +186,7 @@ class PromotionCollector implements CartDataCollectorInterface
         /* @var string $code */
         foreach ($allCodes as $code) {
             // check if promotion is already cached
-            if (array_key_exists($code, $previousCachedPromotions)) {
+            if ($promotionsList->hasCode($code)) {
                 continue;
             }
 
@@ -170,48 +196,76 @@ class PromotionCollector implements CartDataCollectorInterface
             // add a new entry with null
             // so if we cant fetch it, we do at least
             // tell our cache that we have tried it
-            $newCachedPromotions[$code] = null;
+            $promotionsList->addCodePromotions($code, []);
         }
 
         // if we have new codes to fetch
         // make sure to load it and assign it to
         // the code in our cache list.
         if (count($codesToFetch) > 0) {
-            /* @var PromotionCollection $newPromotions */
-            $newPromotions = $this->gateway->getByCodes($codesToFetch, $context);
+            /** @var string $salesChannelId */
+            $salesChannelId = $context->getSalesChannel()->getId();
 
-            /** @var PromotionEntity $promotion */
-            foreach ($newPromotions->getElements() as $promotion) {
-                $newCachedPromotions[$promotion->getCode()] = $promotion;
+            /** @var string $currentCode */
+            foreach ($codesToFetch as $currentCode) {
+                // try to find a global code first because
+                // that search has less data involved
+                $globalCriteria = (new Criteria())->addFilter(new PermittedGlobalCodePromotions([$currentCode], $salesChannelId));
+
+                /** @var string $association */
+                foreach ($this->requiredDalAssociations as $association) {
+                    $globalCriteria->addAssociationPath($association);
+                }
+
+                /** @var PromotionCollection $foundPromotions */
+                $foundPromotions = $this->gateway->get($globalCriteria, $context);
+
+                if (count($foundPromotions->getElements()) <= 0) {
+                    // no global code, so try with an individual code instead
+                    $individualCriteria = (new Criteria())->addFilter(new PermittedIndividualCodePromotions([$currentCode], $salesChannelId));
+
+                    /** @var string $association */
+                    foreach ($this->requiredDalAssociations as $association) {
+                        $individualCriteria->addAssociationPath($association);
+                    }
+
+                    /** @var PromotionCollection $foundPromotions */
+                    $foundPromotions = $this->gateway->get($individualCriteria, $context);
+                }
+
+                // if we finally have found promotions add them to our list for the current code
+                if (count($foundPromotions->getElements()) > 0) {
+                    $promotionsList->addCodePromotions($currentCode, $foundPromotions->getElements());
+                }
             }
         }
 
-        // update our cached list with
-        // the latest cleaned array
-        $data->set($keyCacheList, $newCachedPromotions);
+        // update our cached list with the latest cleaned array
+        $data->set($keyCacheList, $promotionsList);
 
-        // we return a flat list
-        // so clear null entries (if promotion was not found)
-        /** @var array $values */
-        $values = array_values($data->get($keyCacheList));
-
-        return array_filter($values);
+        return $promotionsList;
     }
 
     /**
      * function returns all promotions that have discounts and that are eligible
      * (function validates that max usage or customer max usage hasn't exceeded)
      */
-    private function getEligiblePromotionsWithDiscounts(array $promotions, ?CustomerEntity $customer): array
+    private function getEligiblePromotionsWithDiscounts(CartPromotionsDataDefinition $dataDefinition, ?CustomerEntity $customer): CartPromotionsDataDefinition
     {
-        $eligiblePromotions = [];
+        $result = new CartPromotionsDataDefinition();
 
         // array that holds all excluded promotion ids.
         // if a promotion has exclusions they are added on the stack
         $exclusions = [];
 
-        /** @var PromotionEntity $promotion */
-        foreach ($promotions as $promotion) {
+        // we now have a list of promotions that could be added to our cart.
+        // verify if they have any discounts. if so, add them to our
+        // data struct, which ensures that they will be added later in the enrichment process.
+        /** @var PromotionCodeTuple $tuple */
+        foreach ($dataDefinition->getPromotionCodeTuples() as $tuple) {
+            /** @var PromotionEntity $promotion */
+            $promotion = $tuple->getPromotion();
+
             // if promotion is on exclusions stack it is ignored
             if (isset($exclusions[$promotion->getId()])) {
                 continue;
@@ -235,10 +289,18 @@ class PromotionCollector implements CartDataCollectorInterface
                 $exclusions[$id] = true;
             }
 
-            $eligiblePromotions[] = $promotion;
+            // now add it to our result definition object.
+            // we also have to remember the code that has been
+            // used for a particular promotion (if promotion is type of code).
+            // that's why we differ between automatic and code
+            if (empty($tuple->getCode())) {
+                $result->addAutomaticPromotions([$promotion]);
+            } else {
+                $result->addCodePromotions($tuple->getCode(), [$promotion]);
+            }
         }
 
-        return $eligiblePromotions;
+        return $result;
     }
 
     /**
@@ -249,11 +311,11 @@ class PromotionCollector implements CartDataCollectorInterface
      * The resulting list of line items will then be returned and can be added to the cart.
      * The function will already avoid duplicate entries.
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws UnknownPromotionDiscountTypeException
      */
-    private function buildDiscountLineItems(PromotionEntity $promotion, Cart $cart, SalesChannelContext $context): array
+    private function buildDiscountLineItems(string $code, PromotionEntity $promotion, Cart $cart, SalesChannelContext $context): array
     {
         /** @var PromotionDiscountCollection|null $collection */
         $collection = $promotion->getDiscounts();
@@ -277,9 +339,11 @@ class PromotionCollector implements CartDataCollectorInterface
 
             /* @var LineItem $discountItem */
             $discountItem = $this->itemBuilder->buildDiscountLineItem(
+                $code,
                 $promotion,
                 $discount,
-                $context
+                $context->getContext()->getCurrencyPrecision(),
+                $context->getCurrency()->getId()
             );
 
             $lineItems[] = $discountItem;

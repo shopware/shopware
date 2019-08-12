@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Checkout\Promotion\Validator\PromotionValidator;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Fakes\FakeConnection;
+use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakeConnection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -35,7 +35,6 @@ class PromotionValidatorTest extends TestCase
         $this->context = WriteContext::createFromContext(Context::createDefaultContext());
 
         $this->promotionDefinition = new PromotionDefinition();
-
         $this->discountDefinition = new PromotionDiscountDefinition();
     }
 
@@ -56,6 +55,7 @@ class PromotionValidatorTest extends TestCase
             $this->promotionDefinition,
             [
                 'use_codes' => true,
+                'use_individual_codes' => false,
                 'code' => ' ',
             ],
             ['id' => 'D1'],
@@ -112,6 +112,36 @@ class PromotionValidatorTest extends TestCase
             static::assertEquals(WriteConstraintViolationException::class, get_class($e->getExceptions()[0]));
             throw $e;
         }
+    }
+
+    /**
+     * This test verifies that we do not require a global code
+     * if we have individual codes turned on.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testPromotionIndividualDoesNotRequireCode()
+    {
+        $commands[] = new InsertCommand(
+            $this->promotionDefinition,
+            [
+                'use_codes' => true,
+                'use_individual_codes' => true,
+                'code' => ' ',
+            ],
+            ['id' => 'D1'],
+            $this->createMock(EntityExistence::class)
+        );
+
+        $fakeConnection = new FakeConnection($this->getPromotionDbRows());
+
+        $event = new PreWriteValidationEvent($this->context, $commands);
+
+        $validator = new PromotionValidator($fakeConnection);
+        $validator->preValidate($event);
+
+        static::assertTrue(true);
     }
 
     /**

@@ -21,8 +21,8 @@ class SnippetFileCollectionTest extends TestCase
     {
         $collection = $this->getCollection();
 
-        $result_en_GB = $collection->get('messages.en-GB');
-        $result_de_DE = $collection->get('messages.de-DE');
+        $result_en_GB = $collection->get('storefront.en-GB');
+        $result_de_DE = $collection->get('storefront.de-DE');
         $result_NA = $collection->get('not.available');
 
         static::assertSame('en-GB', $result_en_GB->getIso());
@@ -104,9 +104,9 @@ class SnippetFileCollectionTest extends TestCase
     private function getCollection(): SnippetFileCollection
     {
         $collection = new SnippetFileCollection([]);
-        $collection->add(new MockSnippetFile('messages.de-DE', 'de-DE', '{}', true));
-        $collection->add(new MockSnippetFile('messages.de-DE_extension', 'de-DE', '{}', false));
-        $collection->add(new MockSnippetFile('messages.en-GB', 'en-GB', '{}', true));
+        $collection->add(new MockSnippetFile('storefront.de-DE', 'de-DE', '{}', true));
+        $collection->add(new MockSnippetFile('storefront.de-DE_extension', 'de-DE', '{}', false));
+        $collection->add(new MockSnippetFile('storefront.en-GB', 'en-GB', '{}', true));
 
         return $collection;
     }

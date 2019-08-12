@@ -328,6 +328,15 @@ SQL;
                 continue;
             }
 
+            // If a plugin ships a composer autoload.php file, load this to register the namespaces of the plugin and
+            // its dependencies
+            $pluginAutoLoaderFile = $this->getProjectDir() . '/' . $plugin['path'] . '/vendor/autoload.php';
+            if (file_exists($pluginAutoLoaderFile)) {
+                require_once $pluginAutoLoaderFile;
+
+                continue;
+            }
+
             if (empty($plugin['autoload'])) {
                 throw new \RuntimeException(sprintf('Unable to register plugin "%s" in autoload.', $plugin['base_class']));
             }

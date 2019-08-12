@@ -38,7 +38,7 @@
 
     .sw-theme-list-item__info {
         display: grid;
-        grid-template-columns: 6px 1fr 18px;
+        grid-template-columns: 8px 1fr 18px;
         grid-column-gap: 8px;
         align-items: center;
         align-content: center;
@@ -49,8 +49,8 @@
     }
 
     .sw-theme-list-item__status {
-        width: 6px;
-        height: 6px;
+        width: 8px;
+        height: 8px;
         border-radius: 100%;
         margin-top: 1px;
         background: $color-steam-cloud;

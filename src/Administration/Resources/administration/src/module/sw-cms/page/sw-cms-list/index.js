@@ -115,6 +115,7 @@ Component.register('sw-cms-list', {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia');
+            criteria.addAssociation('categories');
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             if (this.term !== null) {
@@ -293,6 +294,10 @@ Component.register('sw-cms-list', {
             }, {
                 property: 'type',
                 label: this.$tc('sw-cms.list.gridHeaderType')
+            }, {
+                property: 'categories.length',
+                label: this.$tc('sw-cms.list.gridHeaderAssignment'),
+                sortable: false
             }, {
                 property: 'createdAt',
                 label: this.$tc('sw-cms.list.gridHeaderCreated')

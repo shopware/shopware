@@ -50,7 +50,7 @@ Component.register('sw-theme-list-item', {
         componentClasses() {
             return {
                 'is--active': this.isActive()
-            }
+            };
         }
     },
 

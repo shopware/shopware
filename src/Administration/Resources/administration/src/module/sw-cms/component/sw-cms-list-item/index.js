@@ -10,6 +10,12 @@ Component.register('sw-cms-list-item', {
             type: Object,
             required: false,
             default: null
+        },
+
+        active: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -36,10 +42,20 @@ Component.register('sw-cms-list-item', {
             const context = initContainer.contextService;
 
             return `url(${context.assetsPath}/administration/static/img/cms/default_preview_${this.page.type}.jpg)`;
+        },
+
+        componentClasses() {
+            return {
+                'is--active': this.isActive()
+            };
         }
     },
 
     methods: {
+        isActive() {
+            return (this.page && this.page.categories && this.page.categories.length > 0) || this.active;
+        },
+
         onChangePreviewImage(page) {
             this.$emit('preview-image-change', page);
         },

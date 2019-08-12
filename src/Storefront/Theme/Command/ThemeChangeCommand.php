@@ -85,9 +85,6 @@ class ThemeChangeCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
         $helper = $this->getHelper('question');
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('salesChannelTheme');
-
         /** @var SalesChannelCollection $salesChannels */
         $salesChannels = $this->salesChannelRepository->search(new Criteria(), $this->context)->getEntities();
 

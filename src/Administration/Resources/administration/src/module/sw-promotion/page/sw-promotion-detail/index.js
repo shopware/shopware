@@ -223,7 +223,13 @@ Component.register('sw-promotion-detail', {
                     this.promotion.code = null;
                 } else if (this.promotion.useCodes && !this.promotion.useIndividualCodes) {
                     this.promotion.individualCodePattern = null;
-                    const generator = new IndividualCodeGenerator(this.promotion.id, this.repositoryIndividualCodes, this.context);
+
+                    const generator = new IndividualCodeGenerator(
+                        this.promotion.id,
+                        this.repositoryIndividualCodes,
+                        this.context
+                    );
+
                     await generator.removeExistingCodes();
                 }
             } catch (error) {
@@ -255,7 +261,10 @@ Component.register('sw-promotion-detail', {
                             const criteria = new Criteria(1, 1);
                             criteria.addAssociation('salesChannels');
 
-                            return this.promotionRepository.get(this.promotion.id, this.context, criteria).then((promotion) => {
+                            return this.promotionRepository.get(
+                                this.promotion.id,
+                                this.context, criteria
+                            ).then((promotion) => {
                                 this.promotion = promotion;
                                 // hydrate and extend promotion with additional data
                                 entityHydrator.hydrate(this.promotion);

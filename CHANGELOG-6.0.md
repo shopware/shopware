@@ -21,5 +21,13 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Improved loading/refresh of theme.json. You can now change the theme.json and use `bin/console theme:refresh` to
   reload the configuration.
 [View all changes from v6.0.0+dp1...v6.0.0+ea1](https://github.com/shopware/platform/compare/v6.0.0+dp1...v6.0.0+ea1)
+* Added Twig filters `sw_encode_url` and `sw_encode_media_url` to Storefront. Contrary to Twig's `url_encode` filter it encodes every segment of the path rather than the whole url string.
+You can use them with every URL in your templates
+```
+{# results in http://your.domain:8080/path%20to/file%20with%20whitspace-and%28brackets%29.png #}
+<img src="{{ "http://your.domain:8080/path to/file with whitspace-and(brackets).png" | sw_encode_url }}"
 
- * Placeholder for future releases
+{# encodes the url of your media entity #}
+<img src="{{ yourStorefrontMediaObject | sw_encode_media_url }} 
+``` 
+

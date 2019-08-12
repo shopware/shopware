@@ -151,58 +151,77 @@ export default class VariantsGenerator extends EventEmitter {
                 });
 
                 // new variation price
-                const variationPrice = [];
+                let variationPrice = {};
 
                 // Go through each option and add price changes to main price of variation
                 variations.map((variationObject) => variationObject.id).forEach((variationId) => {
                     priceChanges.forEach((option) => {
-                        if (option.id === variationId && option.price) {
-                            // iterate through each currency
-                            option.price.forEach((price) => {
-                                // check for price surcharges
-                                if (price.gross !== 0 || price.net !== 0) {
-                                    // get parent price for currency
-                                    const refCurrencyPrice = this.product.price.find((productPrice) => {
-                                        return productPrice.currencyId === price.currencyId;
-                                    });
-
-                                    let refPrice = refCurrencyPrice;
-
-                                    // use the default price as fallback when no custom price for the currency exists
-                                    if (!refCurrencyPrice) {
-                                        const defaultCurrency = currencies.find((currency) => {
-                                            return currency.isDefault;
-                                        });
-
-                                        const defaultCurrencyPrice = this.product.price.find((productPrice) => {
-                                            return productPrice.currencyId === defaultCurrency.id;
-                                        });
-
-                                        const actualCurrency = currencies.find((currency) => {
-                                            return currency.id === price.currencyId;
-                                        });
-
-                                        // recalculate price for currency with conversion factor
-                                        refPrice = {
-                                            net: defaultCurrencyPrice.net * actualCurrency.factor,
-                                            gross: defaultCurrencyPrice.gross * actualCurrency.factor
-                                        };
-                                    }
-
-                                    // calculate new price with surcharge
-                                    const grossPrice = refPrice.gross + price.gross;
-                                    const netPrice = refPrice.net + price.net;
-
-                                    // push new currency price with surcharges to variation price
-                                    variationPrice.push({
-                                        currencyId: price.currencyId,
-                                        gross: grossPrice > 0 ? grossPrice : 0,
-                                        linked: price.linked,
-                                        net: netPrice > 0 ? netPrice : 0
-                                    });
-                                }
-                            });
+                        if (!option.price) {
+                            return;
                         }
+
+                        if (option.id !== variationId) {
+                            return;
+                        }
+
+                        // iterate through each currency
+                        option.price.forEach((price) => {
+                            // check for price surcharges
+                            if (price.gross <= 0) {
+                                return;
+                            }
+                            if (price.net <= 0) {
+                                return;
+                            }
+
+                            const currencyId = price.currencyId;
+
+                            let refCurrencyPrice;
+
+                            if (variationPrice[currencyId]) {
+                                refCurrencyPrice = variationPrice[currencyId];
+                            } else {
+                                // get parent price for currency
+                                refCurrencyPrice = this.product.price.find((productPrice) => {
+                                    return productPrice.currencyId === price.currencyId;
+                                });
+                            }
+
+                            let refPrice = refCurrencyPrice;
+
+                            // use the default price as fallback when no custom price for the currency exists
+                            if (!refCurrencyPrice) {
+                                const defaultCurrency = currencies.find((currency) => {
+                                    return currency.isDefault;
+                                });
+
+                                const defaultCurrencyPrice = this.product.price.find((productPrice) => {
+                                    return productPrice.currencyId === defaultCurrency.id;
+                                });
+
+                                const actualCurrency = currencies.find((currency) => {
+                                    return currency.id === price.currencyId;
+                                });
+
+                                // recalculate price for currency with conversion factor
+                                refPrice = {
+                                    net: defaultCurrencyPrice.net * actualCurrency.factor,
+                                    gross: defaultCurrencyPrice.gross * actualCurrency.factor
+                                };
+                            }
+
+                            // calculate new price with surcharge
+                            const grossPrice = refPrice.gross + price.gross;
+                            const netPrice = refPrice.net + price.net;
+
+                            // push new currency price with surcharges to variation price
+                            variationPrice[currencyId] = {
+                                currencyId: price.currencyId,
+                                gross: grossPrice > 0 ? grossPrice : 0,
+                                linked: price.linked,
+                                net: netPrice > 0 ? netPrice : 0
+                            };
+                        });
                     });
                 });
 
@@ -218,6 +237,8 @@ export default class VariantsGenerator extends EventEmitter {
                     productNumber: generated.number,
                     taxId: this.product.taxId
                 };
+
+                variationPrice = Object.values(variationPrice);
 
                 // when variant has custom price then add it to price
                 if (variationPrice.length > 0) {

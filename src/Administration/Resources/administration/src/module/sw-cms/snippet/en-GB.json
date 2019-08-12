@@ -5,7 +5,8 @@
       "mainMenuItemGeneral": "Shopping Experiences",
       "moduleTitle": "Shopping Experiences",
       "greeting": "Layouts",
-      "createNewLayout": "Create new layout"
+      "createNewLayout": "Create new layout",
+      "notificationDeleteErrorMessage": "The layout you want to delete is still allocated to at least one category"
     },
     "sorting": {
       "labelSort": "Sort by:",

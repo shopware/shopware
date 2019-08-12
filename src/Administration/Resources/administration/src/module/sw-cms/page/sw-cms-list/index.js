@@ -302,6 +302,14 @@ Component.register('sw-cms-list', {
                 property: 'createdAt',
                 label: this.$tc('sw-cms.list.gridHeaderCreated')
             }];
+        },
+
+        deleteDisabledToolTip(page) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-cms.general.deleteDisablesToolTip'),
+                disabled: page.categories.length === 0
+            };
         }
     }
 });

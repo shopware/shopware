@@ -5,11 +5,10 @@ import EventEmitter from 'events';
 import { md5 } from 'src/core/service/utils/format.utils';
 
 export default class VariantsGenerator extends EventEmitter {
-    constructor(product) {
+    constructor() {
         super();
 
-        this.product = product;
-        this.configurators = product.configuratorSettings;
+        this.product = null;
 
         // set dependencies
         this.syncService = Application.getContainer('service').syncService;
@@ -22,9 +21,11 @@ export default class VariantsGenerator extends EventEmitter {
         this.languageStore = this.State.getStore('language');
     }
 
-    createNewVariants(forceGenerating, currencies) {
+    createNewVariants(forceGenerating, currencies, product) {
+        this.product = product;
+
         return new Promise((resolve) => {
-            const grouped = this.groupTheOptions(this.configurators);
+            const grouped = this.groupTheOptions(this.product.configuratorSettings);
 
             // When nothing is selected, delete everything
             if (grouped.length <= 0) {
@@ -104,7 +105,7 @@ export default class VariantsGenerator extends EventEmitter {
             const newVariationsSorted = newVariations.map((variation) => variation.sort());
 
             // Get price changes for all option ids
-            const priceChanges = this.configurators.reduce((result, element) => {
+            const priceChanges = this.product.configuratorSettings.reduce((result, element) => {
                 result.push({
                     id: element.option.id,
                     price: element.price

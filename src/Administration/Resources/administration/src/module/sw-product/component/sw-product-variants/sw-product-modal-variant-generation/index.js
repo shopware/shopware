@@ -36,7 +36,7 @@ Component.register('sw-product-modal-variant-generation', {
             notificationInfos: {},
             progressType: '',
             variantsNumber: 0,
-            variantsGenerator: new VariantsGenerator(this.product)
+            variantsGenerator: new VariantsGenerator()
         };
     },
 
@@ -48,14 +48,6 @@ Component.register('sw-product-modal-variant-generation', {
         ...mapState('swProductDetail', [
             'currencies'
         ]),
-
-        configuratorSettingsRepository() {
-            // get configuratorSettingsRepository
-            return this.repositoryFactory.create(
-                this.product.configuratorSettings.entity,
-                this.product.configuratorSettings.source
-            );
-        },
 
         productRepository() {
             return this.repositoryFactory.create('product');
@@ -101,7 +93,7 @@ Component.register('sw-product-modal-variant-generation', {
         generateVariants(forceGenerating) {
             this.isLoading = true;
 
-            this.variantsGenerator.createNewVariants(forceGenerating, this.currencies).then(() => {
+            this.variantsGenerator.createNewVariants(forceGenerating, this.currencies, this.product).then(() => {
                 // Save the product after generating
                 this.productRepository.save(this.product, this.context).then(() => {
                     this.$emit('variations-finish-generate');

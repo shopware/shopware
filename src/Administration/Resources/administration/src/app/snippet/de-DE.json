@@ -1,5 +1,9 @@
 {
   "global": {
+    "error-codes": {
+      "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
+      "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen."
+    },
     "notification": {
       "notificationSaveErrorTitle": "Fehler",
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",

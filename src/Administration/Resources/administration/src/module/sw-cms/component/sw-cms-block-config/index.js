@@ -32,7 +32,7 @@ Component.register('sw-cms-block-config', {
         },
 
         cmsPageState() {
-            return State.getStore('cmsPageState');
+            return this.$store.state.cmsPageState;
         }
     },
 

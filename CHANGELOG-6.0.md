@@ -16,8 +16,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Additions / Changes**
 
 * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
+* Administration: Moved the global state of the module `sw-cms` to VueX
 
- * Placeholder for future releases
+* Placeholder for future releases
  
 **Removals**
 

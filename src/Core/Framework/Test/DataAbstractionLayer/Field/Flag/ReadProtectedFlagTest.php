@@ -123,15 +123,20 @@ class ReadProtectedFlagTest extends TestCase
         $browser->request('GET', $url);
         $data = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('included', $data, print_r($data, true));
-        $included = $data['included'];
 
-        $media = $included[1];
-        static::assertArrayHasKey('type', $media);
-        static::assertEquals('media', $media['type']);
-        static::assertArrayNotHasKey('thumbnailsRo', $media['attributes']);
-        static::assertArrayNotHasKey('mediaTypeRaw', $media['attributes']);
-        static::assertArrayNotHasKey('userId', $media['attributes']);
-        static::assertArrayHasKey('fileName', $media['attributes']);
+        foreach ($data['included'] as $included) {
+            if (!array_key_exists('type', $included) || $included['type'] !== 'media') {
+                continue;
+            }
+            static::assertArrayNotHasKey('thumbnailsRo', $included['attributes']);
+            static::assertArrayNotHasKey('mediaTypeRaw', $included['attributes']);
+            static::assertArrayNotHasKey('userId', $included['attributes']);
+            static::assertArrayHasKey('fileName', $included['attributes']);
+
+            return;
+        }
+
+        static::fail('Unable to find included with type "media"');
     }
 
     public function testReadWithoutPermissionForSalesChannelSourceWithJsonType(): void

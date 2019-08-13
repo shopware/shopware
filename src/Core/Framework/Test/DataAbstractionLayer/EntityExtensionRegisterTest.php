@@ -24,7 +24,6 @@ class EntityExtensionRegisterTest extends TestCase
 {
     use KernelTestBehaviour;
 
-
     protected function tearDown(): void
     {
         // reboot kernel to create a new container since we manipulated the original one

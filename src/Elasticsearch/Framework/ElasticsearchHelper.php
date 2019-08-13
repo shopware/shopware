@@ -11,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Elasticsearch\Exception\NoIndexedDocumentsException;
 use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
@@ -134,6 +135,24 @@ class ElasticsearchHelper
         }
 
         return $this->logOrThrowException(new NoIndexedDocumentsException($definition->getEntityName()));
+    }
+
+    public function handleIds(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
+    {
+        $ids = $criteria->getIds();
+
+        if (empty($ids)) {
+            return;
+        }
+
+        $query = $this->parser->parse(
+            new EqualsAnyFilter('id', $ids),
+            $definition,
+            $definition->getEntityName(),
+            $context
+        );
+
+        $search->addQuery($query, BoolQuery::FILTER);
     }
 
     public function addFilters(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void

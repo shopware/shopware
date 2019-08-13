@@ -3,11 +3,11 @@
 {% block administration_stylesheets %}
     {{ parent() }}
 
-    <link rel="stylesheet" href="{{ asset('bundles/storefront/administration/css/storefront.css') }}" />
+    <link rel="stylesheet" href="{{ asset('bundles/storefront/administration/css/storefront.css') }}?{{ 'now'|date('U') }}" />
 {% endblock %}
 
 {% block administration_scripts %}
     {{ parent() }}
 
-    <script type="text/javascript" src="{{ asset('bundles/storefront/administration/js/storefront.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('bundles/storefront/administration/js/storefront.js') }}?{{ 'now'|date('U') }}"></script>
 {% endblock %}

@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
@@ -12,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 trait CriteriaQueryHelper
 {
@@ -57,6 +60,43 @@ trait CriteriaQueryHelper
         $this->addSortings($definition, $criteria, $query, $context);
 
         return $query;
+    }
+
+    protected function addIdCondition(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
+    {
+        $wheres = [];
+
+        foreach ($criteria->getIds() as $primaryKey) {
+            if (!is_array($primaryKey)) {
+                $primaryKey = ['id' => $primaryKey];
+            }
+
+            $where = [];
+
+            foreach ($primaryKey as $storageName => $value) {
+                $field = $definition->getFields()->getByStorageName($storageName);
+
+                if ($field instanceof IdField || $field instanceof FkField) {
+                    $value = Uuid::fromHexToBytes($value);
+                }
+
+                $key = 'pk' . Uuid::randomHex();
+
+                $accessor = EntityDefinitionQueryHelper::escape(
+                        $definition->getEntityName()
+                    ) . '.' . EntityDefinitionQueryHelper::escape($storageName);
+
+                $where[] = $accessor . ' = :' . $key;
+
+                $query->setParameter($key, $value);
+            }
+
+            $wheres[] = '(' . implode(' AND ', $where) . ')';
+        }
+
+        $wheres = implode(' OR ', $wheres);
+
+        $query->andWhere($wheres);
     }
 
     private function addFilters(EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void

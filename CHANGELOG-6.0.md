@@ -16,10 +16,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Additions / Changes**
 
 * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
+* Added DAL support for multi primary keys. 
+* Added api endpoints for translation definitions
 * Administration: Moved the global state of the module `sw-cms` to VueX
 
-* Placeholder for future releases
- 
 **Removals**
 
 * Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function

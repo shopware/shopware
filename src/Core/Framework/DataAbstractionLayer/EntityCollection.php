@@ -67,7 +67,12 @@ class EntityCollection extends Collection
     public function sortByIdArray(array $ids): void
     {
         $sorted = [];
+
         foreach ($ids as $id) {
+            if (is_array($id)) {
+                $id = implode('-', $id);
+            }
+
             if (array_key_exists($id, $this->elements)) {
                 $sorted[$id] = $this->elements[$id];
             }

@@ -38,7 +38,7 @@ Application.getContainer('service').cmsService.registerCmsBlock({
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_stool_large.jpg'
+                        url: '/administration/static/img/cms/preview_plant_large.jpg'
                     }
                 }
             }

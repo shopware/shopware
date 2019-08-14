@@ -97,7 +97,7 @@
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
-            <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="sales_channel.language.repository"/>
             <argument type="service" id="sales_channel.currency.repository"/>
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>

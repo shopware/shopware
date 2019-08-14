@@ -49,8 +49,6 @@ class SystemConfigService
 
         foreach ($parts as $part) {
             if (!is_array($pointer)) {
-                dd($pointer);
-
                 return null;
             }
 

@@ -215,40 +215,48 @@
             </tr>
             </thead>
             <tbody id="queries-{{ loop.index }}">
-                {% for i, query in collector.queries %}
-                    {% set i = group_queries ? query.index : i %}
-                    <tr id="queryNo-{{ i }}-{{ loop.parent.loop.index }}">
-                        {% if group_queries %}
-                            <td class="time-container">
-                                <span class="time-bar" style="width:{{ '%0.2f'|format(query.executionPercent) }}%"></span>
-                                <span class="nowrap">{{ '%0.2f'|format(query.executionMS * 1000) }}&nbsp;ms<br />({{ '%0.2f'|format(query.executionPercent) }}%)</span>
-                            </td>
-                            <td class="nowrap">{{ query.count }}</td>
-                        {% else %}
-                            <td class="nowrap">{{ loop.index }}</td>
-                            <td class="nowrap">{{ '%0.2f'|format(query.executionMS * 1000) }}&nbsp;ms</td>
-                        {% endif %}
-                        <td>
-                            {{ query.sql|doctrine_pretty_query(highlight_only = true) }}
-
-                            <div class="text-small font-normal">
-                                <a href="#" {{ profiler_markup_version == 1 ? 'onclick="return toggleRunnableQuery(this);"' }} class="sf-toggle link-inverse" data-toggle-selector="#formatted-query-{{ i }}-{{ loop.parent.loop.index }}" data-toggle-alt-content="Hide formatted query">View formatted query</a>
-
-                                &nbsp;&nbsp;
-
-                                <a href="#" {{ profiler_markup_version == 1 ? 'onclick="return toggleRunnableQuery(this);"' }} class="sf-toggle link-inverse" data-toggle-selector="#original-query-{{ i }}-{{ loop.parent.loop.index }}" data-toggle-alt-content="Hide runnable query">View runnable query</a>
-                            </div>
-
-                            <div id="formatted-query-{{ i }}-{{ loop.parent.loop.index }}" class="sql-runnable hidden">
-                                {{ query.sql|doctrine_pretty_query }}
-                            </div>
-
-                            <div id="original-query-{{ i }}-{{ loop.parent.loop.index }}" class="sql-runnable hidden">
-                                {{ (query.sql ~ ';')|doctrine_replace_query_parameters(query.params)|doctrine_pretty_query(highlight_only = true) }}
-                            </div>
+            {% for i, query in collector.queries %}
+                {% set i = group_queries ? query.index : i %}
+                <tr id="queryNo-{{ i }}-{{ loop.parent.loop.index }}">
+                    {% if group_queries %}
+                        <td class="time-container">
+                            <span class="time-bar" style="width:{{ '%0.2f'|format(query.executionPercent) }}%"></span>
+                            <span class="nowrap">{{ '%0.2f'|format(query.executionMS * 1000) }}&nbsp;ms<br />({{ '%0.2f'|format(query.executionPercent) }}%)</span>
                         </td>
-                    </tr>
-                {% endfor %}
+                        <td class="nowrap">{{ query.count }}</td>
+                    {% else %}
+                        <td class="nowrap">{{ loop.index }}</td>
+                        <td class="nowrap">{{ '%0.2f'|format(query.executionMS * 1000) }}&nbsp;ms</td>
+                    {% endif %}
+                    <td>
+                        {{ query.sql|doctrine_pretty_query(highlight_only = true) }}
+
+                        <div class="text-small font-normal">
+                            <a href="#" {{ profiler_markup_version == 1 ? 'onclick="return toggleRunnableQuery(this);"' }} class="sf-toggle link-inverse" data-toggle-selector="#formatted-query-{{ i }}-{{ loop.parent.loop.index }}" data-toggle-alt-content="Hide formatted query">View formatted query</a>
+
+                            &nbsp;&nbsp;
+
+                            <a href="#" {{ profiler_markup_version == 1 ? 'onclick="return toggleRunnableQuery(this);"' }} class="sf-toggle link-inverse" data-toggle-selector="#original-query-{{ i }}-{{ loop.parent.loop.index }}" data-toggle-alt-content="Hide runnable query">View runnable query</a>
+
+                            &nbsp;&nbsp;
+
+                            <a href="#" {{ profiler_markup_version == 1 ? 'onclick="return toggleRunnableQuery(this);"' }} class="sf-toggle link-inverse" data-toggle-selector="#stack-query-{{ i }}-{{ loop.parent.loop.index }}" data-toggle-alt-content="Hide query stack">View query stack</a>
+                        </div>
+
+                        <div id="formatted-query-{{ i }}-{{ loop.parent.loop.index }}" class="sql-runnable hidden">
+                            {{ query.sql|doctrine_pretty_query }}
+                        </div>
+
+                        <div id="original-query-{{ i }}-{{ loop.parent.loop.index }}" class="sql-runnable hidden">
+                            {{ (query.sql ~ ';')|doctrine_replace_query_parameters(query.params)|doctrine_pretty_query(highlight_only = true) }}
+                        </div>
+
+                        <div id="stack-query-{{ i }}-{{ loop.parent.loop.index }}" class="sql-runnable hidden query-stack">
+                            {{ dump(query.stack) }}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
     {% endif %}

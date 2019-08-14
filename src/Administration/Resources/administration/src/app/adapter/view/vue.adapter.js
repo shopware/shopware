@@ -376,13 +376,13 @@ export default class VueAdapter extends ViewAdapter {
          * @returns {string}
          */
         Vue.prototype.$createTitle = function createTitle(identifier = null, ...additionalParams) {
-            const baseTitle = this.$tc('global.sw-admin-menu.textShopwareAdmin');
+            const baseTitle = this.$root.$tc('global.sw-admin-menu.textShopwareAdmin');
 
             if (!this.$route.meta || !this.$route.meta.$module) {
                 return '';
             }
 
-            const pageTitle = this.$tc(this.$route.meta.$module.title);
+            const pageTitle = this.$root.$tc(this.$route.meta.$module.title);
 
             const params = [baseTitle, pageTitle, identifier, ...additionalParams].filter((item) => {
                 return item !== null && item.trim() !== '';

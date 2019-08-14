@@ -60,7 +60,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         return [
             'shopware' => [
                 'config' => array_merge(
-                    $this->systemConfigService->getConfigArray($context->getSalesChannel()->getId()),
+                    $this->systemConfigService->all($context->getSalesChannel()->getId()),
                     $this->getDefaultConfiguration()
                 ),
                 'theme' => $this->getThemeConfig($context->getSalesChannel()->getId(), $themeId),

@@ -71,26 +71,9 @@ class SystemConfigServiceTest extends TestCase
         static::assertEquals('override', $actual);
     }
 
-    public function testSetGetSalesChannelNoInherit(): void
-    {
-        $this->systemConfigService->set('foo.bar', 'test');
-        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL, false);
-        static::assertNull($actual);
-
-        $this->systemConfigService->set('foo.bar', 'override', Defaults::SALES_CHANNEL, false);
-        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
-        static::assertEquals('override', $actual);
-    }
-
     public function testGetDomainNoData(): void
     {
-        $actual = $this->systemConfigService->getDomain('foo', null, false);
-        static::assertEquals([], $actual);
-
         $actual = $this->systemConfigService->getDomain('foo', null, true);
-        static::assertEquals([], $actual);
-
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, false);
         static::assertEquals([], $actual);
 
         $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
@@ -118,12 +101,6 @@ class SystemConfigServiceTest extends TestCase
             'foo.c' => 'c override',
         ];
         $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
-        static::assertEquals($expected, $actual);
-
-        $expected = [
-            'foo.c' => 'c override',
-        ];
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, false);
         static::assertEquals($expected, $actual);
     }
 

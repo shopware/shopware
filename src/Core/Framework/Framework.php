@@ -76,7 +76,20 @@ class Framework extends Bundle
     {
         parent::boot();
 
-        $this->registerEntityExtensions();
+        /** @var DefinitionInstanceRegistry $definitionRegistry */
+        $definitionRegistry = $this->container->get(DefinitionInstanceRegistry::class);
+
+        /** @var SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry */
+        $salesChannelDefinitionRegistry = $this->container->get(SalesChannelDefinitionInstanceRegistry::class);
+
+        /** @var ExtensionRegistry $extensionRegistry */
+        $extensionRegistry = $this->container->get(ExtensionRegistry::class);
+
+        $this->registerEntityExtensions(
+            $definitionRegistry,
+            $salesChannelDefinitionRegistry,
+            $extensionRegistry
+        );
     }
 
     protected function registerMigrationPath(ContainerBuilder $container): void
@@ -114,17 +127,11 @@ class Framework extends Bundle
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
     }
 
-    private function registerEntityExtensions(): void
-    {
-        /** @var DefinitionInstanceRegistry $definitionRegistry */
-        $definitionRegistry = $this->container->get(DefinitionInstanceRegistry::class);
-
-        /** @var SalesChannelDefinitionInstanceRegistry $salesChannelRegistry */
-        $salesChannelRegistry = $this->container->get(SalesChannelDefinitionInstanceRegistry::class);
-
-        /** @var ExtensionRegistry $registry */
-        $registry = $this->container->get(ExtensionRegistry::class);
-
+    private function registerEntityExtensions(
+        DefinitionInstanceRegistry $definitionRegistry,
+        SalesChannelDefinitionInstanceRegistry $salesChannelRegistry,
+        ExtensionRegistry $registry
+    ): void {
         foreach ($registry->getExtensions() as $extension) {
             /** @var string $class */
             $class = $extension->getDefinitionClass();
@@ -137,7 +144,7 @@ class Framework extends Bundle
             $salesChannelDefinition = $salesChannelRegistry->get($class);
 
             // same definition? do not added extension
-            if (get_class($salesChannelDefinition) !== get_class($definition)) {
+            if ($salesChannelDefinition !== $definition) {
                 $salesChannelDefinition->addExtension($extension);
             }
         }

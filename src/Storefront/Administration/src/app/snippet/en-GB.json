@@ -11,7 +11,8 @@
       "messageSaveSuccess": "SEO url templates have been saved.",
       "preview": "Preview:",
       "placeholderSelectVariables": "Search and select...",
-      "labelSalesChannelSelect": "Sales channel"
+      "labelSalesChannelSelect": "Sales channel",
+      "textUrlPreviewNotPossible": "A preview for this template could not be generated"
     },
     "routeNames": {
       "frontend-detail-page": "Product detail page",

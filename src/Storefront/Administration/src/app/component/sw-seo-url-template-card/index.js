@@ -108,6 +108,7 @@ Component.register('sw-seo-url-template-card', {
                     entity.routeName = defaultEntity.routeName;
                     entity.salesChannelId = salesChannelId;
                     entity.entityName = defaultEntity.entityName;
+                    entity.template = null;
                     this.seoUrlTemplates.add(entity);
                 }
             });
@@ -137,7 +138,7 @@ Component.register('sw-seo-url-template-card', {
         },
         getPlaceholder(seoUrlTemplate) {
             if (!seoUrlTemplate.salesChannelId) {
-                return '';
+                return null;
             }
 
             const defaultEntity = Object.values(this.defaultSeoUrlTemplates).find(entity => {
@@ -159,14 +160,21 @@ Component.register('sw-seo-url-template-card', {
             const removalPromises = [];
             this.seoUrlTemplates.forEach(seoUrlTemplate => {
                 if (!seoUrlTemplate.template) {
-                    removalPromises.push(this.seoUrlTemplateService.getDefault(seoUrlTemplate.routeName).then(response => {
-                        seoUrlTemplate.template = response.defaultTemplate;
-                        return Promise.resolve();
-                    }));
+                    if(!seoUrlTemplate._isNew) {
+                        removalPromises.push(this.seoUrlTemplateRepository.delete(seoUrlTemplate.id, this.context));
+                    }
+                    this.seoUrlTemplates.remove(seoUrlTemplate.id);
                 }
             });
 
             Promise.all(removalPromises).then( () => {
+
+                this.seoUrlTemplates.forEach((entry) => {
+                    if(entry.template === null) {
+                        this.seoUrlTemplates.remove(entry.id);
+                    }
+                });
+
                 this.seoUrlTemplateRepository.sync(this.seoUrlTemplates, this.context);
 
                 this.fetchSeoUrlTemplates(this.salesChannelId);

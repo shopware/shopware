@@ -11,7 +11,8 @@
       "messageSaveSuccess": "Die SEO Url Templates wurden erfolgreich gespeichert.",
       "preview": "Vorschau:",
       "placeholderSelectVariables": "Auswählen ...",
-      "labelSalesChannelSelect": "Verkaufskanal"
+      "labelSalesChannelSelect": "Verkaufskanal",
+      "textUrlPreviewNotPossible": "Für dieses Template ist keine Vorschau möglich."
     },
     "routeNames": {
       "frontend-detail-page": "Produktdetailseite",

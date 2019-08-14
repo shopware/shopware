@@ -89,7 +89,7 @@ Component.register('sw-cms-el-image-gallery', {
             return [
                 { url: '/administration/static/img/cms/preview_mountain_large.jpg' },
                 { url: '/administration/static/img/cms/preview_glasses_large.jpg' },
-                { url: '/administration/static/img/cms/preview_stool_large.jpg' }
+                { url: '/administration/static/img/cms/preview_plant_large.jpg' }
             ];
         },
 

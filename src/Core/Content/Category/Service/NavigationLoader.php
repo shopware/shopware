@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Category\Service;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Event\NavigationLoadedEvent;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class NavigationLoader
 {
@@ -27,10 +29,16 @@ class NavigationLoader
      */
     private $treeItem;
 
-    public function __construct(SalesChannelRepositoryInterface $repository)
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(SalesChannelRepositoryInterface $repository, EventDispatcherInterface $eventDispatcher)
     {
         $this->categoryRepository = $repository;
         $this->treeItem = new TreeItem(null, []);
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -49,7 +57,7 @@ class NavigationLoader
             ])
         );
         $criteria->addFilter(new EqualsFilter('category.visible', true));
-        $this->getMainCategoryAssociations($criteria);
+        $criteria->addAssociation('media');
 
         /** @var CategoryCollection $rootLevel */
         $rootLevel = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -65,7 +73,6 @@ class NavigationLoader
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('parentId', $ids));
         $criteria->addFilter(new EqualsFilter('category.visible', true));
-        $this->getSubCategoryAssociations($criteria);
 
         /** @var CategoryCollection $secondLevel */
         $secondLevel = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -74,7 +81,13 @@ class NavigationLoader
             $rootLevel->add($category);
         }
 
-        return $this->getTree($rootId, $rootLevel, $active);
+        $navigation = $this->getTree($rootId, $rootLevel, $active);
+
+        $event = new NavigationLoadedEvent($navigation, $context);
+
+        $this->eventDispatcher->dispatch($event);
+
+        return $event->getNavigation();
     }
 
     /**
@@ -102,18 +115,13 @@ class NavigationLoader
         $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
         $parentId = $categories->get($categoryId)->getParentId();
 
-        return $this->getTree($parentId, $categories, $active);
-    }
+        $navigation = $this->getTree($parentId, $categories, $active);
 
-    private function getMainCategoryAssociations(Criteria $criteria)
-    {
-        $criteria->addAssociation('media');
-        $criteria->addAssociation('tags');
-    }
+        $event = new NavigationLoadedEvent($navigation, $context);
 
-    private function getSubCategoryAssociations(Criteria $criteria)
-    {
-        $criteria->addAssociation('tags');
+        $this->eventDispatcher->dispatch($event);
+
+        return $event->getNavigation();
     }
 
     private function getTree(?string $parentId, CategoryCollection $categories, CategoryEntity $active): Tree

@@ -8,12 +8,16 @@ use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class NavigationLoaderTest extends TestCase
 {
     public function testTreeBuilderwithSimpleTree(): void
     {
-        $loader = new NavigationLoader($this->createMock(SalesChannelRepository::class));
+        $loader = new NavigationLoader(
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(EventDispatcher::class)
+        );
 
         $method = ReflectionHelper::getMethod(NavigationLoader::class, 'buildTree');
 

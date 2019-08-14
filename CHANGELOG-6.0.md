@@ -17,9 +17,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
 * Administration: Moved the global state of the module `sw-cms` to VueX
+* Added new event `\Shopware\Core\Content\Category\Event\NavigationLoadedEvent` which dispatched after a sales channel navigation loaded
 
-* Placeholder for future releases
- 
 **Removals**
 
 * Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function

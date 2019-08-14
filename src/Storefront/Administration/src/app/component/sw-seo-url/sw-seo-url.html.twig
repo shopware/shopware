@@ -21,6 +21,8 @@
                     {% block sw_seo_url_card_seo_path %}
                         <sw-text-field
                                 :label="$tc('sw-seo-url.labelSeoPathInfo')"
+                                :disabled="isHeadlessSalesChannel"
+                                :help-text="seoUrlHelptext"
                                 v-model="currentSeoUrl.seoPathInfo">
                         </sw-text-field>
                     {% endblock %}

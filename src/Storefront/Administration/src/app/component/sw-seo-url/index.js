@@ -54,6 +54,27 @@ Component.register('sw-seo-url', {
 
         seoUrlRepository() {
             return this.repositoryFactory.create('seo_url');
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        isHeadlessSalesChannel() {
+
+            if(this.$store.state.swSeoUrl.salesChannelCollection === null) {
+                return true;
+            }
+
+            const salesChannel = this.$store.state.swSeoUrl.salesChannelCollection.find((entry) => {
+                return entry.id === this.currentSalesChannelId;
+            });
+
+            return this.currentSalesChannelId !== null && (salesChannel === undefined || salesChannel.typeId === 'f183ee5650cf4bdb8a774337575067a6');
+        },
+
+        seoUrlHelptext() {
+            return this.isHeadlessSalesChannel ? this.$tc('sw-seo-url.textSeoUrlsDisallowedForHeadless'): null;
         }
     },
 
@@ -81,10 +102,22 @@ Component.register('sw-seo-url', {
 
     methods: {
         createdComponent() {
+            this.initSalesChannelCollection();
             this.initSeoUrlCollection();
             if (!this.showEmptySeoUrlError) {
                 this.refreshCurrentSeoUrl();
             }
+        },
+
+        initSalesChannelCollection() {
+
+            const salesChannelCriteria = new Criteria();
+            salesChannelCriteria.setIds([]);
+            salesChannelCriteria.addAssociationPaths(['type']);
+
+            this.salesChannelRepository.search(salesChannelCriteria,this.context).then( (salesChannelCollection) => {
+                this.$store.commit('swSeoUrl/setSalesChannelCollection',salesChannelCollection);
+            });
         },
 
         initSeoUrlCollection() {

@@ -7,7 +7,7 @@ use Faker\Generator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DemodataContext
@@ -78,7 +78,7 @@ class DemodataContext
 
         $repository = $this->registry->getRepository($entity);
 
-        $ids = $repository->searchIds(new PaginationCriteria(500), Context::createDefaultContext())
+        $ids = $repository->searchIds((new Criteria())->setLimit(500), Context::createDefaultContext())
             ->getIds();
 
         $this->entities[$entity] = $ids;

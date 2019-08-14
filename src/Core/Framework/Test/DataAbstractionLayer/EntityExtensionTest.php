@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
@@ -245,7 +244,7 @@ class EntityExtensionTest extends TestCase
         static::assertFalse($product->hasExtension('myPrices'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('myPrices', new PaginationCriteria(1));
+        $criteria->addAssociation('myPrices', (new Criteria())->setLimit(1));
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())
@@ -432,7 +431,7 @@ class EntityExtensionTest extends TestCase
         static::assertFalse($product->hasExtension('myCategories'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('extensions.myCategories', new PaginationCriteria(2));
+        $criteria->addAssociation('extensions.myCategories', (new Criteria())->setLimit(2));
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())
@@ -444,7 +443,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(2, $product->getExtension('myCategories'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('myCategories', new PaginationCriteria(2));
+        $criteria->addAssociation('myCategories', (new Criteria())->setLimit(2));
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())

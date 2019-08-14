@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Pricing\ListingPrice;
@@ -2232,7 +2231,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('products', new PaginationCriteria(4));
+        $criteria->addAssociation('products', (new Criteria())->setLimit(4));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
@@ -2248,7 +2247,7 @@ class ProductRepositoryTest extends TestCase
 
         //test if two of four products can be read if context contains no rule
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('products', new PaginationCriteria(2));
+        $criteria->addAssociation('products', (new Criteria())->setLimit(2));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
@@ -2262,7 +2261,7 @@ class ProductRepositoryTest extends TestCase
 
         //test if two of four products can be read if context contains no rule
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('products', new PaginationCriteria(4));
+        $criteria->addAssociation('products', (new Criteria())->setLimit(4));
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 

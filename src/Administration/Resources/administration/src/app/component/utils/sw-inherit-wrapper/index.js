@@ -46,6 +46,7 @@ Component.register('sw-inherit-wrapper', {
         },
 
         disabled: {
+            type: Boolean,
             required: false,
             default: false
         },

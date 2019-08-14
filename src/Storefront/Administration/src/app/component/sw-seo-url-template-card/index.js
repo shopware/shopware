@@ -26,8 +26,28 @@ Component.register('sw-seo-url-template-card', {
             previews: {},
             variableStores: {},
             seoUrlTemplateRepository: {},
-            salesChannelId: null
+            salesChannelId: null,
+            salesChannels: []
         };
+    },
+
+    computed: {
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        salesChannelIsHeadless() {
+            const currentSalesChannel = this.salesChannels.find((entity) => {
+                return entity.id === this.salesChannelId;
+            });
+
+            if (!currentSalesChannel) {
+                return false;
+            }
+
+            // from Defaults.php
+            return currentSalesChannel.typeId === 'f183ee5650cf4bdb8a774337575067a6';
+        }
     },
 
     created() {
@@ -49,6 +69,7 @@ Component.register('sw-seo-url-template-card', {
                 this.context, new Criteria()
             );
 
+            this.fetchSalesChannels();
             this.fetchSeoUrlTemplates();
         },
         fetchSeoUrlTemplates(salesChannelId = null) {
@@ -160,27 +181,30 @@ Component.register('sw-seo-url-template-card', {
             const removalPromises = [];
             this.seoUrlTemplates.forEach(seoUrlTemplate => {
                 if (!seoUrlTemplate.template) {
-                    if(!seoUrlTemplate._isNew) {
+                    if (!seoUrlTemplate._isNew) {
                         removalPromises.push(this.seoUrlTemplateRepository.delete(seoUrlTemplate.id, this.context));
                     }
                     this.seoUrlTemplates.remove(seoUrlTemplate.id);
                 }
             });
 
-            Promise.all(removalPromises).then( () => {
-
+            Promise.all(removalPromises).then(() => {
                 this.seoUrlTemplates.forEach((entry) => {
-                    if(entry.template === null) {
+                    if (entry.template === null) {
                         this.seoUrlTemplates.remove(entry.id);
                     }
                 });
 
-                this.seoUrlTemplateRepository.sync(this.seoUrlTemplates, this.context);
-
-                this.fetchSeoUrlTemplates(this.salesChannelId);
-
-                this.createSaveSuccessNotification();
-            }).catch( () => {
+                this.seoUrlTemplateRepository.sync(this.seoUrlTemplates, this.context).then(() => {
+                    this.seoUrlTemplates = new EntityCollection(
+                        this.seoUrlTemplateRepository.route,
+                        this.seoUrlTemplateRepository.schema.entity,
+                        this.context, new Criteria()
+                    );
+                    this.createdComponent();
+                    this.createSaveSuccessNotification();
+                });
+            }).catch(() => {
                 this.createSaveErrorNotification();
             });
         },
@@ -247,6 +271,11 @@ Component.register('sw-seo-url-template-card', {
                 this.$set(this.errorMessages, entity.id, err.response.data.errors[0].detail);
                 this.$set(this.previews, entity.id, []);
                 this.previewLoadingStates[entity.id] = false;
+            });
+        },
+        fetchSalesChannels() {
+            this.salesChannelRepository.search(new Criteria(), this.context).then((response) => {
+                this.salesChannels = response;
             });
         },
         onSalesChannelChanged(salesChannelId) {

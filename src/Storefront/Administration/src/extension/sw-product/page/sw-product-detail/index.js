@@ -42,12 +42,17 @@ Component.override('sw-product-detail', {
             }
 
             const seoUrls = this.$store.getters['swSeoUrl/getNewOrModifiedUrls']();
+            const defaultSeoUrl = this.$store.state.swSeoUrl.defaultSeoUrl;
 
+            const updatePromises = [];
             if (seoUrls) {
                 seoUrls.forEach(seoUrl => {
-                    if (seoUrl.seoPathInfo) {
-                        this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId);
+                    if (!seoUrl.seoPathInfo) {
+                        seoUrl.seoPathInfo = defaultSeoUrl.seoPathInfo;
+                        seoUrl.isModified = false;
                     }
+
+                    updatePromises.push(this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId));
                 });
             }
 
@@ -55,7 +60,12 @@ Component.override('sw-product-detail', {
                 response = 'success';
             }
 
-            this.$super.onSaveFinished(response);
+            Promise.all(updatePromises).then(() => {
+                this.$super.onSaveFinished(response);
+
+                this.$root.$emit('seo-url-save-finish');
+            });
+
         }
     }
 });

@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -482,7 +481,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create($products, $context);
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
-        $criteria->addAssociation('prices', new PaginationCriteria(5));
+        $criteria->addAssociation('prices', (new Criteria())->setLimit(5));
         $context->setConsiderInheritance(true);
 
         $products = $this->productRepository->search($criteria, $context);
@@ -684,7 +683,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->create($products, $context);
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
-        $criteria->addAssociation('categories', new PaginationCriteria(3));
+        $criteria->addAssociation('categories', (new Criteria())->setLimit(3));
         $context->setConsiderInheritance(true);
         $products = $this->productRepository->search($criteria, $context);
 
@@ -717,7 +716,7 @@ class EntityReaderTest extends TestCase
         static::assertTrue($green->getCategories()->has($category2));
 
         $criteria = new Criteria([$greenId, $parentId, $redId]);
-        $criteria->addAssociation('categories', new PaginationCriteria(3));
+        $criteria->addAssociation('categories', (new Criteria())->setLimit(3));
         $context->setConsiderInheritance(false);
         $products = $this->productRepository->search($criteria, $context);
 
@@ -1107,14 +1106,14 @@ class EntityReaderTest extends TestCase
         ], $context);
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('addresses', new PaginationCriteria(1));
+        $criteria->addAssociation('addresses', (new Criteria())->setLimit(1));
         /** @var CustomerEntity $customer */
         $customer = $repository->search($criteria, $context)->get($id);
         static::assertNotNull($customer->getAddresses());
         static::assertCount(1, $customer->getAddresses());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('addresses', new PaginationCriteria(3));
+        $criteria->addAssociation('addresses', (new Criteria())->setLimit(3));
         $customer = $repository->search($criteria, $context)->get($id);
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
@@ -1559,7 +1558,7 @@ class EntityReaderTest extends TestCase
         $this->productRepository->upsert($products, $context);
 
         $criteria = new Criteria([$id1, $id2]);
-        $criteria->addAssociation('categories', new PaginationCriteria(3));
+        $criteria->addAssociation('categories', (new Criteria())->setLimit(3));
 
         $products = $this->productRepository->search($criteria, $context);
 

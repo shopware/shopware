@@ -99,7 +99,7 @@ Component.register('sw-seo-url-template-card', {
             // Iterate over the default seo url templates and create new entities for the actual sales channel
             // if they do not exist
             this.defaultSeoUrlTemplates.forEach(defaultEntity => {
-                const entityAlreadyExists = Object.values(this.seoUrlTemplates).some((entity) => {
+                const entityAlreadyExists = this.seoUrlTemplates.some((entity) => {
                     return entity.routeName === defaultEntity.routeName && entity.salesChannelId === salesChannelId;
                 });
 

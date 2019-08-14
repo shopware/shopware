@@ -5,7 +5,7 @@
 [![Total Downloads](https://poser.pugx.org/shopware/platform/downloads)](https://packagist.org/packages/shopware/platform)
 [![License](https://img.shields.io/github/license/shopware/platform.svg)](https://github.com/shopware/platform/blob/master/license.txt)
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/shopware/platform.svg)](https://github.com/shopware/platform/pulls)
-[![Gitter](https://badges.gitter.im/shopware/shopware.svg)](https://gitter.im/shopware/shopware?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Gitter](https://badges.gitter.im/shopware/platform.svg)](https://gitter.im/shopware/platform?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Development Template](https://img.shields.io/badge/start%20with-shopware%2Fdevelopment-blue.svg)](https://github.com/shopware/development)
 
 </div>
@@ -65,7 +65,7 @@ Designing content is fast and intuitive with the Shopping Experiences.
 
 Shopware 6 provides Services through REST-APIs and rich user interfaces to customers and administrators alike.
 
-![The core architecture](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/platformcontext.png)
+![The core architecture](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/platformcontext.svg)
 
 The chart shows how the Shopware Platform fits into your enterprise. It provides web frontends for management and for commerce through a multitude of sales channels. It comes with a set of user facing interfaces and provides the ability to connect to your own infrastructure and outside services through REST-APIs.
 

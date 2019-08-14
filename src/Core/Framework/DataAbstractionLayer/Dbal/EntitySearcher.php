@@ -5,15 +5,16 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * Used for all search operations in the system.
@@ -67,17 +68,25 @@ class EntitySearcher implements EntitySearcherInterface
     {
         $table = $definition->getEntityName();
 
-        $query = new QueryBuilder($this->connection);
-        $query->select([
-            EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id') . ' as array_key',
-            EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id') . ' as id',
-        ]);
+        $fields = $definition->getPrimaryKeys();
 
-        if (!empty($criteria->getIds())) {
-            $criteria->addFilter(new EqualsAnyFilter($table . '.id', $criteria->getIds()));
+        $query = new QueryBuilder($this->connection);
+
+        foreach ($fields as $field) {
+            if ($field instanceof ReferenceVersionField || $field instanceof VersionField) {
+                continue;
+            }
+            /* @var StorageAware $field */
+            $query->addSelect(
+                EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
+            );
         }
 
         $query = $this->buildQueryByCriteria($query, $definition, $criteria, $context);
+
+        if (!empty($criteria->getIds())) {
+            $this->addIdCondition($criteria, $definition, $query);
+        }
 
         if ($query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
             $query->addGroupBy(
@@ -96,20 +105,43 @@ class EntitySearcher implements EntitySearcherInterface
         $this->addTotalCountMode($criteria, $query);
 
         //execute and fetch ids
-        $data = $query->execute()->fetchAll();
-        $data = FetchModeHelper::groupUnique($data);
+        $rows = $query->execute()->fetchAll();
 
-        $total = $this->getTotalCount($table, $query, $criteria, $data);
+        $total = $this->getTotalCount($definition, $query, $criteria, $rows);
 
         if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
-            $data = \array_slice($data, 0, $criteria->getLimit());
+            $rows = \array_slice($rows, 0, $criteria->getLimit());
         }
 
         $converted = [];
-        foreach ($data as $key => $values) {
-            $key = Uuid::fromBytesToHex($key);
-            $values['id'] = $key;
-            $converted[$key] = $values;
+
+        /* @var FieldCollection $fields */
+        foreach ($rows as $row) {
+            $pk = [];
+            $data = [];
+
+            foreach ($row as $storageName => $value) {
+                $field = $fields->getByStorageName($storageName);
+
+                if ($field) {
+                    $value = $field->getSerializer()->decode($field, $value);
+
+                    $pk[$storageName] = $value;
+                }
+
+                $data[$storageName] = $value;
+            }
+
+            $arrayKey = implode('-', $pk);
+
+            if (count($pk) === 1) {
+                $pk = array_shift($pk);
+            }
+
+            $converted[$arrayKey] = [
+                'primaryKey' => $pk,
+                'data' => $data,
+            ];
         }
 
         return new IdSearchResult($total, $converted, $criteria, $context);
@@ -154,7 +186,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
     }
 
-    private function getTotalCount(string $table, QueryBuilder $query, Criteria $criteria, array $data): int
+    private function getTotalCount(EntityDefinition $definition, QueryBuilder $query, Criteria $criteria, array $data): int
     {
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT) {
             return \count($data);
@@ -164,7 +196,15 @@ class EntitySearcher implements EntitySearcherInterface
             return (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
         }
 
-        $id = EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id');
+        $table = $definition->getEntityName();
+
+        $id = [];
+        foreach ($definition->getPrimaryKeys() as $field) {
+            /* @var StorageAware $field */
+            $id[] = EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+        }
+
+        $id = implode(',', $id);
 
         $selects = $query->getQueryPart('select');
         $selects[0] = 'DISTINCT ' . $selects[0];

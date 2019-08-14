@@ -287,12 +287,7 @@ class EntityReader implements EntityReaderInterface
         $this->joinBasic($definition, $context, $table, $query, $fields, $criteria);
 
         if (!empty($criteria->getIds())) {
-            $bytes = array_map(function (string $id) {
-                return Uuid::fromHexToBytes($id);
-            }, $criteria->getIds());
-
-            $query->andWhere(EntityDefinitionQueryHelper::escape($table) . '.`id` IN (:ids)');
-            $query->setParameter('ids', array_values($bytes), Connection::PARAM_STR_ARRAY);
+            $this->addIdCondition($criteria, $definition, $query);
         }
 
         return $query->execute()->fetchAll();

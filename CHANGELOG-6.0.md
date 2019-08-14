@@ -16,6 +16,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Additions / Changes**
 
 * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
+* Added DAL support for multi primary keys. 
+* Added api endpoints for translation definitions
 * Administration: Moved the global state of the module `sw-cms` to VueX
 * Added new event `\Shopware\Core\Content\Category\Event\NavigationLoadedEvent` which dispatched after a sales channel navigation loaded
 

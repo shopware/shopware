@@ -46,8 +46,8 @@ class CachedEntitySearcherTest extends TestCase
                 new IdSearchResult(
                     0,
                     [
-                        $id1 => ['id' => $id1],
-                        $id2 => ['id' => $id2],
+                        $id1 => ['primaryKey' => $id1, 'data' => []],
+                        $id2 => ['primaryKey' => $id2, 'data' => []],
                     ],
                     $criteria,
                     $context
@@ -101,8 +101,8 @@ class CachedEntitySearcherTest extends TestCase
                 new IdSearchResult(
                     0,
                     [
-                        $id1 => ['id' => $id1],
-                        $id2 => ['id' => $id2],
+                        $id1 => ['primaryKey' => $id1, 'data' => []],
+                        $id2 => ['primaryKey' => $id2, 'data' => []],
                     ],
                     $criteria,
                     $context

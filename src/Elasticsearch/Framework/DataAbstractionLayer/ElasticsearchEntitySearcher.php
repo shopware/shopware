@@ -87,9 +87,13 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $data = [];
         foreach ($result['hits']['hits'] as $hit) {
             $id = $hit['_id'];
+
             $data[$id] = [
-                'primary_key' => $id,
-                'score' => $hit['_score'],
+                'primaryKey' => $id,
+                'data' => [
+                    'id' => $id,
+                    '_score' => $hit['_score'],
+                ],
             ];
         }
 

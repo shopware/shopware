@@ -1,6 +1,7 @@
-import { Component, Mixin, Application } from 'src/core/shopware';
 import template from './sw-settings-shopware-updates-index.html.twig';
 import './sw-settings-shopware-updates-index.scss';
+
+const { Component, Mixin, Application } = Shopware;
 
 Component.register('sw-settings-shopware-updates-index', {
     template,

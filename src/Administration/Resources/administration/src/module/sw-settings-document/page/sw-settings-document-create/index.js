@@ -1,5 +1,5 @@
-import { Component } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 Component.extend('sw-settings-document-create', 'sw-settings-document-detail', {
 

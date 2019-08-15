@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-custom-field-type-number.html.twig';
+
+const { Component } = Shopware;
 
 Component.extend('sw-custom-field-type-number', 'sw-custom-field-type-base', {
     template,

@@ -1,5 +1,3 @@
-import { Module } from 'src/core/shopware';
-
 import './component/sw-plugin-box';
 import './extension/sw-settings-index';
 import './page/sw-settings-payment-list';
@@ -8,6 +6,8 @@ import './page/sw-settings-payment-create';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-settings-payment', {
     type: 'core',

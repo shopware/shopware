@@ -1,5 +1,6 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-country-state-detail.html.twig';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-country-state-detail', {
     template,

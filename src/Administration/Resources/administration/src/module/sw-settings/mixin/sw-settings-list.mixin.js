@@ -1,5 +1,5 @@
-import { State, Mixin } from 'src/core/shopware';
-import { debug } from 'src/core/service/util.service';
+const { Mixin, State } = Shopware;
+const { debug } = Shopware.Utils;
 
 Mixin.register('sw-settings-list', {
 

@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-condition-last-name.html.twig';
+
+const { Component } = Shopware;
 
 /**
  * @public

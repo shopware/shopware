@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-settings-snippet-filter-switch.html.twig';
 import './sw-settings-snippet-filter-switch.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-settings-snippet-filter-switch', {
     template,

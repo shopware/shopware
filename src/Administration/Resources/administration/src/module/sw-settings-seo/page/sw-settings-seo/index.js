@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-settings-seo.html.twig';
+
+const { Component } = Shopware;
 
 Component.register('sw-settings-seo', {
     template,

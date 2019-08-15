@@ -1,8 +1,9 @@
-import { Application, State } from 'src/core/shopware';
 import EntityStore from 'src/core/data/EntityStore';
-import { deepCopyObject } from 'src/core/service/utils/object.utils';
 import EventEmitter from 'events';
-import { md5 } from 'src/core/service/utils/format.utils';
+
+const { Application, State } = Shopware;
+const { deepCopyObject } = Shopware.Utils.object;
+const { md5 } = Shopware.Utils.format;
 
 export default class VariantsGenerator extends EventEmitter {
     constructor() {

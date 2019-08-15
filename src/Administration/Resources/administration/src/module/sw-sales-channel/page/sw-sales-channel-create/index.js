@@ -1,6 +1,7 @@
-import { Component, State } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-sales-channel-create.html.twig';
+
+const { Component, State } = Shopware;
+const utils = Shopware.Utils;
 
 Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
     template,

@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-cart-has-delivery-free-item.twig';
+
+const { Component } = Shopware;
 
 Component.extend('sw-condition-cart-has-delivery-free-item', 'sw-condition-base', {
     template,

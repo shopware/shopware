@@ -1,6 +1,7 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
+
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-property-option-list', {
     template,

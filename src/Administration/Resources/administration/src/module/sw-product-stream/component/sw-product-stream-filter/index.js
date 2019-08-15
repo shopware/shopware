@@ -1,9 +1,10 @@
-import { Component, Entity, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-product-stream-filter.html.twig';
 import TYPES from './type-provider';
 import './sw-product-stream-filter.scss';
+
+const { Component, Entity, Mixin, State } = Shopware;
 
 const productDefinitionName = 'product';
 

@@ -1,5 +1,6 @@
-import { Component, State } from 'src/core/shopware';
 import template from './sw-property-option-detail.html.twig';
+
+const { Component, State } = Shopware;
 
 Component.register('sw-property-option-detail', {
     template,

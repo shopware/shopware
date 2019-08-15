@@ -1,8 +1,9 @@
-import { Component } from 'src/core/shopware';
 import { mapState, mapGetters } from 'vuex';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-detail-properties.html.twig';
 import './sw-product-detail-properties.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-product-detail-properties', {
     template,

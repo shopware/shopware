@@ -1,5 +1,3 @@
-import { Module } from 'src/core/shopware';
-
 import './extension/sw-settings-index';
 import './page/sw-settings-snippet-set-list';
 import './page/sw-settings-snippet-list';
@@ -10,6 +8,8 @@ import './component/sidebar/sw-settings-snippet-filter-switch';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-settings-snippet', {
     type: 'core',

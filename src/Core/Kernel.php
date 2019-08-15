@@ -367,6 +367,10 @@ SQL;
                 $this->classLoader->add($namespace, $path);
             }
         }
+
+        // Re-register the Shopware class loader to enforce it to be always the first one
+        $this->classLoader->unregister();
+        $this->classLoader->register(true);
     }
 
     private function mapPsrPaths(array $psr, string $pluginPath): array

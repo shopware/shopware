@@ -108,7 +108,7 @@ class HeaderPageletLoader
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('salesChannelId', $salesChannelContext->getSalesChannel()->getId()))
-            ->addAssociationPath('language.translationCode');
+            ->addAssociation('language.translationCode');
 
         $domains = $this->salesChannelDomainRepository->search($criteria, $salesChannelContext->getContext())->getEntities();
 

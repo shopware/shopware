@@ -66,7 +66,7 @@ class AccountOrderController extends StorefrontController
             ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customerId))
             ->addAssociation('lineItems')
             ->addAssociation('orderCustomer')
-            ->addAssociationPath('lineItems.cover');
+            ->addAssociation('lineItems.cover');
 
         /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $context->getContext())->first();

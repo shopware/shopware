@@ -87,8 +87,8 @@ class ProductPageConfiguratorLoader
             new EqualsFilter('product_configurator_setting.productId', $product->getParentId() ?? $product->getId())
         );
 
-        $criteria->addAssociationPath('option.group')
-            ->addAssociationPath('option.media')
+        $criteria->addAssociation('option.group')
+            ->addAssociation('option.media')
             ->addAssociation('product_configurator_setting.media');
 
         $settings = $this->configuratorRepository

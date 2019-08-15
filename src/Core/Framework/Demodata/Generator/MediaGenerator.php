@@ -165,7 +165,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('entity', 'product'));
-        $criteria->addAssociation('folder', new Criteria());
+        $criteria->addAssociation('folder');
         $criteria->setLimit(1);
 
         $defaultFolders = $this->defaultFolderRepository->search($criteria, $context->getContext());

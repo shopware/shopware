@@ -173,19 +173,31 @@ class Criteria extends Struct
         return $this->associations;
     }
 
-    public function getAssociation(string $field): ?Criteria
+    /**
+     * Returns the criteria for the provided association path. Also supports nested paths
+     *
+     * e.g `$criteria->getAssociation('categories.media.thumbnails')`
+     *
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function getAssociation(string $path): Criteria
     {
-        if (isset($this->associations[$field])) {
-            return $this->associations[$field];
+        $parts = explode('.', $path);
+
+        $criteria = $this;
+        foreach ($parts as $part) {
+            if ($part === 'extensions') {
+                continue;
+            }
+
+            if (!$criteria->hasAssociation($part)) {
+                $this->associations[$part] = new Criteria();
+            }
+
+            $criteria = $this->associations[$part];
         }
 
-        $extension = 'extensions.' . $field;
-
-        if (isset($this->associations[$extension])) {
-            return $this->associations[$extension];
-        }
-
-        return null;
+        return $criteria;
     }
 
     public function addFilter(Filter ...$queries): self
@@ -233,24 +245,26 @@ class Criteria extends Struct
         return $this;
     }
 
-    public function addAssociation(string $field, ?Criteria $criteria = null): self
-    {
-        $this->associations[$field] = $criteria ?? new self();
-
-        return $this;
-    }
-
     /**
-     * Allows to add a nested association
+     * Add for each part of the provided path an association
+     *
+     * e.g
+     *
+     * $criteria->addAssociation('categories.media.thumbnails')
+     *
+     *
+     * @throws InconsistentCriteriaIdsException
+     *
+     * @return Criteria
      */
-    public function addAssociationPath(string $path): self
+    public function addAssociation(string $path): self
     {
         $parts = explode('.', $path);
 
         $criteria = $this;
         foreach ($parts as $part) {
-            if (!$criteria->hasAssociation($part)) {
-                $criteria->addAssociation($part);
+            if (\strtolower($part) === 'extensions') {
+                continue;
             }
 
             $criteria = $criteria->getAssociation($part);
@@ -259,15 +273,34 @@ class Criteria extends Struct
         return $this;
     }
 
-    public function hasAssociation(string $field): bool
+    /**
+     * Allows to add multiple associations paths
+     *
+     * e.g.:
+     *
+     * $criteria->addAssociations([
+     *      'prices',
+     *      'cover.media',
+     *      'categories.cover.media'
+     * ]);
+     *
+     *
+     * @throws InconsistentCriteriaIdsException
+     *
+     * @return Criteria
+     */
+    public function addAssociations(array $paths): self
     {
-        if (isset($this->associations[$field])) {
-            return true;
+        foreach ($paths as $path) {
+            $this->addAssociation($path);
         }
 
-        $extension = 'extensions.' . $field;
+        return $this;
+    }
 
-        return isset($this->associations[$extension]);
+    public function hasAssociation(string $field): bool
+    {
+        return isset($this->associations[$field]);
     }
 
     public function resetSorting(): self
@@ -380,6 +413,14 @@ class Criteria extends Struct
         $this->term = $term;
 
         return $this;
+    }
+
+    public function cloneForRead(array $ids = []): Criteria
+    {
+        $self = new self($ids);
+        $self->associations = $this->associations;
+
+        return $self;
     }
 
     private function collectFields(array $parts): array

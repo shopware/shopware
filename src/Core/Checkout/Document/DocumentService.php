@@ -389,11 +389,11 @@ class DocumentService
     {
         return (new Criteria([$orderId]))
             ->addAssociation('lineItems')
-            ->addAssociationPath('transactions.paymentMethod')
+            ->addAssociation('transactions.paymentMethod')
             ->addAssociation('currency')
-            ->addAssociationPath('language.locale')
+            ->addAssociation('language.locale')
             ->addAssociation('addresses')
-            ->addAssociationPath('deliveries.positions')
-            ->addAssociationPath('deliveries.shippingMethod');
+            ->addAssociation('deliveries.positions')
+            ->addAssociation('deliveries.shippingMethod');
     }
 }

@@ -90,10 +90,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
         $ids = $this->doSearch($criteria, $salesChannelContext);
 
-        $readCriteria = new Criteria($ids->getIds());
-        foreach ($criteria->getAssociations() as $key => $associationCriteria) {
-            $readCriteria->addAssociation($key, $associationCriteria);
-        }
+        $readCriteria = $criteria->cloneForRead($ids->getIds());
 
         $entities = $this->read($readCriteria, $salesChannelContext);
 

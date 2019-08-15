@@ -87,7 +87,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $criteria = new Criteria([$media->getId()]);
         $criteria->addAssociation('thumbnails');
-        $criteria->addAssociationPath('mediaFolder.configuration.thumbnailSizes');
+        $criteria->addAssociation('mediaFolder.configuration.thumbnailSizes');
 
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         static::assertEquals(4, $media->getThumbnails()->count());
@@ -136,7 +136,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $criteria = new Criteria([$media->getId()]);
         $criteria->addAssociation('thumbnails');
-        $criteria->addAssociationPath('mediaFolder.configuration.thumbnailSizes');
+        $criteria->addAssociation('mediaFolder.configuration.thumbnailSizes');
 
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         static::assertEquals(3, $media->getThumbnails()->count());

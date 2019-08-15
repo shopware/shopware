@@ -131,7 +131,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
         /** @var string $association */
         foreach ($this->requiredDalAssociations as $association) {
-            $criteria->addAssociationPath($association);
+            $criteria->addAssociation($association);
         }
 
         /** @var PromotionCollection $automaticPromotions */
@@ -214,7 +214,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
                 /** @var string $association */
                 foreach ($this->requiredDalAssociations as $association) {
-                    $globalCriteria->addAssociationPath($association);
+                    $globalCriteria->addAssociation($association);
                 }
 
                 /** @var PromotionCollection $foundPromotions */
@@ -226,7 +226,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
                     /** @var string $association */
                     foreach ($this->requiredDalAssociations as $association) {
-                        $individualCriteria->addAssociationPath($association);
+                        $individualCriteria->addAssociation($association);
                     }
 
                     /** @var PromotionCollection $foundPromotions */

@@ -244,7 +244,7 @@ class EntityExtensionTest extends TestCase
         static::assertFalse($product->hasExtension('myPrices'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('myPrices', (new Criteria())->setLimit(1));
+        $criteria->getAssociation('myPrices')->setLimit(1);
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())
@@ -431,7 +431,7 @@ class EntityExtensionTest extends TestCase
         static::assertFalse($product->hasExtension('myCategories'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('extensions.myCategories', (new Criteria())->setLimit(2));
+        $criteria->getAssociation('extensions.myCategories')->setLimit(2);
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())
@@ -443,7 +443,7 @@ class EntityExtensionTest extends TestCase
         static::assertCount(2, $product->getExtension('myCategories'));
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('myCategories', (new Criteria())->setLimit(2));
+        $criteria->addAssociation('myCategories')->setLimit(2);
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())

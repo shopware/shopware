@@ -81,8 +81,8 @@ class AccountOrderPageLoader
         return (new Criteria())
             ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customerId))
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))
-            ->addAssociationPath('transactions.paymentMethod')
-            ->addAssociationPath('deliveries.shippingMethod')
+            ->addAssociation('transactions.paymentMethod')
+            ->addAssociation('deliveries.shippingMethod')
             ->setLimit($limit)
             ->setOffset(($page - 1) * $limit)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);

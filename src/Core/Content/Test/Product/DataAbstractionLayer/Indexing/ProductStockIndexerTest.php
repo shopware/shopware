@@ -310,7 +310,7 @@ class ProductStockIndexerTest extends TestCase
     private function transiteOrder(string $orderId, string $transition)
     {
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociationPath('stateMachineState.stateMachine');
+        $criteria->addAssociation('stateMachineState.stateMachine');
 
         $order = $this->getContainer()->get('order.repository')
             ->search($criteria, Context::createDefaultContext())

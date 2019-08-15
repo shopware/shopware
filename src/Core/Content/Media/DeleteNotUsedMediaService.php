@@ -56,7 +56,7 @@ class DeleteNotUsedMediaService
         $defaultFolderCriteria = new Criteria();
         $defaultFolderCriteria->setOffset(0);
         $defaultFolderCriteria->setLimit(50);
-        $defaultFolderCriteria->addAssociationPath('folder.configuration');
+        $defaultFolderCriteria->addAssociation('folder.configuration');
 
         $iterator = new RepositoryIterator($this->defaultFolderRepo, $context, $defaultFolderCriteria);
         /** @var MediaDefaultFolderCollection $defaultFolders */

@@ -862,7 +862,7 @@ class BlacklistRuleFieldTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('products', (new Criteria())->setLimit(4));
+        $criteria->getAssociation('products')->setLimit(4);
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
@@ -878,7 +878,7 @@ class BlacklistRuleFieldTest extends TestCase
 
         //test if two of four products can be read if context contains no rule
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('products', (new Criteria())->setLimit(2));
+        $criteria->getAssociation('products')->setLimit(2);
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
@@ -892,7 +892,7 @@ class BlacklistRuleFieldTest extends TestCase
 
         //test if two of four products can be read if context contains no rule
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('products', (new Criteria())->setLimit(4));
+        $criteria->getAssociation('products')->setLimit(4);
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 

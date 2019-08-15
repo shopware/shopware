@@ -89,10 +89,7 @@ class EntityRepository implements EntityRepositoryInterface
 
         $ids = $this->searchIds($criteria, $context);
 
-        $readCriteria = new Criteria($ids->getIds());
-        foreach ($criteria->getAssociations() as $key => $associationCriteria) {
-            $readCriteria->addAssociation($key, $associationCriteria);
-        }
+        $readCriteria = $criteria->cloneForRead($ids->getIds());
 
         $entities = $this->read($readCriteria, $context);
 

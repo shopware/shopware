@@ -360,7 +360,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create([$data], $this->context);
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociationPath('searchKeywords');
+        $criteria->addAssociation('searchKeywords');
 
         $product = $this->repository
             ->search($criteria, $this->context)
@@ -1969,7 +1969,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create([$data], Context::createDefaultContext());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociationPath('configuratorSettings.option');
+        $criteria->addAssociation('configuratorSettings.option');
         /** @var ProductEntity $product */
         $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
 
@@ -2231,7 +2231,7 @@ class ProductRepositoryTest extends TestCase
         $this->repository->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('products', (new Criteria())->setLimit(4));
+        $criteria->getAssociation('products')->setLimit(4);
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
@@ -2247,7 +2247,7 @@ class ProductRepositoryTest extends TestCase
 
         //test if two of four products can be read if context contains no rule
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('products', (new Criteria())->setLimit(2));
+        $criteria->getAssociation('products')->setLimit(2);
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 
@@ -2261,7 +2261,7 @@ class ProductRepositoryTest extends TestCase
 
         //test if two of four products can be read if context contains no rule
         $criteria = new Criteria([$manufacturerId]);
-        $criteria->addAssociation('products', (new Criteria())->setLimit(4));
+        $criteria->getAssociation('products')->setLimit(4);
 
         $repo = $this->getContainer()->get('product_manufacturer.repository');
 

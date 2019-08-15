@@ -20,8 +20,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Added api endpoints for translation definitions
 * Administration: Moved the global state of the module `sw-cms` to VueX
 * Added new event `\Shopware\Core\Content\Category\Event\NavigationLoadedEvent` which dispatched after a sales channel navigation loaded
+* Changed signature of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociation`
+    * Second parameter `$criteria` removed. Use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::getAssociation` instead  
+* Added `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociations` which allows to add multiple association paths
 
 **Removals**
 
 * Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function
 * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria`
+* Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociationPath` use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociation` instead

@@ -596,9 +596,7 @@ class VersionManager
 
         /** @var AssociationField $cascade */
         foreach ($cascades as $cascade) {
-            $nested = new Criteria();
-
-            $criteria->addAssociation($cascade->getPropertyName(), $nested);
+            $nested = $criteria->getAssociation($cascade->getPropertyName());
 
             if ($cascade instanceof ManyToManyAssociationField) {
                 continue;

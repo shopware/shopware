@@ -79,7 +79,7 @@ class ThumbnailServiceTest extends TestCase
         $searchCriteria = new Criteria();
         $searchCriteria->setLimit(1);
         $searchCriteria->addFilter(new EqualsFilter('media.id', $media->getId()));
-        $searchCriteria->addAssociationPath('mediaFolder.configuration.mediaThumbnailSizes');
+        $searchCriteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
 
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
 
@@ -277,7 +277,7 @@ class ThumbnailServiceTest extends TestCase
 
         $criteria = new Criteria([$media->getId()]);
         $criteria->addAssociation('thumbnails');
-        $criteria->addAssociationPath('mediaFolder.configuration.mediaThumbnailSizes');
+        $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
 
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
 

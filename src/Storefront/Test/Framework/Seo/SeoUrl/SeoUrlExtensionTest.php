@@ -63,8 +63,7 @@ class SeoUrlExtensionTest extends TestCase
         ]], Context::createDefaultContext());
 
         $criteria = new Criteria([$id]);
-        $seoUrlCriteria = new Criteria();
-        $criteria->addAssociation('seoUrls', $seoUrlCriteria);
+        $criteria->addAssociation('seoUrls');
 
         /** @var ProductEntity $product */
         $product = $productRepo->search($criteria, $salesChannelContext->getContext())->first();
@@ -153,11 +152,9 @@ class SeoUrlExtensionTest extends TestCase
             'stock' => 0,
         ]], Context::createDefaultContext());
 
-        $seoUrlCriteria = new Criteria();
-        $seoUrlCriteria->setLimit(10);
         $criteria = new Criteria();
         $criteria->setLimit(10);
-        $criteria->addAssociation('seoUrls', $seoUrlCriteria);
+        $criteria->getAssociation('seoUrls')->setLimit(10);
 
         /** @var ProductEntity $product */
         $product = $productRepo->search($criteria, Context::createDefaultContext())->first();
@@ -188,14 +185,13 @@ class SeoUrlExtensionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $seoUrlCriteria = new Criteria();
-        $seoUrlCriteria->setLimit(10);
-        $seoUrlCriteria->addFilter(new EqualsFilter('isCanonical', false));
-
         $criteria = new Criteria();
         $criteria->setLimit(10);
         $criteria->addFilter(new EqualsFilter('product.seoUrls.isCanonical', false));
-        $criteria->addAssociation('seoUrls', $seoUrlCriteria);
+
+        $criteria->getAssociation('seoUrls')
+            ->setLimit(10)
+            ->addFilter(new EqualsFilter('isCanonical', false));
 
         /** @var ProductEntity $product */
         $product = $productRepo->search($criteria, Context::createDefaultContext())->first();

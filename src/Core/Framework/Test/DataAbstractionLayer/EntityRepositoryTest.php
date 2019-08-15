@@ -767,7 +767,9 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(12, $event->getIds());
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('children', (new Criteria())->setLimit(2)->setOffset(0));
+        $criteria->getAssociation('children')
+            ->setLimit(2)
+            ->setOffset(0);
 
         /** @var MediaFolderEntity $folder */
         $folder = $repository->search($criteria, $context)->get($id);
@@ -779,7 +781,7 @@ class EntityRepositoryTest extends TestCase
         $firstIds = $folder->getChildren()->getIds();
 
         $criteria = new Criteria([$id]);
-        $criteria->addAssociation('children', (new Criteria())->setLimit(3)->setOffset(2));
+        $criteria->getAssociation('children')->setLimit(3)->setOffset(2);
 
         /** @var MediaFolderEntity $folder */
         $folder = $repository->search($criteria, $context)->get($id);

@@ -41,8 +41,8 @@ class SalesChannelCmsPageLoader
         $config = $config ?? [];
 
         // ensure blocks and slots are loaded, slots and blocks can be restricted by caller
-        $criteria->addAssociationPath('blocks.slots');
-        $criteria->addAssociationPath('blocks.backgroundMedia');
+        $criteria->addAssociation('blocks.slots');
+        $criteria->addAssociation('blocks.backgroundMedia');
 
         // step 1, load cms pages with blocks and slots
         $pages = $this->cmsPageRepository->search($criteria, $context->getContext());

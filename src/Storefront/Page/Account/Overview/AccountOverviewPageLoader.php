@@ -81,8 +81,8 @@ class AccountOverviewPageLoader
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING))
-            ->addAssociationPath('transactions.paymentMethod')
-            ->addAssociationPath('deliveries.shippingMethod')
+            ->addAssociation('transactions.paymentMethod')
+            ->addAssociation('deliveries.shippingMethod')
             ->setLimit(1)
             ->addAssociation('orderCustomer');
 

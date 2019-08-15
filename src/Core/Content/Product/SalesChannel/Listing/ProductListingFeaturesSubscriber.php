@@ -32,7 +32,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     {
         $criteria = $event->getCriteria();
 
-        $criteria->addAssociationPath('cover.media');
+        $criteria->addAssociation('cover.media');
         $criteria->addFilter(new EqualsFilter('product.displayInListing', true));
     }
 
@@ -42,7 +42,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
         $criteria = $event->getCriteria();
 
-        $criteria->addAssociationPath('cover.media');
+        $criteria->addAssociation('cover.media');
         $criteria->addFilter(new EqualsFilter('product.displayInListing', true));
 
         $this->handlePagination($request, $criteria);

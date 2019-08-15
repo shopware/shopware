@@ -118,10 +118,10 @@ class RecalculationServiceTest extends TestCase
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('transactions')
-            ->addAssociationPath('deliveries.shippingMethod')
-            ->addAssociationPath('deliveries.positions.orderLineItem')
-            ->addAssociationPath('deliveries.shippingOrderAddress.country')
-            ->addAssociationPath('deliveries.shippingOrderAddress.countryState');
+            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.positions.orderLineItem')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
         $order = $this->getContainer()->get('order.repository')
             ->search($criteria, $this->context)
@@ -533,7 +533,8 @@ class RecalculationServiceTest extends TestCase
         $versionContext = $this->context->createWithVersionId($versionId);
 
         $critera = new Criteria();
-        $critera->addAssociation('shippingMethod', (new Criteria())->addAssociation('shipping_method.prices'));
+        $critera->getAssociation('shippingMethod')->addAssociation('prices');
+
         $critera->addFilter(new EqualsFilter('order_delivery.orderId', $orderId));
         $orderDeliveryRepository = $this->getContainer()->get('order_delivery.repository');
         $deliveries = $orderDeliveryRepository->search($critera, $versionContext);

@@ -210,6 +210,7 @@ class SnippetService
             new EqualsFilter('languageId', $languageId)
         );
         $criteria->addAssociation('snippetSet');
+
         /** @var SalesChannelDomainEntity|null $salesChannelDomain */
         $salesChannelDomain = $this->salesChannelDomain->search($criteria, $context)->first();
 

@@ -86,9 +86,9 @@ class CheckoutFinishPageLoader
 
         $criteria = (new Criteria([$orderId]))
             ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
-            ->addAssociationPath('lineItems.cover')
-            ->addAssociationPath('transactions')
-            ->addAssociationPath('deliveries');
+            ->addAssociation('lineItems.cover')
+            ->addAssociation('transactions')
+            ->addAssociation('deliveries');
 
         try {
             $searchResult = $this->orderRepository->search($criteria, $salesChannelContext->getContext());

@@ -69,20 +69,18 @@ class StateMachineRegistry
             return $this->stateMachines[$name];
         }
 
-        $transitionCriteria = new Criteria();
-        $transitionCriteria->addSorting(new FieldSorting('state_machine_transition.actionName'));
-        $transitionCriteria->addAssociation('fromStateMachineState');
-        $transitionCriteria->addAssociation('toStateMachineState');
-
-        $statesCriteria = new Criteria();
-        $statesCriteria->addSorting(new FieldSorting('state_machine_state.technicalName'));
-
         $criteria = new Criteria();
         $criteria
-            ->addAssociation('transitions', $transitionCriteria)
-            ->addAssociation('states', $statesCriteria)
             ->addFilter(new EqualsFilter('state_machine.technicalName', $name))
             ->setLimit(1);
+
+        $criteria->getAssociation('transitions')
+            ->addSorting(new FieldSorting('state_machine_transition.actionName'))
+            ->addAssociation('fromStateMachineState')
+            ->addAssociation('toStateMachineState');
+
+        $criteria->getAssociation('states')
+            ->addSorting(new FieldSorting('state_machine_state.technicalName'));
 
         $results = $this->stateMachineRepository->search($criteria, $context);
 

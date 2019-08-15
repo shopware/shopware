@@ -48,9 +48,9 @@ class ProductLoader
             ->addAssociation('media')
             ->addAssociation('prices')
             ->addAssociation('manufacturer')
-            ->addAssociationPath('manufacturer.media')
+            ->addAssociation('manufacturer.media')
             ->addAssociation('cover')
-            ->addAssociationPath('properties.group');
+            ->addAssociation('properties.group');
 
         $this->eventDispatcher->dispatch(
             new ProductLoaderCriteriaEvent($criteria, $salesChannelContext)

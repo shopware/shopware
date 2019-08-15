@@ -105,7 +105,7 @@ class EntityExtensionReadTest extends TestCase
         ], Context::createDefaultContext());
 
         $criteria = new Criteria([$productId]);
-        $criteria->addAssociationPath('toOne.toOne');
+        $criteria->addAssociation('toOne.toOne');
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
@@ -141,7 +141,7 @@ class EntityExtensionReadTest extends TestCase
         ], Context::createDefaultContext());
 
         $criteria = new Criteria([$productId]);
-        $criteria->addAssociationPath('oneToMany.language');
+        $criteria->addAssociation('oneToMany.language');
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);

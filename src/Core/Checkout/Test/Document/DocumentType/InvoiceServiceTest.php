@@ -339,7 +339,7 @@ class InvoiceServiceTest extends TestCase
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('currency')
-            ->addAssociationPath('language.locale')
+            ->addAssociation('language.locale')
             ->addAssociation('transactions');
 
         $order = $this->getContainer()->get('order.repository')

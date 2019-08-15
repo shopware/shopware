@@ -67,7 +67,10 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
             ],
         ], $context);
 
-        $search = $repository->search((new Criteria())->addAssociation('mediaFolderConfigurations'), $context);
+        $criteria = (new Criteria())
+            ->addAssociation('mediaFolderConfigurations');
+
+        $search = $repository->search($criteria, $context);
 
         $size = $search->getEntities()->get($sizeId);
         static::assertNotNull($size);

@@ -118,8 +118,6 @@ class RequestCriteriaBuilder
 
         if (isset($payload['associations'])) {
             foreach ($payload['associations'] as $propertyName => $association) {
-                $nested = new Criteria();
-
                 $field = $definition->getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationField) {
@@ -131,9 +129,9 @@ class RequestCriteriaBuilder
                     $ref = $field->getToManyReferenceDefinition();
                 }
 
-                $nested = $this->fromArray($association, $nested, $ref, $context);
+                $nested = $criteria->getAssociation($propertyName);
 
-                $criteria->addAssociation($propertyName, $nested);
+                $this->fromArray($association, $nested, $ref, $context);
             }
         }
 

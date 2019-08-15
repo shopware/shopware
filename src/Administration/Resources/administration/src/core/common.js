@@ -21,6 +21,7 @@ const WorkerNotificationFactory = require('src/core/factory/worker-notification.
 const FeatureConfig = require('src/core/feature-config').default;
 
 const utils = require('src/core/service/util.service').default;
+const data = require('src/core/data-new/index').default;
 const ApplicationBootstrapper = require('src/core/application').default;
 
 const container = new Bottle({
@@ -243,10 +244,5 @@ module.exports = {
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Defaults: {
-        systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-        defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
-        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425'
-    }
-
+    Data: data
 };

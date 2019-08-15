@@ -1,9 +1,8 @@
 /**
  * @module core/data/UploadStore
  */
-import remove from 'lodash/remove';
 import UploadTask from 'src/core/helper/upload-task.helper';
-import { fileReader } from 'src/core/service/util.service';
+import { fileReader, array } from 'src/core/service/util.service';
 
 const UploadEvents = {
     UPLOAD_ADDED: 'media-upload-add',
@@ -46,11 +45,11 @@ class UploadStore {
         }
 
         if (callback === undefined) {
-            remove(this.$listeners[uploadTag], () => true);
+            array.remove(this.$listeners[uploadTag], () => true);
             return;
         }
 
-        remove(this.$listeners[uploadTag], (listener) => {
+        array.remove(this.$listeners[uploadTag], (listener) => {
             return listener === callback;
         });
     }
@@ -99,13 +98,13 @@ class UploadStore {
     }
 
     removeByTag(uploadTag) {
-        remove(this.uploads, (upload) => {
+        array.remove(this.uploads, (upload) => {
             return upload.uploadTag === uploadTag;
         });
     }
 
     runUploads(tag) {
-        const affectedUploads = remove(this.uploads, (upload) => {
+        const affectedUploads = array.remove(this.uploads, (upload) => {
             return upload.uploadTag === tag;
         });
         const affectedListeners = this.getListenerForTag(tag);

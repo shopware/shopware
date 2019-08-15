@@ -1,4 +1,3 @@
-import { EntityDefinition } from 'src/core/shopware';
 import types from 'src/core/service/utils/types.utils';
 
 function castValueToNullIfNecessary(value) {
@@ -28,7 +27,7 @@ export default class ChangesetGenerator {
      * @returns {null}
      */
     recursion(entity, deletionQueue) {
-        const definition = EntityDefinition.get(entity.getEntityName());
+        const definition = Shopware.EntityDefinition.get(entity.getEntityName());
         const changes = {};
 
         const origin = entity.getOrigin();

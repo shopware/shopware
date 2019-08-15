@@ -1,0 +1,138 @@
+/*
+Filter panel
+==============================================
+Styling for filter panel component.
+This file contains the generic styling for all filter items.
+*/
+
+.filter-panel {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.icon.icon-filter-panel-item-toggle {
+    margin-left: 8px;
+
+    > svg {
+        top: 0.25em;
+    }
+}
+
+.filter-panel-items-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.filter-panel-item {
+    margin-right: 12px;
+    margin-bottom: 12px;
+
+    .filter-panel-item-toggle {
+        border: 1px solid $border-color;
+        font-weight: $font-weight-normal;
+    }
+
+    &.show {
+        .filter-panel-item-toggle {
+            color: $primary;
+            border-color: $primary;
+        }
+
+        .icon-filter-panel-item-toggle svg {
+            color: $primary;
+        }
+    }
+}
+
+.filter-panel-item-dropdown {
+    min-width: 240px;
+    max-height: 200px;
+    overflow: auto;
+
+    &::-webkit-scrollbar {
+        width: 3px;
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f9f9f9;
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #a4a8ae;
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #a4a8ae;
+    }
+}
+
+.filter-panel-submit {
+    height: 40px;
+    margin-bottom: 12px;
+    border: 1px solid $primary;
+    background-color: $white;
+    color: $dark;
+}
+
+.filter-active {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 14px;
+    border-radius: 50px;
+    height: 32px;
+    line-height: 26px;
+    border: 1px solid $border-color;
+    margin-right: 8px;
+    vertical-align: top;
+}
+
+.filter-active-preview {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1px solid $border-color;
+    margin-right: 8px;
+    background-position: center center;
+    background-size: cover;
+}
+
+.filter-active-remove {
+    padding: 0 4px 0 8px;
+    margin: 0;
+    line-height: 1;
+    border: 0 none;
+    font-weight: bold;
+    color: $dark;
+    font-size: 16px;
+    outline: none;
+    background-color: transparent;
+    appearance: none;
+}
+
+.btn.filter-reset-all {
+    display: inline-flex;
+    border-radius: 50px;
+    height: 32px;
+    line-height: 26px;
+    font-weight: normal;
+    vertical-align: top;
+    margin-right: 8px;
+}
+
+.is-loading {
+    .filter-panel-item-toggle,
+    .filter-active,
+    .filter-reset-all,
+    .filter-boolean,
+    .filter-panel-submit {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+}

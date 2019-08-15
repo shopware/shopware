@@ -324,7 +324,15 @@
         "listingTextSite": "Seite",
         "listingTextFrom": "von",
         "boxAddProduct": "In den Warenkorb",
-        "boxProductDetails": "Details"
+        "boxProductDetails": "Details",
+        "filterPanelResetAll": "Alle zurücksetzen",
+        "filterFreeShippingDisplayName": "Versandkostenfrei",
+        "filterPriceDisplayName": "Preis",
+        "filterManufacturerDisplayName": "Hersteller",
+        "filterRatingDisplayName": "Bewertung",
+        "filterRangeMinLabel": "Minimal",
+        "filterRangeMaxLabel": "Maximal",
+        "filterSubmitText": "Filter"
     },
     "newsletter": {
         "headline": "Newsletter abonnieren",

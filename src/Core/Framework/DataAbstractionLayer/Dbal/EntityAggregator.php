@@ -301,6 +301,7 @@ class EntityAggregator implements EntityAggregatorInterface
     private function parseTermsAggregation(TermsAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
         $keyAccessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
+        $query->addGroupBy($keyAccessor);
 
         $key = $aggregation->getName() . '.key';
 
@@ -310,7 +311,6 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         $query->addSelect(sprintf('%s as `%s`', $keyAccessor, $key));
-        $query->addGroupBy($keyAccessor);
 
         $key = $aggregation->getName() . '.count';
 
@@ -378,10 +378,10 @@ class EntityAggregator implements EntityAggregatorInterface
     private function parseEntityAggregation(EntityAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
-        $accessor = 'LOWER(HEX(' . $accessor . '))';
-
-        $query->addSelect(sprintf('%s as `%s`', $accessor, $aggregation->getName()));
         $query->addGroupBy($accessor);
+
+        $accessor = 'LOWER(HEX(' . $accessor . '))';
+        $query->addSelect(sprintf('%s as `%s`', $accessor, $aggregation->getName()));
     }
 
     private function hydrateResult(Aggregation $aggregation, EntityDefinition $definition, array $rows, Context $context): AggregationResult

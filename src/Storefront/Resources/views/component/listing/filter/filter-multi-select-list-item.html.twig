@@ -1,0 +1,20 @@
+{% block component_filter_multi_select_list_item %}
+    <div class="custom-control custom-checkbox">
+
+        {% block component_filter_multi_select_list_item_checkbox_input %}
+            <input type="checkbox"
+                   class="custom-control-input filter-multi-select-checkbox"
+                   data-label="{{ element.translated.name }}"
+                   value="{{ element.id }}"
+                   id="{{ element.id }}">
+        {% endblock %}
+
+        {% block component_filter_multi_select_list_item_label_element %}
+            <label class="filter-multi-select-item-label custom-control-label" for="{{ element.id }}">
+                {% block component_multi_select_list_item_label %}
+                    {{ element.translated.name }}
+                {% endblock %}
+            </label>
+        {% endblock %}
+    </div>
+{% endblock %}

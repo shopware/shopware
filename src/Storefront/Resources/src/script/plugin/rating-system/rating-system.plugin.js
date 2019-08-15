@@ -53,6 +53,33 @@ export default class RatingSystemPlugin extends Plugin {
     }
 
     /**
+     * reset the current rating
+     *
+     * @public
+     */
+    resetRating() {
+        Iterator.iterate(this._ratingPoints, radio => {
+            radio.classList.remove(this.options.activeClass);
+        });
+    }
+
+    /**
+     * get the current rating
+     *
+     * @public
+     * @return {number}
+     */
+    getRating() {
+        const points = DomAccess.querySelectorAll(
+            this.el,
+            `[${this.options.reviewPointAttr}].${this.options.activeClass}`,
+            false
+        );
+
+        return points ? points.length : 0;
+    }
+
+    /**
      * show info text for current rating
      *
      * @param {Event} event

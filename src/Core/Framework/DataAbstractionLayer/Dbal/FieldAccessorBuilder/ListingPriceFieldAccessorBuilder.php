@@ -35,17 +35,17 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
         foreach ($keys as $ruleId) {
             $parameters = [
-                'root' => $root,
-                'field' => $field->getStorageName(),
-                'rule_key' => 'r' . $ruleId,
-                'currency_key' => 'c' . $context->getCurrencyId(),
-                'tax_mode' => $taxMode,
+                '#root#' => $root,
+                '#field#' => $field->getStorageName(),
+                '#rule_key#' => 'r' . $ruleId,
+                '#currency_key#' => 'c' . $context->getCurrencyId(),
+                '#tax_mode#' => $taxMode,
             ];
 
             $select[] = str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.formatted.#rule_key#.#currency_key#.from.#tax_mode#")) + 0.0)'
+                '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.formatted.#rule_key#.#currency_key#.to.#tax_mode#")) + 0.0)'
             );
         }
 

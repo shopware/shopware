@@ -49,6 +49,8 @@ class ProductListingGateway implements ProductListingGatewayInterface
 
         $result = $this->productRepository->search($criteria, $salesChannelContext);
 
+        $result = ProductListingResult::createFrom($result);
+
         $this->eventDispatcher->dispatch(
             new ProductListingResultEvent($request, $result, $salesChannelContext)
         );

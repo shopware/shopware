@@ -31,6 +31,13 @@ class CmsBlockCollection extends EntityCollection
         return $slots;
     }
 
+    public function filterBySectionPosition(string $position): CmsBlockCollection
+    {
+        return $this->filter(function (CmsBlockEntity $entity) use ($position) {
+            return $entity->getSectionPosition() === $position;
+        });
+    }
+
     public function setSlots(CmsSlotCollection $slots): void
     {
         foreach ($this->getIterator() as $block) {

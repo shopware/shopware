@@ -220,7 +220,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 
             $key = $bucket['key'][$aggregation->getName() . '.key'];
 
-            $buckets[] = new Bucket($key, $bucket['doc_count'], $nested);
+            $buckets[] = new Bucket((string) $key, $bucket['doc_count'], $nested);
         }
 
         return new TermsResult($aggregation->getName(), $buckets);

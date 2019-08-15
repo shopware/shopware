@@ -1,0 +1,50 @@
+<div class="dropdown filter-rating filter-panel-item"
+     data-filter-rating="true"
+     data-filter-rating-options='{ "name": "{{ name }}" }'>
+
+    <button class="filter-panel-item-toggle btn"
+            id="{{ name }}"
+            data-toggle="dropdown"
+            data-offset="0,8"
+            aria-haspopup="true"
+            aria-expanded="false">
+            {{ displayName }}
+
+        <span class="filter-rating-count"></span>
+
+        {% sw_icon 'arrow-medium-down' style {'pack': 'solid', 'size': 'xs', 'class': 'filter-panel-item-toggle'} %}
+    </button>
+
+    <div class="filter-rating-dropdown filter-panel-item-dropdown dropdown-menu" aria-labelledby="{{ name }}">
+        <div class="filter-rating-container">
+
+            <div id="review-form-rating"
+                 class="product-detail-review-form-rating-input filter-rating-form"
+                 data-rating-system="true">
+
+                {% for point in 1..5 %}
+                    <label data-review-form-point="{{ point }}"
+                           class="product-detail-review-form-star{% if currentPoints >= point %} is-active{% endif %}">
+                        <input class="product-detail-review-form-radio"
+                               type="radio"
+                               name="points"
+                               value="{{ point }}">
+
+                        {% sw_include '@Storefront/component/review/point.html.twig' with {
+                            type: 'blank'
+                        } %}
+                    </label>
+                {% endfor %}
+
+                {% for matrix in page.ratingMatrix.matrix %}
+                    <p class="h6 product-detail-review-form-rating-text {% if currentPoints != matrix.points %} d-none{% endif %}"
+                       data-rating-text="{{ matrix.points }}">
+                        {{ "detail.review#{matrix.points}PointRatingText"|trans }}
+                    </p>
+                {% endfor %}
+
+                <div data-rating-text="true"></div>
+            </div>
+        </div>
+    </div>
+</div>

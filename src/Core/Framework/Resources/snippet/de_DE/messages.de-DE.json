@@ -43,5 +43,11 @@
             "shippingMethod": "Gewählte Versandart %shippingMethod%",
             "additionalInfo": "Die Ware bleibt, bis zur vollständigen Bezahlung, unser Eigentum."
         }
+    },
+    "filter": {
+        "sortByNameAscending": "Name aufsteigend",
+        "sortByNameDescending": "Name abesteigend",
+        "sortByPriceAscending": "Preis aufsteigend",
+        "sortByPriceDescending": "Preis absteigend"
     }
 }

@@ -33,13 +33,14 @@
 
                 {% if totalPages > 1 %}
                     {% block element_product_listing_pagination_form %}
+                        {# TODO: Pagingation don´t work with filters because they dont have the criteria #}
                         <form class="pagination-form"
                               action="/"
                               method="post"
                               data-cms-slot-reload="true"
                               data-cms-slot-reload-options='{
                                     "updateHistory": true,
-                                    "navigationId": "{{ page.header.navigation.active.id }}",
+                                    "navigationId": "{{ cmsPage.categories.elements|first.id }}",
                                     "elements": {
                                         "{{ element.id }}": [
                                             ".js-listing-wrapper",

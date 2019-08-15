@@ -1,4 +1,4 @@
-import { types } from 'src/core/service/util.service';
+const { types } = Shopware.Utils;
 
 /**
  * @module core/service/validation

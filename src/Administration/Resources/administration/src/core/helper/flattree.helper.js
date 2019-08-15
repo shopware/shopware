@@ -1,5 +1,5 @@
-import { warn } from 'src/core/service/utils/debug.utils';
-import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+const { warn } = Shopware.Utils.debug;
+const { hasOwnProperty } = Shopware.Utils.object;
 
 /**
  * The flat tree converts a collection of flat objects into a data tree hierarchy.

@@ -1,4 +1,4 @@
-import { State } from 'src/core/shopware';
+const { State } = Shopware;
 
 export default class ItemLoader {
     constructor(entityName, limit) {

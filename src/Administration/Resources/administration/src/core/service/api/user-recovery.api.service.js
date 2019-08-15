@@ -1,5 +1,6 @@
-import { Application } from 'src/core/shopware';
 import ApiService from '../api.service';
+
+const { Application } = Shopware;
 
 /**
  * Custom gateway for the "user/user-recovery" routes

@@ -1,6 +1,7 @@
 import Axios from 'axios';
 import ApiService from 'src/core/service/api.service';
-import { Application, WorkerNotification } from 'src/core/shopware';
+
+const { Application, WorkerNotification } = Shopware;
 
 export const POLL_BACKGROUND_INTERVAL = 30000;
 export const POLL_FOREGROUND_INTERVAL = 5000;

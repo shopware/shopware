@@ -4,7 +4,13 @@ namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
+use Shopware\Core\Framework\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ReadProtectedException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -45,6 +51,8 @@ class SalesChannelApiController
 
         $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $definition, $context->getContext());
 
+        $criteria = $this->checkProtectedAssociations($criteria, $definition);
+
         $definition->processCriteria($criteria, $context);
 
         $result = $repository->searchIds($criteria, $context);
@@ -73,6 +81,8 @@ class SalesChannelApiController
 
         $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria([$id]), $definition, $context->getContext());
 
+        $criteria = $this->checkProtectedAssociations($criteria, $definition);
+
         $definition->processCriteria($criteria, $context);
 
         $result = $repository->search($criteria, $context);
@@ -94,6 +104,8 @@ class SalesChannelApiController
 
         $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $definition, $context->getContext());
 
+        $criteria = $this->checkProtectedAssociations($criteria, $definition);
+
         $definition->processCriteria($criteria, $context);
 
         $result = $repository->search($criteria, $context);
@@ -104,5 +116,45 @@ class SalesChannelApiController
     private function urlToSnakeCase(string $name): string
     {
         return str_replace('-', '_', $name);
+    }
+
+    private function checkProtectedAssociations(Criteria $criteria, EntityDefinition $definition): Criteria
+    {
+        /** @var Criteria $associationCriteria */
+        foreach ($criteria->getAssociations() as $entityName => $associationCriteria) {
+            $field = $definition->getField($entityName);
+            if (!$field || !$field instanceof AssociationField) {
+                continue;
+            }
+            /* @var AssociationField $field */
+            $this->checkProtectedAssociations($associationCriteria, $field->getReferenceDefinition());
+        }
+
+        $aggregationAccessors = [];
+        foreach ($criteria->getAggregations() as $aggregation) {
+            foreach ($aggregation->getFields() as $field) {
+                $aggregationAccessors[] = $field;
+            }
+        }
+        $acessors = array_merge(
+            $criteria->getSearchQueryFields(),
+            array_keys($criteria->getAssociations()),
+            $aggregationAccessors
+        );
+
+        foreach ($acessors as $acessor) {
+            $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $acessor);
+            /** @var Field $field */
+            foreach ($fields as $field) {
+                /** @var ReadProtected|null $flag */
+                $flag = $field->getFlag(ReadProtected::class);
+
+                if ($flag && !$flag->isSourceAllowed(SalesChannelApiSource::class)) {
+                    throw new ReadProtectedException($field->getPropertyName(), SalesChannelApiSource::class);
+                }
+            }
+        }
+
+        return $criteria;
     }
 }

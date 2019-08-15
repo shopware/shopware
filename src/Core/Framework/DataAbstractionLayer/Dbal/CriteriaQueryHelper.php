@@ -39,7 +39,7 @@ trait CriteriaQueryHelper
 
         if ($criteria->getTerm()) {
             $pattern = $this->getInterpreter()->interpret($criteria->getTerm());
-            $queries = $this->getScoreBuilder()->buildScoreQueries($pattern, $definition, $definition->getEntityName());
+            $queries = $this->getScoreBuilder()->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
             $criteria->addQuery(...$queries);
         }
 

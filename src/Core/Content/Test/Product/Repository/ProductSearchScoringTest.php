@@ -39,14 +39,19 @@ class ProductSearchScoringTest extends TestCase
 
     public function testScoringExtensionExists(): void
     {
+        $context = Context::createDefaultContext();
         $pattern = new SearchPattern(new SearchTerm('test'));
         $builder = new EntityScoreQueryBuilder();
-        $queries = $builder->buildScoreQueries($pattern, $this->getContainer()->get(ProductDefinition::class), $this->getContainer()->get(ProductDefinition::class)->getEntityName());
+        $queries = $builder->buildScoreQueries(
+            $pattern,
+            $this->getContainer()->get(ProductDefinition::class),
+            $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+            $context
+        );
 
         $criteria = new Criteria();
         $criteria->addQuery(...$queries);
 
-        $context = Context::createDefaultContext();
         $this->repository->create([
             ['id' => Uuid::randomHex(), 'productNumber' => Uuid::randomHex(), 'stock' => 10, 'name' => 'product 1 test', 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]]],
             ['id' => Uuid::randomHex(), 'productNumber' => Uuid::randomHex(), 'stock' => 10, 'name' => 'product 2 test', 'tax' => ['name' => 'test', 'taxRate' => 5], 'manufacturer' => ['name' => 'test'], 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]]],

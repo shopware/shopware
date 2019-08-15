@@ -113,15 +113,16 @@ class CustomerRepositoryTest extends TestCase
 
         $this->repository->create($records, Context::createDefaultContext());
 
+        $context = Context::createDefaultContext();
         $criteria = new Criteria();
 
         $definition = $this->getContainer()->get(CustomerDefinition::class);
         $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
         $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm);
-        $queries = $builder->buildScoreQueries($pattern, $definition, $definition->getEntityName());
+        $queries = $builder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
         $criteria->addQuery(...$queries);
 
-        $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
+        $result = $this->repository->searchIds($criteria, $context);
 
         static::assertCount(4, $result->getIds());
 

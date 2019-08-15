@@ -14,6 +14,7 @@ Flags are attributes to a field in a definition. They provide additional informa
 | `Inherited` | The field is part of the parent/child concept and may receive the value of its parent. |
 | `ReverseInherited` | Reverse side flag for relations that point to a definition with inheritance enabled. |
 | `SearchRanking` | The field will be weighted differently for score queries. |
+| `ReadProtected` | The field will be restricted for one or multiple sources (`SalesChannelApiSource`, `AdminApiSource`) |
 
 ### Flags exclusive for association
 

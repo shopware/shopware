@@ -50,7 +50,13 @@ class CurrencyRepositoryTest extends TestCase
 
         $builder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
         $pattern = $this->getContainer()->get(SearchTermInterpreter::class)->interpret('match');
-        $queries = $builder->buildScoreQueries($pattern, $this->currencyRepository->getDefinition(), $this->currencyRepository->getDefinition()->getEntityName());
+        $context = Context::createDefaultContext();
+        $queries = $builder->buildScoreQueries(
+            $pattern,
+            $this->currencyRepository->getDefinition(),
+            $this->currencyRepository->getDefinition()->getEntityName(),
+            $context
+        );
         $criteria->addQuery(...$queries);
 
         $result = $this->currencyRepository->searchIds($criteria, Context::createDefaultContext());

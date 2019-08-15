@@ -8,7 +8,7 @@ interface SnippetFileInterface
      * Returns the displayed name.
      *
      * Example:
-     * messages.en-GB
+     * storefront.en-GB
      */
     public function getName(): string;
 
@@ -16,7 +16,7 @@ interface SnippetFileInterface
      * Returns the path to the json language file.
      *
      * Example:
-     * /appPath/subDirectory/messages.en-GB.json
+     * /appPath/subDirectory/storefront.en-GB.json
      */
     public function getPath(): string;
 

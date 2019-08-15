@@ -8,12 +8,12 @@ class SnippetFile_UnitTest implements SnippetFileInterface
 {
     public function getName(): string
     {
-        return 'messages.unitTest';
+        return 'storefront.unitTest';
     }
 
     public function getPath(): string
     {
-        return __DIR__ . '/messages.unitTest.json';
+        return __DIR__ . '/storefront.unitTest.json';
     }
 
     public function getIso(): string

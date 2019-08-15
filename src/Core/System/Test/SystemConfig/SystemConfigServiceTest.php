@@ -73,7 +73,13 @@ class SystemConfigServiceTest extends TestCase
 
     public function testGetDomainNoData(): void
     {
+        $actual = $this->systemConfigService->getDomain('foo', null, false);
+        static::assertEquals([], $actual);
+
         $actual = $this->systemConfigService->getDomain('foo', null, true);
+        static::assertEquals([], $actual);
+
+        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, false);
         static::assertEquals([], $actual);
 
         $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
@@ -101,6 +107,12 @@ class SystemConfigServiceTest extends TestCase
             'foo.c' => 'c override',
         ];
         $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
+        static::assertEquals($expected, $actual);
+
+        $expected = [
+            'foo.c' => 'c override',
+        ];
+        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, false);
         static::assertEquals($expected, $actual);
     }
 

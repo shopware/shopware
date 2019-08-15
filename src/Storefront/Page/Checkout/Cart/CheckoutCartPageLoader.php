@@ -4,12 +4,12 @@ namespace Shopware\Storefront\Page\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -98,11 +98,14 @@ class CheckoutCartPageLoader
     private function getPaymentMethods(SalesChannelContext $salesChannelContext): PaymentMethodCollection
     {
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true))
-            ->addSorting(new FieldSorting('position'));
+            ->addFilter(new EqualsFilter('active', true));
 
         /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $salesChannelContext)->getEntities();
+
+        $paymentMethods->sort(function (PaymentMethodEntity $a, PaymentMethodEntity $b) {
+            return $a->getPosition() <=> $b->getPosition();
+        });
 
         return $paymentMethods->filterByActiveRules($salesChannelContext);
     }

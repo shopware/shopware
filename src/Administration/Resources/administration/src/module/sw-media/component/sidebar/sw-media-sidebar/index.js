@@ -1,6 +1,7 @@
-import { Component, Filter, State } from 'src/core/shopware';
 import template from './sw-media-sidebar.html.twig';
 import './sw-media-sidebar.scss';
+
+const { Component, Filter, State } = Shopware;
 
 Component.register('sw-media-sidebar', {
     template,

@@ -1,5 +1,5 @@
-import { Mixin, State } from 'src/core/shopware';
-import { cloneDeep } from 'src/core/service/utils/object.utils';
+const { Mixin, State } = Shopware;
+const { cloneDeep } = Shopware.Utils.object;
 
 Mixin.register('cms-element', {
     inject: ['cmsService'],

@@ -1,6 +1,7 @@
-import { Component, State } from 'src/core/shopware';
 import template from './sw-media-index.html.twig';
 import './sw-media-index.scss';
+
+const { Component, State } = Shopware;
 
 Component.register('sw-media-index', {
     template,

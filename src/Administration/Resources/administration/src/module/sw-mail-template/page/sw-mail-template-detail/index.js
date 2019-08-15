@@ -1,10 +1,10 @@
-import { Application, Component, Mixin } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
-import { warn } from 'src/core/service/utils/debug.utils';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-mail-template-detail.html.twig';
-
 import './sw-mail-template-detail.scss';
+
+const { Application, Component, Mixin } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-mail-template-detail', {
     template,

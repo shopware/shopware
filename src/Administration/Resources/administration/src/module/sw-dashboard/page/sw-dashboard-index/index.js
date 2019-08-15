@@ -1,7 +1,8 @@
-import { Component } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-dashboard-index.html.twig';
 import './sw-dashboard-index.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-dashboard-index', {
     template,

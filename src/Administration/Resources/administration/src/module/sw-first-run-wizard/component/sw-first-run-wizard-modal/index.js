@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-first-run-wizard-modal.html.twig';
 import './sw-first-run-wizard-modal.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-first-run-wizard-modal', {
     template,

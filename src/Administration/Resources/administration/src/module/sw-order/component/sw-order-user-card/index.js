@@ -1,10 +1,10 @@
-import { Component, Mixin } from 'src/core/shopware';
-import { format } from 'src/core/service/util.service';
 import ApiService from 'src/core/service/api.service';
 import Criteria from 'src/core/data-new/criteria.data';
-import './sw-order-user-card.scss';
 import template from './sw-order-user-card.html.twig';
+import './sw-order-user-card.scss';
 
+const { Component, Mixin } = Shopware;
+const format = Shopware.Utils.format;
 
 Component.register('sw-order-user-card', {
     template,

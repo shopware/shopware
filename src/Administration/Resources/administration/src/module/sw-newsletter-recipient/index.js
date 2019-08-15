@@ -1,11 +1,11 @@
-import { Module } from 'src/core/shopware';
-
 import './page/sw-newsletter-recipient-list/index';
 import './page/sw-newsletter-recipient-detail/index';
 import './component/sw-newsletter-recipient-filter-switch';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-newsletter-recipient', {
     type: 'core',

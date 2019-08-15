@@ -1,9 +1,10 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
 import EntityCollection from 'src/core/data-new/entity-collection.data';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
+
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-newsletter-recipient-list', {
     template,

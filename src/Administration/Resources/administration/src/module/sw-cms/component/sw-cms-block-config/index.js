@@ -1,6 +1,7 @@
-import { Component, State } from 'src/core/shopware';
 import template from './sw-cms-block-config.html.twig';
 import './sw-cms-block-config.scss';
+
+const { Component, State } = Shopware;
 
 Component.register('sw-cms-block-config', {
     template,

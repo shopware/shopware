@@ -1,6 +1,7 @@
-import { Component, EntityDefinition } from 'src/core/shopware';
 import template from './sw-import-export-profile-csv-mapping-modal.html.twig';
 import './sw-import-export-profile-csv-mapping-modal.scss';
+
+const { Component, EntityDefinition } = Shopware;
 
 Component.register('sw-import-export-profile-csv-mapping-modal', {
     template,

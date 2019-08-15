@@ -1,11 +1,12 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-integration-list.html.twig';
 import './sw-integration-list.scss';
 
-Component.register('sw-integration-list', {
-    inject: ['integrationService'],
+const { Component, Mixin, State } = Shopware;
 
+Component.register('sw-integration-list', {
     template,
+
+    inject: ['integrationService'],
 
     mixins: [
         Mixin.getByName('notification'),

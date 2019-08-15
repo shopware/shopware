@@ -12,6 +12,7 @@ import {
     hasOwnProperty,
     getObjectDiff,
     getArrayChanges,
+    cloneDeep,
     merge
 } from './utils/object.utils';
 import { warn } from './utils/debug.utils';
@@ -27,6 +28,7 @@ export const object = {
     hasOwnProperty: hasOwnProperty,
     getObjectDiff: getObjectDiff,
     getArrayChanges: getArrayChanges,
+    cloneDeep: cloneDeep,
     merge: merge
 };
 

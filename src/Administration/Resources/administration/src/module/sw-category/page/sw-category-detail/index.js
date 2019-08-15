@@ -1,11 +1,12 @@
-import { Component, Mixin, State } from 'src/core/shopware';
-import { cloneDeep, merge } from 'src/core/service/utils/object.utils';
-import { warn } from 'src/core/service/utils/debug.utils';
-import type from 'src/core/service/utils/types.utils';
 import EntityProxy from 'src/core/data/EntityProxy';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
+
+const { Component, Mixin, State } = Shopware;
+const { cloneDeep, merge } = Shopware.Utils.object;
+const { warn } = Shopware.Utils.debug;
+const type = Shopware.Utils.types;
 
 Component.register('sw-category-detail', {
     template,

@@ -1,4 +1,3 @@
-import { Module } from 'src/core/shopware';
 import './page/sw-customer-list';
 import './page/sw-customer-detail';
 import './page/sw-customer-create';
@@ -14,6 +13,8 @@ import './component/sw-customer-default-addresses';
 import './component/sw-customer-card';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-customer', {
     type: 'core',

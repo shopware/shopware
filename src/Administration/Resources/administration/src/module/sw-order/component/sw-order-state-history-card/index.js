@@ -1,7 +1,7 @@
-import { Component, Mixin } from 'src/core/shopware';
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-order-state-history-card.html.twig';
 
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-order-state-history-card', {
     template,

@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-import-export-log-modal.html.twig';
 import './sw-import-export-log-modal.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-import-export-log-modal', {
     template,

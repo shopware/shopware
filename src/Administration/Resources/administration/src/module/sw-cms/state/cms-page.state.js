@@ -1,4 +1,4 @@
-import { State } from 'src/core/shopware';
+const { State } = Shopware;
 
 State.registerStore('cmsPageState', {
     currentPage: null,

@@ -1,7 +1,8 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-import-export-profile-list.html.twig';
 import './sw-import-export-profile-list.scss';
 import Criteria from '../../../../core/data-new/criteria.data';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-import-export-profile-list', {
     template,

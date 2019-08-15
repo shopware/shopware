@@ -1,6 +1,7 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-category-detail-base.html.twig';
 import './sw-category-detail-base.scss';
+
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-category-detail-base', {
     template,

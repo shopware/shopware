@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-media-display-options.html.twig';
 import './sw-media-display-options.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-media-display-options', {
     template,

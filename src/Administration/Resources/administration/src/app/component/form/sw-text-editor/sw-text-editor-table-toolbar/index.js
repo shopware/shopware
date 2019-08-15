@@ -1,11 +1,12 @@
 import template from './sw-text-editor-table-toolbar.html.twig';
 import './sw-text-editor-table-toolbar.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-text-editor-table-toolbar',
+Component.register('sw-text-editor-table-toolbar', {
     template,
 
     props: {
@@ -268,4 +269,4 @@ export default {
             this.selection.addRange(this.range);
         }
     }
-};
+});

@@ -1,4 +1,4 @@
-import { Directive } from 'src/core/shopware';
+const { Directive } = Shopware;
 
 Directive.register('autofocus', {
     inserted: (el) => {

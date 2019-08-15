@@ -1,7 +1,8 @@
-import { Mixin } from 'src/core/shopware';
 import Picker from 'vanilla-picker';
 import template from './sw-compact-colorpicker.html.twig';
 import './sw-compact-colorpicker.scss';
+
+const { Component, Mixin } = Shopware;
 
 /**
  * @public
@@ -11,10 +12,7 @@ import './sw-compact-colorpicker.scss';
  * @component-example
  * <sw-compact-colorpicker label="Color picker" value="#dd4800"></sw-colorpicker>
  */
-
-export default {
-    name: 'sw-compact-colorpicker',
-    extendsFrom: 'sw-colorpicker',
+Component.extend('sw-compact-colorpicker', 'sw-colorpicker', {
     template,
     inheritAttrs: false,
 
@@ -79,4 +77,4 @@ export default {
 
         colorWatcher() {}
     }
-};
+});

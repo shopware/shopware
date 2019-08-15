@@ -1,7 +1,8 @@
-import { Mixin, State } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-condition-base.html.twig';
 import './sw-condition-base.scss';
+
+const { Component, Mixin, State } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public
@@ -11,8 +12,7 @@ import './sw-condition-base.scss';
  * @component-example
  * <sw-condition-base :condition="condition" :level="0"></sw-condition-base>
  */
-export default {
-    name: 'sw-condition-base',
+Component.register('sw-condition-base', {
     template,
 
     inject: ['config', 'conditionStore', 'isApi'],
@@ -278,4 +278,4 @@ export default {
             });
         }
     }
-};
+});

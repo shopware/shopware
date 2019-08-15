@@ -1,3 +1,5 @@
+const { Component } = Shopware;
+
 /**
  * @public
  * @status ready
@@ -8,9 +10,7 @@
  * <sw-media-replace itemToReplace="mediaItem" variant="regular">
  * </sw-media-replace>
  */
-export default {
-    name: 'sw-media-replace',
-    extendsFrom: 'sw-media-upload',
+Component.extend('sw-media-replace', 'sw-media-upload', {
     props: {
         itemToReplace: {
             type: Object,
@@ -33,4 +33,4 @@ export default {
             this.createNotificationError({ message });
         }
     }
-};
+});

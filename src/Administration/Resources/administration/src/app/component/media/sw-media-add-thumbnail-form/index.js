@@ -1,11 +1,12 @@
 import template from './sw-media-add-thumbnail-form.html.twig';
 import './sw-media-add-thumbnail-form.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-media-add-thumbnail-form',
+Component.register('sw-media-add-thumbnail-form', {
     template,
 
     data() {
@@ -43,4 +44,4 @@ export default {
             this.height = null;
         }
     }
-};
+});

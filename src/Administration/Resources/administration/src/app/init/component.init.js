@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import baseComponents from 'src/app/component/components';
-import { warn } from 'src/core/service/utils/debug.utils';
+
+const { Component } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 export default function initializeBaseComponents() {
     const components = baseComponents.filter((item) => {

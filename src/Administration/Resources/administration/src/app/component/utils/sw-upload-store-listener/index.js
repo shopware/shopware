@@ -1,6 +1,7 @@
-import { Mixin, State } from 'src/core/shopware';
 import { UploadEvents } from 'src/core/data/UploadStore';
-import utils from 'src/core/service/util.service';
+
+const { Component, Mixin, State } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @private
@@ -30,9 +31,7 @@ function isDuplicationException(error) {
  * @component-example
  * <sw-upload-store-listener @sw-uploads-added="..."></sw-upload-store-listener>
  */
-export default {
-    name: 'sw-upload-store-listener',
-
+Component.register('sw-upload-store-listener', {
     render() {
         return document.createComment('');
     },
@@ -205,4 +204,4 @@ export default {
             });
         }
     }
-};
+});

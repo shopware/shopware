@@ -1,7 +1,8 @@
-import { Application } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
+
+const { Component, Application } = Shopware;
 
 /**
  * @public
@@ -10,8 +11,7 @@ import './sw-search-bar.scss';
  * @status ready
  * @example-type code-only
  */
-export default {
-    name: 'sw-search-bar',
+Component.register('sw-search-bar', {
     template,
 
     inject: ['searchService', 'searchTypeService'],
@@ -523,4 +523,4 @@ export default {
             this.activeTypeListIndex = index;
         }
     }
-};
+});

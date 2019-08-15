@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import iconComponents from 'src/app/assets/icons/icons';
+
+const { Component } = Shopware;
 
 export default function initializeSvgIcons() {
     iconComponents.forEach((component) => {

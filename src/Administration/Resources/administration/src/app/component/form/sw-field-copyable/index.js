@@ -1,13 +1,13 @@
-import { Mixin } from 'src/core/shopware';
 import domUtils from 'src/core/service/utils/dom.utils';
 import './sw-field-copyable.scss';
 import template from './sw-field-copyable.html.twig';
 
+const { Component, Mixin } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-field-copyable',
+Component.register('sw-field-copyable', {
     template,
 
     mixins: [
@@ -79,4 +79,4 @@ export default {
             this.wasCopied = false;
         }
     }
-};
+});

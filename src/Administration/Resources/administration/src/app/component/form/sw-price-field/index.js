@@ -1,7 +1,8 @@
-import { Application } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-price-field.html.twig';
 import './sw-price-field.scss';
+
+const { Component, Application } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public
@@ -14,7 +15,7 @@ import './sw-price-field.scss';
  *                 :currency="{...}">
  * </sw-price-field>
  */
-Shopware.Component.register('sw-price-field', {
+Component.register('sw-price-field', {
     template,
 
     inheritAttrs: false,

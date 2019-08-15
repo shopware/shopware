@@ -1,6 +1,8 @@
 import template from './sw-media-base-item.html.twig';
 import './sw-media-base-item.scss';
 
+const { Component } = Shopware;
+
 /**
  * @status ready
  * @description The <u>sw-media-base-item</u> component is the base for items in the media manager.
@@ -11,8 +13,7 @@ import './sw-media-base-item.scss';
  *     :isLoading="item.isLoading">
  * </sw-media-base-item>
  */
-export default {
-    name: 'sw-media-base-item',
+Component.register('sw-media-base-item', {
     template,
 
     props: {
@@ -154,4 +155,4 @@ export default {
             this.isInlineEdit = false;
         }
     }
-};
+});

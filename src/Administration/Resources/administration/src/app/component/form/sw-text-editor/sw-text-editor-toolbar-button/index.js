@@ -1,11 +1,12 @@
 import template from './sw-text-editor-toolbar-button.html.twig';
 import './sw-text-editor-toolbar-button.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-text-editor-toolbar-button',
+Component.register('sw-text-editor-toolbar-button', {
     template,
 
     props: {
@@ -75,4 +76,4 @@ export default {
             this.$emit('menu-toggle', event, button);
         }
     }
-};
+});

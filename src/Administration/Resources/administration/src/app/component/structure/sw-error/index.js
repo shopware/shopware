@@ -1,6 +1,8 @@
 import './sw-error.scss';
 import template from './sw-error.html.twig';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description
@@ -11,8 +13,7 @@ import template from './sw-error.html.twig';
  * <sw-error :errorObject="{ message: 'Could not load the page' }">
  * </sw-error>
  */
-export default {
-    name: 'sw-error',
+Component.register('sw-error', {
     template,
 
     props: {
@@ -84,4 +85,4 @@ export default {
             }
         }
     }
-};
+});

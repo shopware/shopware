@@ -1,12 +1,13 @@
-import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import template from './sw-desktop.html.twig';
 import './sw-desktop.scss';
+
+const { Component } = Shopware;
+const { hasOwnProperty } = Shopware.Utils.object;
 
 /**
  * @private
  */
-export default {
-    name: 'sw-desktop',
+Component.register('sw-desktop', {
     template,
 
     data() {
@@ -46,4 +47,4 @@ export default {
             }
         }
     }
-};
+});

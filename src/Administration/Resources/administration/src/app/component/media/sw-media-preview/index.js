@@ -1,7 +1,8 @@
-import { State, Filter } from 'src/core/shopware';
-import { fileReader } from 'src/core/service/util.service';
 import template from './sw-media-preview.html.twig';
 import './sw-media-preview.scss';
+
+const { Component, State, Filter } = Shopware;
+const { fileReader } = Shopware.Utils;
 
 /**
  * @status ready
@@ -11,8 +12,7 @@ import './sw-media-preview.scss';
  * <sw-media-preview :item="item" :showControls="true" :autoplay="false" :useThumbnails="false">
  * </sw-media-preview>
  */
-export default {
-    name: 'sw-media-preview',
+Component.register('sw-media-preview', {
     template,
 
     playableVideoFormats: [
@@ -296,4 +296,4 @@ export default {
             }
         }
     }
-};
+});

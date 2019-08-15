@@ -1,11 +1,12 @@
 import template from './sw-text-editor-toolbar-table-button.html.twig';
 import './sw-text-editor-toolbar-table-button.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-text-editor-toolbar-table-button',
+Component.register('sw-text-editor-toolbar-table-button', {
     template,
 
     props: {
@@ -172,4 +173,4 @@ export default {
             this.buttonConfig.value = tableHtml;
         }
     }
-};
+});

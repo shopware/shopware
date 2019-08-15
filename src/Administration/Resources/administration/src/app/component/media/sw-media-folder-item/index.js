@@ -1,9 +1,9 @@
-import { Application, Mixin, State } from 'src/core/shopware';
 import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.scss';
 
-export default {
-    name: 'sw-media-folder-item',
+const { Component, Application, Mixin, State } = Shopware;
+
+Component.register('sw-media-folder-item', {
     template,
     inheritAttrs: false,
 
@@ -180,4 +180,4 @@ export default {
             this.showMoveModal = false;
         }
     }
-};
+});

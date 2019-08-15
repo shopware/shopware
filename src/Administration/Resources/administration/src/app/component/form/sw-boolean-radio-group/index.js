@@ -1,5 +1,7 @@
 import './sw-boolean-radio-group.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description radio input field for boolean and named entries.
@@ -13,9 +15,7 @@ import './sw-boolean-radio-group.scss';
  *      :bordered="bordered">
  * </sw-boolean-radio-group>
  */
-export default {
-    name: 'sw-boolean-radio-group',
-
+Component.register('sw-boolean-radio-group', {
     model: {
         prop: 'value',
         event: 'change'
@@ -74,4 +74,4 @@ export default {
             }
         }
     }
-};
+});

@@ -1,6 +1,8 @@
 import './sw-pagination.scss';
 import template from './sw-pagination.html.twig';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @status ready
@@ -8,8 +10,7 @@ import template from './sw-pagination.html.twig';
  * @component-example
  * <sw-pagination :total="500" :limit="25" :page="1"></sw-pagination>
  */
-export default {
-    name: 'sw-pagination',
+Component.register('sw-pagination', {
     template,
 
     props: {
@@ -168,4 +169,4 @@ export default {
             this.pageChange();
         }
     }
-};
+});

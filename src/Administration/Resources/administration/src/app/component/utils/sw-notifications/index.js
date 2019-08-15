@@ -1,6 +1,8 @@
 import template from './sw-notifications.html.twig';
 import './sw-notifications.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  * @description
@@ -8,8 +10,7 @@ import './sw-notifications.scss';
  * @status ready
  * @example-type code-only
  */
-export default {
-    name: 'sw-notifications',
+Component.register('sw-notifications', {
     template,
 
     props: {
@@ -77,4 +78,4 @@ export default {
             this.onClose(notification);
         }
     }
-};
+});

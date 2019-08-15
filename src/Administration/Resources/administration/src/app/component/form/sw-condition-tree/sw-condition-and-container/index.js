@@ -1,6 +1,7 @@
-import { Mixin } from 'src/core/shopware';
 import template from './sw-condition-and-container.html.twig';
 import './sw-condition-and-container.scss';
+
+const { Component, Mixin } = Shopware;
 
 /**
  * @private
@@ -11,8 +12,7 @@ import './sw-condition-and-container.scss';
  * @component-example
  * <sw-condition-and-container :condition="condition" :level="0"></sw-condition-and-container>
  */
-export default {
-    name: 'sw-condition-and-container',
+Component.register('sw-condition-and-container', {
     template,
 
     inject: ['config', 'entityAssociationStore', 'isApi'],
@@ -201,4 +201,4 @@ export default {
             return condition[this.config.childName].filter(child => !child.isDeleted);
         }
     }
-};
+});

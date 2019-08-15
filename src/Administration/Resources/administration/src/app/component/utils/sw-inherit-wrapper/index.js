@@ -1,6 +1,8 @@
 import './sw-inherit-wrapper.scss';
 import template from './sw-inherit-wrapper.html.twig';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description Wrapper for inherited data with toggle
@@ -31,8 +33,7 @@ import template from './sw-inherit-wrapper.html.twig';
  *
  * </sw-inherit-wrapper>
  */
-export default {
-    name: 'sw-inherit-wrapper',
+Component.register('sw-inherit-wrapper', {
     template,
 
     props: {
@@ -216,4 +217,4 @@ export default {
             this.$emit('input', newValue);
         }
     }
-};
+});

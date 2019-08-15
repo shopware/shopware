@@ -1,7 +1,8 @@
-import utils, { debug } from 'src/core/service/util.service';
-import { Application, State } from 'src/core/shopware';
 import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
+const { Application, State } = Shopware;
+const { debug } = Shopware.Utils;
+const utils = Shopware.Utils;
 const NOTIFICATION_LOAD_LIMIT = 50;
 
 export function initializeUserNotifications() {

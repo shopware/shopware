@@ -1,7 +1,8 @@
-import { Mixin } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-form-field-renderer.html.twig';
 import './sw-form-field-renderer.scss';
+
+const { Component, Mixin } = Shopware;
 
 /**
  * @public
@@ -66,8 +67,7 @@ import './sw-form-field-renderer.scss';
  *         v-model="yourValue">
  * </sw-form-field-renderer>
 */
-export default {
-    name: 'sw-form-field-renderer',
+Component.register('sw-form-field-renderer', {
     template,
     inheritAttrs: false,
 
@@ -292,4 +292,4 @@ export default {
             });
         }
     }
-};
+});

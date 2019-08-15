@@ -1,11 +1,12 @@
+const { Component } = Shopware;
+
 /**
  * @private
  * @description sw-field as alias for all input fields
  * @example-type dynamic
  * @status ready
  */
-export default {
-    name: 'sw-field',
+Component.register('sw-field', {
     functional: true,
 
     watch: {
@@ -78,4 +79,4 @@ export default {
             }
         }
     }
-};
+});

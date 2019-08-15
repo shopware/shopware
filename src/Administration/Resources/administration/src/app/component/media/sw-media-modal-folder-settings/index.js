@@ -1,13 +1,13 @@
-import { Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-modal-folder-settings.html.twig';
 import './sw-media-modal-folder-settings.scss';
 
+const { Component, Mixin, State } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-media-modal-folder-settings',
+Component.register('sw-media-modal-folder-settings', {
     template,
 
     mixins: [
@@ -282,4 +282,4 @@ export default {
             this.folder.defaultFolderId = defaultFolderId;
         }
     }
-};
+});

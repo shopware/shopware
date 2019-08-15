@@ -1,12 +1,13 @@
-import utils from 'src/core/service/util.service';
 import template from './sw-grid-row.html.twig';
 import './sw-grid-row.scss';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @private
  */
-export default {
-    name: 'sw-grid-row',
+Component.register('sw-grid-row', {
     template,
 
     props: {
@@ -93,4 +94,4 @@ export default {
             this.$emit('inline-edit-finish', this.item);
         }
     }
-};
+});

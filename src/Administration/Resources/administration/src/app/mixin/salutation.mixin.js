@@ -1,4 +1,4 @@
-import { Mixin, State, Filter } from 'src/core/shopware';
+const { Mixin, State, Filter } = Shopware;
 
 Mixin.register('salutation', {
     computed: {

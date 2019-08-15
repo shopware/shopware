@@ -1,7 +1,8 @@
 import baseModules from 'module';
-import types from 'src/core/service/utils/types.utils';
-import { hasOwnProperty } from 'src/core/service/utils/object.utils';
-import { warn } from 'src/core/service/utils/debug.utils';
+
+const types = Shopware.Utils.types;
+const { hasOwnProperty } = Shopware.Utils.object;
+const { warn } = Shopware.Utils.debug;
 
 export default function initializeCoreModules() {
     const factoryContainer = this.getContainer('factory');

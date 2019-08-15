@@ -1,8 +1,9 @@
-import { Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import utils from 'src/core/service/util.service';
 import './sw-select.scss';
 import template from './sw-select.html.twig';
+
+const { Component, Mixin } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public
@@ -16,8 +17,7 @@ import template from './sw-select.html.twig';
  * <sw-select multi id="language" label="Language" :store="languageStore" :associationStore="languageAssociationStore">
  * </sw-select>
  */
-export default {
-    name: 'sw-select',
+Component.register('sw-select', {
     template,
 
     mixins: [
@@ -783,4 +783,4 @@ export default {
             this.updateValue();
         }
     }
-};
+});

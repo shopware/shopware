@@ -1,4 +1,4 @@
-import { Directive } from 'src/core/shopware';
+const { Directive } = Shopware;
 
 let rootParent = null;
 

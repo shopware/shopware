@@ -11,6 +11,14 @@ plugin. Here, the decorated converter will modify the converted products and get
 It is required that you already have installed the [Migration Assistant](https://github.com/shopware/SwagMigrationAssistant) plugin
 in Shopware 6 and have a running Shopware 5 system running to connect the Migration Assistant via API or local gateway.
 
+## Enrich existing plugin with migration features
+
+Instead of creating a new plugin for the migration, you might want to add migration features to your existing plugin.
+Of course, your plugin should then also be installable without the Migration Assistant plugin.
+So we have an optional requirement. Have a look at this [HowTo](./590-optional-plugin-requirements.md)
+on how to inject the needed migration services only if the Migration Assistant plugin is available.
+You could also have a look at the example plugin, to see how the conditional loading is managed in the plugin base class.
+
 ## Creating a premapping reader
 
 In this example, the user should be able to map the manufacturer, while no new manufacturer will be created.

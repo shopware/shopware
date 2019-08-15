@@ -389,12 +389,7 @@ SQL;
         foreach ($plugins as $pluginData) {
             $className = $pluginData['base_class'];
 
-            $pluginClassFilePath = $this->classLoader->findFile($className);
-            if ($pluginClassFilePath === false) {
-                continue;
-            }
-
-            if (!file_exists($pluginClassFilePath)) {
+            if (!class_exists($className)) {
                 continue;
             }
 

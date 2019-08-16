@@ -17,7 +17,9 @@
 
 <p align="center"><strong>Realize your ideas - fast and without friction.</strong></p>
 
-Shopware 6 is an open source ecommerce platform based on a quite modern technology stack that is powered by [Symfony](https://symfony.com) and [Vue.js](https://vuejs.org). It's the successor of the very successful ecommerce shopping cart [Shopware 5](https://github.com/shopware/shopware) which has over 800000 downloads. Shopware 6 is focused on an api-first approach, so it's quite easy to think in different sales channels and make ecommerce happen whereever you want it.
+Shopware 6 is an open source ecommerce platform based on a quite modern technology stack that is powered by [Symfony](https://symfony.com) and [Vue.js](https://vuejs.org).
+It's the successor of the very successful e-commerce shopping cart [Shopware 5](https://github.com/shopware/shopware) which has over 800000 downloads.
+Shopware 6 is focused on an api-first approach, so it's quite easy to think in different sales channels and make ecommerce happen whereever you want it.
 
 If you like Shopware 6, give us a star on Github ★
 
@@ -41,13 +43,14 @@ If you like Shopware 6, give us a star on Github ★
 ## Take a glimpse
 
 The **Shopware 6 Storefront** is based on [Twig](https://twig.symfony.com/doc/2.x/templates.html)
-and [Bootstrap](https://getbootstrap.com/docs/4.3/getting-started/introduction/). Two well known and easy
-to learn frameworks, making the creation of templates a breeze! 
+and [Bootstrap](https://getbootstrap.com/docs/4.3/getting-started/introduction/).
+Two well known and easy to learn frameworks, making the creation of templates a breeze! 
 
 [![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/storefrontT.png)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/storefront.png)
 
 The **Shopware 6 Administration** is based on [Vue.js](https://vuejs.org/v2/guide/) and [twig.js](https://github.com/twigjs/twig.js/wiki),
-making the creation of new modules fast and easy. Get started with the [design documentation](https://shopware.design/).   
+making the creation of new modules fast and easy.
+Get started with the [design documentation](https://shopware.design/).   
 
 [![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilderT.png)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilder.png)
 
@@ -67,7 +70,9 @@ Shopware 6 provides Services through REST-APIs and rich user interfaces to custo
 
 ![The core architecture](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/platformcontext.svg)
 
-The chart shows how the Shopware Platform fits into your enterprise. It provides web frontends for management and for commerce through a multitude of sales channels. It comes with a set of user facing interfaces and provides the ability to connect to your own infrastructure and outside services through REST-APIs.
+The chart shows how the Shopware Platform fits into your enterprise.
+It provides web frontends for management and for commerce through a multitude of sales channels.
+It comes with a set of user facing interfaces and provides the ability to connect to your own infrastructure and outside services through REST-APIs.
 
 More information can be found [in the documentation](https://docs.shopware.com/en/shopware-platform-dev-en/internals).
 
@@ -144,14 +149,16 @@ The Shopware Roadmap shows you what we are working on, what we want to tackle ne
 
 ## Community
 
-Shopware is an open source eCommerce platform that is built around the ideas and spirit of it's community - and you can take part in shaping the story of the product. In helping craft the future, you as a developer will grow as well.
+Shopware is an open source eCommerce platform that is built around the ideas and spirit of it's community - and you can take part in shaping the story of the product.
+In helping craft the future, you as a developer will grow as well.
  
-Whether you're writing plugins, proposing code changes via pull requests, or exchanging ideas in Gitter or the Shopware Forum - you are a vital part of the source of inspiration we are proud to call the Shopware Community.
+Whether you're writing plugins, proposing code changes via pull requests,
+or exchanging ideas in Gitter or the Shopware Forum - you are a vital part of the source of inspiration we are proud to call the Shopware Community.
  
 **Join the community now** 🖤
 
 - **Discuss:** [forum.shopware.com](https://forum.shopware.com/categories/international)
-- **Chat:** [gitter.im/shopware/shopware](https://gitter.im/shopware/shopware)
+- **Chat:** [gitter.im/shopware/platform](https://gitter.im/shopware/platform)
 - **Follow us on Twitter:** [@ShopwareDevs](https://twitter.com/ShopwareDevs)
 
 ### Give us feedback
@@ -204,22 +211,28 @@ You want to participate in the development of shopware? There are many ways to c
 
 -   Submitting pull requests
 -   Reporting issues on the [issue tracker](https://issues.shopware.com/)
--   Discuss shopware on e.g [Gitter](https://gitter.im/shopware/shopware) or our [forum](https://forum.shopware.com/categories/international)
-- Write a translation for shopware on [crowdin](https://crowdin.com/project/shopware) 
+-   Discuss shopware on e.g [Gitter](https://gitter.im/shopware/platform) or our [forum](https://forum.shopware.com/categories/shopware-6)
+- Write a translation for shopware on [crowdin](https://crowdin.com/project/shopware6) 
 
 You have a question regarding contribution, or you want to contribute in another way?
 
-Please write us an email:  contributors@shopware.com
+Please write us an email: contributors@shopware.com
 
 ### Code Contribution
 
-If you have decided to contribute code to Shopware and become a member of the Shopware community, we appreciate your hard work and want to handle it with the most possible respect. To ensure the quality of our code and our products we have created a guideline we all should endorse to. It helps you and us to collaborate. Following these guidelines will help us to integrate your changes in our daily workflow. 
+If you have decided to contribute code to Shopware and become a member of the Shopware community,
+we appreciate your hard work and want to handle it with the most possible respect.
+To ensure the quality of our code and our products we have created a guideline we all should endorse to.
+It helps you and us to collaborate. Following these guidelines will help us to integrate your changes in our daily workflow. 
 
-[Our contribution guideline](https://developers.shopware.com/community/contribution-guideline/)
+Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-platform-dev-en/community/contribution-guideline?category=shopware-platform-dev-en/community)
+or in our short [HowTo contribute code](https://docs.shopware.com/en/shopware-platform-dev-en/community/contributing-code?category=shopware-platform-dev-en/community).
 
 ### The Shopware CLA
 
-When submitting your code to Shopware you automatically need to sign our CLA (Contributor License Agreement). This CLA ensures that Shopware will stay an open and living product. In short, you give the explicit right to use your code in Shopware to shopware AG.
+When submitting your code to Shopware you automatically need to sign our CLA (Contributor License Agreement).
+This CLA ensures that Shopware will stay an open and living product.
+In short, you give the explicit right to use your code in Shopware to shopware AG.
 
 ## License
 

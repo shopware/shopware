@@ -16,6 +16,14 @@ It is required to already have a basic plugin running and you have installed the
 the [SwagBundleExample](./../1-getting-started/35-indepth-guide-bundle/010-introduction.md) and 
 [Shopware Migration Assistant](https://store.shopware.com/search?sSearch=Swag257162657297f) in Shopware 6.
 
+## Enrich existing plugin with migration features
+
+Instead of creating a new plugin for the migration, you might want to add migration features to your existing plugin.
+Of course, your plugin should then also be installable without the Migration Assistant plugin.
+So we have an optional requirement. Have a look at this [HowTo](./590-optional-plugin-requirements.md)
+on how to inject the needed migration services only if the Migration Assistant plugin is available.
+You could also have a look at the example plugin, to see how the conditional loading is managed in the plugin base class.
+
 ## Creating a new DataSet
 
 First of all, you need to create a new `DataSet` for your bundle entity:
@@ -124,16 +132,16 @@ class ProductDataSelection implements DataSelectionInterface
 To insert the bundle entity to this `DataSelection`, you have to add this entity to the entities array of the returning
 `DataSelectionStruct` of the `getData` function.
 
-Both classes have to be registered in the `service.xml`:
+Both classes have to be registered in the `migration_assistant_extension.xml`:
 
 ```xml
 <service id="SwagMigrationBundleExample\Profile\Shopware\DataSelection\ProductDataSelection"
-decorates="SwagMigrationAssistant\Profile\Shopware\DataSelection\ProductDataSelection">
+         decorates="SwagMigrationAssistant\Profile\Shopware\DataSelection\ProductDataSelection">
     <argument type="service" id="SwagMigrationBundleExample\Profile\Shopware\DataSelection\ProductDataSelection.inner"/>
 </service>
 
 <service id="SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet\BundleDataSet">
-    <tag name="shopware.migration.data_set" />
+    <tag name="shopware.migration.data_set"/>
 </service>
 ```
 All `DataSets` have to be tagged with `shopware.migration.data_set`. The `DataSetRegistry` fetches all of these classes
@@ -265,7 +273,8 @@ class LocalBundleReader extends LocalAbstractReader implements LocalReaderInterf
 ``` 
 
 In this local reader, you fetch all bundles with associated products and return this in the `read` method. Like the `DataSelection`
-and `DataSet`, you have to register the local reader and tag it with `shopware.migration.local_reader` in your `service.xml`.
+and `DataSet`, you have to register the local reader and tag it with `shopware.migration.local_reader`
+in your `migration_assistant_extension.xml`.
 Also, you have to set the parent property of your local reader to `LocalAbstractReader` to inherit from this class:
 
 ```xml
@@ -432,7 +441,7 @@ class BundleDefinition extends EntityDefinition
 ```
 
 In the `BundleDefinition` you can see which fields the entity has and which are required. (Hint: Always use the property name
-of the field.) In the end of this step, you have to register your new converter in the `service.xml` and tag it with `shopware.migration.converter`:
+of the field.) In the end of this step, you have to register your new converter in the `migration_assistant_extension.xml` and tag it with `shopware.migration.converter`:
 
 ```xml
 <service id="SwagMigrationBundleExample\Profile\Shopware\Converter\BundleConverter">
@@ -445,7 +454,7 @@ of the field.) In the end of this step, you have to register your new converter 
 
 After adding a reader and converter, you get bundle data from your source system and convert it, but the final step is
 to write the converted data into Shopware 6. To finish this tutorial, you have to create a new writer, register and
-tag it with `shopware.migration.writer` in the `service.xml`:
+tag it with `shopware.migration.writer` in the `migration_assistant_extension.xml`:
 
 ```php
 <?php declare(strict_types=1);
@@ -503,7 +512,7 @@ class BundleWriter implements WriterInterface
 </service>
 ```
 
-In the writer you use the `EntityWriter` to write your entities of the given entity definition (look above into `service.xml`).
+In the writer you use the `EntityWriter` to write your entities of the given entity definition (look above into `migration_assistant_extension.xml`).
 
 And that's it, you're done and have already implemented your first plugin migration.
 Install your plugin, clear the cache and build the administration to see the migration of your bundle entities.

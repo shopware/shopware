@@ -9,9 +9,9 @@
         }
     },
     "require": {
-        "shopware/core": "dev-master",
-        "symfony/framework-bundle": "4.3.2",
-        "symfony/http-foundation": "4.3.2",
-        "symfony/routing": "4.3.2"
+        "shopware/core": "*",
+        "symfony/framework-bundle": "4.3.3",
+        "symfony/http-foundation": "4.3.3",
+        "symfony/routing": "4.3.3"
     }
 }

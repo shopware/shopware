@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Framework\Seo\SeoUrl;
 use function Flag\next741;
 use function Flag\skipTestNext741;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -28,9 +29,15 @@ class SeoUrlExtensionTest extends TestCase
      */
     private $productRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $seoUrlTemplateRepository;
+
     public function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->seoUrlTemplateRepository = $this->getContainer()->get('seo_url_template.repository');
     }
 
     public function testSearchProduct(): void
@@ -38,35 +45,13 @@ class SeoUrlExtensionTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        /** @var EntityRepositoryInterface $productRepo */
-        $productRepo = $this->getContainer()->get('product.repository');
-
-        $id = Uuid::randomHex();
-        $productRepo->create([[
-            'id' => $id,
-            'name' => 'foo bar',
-            'manufacturer' => [
-                'id' => Uuid::randomHex(),
-                'name' => 'amazing brand',
-            ],
-            'productNumber' => 'P1234',
-            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
-            'price' => [
-                [
-                    'currencyId' => Defaults::CURRENCY,
-                    'gross' => 10,
-                    'net' => 12,
-                    'linked' => false,
-                ],
-            ],
-            'stock' => 0,
-        ]], Context::createDefaultContext());
+        $id = $this->createTestProduct();
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('seoUrls');
 
         /** @var ProductEntity $product */
-        $product = $productRepo->search($criteria, $salesChannelContext->getContext())->first();
+        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
 
@@ -75,6 +60,67 @@ class SeoUrlExtensionTest extends TestCase
             $canonicalUrl = $product->getExtension('canonicalUrl');
             static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
             static::assertEquals('foo-bar/P1234', $canonicalUrl->getSeoPathInfo());
+        }
+    }
+
+    /**
+     * @depends testSearchProduct
+     */
+    public function testSearchProductAfterManufacturerUpdate(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $templateUrl = Uuid::randomHex();
+        $this->seoUrlTemplateRepository->create(
+            [
+                [
+                    'id' => $templateUrl,
+                    'salesChannelId' => $salesChannelId,
+                    'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+                    'entityName' => ProductDefinition::ENTITY_NAME,
+                    'template' => '{{ product.translated.name }}/{{ product.manufacturer.translated.name }}',
+                    'isValid' => true,
+                ],
+            ],
+            $salesChannelContext->getContext());
+
+        $id = $this->createTestProduct();
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('seoUrls');
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+        static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
+
+        if (next741()) {
+            /** @var SeoUrlEntity $canonicalUrl */
+            $canonicalUrl = $product->getExtension('canonicalUrl');
+            static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
+            static::assertEquals('foo-bar/amazing-brand', $canonicalUrl->getSeoPathInfo());
+        }
+
+        /** @var EntityRepositoryInterface $manufacturerRepository */
+        $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
+        $manufacturerRepository->update(
+        [
+            [
+                'id' => $product->getManufacturerId(),
+                'name' => 'wuseldusel',
+            ],
+        ], $salesChannelContext->getContext());
+
+        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+        static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
+
+        if (next741()) {
+            /** @var SeoUrlEntity $canonicalUrl */
+            $canonicalUrl = $product->getExtension('canonicalUrl');
+            static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
+            static::assertEquals('foo-bar/wuseldusel', $canonicalUrl->getSeoPathInfo());
         }
     }
 
@@ -129,6 +175,68 @@ class SeoUrlExtensionTest extends TestCase
                 static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
                 static::assertEquals($case['expected'], $canonicalUrl->getSeoPathInfo());
             }
+        }
+    }
+
+    public function testSearchCategoryWithSalesChannelEntryPoint(): void
+    {
+        skipTestNext741($this);
+
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId,
+            'test');
+
+        $categoryRepository = $this->getContainer()->get('category.repository');
+
+        $rootId = Uuid::randomHex();
+        $childAId = Uuid::randomHex();
+        $childA1Id = Uuid::randomHex();
+        $childA1ZId = Uuid::randomHex();
+
+        $categoryRepository->create([[
+            'id' => $rootId,
+            'name' => 'root',
+            'children' => [
+                [
+                    'id' => $childAId,
+                    'name' => 'a',
+                    'children' => [
+                        [
+                            'id' => $childA1Id,
+                            'name' => '1',
+                            'children' => [
+                                [
+                                    'id' => $childA1ZId,
+                                    'name' => 'z',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $childAId);
+
+        $context = $salesChannelContext->getContext();
+
+        $cases = [
+            ['expected' => '1', 'categoryId' => $childA1Id],
+            ['expected' => '1/z', 'categoryId' => $childA1ZId],
+        ];
+
+        foreach ($cases as $case) {
+            $criteria = new Criteria([$case['categoryId']]);
+            $criteria->addAssociation('seoUrls');
+
+            $category = $categoryRepository->search($criteria, $context)->first();
+            static::assertInstanceOf(SeoUrlCollection::class, $category->getExtension('seoUrls'));
+            static::assertEquals($case['categoryId'], $category->getId());
+
+            /** @var SeoUrlEntity $canonicalUrl */
+            $canonicalUrl = $category->getExtension('canonicalUrl');
+            static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
+            static::assertEquals($case['expected'], $canonicalUrl->getSeoPathInfo());
         }
     }
 
@@ -312,5 +420,31 @@ class SeoUrlExtensionTest extends TestCase
         ];
         $data = array_merge($defaults, $data);
         $this->productRepository->upsert([$data], Context::createDefaultContext());
+    }
+
+    private function createTestProduct(): string
+    {
+        $id = Uuid::randomHex();
+        $this->productRepository->create([[
+            'id' => $id,
+            'name' => 'foo bar',
+            'manufacturer' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'amazing brand',
+            ],
+            'productNumber' => 'P1234',
+            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
+            'price' => [
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 10,
+                    'net' => 12,
+                    'linked' => false,
+                ],
+            ],
+            'stock' => 0,
+        ]], Context::createDefaultContext());
+
+        return $id;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Seo\Api;
 
+use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\Exception\InvalidTemplateException;
 use Shopware\Storefront\Framework\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Storefront\Framework\Seo\SeoUrlGenerator;
@@ -56,13 +58,19 @@ class SeoActionController extends AbstractController
      */
     private $validator;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $salesChannelRepository;
+
     public function __construct(
         SeoUrlGenerator $seoUrlGenerator,
         SeoUrlPersister $seoUrlPersister,
         DefinitionInstanceRegistry $definitionRegistry,
         SeoUrlRouteRegistry $seoUrlRouteRegistry,
         SeoUrlValidationService $seoUrlValidation,
-        DataValidator $validator
+        DataValidator $validator,
+        EntityRepositoryInterface $salesChannelRepository
     ) {
         $this->seoUrlGenerator = $seoUrlGenerator;
         $this->definitionRegistry = $definitionRegistry;
@@ -70,6 +78,7 @@ class SeoActionController extends AbstractController
         $this->seoUrlPersister = $seoUrlPersister;
         $this->seoUrlValidator = $seoUrlValidation;
         $this->validator = $validator;
+        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     /**
@@ -125,7 +134,7 @@ class SeoActionController extends AbstractController
             return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         }
 
-        $mapping = $seoUrlRoute->getMapping($entity);
+        $mapping = $seoUrlRoute->getMapping($entity, null);
 
         return new JsonResponse($mapping->getSeoPathInfoContext());
     }
@@ -189,8 +198,19 @@ class SeoActionController extends AbstractController
         $criteria->setLimit(10);
         $ids = $repository->searchIds($criteria, $context)->getIds();
 
+        $salesChannelId = $seoUrlTemplate['salesChannelId'] ?? null;
+        /** @var SalesChannelEntity|null $salesChannel */
+        $salesChannel = null;
+        if ($salesChannelId) {
+            $salesChannel = $this->salesChannelRepository->search((new Criteria([$salesChannelId]))->setLimit(1), $context)->get($salesChannelId);
+
+            if ($salesChannel === null) {
+                throw new InvalidSalesChannelIdException(strval($salesChannelId));
+            }
+        }
+
         $templateString = $seoUrlTemplate['template'];
-        $groups = [new TemplateGroup($context->getLanguageId(), $templateString, [$seoUrlTemplate['salesChannelId'] ?? null])];
+        $groups = [new TemplateGroup($context->getLanguageId(), $templateString, [$salesChannel])];
         $result = $this->seoUrlGenerator->generateSeoUrls($context, $seoUrlRoute, $ids, $groups, $config);
 
         return iterator_to_array($result);

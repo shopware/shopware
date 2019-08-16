@@ -59,6 +59,11 @@ trait ElasticsearchTestTestBehaviour
         $this->runWorker();
 
         $this->getDiContainer()
+            ->get(Client::class)
+            ->indices()
+            ->refresh();
+
+        $this->getDiContainer()
             ->get(CreateAliasTaskHandler::class)
             ->run();
     }

@@ -234,7 +234,7 @@ class BreadcrumbIndexer implements IndexerInterface
             $breadcrumb = $this->buildBreadcrumb($category->getParentId(), $categories);
         }
 
-        $breadcrumb[] = $category->getTranslation('name');
+        $breadcrumb[$category->getId()] = $category->getTranslation('name');
 
         return $breadcrumb;
     }

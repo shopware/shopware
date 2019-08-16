@@ -51,6 +51,7 @@ You can use them with every URL in your templates
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
     * Changed the name of `messages.<locale>.json` to `storefront.<locale>.json` and changed to **not** be a base file anymore.
+    * Added `extractIdsToUpdate` to `Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface`
 **Removals**
 
 * Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function

@@ -8,15 +8,15 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
+use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlGenerator;
 use Shopware\Storefront\Framework\Seo\SeoUrlPersister;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface;
@@ -72,6 +72,11 @@ class SeoUrlIndexer implements IndexerInterface
      */
     private $iteratorFactory;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $salesChannelRepository;
+
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
@@ -81,7 +86,8 @@ class SeoUrlIndexer implements IndexerInterface
         DefinitionInstanceRegistry $definitionRegistry,
         SeoUrlRouteRegistry $seoUrlRouteRegistry,
         EntityRepositoryInterface $languageRepository,
-        IteratorFactory $iteratorFactory
+        IteratorFactory $iteratorFactory,
+        EntityRepositoryInterface $salesChannelRepository
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
@@ -92,6 +98,7 @@ class SeoUrlIndexer implements IndexerInterface
         $this->templateLoader = $templateLoader;
         $this->languageRepository = $languageRepository;
         $this->iteratorFactory = $iteratorFactory;
+        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -101,19 +108,24 @@ class SeoUrlIndexer implements IndexerInterface
             return;
         }
 
-        $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $languages = $context->disableCache(function (Context $context) {
+            return $this->languageRepository->search(new Criteria(), $context);
+        });
+
+        $languageChains = $this->fetchLanguageChains($languages->getEntities()->getElements());
+        $salesChannels = $this->fetchSalesChannels();
 
         /** @var SeoUrlRouteInterface $seoUrlRoute */
         foreach ($this->seoUrlRouteRegistry->getSeoUrlRoutes() as $seoUrlRoute) {
             $config = $seoUrlRoute->getConfig();
-            $repo = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
 
-            $templateGroups = $this->templateLoader->getTemplateGroups($config->getRouteName());
+            $templateGroups = $this->templateLoader->getTemplateGroups($config->getRouteName(), $salesChannels);
             /** @var TemplateGroup[] $groups */
             foreach ($templateGroups as $languageId => $groups) {
                 $language = $languages->get($languageId);
 
-                $chain = $this->getLanguageIdChain($languageId);
+                $chain = $languageChains[$languageId];
                 $context = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, $chain);
                 $iterator = $this->iteratorFactory->createIterator($config->getDefinition());
 
@@ -158,18 +170,26 @@ class SeoUrlIndexer implements IndexerInterface
             return;
         }
 
+        $context = Context::createDefaultContext();
+        $languages = $context->disableCache(function (Context $context) {
+            return $this->languageRepository->search(new Criteria(), $context);
+        });
+
+        $languageChains = $this->fetchLanguageChains($languages->getEntities()->getElements());
+        $salesChannels = $this->fetchSalesChannels();
+
         /** @var SeoUrlRouteInterface $seoUrlRoute */
         foreach ($this->seoUrlRouteRegistry->getSeoUrlRoutes() as $seoUrlRoute) {
             $config = $seoUrlRoute->getConfig();
-            $ids = $this->getIdsByDefinition($event, $seoUrlRoute);
+            $ids = $seoUrlRoute->extractIdsToUpdate($event);
             if (empty($ids)) {
                 continue;
             }
 
-            $templateGroups = $this->templateLoader->getTemplateGroups($config->getRouteName());
+            $templateGroups = $this->templateLoader->getTemplateGroups($config->getRouteName(), $salesChannels);
             /** @var TemplateGroup[] $groups */
             foreach ($templateGroups as $languageId => $groups) {
-                $chain = $this->getLanguageIdChain($languageId);
+                $chain = $languageChains[$languageId];
                 $context = new Context(new Context\SystemSource(), [], Defaults::CURRENCY, $chain);
                 foreach (array_chunk($ids, 250) as $idsChunk) {
                     $seoUrls = $this->seoUrlGenerator->generateSeoUrls($context, $seoUrlRoute, $idsChunk, $groups);
@@ -177,71 +197,6 @@ class SeoUrlIndexer implements IndexerInterface
                 }
             }
         }
-    }
-
-    private function getIdsByDefinition(EntityWrittenContainerEvent $generic, SeoUrlRouteInterface $route): array
-    {
-        $ids = [];
-
-        $config = $route->getConfig();
-        $definition = $config->getDefinition();
-
-        $criteria = new Criteria();
-        $route->prepareCriteria($criteria);
-        $associations = array_keys($criteria->getAssociations());
-
-        $event = $generic->getEventByDefinition($definition->getClass());
-        if ($event) {
-            $ids = $event->getIds();
-        }
-
-        $oneToManyAssociations = $definition->getFields()->filterInstance(OneToManyAssociationField::class);
-
-        /** @var OneToManyAssociationField $oneToMany */
-        foreach ($oneToManyAssociations as $oneToMany) {
-            // only check for associations that are loaded with the entity
-            if (!in_array($oneToMany->getPropertyName(), $associations, true)) {
-                continue;
-            }
-            $localColumn = $oneToMany->getReferenceField();
-            $referenceField = $oneToMany->getReferenceDefinition()->getFields()->getByStorageName($localColumn);
-            $propertyName = $referenceField->getPropertyName();
-
-            $event = $generic->getEventByDefinition($oneToMany->getReferenceDefinition()->getClass());
-            if (!$event) {
-                continue;
-            }
-            foreach ($event->getPayloads() as $payload) {
-                if (isset($payload[$propertyName])) {
-                    $ids[] = $payload[$propertyName];
-                }
-            }
-        }
-
-        $manyToManyAssociations = $definition->getFields()->filterInstance(ManyToManyAssociationField::class);
-        /** @var ManyToManyAssociationField $manyToMany */
-        foreach ($manyToManyAssociations as $manyToMany) {
-            // only check for associations that are loaded with the entity
-            if (!in_array($manyToMany->getPropertyName(), $associations, true)) {
-                continue;
-            }
-            $mappingDefinition = $manyToMany->getMappingDefinition();
-            $localColumn = $manyToMany->getMappingLocalColumn();
-            $referenceField = $mappingDefinition->getFields()->getByStorageName($localColumn);
-            $propertyName = $referenceField->getPropertyName();
-
-            $event = $generic->getEventByDefinition($mappingDefinition->getClass());
-            if (!$event) {
-                continue;
-            }
-            foreach ($event->getPayloads() as $payload) {
-                if (isset($payload[$propertyName])) {
-                    $ids[] = $payload[$propertyName];
-                }
-            }
-        }
-
-        return array_unique($ids);
     }
 
     private function getLanguageIdChain($languageId): array
@@ -261,5 +216,32 @@ class SeoUrlIndexer implements IndexerInterface
             ->fetchColumn();
 
         return $result ? (string) $result : null;
+    }
+
+    private function fetchSalesChannels(): array
+    {
+        $context = Context::createDefaultContext();
+        $entities = $context->disableCache(function (Context $context) {
+            return $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
+        });
+
+        $salesChannels = $entities->getElements();
+        // We add the "null" SalesChannel manually as it signals the fallback value if no other seo urls or
+        // url templates are assigned to a entity/sales channel combination
+        $salesChannels[] = null;
+
+        return $salesChannels;
+    }
+
+    private function fetchLanguageChains(array $languages): array
+    {
+        $languageChains = [];
+        /** @var LanguageEntity $language */
+        foreach ($languages as $language) {
+            $languageId = $language->getId();
+            $languageChains[$languageId] = $this->getLanguageIdChain($languageId);
+        }
+
+        return $languageChains;
     }
 }

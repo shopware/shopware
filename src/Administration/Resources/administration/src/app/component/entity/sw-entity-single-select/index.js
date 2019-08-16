@@ -1,10 +1,9 @@
 import Criteria from 'src/core/data-new/criteria.data';
-import utils from 'src/core/service/util.service';
 
-export default {
-    name: 'sw-entity-single-select',
-    extendsFrom: 'sw-single-select',
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
+Component.extend('sw-entity-single-select', 'sw-single-select', {
     inject: ['repositoryFactory', 'context'],
 
     props: {
@@ -132,4 +131,4 @@ export default {
             return element.scrollHeight - element.clientHeight - element.scrollTop;
         }
     }
-};
+});

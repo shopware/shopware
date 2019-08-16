@@ -1,6 +1,8 @@
 import './sw-button.scss';
 import template from './sw-button.html.twig';
 
+const { Component } = Shopware;
+
 /**
  * @status ready
  * @description The <u>sw-button</u> component replaces the standard html button or anchor element with a custom button
@@ -11,8 +13,7 @@ import template from './sw-button.html.twig';
  *     Button
  * </sw-button>
  */
-export default {
-    name: 'sw-button',
+Component.register('sw-button', {
     template,
 
     props: {
@@ -87,4 +88,4 @@ export default {
             };
         }
     }
-};
+});

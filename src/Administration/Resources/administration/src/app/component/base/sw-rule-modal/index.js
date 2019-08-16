@@ -1,8 +1,9 @@
-import { Mixin, State } from 'src/core/shopware';
-import { warn } from 'src/core/service/utils/debug.utils';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-rule-modal.html.twig';
 import './sw-rule-modal.scss';
+
+const { Component, Mixin, State } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 /**
  * @status ready
@@ -12,8 +13,7 @@ import './sw-rule-modal.scss';
  * <sw-rule-modal ruleId="0fd38734776f41e9a1ba431f1667e677" @save="onSave" @modal-close="onCloseModal">
  * </sw-rule-modal>
  */
-export default {
-    name: 'sw-rule-modal',
+Component.register('sw-rule-modal', {
     template,
 
     inject: ['ruleConditionDataProviderService'],
@@ -255,4 +255,4 @@ export default {
             return parent.isDeleted || this.hasDeletedParent(parent.parentId, conditions);
         }
     }
-};
+});

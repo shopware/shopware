@@ -1,6 +1,8 @@
-import types from 'src/core/service/utils/types.utils';
 import template from './sw-tabs-item.html.twig';
 import './sw-tabs-item.scss';
+
+const { Component } = Shopware;
+const types = Shopware.Utils.types;
 
 /**
  * @private
@@ -20,8 +22,7 @@ import './sw-tabs-item.scss';
  *
  * </sw-tabs>
  */
-export default {
-    name: 'sw-tabs-item',
+Component.register('sw-tabs-item', {
     template,
 
     inheritAttrs: false,
@@ -135,4 +136,4 @@ export default {
             });
         }
     }
-};
+});

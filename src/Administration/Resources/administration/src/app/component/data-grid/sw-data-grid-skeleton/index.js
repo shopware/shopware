@@ -1,12 +1,12 @@
 import template from './sw-data-grid-skeleton.html.twig';
 import './sw-data-grid-skeleton.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-data-grid-skeleton',
-
+Component.register('sw-data-grid-skeleton', {
     template,
 
     props: {
@@ -38,4 +38,4 @@ export default {
             default: false
         }
     }
-};
+});

@@ -1,6 +1,8 @@
 import template from './sw-button-process.html.twig';
 import './sw-button-process.scss';
 
+const { Component } = Shopware;
+
 /**
  * @status ready
  * @description The <u>sw-button-process</u> component extends the sw-button component with visual feedback,
@@ -11,8 +13,7 @@ import './sw-button-process.scss';
  *     Button
  * </sw-button-process>
  */
-export default {
-    name: 'sw-button-process',
+Component.register('sw-button-process', {
     template,
     inheritAttrs: false,
 
@@ -53,4 +54,4 @@ export default {
             }, this.animationTimeout);
         }
     }
-};
+});

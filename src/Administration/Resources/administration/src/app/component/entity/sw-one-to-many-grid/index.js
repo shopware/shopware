@@ -1,9 +1,9 @@
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-one-to-many-grid.html.twig';
 
-export default {
-    name: 'sw-one-to-many-grid',
-    extendsFrom: 'sw-data-grid',
+const { Component } = Shopware;
+
+Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
     template,
 
     inject: ['repositoryFactory'],
@@ -147,4 +147,4 @@ export default {
             return this.load();
         }
     }
-};
+});

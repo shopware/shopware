@@ -1,9 +1,9 @@
 import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-entity-listing.html.twig';
 
-export default {
-    name: 'sw-entity-listing',
-    extendsFrom: 'sw-data-grid',
+const { Component } = Shopware;
+
+Component.extend('sw-entity-listing', 'sw-data-grid', {
     template,
 
     props: {
@@ -178,4 +178,4 @@ export default {
             this.deleteId = null;
         }
     }
-};
+});

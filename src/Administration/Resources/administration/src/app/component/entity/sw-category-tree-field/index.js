@@ -1,10 +1,11 @@
 import Criteria from 'src/core/data-new/criteria.data';
-import utils, { array } from 'src/core/service/util.service';
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
 
-export default {
-    name: 'sw-category-tree-field',
+const { Component } = Shopware;
+const utils = Shopware.Utils;
+
+Component.register('sw-category-tree-field', {
     template,
 
     inject: ['repositoryFactory', 'context'],
@@ -167,7 +168,7 @@ export default {
             this.isFetching = true;
 
             // get parent id
-            const parentId = parentIds ? array.flattenDeep(parentIds)[0] : null;
+            const parentId = parentIds ? utils.array.flattenDeep(parentIds)[0] : null;
 
             // create criteria
             const categoryCriteria = new Criteria(1, 500);
@@ -602,4 +603,4 @@ export default {
             return foundInChildren;
         }
     }
-};
+});

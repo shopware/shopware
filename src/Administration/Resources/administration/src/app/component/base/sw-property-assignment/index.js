@@ -2,8 +2,9 @@ import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-property-assignment.html.twig';
 import './sw-property-assignment.scss';
 
-export default {
-    name: 'sw-property-assignment',
+const { Component } = Shopware;
+
+Component.register('sw-property-assignment', {
     template,
 
     inject: ['repositoryFactory', 'context'],
@@ -125,4 +126,4 @@ export default {
             return true;
         }
     }
-};
+});

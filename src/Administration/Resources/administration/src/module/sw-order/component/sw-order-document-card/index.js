@@ -216,6 +216,7 @@ Component.register('sw-order-document-card', {
                         this.documentService.generateDocumentLink(
                             response.data.documentId,
                             response.data.documentDeepLink,
+                            this.context,
                             true
                         ),
                         '_blank'
@@ -230,14 +231,16 @@ Component.register('sw-order-document-card', {
                 this.documentService.generateDocumentPreviewLink(
                     this.order.id,
                     this.order.deepLinkCode,
-                    this.currentDocumentType.technicalName, config
+                    this.currentDocumentType.technicalName,
+                    config,
+                    this.context
                 ),
                 '_blank'
             );
         },
 
         onDownload(id, deepLink) {
-            window.open(this.documentService.generateDocumentLink(id, deepLink, false), '_blank');
+            window.open(this.documentService.generateDocumentLink(id, deepLink, this.context, false), '_blank');
         }
     }
 });

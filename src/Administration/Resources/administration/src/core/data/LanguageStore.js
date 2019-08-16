@@ -1,5 +1,6 @@
-import { Application } from 'src/core/shopware';
 import EntityStore from './EntityStore';
+
+const { Application } = Shopware;
 
 export default class LanguageStore extends EntityStore {
     constructor(

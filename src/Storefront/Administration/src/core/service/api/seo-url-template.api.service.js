@@ -1,4 +1,4 @@
-import ApiService from 'src/core/service/api.service';
+const ApiService = Shopware.Classes.ApiService;
 
 /**
  * Gateway for the API end point "seo-url-template"

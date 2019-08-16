@@ -1,6 +1,7 @@
-import { Component, Application } from 'src/core/shopware';
 import template from './sw-theme-list-item.html.twig';
 import './sw-theme-list-item.scss';
+
+const { Component, Application } = Shopware;
 
 Component.register('sw-theme-list-item', {
     template,

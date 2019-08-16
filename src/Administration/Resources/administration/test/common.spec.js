@@ -1,4 +1,4 @@
-import { Module, Component, Template } from 'src/core/shopware';
+const { Module, Component, Template } = Shopware;
 
 describe('core/common.js', () => {
     it('should contain the necessary methods for the module factory', () => {

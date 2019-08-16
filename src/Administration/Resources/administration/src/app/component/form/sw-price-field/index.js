@@ -14,8 +14,7 @@ import './sw-price-field.scss';
  *                 :currency="{...}">
  * </sw-price-field>
  */
-export default {
-    name: 'sw-price-field',
+Shopware.Component.register('sw-price-field', {
     template,
 
     inheritAttrs: false,
@@ -262,4 +261,4 @@ export default {
             return Number(priceRounded);
         }
     }
-};
+});

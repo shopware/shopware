@@ -10,7 +10,7 @@ export default {
 
     props: {
         selection: {
-            type: Selection,
+            type: Object,
             required: false,
             default: null
         }

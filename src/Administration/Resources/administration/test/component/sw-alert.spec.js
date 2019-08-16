@@ -1,9 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-import swAlert from 'src/app/component/base/sw-alert';
+import 'src/app/component/base/sw-alert';
 
 describe('components/base/sw-alert', () => {
     it('should be a Vue.js component', () => {
-        const wrapper = shallowMount(swAlert, {
+        const wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
             stubs: ['sw-icon']
         });
         expect(wrapper.isVueInstance()).toBeTruthy();
@@ -13,7 +13,7 @@ describe('components/base/sw-alert', () => {
         const title = 'Alert title';
         const message = '<p>Alert message</p>';
 
-        const wrapper = shallowMount(swAlert, {
+        const wrapper = shallowMount(Shopware.Component.build('sw-alert'), {
             stubs: ['sw-icon'],
             props: {
                 title

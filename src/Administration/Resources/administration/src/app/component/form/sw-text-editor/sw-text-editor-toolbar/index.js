@@ -22,7 +22,7 @@ export default {
         },
 
         selection: {
-            type: Selection,
+            type: Object,
             required: false,
             default: null
         },

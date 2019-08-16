@@ -23,8 +23,8 @@ const FeatureConfig = require('src/core/feature-config').default;
 const ShopwareError = require('src/core/data/ShopwareError').default;
 const ApiService = require('src/core/service/api.service').default;
 const utils = require('src/core/service/util.service').default;
-// const FlatTreeHelper = require('src/core/helper/flattree.helper').default;
-// const InfiniteScrollingHelper = require('src/core/helper/infinite-scrolling.helper').default;
+const FlatTreeHelper = require('src/core/helper/flattree.helper').default;
+const InfiniteScrollingHelper = require('src/core/helper/infinite-scrolling.helper').default;
 const MiddlewareHelper = require('src/core/helper/middleware.helper').default;
 const data = require('src/core/data-new/index').default;
 const ApplicationBootstrapper = require('src/core/application').default;
@@ -275,9 +275,8 @@ module.exports = {
      * @type {Object}
      */
     Helper: {
-        // TODO: Evaluate if those helpers use module import instead of Shopware (circular reference)
-        // FlatTreeHelper: FlatTreeHelper,
-        // InfiniteScrollingHelper: InfiniteScrollingHelper,
+        FlatTreeHelper: FlatTreeHelper,
+        InfiniteScrollingHelper: InfiniteScrollingHelper,
         MiddlewareHelper: MiddlewareHelper
     }
 };

@@ -1,4 +1,4 @@
-const { Defaults } = Shopware;
+import { Defaults } from 'src/core/shopware';
 
 /**
  * @module core/factory/context

@@ -45,7 +45,8 @@ export const format = {
 
 export const dom = {
     getScrollbarHeight: domUtils.getScrollbarHeight,
-    getScrollbarWidth: domUtils.getScrollbarWidth
+    getScrollbarWidth: domUtils.getScrollbarWidth,
+    copyToClipboard: domUtils.copyToClipboard
 };
 
 export const string = {

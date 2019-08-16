@@ -1,6 +1,6 @@
 const { State } = Shopware;
 
-export default class ItemLoader {
+export default class InfiniteScrollingHelper {
     constructor(entityName, limit) {
         this.store = State.getStore(entityName);
         this.page = 1;

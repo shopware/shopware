@@ -18,9 +18,14 @@ const ShortcutFactory = require('src/core/factory/shortcut.factory').default;
 const ApiServiceFactory = require('src/core/factory/api-service.factory').default;
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 const WorkerNotificationFactory = require('src/core/factory/worker-notification.factory').default;
-const FeatureConfig = require('src/core/feature-config').default;
 
+const FeatureConfig = require('src/core/feature-config').default;
+const ShopwareError = require('src/core/data/ShopwareError').default;
+const ApiService = require('src/core/service/api.service').default;
 const utils = require('src/core/service/util.service').default;
+// const FlatTreeHelper = require('src/core/helper/flattree.helper').default;
+// const InfiniteScrollingHelper = require('src/core/helper/infinite-scrolling.helper').default;
+const MiddlewareHelper = require('src/core/helper/middleware.helper').default;
 const data = require('src/core/data-new/index').default;
 const ApplicationBootstrapper = require('src/core/application').default;
 
@@ -244,5 +249,35 @@ module.exports = {
      * @memberOf module:Shopware
      * @type {Object}
      */
-    Data: data
+    Defaults: {
+        systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
+        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425'
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Data: data,
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Classes: {
+        ShopwareError: ShopwareError,
+        ApiService: ApiService
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Helper: {
+        // TODO: Evaluate if those helpers use module import instead of Shopware (circular reference)
+        // FlatTreeHelper: FlatTreeHelper,
+        // InfiniteScrollingHelper: InfiniteScrollingHelper,
+        MiddlewareHelper: MiddlewareHelper
+    }
 };

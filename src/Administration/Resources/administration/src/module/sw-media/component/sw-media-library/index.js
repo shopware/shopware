@@ -1,4 +1,4 @@
-import ItemLoader from 'src/core/helper/item.loader.helper';
+import ItemLoader from 'src/core/helper/infinite-scrolling.helper';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';

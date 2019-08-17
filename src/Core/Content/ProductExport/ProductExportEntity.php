@@ -59,13 +59,13 @@ class ProductExportEntity extends Entity
     /** @var int */
     protected $interval;
 
-    /** @var string */
+    /** @var string|null */
     protected $headerTemplate;
 
     /** @var string */
     protected $bodyTemplate;
 
-    /** @var string */
+    /** @var string|null */
     protected $footerTemplate;
 
     public function getProductStreamId(): string
@@ -208,12 +208,12 @@ class ProductExportEntity extends Entity
         $this->interval = $interval;
     }
 
-    public function getHeaderTemplate(): string
+    public function getHeaderTemplate(): ?string
     {
         return $this->headerTemplate;
     }
 
-    public function setHeaderTemplate(string $headerTemplate): void
+    public function setHeaderTemplate(?string $headerTemplate): void
     {
         $this->headerTemplate = $headerTemplate;
     }
@@ -228,12 +228,12 @@ class ProductExportEntity extends Entity
         $this->bodyTemplate = $bodyTemplate;
     }
 
-    public function getFooterTemplate(): string
+    public function getFooterTemplate(): ?string
     {
         return $this->footerTemplate;
     }
 
-    public function setFooterTemplate(string $footerTemplate): void
+    public function setFooterTemplate(?string $footerTemplate): void
     {
         $this->footerTemplate = $footerTemplate;
     }

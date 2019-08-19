@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -162,7 +162,7 @@ class OrderEntity extends Entity
     protected $customFields;
 
     /**
-     * @var DocumentEntity|null
+     * @var DocumentCollection|null
      */
     protected $documents;
 
@@ -441,12 +441,12 @@ class OrderEntity extends Entity
         $this->shippingTotal = $shippingTotal;
     }
 
-    public function getDocuments(): ?DocumentEntity
+    public function getDocuments(): ?DocumentCollection
     {
         return $this->documents;
     }
 
-    public function setDocuments(?DocumentEntity $documents): void
+    public function setDocuments(?DocumentCollection $documents): void
     {
         $this->documents = $documents;
     }

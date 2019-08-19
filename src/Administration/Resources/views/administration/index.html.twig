@@ -27,8 +27,10 @@
 
 {% block administration_templates %}{% endblock %}
 
-<script src="{{ asset('bundles/administration/static/js/commons.js') }}?{{ 'now'|date('U') }}"></script>
+<script src="{{ asset('bundles/administration/static/js/runtime.js') }}?{{ 'now'|date('U') }}"></script>
+<script src="{{ asset('bundles/administration/static/js/vendors-node.js') }}?{{ 'now'|date('U') }}"></script>
 <script src="{{ asset('bundles/administration/static/js/app.js') }}?{{ 'now'|date('U') }}"></script>
+<script src="{{ asset('bundles/administration/static/js/commons.js') }}?{{ 'now'|date('U') }}"></script>
 
 {# Plugins #}
 {% block administration_scripts %}{% endblock %}

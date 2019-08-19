@@ -10,9 +10,11 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
@@ -38,11 +40,6 @@ class PromotionCalculationTest extends TestCase
      */
     protected $promotionRepository;
 
-    /**
-     * @var \Shopware\Core\System\SalesChannel\SalesChannelContext
-     */
-    private $context;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -50,8 +47,6 @@ class PromotionCalculationTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
         $this->cartService = $this->getContainer()->get(CartService::class);
-
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
     /**
@@ -71,7 +66,9 @@ class PromotionCalculationTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
-        $code = 'BF19';
+        $code = 'BF' . Random::getAlphanumericString(5);
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 60, 17, $this->getContainer());
@@ -80,13 +77,13 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixtureAbsolutePromotion($promotionId, $code, 45, $this->getContainer());
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
-        $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $context);
 
         // create promotion and add to cart
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
         static::assertEquals(75.0, $cart->getPrice()->getTotalPrice());
         static::assertEquals(75.0, $cart->getPrice()->getPositionPrice());
@@ -110,7 +107,8 @@ class PromotionCalculationTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
-        $code = 'BF19';
+        $code = 'BF' . Random::getAlphanumericString(5);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 29, 17, $this->getContainer());
@@ -119,13 +117,13 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixturePercentagePromotion($promotionId, $code, 100, null, $this->getContainer());
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
-        $cart = $this->addProduct($productId, 10, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 10, $cart, $this->cartService, $context);
 
         // create promotion and add to cart
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
         static::assertEquals(0.0, $cart->getPrice()->getTotalPrice());
         static::assertEquals(0.0, $cart->getPrice()->getPositionPrice());
@@ -149,7 +147,8 @@ class PromotionCalculationTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
-        $code = 'BF19';
+        $code = 'BF' . Random::getAlphanumericString(5);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 100, 20, $this->getContainer());
@@ -158,13 +157,13 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixturePercentagePromotion($promotionId, $code, 50, null, $this->getContainer());
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
-        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
         // create promotion and add to cart
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
         static::assertEquals(50, $cart->getPrice()->getTotalPrice());
         static::assertEquals(50, $cart->getPrice()->getPositionPrice());
@@ -185,7 +184,8 @@ class PromotionCalculationTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
-        $code = 'BF19';
+        $code = 'BF' . Random::getAlphanumericString(5);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 100, 20, $this->getContainer());
@@ -195,13 +195,13 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixturePercentagePromotion($promotionId, $code, 50, 30.0, $this->getContainer());
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
-        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
         // create promotion and add to cart
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
         static::assertEquals(70, $cart->getPrice()->getTotalPrice());
         static::assertEquals(70, $cart->getPrice()->getPositionPrice());
@@ -224,7 +224,8 @@ class PromotionCalculationTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
-        $code = 'BF19';
+        $code = 'BF' . Random::getAlphanumericString(5);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         $productGross = 100;
         $percentage = 50;
@@ -242,13 +243,13 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixtureAdvancedPrice($discountId, Defaults::CURRENCY, $currencyMaxValue, $this->getContainer());
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
-        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
         // create promotion and add to cart
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
         static::assertEquals($expectedPrice, $cart->getPrice()->getPositionPrice());
         static::assertEquals($expectedPrice, $cart->getPrice()->getTotalPrice());
@@ -272,6 +273,7 @@ class PromotionCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId1 = Uuid::randomHex();
         $promotionId2 = Uuid::randomHex();
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 60, 19, $this->getContainer());
@@ -281,14 +283,14 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixturePercentagePromotion($promotionId2, '100off', 100, null, $this->getContainer());
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
-        $cart = $this->addProduct($productId, 5, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 5, $cart, $this->cartService, $context);
 
         // create promotion and add to cart
-        $cart = $this->addPromotionCode('sale', $cart, $this->cartService, $this->context);
-        $cart = $this->addPromotionCode('100off', $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode('sale', $cart, $this->cartService, $context);
+        $cart = $this->addPromotionCode('100off', $cart, $this->cartService, $context);
 
         static::assertEquals(0.0, $cart->getPrice()->getTotalPrice());
         static::assertEquals(0.0, $cart->getPrice()->getPositionPrice());
@@ -308,7 +310,8 @@ class PromotionCalculationTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
-        $code = 'BF19';
+        $code = 'BF' . Random::getAlphanumericString(5);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
@@ -316,13 +319,13 @@ class PromotionCalculationTest extends TestCase
         $this->createAdvancedCurrencyPriceValuePromotion($promotionId, $code, 15, 30);
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
-        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
         // create promotion and add to cart
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
         static::assertEquals(70, $cart->getPrice()->getPositionPrice());
         static::assertEquals(70, $cart->getPrice()->getTotalPrice());
@@ -344,7 +347,8 @@ class PromotionCalculationTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
-        $code = 'BF19';
+        $code = 'BF' . Random::getAlphanumericString(5);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 0, 19, $this->getContainer());
@@ -352,13 +356,13 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixturePercentagePromotion($promotionId, $code, 100.0, 100.0, $this->getContainer());
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
-        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
         // create promotion and add to cart
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
         // make sure we have only 1 product line item in there
         static::assertCount(1, $cart->getLineItems());
@@ -381,7 +385,8 @@ class PromotionCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $productIdTwo = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
-        $code = 'BF19';
+        $code = 'BF' . Random::getAlphanumericString(5);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
@@ -390,21 +395,21 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixtureProduct($productIdTwo, 100, 7, $this->getContainer());
 
         // add a new promotion
-        $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $this->context);
+        $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $context);
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create first product and add to cart
-        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
         // create promotion and add to cart
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
         static::assertCount(2, $cart->getLineItems(), 'We expect two lineItems in cart');
 
         // create second product and add to cart
-        $cart = $this->addProduct($productIdTwo, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productIdTwo, 1, $cart, $this->cartService, $context);
 
         static::assertCount(4, $cart->getLineItems(), 'We expect four lineItems in cart');
 
@@ -415,7 +420,7 @@ class PromotionCalculationTest extends TestCase
         $firstPromoId = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first()->getId();
 
         // and remove again
-        $cart = $this->cartService->remove($cart, $firstPromoId, $this->context);
+        $cart = $this->cartService->remove($cart, $firstPromoId, $context);
 
         static::assertCount(2, $cart->getLineItems(), 'We expect two lineItems in cart');
 
@@ -435,18 +440,19 @@ class PromotionCalculationTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer());
 
         // add a new promotion
-        $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, null, $this->getContainer(), $this->context);
+        $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, null, $this->getContainer(), $context);
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create first product and add to cart
-        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
         static::assertCount(2, $cart->getLineItems(), 'We expect two lineItems in cart');
 
@@ -458,7 +464,7 @@ class PromotionCalculationTest extends TestCase
         $discountId = $discountLineItem->getId();
 
         // and try to remove promotion
-        $cart = $this->cartService->remove($cart, $discountId, $this->context);
+        $cart = $this->cartService->remove($cart, $discountId, $context);
 
         static::assertCount(2, $cart->getLineItems(), 'We expect two lineItems in cart');
 
@@ -483,7 +489,8 @@ class PromotionCalculationTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
-        $code = 'BF19';
+        $code = 'BF' . Random::getAlphanumericString(5);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer());
@@ -492,16 +499,16 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixturePercentagePromotion($promotionId, $code, 100, null, $this->getContainer());
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // add product to cart
-        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
         // add promotion to cart
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
         // and remove again
-        $cart = $this->removePromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->removePromotionCode($code, $cart, $this->cartService, $context);
 
         static::assertEquals(119.0, $cart->getPrice()->getTotalPrice());
         static::assertEquals(119.0, $cart->getPrice()->getPositionPrice());
@@ -523,7 +530,8 @@ class PromotionCalculationTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
-        $code = 'BF19';
+        $code = 'BF' . Random::getAlphanumericString(5);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         $productGross = 100;
         $fixedPriceValue = 80;
@@ -535,20 +543,20 @@ class PromotionCalculationTest extends TestCase
         $this->createTestFixtureProduct($productId, $productGross, 19, $this->getContainer());
 
         /** @var string $discountId */
-        $discountId = $this->createTestFixtureFixedDiscountPromotion($promotionId, $fixedPriceValue, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $this->context);
+        $discountId = $this->createTestFixtureFixedDiscountPromotion($promotionId, $fixedPriceValue, PromotionDiscountEntity::SCOPE_CART, $code, $this->getContainer(), $context);
 
         $this->createTestFixtureAdvancedPrice($discountId, Defaults::CURRENCY, $currencyMaxValue, $this->getContainer());
 
         /** @var Cart $cart */
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
-        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
         static::assertEquals($productGross, $cart->getPrice()->getTotalPrice());
 
         // create promotion and add to cart
-        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
         static::assertEquals($expectedPrice, $cart->getPrice()->getPositionPrice());
         static::assertEquals($expectedPrice, $cart->getPrice()->getTotalPrice());
@@ -591,7 +599,7 @@ class PromotionCalculationTest extends TestCase
                     ],
                 ],
             ],
-            $this->context->getContext()
+            Context::createDefaultContext()
         );
     }
 }

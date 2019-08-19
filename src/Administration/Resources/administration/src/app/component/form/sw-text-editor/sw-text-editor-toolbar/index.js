@@ -23,7 +23,6 @@ Component.register('sw-text-editor-toolbar', {
         },
 
         selection: {
-            type: Object,
             required: false,
             default: null
         },

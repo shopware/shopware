@@ -11,7 +11,6 @@ Component.register('sw-text-editor-table-toolbar', {
 
     props: {
         selection: {
-            type: Object,
             required: false,
             default: null
         }

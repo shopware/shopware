@@ -1,6 +1,7 @@
 import ErrorResolverError from 'src/core/data/error-resolver.data';
+import RepositoryFactory from 'src/core/data-new/repository-factory.data';
 
-const { EntityHydrator, ChangesetGenerator, EntityFactory, RepositoryFactory } = Shopware.Data;
+const { EntityHydrator, ChangesetGenerator, EntityFactory } = Shopware.Data;
 
 export default function initializeRepositoryFactory(container) {
     const httpClient = container.httpClient;

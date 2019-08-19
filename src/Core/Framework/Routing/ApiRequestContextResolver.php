@@ -103,9 +103,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
-            $isAdmin = in_array('admin', $request->attributes->get('oauth_scopes'), true);
+            $hasAdminScope = in_array('admin', $request->attributes->get('oauth_scopes'), true);
             $adminApiSource = $this->getAdminApiSource($userId);
-            $adminApiSource->setIsAdmin($isAdmin);
+            $adminApiSource->setIsAdmin($hasAdminScope || $adminApiSource->isAdmin());
 
             return $adminApiSource;
         }

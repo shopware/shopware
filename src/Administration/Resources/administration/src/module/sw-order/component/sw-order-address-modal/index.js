@@ -1,8 +1,8 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.scss';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-order-address-modal', {
     template,

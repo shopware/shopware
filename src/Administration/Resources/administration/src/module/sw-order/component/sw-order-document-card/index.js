@@ -1,4 +1,3 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 import '../sw-order-document-settings-invoice-modal/';
@@ -8,6 +7,7 @@ import '../sw-order-document-settings-credit-note-modal/';
 import '../sw-order-document-settings-modal/';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-order-document-card', {
     template,

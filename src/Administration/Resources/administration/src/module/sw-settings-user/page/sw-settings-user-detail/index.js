@@ -1,8 +1,8 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-user-detail.html.twig';
 import './sw-settings-user-detail.scss';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-settings-user-detail', {

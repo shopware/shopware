@@ -1,8 +1,8 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-number-range-list.html.twig';
 import './sw-settings-number-range-list.scss';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-number-range-list', {
     template,

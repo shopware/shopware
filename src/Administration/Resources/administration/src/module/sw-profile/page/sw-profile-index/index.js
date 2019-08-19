@@ -1,9 +1,9 @@
 import { email } from 'src/core/service/validation.service';
-import Criteria from 'src/core/data-new/criteria.data';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-profile-index.html.twig';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 const types = Shopware.Utils.types;
 
 Component.register('sw-profile-index', {

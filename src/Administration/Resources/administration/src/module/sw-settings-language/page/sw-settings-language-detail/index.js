@@ -1,8 +1,8 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
 
 const { Component, State, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-language-detail', {
     template,

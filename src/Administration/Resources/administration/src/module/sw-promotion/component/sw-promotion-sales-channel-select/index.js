@@ -1,7 +1,7 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-sales-channel-select.html.twig';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-sales-channel-select', {
     template,

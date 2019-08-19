@@ -1,8 +1,8 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-order-condition-form.html.twig';
 import './sw-promotion-order-condition-form.scss';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-order-condition-form', {
     template,

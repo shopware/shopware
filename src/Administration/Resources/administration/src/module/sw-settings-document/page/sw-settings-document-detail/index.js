@@ -1,10 +1,10 @@
 import LocalStore from 'src/core/data/LocalStore';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
 
 const { Component, State, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-document-detail', {
     template,

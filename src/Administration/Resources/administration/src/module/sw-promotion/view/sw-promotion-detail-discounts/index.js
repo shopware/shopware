@@ -1,9 +1,9 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-detail-discounts.html.twig';
 import DiscountTypes from './../../common/discount-type';
 import DiscountScopes from './../../common/discount-scope';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-detail-discounts', {
     template,

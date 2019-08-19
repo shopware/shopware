@@ -1,9 +1,9 @@
 import { mapApiErrors } from 'src/app/service/map-errors.service';
-import ShopwareError from 'src/core/data/ShopwareError';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-salutation-detail.html.twig';
 
 const { Component, Mixin, State } = Shopware;
+const { Criteria } = Shopware.Data;
+const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
 Component.register('sw-settings-salutation-detail', {

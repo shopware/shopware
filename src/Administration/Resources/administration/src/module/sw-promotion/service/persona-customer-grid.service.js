@@ -1,4 +1,4 @@
-import Criteria from 'src/core/data-new/criteria.data';
+const { Criteria } = Shopware.Data;
 
 export default class PersonaCustomerGridService {
     constructor(component, repoCustomers, repoPromotionCustomers) {

@@ -1,4 +1,3 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-discount-component.html.twig';
 import './sw-promotion-discount-component.scss';
 import DiscountTypes from './../../common/discount-type';
@@ -6,6 +5,7 @@ import DiscountScopes from './../../common/discount-scope';
 import DiscountHandler from './handler';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 
 Component.register('sw-promotion-discount-component', {

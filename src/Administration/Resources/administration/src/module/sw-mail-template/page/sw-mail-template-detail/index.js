@@ -1,9 +1,9 @@
 import LocalStore from 'src/core/data/LocalStore';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
 const { Application, Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-mail-template-detail', {

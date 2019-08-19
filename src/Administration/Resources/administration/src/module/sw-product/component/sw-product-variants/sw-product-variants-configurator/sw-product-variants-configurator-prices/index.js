@@ -1,8 +1,8 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-variants-configurator-prices.html.twig';
 import './sw-product-variants-configurator-prices.scss';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-variants-configurator-prices', {
     template,

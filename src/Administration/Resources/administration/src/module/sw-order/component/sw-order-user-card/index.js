@@ -1,9 +1,9 @@
-import ApiService from 'src/core/service/api.service';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-order-user-card.html.twig';
 import './sw-order-user-card.scss';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
+const ApiService = Shopware.Classes.ApiService;
 const format = Shopware.Utils.format;
 
 Component.register('sw-order-user-card', {

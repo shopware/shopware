@@ -1,8 +1,8 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 
 const { Component, Mixin, State } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-cms-list', {
     template,

@@ -1,8 +1,8 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-newsletter-recipient-detail.html.twig';
 import './sw-newsletter-recipient-detail.scss';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-newsletter-recipient-detail', {
     template,

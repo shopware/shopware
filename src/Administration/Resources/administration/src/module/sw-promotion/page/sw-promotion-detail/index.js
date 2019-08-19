@@ -1,10 +1,10 @@
 import { mapPageErrors } from 'src/app/service/map-errors.service';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-detail.html.twig';
 import errorConfig from './error-config.json';
 import swPromotionDetailState from './state';
 
 const { Component, Mixin, State } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-detail', {
     template,

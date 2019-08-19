@@ -1,9 +1,9 @@
 import { mapApiErrors } from 'src/app/service/map-errors.service';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-basic-form.html.twig';
 import './sw-promotion-basic-form.scss';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 const types = Shopware.Utils.types;
 
 Component.register('sw-promotion-basic-form', {

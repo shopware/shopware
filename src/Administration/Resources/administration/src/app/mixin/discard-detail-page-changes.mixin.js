@@ -1,6 +1,5 @@
 const { Mixin } = Shopware;
-const types = Shopware.Utils.types;
-const { debug } = Shopware.Utils.debug;
+const { types, debug } = Shopware.Utils;
 
 /**
  * Mixin which resets entity changes on page leave or if the id of the entity changes.

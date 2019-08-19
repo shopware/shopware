@@ -801,15 +801,6 @@ class ProductConverter extends ShopwareConverter
         }
 
         $price = [];
-        if ($currencyUuid !== Defaults::CURRENCY) {
-            $price[] = [
-                'currencyId' => Defaults::CURRENCY,
-                'gross' => $gross,
-                'net' => (float) $data['price'],
-                'linked' => true,
-            ];
-        }
-
         $price[] = [
             'currencyId' => $currencyUuid,
             'gross' => $gross,

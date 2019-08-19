@@ -18,6 +18,7 @@ module.exports = {
             : config.dev.performanceHints
     },
     optimization: {
+        moduleIds: 'hashed',
         runtimeChunk: {
             name: 'runtime'
         },
@@ -31,7 +32,6 @@ module.exports = {
             }
         }
     },
-    moduleIds: 'hashed',
     entry: {
         commons: [`${resolve('src')}/core/common.js`, `${resolve('src')}/core/shopware.js`],
         app: `${resolve('src')}/app/main.js`

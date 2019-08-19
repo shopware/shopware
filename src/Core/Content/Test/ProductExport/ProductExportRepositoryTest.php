@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\ProductStream;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Context;
@@ -82,6 +83,45 @@ class ProductExportRepositoryTest extends TestCase
         $entity = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertSame('Newexport', $entity->getFileName());
         static::assertSame($id, $entity->getId());
+    }
+
+    public function testCreateDuplicateEntity(): void
+    {
+        $firstId = Uuid::randomHex();
+        $this->repository->upsert([
+            [
+                'id' => $firstId,
+                'fileName' => 'Testexport',
+                'accessKey' => Uuid::randomHex(),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
+                'interval' => 0,
+                'bodyTemplate' => 'test',
+                'productStreamId' => $this->getProductStreamId(),
+                'salesChannelId' => $this->getSalesChannelId(),
+                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+                'generateByCronjob' => false,
+            ],
+        ], $this->context);
+
+        static::expectException(UniqueConstraintViolationException::class);
+
+        $secondId = Uuid::randomHex();
+        $this->repository->upsert([
+            [
+                'id' => $secondId,
+                'fileName' => 'Testexport',
+                'accessKey' => Uuid::randomHex(),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
+                'interval' => 0,
+                'bodyTemplate' => 'test',
+                'productStreamId' => $this->getProductStreamId(),
+                'salesChannelId' => $this->getSalesChannelId(),
+                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+                'generateByCronjob' => false,
+            ],
+        ], $this->context);
     }
 
     public function testFetchProductStream(): void

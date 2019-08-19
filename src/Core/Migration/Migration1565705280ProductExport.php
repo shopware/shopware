@@ -34,6 +34,7 @@ class Migration1565705280ProductExport extends MigrationStep
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
+                UNIQUE KEY `file_name` (`file_name`),
                 KEY `fk.product_export.product_stream_id` (`product_stream_id`),
                 KEY `fk.product_export.sales_channel_id` (`sales_channel_id`),
                 KEY `fk.product_export.sales_channel_domain_id` (`sales_channel_domain_id`),

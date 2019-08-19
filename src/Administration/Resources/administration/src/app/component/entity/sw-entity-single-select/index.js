@@ -1,7 +1,6 @@
-import Criteria from 'src/core/data-new/criteria.data';
-
 const { Component } = Shopware;
 const utils = Shopware.Utils;
+const { Criteria } = Shopware.Data;
 
 Component.extend('sw-entity-single-select', 'sw-single-select', {
     inject: ['repositoryFactory', 'context'],

@@ -1,9 +1,9 @@
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import utils from 'src/core/service/util.service';
 import template from './sw-media-field.html.twig';
 import './sw-media-field.scss';
 
 const { Component, State } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @status ready

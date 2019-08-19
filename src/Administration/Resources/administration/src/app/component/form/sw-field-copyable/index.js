@@ -1,8 +1,8 @@
-import domUtils from 'src/core/service/utils/dom.utils';
 import './sw-field-copyable.scss';
 import template from './sw-field-copyable.html.twig';
 
 const { Component, Mixin } = Shopware;
+const domUtils = Shopware.Utils.dom;
 
 /**
  * @private

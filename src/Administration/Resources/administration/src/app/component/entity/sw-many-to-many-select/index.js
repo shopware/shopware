@@ -1,6 +1,5 @@
-import Criteria from 'src/core/data-new/criteria.data';
-
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.extend('sw-many-to-many-select', 'sw-multi-select', {
     inject: ['repositoryFactory', 'context'],

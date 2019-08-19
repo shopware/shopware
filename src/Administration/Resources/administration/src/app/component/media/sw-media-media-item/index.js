@@ -1,8 +1,8 @@
-import domUtils from 'src/core/service/utils/dom.utils';
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
 
 const { Component, Mixin, State } = Shopware;
+const domUtils = Shopware.Utils.dom;
 
 /**
  * @status ready

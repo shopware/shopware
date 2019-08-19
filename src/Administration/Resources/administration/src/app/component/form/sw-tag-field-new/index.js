@@ -1,7 +1,7 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-tag-field-new.html.twig';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-tag-field-new', {
     template,

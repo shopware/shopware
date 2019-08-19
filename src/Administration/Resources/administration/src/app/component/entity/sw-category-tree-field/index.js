@@ -1,9 +1,9 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
 
 const { Component } = Shopware;
 const utils = Shopware.Utils;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-category-tree-field', {
     template,

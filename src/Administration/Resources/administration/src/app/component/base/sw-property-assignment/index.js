@@ -1,8 +1,8 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-property-assignment.html.twig';
 import './sw-property-assignment.scss';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-property-assignment', {
     template,

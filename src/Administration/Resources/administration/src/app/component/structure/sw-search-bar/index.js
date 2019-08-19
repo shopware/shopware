@@ -1,8 +1,8 @@
-import utils from 'src/core/service/util.service';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
 const { Component, Application } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public

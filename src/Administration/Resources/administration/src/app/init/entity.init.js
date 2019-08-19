@@ -1,9 +1,9 @@
 import EntityStore from 'src/core/data/EntityStore';
 import EntityProxy from 'src/core/data/EntityProxy';
-import ApiService from 'src/core/service/api.service';
 import LanguageStore from 'src/core/data/LanguageStore';
 
 const stringUtil = Shopware.Utils.string;
+const ApiService = Shopware.Classes.ApiService;
 
 export default function initializeEntities(container) {
     const factoryContainer = this.getContainer('factory');

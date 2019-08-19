@@ -1,7 +1,7 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-entity-listing.html.twig';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.extend('sw-entity-listing', 'sw-data-grid', {
     template,

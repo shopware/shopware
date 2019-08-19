@@ -1,7 +1,7 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-one-to-many-grid.html.twig';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
     template,

@@ -1,7 +1,7 @@
 import ErrorStore from 'src/core/data/error-store.data';
-import utils from 'src/core/service/util.service';
 
 const { State, Application } = Shopware;
+const utils = Shopware.Utils;
 
 class VuexErrorStore {
     constructor() {

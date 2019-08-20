@@ -685,4 +685,26 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
 Elasticsearch
 -------------
 
-*No changes yet*
+**Changes**
+
+* The env variables `SHOPWARE_SES_*` were renamed to `SHOPWARE_ES_*`.
+* If you used one of the elastic search parameter in your services.xml you have to change it as follow:
+    Before:
+    ```
+      <service ....>
+         <argument>%shopware.ses.enabled%</argument>
+         <argument>%shopware.ses.indexing.enabled%</argument>
+         <argument>%shopware.ses.index_prefix%</argument>
+      </service>       
+    ```
+
+    After:
+    ```
+      <service ....>
+         <argument>%elasticsearch.enabled%</argument>
+         <argument>%elasticsearch.indexing_enabled%</argument>
+         <argument>%elasticsearch.index_prefix%</argument>
+      </service>    
+    ```
+
+

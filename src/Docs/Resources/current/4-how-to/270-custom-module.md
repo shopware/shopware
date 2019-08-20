@@ -62,7 +62,7 @@ Also, the property `type` should have the value `plugin`. This can be used e.g. 
 
 Additional to those basic meta information, each module comes with a custom color and a custom icon.
 Those will be used in the whole module and all components related to it, even in the title of your browser's tab.
-A list of all available icons can be found [here](https://component-library.shopware.com/components/sw-icon).
+A list of all available icons can be found [here](https://component-library.shopware.com/icons/).
 
 ```js
 import { Module } from 'src/core/shopware';

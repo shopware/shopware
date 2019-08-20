@@ -20,6 +20,11 @@ class CategoryEntity extends Entity
     protected $parentId;
 
     /**
+     * @var int
+     */
+    protected $autoIncrement;
+
+    /**
      * @var string|null
      */
     protected $mediaId;
@@ -272,6 +277,16 @@ class CategoryEntity extends Entity
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
+    }
+
+    public function getAutoIncrement(): int
+    {
+        return $this->autoIncrement;
+    }
+
+    public function setAutoIncrement(int $autoIncrement): void
+    {
+        $this->autoIncrement = $autoIncrement;
     }
 
     public function getNestedProducts(): ?ProductCollection

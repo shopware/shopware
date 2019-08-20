@@ -27,8 +27,16 @@ class IteratorFactory
         $query->from($escaped);
         $query->setMaxResults(50);
 
-        $query->select('LOWER(HEX(' . $escaped . '.id))');
-        $query->orderBy($escaped . '.id', 'asc');
+        if ($definition->getFields()->has('autoIncrement')) {
+            $query->select([$escaped . '.auto_increment', 'LOWER(HEX(' . $escaped . '.id))']);
+            $query->andWhere($escaped . '.auto_increment > :lastId');
+            $query->addOrderBy($escaped . '.auto_increment');
+            $query->setParameter('lastId', 0);
+
+            return new LastIdQuery($query);
+        }
+
+        $query->select([$escaped . '.id', 'LOWER(HEX(' . $escaped . '.id))']);
         $query->setFirstResult(0);
 
         return new OffsetQuery($query);

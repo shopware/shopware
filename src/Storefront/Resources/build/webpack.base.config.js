@@ -135,14 +135,32 @@ const plugins = [
  * @type {{}}
  */
 const optimization = {
+    moduleIds: 'hashed',
     runtimeChunk: {
         name: 'runtime',
     },
     splitChunks: {
+        minSize: 0,
+        minChunks: 1,
         cacheGroups: {
-            vendor: {
+            'vendor-node': {
+                enforce: true,
                 test: utils.getPath('node_modules'),
-                name: 'vendors',
+                name: 'vendor-node',
+                chunks: 'all',
+            },
+            'vendor-shared': {
+                enforce: true,
+                test: (content) => {
+                    if (content.resource.includes(utils.getPath('src/script/plugin-system'))
+                        || content.resource.includes(utils.getPath('src/script/helper'))
+                        || content.resource.includes(utils.getPath('src/script/utility'))
+                        || content.resource.includes(utils.getPath('src/script/service'))) {
+                        return true;
+                    }
+                    return false;
+                },
+                name: 'vendor-shared',
                 chunks: 'all',
             },
         },

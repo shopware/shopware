@@ -92,6 +92,17 @@ class StoreApiService extends ApiService {
             });
     }
 
+    getLicenseViolationList() {
+        const headers = this.getBasicHeaders();
+        const params = this.getBasicParams();
+
+        return this.httpClient
+            .post(`/_action/${this.getApiBasePath()}/license-violations`, null, { params, headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     getBasicParams(additionalParams = {}) {
         const basicParams = {
             language: localStorage.getItem('sw-admin-locale')

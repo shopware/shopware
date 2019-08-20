@@ -139,6 +139,7 @@ class PaymentTransactionChainProcessor
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
         $criteria->addAssociation('customer');
+        $criteria->addAssociation('salutation');
 
         return $this->orderCustomerRepository
             ->search($criteria, $context)

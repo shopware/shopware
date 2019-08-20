@@ -114,10 +114,9 @@ For this purpose, you create a new directory called `<plugin root>/src/Resources
 The file's name is up to you, in this example it will be called `rule-condition-service-decoration.js`.
 
 ```js
-import { Application } from 'src/core/shopware';
 import '../core/component/swag-lunar-eclipse';
 
-Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
+Shopware.Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
     ruleConditionService.addCondition('lunar_eclipse', {
         component: 'swag-lunar-eclipse',
         label: 'Is lunar eclipse today',
@@ -156,11 +155,10 @@ Each component has to come with a file called `index.js`, defining your new comp
 Here's an example of what this component could look like, with an explanation coming afterwards:
 
 ```js
-import { Component } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './swag-lunar-eclipse.html.twig';
 
-Component.extend('swag-lunar-eclipse', 'sw-condition-base', {
+Shopware.Component.extend('swag-lunar-eclipse', 'sw-condition-base', {
     template,
 
     computed: {

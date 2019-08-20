@@ -57,17 +57,10 @@ import './app/component/custom-component/hello-world';
 Head back to the `index.js` file, this one will be the most important for your component.
 
 First of all, you have to register your component using the `ComponentFactory`, which is available throughout our third party wrapper.
+This `Component` object provides a method `register`, which expects a name and a configuration for your component.
 
 ```js
-import { Component } from 'src/core/shopware';
-```
-
-This `Component` provides a method `register`, which expects a name and a configuration for your component.
-
-```js
-import { Component } from 'src/core/shopware';
-
-Component.register('hello-world', {
+Shopware.Component.register('hello-world', {
     // Configuration here
 });
 ```
@@ -76,9 +69,7 @@ A component's template is being defined by using the `template` property. For th
 An example for a bigger template will also be provided later on this page.
 
 ```js
-import { Component } from 'src/core/shopware';
-
-Component.register('hello-world', {
+Shopware.Component.register('hello-world', {
     template: '<h2>Hello world!</h2>'
 });
 ```
@@ -93,20 +84,18 @@ For this example `hello-world.html.twig` is used.
 
 Now simply import this file in your component's JS file and use the variable for your property.
 ```js
-import { Component } from 'src/core/shopware';
 import template from 'hello-world.html.twig';
 
-Component.register('hello-world', {
+Shopware.Component.register('hello-world', {
     template: template
 });
 ```
 
 In the core code, you will find another syntax for the same result though:
 ```js
-import { Component } from 'src/core/shopware';
 import template from 'hello-world.html.twig';
 
-Component.register('hello-world', {
+Shopware.Component.register('hello-world', {
     template
 });
 ```

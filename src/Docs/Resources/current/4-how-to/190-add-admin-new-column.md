@@ -26,9 +26,7 @@ the actually overridden properties, including a new template for the component i
 Since the columns of a table are defined in javascript, you don't have to extend the twig template here.
 
 ```js
-import { Component } from 'src/core/shopware';
-
-Component.override('sw-product-list', {
+Shopware.Component.override('sw-product-list', {
     computed: {
         productColumns() {
             let columns = this.getProductColumns();

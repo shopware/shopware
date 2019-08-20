@@ -72,19 +72,11 @@ Back to your `index.js`, which is still empty.
 In order to register a new block, you have to call the `registerCmsBlock` method of the [cmsService](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/module/sw-cms/service/cms.service.js).
 Since it's available in the Dependency Injection Container, you can fetch it from there.
 
-First of all, import our `Applicaton` wrapper, which will grant you access to the DI container.
-
-```js
-import { Application } from 'src/core/shopware';
-```
-
-This `Application` wrapper has access to the DI container, so go ahead and fetch the `cmsService` from it and call the
+First of all, access our `Applicaton` wrapper, which will grant you access to the DI container. This `Application` wrapper has access to the DI container, so go ahead and fetch the `cmsService` from it and call the
 mentioned `registerCmsBlock` method.
 
 ```js
-import { Application } from 'src/core/shopware';
-
-Application.getContainer('service').cmsService.registerCmsBlock();
+Shopware.Application.getContainer('service').cmsService.registerCmsBlock();
 ```
 
 The method `registerCmsBlock` takes a configuration object, containing the following necessary data:
@@ -115,9 +107,7 @@ slots
 Go ahead and create this configuration object yourself.
 Here's what it should look like after having set all of those options:
 ```js
-import { Application } from 'src/core/shopware';
-
-Application.getContainer('service').cmsService.registerCmsBlock({
+Shopware.Application.getContainer('service').cmsService.registerCmsBlock({
     name: 'image-text-reversed',
     label: 'Text next to image',
     category: 'text-image',
@@ -179,11 +169,10 @@ First of all, create a new directory `component` in your block's directory. In t
 and register your custom component `sw-cms-block-image-text-reversed`.
 
 ```js
-import { Component } from 'src/core/shopware';
 import template from './sw-cms-block-image-text-reversed.html.twig';
 import './sw-cms-block-image-text-reversed.scss';
 
-Component.register('sw-cms-block-image-text-reversed', {
+Shopware.Component.register('sw-cms-block-image-text-reversed', {
     template
 });
 ```
@@ -225,10 +214,9 @@ That's it for this component! Make sure to import your `component` directory in 
 new component actually gets loaded.
 
 ```js
-import { Application } from 'src/core/shopware';
 import './component';
- 
-Application.getContainer('service').cmsService.registerCmsBlock({
+
+Shopware.Application.getContainer('service').cmsService.registerCmsBlock({
     ...
 });
 ```
@@ -243,11 +231,10 @@ Time to create this component as well. For this purpose, stick to the core struc
 In there, again, create an `index.js` file, register your component by its name and load a template and a `.scss` file.
 
 ```js
-import { Component } from 'src/core/shopware';
 import template from './sw-cms-preview-image-text-reversed.html.twig';
 import './sw-cms-preview-image-text-reversed.scss';
 
-Component.register('sw-cms-preview-image-text-reversed', {
+Shopware.Component.register('sw-cms-preview-image-text-reversed', {
     template
 });
 ```
@@ -288,11 +275,10 @@ Now, import this component in your block's `index.js` as well.
 This is, what your final block's `index.js` file should look like now:
 
 ```js
-import { Application } from 'src/core/shopware';
 import './component';
 import './preview';
 
-Application.getContainer('service').cmsService.registerCmsBlock({
+Shopware.Application.getContainer('service').cmsService.registerCmsBlock({
     name: 'image-text-reversed',
     label: 'Text next to image',
     category: 'text-image',

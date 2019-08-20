@@ -2,7 +2,7 @@ import CriteriaFactory from 'src/core/factory/criteria.factory';
 
 const { Mixin } = Shopware;
 const types = Shopware.Utils.types;
-const { debug } = Shopware.Utils.debug;
+const { debug } = Shopware.Utils;
 
 Mixin.register('listing', {
     data() {

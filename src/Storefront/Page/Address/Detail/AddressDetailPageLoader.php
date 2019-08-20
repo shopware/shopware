@@ -9,13 +9,13 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
+use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -92,12 +92,14 @@ class AddressDetailPageLoader
      */
     private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
     {
-        $criteria = (new Criteria([]))->addSorting(new FieldSorting('salutationKey', 'DESC'));
+        /** @var SalutationCollection $salutations */
+        $salutations = $this->salutationRepository->search(new Criteria(), $salesChannelContext)->getEntities();
 
-        /** @var SalutationCollection $collection */
-        $collection = $this->salutationRepository->search($criteria, $salesChannelContext)->getEntities();
+        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
+            return $b->getSalutationKey() <=> $a->getSalutationKey();
+        });
 
-        return $collection;
+        return $salutations;
     }
 
     /**

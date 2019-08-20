@@ -28,59 +28,47 @@ class SystemConfigService
      */
     private $systemConfigRepository;
 
+    /**
+     * @var array[]
+     */
+    private $configs = [];
+
     public function __construct(Connection $connection, EntityRepositoryInterface $systemConfigRepository)
     {
         $this->connection = $connection;
         $this->systemConfigRepository = $systemConfigRepository;
     }
 
-    public function get(string $key, ?string $salesChannelId = null, bool $inherit = true)
+    public function get(string $key, ?string $salesChannelId = null)
     {
-        $criteria = new Criteria();
+        $config = $this->load($salesChannelId);
 
-        $filter = [new EqualsFilter('salesChannelId', $salesChannelId)];
-        if ($inherit) {
-            $filter[] = new EqualsFilter('salesChannelId', null);
+        $parts = explode('.', $key);
+
+        $pointer = $config;
+
+        foreach ($parts as $part) {
+            if (!is_array($pointer)) {
+                return null;
+            }
+
+            if (array_key_exists($part, $pointer)) {
+                $pointer = $pointer[$part];
+                continue;
+            }
+
+            return null;
         }
 
-        $criteria->addFilter(new MultiFilter(
-            MultiFilter::CONNECTION_OR,
-            $filter
-        ));
-        $criteria->addFilter(new EqualsFilter('configurationKey', $key));
-        $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::ASCENDING));
-
-        /** @var SystemConfigEntity|null $last */
-        $last = $this->systemConfigRepository
-            ->search($criteria, Context::createDefaultContext())
-            ->last();
-
-        return $last ? $last->getConfigurationValue() : null;
+        return $pointer;
     }
 
     /**
      * gets all available shop configs and returns them as an array
      */
-    public function getConfigArray(?string $salesChannelId = null, bool $inherit = true): array
+    public function all(?string $salesChannelId = null): array
     {
-        $criteria = new Criteria();
-
-        $filter = [new EqualsFilter('salesChannelId', $salesChannelId)];
-        if ($inherit) {
-            $filter[] = new EqualsFilter('salesChannelId', null);
-        }
-
-        $criteria->addFilter(new MultiFilter(
-            MultiFilter::CONNECTION_OR,
-            $filter
-        ));
-
-        $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::ASCENDING));
-
-        /** @var SystemConfigCollection $systemConfigs */
-        $systemConfigs = $this->systemConfigRepository->search($criteria, Context::createDefaultContext())->getEntities();
-
-        return $this->buildSystemConfigArray($systemConfigs);
+        return $this->load($salesChannelId);
     }
 
     /**
@@ -141,6 +129,9 @@ class SystemConfigService
 
     public function set(string $key, $value, ?string $salesChannelId = null): void
     {
+        // reset internal cache
+        $this->configs = [];
+
         $key = trim($key);
         $this->validate($key, $salesChannelId);
 
@@ -165,6 +156,40 @@ class SystemConfigService
     public function delete(string $key, ?string $salesChannel = null): void
     {
         $this->set($key, null, $salesChannel);
+    }
+
+    private function load(?string $salesChannelId): array
+    {
+        $key = $salesChannelId ?? 'global';
+
+        if (isset($this->configs[$key])) {
+            return $this->configs[$key];
+        }
+
+        $criteria = new Criteria();
+
+        if ($salesChannelId === null) {
+            $criteria->addFilter(new EqualsFilter('salesChannelId', null));
+        } else {
+            $criteria->addFilter(
+                new MultiFilter(
+                    MultiFilter::CONNECTION_OR,
+                    [
+                        new EqualsFilter('salesChannelId', $salesChannelId),
+                        new EqualsFilter('salesChannelId', null),
+                    ]
+                )
+            );
+        }
+
+        $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::ASCENDING));
+
+        /** @var SystemConfigCollection $systemConfigs */
+        $systemConfigs = $this->systemConfigRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        $this->configs[$key] = $this->buildSystemConfigArray($systemConfigs);
+
+        return $this->configs[$key];
     }
 
     /**

@@ -276,7 +276,8 @@ class AccountRegistrationService
         $validation = $this->accountValidationService->buildCreateValidation($context);
 
         if (!$isGuest) {
-            $validation->add('password', new NotBlank(), new Length(['min' => $this->systemConfigService->get('core.loginRegistration.passwordMinLength')]));
+            $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength');
+            $validation->add('password', new NotBlank(), new Length(['min' => $minLength]));
             $validation->add('email', new CustomerEmailUnique(['context' => $context]));
         }
 

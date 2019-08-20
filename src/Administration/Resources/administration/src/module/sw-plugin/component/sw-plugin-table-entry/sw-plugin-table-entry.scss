@@ -7,8 +7,8 @@
 
     img {
         margin-right: 10px;
-        height: 40px;
-        width: 40px;
+        max-width: 40px;
+        max-height: 40px;
     }
 
     .sw-plugin-table-entry__text-container {
@@ -29,6 +29,4 @@
             line-height: 17px;
         }
     }
-
-
 }

@@ -146,7 +146,7 @@ class ElasticsearchHelper
         }
 
         $query = $this->parser->parse(
-            new EqualsAnyFilter('id', $ids),
+            new EqualsAnyFilter('id', array_values($ids)),
             $definition,
             $definition->getEntityName(),
             $context

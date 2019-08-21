@@ -156,6 +156,14 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
                 );
 
             case $aggregation instanceof ValueAggregation:
+                if (isset($result[$aggregation->getName()])) {
+                    $result = $result[$aggregation->getName()];
+                }
+
+                if (!isset($result['buckets'])) {
+                    return null;
+                }
+
                 $values = array_column($result['buckets'], 'key');
 
                 return new AggregationResult(

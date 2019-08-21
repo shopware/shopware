@@ -27,6 +27,7 @@ const FlatTreeHelper = require('src/core/helper/flattree.helper').default;
 const InfiniteScrollingHelper = require('src/core/helper/infinite-scrolling.helper').default;
 const MiddlewareHelper = require('src/core/helper/middleware.helper').default;
 const data = require('src/core/data-new/index').default;
+const dataDeprecated = require('src/core/data/index').default;
 const ApplicationBootstrapper = require('src/core/application').default;
 
 const container = new Bottle({
@@ -260,6 +261,13 @@ module.exports = {
      * @type {Object}
      */
     Data: data,
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     * @deprecated 6.1
+     */
+    DataDeprecated: dataDeprecated,
 
     /**
      * @memberOf module:Shopware

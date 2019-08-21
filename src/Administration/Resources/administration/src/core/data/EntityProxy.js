@@ -11,6 +11,7 @@ const ApiService = Shopware.Classes.ApiService;
 
 /**
  * @module core/data/EntityProxy
+ * @deprecated 6.1
  */
 
 /**

@@ -4,6 +4,7 @@ import utils from 'src/core/service/util.service';
 
 /**
  * @module core/data/LocalStore
+ * @deprecated 6.1
  */
 
 /**

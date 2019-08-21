@@ -12,6 +12,8 @@ const {
     ApiService,
     EntityDefinition,
     WorkerNotification,
+    DataDeprecated,
+    Data,
     Defaults,
     Classes,
     Helper
@@ -135,6 +137,26 @@ describe('core/common.js', () => {
         expect(Defaults).toHaveProperty('systemLanguageId');
         expect(Defaults).toHaveProperty('defaultLanguageIds');
         expect(Defaults).toHaveProperty('versionId');
+    });
+
+    /**
+     * @deprecated 6.1
+     */
+    it('should contain the necessary methods for the DataDeprecated', () => {
+        expect(DataDeprecated).toHaveProperty('LocalStore');
+        expect(DataDeprecated).toHaveProperty('UploadStore');
+        expect(DataDeprecated).toHaveProperty('CriteriaFactory');
+    });
+
+    it('should contain the necessary methods for the Data', () => {
+        expect(Data).toHaveProperty('ChangesetGenerator');
+        expect(Data).toHaveProperty('Criteria');
+        expect(Data).toHaveProperty('Entity');
+        expect(Data).toHaveProperty('EntityCollection');
+        expect(Data).toHaveProperty('EntityDefinition');
+        expect(Data).toHaveProperty('EntityFactory');
+        expect(Data).toHaveProperty('EntityHydrator');
+        expect(Data).toHaveProperty('Repository');
     });
 
     it('should contain the necessary methods for the Classes', () => {

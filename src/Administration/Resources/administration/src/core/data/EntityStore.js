@@ -6,6 +6,7 @@ const ApiService = Shopware.Classes.ApiService;
 
 /**
  * @module core/data/EntityStore
+ * @deprecated 6.1
  */
 
 /**

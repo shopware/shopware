@@ -1,5 +1,6 @@
 /**
  * @module core/data/UploadStore
+ * @deprecated 6.1
  */
 import UploadTask from 'src/core/helper/upload-task.helper';
 import { fileReader, array } from 'src/core/service/util.service';

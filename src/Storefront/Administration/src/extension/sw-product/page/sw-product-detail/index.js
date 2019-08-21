@@ -1,5 +1,5 @@
-import { Component } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
+const { Component } = Shopware;
+const Criteria = Shopware.Data.Criteria;
 
 Component.override('sw-product-detail', {
     template: '',

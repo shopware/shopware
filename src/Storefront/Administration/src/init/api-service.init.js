@@ -1,7 +1,8 @@
-import { Application } from 'src/core/shopware';
 import SeoUrlTemplateService from '../core/service/api/seo-url-template.api.service';
 import SeoUrlService from '../core/service/api/seo-url.api.service';
 import ThemeService from '../core/service/api/theme.api.service';
+
+const { Application } = Shopware;
 
 Application.addServiceProviderDecorator('seoUrlService', (container) => {
     const initContainer = Application.getContainer('init');

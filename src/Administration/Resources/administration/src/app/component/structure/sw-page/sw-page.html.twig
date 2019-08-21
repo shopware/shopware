@@ -47,8 +47,8 @@
                                     <div class="smart-bar__header">
                                         <slot name="smart-bar-header">
                                             {% block sw_page_slot_smart_bar_header %}
-                                                <h2 v-if="module && module.name">
-                                                    {{ module.name }}
+                                                <h2 v-if="module && module.title">
+                                                    {{ $t(module.title) }}
                                                 </h2>
                                             {% endblock %}
                                         </slot>

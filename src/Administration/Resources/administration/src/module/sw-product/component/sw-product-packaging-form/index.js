@@ -1,7 +1,7 @@
 import { Component, Mixin } from 'src/core/shopware';
-import { mapState, mapGetters } from 'vuex';
-import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-product-packaging-form.html.twig';
+
+const { mapState, mapGetters, mapApiErrors } = Component.getComponentHelper();
 
 Component.register('sw-product-packaging-form', {
     template,

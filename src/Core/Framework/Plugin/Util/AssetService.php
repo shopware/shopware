@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
-use Shopware\Core\Framework\Context;
+use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -13,7 +12,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 class AssetService
 {
     /**
-     * @var Filesystem
+     * @var FilesystemInterface
      */
     private $filesystem;
 
@@ -28,7 +27,7 @@ class AssetService
     private $pluginCollection;
 
     public function __construct(
-        Filesystem $filesystem,
+        FilesystemInterface $filesystem,
         KernelInterface $kernel,
         KernelPluginCollection $pluginCollection
     ) {
@@ -40,7 +39,7 @@ class AssetService
     /**
      * @throws PluginNotFoundException
      */
-    public function copyAssetsFromBundle(string $bundleName, Context $shopwareContext): void
+    public function copyAssetsFromBundle(string $bundleName): void
     {
         $bundle = $this->getBundle($bundleName);
 
@@ -49,8 +48,8 @@ class AssetService
             return;
         }
 
-        $targetDirectory = $this->getTargetDirectory($bundle, $shopwareContext);
-        $this->filesystem->remove($targetDirectory);
+        $targetDirectory = $this->getTargetDirectory($bundle);
+        $this->filesystem->deleteDir($targetDirectory);
 
         $this->copy($originDir, $targetDirectory);
     }
@@ -58,30 +57,37 @@ class AssetService
     /**
      * @throws PluginNotFoundException
      */
-    public function removeAssetsOfBundle(string $bundleName, Context $shopwareContext): void
+    public function removeAssetsOfBundle(string $bundleName): void
     {
         $bundle = $this->getBundle($bundleName);
 
-        $targetDirectory = $this->getTargetDirectory($bundle, $shopwareContext);
+        $targetDirectory = $this->getTargetDirectory($bundle);
 
-        $this->filesystem->remove($targetDirectory);
+        $this->filesystem->deleteDir($targetDirectory);
     }
 
-    private function getTargetDirectory(BundleInterface $bundle, Context $shopwareContext): string
+    private function getTargetDirectory(BundleInterface $bundle): string
     {
         $assetDir = preg_replace('/bundle$/', '', strtolower($bundle->getName()));
 
-        if ($shopwareContext->getScope() === Context::USER_SCOPE) {
-            return 'bundles/' . $assetDir;
-        }
-
-        return 'public/bundles/' . $assetDir;
+        return 'bundles/' . $assetDir;
     }
 
     private function copy(string $originDir, string $targetDir): void
     {
-        $this->filesystem->mkdir($targetDir, 0777);
-        $this->filesystem->mirror($originDir, $targetDir, Finder::create()->ignoreDotFiles(false)->in($originDir));
+        $this->filesystem->createDir($targetDir);
+
+        $files = Finder::create()
+            ->ignoreDotFiles(false)
+            ->files()
+            ->in($originDir)
+            ->getIterator();
+
+        foreach ($files as $file) {
+            $fs = fopen($file->getPathname(), 'rb+');
+            $this->filesystem->putStream($targetDir . '/' . $file->getRelativePathname(), $fs);
+            fclose($fs);
+        }
     }
 
     /**

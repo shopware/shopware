@@ -136,6 +136,7 @@ const plugins = [
  */
 const optimization = {
     moduleIds: 'hashed',
+    chunkIds: 'named',
     runtimeChunk: {
         name: 'runtime',
     },

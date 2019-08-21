@@ -209,6 +209,7 @@ class PluginLifecycleService
         );
 
         $this->eventDispatcher->dispatch(new PluginPreUninstallEvent($plugin, $uninstallContext));
+        $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
 
         $pluginBaseClass->uninstall($uninstallContext);
 
@@ -259,7 +260,7 @@ class PluginLifecycleService
 
         $pluginBaseClass->update($updateContext);
         if ($plugin->getInstalledAt() && $plugin->getActive()) {
-            $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString, $shopwareContext);
+            $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
         }
 
         $this->runMigrations($pluginBaseClass);
@@ -312,7 +313,7 @@ class PluginLifecycleService
         $this->eventDispatcher->dispatch(new PluginPreActivateEvent($plugin, $activateContext));
 
         $pluginBaseClass->activate($activateContext);
-        $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString, $shopwareContext);
+        $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
 
         $this->updatePluginData(
             [
@@ -355,7 +356,7 @@ class PluginLifecycleService
         $this->eventDispatcher->dispatch(new PluginPreDeactivateEvent($plugin, $deactivateContext));
 
         $pluginBaseClass->deactivate($deactivateContext);
-        $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString, $shopwareContext);
+        $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
 
         $this->updatePluginData(
             [

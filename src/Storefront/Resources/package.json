@@ -23,6 +23,7 @@
   "dependencies": {
     "bootstrap": "4.3.1",
     "copy-webpack-plugin": "5.0.4",
+    "core-js": "^3.2.1",
     "deepmerge": "4.0.0",
     "eslint-plugin-cypress": "2.6.0",
     "exports-loader": "0.7.0",

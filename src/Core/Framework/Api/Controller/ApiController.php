@@ -491,7 +491,7 @@ class ApiController extends AbstractController
                     $parent['value']
                 )
             );
-        } elseif ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
+        } elseif ($association instanceof ManyToOneAssociationField) {
             /*
              * Example
              * Route:           /api/product/SW1/manufacturer
@@ -510,6 +510,29 @@ class ApiController extends AbstractController
             $criteria->addFilter(
                 new EqualsFilter(
                 //filter inverse association to parent value:  manufacturer.products.id = SW1
+                    sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
+                    $parent['value']
+                )
+            );
+        } elseif ($association instanceof OneToOneAssociationField) {
+            /*
+             * Example
+             * Route:           /api/order/xxxx/orderCustomer
+             * $definition:     \Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition
+             */
+
+            //get inverse association to filter to parent value
+            $reverse = $definition->getFields()->filter(
+                function (Field $field) use ($parentDefinition) {
+                    return $field instanceof OneToOneAssociationField && $parentDefinition === $field->getReferenceDefinition();
+                }
+            );
+            $reverse = $reverse->first();
+
+            /* @var OneToManyAssociationField $reverse */
+            $criteria->addFilter(
+                new EqualsFilter(
+                    //filter inverse association to parent value:  order_customer.order_id = xxxx
                     sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -64,6 +65,27 @@ trait CriteriaQueryHelper
 
     protected function addIdCondition(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
     {
+        $primaryKey = $criteria->getIds();
+
+        $primaryKey = array_values($primaryKey);
+
+        if (!\is_array($primaryKey[0]) || \count($primaryKey[0]) === 1) {
+            $bytes = array_map(function (string $id) {
+                return Uuid::fromHexToBytes($id);
+            }, $criteria->getIds());
+
+            $query->andWhere(EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.`id` IN (:ids)');
+
+            $query->setParameter('ids', array_values($bytes), Connection::PARAM_STR_ARRAY);
+
+            return;
+        }
+
+        $this->addIdConditionWithOr($criteria, $definition, $query);
+    }
+
+    private function addIdConditionWithOr(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
+    {
         $wheres = [];
 
         foreach ($criteria->getIds() as $primaryKey) {
@@ -82,9 +104,7 @@ trait CriteriaQueryHelper
 
                 $key = 'pk' . Uuid::randomHex();
 
-                $accessor = EntityDefinitionQueryHelper::escape(
-                        $definition->getEntityName()
-                    ) . '.' . EntityDefinitionQueryHelper::escape($storageName);
+                $accessor = EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.' . EntityDefinitionQueryHelper::escape($storageName);
 
                 $where[] = $accessor . ' = :' . $key;
 

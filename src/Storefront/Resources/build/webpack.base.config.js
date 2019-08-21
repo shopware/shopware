@@ -152,6 +152,9 @@ const optimization = {
             'vendor-shared': {
                 enforce: true,
                 test: (content) => {
+                    if (!content.resource) {
+                        return false;
+                    }
                     if (content.resource.includes(utils.getPath('src/script/plugin-system'))
                         || content.resource.includes(utils.getPath('src/script/helper'))
                         || content.resource.includes(utils.getPath('src/script/utility'))

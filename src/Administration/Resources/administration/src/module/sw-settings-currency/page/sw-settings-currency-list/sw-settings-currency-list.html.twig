@@ -70,7 +70,7 @@
                                 {% endblock %}
 
                                 {% block sw_settings_currency_list_grid_columns_actions_delete %}
-                                    <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                    <sw-context-menu-item :disabled="item.isSystemDefault" variant="danger" @click="onDelete(item.id)">
                                         {{ $tc('sw-settings-currency.list.contextMenuDelete') }}
                                     </sw-context-menu-item>
                                 {% endblock %}

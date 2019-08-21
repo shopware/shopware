@@ -93,7 +93,7 @@ class CurrencyEntity extends Entity
     /**
      * @var bool|null
      */
-    protected $isDefault;
+    protected $isSystemDefault;
 
     public function getIsoCode(): string
     {
@@ -235,14 +235,14 @@ class CurrencyEntity extends Entity
         $this->shippingMethodPrices = $shippingMethodPrices;
     }
 
-    public function getIsDefault(): ?bool
+    public function getIsSystemDefault(): ?bool
     {
-        return $this->isDefault;
+        return $this->isSystemDefault;
     }
 
-    public function setIsDefault(bool $isDefault): void
+    public function setIsSystemDefault(bool $isSystemDefault): void
     {
-        $this->isDefault = $isDefault;
+        $this->isSystemDefault = $isSystemDefault;
     }
 
     /**

@@ -81,7 +81,7 @@ class MailHeaderFooterGenerator implements DemodataGeneratorInterface
             'id' => Uuid::randomHex(),
             'name' => $faker->text(50),
             'description' => $faker->text,
-            'isDefault' => false,
+            'isSystemDefault' => false,
             'headerHtml' => $this->generateRandomHTML(
                 10,
                 ['b', 'i', 'u', 'p', 'h1', 'h2', 'h3', 'h4', 'cite'],

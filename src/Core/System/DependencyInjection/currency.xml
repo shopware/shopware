@@ -21,6 +21,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\System\Currency\CurrencyValidator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\System\Currency\Rule\CurrencyRule">
             <tag name="shopware.rule.definition"/>
         </service>

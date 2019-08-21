@@ -59,7 +59,7 @@ class CurrencyDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new IntField('decimal_precision', 'decimalPrecision'))->addFlags(new Required()),
             new IntField('position', 'position'),
-            (new BoolField('is_default', 'isDefault'))->addFlags(new Runtime()),
+            (new BoolField('is_system_default', 'isSystemDefault'))->addFlags(new Runtime()),
             new TranslatedField('customFields'),
             (new TranslationsAssociationField(CurrencyTranslationDefinition::class, 'currency_id'))->addFlags(new Required()),
 

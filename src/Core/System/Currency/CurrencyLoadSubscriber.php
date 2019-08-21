@@ -17,7 +17,7 @@ class CurrencyLoadSubscriber implements EventSubscriberInterface
     {
         /** @var CurrencyEntity $entity */
         foreach ($event->getEntities() as $entity) {
-            $entity->setIsDefault($entity->getId() === Defaults::CURRENCY);
+            $entity->setIsSystemDefault($entity->getId() === Defaults::CURRENCY);
         }
     }
 }

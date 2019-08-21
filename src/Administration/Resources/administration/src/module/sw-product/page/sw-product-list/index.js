@@ -48,7 +48,7 @@ Component.register('sw-product-list', {
 
         currenciesColumns() {
             return this.currencies.sort((a, b) => {
-                return b.isDefault ? 1 : -1;
+                return b.isSystemDefault ? 1 : -1;
             }).map(item => {
                 return {
                     property: `price-${item.isoCode}`,
@@ -56,7 +56,7 @@ Component.register('sw-product-list', {
                     label: `${item.name}`,
                     routerLink: 'sw.product.detail',
                     allowResize: true,
-                    visible: item.isDefault,
+                    visible: item.isSystemDefault,
                     align: 'right'
                 };
             });

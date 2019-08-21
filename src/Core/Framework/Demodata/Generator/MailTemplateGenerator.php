@@ -98,7 +98,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $mailTemplate = [
             'id' => Uuid::randomHex(),
             'description' => $faker->text,
-            'isDefault' => false,
+            'isSystemDefault' => false,
             'senderName' => $faker->name(),
             'subject' => $faker->text(100),
             'contentHtml' => $this->generateRandomHTML(

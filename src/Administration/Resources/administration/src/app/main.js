@@ -1,6 +1,3 @@
-/** Application Bootstrapper */
-import { Application } from 'src/core/shopware';
-
 /** Initializer */
 import initializers from 'src/app/init';
 
@@ -26,6 +23,9 @@ import 'src/app/decorator';
 
 /** Import global styles */
 import 'src/app/assets/scss/all.scss';
+
+/** Application Bootstrapper */
+const { Application } = Shopware;
 
 const factoryContainer = Application.getContainer('factory');
 

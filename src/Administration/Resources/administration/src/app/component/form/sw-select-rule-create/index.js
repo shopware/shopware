@@ -1,5 +1,6 @@
-import { State } from 'src/core/shopware';
 import template from './sw-select-rule-create.html.twig';
+
+const { Component, State } = Shopware;
 
 /**
  * @status ready
@@ -12,8 +13,7 @@ import template from './sw-select-rule-create.html.twig';
  * @dismiss-rule="onDismissRule">
  * </sw-select-rule-create>
  */
-export default {
-    name: 'sw-select-rule-create',
+Component.register('sw-select-rule-create', {
     template,
 
     data() {
@@ -86,4 +86,4 @@ export default {
             }
         }
     }
-};
+});

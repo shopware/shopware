@@ -1,6 +1,7 @@
-import { Component, State } from 'src/core/shopware';
 import template from './sw-plugin-box.html.twig';
 import './sw-plugin-box.scss';
+
+const { Component, State } = Shopware;
 
 Component.register('sw-plugin-box', {
     template,

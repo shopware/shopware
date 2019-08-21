@@ -1,5 +1,3 @@
-import { Module } from 'src/core/shopware';
-
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
@@ -18,6 +16,8 @@ import './view/sw-promotion-detail-restrictions';
 
 import './page/sw-promotion-detail';
 import './page/sw-promotion-list';
+
+const { Module } = Shopware;
 
 Module.register('sw-promotion', {
     type: 'core',

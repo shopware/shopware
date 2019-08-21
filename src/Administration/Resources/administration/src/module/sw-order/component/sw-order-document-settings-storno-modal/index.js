@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-order-document-settings-storno-modal.html.twig';
+
+const { Component } = Shopware;
 
 Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-settings-modal', {
     template,

@@ -1,4 +1,4 @@
-import { Mixin } from 'src/core/shopware';
+const { Mixin } = Shopware;
 
 Mixin.register('notification', {
     methods: {

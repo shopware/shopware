@@ -1,8 +1,9 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-settings-shipping-price-matrix.html.twig';
 import './sw-settings-shipping-price-matrix.scss';
+
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-settings-shipping-price-matrix', {
     template,

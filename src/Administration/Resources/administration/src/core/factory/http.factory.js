@@ -3,7 +3,8 @@
  */
 import Axios from 'axios';
 import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
-import { Application } from 'src/core/shopware';
+
+const { Application } = Shopware;
 
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as

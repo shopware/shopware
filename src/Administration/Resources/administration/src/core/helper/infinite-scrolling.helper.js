@@ -1,8 +1,6 @@
-import { State } from 'src/core/shopware';
-
-export default class ItemLoader {
+export default class InfiniteScrollingHelper {
     constructor(entityName, limit) {
-        this.store = State.getStore(entityName);
+        this.store = Shopware.State.getStore(entityName);
         this.page = 1;
         this.limit = limit;
         this.done = false;

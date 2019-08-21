@@ -1,6 +1,8 @@
 import template from './sw-condition-or-container.html.twig';
 import './sw-condition-or-container.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  * @description Contains some sw-base-conditions / sw-condition-and-container connected by or.
@@ -10,9 +12,7 @@ import './sw-condition-or-container.scss';
  * @component-example
  * <sw-condition-or-container :condition="condition" :level="0"></sw-condition-or-container>
  */
-export default {
-    name: 'sw-condition-or-container',
-    extendsFrom: 'sw-condition-and-container',
+Component.extend('sw-condition-or-container', 'sw-condition-and-container', {
     template,
 
     methods: {
@@ -36,4 +36,4 @@ export default {
             }
         }
     }
-};
+});

@@ -1,6 +1,7 @@
-import { Mixin, State } from 'src/core/shopware';
 import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.scss';
+
+const { Component, Mixin, State } = Shopware;
 
 /**
  * @status ready
@@ -11,8 +12,7 @@ import './sw-media-modal-replace.scss';
  * <sw-media-modal-replace itemToReplace="item">
  * </sw-media-modal-replace>
  */
-export default {
-    name: 'sw-media-modal-replace',
+Component.register('sw-media-modal-replace', {
     template,
 
     mixins: [
@@ -80,4 +80,4 @@ export default {
             this.emitCloseReplaceModal();
         }
     }
-};
+});

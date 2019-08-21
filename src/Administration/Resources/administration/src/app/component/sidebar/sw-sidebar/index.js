@@ -1,6 +1,8 @@
 import template from './sw-sidebar.html.twig';
 import './sw-sidebar.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @status ready
@@ -10,8 +12,7 @@ import './sw-sidebar.scss';
  *     <sw-sidebar-item title="Refresh" icon="default-arrow-360-left"></sw-sidebar-item>
  * </sw-sidebar>
  */
-export default {
-    name: 'sw-sidebar',
+Component.register('sw-sidebar', {
     template,
 
     props: {
@@ -128,4 +129,4 @@ export default {
             }
         }
     }
-};
+});

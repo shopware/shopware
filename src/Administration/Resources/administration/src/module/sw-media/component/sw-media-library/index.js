@@ -1,8 +1,9 @@
-import { Component, Mixin, State } from 'src/core/shopware';
-import ItemLoader from 'src/core/helper/item.loader.helper';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';
+
+const { Component, Mixin, State } = Shopware;
+const ItemLoader = Shopware.Helper.InfiniteScrollingHelper;
 
 Component.register('sw-media-library', {
     template,

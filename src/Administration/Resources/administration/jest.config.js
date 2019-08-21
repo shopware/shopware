@@ -34,9 +34,14 @@ module.exports = {
     ],
 
     transform: {
-        '^.+\\.jsx?$': 'babel-jest',
+        '^.+\\.jsx?$': '<rootDir>/test/@tool/transform.js',
         '^.+\\.twig$': '<rootDir>/test/@tool/twig-to-vue-transformer/index.js'
     },
+
+    setupFilesAfterEnv: [
+        '<rootDir>/test/@tool/setup-env-require-context.js',
+        '<rootDir>/test/@tool/setup-env-for-shopware.js'
+    ],
 
     testMatch: [
         '<rootDir>/test/**/*.spec.js'

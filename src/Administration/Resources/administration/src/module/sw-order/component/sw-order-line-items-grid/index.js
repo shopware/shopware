@@ -1,7 +1,7 @@
-import { Component } from 'src/core/shopware';
-
 import template from './sw-order-line-items-grid.html.twig';
 import './sw-order-line-items-grid.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-order-line-items-grid', {
     template,

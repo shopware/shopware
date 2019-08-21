@@ -1,10 +1,10 @@
-import { Module } from 'src/core/shopware';
 import './extension/sw-settings-index';
 import './page/sw-settings-address';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
+const { Module } = Shopware;
 
 Module.register('sw-settings-address', {
     type: 'core',

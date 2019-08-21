@@ -1,6 +1,7 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-media-list-selection.html.twig';
 import './sw-media-list-selection.scss';
+
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-media-list-selection', {
     template,

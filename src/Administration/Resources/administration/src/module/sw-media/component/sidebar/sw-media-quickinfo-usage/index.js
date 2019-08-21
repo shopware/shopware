@@ -1,6 +1,7 @@
-import { Application, Component, State } from 'src/core/shopware';
 import template from './sw-media-quickinfo-usage.html.twig';
 import './sw-media-quickinfo-usage.scss';
+
+const { Application, Component, State } = Shopware;
 
 Component.register('sw-media-quickinfo-usage', {
     template,

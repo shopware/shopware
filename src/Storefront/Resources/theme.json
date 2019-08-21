@@ -14,7 +14,8 @@
     "@Plugins"
   ],
   "script": [
-    "dist/js/vendors.js",
+    "dist/js/vendor-node.js",
+    "dist/js/vendor-shared.js",
     "dist/js/runtime.js",
     "dist/storefront/js/storefront.js",
     "@Plugins"

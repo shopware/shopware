@@ -1,4 +1,5 @@
-import remove from 'lodash/remove';
+const { remove } = Shopware.Utils.array;
+
 /**
  * @module app/service/custom-field
  */

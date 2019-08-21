@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-order-delivery-metadata.html.twig';
 import './sw-order-delivery-metadata.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-order-delivery-metadata', {
     template,

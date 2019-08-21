@@ -1,8 +1,9 @@
-import { Mixin } from 'src/core/shopware';
-import { fileSize } from 'src/core/service/utils/format.utils';
-import utils from 'src/core/service/util.service';
 import template from './sw-file-input.html.twig';
 import './sw-file-input.scss';
+
+const { Component, Mixin } = Shopware;
+const { fileSize } = Shopware.Utils.format;
+const utils = Shopware.Utils;
 
 /**
  * @description The <u>sw-file-input</u> component can be used wherever a file input is needed.
@@ -15,8 +16,7 @@ import './sw-file-input.scss';
  *     :maxFileSize="8*1024*1024">
  * </sw-file-input>
  */
-export default {
-    name: 'sw-file-input',
+Component.register('sw-file-input', {
     template,
 
     mixins: [
@@ -119,4 +119,4 @@ export default {
             return false;
         }
     }
-};
+});

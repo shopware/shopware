@@ -1,6 +1,8 @@
 import template from './sw-url-field.html.twig';
 import './sw-url-field.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description Url field component which supports a switch for https and http.
@@ -10,9 +12,7 @@ import './sw-url-field.scss';
  * <sw-field type="url" label="Name" placeholder="Placeholder"
  * switchLabel="My shop uses https"></sw-field>
  */
-export default {
-    name: 'sw-url-field',
-    extendsFrom: 'sw-text-field',
+Component.extend('sw-url-field', 'sw-text-field', {
     template,
     inheritAttrs: false,
 
@@ -93,4 +93,4 @@ export default {
             this.$emit('input', this.url);
         }
     }
-};
+});

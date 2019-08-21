@@ -1,7 +1,7 @@
-import { Component, Mixin } from 'src/core/shopware';
-import { format } from 'src/core/service/util.service';
 import template from './sw-media-folder-info.html.twig';
 
+const { Component, Mixin } = Shopware;
+const format = Shopware.Utils.format;
 
 Component.register('sw-media-folder-info', {
     template,

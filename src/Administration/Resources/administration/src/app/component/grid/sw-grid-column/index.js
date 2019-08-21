@@ -1,11 +1,12 @@
 import './sw-grid-column.scss';
 import template from './sw-grid-column.html.twig';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-grid-column',
+Component.register('sw-grid-column', {
     template,
 
     props: {
@@ -85,4 +86,4 @@ export default {
             });
         }
     }
-};
+});

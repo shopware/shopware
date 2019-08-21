@@ -1,6 +1,7 @@
-import { Component, State } from 'src/core/shopware';
 import template from './sw-cms-mapping-field.html.twig';
 import './sw-cms-mapping-field.scss';
+
+const { Component, State } = Shopware;
 
 Component.register('sw-cms-mapping-field', {
     template,

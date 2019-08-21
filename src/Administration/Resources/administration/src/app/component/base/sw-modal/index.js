@@ -1,6 +1,8 @@
-import utils from 'src/core/service/util.service';
 import template from './sw-modal.html.twig';
 import './sw-modal.scss';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public
@@ -12,8 +14,7 @@ import './sw-modal.scss';
  *     Lorem Ipsum
  * </sw-modal>
  */
-export default {
-    name: 'sw-modal',
+Component.register('sw-modal', {
     template,
 
     inheritAttrs: false,
@@ -138,4 +139,4 @@ export default {
             }
         }
     }
-};
+});

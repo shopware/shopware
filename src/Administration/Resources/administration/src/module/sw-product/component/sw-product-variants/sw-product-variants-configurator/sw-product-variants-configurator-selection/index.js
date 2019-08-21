@@ -1,6 +1,7 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-product-variants-configurator-selection.html.twig';
 import './sw-product-variants-configurator-selection.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.extend('sw-product-variants-configurator-selection', 'sw-property-search', {
     template,

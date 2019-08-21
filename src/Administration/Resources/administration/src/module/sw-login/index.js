@@ -1,4 +1,3 @@
-import { Module } from 'src/core/shopware';
 import './page/index';
 import './view/sw-login-login';
 import './view/sw-login-recovery';
@@ -7,6 +6,8 @@ import './view/sw-login-recovery-recovery';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-login', {
     type: 'core',

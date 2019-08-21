@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-product-variants-configurator-restrictions.html.twig';
 import './sw-product-variants-configurator-restrictions.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-product-variants-configurator-restrictions', {
     template,

@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-first-run-wizard-plugins.html.twig';
 import './sw-first-run-wizard-plugins.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-first-run-wizard-plugins', {
     template,

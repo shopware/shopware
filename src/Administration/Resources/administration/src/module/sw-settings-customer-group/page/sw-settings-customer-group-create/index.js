@@ -1,5 +1,6 @@
-import { Component, State } from 'src/core/shopware';
 import template from './sw-settings-customer-group-create.html.twig';
+
+const { Component, State } = Shopware;
 
 Component.extend('sw-settings-customer-group-create', 'sw-settings-customer-group-detail', {
     template,

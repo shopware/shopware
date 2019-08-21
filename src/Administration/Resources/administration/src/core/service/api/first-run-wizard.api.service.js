@@ -1,4 +1,5 @@
-import ApiService from '../api.service';
+const ApiService = Shopware.Classes.ApiService;
+
 /**
  * Gateway for the API end point "frw"
  * @class

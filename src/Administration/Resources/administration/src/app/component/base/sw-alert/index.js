@@ -1,6 +1,8 @@
 import template from './sw-alert.html.twig';
 import './sw-alert.scss';
 
+const { Component } = Shopware;
+
 /**
  * @description
  * The <u>sw-alert</u> component is used to convey important information to the user. It comes in 4 variations,
@@ -13,8 +15,7 @@ import './sw-alert.scss';
  *    Sample text
  * </sw-alert>
  */
-export default {
-    name: 'sw-alert',
+Component.register('sw-alert', {
     template,
 
     props: {
@@ -82,4 +83,4 @@ export default {
             return !!this.$slots.actions;
         }
     }
-};
+});

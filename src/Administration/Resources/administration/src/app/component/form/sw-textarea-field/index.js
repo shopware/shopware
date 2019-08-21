@@ -1,6 +1,7 @@
-import { Mixin } from 'src/core/shopware';
 import template from './sw-textarea-field.html.twig';
 import './sw-textarea-field.scss';
+
+const { Component, Mixin } = Shopware;
 
 /**
  * @description textarea input field.
@@ -9,8 +10,7 @@ import './sw-textarea-field.scss';
  * @component-example
  * <sw-textarea-field type="textarea" label="Name" placeholder="placeholder goes here..."></sw-textarea-field>
  */
-export default {
-    name: 'sw-textarea-field',
+Component.register('sw-textarea-field', {
     template,
     inheritAttrs: false,
 
@@ -50,4 +50,4 @@ export default {
             this.$emit('change', event.target.value);
         }
     }
-};
+});

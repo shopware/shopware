@@ -1,9 +1,10 @@
-import { Mixin } from 'src/core/shopware';
 import Flatpickr from 'flatpickr';
 import 'flatpickr/dist/l10n';
 import template from './sw-datepicker.html.twig';
 import 'flatpickr/dist/flatpickr.css';
 import './sw-datepicker.scss';
+
+const { Component, Mixin } = Shopware;
 
 /**
  * @public
@@ -37,8 +38,8 @@ const allEvents = [
     'onPreCalendarPosition',
     'onKeyDown'
 ];
-export default {
-    name: 'sw-datepicker',
+
+Component.register('sw-datepicker', {
     template,
     inheritAttrs: false,
 
@@ -411,4 +412,4 @@ export default {
         }
 
     }
-};
+});

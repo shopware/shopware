@@ -1,5 +1,5 @@
-import { Mixin, State } from 'src/core/shopware';
-import { types } from 'src/core/service/util.service';
+const { Mixin, State } = Shopware;
+const types = Shopware.Utils.types;
 
 Mixin.register('placeholder', {
     computed: {

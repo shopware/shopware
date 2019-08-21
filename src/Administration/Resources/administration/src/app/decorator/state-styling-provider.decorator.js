@@ -1,4 +1,4 @@
-import { Application } from 'src/core/shopware';
+const { Application } = Shopware;
 
 Application.addServiceProviderDecorator('stateStyleDataProviderService', (stateStyleService) => {
     // Order State Styles

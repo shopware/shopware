@@ -1,6 +1,8 @@
 import template from './sw-switch-field.html.twig';
 import './sw-switch-field.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description Boolean input field based on checkbox.
@@ -9,10 +11,9 @@ import './sw-switch-field.scss';
  * @component-example
  * <sw-switch-field label="Name" v-model="aBooleanProperty"></sw-switch-field>
  */
-export default {
-    name: 'sw-switch-field',
-    extendsFrom: 'sw-checkbox-field',
+Component.extend('sw-switch-field', 'sw-checkbox-field', {
     template,
+
     inheritAttrs: false,
 
     props: {
@@ -58,4 +59,4 @@ export default {
             this.$emit('inheritance-restore', event);
         }
     }
-};
+});

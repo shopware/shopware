@@ -1,6 +1,8 @@
 import template from './sw-help-text.html.twig';
 import './sw-help-text.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description The help text adds a question mark icon which triggers a tooltip with your desired content.
@@ -9,8 +11,7 @@ import './sw-help-text.scss';
  * @component-example
  * <sw-help-text text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr"></sw-help-text>
  */
-export default {
-    name: 'sw-help-text',
+Component.register('sw-help-text', {
     template,
 
     props: {
@@ -42,4 +43,4 @@ export default {
             required: false
         }
     }
-};
+});

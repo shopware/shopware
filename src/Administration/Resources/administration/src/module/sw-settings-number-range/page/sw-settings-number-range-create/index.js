@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-settings-number-range-create.html.twig';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 Component.extend('sw-settings-number-range-create', 'sw-settings-number-range-detail', {
     template,

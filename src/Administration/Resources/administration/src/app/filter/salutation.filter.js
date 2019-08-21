@@ -1,4 +1,4 @@
-import { Filter } from 'src/core/shopware';
+const { Filter } = Shopware;
 
 Filter.register('salutation', (entity, fallbackSnippet = '') => {
     if (!entity) {

@@ -1,6 +1,8 @@
-import utils from 'src/core/service/util.service';
 import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public
@@ -23,9 +25,7 @@ import './sw-data-grid.scss';
  *     ]">
  * </sw-data-grid>
  */
-export default {
-    name: 'sw-data-grid',
-
+Component.register('sw-data-grid', {
     template,
 
     props: {
@@ -574,4 +574,4 @@ export default {
             this.$emit('column-sort', column);
         }
     }
-};
+});

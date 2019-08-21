@@ -1,6 +1,7 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-currency-detail.html.twig';
+
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-settings-currency-detail', {
     template,

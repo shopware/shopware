@@ -1,5 +1,6 @@
 import { State, EntityDefinition } from 'src/core/shopware';
-import ShopwareError from './ShopwareError';
+
+const ShopwareError = Shopware.Classes.ShopwareError;
 
 export default class ErrorResolver {
     constructor() {

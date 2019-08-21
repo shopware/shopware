@@ -1,8 +1,9 @@
-import { Component, Application, Mixin, State } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
-import { getObjectDiff, cloneDeep } from 'src/core/service/utils/object.utils';
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
+
+const { Component, Application, Mixin, State } = Shopware;
+const Criteria = Shopware.Data.Criteria;
+const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
 
 Component.register('sw-theme-manager-detail', {
     template,

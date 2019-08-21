@@ -1,7 +1,8 @@
-import { Component } from 'src/core/shopware';
-import { deepCopyObject } from 'src/core/service/utils/object.utils';
 import template from './sw-product-maintain-currencies-modal.html.twig';
 import './sw-product-maintain-currencies-modal.scss';
+
+const { Component } = Shopware;
+const { deepCopyObject } = Shopware.Utils.object;
 
 Component.register('sw-product-maintain-currencies-modal', {
     template,

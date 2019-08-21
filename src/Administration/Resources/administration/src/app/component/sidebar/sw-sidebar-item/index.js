@@ -1,6 +1,8 @@
 import template from './sw-sidebar-item.html.twig';
 import './sw-sidebar-item.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @status ready
@@ -10,8 +12,7 @@ import './sw-sidebar-item.scss';
  *     Product in sidebar
  * </sw-sidebar-item>
  */
-export default {
-    name: 'sw-sidebar-item',
+Component.register('sw-sidebar-item', {
     template,
 
     props: {
@@ -120,4 +121,4 @@ export default {
             }
         }
     }
-};
+});

@@ -1,5 +1,3 @@
-import { Module } from 'src/core/shopware';
-
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
@@ -9,6 +7,8 @@ import './page/sw-property-create';
 import './component/sw-property-option-detail';
 import './component/sw-property-detail-base';
 import './component/sw-property-option-list';
+
+const { Module } = Shopware;
 
 Module.register('sw-property', {
     type: 'core',

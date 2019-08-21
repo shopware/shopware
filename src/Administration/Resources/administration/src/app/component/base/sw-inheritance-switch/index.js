@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-inheritance-switch.html.twig';
 import './sw-inheritance-switch.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-inheritance-switch', {
     template,

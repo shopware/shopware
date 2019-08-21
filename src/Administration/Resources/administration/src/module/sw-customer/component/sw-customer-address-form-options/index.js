@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-customer-address-form-options.html.twig';
+
+const { Component } = Shopware;
 
 Component.register('sw-customer-address-form-options', {
     template,

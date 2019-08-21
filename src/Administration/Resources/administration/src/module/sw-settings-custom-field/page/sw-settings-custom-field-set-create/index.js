@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import utils from 'src/core/service/util.service';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-field-set-detail', {
 

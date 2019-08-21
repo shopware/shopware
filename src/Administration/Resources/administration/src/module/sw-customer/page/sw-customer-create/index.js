@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-customer-create.html.twig';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 Component.extend('sw-customer-create', 'sw-customer-detail', {
     template,

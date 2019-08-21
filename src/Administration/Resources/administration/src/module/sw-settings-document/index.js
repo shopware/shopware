@@ -1,5 +1,3 @@
-import { Module } from 'src/core/shopware';
-
 import './extension/sw-settings-index';
 import './page/sw-settings-document-list';
 import './page/sw-settings-document-detail';
@@ -7,6 +5,8 @@ import './page/sw-settings-document-create';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-settings-document', {
     type: 'core',

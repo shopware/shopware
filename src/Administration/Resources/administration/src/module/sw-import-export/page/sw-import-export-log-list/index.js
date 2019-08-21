@@ -1,7 +1,8 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-import-export-log-list.html.twig';
 import Criteria from '../../../../core/data-new/criteria.data';
 import './sw-import-export-log-list.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-import-export-log-list', {
     template,

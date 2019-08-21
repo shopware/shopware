@@ -1,11 +1,12 @@
 import template from './sw-empty-state.html.twig';
 import './sw-empty-state.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-empty-state',
+Component.register('sw-empty-state', {
     template,
 
     props: {
@@ -48,4 +49,4 @@ export default {
             return !!this.$slots.actions;
         }
     }
-};
+});

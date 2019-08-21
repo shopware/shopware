@@ -1,6 +1,7 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-cms-el-text.html.twig';
 import './sw-cms-el-text.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-el-text', {
     template,

@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import './sw-settings-logging-mail-sent-info.scss';
 import template from './sw-settings-logging-mail-sent-info.html.twig';
+
+const { Component } = Shopware;
 
 Component.extend('sw-settings-logging-mail-sent-info', 'sw-settings-logging-entry-info', {
     template,

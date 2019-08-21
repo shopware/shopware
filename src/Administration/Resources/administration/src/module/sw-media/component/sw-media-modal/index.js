@@ -1,7 +1,8 @@
-import { Component, State } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-media-modal.html.twig';
 import './sw-media-modal.scss';
+
+const { Component, State } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @event media-modal-selection-change EntityProxy[]

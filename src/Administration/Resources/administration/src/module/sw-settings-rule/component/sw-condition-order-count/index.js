@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-condition-order-count.html.twig';
+
+const { Component } = Shopware;
 
 Component.extend('sw-condition-order-count', 'sw-condition-base', {
     template,

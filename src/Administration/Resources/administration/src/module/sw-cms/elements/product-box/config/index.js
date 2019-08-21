@@ -1,6 +1,7 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-cms-el-config-product-box.html.twig';
 import './sw-cms-el-config-product-box.scss';
+
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-cms-el-config-product-box', {
     template,

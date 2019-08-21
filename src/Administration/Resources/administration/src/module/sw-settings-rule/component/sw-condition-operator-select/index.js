@@ -1,7 +1,8 @@
-import { Component } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-operator-select.html.twig';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public

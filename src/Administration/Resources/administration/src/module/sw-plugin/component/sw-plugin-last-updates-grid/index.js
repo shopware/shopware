@@ -1,7 +1,8 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-plugin-last-updates-grid.html.twig';
 import './sw-plugin-last-updates-grid.scss';
+
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-plugin-last-updates-grid', {
     template,

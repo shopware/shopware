@@ -1,10 +1,12 @@
-import { Application, State } from 'src/core/shopware';
-import utils, { types } from 'src/core/service/util.service';
-import { deepCopyObject, hasOwnProperty } from 'src/core/service/utils/object.utils';
-import ApiService from '../service/api.service';
+const { Application, State } = Shopware;
+const utils = Shopware.Utils;
+const { types } = Shopware.Utils;
+const { deepCopyObject, hasOwnProperty } = Shopware.Utils.object;
+const ApiService = Shopware.Classes.ApiService;
 
 /**
  * @module core/data/EntityStore
+ * @deprecated 6.1
  */
 
 /**

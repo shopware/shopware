@@ -1,10 +1,10 @@
-import { Mixin } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
 
-export default {
-    name: 'sw-single-select',
+const { Component, Mixin } = Shopware;
+const utils = Shopware.Utils;
+
+Component.register('sw-single-select', {
     template,
 
     mixins: [
@@ -372,4 +372,4 @@ export default {
             this.$emit('on-keyup-enter', this.activeResultPosition);
         }
     }
-};
+});

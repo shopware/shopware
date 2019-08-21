@@ -1,6 +1,7 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-cms-el-image-gallery.html.twig';
 import './sw-cms-el-image-gallery.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-el-image-gallery', {
     template,

@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-condition-days-since-last-order.html.twig';
+
+const { Component } = Shopware;
 
 Component.extend('sw-condition-days-since-last-order', 'sw-condition-base', {
     template,

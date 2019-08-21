@@ -9,9 +9,10 @@ import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import VuePlugins from 'src/app/plugin';
-import { Component, State, Mixin } from 'src/core/shopware';
 import EntityStore from 'src/core/data/EntityStore';
-import { warn } from 'src/core/service/utils/debug.utils';
+
+const { Component, State, Mixin } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 export default class VueAdapter extends ViewAdapter {
     /**

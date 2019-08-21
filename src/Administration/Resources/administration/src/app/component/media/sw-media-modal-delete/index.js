@@ -1,5 +1,6 @@
-import { Mixin, Filter } from 'src/core/shopware';
 import template from './sw-media-modal-delete.html.twig';
+
+const { Component, Mixin, Filter } = Shopware;
 
 /**
  * @status ready
@@ -9,8 +10,7 @@ import template from './sw-media-modal-delete.html.twig';
  * <sw-media-modal-delete :itemsToDelete="[items]">
  * </sw-media-modal-delete>
  */
-export default {
-    name: 'sw-media-modal-delete',
+Component.register('sw-media-modal-delete', {
     template,
 
     mixins: [
@@ -201,4 +201,4 @@ export default {
             });
         }
     }
-};
+});

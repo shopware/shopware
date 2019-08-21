@@ -1,7 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-settings-item.html.twig';
-
 import './sw-settings-item.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-settings-item', {
     template,

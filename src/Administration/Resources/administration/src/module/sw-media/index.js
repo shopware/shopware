@@ -1,4 +1,3 @@
-import { Module } from 'src/core/shopware';
 import './mixin/media-grid-listener.mixin';
 import './mixin/media-sidebar-modal.mixin';
 import './page/sw-media-index';
@@ -18,6 +17,8 @@ import './component/sw-media-modal';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-media', {
     type: 'core',

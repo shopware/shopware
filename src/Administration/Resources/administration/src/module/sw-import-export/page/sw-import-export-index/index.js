@@ -1,6 +1,7 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-import-export-index.html.twig';
 import './sw-import-export-index.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-import-export-index', {
     template,

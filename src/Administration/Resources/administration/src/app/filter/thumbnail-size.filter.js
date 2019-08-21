@@ -1,4 +1,4 @@
-import { Filter } from 'src/core/shopware';
+const { Filter } = Shopware;
 
 Filter.register('thumbnailSize', (value) => {
     if (!value || !(value.getEntityName() === 'media_thumbnail_size')) {

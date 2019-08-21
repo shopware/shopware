@@ -1,5 +1,6 @@
 import DeviceHelper from 'src/core/helper/device.helper';
-import { warn } from 'src/core/service/utils/debug.utils';
+
+const { warn } = Shopware.Utils.debug;
 
 let pluginInstalled = false;
 

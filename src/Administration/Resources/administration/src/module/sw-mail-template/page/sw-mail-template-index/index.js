@@ -1,5 +1,6 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-mail-template-index.html.twig';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-mail-template-index', {
     template,

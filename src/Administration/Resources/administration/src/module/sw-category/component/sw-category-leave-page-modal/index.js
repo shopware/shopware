@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-category-leave-page-modal.html.twig';
+
+const { Component } = Shopware;
 
 Component.register('sw-category-leave-page-modal', {
     template,

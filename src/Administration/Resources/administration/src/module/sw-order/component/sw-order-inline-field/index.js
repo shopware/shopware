@@ -1,7 +1,7 @@
-import { Component } from 'src/core/shopware';
 import './sw-order-inline-field.scss';
 import template from './sw-order-inline-field.html.twig';
 
+const { Component } = Shopware;
 
 Component.register('sw-order-inline-field', {
     template,

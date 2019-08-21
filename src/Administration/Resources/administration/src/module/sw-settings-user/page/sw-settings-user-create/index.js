@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-settings-user-create.html.twig';
+
+const { Component } = Shopware;
 
 Component.extend('sw-settings-user-create', 'sw-settings-user-detail', {
     template,

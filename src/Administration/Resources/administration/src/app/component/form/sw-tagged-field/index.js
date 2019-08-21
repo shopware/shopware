@@ -1,7 +1,8 @@
-import { Mixin } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-tagged-field.html.twig';
 import './sw-tagged-field.scss';
+
+const { Component, Mixin } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public
@@ -11,8 +12,7 @@ import './sw-tagged-field.scss';
  * <sw-tagged-field label="Label" :addOnKey="[13, ',']">
  * </sw-tagged-field>
  */
-export default {
-    name: 'sw-tagged-field',
+Component.register('sw-tagged-field', {
     template,
 
     mixins: [
@@ -126,4 +126,4 @@ export default {
             return !triggerKey;
         }
     }
-};
+});

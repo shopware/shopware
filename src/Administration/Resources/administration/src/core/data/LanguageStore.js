@@ -1,5 +1,11 @@
-import { Application } from 'src/core/shopware';
 import EntityStore from './EntityStore';
+
+const { Application } = Shopware;
+
+/**
+ * @module core/data/LanguageStore
+ * @deprecated 6.1
+ */
 
 export default class LanguageStore extends EntityStore {
     constructor(

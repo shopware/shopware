@@ -1,12 +1,13 @@
-import utils from 'src/core/service/util.service';
 import template from './sw-condition-tree.html.twig';
 import './sw-condition-tree.scss';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @private
  */
-export default {
-    name: 'sw-condition-tree',
+Component.register('sw-condition-tree', {
     template,
 
     data() {
@@ -178,4 +179,4 @@ export default {
             return condition;
         }
     }
-};
+});

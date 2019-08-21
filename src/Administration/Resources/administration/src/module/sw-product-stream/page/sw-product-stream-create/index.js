@@ -1,6 +1,7 @@
-import { Component, State } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-product-stream-create.html.twig';
+
+const { Component, State } = Shopware;
+const utils = Shopware.Utils;
 
 Component.extend('sw-product-stream-create', 'sw-product-stream-detail', {
     template,

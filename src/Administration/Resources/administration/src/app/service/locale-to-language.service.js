@@ -1,5 +1,5 @@
-import { Application } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
+const { Application } = Shopware;
+const { Criteria } = Shopware.Data;
 
 export default function createLocaleToLanguageService() {
     return {

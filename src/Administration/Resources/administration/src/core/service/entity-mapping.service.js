@@ -1,4 +1,4 @@
-import { Entity } from 'src/core/shopware';
+const { Entity } = Shopware;
 
 /**
  * @module core/service/validation

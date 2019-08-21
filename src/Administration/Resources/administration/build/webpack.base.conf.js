@@ -32,6 +32,10 @@ module.exports = {
     },
     resolve: {
         extensions: ['.js', '.vue', '.json', '.less', '.twig'],
+        modules: [
+            // statically add the administration node_modules folder, so sw plugins can resolve it
+            resolve('node_modules'),
+        ],
         alias: {
             vue$: 'vue/dist/vue.esm.js',
             src: resolve('src'),

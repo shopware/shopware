@@ -84,7 +84,7 @@ class AssetService
             ->getIterator();
 
         foreach ($files as $file) {
-            $fs = fopen($file->getPathname(), 'rb+');
+            $fs = fopen($file->getPathname(), 'rb');
             $this->filesystem->putStream($targetDir . '/' . $file->getRelativePathname(), $fs);
             fclose($fs);
         }

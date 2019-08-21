@@ -22,8 +22,17 @@ class DebugStack extends DoctrineDebugStack
         $stack = debug_backtrace();
 
         $stack = array_map(function ($caller) {
+            if (!is_array($caller)) {
+                return null;
+            }
+            if (!isset($caller['class']) || !isset($caller['function']) || !isset($caller['line'])) {
+                return null;
+            }
+
             return $caller['class'] . '::' . $caller['function'] . ' (line ' . $caller['line'] . ')';
         }, $stack);
+
+        $stack = array_filter($stack);
 
         $this->queries[$this->currentQuery]['stack'] = $stack;
     }

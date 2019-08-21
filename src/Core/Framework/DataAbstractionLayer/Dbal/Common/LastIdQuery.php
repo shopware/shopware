@@ -5,17 +5,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
 
-class OffsetQuery implements IterableQuery
+class LastIdQuery implements IterableQuery
 {
     /**
      * @var QueryBuilder
      */
     private $query;
-
-    /**
-     * @var int
-     */
-    private $offset = 0;
 
     public function __construct(QueryBuilder $query)
     {
@@ -27,8 +22,8 @@ class OffsetQuery implements IterableQuery
         $data = $this->query->execute()->fetchAll();
         $data = FetchModeHelper::keyPair($data);
 
-        $this->offset += \count($data);
-        $this->query->setFirstResult($this->offset);
+        $keys = array_keys($data);
+        $this->query->setParameter('lastId', array_pop($keys));
 
         return $data;
     }

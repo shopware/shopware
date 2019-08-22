@@ -42,10 +42,9 @@ In this case, you'll have to create a directory structure like the following: `<
 In there you create a new file `index.js`, which then contains the following code:
 
 ```js
-import { Component } from 'src/core/shopware';
 import template from './sw-product-detail.html.twig';
 
-Component.override('sw-product-detail', {
+Shopware.Component.override('sw-product-detail', {
     template
 });
 ```
@@ -103,9 +102,7 @@ You can add those changes to your `main.js` file, which could then look like thi
 import './page/sw-product-detail';
 import './view/sw-product-detail-custom';
 
-import { Module } from 'src/core/shopware';
-
-Module.register('sw-new-tab-custom', {
+Shopware.Module.register('sw-new-tab-custom', {
     routeMiddleware(next, currentRoute) {
         if (currentRoute.name === 'sw.product.detail') {
             currentRoute.children.push({
@@ -154,10 +151,9 @@ administration
 Since a component always gets initiated by a file called `index.js`, create such a new file in the `sw-product-detail-custom` directory:
 
 ```js
-import { Component } from 'src/core/shopware';
 import template from './sw-product-detail-custom.html.twig';
 
-Component.register('sw-product-detail-custom', {
+Shopware.Component.register('sw-product-detail-custom', {
     template,
 
     metaInfo() {

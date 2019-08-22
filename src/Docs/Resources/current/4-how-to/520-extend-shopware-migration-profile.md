@@ -174,10 +174,9 @@ create a new entry with the entity name of the new bundle entity.
 At last you have to create the `main.js` in the `Resources/administration` directory like this:
 
 ```javascript
-import { Application } from 'src/core/shopware';
 import enGBSnippets from './snippet/en-GB.json';
 
-Application.addInitializerDecorator('locale', (localeFactory) => {
+Shopware.Application.addInitializerDecorator('locale', (localeFactory) => {
     localeFactory.extend('en-GB', enGBSnippets);
 
     return localeFactory;

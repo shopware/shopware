@@ -54,19 +54,11 @@ Now open up your empty `index.js` file. In order to register a new element to th
 of the [cmsService](https://github.com/shopware/platform/blob/master/src/Administration/Resources/administration/src/module/sw-cms/service/cms.service.js).
 Since it's available in the Dependency Injection Container, you can fetch it from there.
 
-First of all, import our `Applicaton` wrapper, which will grant you access to the DI container.
-
-```js
-import { Application } from 'src/core/shopware';
-```
-
-This `Application` wrapper has access to the DI container, so go ahead and fetch the `cmsService` from it and call the
+First of all, access our `Applicaton` wrapper, which will grant you access to the DI container. This `Application` wrapper has access to the DI container, so go ahead and fetch the `cmsService` from it and call the
 mentioned `registerCmsElement` method.
 
 ```js
-import { Application } from 'src/core/shopware';
-
-Application.getContainer('service').cmsService.registerCmsElement();
+Shopware.Application.getContainer('service').cmsService.registerCmsElement();
 ```
 
 The method `registerCmsElement` takes a configuration object, containing the following necessary data:
@@ -93,9 +85,7 @@ defaultConfig
 Go ahead and create this configuration object yourself.
 Here's what it should look like after having set all of those options:
 ```js
-import { Application } from 'src/core/shopware';
-
-Application.getContainer('service').cmsService.registerCmsElement({
+Shopware.Application.getContainer('service').cmsService.registerCmsElement({
     name: 'youtube',
     label: 'YouTube Video',
     component: 'sw-cms-el-youtube',
@@ -131,11 +121,10 @@ This HowTo will not explain how a custom component can be created though, so hea
 to learn this first.
 
 ```js
-import { Component } from 'src/core/shopware';
 import template from './sw-cms-el-preview-youtube.html.twig';
 import './sw-cms-el-preview-youtube.scss';
 
-Component.register('sw-cms-el-preview-youtube', {
+Shopware.Component.register('sw-cms-el-preview-youtube', {
     template
 });
 ```
@@ -236,10 +225,9 @@ This is what your preview's final `.scss` should look like now:
 One last thing: Import your preview component in your element's `index.js` file, so it's loaded.
 
 ```js
-import { Application } from 'src/core/shopware';
 import './preview';
 
-Application.getContainer('service').cmsService.registerCmsElement({
+Shopware.Application.getContainer('service').cmsService.registerCmsElement({
 ...
 }
 ```
@@ -252,11 +240,10 @@ Thus, you want to show the actually configured video here now.
 Start with the basic again, create a new directory `component`, in there a new file `index.js` and then register your component `sw-cms-el-youtube`.
 
 ```js
-import { Component } from 'src/core/shopware';
 import template from './sw-cms-el-youtube.html.twig';
 import './sw-cms-el-youtube.scss';
 
-Component.register('sw-cms-el-youtube', {
+Shopware.Component.register('sw-cms-el-youtube', {
     template
 });
 ```
@@ -280,11 +267,10 @@ that link via VueJS now.
 Let's add the code to provide the `src` for the iframe. For this case you're going to use a [computed property](https://vuejs.org/v2/guide/computed.html) of VueJS.
 
 ```js
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-cms-el-youtube.html.twig';
 import './sw-cms-el-youtube.scss';
 
-Component.register('sw-cms-el-youtube', {
+Shopware.Component.register('sw-cms-el-youtube', {
     template,
 
     computed: {
@@ -304,9 +290,10 @@ In order for this to work though, you have to call the method `initElementConfig
 This will take care of dealing with the `configComponent` and thus providing the configured values.
 
 ```js
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-cms-el-youtube.html.twig';
 import './sw-cms-el-youtube.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-el-youtube', {
     template,
@@ -373,11 +360,10 @@ Yet, there's a recommended `min-height` of 315px, so add that one as well.
 That's it for this component! Import it in your element's `index.js` file.
 
 ```js
-import { Application } from 'src/core/shopware';
 import './component';
 import './preview';
 
-Application.getContainer('service').cmsService.registerCmsElement({
+Shopware.Application.getContainer('service').cmsService.registerCmsElement({
 ...
 }
 ```
@@ -387,8 +373,9 @@ Application.getContainer('service').cmsService.registerCmsElement({
 Let's head over to the last remaining component. Create a directory `config`, an `index.js` file in there and register your config component `sw-cms-el-config-youtube`.
 
 ```js
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-cms-el-config-youtube.html.twig';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-el-config-youtube', {
     template,

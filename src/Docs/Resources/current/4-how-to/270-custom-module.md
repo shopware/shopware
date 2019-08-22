@@ -41,18 +41,10 @@ Your custom module's `index.js` will already be considered, so go ahead and open
 
 ### index.js
 
-First of all, you have to register your module using the `ModuleFactory`, which is available throughout our third party wrapper.
+First of all, you have to register your module using the `ModuleFactory`, which is available throughout our third party wrapper. This `Module` provides a method `register`, which expects a name and a configuration for your module.
 
 ```js
-import { Module } from 'src/core/shopware';
-```
-
-This `Module` provides a method `register`, which expects a name and a configuration for your module.
-
-```js
-import { Module } from 'src/core/shopware';
-
-Module.register('custom-module', {
+Shopware.Module.register('custom-module', {
     // Configuration here
 });
 ```
@@ -65,10 +57,9 @@ Those will be used in the whole module and all components related to it, even in
 A list of all available icons can be found [here](https://component-library.shopware.com/icons/).
 
 ```js
-import { Module } from 'src/core/shopware';
 import './page/custom-module-overview';
 
-Module.register('custom-module', {
+Shopware.Module.register('custom-module', {
     type: 'plugin',
     name: 'Custom',
     title: 'Custom module',
@@ -118,10 +109,9 @@ In order to create a navigation entry, you have to provide a navigation configur
 It expects an array of navigation configuration objects.
 
 ```js
-import { Module } from 'src/core/shopware';
 import './page/custom-module-overview';
 
-Module.register('custom-module', {
+Shopware.Module.register('custom-module', {
     
     // Module configuration
     ...
@@ -153,9 +143,7 @@ navigation: [{
 
 This is how your module should look like now:
 ```js
-import { Module } from 'src/core/shopware';
-
-Module.register('custom-module', {
+Shopware.Module.register('custom-module', {
     type: 'plugin',
     name: 'Custom',
     title: 'Custom module',

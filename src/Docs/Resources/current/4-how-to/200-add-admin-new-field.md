@@ -27,10 +27,9 @@ The first parameter matches the component to override, the second parameter has 
 the actually overridden properties , e.g. the new twig template extension for this component.
 
 ```js
-import { Component } from 'src/core/shopware';
 import template from './src/extension/sw-product-settings-form/sw-product-settings-form.html.twig';
 
-Component.override('sw-product-settings-form', {
+Shopware.Component.override('sw-product-settings-form', {
     template
 });
 ```

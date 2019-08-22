@@ -44,20 +44,13 @@ This is technically done by calling the method `registerModule` method of our [M
 but you're not going to use this directly.
 
 Instead, you're using the `Shopware.Module.register()` method, but why is that?
-Add this line to your `index.js` first:
-```js
-import { Module } from 'src/core/shopware';
-```
 
-This file was actually mainly created for third part developers, it is mainly the bridge between the Shopware Administration and our plugin.
-
-This line specifically is simply importing our `Module` wrapper into your `index.js`, because it comes with a `register` helper method to easily register your module.
+`Shopware` is a global object and it was created for third party developers. It is mainly the bridge between the Shopware Administration and our plugin.  
+The `Module` object comes with a `register` helper method to easily register your module.
 The method needs two parameters to be set, the first one being the module's name, the second being a javascript object, which contains your module's configuration.
 
 ```js
-import { Module } from 'src/core/shopware';
-
-Module.register('swag-bundle', {
+Shopware.Module.register('swag-bundle', {
     // configuration here
 });
 ```
@@ -87,7 +80,7 @@ Those routes are configured as an object in a property named `routes`.
 Before continuing to explain how they are defined, let's have a look at the actual routes and how they have to look like:
 
 ```js
-Module.register('swag-bundle', {
+Shopware.Module.register('swag-bundle', {
     color: '#ff3d58',
     icon: 'default-shopping-paper-bag-product',
     title: 'Bundle',
@@ -124,7 +117,7 @@ route name in the first route.
 
 Have a look at this example route configuration:
 ```js
-Module.register('example', {
+Shopware.Module.register('example', {
     routes: {
         exampleRoute: {
             component: 'my-custom-component',
@@ -256,7 +249,7 @@ Each file could then contain your translations as such an object, you only have 
 import deDE from './snippet/de-DE';
 import enGB from './snippet/en-GB';
 
-Module.register('swag-bundle', {
+Shopware.Module.register('swag-bundle', {
     ...
     snippets: {
         'de-DE': deDE,
@@ -309,14 +302,13 @@ This should be your snippet file now:
 And here's your final module:
 
 ```js
-import { Module } from 'src/core/shopware';
 import './page/swag-bundle-list';
 import './page/swag-bundle-detail';
 import './page/swag-bundle-create';
 import deDE from './snippet/de-DE';
 import enGB from './snippet/en-GB';
 
-Module.register('swag-bundle', {
+Shopware.Module.register('swag-bundle', {
     type: 'plugin',
     name: 'Bundle',
     title: 'swag-bundle.general.mainMenuItemGeneral',
@@ -371,9 +363,7 @@ Once again create a new file `index.js` in there as the main entry point for thi
 now guess what you're going to use to register a new component.
 
 ```js
-import { Component } from 'src/core/shopware';
-
-Component.register('swag-bundle-list', {
+Shopware.Component.register('swag-bundle-list', {
     // Component configuration here
 });
 ```
@@ -387,7 +377,7 @@ This is defined by adding an `metaInfo` function, which returns the desired titl
 And that's what will be done for this example.
 
 ```js
-Component.register('swag-bundle-list', {
+Shopware.Component.register('swag-bundle-list', {
     metaInfo() {
         return {
             title: this.$createTitle()
@@ -405,10 +395,9 @@ so just create a new file named after the component in the component's directory
 Afterwards import your `swag-bundle-list.html.twig` file in your component and assign it to the template property.
 
 ```js
-import { Component } from 'src/core/shopware';
 import template from './swag-bundle-list.html.twig';
 
-Component.register('swag-bundle-list', {
+Shopware.Component.register('swag-bundle-list', {
     template,
     
     metaInfo() {
@@ -424,10 +413,9 @@ Since you imported your template into the variable `template`, it perfectly fits
 
 For the sake of simplicity, you could also write it like that:
 ```js
-import { Component } from 'src/core/shopware';
 import template from './swag-bundle-list.html.twig';
 
-Component.register('swag-bundle-list', {
+Shopware.Component.register('swag-bundle-list', {
     template: template,
     
     metaInfo() {
@@ -547,7 +535,7 @@ bundles. This data should be available upon creation of your component. Fortunat
 Having a look at the official documentation, you'll figure out, that it is defined using a function, so add this function to your component.
 
 ```js
-Component.register('swag-bundle-list', {
+Shopware.Component.register('swag-bundle-list', {
     
     ...
     
@@ -590,10 +578,10 @@ the `sw-entity-listing`? Right, the `repository`, thus save it as an property to
 
 Your repository provides a `search` method to actually request your repositories' data via API.
 You need to provide two parameters to the search method, a `Criteria` object and the current context.
-The `Criteria` object has to be instantiated by yourself, so you need to import it first.
+The `Criteria` object has to be instantiated by yourself, so you need to access it via the Shopware global object first.
 
 ```js
-import Criteria from 'src/core/data-new/criteria.data';
+const Criteria = Shopware.Data.Criteria;
 ```
 
 The latter parameter, the `context`, is part of the DI container again, since it contains session and configuration options, such as the currently active `language_id` in the
@@ -769,10 +757,9 @@ Register your component using `Component.register` and add a template in the con
 Also, set the default title again via `metaInfo` function.
 
 ```js
-import { Component, Mixin } from 'src/core/shopware';
 import template from './swag-bundle-detail.html.twig';
 
-Component.register('swag-bundle-detail', {
+Shopware.Component.register('swag-bundle-detail', {
     template,
     
     metaInfo() {
@@ -1053,10 +1040,9 @@ Also remember to have the `bundle` property set in the `data` method already, it
 
 Quite a lot of text, here's the code:
 ```js
-import { Component } from 'src/core/shopware';
 import template from './swag-bundle-detail.html.twig';
- 
-Component.register('swag-bundle-detail', {
+
+Shopware.Component.register('swag-bundle-detail', {
     template,
 
     inject: [
@@ -1108,7 +1094,7 @@ If you were to offer some kind of "filtering" due to user input, you might want 
 
 Let's have a look at the successful case first though.
 ```js
-Component.register('swag-bundle-detail', {
+Shopware.Component.register('swag-bundle-detail', {
     ...
     
     methods: {
@@ -1149,10 +1135,14 @@ You're doing this by adding a [catch](https://developer.mozilla.org/en-US/docs/W
 which only triggers once an error occurred. In this case, you want to show a message to the user by using the notification system.
 In order to show a notification to the user, you have to add the `notification` mixin to your component.
 
-First of all change the very first line of your component and simply add `Mixin` to the import
+First of all you have to access the `Mixin` object from the `Shopware` global object. This way you could simply call it with `Shopware.Mixin` just like `Shopware.Component`.
+But instead of writing this every time, you could also use [object destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Basic_assignment) and assign a `Component` and a `Mixin` variable at the same time.
+
 ```js
-import { Component, Mixin } from 'src/core/shopware';
+const { Component, Mixin } = Shopware;
 ```
+
+This can be very handy everytime you need to access multiple objects from `Shopware`.
 
 This [example documentation](https://vuejs.org/v2/guide/mixins.html) from VueJS describes quite good, what a `mixin` even is, in case you were wondering.
 The mixin comes with a method called `createNotificationError`, which you should use here. Its parameter has to be the object containing the config for the notification.
@@ -1242,8 +1232,9 @@ Even the product association is very easy to handle now for your shop manager.
 
 Here's the full example of your detail component:
 ```js
-import { Component, Mixin } from 'src/core/shopware';
 import template from './swag-bundle-detail.html.twig';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('swag-bundle-detail', {
     template,
@@ -1333,9 +1324,7 @@ You're extending from a component by using the `extend` method of the `Component
 the second parameter the name of the component to extend from, the third paramter the configuration again.
 
 ```js
-import { Component } from 'src/core/shopware';
-
-Component.extend('swag-bundle-create', 'swag-bundle-detail', {
+Shopware.Component.extend('swag-bundle-create', 'swag-bundle-detail', {
     
 });
 ```
@@ -1346,9 +1335,7 @@ You create a new entity using the `create` method of a repository. It does neith
 It only needs the context to create a new entity.
 
 ```js
-import { Component } from 'src/core/shopware';
-
-Component.extend('swag-bundle-create', 'swag-bundle-detail', {
+Shopware.Component.extend('swag-bundle-create', 'swag-bundle-detail', {
     methods: {
         getBundle() {
             this.bundle = this.repository.create(this.context);
@@ -1388,9 +1375,8 @@ That's it,you're done already! No need to set a custom template here or anything
 
 That's how your `swag-bundle-create` should look like now:
 ```js
-import { Component } from 'src/core/shopware';
 
-Component.extend('swag-bundle-create', 'swag-bundle-detail', {
+Shopware.Component.extend('swag-bundle-create', 'swag-bundle-detail', {
     methods: {
         getBundle() {
             this.bundle = this.repository.create(this.context);

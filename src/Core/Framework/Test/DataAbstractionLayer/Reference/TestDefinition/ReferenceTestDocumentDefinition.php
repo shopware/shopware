@@ -21,11 +21,11 @@ class ReferenceTestDocumentDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            new NonUuidFkTestField('document_type_technical_name', 'documentTypeTechnicalName', ReferenceTestDocumentTypeDefinition::class, 'technicalName'),
+            new NonUuidFkTestField('page_format_technical_name', 'pageFormatTechnicalName', ReferenceTestPageFormatDefinition::class, 'technicalName'),
             new ManyToOneAssociationField(
-                'documentType',
-                'document_type_technical_name',
-                ReferenceTestDocumentTypeDefinition::class,
+                'pageFormat',
+                'page_format_technical_name',
+                ReferenceTestPageFormatDefinition::class,
                 'technical_name'
             ),
         ]);

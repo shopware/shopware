@@ -9,11 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class ReferenceTestDocumentTypeDefinition extends EntityDefinition
+class ReferenceTestPageFormatDefinition extends EntityDefinition
 {
     public function getEntityName(): string
     {
-        return '_reference_test_document_type';
+        return '_reference_test_page_format';
     }
 
     protected function defineFields(): FieldCollection

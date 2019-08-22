@@ -94,12 +94,15 @@ class ProductExportService implements ProductExportServiceInterface
             . file_get_contents($tmpFile)
             . $this->productExportRender->renderFooter($productExport);
 
-        $encodedContent = mb_convert_encoding($content, $productExport->getEncoding());
-
         $this->fileSystem->write(
             $this->getFilePath($productExport),
-            $encodedContent
+            $this->convertEncoding($content, $productExport->getEncoding())
         );
+    }
+
+    public function convertEncoding(string $content, string $encoding): string
+    {
+        return mb_convert_encoding($content, $encoding);
     }
 
     public function getFilePath(ProductExportEntity $productExportEntity): string

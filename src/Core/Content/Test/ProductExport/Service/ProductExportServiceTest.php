@@ -64,11 +64,13 @@ class ProductExportServiceTest extends TestCase
         $this->service->generate($this->salesChannelContext);
 
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
+        $fileContent = $this->fileSystem->read($filePath);
+
+        $csvRows = explode(PHP_EOL, $fileContent);
 
         static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
         static::assertTrue($this->fileSystem->has($filePath));
-        static::assertNotEmpty($this->fileSystem->read($filePath));
-        static::assertCount(3, explode(PHP_EOL, $this->fileSystem->read($filePath)));
+        static::assertCount(4, $csvRows);
     }
 
     public function testGeneratePagination(): void
@@ -90,8 +92,7 @@ class ProductExportServiceTest extends TestCase
 
         static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
         static::assertTrue($this->fileSystem->has($filePath));
-        static::assertNotEmpty($this->fileSystem->read($filePath));
-        static::assertCount(3, explode(PHP_EOL, $this->fileSystem->read($filePath)));
+        static::assertCount(4, explode(PHP_EOL, $this->fileSystem->read($filePath)));
     }
 
     public function testGenerateNotFound(): void
@@ -141,7 +142,8 @@ class ProductExportServiceTest extends TestCase
                 'encoding' => ProductExportEntity::ENCODING_UTF8,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
                 'interval' => 0,
-                'bodyTemplate' => '{{ product.name }}',
+                'headerTemplate' => 'name,url',
+                'bodyTemplate' => '{{ product.name }},{{ productUrl(product) }}',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),

@@ -1,5 +1,5 @@
 const { Application } = Shopware;
-const { debug } = Shopware.Utils.debug;
+const debug = Shopware.Utils.debug;
 
 export default {
     state: {

@@ -145,6 +145,7 @@ Core
 * Implement `getName` for classes that implement `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`
 * We've moved the seo module into the core. Replace the namespace `Shopware\Storefront\Framework\Seo\` with `Shopware\Core\Framework\Seo\`
 * Switch the usage of `\Shopware\Core\Framework\Migration\MigrationStep::addForwardTrigger()` and `\Shopware\Core\Framework\Migration\MigrationStep::addBackwardTrigger()`, as the execution conditions were switched. 
+* `\Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity::$trackingCode` has been replaced with `\Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity::$trackingCodes`.
 
 Administration
 --------------

@@ -45,6 +45,13 @@ class OrderDeliveryDefinition extends EntityDefinition
         return OrderDeliveryEntity::class;
     }
 
+    public function getDefaults(EntityExistence $existence): array
+    {
+        return [
+            'trackingCodes' => [],
+        ];
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return OrderDefinition::class;
@@ -78,12 +85,5 @@ class OrderDeliveryDefinition extends EntityDefinition
             (new ManyToOneAssociationField('shippingMethod', 'shipping_method_id', ShippingMethodDefinition::class, 'id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('positions', OrderDeliveryPositionDefinition::class, 'order_delivery_id', 'id'))->addFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
         ]);
-    }
-
-    public function getDefaults(EntityExistence $existence): array
-    {
-        return [
-            'trackingCodes' => [],
-        ];
     }
 }

@@ -6,21 +6,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Reference\TestField\NonUuidFkTestField;
 
-class FkReferencedTestDefinition extends EntityDefinition
+class ReferenceTestDocumentDefinition extends EntityDefinition
 {
     public function getEntityName(): string
     {
-        return '_fk_field_test_referenced';
+        return '_reference_test_document';
     }
 
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            (new StringField('technical_name', 'technicalName'))->addFlags(new Required()),
+            new NonUuidFkTestField('document_type_technical_name', 'documentTypeTechnicalName', ReferenceTestDocumentTypeDefinition::class, 'technicalName'),
+            new ManyToOneAssociationField(
+                'documentType',
+                'document_type_technical_name',
+                ReferenceTestDocumentTypeDefinition::class,
+                'technical_name'
+            ),
         ]);
     }
 }

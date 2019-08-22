@@ -6,30 +6,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Reference\TestField\NonUuidFkTestField;
 
-class FkReferencingTestDefinition extends EntityDefinition
+class ReferenceTestDocumentTypeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = '_fk_field_test_referencing';
-
     public function getEntityName(): string
     {
-        return self::ENTITY_NAME;
+        return '_reference_test_document_type';
     }
 
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            new NonUuidFkTestField('referenced_technical_name', 'referencedTechnicalName', FkReferencedTestDefinition::class, 'technicalName'),
-            new ManyToOneAssociationField(
-                'referenced',
-                'referenced_technical_name',
-                FkReferencedTestDefinition::class,
-                'technical_name'
-            ),
+            (new StringField('technical_name', 'technicalName'))->addFlags(new Required()),
         ]);
     }
 }

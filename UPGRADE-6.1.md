@@ -143,6 +143,8 @@ Core
 * If you invalidated the entity cache over the `shopware.cache` service, use the `\Shopware\Core\Framework\Cache\CacheClearer` instead.
 * All customer events in `Shopware\Core\Checkout\Customer\Event` now get the `Shopware\Core\Syste\SalesChannel\SalesChannelContext` instead of `Shopware\Core\Framework\Context` and a `salesChannelId`
 * Implement `getName` for classes that implement `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`
+ * `\Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity::$trackingCode` has been replaced with 
+   `\Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity::$trackingCodes`.
 
 Administration
 --------------

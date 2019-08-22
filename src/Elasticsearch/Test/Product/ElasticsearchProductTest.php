@@ -57,7 +57,6 @@ class ElasticsearchProductTest extends TestCase
 
     public function testIndexing()
     {
-        static::markTestSkipped('Flaky test');
         $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM product');
 
         $context = Context::createDefaultContext();
@@ -98,7 +97,7 @@ class ElasticsearchProductTest extends TestCase
         $searcher = $this->createEntitySearcher();
 
         // check simple search without any restrictions
-        $criteria = new Criteria();
+        $criteria = new Criteria($data->getProductIds());
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
         static::assertCount(3, $products->getIds());
     }
@@ -111,7 +110,7 @@ class ElasticsearchProductTest extends TestCase
         $searcher = $this->createEntitySearcher();
 
         // check pagination
-        $criteria = new Criteria();
+        $criteria = new Criteria($data->getProductIds());
         $criteria->setLimit(1);
 
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
@@ -126,7 +125,7 @@ class ElasticsearchProductTest extends TestCase
     {
         $searcher = $this->createEntitySearcher();
         // check simple equals filter
-        $criteria = new Criteria();
+        $criteria = new Criteria($data->getProductIds());
         $criteria->addFilter(new EqualsFilter('stock', 2));
 
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
@@ -141,7 +140,7 @@ class ElasticsearchProductTest extends TestCase
     {
         $searcher = $this->createEntitySearcher();
         // check simple range filter
-        $criteria = new Criteria();
+        $criteria = new Criteria($data->getProductIds());
         $criteria->addFilter(new RangeFilter('product.stock', [RangeFilter::GTE => 10]));
 
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
@@ -156,7 +155,7 @@ class ElasticsearchProductTest extends TestCase
     {
         $searcher = $this->createEntitySearcher();
         // check filter for categories
-        $criteria = new Criteria();
+        $criteria = new Criteria($data->getProductIds());
         $criteria->addFilter(new EqualsAnyFilter('product.categoriesRo.id', [$data->getCategoryId('category1')]));
 
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
@@ -171,7 +170,7 @@ class ElasticsearchProductTest extends TestCase
     public function testValueAggregation(ElasticsearchTestData $data)
     {
         $aggregator = $this->createEntityAggregator();
-        $criteria = new Criteria();
+        $criteria = new Criteria($data->getProductIds());
         $criteria->addAggregation(new ValueAggregation('product.stock', 'stock'));
 
         $result = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
@@ -193,7 +192,7 @@ class ElasticsearchProductTest extends TestCase
     public function testQueries(ElasticsearchTestData $data)
     {
         $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria();
+        $criteria = new Criteria($data->getProductIds());
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Silk'), 1000));
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
         static::assertCount(2, $products->getIds());
@@ -201,7 +200,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertContains($data->getProductId('product3'), $products->getIds());
 
         $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria();
+        $criteria = new Criteria($data->getProductIds());
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Slik'), 1000));
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
         static::assertCount(2, $products->getIds());
@@ -209,7 +208,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertContains($data->getProductId('product3'), $products->getIds());
 
         $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria();
+        $criteria = new Criteria($data->getProductIds());
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Skill'), 1000));
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Rubar'), 1000));
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());

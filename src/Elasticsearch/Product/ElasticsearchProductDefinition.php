@@ -42,6 +42,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'tags' => $this->mapper->mapField($definition, $definition->getField('tags'), $context),
                     'options' => $this->mapper->mapField($definition, $definition->getField('options'), $context),
                     'visibilities' => $this->mapper->mapField($definition, $definition->getField('visibilities'), $context),
+                    'configuratorSettings' => $this->mapper->mapField($definition, $definition->getField('configuratorSettings'), $context),
                 ]
             ),
         ];
@@ -54,6 +55,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             ->addAssociation('properties')
             ->addAssociation('manufacturer')
             ->addAssociation('tags')
+            ->addAssociation('configuratorSettings')
             ->addAssociation('options')
             ->addAssociation('visibilities')
         ;

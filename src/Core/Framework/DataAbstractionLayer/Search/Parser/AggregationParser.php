@@ -29,7 +29,7 @@ class AggregationParser
                 continue;
             }
 
-            $name = $aggregation['name'] ? (string) $aggregation['name'] : null;
+            $name = array_key_exists('name', $aggregation) ? (string) $aggregation['name'] : null;
 
             if (empty($name) || is_numeric($name)) {
                 $searchRequestException->add(new InvalidAggregationQueryException('The aggregation name should be a non-empty string.'), '/aggregations/' . $index);

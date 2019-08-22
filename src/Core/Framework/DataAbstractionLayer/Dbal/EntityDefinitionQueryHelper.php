@@ -37,7 +37,9 @@ class EntityDefinitionQueryHelper
     public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor): array
     {
         $parts = explode('.', $accessor);
-        array_shift($parts);
+        if ($definition->getEntityName() === $parts[0]) {
+            array_shift($parts);
+        }
 
         $accessorFields = [];
 
@@ -174,7 +176,6 @@ class EntityDefinitionQueryHelper
             throw new UnmappedFieldException($original, $definition);
         }
 
-        /** @var Field $field */
         $field = $fields->get($associationKey);
 
         //case for json object fields, other fields has now same option to act with more point notations but hasn't to be an association field. E.g. price.gross
@@ -182,8 +183,9 @@ class EntityDefinitionQueryHelper
             return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
         }
 
-        /** @var AssociationField $field */
-        $field = $field;
+        if (!$field instanceof AssociationField) {
+            throw new \RuntimeException(sprintf('Expected field "%s" to be instance of %s', $associationKey, AssociationField::class));
+        }
 
         $referenceDefinition = $field->getReferenceDefinition();
         if ($field instanceof ManyToManyAssociationField) {

@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -19,12 +21,17 @@ class EntityScoreQueryBuilder
     /**
      * @return ScoreQuery[]
      */
-    public function buildScoreQueries(SearchPattern $term, EntityDefinition $definition, string $root, float $multiplier = 1.0): array
-    {
+    public function buildScoreQueries(
+        SearchPattern $term,
+        EntityDefinition $definition,
+        string $root,
+        Context $context,
+        float $multiplier = 1.0
+    ): array {
         static $counter = 0;
         ++$counter;
 
-        $fields = $this->getQueryFields($definition);
+        $fields = $this->getQueryFields($definition, $context);
 
         $queries = [];
         /** @var Field $field */
@@ -42,7 +49,7 @@ class EntityScoreQueryBuilder
             if ($field instanceof ManyToManyAssociationField) {
                 $queries = array_merge(
                     $queries,
-                    $this->buildScoreQueries($term, $field->getToManyReferenceDefinition(), $select, $ranking)
+                    $this->buildScoreQueries($term, $field->getToManyReferenceDefinition(), $select, $context, $ranking)
                 );
                 continue;
             }
@@ -50,7 +57,7 @@ class EntityScoreQueryBuilder
             if ($field instanceof AssociationField) {
                 $queries = array_merge(
                     $queries,
-                    $this->buildScoreQueries($term, $field->getReferenceDefinition(), $select, $ranking)
+                    $this->buildScoreQueries($term, $field->getReferenceDefinition(), $select, $context, $ranking)
                 );
                 continue;
             }
@@ -81,10 +88,21 @@ class EntityScoreQueryBuilder
         return $queries;
     }
 
-    private function getQueryFields(EntityDefinition $definition): FieldCollection
+    private function getQueryFields(EntityDefinition $definition, Context $context): FieldCollection
     {
         /** @var FieldCollection $fields */
         $fields = $definition->getFields()->filterByFlag(SearchRanking::class);
+
+        // exclude read protected fields which are not allowed for the current scope
+        $fields = $fields->filter(function (Field $field) use ($context) {
+            /** @var ReadProtected|null $flag */
+            $flag = $field->getFlag(ReadProtected::class);
+            if (!$flag) {
+                return true;
+            }
+
+            return $flag->isSourceAllowed($context->getScope());
+        });
 
         if ($fields->count() > 0) {
             return $fields;

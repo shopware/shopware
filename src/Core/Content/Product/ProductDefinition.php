@@ -185,30 +185,51 @@ class ProductDefinition extends EntityDefinition
             new ChildrenAssociationField(self::class),
 
             //inherited associations and associations which are loaded immediately
-            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id', true))->addFlags(new Inherited()),
-            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, 'id', false))->addFlags(new Inherited()),
-            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id', false))->addFlags(new Inherited()),
-            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id', false))->addFlags(new Inherited()),
-            (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited()),
+            (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id', true))
+                ->addFlags(new Inherited()),
+
+            (new ManyToOneAssociationField('manufacturer', 'product_manufacturer_id', ProductManufacturerDefinition::class, 'id', false))
+                ->addFlags(new Inherited()),
+
+            (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id', false))
+                ->addFlags(new Inherited()),
+
+            (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id', false))
+                ->addFlags(new Inherited()),
+
+            (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id'))
+                ->addFlags(new CascadeDelete(), new Inherited()),
 
             //inherited associations which are not loaded immediately
-            (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited()),
+            (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id'))
+                ->addFlags(new CascadeDelete(), new Inherited()),
 
             //associations which are not loaded immediately
-            (new ManyToManyAssociationField('properties', PropertyGroupOptionDefinition::class, ProductPropertyDefinition::class, 'product_id', 'property_group_option_id'))->addFlags(new CascadeDelete(), new Inherited()),
-            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new Inherited()),
-            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))->addFlags(new Inherited()),
+            (new ManyToManyAssociationField('properties', PropertyGroupOptionDefinition::class, ProductPropertyDefinition::class, 'product_id', 'property_group_option_id'))
+                ->addFlags(new CascadeDelete(), new Inherited()),
+
+            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))
+                ->addFlags(new CascadeDelete(), new Inherited()),
+
+            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))
+                ->addFlags(new Inherited()),
 
             //not inherited associations
-            (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new Inherited(), new Required()),
+            (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))
+                ->addFlags(new Inherited(), new Required()),
 
-            (new OneToManyAssociationField('configuratorSettings', ProductConfiguratorSettingDefinition::class, 'product_id', 'id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
-            (new ManyToManyAssociationField('options', PropertyGroupOptionDefinition::class, ProductOptionDefinition::class, 'product_id', 'property_group_option_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('configuratorSettings', ProductConfiguratorSettingDefinition::class, 'product_id', 'id'))
+                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)
+            ),
+            (new ManyToManyAssociationField('options', PropertyGroupOptionDefinition::class, ProductOptionDefinition::class, 'product_id', 'property_group_option_id'))
+                ->addFlags(new CascadeDelete()),
 
-            (new OneToManyAssociationField('visibilities', ProductVisibilityDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
+            (new OneToManyAssociationField('visibilities', ProductVisibilityDefinition::class, 'product_id'))
+                ->addFlags(new CascadeDelete(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
 
             //association for keyword mapping for search algorithm
-            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id'))->addFlags(new CascadeDelete(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
+            (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id'))
+                ->addFlags(new CascadeDelete(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
     }
 }

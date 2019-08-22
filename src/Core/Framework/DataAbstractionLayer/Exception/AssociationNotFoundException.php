@@ -6,11 +6,11 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class AssociationNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $association)
+    public function __construct(string $field)
     {
         parent::__construct(
             'Can not find association by name {{ association }}',
-            ['association' => $association]
+            ['association' => $field]
         );
     }
 

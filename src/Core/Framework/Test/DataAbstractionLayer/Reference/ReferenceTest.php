@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Reference\TestDefinition\R
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Reference\TestDefinition\ReferenceTestPageFormatDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Reference\TestFieldSerializer\NonUuidFkTestFieldSerializer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 class ReferenceTest extends TestCase
 {
@@ -82,12 +81,6 @@ EOF;
             ],
         ];
         $this->getWriter()->insert($this->registerDefinition(ReferenceTestDocumentDefinition::class), [$data], $context);
-
-        $this->documentRepository->create([
-            'id' => Uuid::randomHex(),
-            // some other fields
-            'pageFormatId' => $pageFormatA4Id,
-        ]);
     }
 
     protected function createWriteContext(): WriteContext

@@ -4,16 +4,29 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\JoinBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 
 class OneToManyAssociationFieldResolver implements FieldResolverInterface
 {
+    /**
+     * @var JoinBuilderInterface
+     */
+    private $joinBuilder;
+
+    public function __construct(JoinBuilderInterface $joinBuilder)
+    {
+        $this->joinBuilder = $joinBuilder;
+    }
+
+    public function getJoinBuilder(): JoinBuilderInterface
+    {
+        return $this->joinBuilder;
+    }
+
     public function resolve(
         EntityDefinition $definition,
         string $root,
@@ -28,63 +41,23 @@ class OneToManyAssociationFieldResolver implements FieldResolverInterface
 
         $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
 
-        $reference = $field->getReferenceDefinition();
-
-        $table = $reference->getEntityName();
-
         $alias = $root . '.' . $field->getPropertyName();
         if ($query->hasState($alias)) {
             return true;
         }
         $query->addState($alias);
 
-        $versionJoin = '';
-        if ($definition->isVersionAware() && $field->is(CascadeDelete::class)) {
-            $fkVersionId = $definition->getEntityName() . '_version_id';
-
-            if ($reference->getFields()->getByStorageName($fkVersionId) === null) {
-                $fkVersionId = 'version_id';
-            }
-
-            $versionJoin = ' AND #root#.version_id = #alias#.' . $fkVersionId;
-        }
-
-        $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());
-        if ($field->is(Inherited::class) && $context->considerInheritance()) {
-            $source = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
-        }
-
-        $referenceColumn = EntityDefinitionQueryHelper::escape($field->getReferenceField());
-        if ($field->is(ReverseInherited::class) && $context->considerInheritance()) {
-            /** @var ReverseInherited $flag */
-            $flag = $field->getFlag(ReverseInherited::class);
-
-            $referenceColumn = EntityDefinitionQueryHelper::escape($flag->getReversedPropertyName());
-        }
-
-        $ruleCondition = $queryHelper->buildRuleCondition($reference, $query, $alias, $context);
-        if ($ruleCondition !== null) {
-            $ruleCondition = ' AND ' . $ruleCondition;
-        }
-
-        $parameters = [
-            '#source#' => $source,
-            '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-            '#reference_column#' => $referenceColumn,
-            '#root#' => EntityDefinitionQueryHelper::escape($root),
-        ];
-
-        $query->leftJoin(
-            EntityDefinitionQueryHelper::escape($root),
-            EntityDefinitionQueryHelper::escape($table),
-            EntityDefinitionQueryHelper::escape($alias),
-            str_replace(
-                array_keys($parameters),
-                array_values($parameters),
-                '#source# = #alias#.#reference_column#' . $versionJoin . $ruleCondition
-            )
+        $this->getJoinBuilder()->join(
+            $definition,
+            JoinBuilderInterface::LEFT_JOIN,
+            $field,
+            $root,
+            $alias,
+            $query,
+            $context
         );
 
+        $reference = $field->getReferenceDefinition();
         if ($definition === $reference) {
             return true;
         }

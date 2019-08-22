@@ -1,5 +1,7 @@
-<div id="app">
-    <sw-notifications ref="notifications"></sw-notifications>
-    <sw-duplicated-media></sw-duplicated-media>
-    <router-view></router-view>
-</div>
+{% block sw_admin %}
+    <div id="app">
+        <sw-notifications ref="notifications"></sw-notifications>
+        <sw-duplicated-media></sw-duplicated-media>
+        <router-view></router-view>
+    </div>
+{% endblock %}

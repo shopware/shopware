@@ -113,6 +113,7 @@ class AccountRegistrationService
 
         $criteria = new Criteria([$customer['id']]);
         $criteria->addAssociation('addresses');
+        $criteria->addAssociation('salutation');
 
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
 

@@ -5,6 +5,7 @@ namespace Shopware\Storefront;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\DependencyInjection\DisableTemplateCachePass;
+use Shopware\Storefront\Framework\ThemeInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -17,7 +18,7 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
-class Storefront extends Bundle
+class Storefront extends Bundle implements ThemeInterface
 {
     protected $name = 'Storefront';
 
@@ -58,6 +59,11 @@ class Storefront extends Bundle
     public function getThemeConfigPath(): ?string
     {
         return 'Resources/theme.json';
+    }
+
+    public function getStorefrontEntryPath(): string
+    {
+        return 'Resources/src/script';
     }
 
     private function buildConfig(ContainerBuilder $container, $environment): void

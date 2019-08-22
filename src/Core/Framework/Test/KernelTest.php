@@ -4,11 +4,17 @@ namespace Shopware\Core\Framework\Test;
 
 use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 
 class KernelTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        KernelLifecycleManager::bootKernel();
+    }
+
     public function testRegisterPluginNamespaceWithoutPlugins(): void
     {
         $classLoader = $this->createMock(ClassLoader::class);

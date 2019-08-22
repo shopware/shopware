@@ -12,11 +12,6 @@ class OneToManyAssociationField extends AssociationField
      */
     protected $localField;
 
-    /**
-     * @var string
-     */
-    protected $referenceField;
-
     public function __construct(
         string $propertyName,
         string $referenceClass,
@@ -27,11 +22,6 @@ class OneToManyAssociationField extends AssociationField
         $this->localField = $localField;
         $this->referenceField = $referenceField;
         $this->referenceClass = $referenceClass;
-    }
-
-    public function getReferenceField(): string
-    {
-        return $this->referenceField;
     }
 
     public function getLocalField(): string

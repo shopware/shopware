@@ -1,21 +1,21 @@
-<div>
-    {% block sw_customer_address_form_options %}
+{% block sw_customer_address_form_options %}
+    <div>
         {% block sw_customer_address_form_options_default_shipping_address %}
             <sw-field type="checkbox"
-                      v-model="isDefaultShippingAddressId"
-                      :disabled="isDefaultShippingAddressId"
-                      @change="onChangeDefaultShippingAddress"
-                      :label="$tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')">
+                    v-model="isDefaultShippingAddressId"
+                    :disabled="isDefaultShippingAddressId"
+                    @change="onChangeDefaultShippingAddress"
+                    :label="$tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')">
             </sw-field>
         {% endblock %}
 
         {% block sw_customer_address_form_options_default_billing_address %}
             <sw-field class="sw-customer-address-form__set-default-billing-address-action"
-                      type="checkbox"
-                      v-model="isDefaultBillingAddressId"
-                      :disabled="isDefaultBillingAddressId"
-                      @change="onChangeDefaultBillingAddress"
-                      :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')">
+                    type="checkbox"
+                    v-model="isDefaultBillingAddressId"
+                    :disabled="isDefaultBillingAddressId"
+                    @change="onChangeDefaultBillingAddress"
+                    :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')">
             </sw-field>
         {% endblock %}
 
@@ -26,5 +26,5 @@
                     :sets="customFieldSets">
             </sw-custom-field-set-renderer>
         {% endblock %}
-    {% endblock %}
-</div>
+    </div>
+{% endblock %}

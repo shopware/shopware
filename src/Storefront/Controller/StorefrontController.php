@@ -3,11 +3,12 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Framework\Twig\TemplateFinder;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\Router;
+use Shopware\Storefront\Theme\Twig\ThemeTemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -17,13 +18,16 @@ abstract class StorefrontController extends AbstractController
 {
     protected function renderStorefront(string $view, array $parameters = [], ?Response $response = null): Response
     {
-        $view = $this->resolveView($view);
-
         $request = $this->get('request_stack')->getCurrentRequest();
 
         $master = $this->get('request_stack')->getMasterRequest();
 
         $context = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        $activeThemeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
+        $activeThemeBaseName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
+
+        $view = $this->resolveView($view, $activeThemeName, $activeThemeBaseName);
 
         $event = new StorefrontRenderEvent($view, $parameters, $request, $context);
 
@@ -83,7 +87,7 @@ abstract class StorefrontController extends AbstractController
         return $this->forward($route['_controller'], $parameters);
     }
 
-    protected function resolveView(string $view): string
+    protected function resolveView(string $view, ?string $activeThemeName, ?string $activeThemeBaseName): string
     {
         //remove static template inheritance prefix
         if (strpos($view, '@') === 0) {
@@ -92,10 +96,10 @@ abstract class StorefrontController extends AbstractController
             $view = implode('/', $viewParts);
         }
 
-        /** @var TemplateFinder $templateFinder */
-        $templateFinder = $this->get(TemplateFinder::class);
+        /** @var ThemeTemplateFinder $templateFinder */
+        $templateFinder = $this->get(ThemeTemplateFinder::class);
 
-        return $templateFinder->find($view);
+        return $templateFinder->find($view, false, null, $activeThemeName, $activeThemeBaseName);
     }
 
     /**

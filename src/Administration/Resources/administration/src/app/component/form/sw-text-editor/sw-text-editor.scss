@@ -3,6 +3,16 @@
 .sw-text-editor {
     position: relative;
 
+    &.has--vertical-align {
+        .sw-text-editor__content-editor {
+            display: flex;
+            flex-grow: 1;
+            flex-shrink: 1;
+            flex-basis: auto;
+            flex-direction: column;
+        }
+    }
+
     .sw-text-editor-table {
         border-collapse: collapse;
 
@@ -121,11 +131,6 @@
 
     .sw-text-editor__content-editor {
         outline: 0 solid transparent;
-        flex-grow: 1;
-        flex-shrink: 1;
-        flex-basis: auto;
-        display: flex;
-        flex-direction: column;
 
         h1, h2, h3, h4, h5, h6 {
             font-weight: 600;

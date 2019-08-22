@@ -18,6 +18,11 @@ abstract class AssociationField extends Field
     protected $referenceDefinition;
 
     /**
+     * @var string
+     */
+    protected $referenceField;
+
+    /**
      * @var bool
      */
     protected $autoload = false;
@@ -36,6 +41,11 @@ abstract class AssociationField extends Field
     public function getReferenceDefinition(): EntityDefinition
     {
         return $this->referenceDefinition;
+    }
+
+    public function getReferenceField(): string
+    {
+        return $this->referenceField;
     }
 
     final public function getAutoload(): bool

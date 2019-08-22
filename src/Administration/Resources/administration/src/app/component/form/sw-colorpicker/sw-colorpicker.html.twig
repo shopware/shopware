@@ -1,22 +1,24 @@
-<sw-contextual-field
-    class="sw-field--colorpicker"
-    v-bind="$attrs"
-    :name="formFieldName"
-    :disabled="disabled">
+{% block sw_colorpicker %}
+    <sw-contextual-field
+        class="sw-field--colorpicker"
+        v-bind="$attrs"
+        :name="formFieldName"
+        :disabled="disabled">
 
-    <template #sw-contextual-field-prefix>
-        <div class="sw-colorpicker__previewWrapper">
-            <div class="sw-colorpicker__previewColor" :style="{ background: color }"></div>
-            <div class="sw-colorpicker__previewBackground" :class="{'sw-colorpicker__previewBackground--empty': emptyColor}"></div>
-        </div>
-    </template>
+        <template #sw-contextual-field-prefix>
+            <div class="sw-colorpicker__previewWrapper">
+                <div class="sw-colorpicker__previewColor" :style="{ background: color }"></div>
+                <div class="sw-colorpicker__previewBackground" :class="{'sw-colorpicker__previewBackground--empty': emptyColor}"></div>
+            </div>
+        </template>
 
-    <template #sw-field-input="{ disabled }">
-        <input  v-model="color"
-                :disabled="disabled">
-    </template>
+        <template #sw-field-input="{ disabled }">
+            <input  v-model="color"
+                    :disabled="disabled">
+        </template>
 
-    <template #sw-contextual-field-suffix>
-        <sw-icon class="sw-colorpicker__trigger" name="default-tools-colorpicker"></sw-icon>
-    </template>
-</sw-contextual-field>
+        <template #sw-contextual-field-suffix>
+            <sw-icon class="sw-colorpicker__trigger" name="default-tools-colorpicker"></sw-icon>
+        </template>
+    </sw-contextual-field>
+{% endblock %}

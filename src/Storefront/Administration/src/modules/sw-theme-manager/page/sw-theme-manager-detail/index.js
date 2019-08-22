@@ -151,7 +151,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         getParentTheme() {
-            this.themeRepository.get(this.theme.parentId, this.context).then((parentTheme) => {
+            this.themeRepository.get(this.theme.parentThemeId, this.context).then((parentTheme) => {
                 this.parentTheme = parentTheme;
             });
         },

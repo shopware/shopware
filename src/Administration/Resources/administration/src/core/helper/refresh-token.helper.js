@@ -8,6 +8,7 @@ export default class RefreshTokenHelper {
     constructor() {
         this._isRefreshing = false;
         this._subscribers = [];
+        this._errorSubscribers = [];
         this._whitelist = [
             '/_info/ping',
             '/oauth/token',
@@ -19,9 +20,11 @@ export default class RefreshTokenHelper {
      * Subscribe a new callback to the cache queue
      *
      * @param {Function} [callback = () => {}]
+     * @param {Function} [errorCallback = () => {}]
      */
-    subscribe(callback = () => {}) {
+    subscribe(callback = () => {}, errorCallback = () => {}) {
         this._subscribers.push(callback);
+        this._errorSubscribers.push(errorCallback);
     }
 
     /**
@@ -35,6 +38,20 @@ export default class RefreshTokenHelper {
             callback.call(null, token);
             return accumulator;
         }, []);
+        this._errorSubscribers = [];
+    }
+
+    /**
+     * Event handler which will be fired when the refresh token couldn't be fetched from the API
+     *
+     * @param {Error} err
+     */
+    onRefreshTokenFailed(err) {
+        this._errorSubscribers = this._errorSubscribers.reduce((accumulator, callback) => {
+            callback.call(null, err);
+            return accumulator;
+        }, []);
+        this._subscribers = [];
     }
 
     /**
@@ -50,6 +67,10 @@ export default class RefreshTokenHelper {
             this.onRefreshToken(newToken);
         }).finally(() => {
             this.isRefreshing = false;
+        }).catch(() => {
+            loginService.logout();
+            this.onRefreshTokenFailed();
+            return Promise.reject();
         });
     }
 

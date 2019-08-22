@@ -253,6 +253,13 @@
                  decorates="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver.inner"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\Subscriber\SalesChannelContextResolvedSubscriber">
+            <argument type="service" id="twig"/>
+            <argument>%kernel.cache_dir%</argument>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\SalesChannelProxyController" public="true">

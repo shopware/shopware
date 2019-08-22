@@ -1,6 +1,7 @@
 import baseModules from 'module';
 import types from 'src/core/service/utils/types.utils';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+import { warn } from 'src/core/service/utils/debug.utils';
 
 export default function initializeCoreModules() {
     const factoryContainer = this.getContainer('factory');
@@ -61,6 +62,15 @@ export default function initializeCoreModules() {
  */
 function registerComponent(componentFactory, component) {
     if (types.isString(component)) {
+        return component;
+    }
+
+    if (component.extendsFrom && typeof component.extendsFrom !== 'string') {
+        warn(
+            'modules.init',
+            'extendsFrom always must be a string.',
+            component
+        );
         return component;
     }
 

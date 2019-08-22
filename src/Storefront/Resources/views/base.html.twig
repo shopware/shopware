@@ -137,7 +137,11 @@
 
     {% block base_script_hmr_mode %}
         {% if isHMRMode %}
+        <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/vendors.js"></script>
+        <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/runtime.js"></script>
         <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/app.js"></script>
+        {# The storefront entry is a combined entry point which contains all plugins & themes #}
+        <script type="text/javascript" src="{{ app.request.server.get('APP_URL') }}:9999/js/storefront.js"></script>
         {% else %}
             {% for file in shopware.theme.assets.js %}
                 <script type="text/javascript" src="{{ asset(file) }}"></script>

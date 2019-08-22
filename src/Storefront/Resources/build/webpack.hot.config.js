@@ -1,7 +1,16 @@
 const webpack = require('webpack');
 const { join } = require('path');
+const { existsSync } = require('fs');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const utils = require('./utils');
+
+const themeFilesConfigPath = join(utils.getProjectRootPath(), 'var/theme-files.json');
+if (!existsSync(themeFilesConfigPath)) {
+    throw new Error(`File "${themeFilesConfigPath}" not found`);
+}
+
+// eslint-disable-next-line
+const themeFiles = require(themeFilesConfigPath);
 
 /**
  * -------------------------------------------------------
@@ -39,6 +48,15 @@ const modules = {
                 {
                     loader: 'sass-loader',
                 },
+                // Provides our theme variables to the hot replacement mode
+                {
+                    loader: 'sass-resources-loader',
+                    options: {
+                        resources: [
+                            join(utils.getProjectRootPath(), 'var/theme-variables.scss'),
+                        ],
+                    },
+                },
             ],
         },
     ],
@@ -61,6 +79,7 @@ const plugins = [
  */
 const devServer = {
     contentBase: utils.getBuildPath(),
+    publicPath: utils.getPublicPath(),
     open: false,
     overlay: {
         warnings: false,
@@ -69,9 +88,9 @@ const devServer = {
     stats: {
         colors: true,
     },
-    quiet: false,
+    quiet: true,
     hot: true,
-    compress: true,
+    compress: false,
     disableHostCheck: true,
     port: 9999,
     host: '0.0.0.0',
@@ -84,13 +103,20 @@ const devServer = {
 /**
  * Export the webpack configuration
  */
-module.exports = {
+const config = {
     devServer: devServer,
     devtool: 'cheap-module-eval-source-map',
     mode: 'development',
     module: modules,
     entry: {
         app: [utils.getPath('/src/style/base.scss')],
+        storefront: [],
     },
     plugins: plugins,
 };
+
+config.entry.storefront = [...themeFiles.script, ...themeFiles.style].map((file) => {
+    return file.filepath;
+});
+
+module.exports = config;

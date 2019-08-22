@@ -253,7 +253,8 @@ export default {
                 'is--active': this.isActive,
                 'is--disabled': this.disabled,
                 'is--boxed': !this.isInlineEdit,
-                'is--empty': this.isEmpty
+                'is--empty': this.isEmpty,
+                'has--vertical-align': !!this.verticalAlign
             };
         },
 

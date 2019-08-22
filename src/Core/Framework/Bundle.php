@@ -43,11 +43,6 @@ abstract class Bundle extends SymfonyBundle
         return get_class($this);
     }
 
-    public function getThemeConfigPath(): ?string
-    {
-        return 'theme.json';
-    }
-
     /**
      * @return string[]
      */

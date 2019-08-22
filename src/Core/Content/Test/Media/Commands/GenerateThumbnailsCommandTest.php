@@ -11,6 +11,8 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Input\StringInput;
@@ -47,6 +49,11 @@ class GenerateThumbnailsCommandTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var array
+     */
+    private $initialMediaIds;
+
     protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
@@ -55,15 +62,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->thumbnailCommand = $this->getContainer()->get(GenerateThumbnailsCommand::class);
         $this->context = Context::createDefaultContext();
 
-        $medias = $this->mediaRepository->searchIds(new Criteria(), $this->context);
-
-        if ($medias->getTotal() > 0) {
-            $deleteArray = [];
-            foreach ($medias->getIds() as $id) {
-                $deleteArray[]['id'] = $id;
-            }
-            $this->mediaRepository->delete($deleteArray, $this->context);
-        }
+        $this->initialMediaIds = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
     }
 
     public function testExecuteHappyPath(): void
@@ -77,11 +76,9 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $string = $output->fetch();
         static::assertRegExp('/.*Generated\s*2.*/', $string);
-        static::assertRegExp('/.*Skipped\s*0.*/', $string);
+        static::assertRegExp('/.*Skipped\s*' . count($this->initialMediaIds) . '.*/', $string);
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('thumbnails');
-        $mediaResult = $this->mediaRepository->search($criteria, $this->context);
+        $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
@@ -107,11 +104,9 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $string = $output->fetch();
         static::assertRegExp('/.*Generated\s*2.*/', $string);
-        static::assertRegExp('/.*Skipped\s*0.*/', $string);
+        static::assertRegExp('/.*Skipped\s*' . count($this->initialMediaIds) . '.*/', $string);
 
-        $searchCriteria = new Criteria();
-        $searchCriteria->addAssociation('thumbnails');
-        $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
+        $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
@@ -137,12 +132,9 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $string = $output->fetch();
         static::assertRegExp('/.*Generated\s*1.*/', $string);
-        static::assertRegExp('/.*Skipped\s*1.*/', $string);
+        static::assertRegExp('/.*Skipped\s*' . (count($this->initialMediaIds) + 1) . '.*/', $string);
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('thumbnails');
-
-        $mediaResult = $this->mediaRepository->search($criteria, $this->context);
+        $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             if (strpos($updatedMedia->getMimeType(), 'image') === 0) {
@@ -168,10 +160,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
-        $mediaCriteria = new Criteria();
-        $mediaCriteria->addAssociation('thumbnails');
-
-        $mediaResult = $this->mediaRepository->search($mediaCriteria, $this->context);
+        $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
@@ -199,7 +188,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
 
-        $mediaResult = $this->mediaRepository->search(new Criteria(), $this->context);
+        $mediaResult = $this->getNewMediaEntities();
         foreach ($mediaResult->getEntities() as $updatedMedia) {
             $thumbnails = $updatedMedia->getThumbnails();
             static::assertEquals(0, $thumbnails->count());
@@ -275,5 +264,24 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
+    }
+
+    private function getNewMediaEntities()
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $this->initialMediaIds));
+        $result = $this->mediaRepository->searchIds($criteria, $this->context);
+        static::assertEquals(count($this->initialMediaIds), $result->getTotal());
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('thumbnails');
+        $criteria->addFilter(new NotFilter(
+            NotFilter::CONNECTION_AND,
+            [
+                new EqualsAnyFilter('id', $this->initialMediaIds),
+            ]
+        ));
+
+        return $this->mediaRepository->search($criteria, $this->context);
     }
 }

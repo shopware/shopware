@@ -59,7 +59,8 @@ Component.register('sw-customer-base-form', {
             'groupId',
             'salesChannelId',
             'defaultPaymentMethodId',
-            'customerNumber'
+            'customerNumber',
+            'password'
         ])
     },
 

@@ -1,12 +1,14 @@
-<sw-icon class="sw-field-copyable"
-         name="small-copy"
-         v-tooltip="{
-            message: tooltipText,
-            width: 220,
-            position: 'top',
-            showDelay: 300,
-            hideDelay: 0
-          }"
-         @click="copyToClipboard"
-         @mouseleave="resetTooltipText"
-></sw-icon>
+{% block sw_field_copyable %}
+  <sw-icon class="sw-field-copyable"
+          name="small-copy"
+          v-tooltip="{
+              message: tooltipText,
+              width: 220,
+              position: 'top',
+              showDelay: 300,
+              hideDelay: 0
+            }"
+          @click="copyToClipboard"
+          @mouseleave="resetTooltipText"
+  ></sw-icon>
+{% endblock %}

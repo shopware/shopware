@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -20,12 +22,19 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
      */
     private $contextService;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         RequestContextResolverInterface $decorated,
-        SalesChannelContextServiceInterface $contextService
+        SalesChannelContextServiceInterface $contextService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->decorated = $decorated;
         $this->contextService = $contextService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function resolve(SymfonyRequest $master, SymfonyRequest $request): void
@@ -56,6 +65,10 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+
+        $this->eventDispatcher->dispatch(
+            new SalesChannelContextResolvedEvent($context)
+        );
     }
 
     public function handleSalesChannelContext(Request $request, Request $master, string $salesChannelId, string $contextToken): void

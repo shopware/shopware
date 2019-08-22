@@ -39,6 +39,7 @@ Component.register('sw-theme-modal', {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia');
             criteria.addAssociation('salesChannels');
+            criteria.addFilter(Criteria.equals('active', true));
 
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 

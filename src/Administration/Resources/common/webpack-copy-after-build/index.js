@@ -2,6 +2,19 @@ const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
 
+function copyFileUsingFsStreams(from, to) {
+    const readStream = fs.createReadStream(from);
+    const writeStream = fs.createWriteStream(to);
+
+    return new Promise((resolve, reject) => {
+        readStream.on('error', reject);
+        writeStream.on('error', reject);
+        writeStream.on('finish', resolve);
+
+        readStream.pipe(writeStream);
+    });
+}
+
 function WebpackCopyAfterBuild(config) {
     this._files = config.files || {};
     this._opts = config.options || {};
@@ -16,6 +29,7 @@ function WebpackCopyAfterBuild(config) {
 WebpackCopyAfterBuild.prototype.apply = function webpackCopyAfterBuild(compiler) {
     const files = this._filesMap;
     const opts = this._opts;
+
     compiler.hooks.done.tap('sw-copy-after-build', (stats) => {
         stats = stats.toJson();
         const chunks = stats.chunks;
@@ -44,7 +58,7 @@ WebpackCopyAfterBuild.prototype.apply = function webpackCopyAfterBuild(compiler)
              * and copy them to the correct target directory,
              * including JS, CSS and SourceMap files.
              */
-            chunk.files.forEach((file) => {
+            chunk.files.forEach(async (file) => {
                 let from = `${outputPath}/${file}`;
                 let to = `${targetBasePath}/${file}`;
 
@@ -64,7 +78,7 @@ WebpackCopyAfterBuild.prototype.apply = function webpackCopyAfterBuild(compiler)
                     from = `${outputPath}/${filePath}`;
                 }
 
-                fs.createReadStream(from).pipe(fs.createWriteStream(to));
+                await copyFileUsingFsStreams(from, to);
 
                 if (fs.existsSync(from)) {
                     fs.unlinkSync(from);

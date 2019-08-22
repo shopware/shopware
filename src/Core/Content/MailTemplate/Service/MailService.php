@@ -127,7 +127,17 @@ class MailService
         $contents = $this->buildContents($data, $salesChannel);
         foreach ($contents as $index => $template) {
             try {
+                if (isset($data['testMode']) && $data['testMode'] === true) {
+                    $this->templateRenderer->enableTestMode();
+                }
+
                 $contents[$index] = $this->templateRenderer->render($template, $templateData);
+                $data['subject'] = $this->templateRenderer->render($data['subject'], $templateData);
+                $data['senderName'] = $this->templateRenderer->render($data['senderName'], $templateData);
+
+                if (isset($data['testMode']) && $data['testMode'] === true) {
+                    $this->templateRenderer->disableTestMode();
+                }
             } catch (\Exception $e) {
                 $this->logger->error(
                     "Could not render Mail-Template with error message:\n"

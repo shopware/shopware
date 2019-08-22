@@ -9,6 +9,10 @@ final class SalesChannelRequest
 
     public const ATTRIBUTE_THEME_ID = 'theme-id';
 
+    public const ATTRIBUTE_THEME_NAME = 'theme-name';
+
+    public const ATTRIBUTE_THEME_BASE_NAME = 'theme-base-name';
+
     /**
      * domain-resolved attributes
      */

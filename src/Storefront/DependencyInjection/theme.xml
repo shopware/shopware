@@ -13,6 +13,7 @@
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="filesystem" />
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver" />
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.debug%</argument>
         </service>
@@ -22,8 +23,11 @@
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="media_folder.repository"/>
+            <argument type="service" id="theme_media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
         </service>
+
+        <service id="Shopware\Storefront\Theme\ThemeFileResolver"/>
 
         <service id="Shopware\Storefront\Theme\ThemeService">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
@@ -48,6 +52,10 @@
             <tag name="shopware.entity.definition" entity="theme_sales_channel"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition">
+            <tag name="shopware.entity.definition" entity="theme_media"/>
+        </service>
+
         <!-- Entity extensions -->
         <service id="Shopware\Storefront\Theme\Extension\SalesChannelExtension">
             <tag name="shopware.entity.extension"/>
@@ -62,7 +70,7 @@
         </service>
 
         <!-- Controller -->
-        <service id="Shopware\Storefront\Theme\ThemeController" public="true">
+        <service id="Shopware\Storefront\Theme\Controller\ThemeController" public="true">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument type="service" id="Shopware\Core\Framework\Translation\Translator"/>
             <call method="setContainer">
@@ -91,6 +99,14 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\Command\ThemeDumpCommand">
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
+            <argument type="service" id="theme.repository"/>
+            <argument>%kernel.cache_dir%</argument>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Storefront\Theme\Command\ThemeRefreshCommand">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
             <tag name="console.command"/>
@@ -102,8 +118,36 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="theme.repository"/>
             <argument type="service" id="sales_channel.repository"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <!-- Twig -->
+        <service id="Shopware\Storefront\Theme\Twig\ThemeTemplateFinder" public="true"
+                 decorates="Shopware\Core\Framework\Twig\TemplateFinder">
+            <argument type="service" id="twig.loader"/>
+            <argument type="service" id="kernel"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\Subscriber\FirstRunWizardSubscriber">
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
+
+            <argument type="service" id="theme.repository" />
+            <argument type="service" id="theme_sales_channel.repository" />
+            <argument type="service" id="sales_channel.repository" />
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\Subscriber\UpdateSubscriber">
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
+            <argument type="service" id="theme.repository" />
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
     </services>
 </container>

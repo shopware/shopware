@@ -62,6 +62,8 @@
       "labelPaymentMethod": "Zahlungsart",
       "labelCustomerNumber": "Kundennummer",
       "labelBirthday": "Geburtsdatum",
+      "labelPassword": "Passwort",
+      "helpTextPassword": "Das Passwort kann nach dem Speichern des Kunden nur direkt vom Kunden geändert werden.",
       "placeholderSalutation": "Anrede wählen ...",
       "placeholderCustomerGroup": "Bitte wähle eine Kundengruppe ...",
       "placeholderSalesChannel": "Bitte wähle einen Verkaufskanal ...",

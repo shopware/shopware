@@ -27,12 +27,12 @@ class DocumentApiService extends ApiService {
             });
     }
 
-    generateDocumentPreviewLink(orderId, orderDeepLink, documentTypeName, config) {
-        return `/api/v1/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview?config=${config}`;
+    generateDocumentPreviewLink(orderId, orderDeepLink, documentTypeName, config, context) {
+        return `${context.apiPath}/v1/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview?config=${config}`;
     }
 
-    generateDocumentLink(documentId, documentDeepLink, download = false) {
-        return `/api/v1/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`;
+    generateDocumentLink(documentId, documentDeepLink, context, download = false) {
+        return `${context.apiPath}/v1/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`;
     }
 }
 

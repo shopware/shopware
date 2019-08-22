@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -48,19 +49,9 @@ class ThemeEntity extends Entity
     protected $previewMediaId;
 
     /**
-     * @var MediaEntity|null
-     */
-    protected $previewMedia;
-
-    /**
      * @var string|null
      */
     protected $parentThemeId;
-
-    /**
-     * @var ThemeCollection|null
-     */
-    protected $childThemes;
 
     /**
      * @var array|null
@@ -71,6 +62,11 @@ class ThemeEntity extends Entity
      * @var array|null
      */
     protected $configValues;
+
+    /**
+     * @var bool
+     */
+    protected $active;
 
     /**
      * @var array|null
@@ -88,7 +84,22 @@ class ThemeEntity extends Entity
     protected $updatedAt;
 
     /**
-     * @var SalesChannelCollection
+     * @var ThemeCollection|null
+     */
+    protected $childThemes;
+
+    /**
+     * @var MediaEntity|null
+     */
+    protected $previewMedia;
+
+    /**
+     * @var MediaCollection|null
+     */
+    protected $media;
+
+    /**
+     * @var SalesChannelCollection|null
      */
     protected $salesChannels;
 
@@ -157,6 +168,26 @@ class ThemeEntity extends Entity
         $this->helpTexts = $helpTexts;
     }
 
+    public function getPreviewMediaId(): ?string
+    {
+        return $this->previewMediaId;
+    }
+
+    public function setPreviewMediaId(?string $previewMediaId): void
+    {
+        $this->previewMediaId = $previewMediaId;
+    }
+
+    public function getParentThemeId(): ?string
+    {
+        return $this->parentThemeId;
+    }
+
+    public function setParentThemeId(?string $parentThemeId): void
+    {
+        $this->parentThemeId = $parentThemeId;
+    }
+
     public function getBaseConfig(): ?array
     {
         return $this->baseConfig;
@@ -187,6 +218,16 @@ class ThemeEntity extends Entity
         $this->customFields = $customFields;
     }
 
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
+    }
+
     public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
@@ -207,7 +248,7 @@ class ThemeEntity extends Entity
         $this->updatedAt = $updatedAt;
     }
 
-    public function getSalesChannels(): SalesChannelCollection
+    public function getSalesChannels(): ?SalesChannelCollection
     {
         return $this->salesChannels;
     }
@@ -217,34 +258,14 @@ class ThemeEntity extends Entity
         $this->salesChannels = $salesChannels;
     }
 
-    public function getParentThemeId(): ?string
+    public function getMedia(): ?MediaCollection
     {
-        return $this->parentThemeId;
+        return $this->media;
     }
 
-    public function setParentThemeId(?string $parentThemeId): void
+    public function setMedia(?MediaCollection $media): void
     {
-        $this->parentThemeId = $parentThemeId;
-    }
-
-    public function getChildThemes(): ?ThemeCollection
-    {
-        return $this->childThemes;
-    }
-
-    public function setChildThemes(?ThemeCollection $childThemes): void
-    {
-        $this->childThemes = $childThemes;
-    }
-
-    public function getPreviewMediaId(): ?string
-    {
-        return $this->previewMediaId;
-    }
-
-    public function setPreviewMediaId(?string $previewMediaId): void
-    {
-        $this->previewMediaId = $previewMediaId;
+        $this->media = $media;
     }
 
     public function getPreviewMedia(): ?MediaEntity
@@ -255,6 +276,16 @@ class ThemeEntity extends Entity
     public function setPreviewMedia(?MediaEntity $previewMedia): void
     {
         $this->previewMedia = $previewMedia;
+    }
+
+    public function getChildThemes(): ?ThemeCollection
+    {
+        return $this->childThemes;
+    }
+
+    public function setChildThemes(?ThemeCollection $childThemes): void
+    {
+        $this->childThemes = $childThemes;
     }
 
     public function getTranslations(): ?ThemeTranslationCollection

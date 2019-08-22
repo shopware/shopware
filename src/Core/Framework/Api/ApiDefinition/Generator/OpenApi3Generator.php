@@ -52,7 +52,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $openapi = [
             'openapi' => '3.0.0',
             'servers' => [
-                ['url' => $url . ($forSalesChannel ? 'sales-channel-api/v1' : 'api/v1')],
+                ['url' => rtrim($url, '/') . ($forSalesChannel ? '/sales-channel-api/v1' : '/api/v1')],
             ],
             'info' => [
                 'title' => 'Shopware ' . ($forSalesChannel ? 'Sales-Channel' : 'Management') . ' API',

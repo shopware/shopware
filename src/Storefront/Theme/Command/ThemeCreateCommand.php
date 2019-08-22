@@ -111,9 +111,14 @@ class ThemeCreateCommand extends Command
 namespace #namespace#;
 
 use Shopware\Core\Framework\Plugin;
+use Shopware\Storefront\Framework\ThemeInterface;
 
-class #class# extends Plugin
+class #class# extends Plugin implements ThemeInterface
 {
+    public function getThemeConfigPath(): string
+    {
+        return 'theme.json';
+    }
 }
 EOL;
     }

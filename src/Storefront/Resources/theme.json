@@ -7,16 +7,16 @@
   },
   "previewMedia": "dist/assets/defaultThemePreview.jpg",
   "style": [
-    "src/style/base.scss",
+    {
+      "src/style/base.scss": {
+        "resolve": {"vendor": "vendor"}}
+    },
     "@Plugins"
   ],
-  "entries": {
-    "vendor": "vendor"
-  },
   "script": [
     "dist/js/vendors.js",
     "dist/js/runtime.js",
-    "dist/js/app.js",
+    "dist/storefront/js/storefront.js",
     "@Plugins"
   ],
   "asset": [

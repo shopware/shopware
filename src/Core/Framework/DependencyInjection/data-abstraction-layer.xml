@@ -65,7 +65,9 @@
             <argument>%shopware.cache.entity_cache.expiration_time%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper" />
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\AntiJoinBuilder"/>
+        </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator" public="true"/>
 
@@ -161,22 +163,41 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAssociationFieldResolver">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\ManyToOneJoinBuilder"/>
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\OneToManyJoinBuilder"/>
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\ManyToManyJoinBuilder" />
             <tag name="shopware.field_resolver" priority="-50"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\TranslatedJoinBuilder"/>
             <tag name="shopware.field_resolver" priority="-50"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\ManyToManyJoinBuilder">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\OneToManyJoinBuilder">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\ManyToOneJoinBuilder">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\TranslatedJoinBuilder">
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\AntiJoinBuilder">
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\ListingPriceFieldAccessorBuilder">

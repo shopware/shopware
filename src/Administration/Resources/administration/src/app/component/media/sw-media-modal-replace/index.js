@@ -1,5 +1,6 @@
 import { Mixin, State } from 'src/core/shopware';
 import template from './sw-media-modal-replace.html.twig';
+import './sw-media-modal-replace.scss';
 
 /**
  * @status ready
@@ -18,6 +19,8 @@ export default {
         Mixin.getByName('notification')
     ],
 
+    inject: ['mediaService'],
+
     props: {
         itemToReplace: {
             type: Object,
@@ -28,7 +31,8 @@ export default {
     data() {
         return {
             uploadTag: null,
-            isUploadDataSet: false
+            isUploadDataSet: false,
+            newFileExtension: ''
         };
     },
 
@@ -43,8 +47,15 @@ export default {
     },
 
     methods: {
-        onNewUpload() {
+        onNewUpload({ data }) {
             this.isUploadDataSet = true;
+
+            const newFileExtension = data[0].extension;
+            const oldFileExtension = this.itemToReplace.fileExtension;
+
+            if (newFileExtension !== oldFileExtension) {
+                this.newFileExtension = newFileExtension;
+            }
         },
 
         emitCloseReplaceModal() {
@@ -53,12 +64,19 @@ export default {
 
         replaceMediaItem() {
             this.itemToReplace.isLoading = true;
+
+            const previousName = this.itemToReplace.fileName;
+
             this.uploadStore.runUploads(this.itemToReplace.id).then(() => {
-                this.mediaItemStore.getByIdAsync(this.itemToReplace.id).then(() => {
+                this.mediaService.renameMedia(this.itemToReplace.id, previousName).then(() => {
+                    this.mediaItemStore.getByIdAsync(this.itemToReplace.id).then(() => {
+                        this.itemToReplace.isLoading = false;
+                    });
                 });
             }).catch(() => {
                 this.itemToReplace.isLoading = false;
             });
+
             this.emitCloseReplaceModal();
         }
     }

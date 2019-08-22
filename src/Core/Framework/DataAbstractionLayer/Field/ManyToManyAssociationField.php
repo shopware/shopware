@@ -37,11 +37,6 @@ class ManyToManyAssociationField extends AssociationField
     /**
      * @var string
      */
-    private $referenceColumn;
-
-    /**
-     * @var string
-     */
     private $toManyDefinitionClass;
 
     /**
@@ -56,7 +51,7 @@ class ManyToManyAssociationField extends AssociationField
         string $mappingLocalColumn,
         string $mappingReferenceColumn,
         string $sourceColumn = 'id',
-        string $referenceColumn = 'id'
+        string $referenceField = 'id'
     ) {
         parent::__construct($propertyName);
         $this->toManyDefinitionClass = $referenceDefinition;
@@ -65,7 +60,7 @@ class ManyToManyAssociationField extends AssociationField
         $this->mappingLocalColumn = $mappingLocalColumn;
         $this->mappingReferenceColumn = $mappingReferenceColumn;
         $this->sourceColumn = $sourceColumn;
-        $this->referenceColumn = $referenceColumn;
+        $this->referenceField = $referenceField;
     }
 
     public function compile(DefinitionInstanceRegistry $registry): void
@@ -103,11 +98,6 @@ class ManyToManyAssociationField extends AssociationField
     public function getLocalField(): string
     {
         return $this->sourceColumn;
-    }
-
-    public function getReferenceField(): string
-    {
-        return $this->referenceColumn;
     }
 
     protected function getSerializerClass(): string

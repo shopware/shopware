@@ -19,7 +19,7 @@ export default {
     computed: {
         version() {
             const version = Application.getContainer('init').contextService.config.version;
-            const match = version.match(/(\d+\.?\d+?\.?\d+?)-?([a-z]+)?([0-9]+)?/i);
+            const match = version.match(/(\d+\.?\d+?\.?\d+?)-?([a-z]+)?(\d+(.\d+)*)?/i);
 
             if (match === null) {
                 return version;

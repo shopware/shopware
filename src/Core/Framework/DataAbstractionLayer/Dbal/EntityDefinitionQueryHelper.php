@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\AntiJoinBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\AntiJoinInfo;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinBuilder\JoinBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -24,6 +27,16 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class EntityDefinitionQueryHelper
 {
     public const HAS_TO_MANY_JOIN = 'has_to_many_join';
+
+    /**
+     * @var AntiJoinBuilder
+     */
+    private $antiJoinBuilder;
+
+    public function __construct(AntiJoinBuilder $antiJoinBuilder)
+    {
+        $this->antiJoinBuilder = $antiJoinBuilder;
+    }
 
     public static function escape(string $string): string
     {
@@ -345,6 +358,36 @@ class EntityDefinitionQueryHelper
         );
     }
 
+    public function resolveAntiJoinAccessors(
+        string $fieldName,
+        EntityDefinition $definition,
+        string $root,
+        QueryBuilder $parentQueryBuilder,
+        Context $context,
+        array $antiJoinConditions = []
+    ): void {
+        foreach ($antiJoinConditions as $antiJoinIdentifier => $antiJoinCondition) {
+            $select = $this->getFieldAccessor($fieldName, $definition, $root, $context);
+            [$alias, $field] = explode('`.`', $select);
+            $alias = ltrim($alias, '`');
+
+            $selectField = EntityDefinitionQueryHelper::escape($alias) . '.`' . $field;
+
+            $associations = $this->getAssociations($fieldName, $definition, $root);
+            $antiJoinInfo = new AntiJoinInfo($associations, $antiJoinCondition, [$selectField]);
+
+            $this->antiJoinBuilder->join(
+                $definition,
+                JoinBuilderInterface::LEFT_JOIN,
+                $antiJoinInfo,
+                $root,
+                $alias . '_' . $antiJoinIdentifier,
+                $parentQueryBuilder,
+                $context
+            );
+        }
+    }
+
     public function resolveField(Field $field, EntityDefinition $definition, string $root, QueryBuilder $query, Context $context): void
     {
         $resolver = $field->getResolver();
@@ -485,6 +528,44 @@ class EntityDefinitionQueryHelper
         }
 
         return $chain;
+    }
+
+    private function getAssociations($fieldName, EntityDefinition $definition, string $root): array
+    {
+        $fieldName = str_replace('extensions.', '', $fieldName);
+
+        //example: `product.manufacturer.media.name`
+        $original = $fieldName;
+        $prefix = $root . '.';
+
+        if (strpos($fieldName, $prefix) === 0) {
+            $fieldName = substr($fieldName, \strlen($prefix));
+        }
+
+        $fields = $definition->getFields();
+
+        if (!$fields->has($fieldName)) {
+            $associationKey = explode('.', $fieldName);
+            $fieldName = array_shift($associationKey);
+        }
+
+        if (!$fields->has($fieldName)) {
+            return [];
+        }
+
+        /** @var AssociationField|null $field */
+        $field = $fields->get($fieldName);
+
+        if ($field === null || !$field instanceof AssociationField) {
+            return [];
+        }
+
+        $referenceDefinition = $field->getReferenceDefinition();
+        if ($field instanceof ManyToManyAssociationField) {
+            $referenceDefinition = $field->getToManyReferenceDefinition();
+        }
+
+        return array_merge([$root => $field], $this->getAssociations($original, $referenceDefinition, $root . '.' . $field->getPropertyName()));
     }
 
     /**

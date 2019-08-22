@@ -5,6 +5,7 @@ const { join } = require('path');
 const artifactsPath = join(process.env.PROJECT_ROOT, '/build/artifacts');
 
 module.exports = {
+    watchPathIgnorePatterns: ['node_modules'],
     clearMocks: true,
     collectCoverage: true,
     coverageDirectory: artifactsPath,

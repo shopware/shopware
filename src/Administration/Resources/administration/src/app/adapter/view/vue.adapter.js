@@ -279,9 +279,6 @@ export default class VueAdapter extends ViewAdapter {
         store.dispatch('setAdminLocale', lastKnownLocale);
         store.commit('setAdminFallbackLocale', systemFallbackLocale);
 
-        /* queue localeToLanguageService */
-        store.dispatch('setAdminLocale', lastKnownLocale);
-
         const i18n = new VueI18n({
             locale: lastKnownLocale,
             fallbackLocale: systemFallbackLocale,

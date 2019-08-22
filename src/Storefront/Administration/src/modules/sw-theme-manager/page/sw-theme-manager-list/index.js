@@ -69,6 +69,7 @@ Component.register('sw-theme-manager-list', {
             criteria.addAssociation('previewMedia');
             criteria.addAssociation('salesChannels');
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+            criteria.addFilter(Criteria.equals('active', true));
 
             if (this.term !== null) {
                 criteria.setTerm(this.term);

@@ -115,6 +115,8 @@ class RequestTransformer implements RequestTransformerInterface
         $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $salesChannel['currencyId']);
         $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID, $salesChannel['id']);
         $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $salesChannel['themeId']);
+        $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, $salesChannel['themeName']);
+        $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel['parentThemeName']);
 
         if (isset($resolved['canonicalPathInfo'])) {
             $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK, $request->getSchemeAndHttpHost() . $baseUrl . $resolved['canonicalPathInfo']);
@@ -153,11 +155,14 @@ class RequestTransformer implements RequestTransformerInterface
                 'LOWER(HEX(domain.language_id)) languageId',
                 'snippet_set.iso as locale',
                 'LOWER(HEX(theme.id)) themeId',
+                'theme.technical_name as themeName',
+                'parentTheme.technical_name as parentThemeName',
             ])->from('sales_channel')
             ->innerJoin('sales_channel', 'sales_channel_domain', 'domain', 'domain.sales_channel_id = sales_channel.id')
             ->innerJoin('domain', 'snippet_set', 'snippet_set', 'snippet_set.id = domain.snippet_set_id')
             ->leftJoin('sales_channel', 'theme_sales_channel', 'theme_sales_channel', 'sales_channel.id = theme_sales_channel.sales_channel_id')
             ->leftJoin('theme_sales_channel', 'theme', 'theme', 'theme_sales_channel.theme_id = theme.id')
+            ->leftJoin('theme', 'theme', 'parentTheme', 'theme.parent_theme_id = parentTheme.id')
             ->where('sales_channel.type_id = UNHEX(:typeId)')
             ->andWhere('sales_channel.active')
             ->setParameter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)

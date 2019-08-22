@@ -280,7 +280,8 @@
       "titleModal": "Replace media files",
       "buttonUpload": "Upload",
       "buttonCancel": "Cancel",
-      "buttonReplace": "Replace"
+      "buttonReplace": "Replace",
+      "warningFileExtension": "The new file has a different file extension ({extension}). The file may need to be re-indexed by search engines."
     },
     "sw-media-preview": {
       "fallbackVideoTagSupport": "Your browser does not support the video tag",

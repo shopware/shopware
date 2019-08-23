@@ -1,6 +1,7 @@
-import { Application } from 'src/core/shopware';
 import './component';
 import './preview';
+
+const { Application } = Shopware;
 
 Application.getContainer('service').cmsService.registerCmsBlock({
     name: 'image-cover',

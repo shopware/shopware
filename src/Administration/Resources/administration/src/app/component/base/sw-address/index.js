@@ -1,6 +1,8 @@
 import template from './sw-address.html.twig';
 import './sw-address.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description Component to render a postal address
@@ -18,8 +20,7 @@ import './sw-address.scss';
  *     country: { name: 'Germany' }
  * }"></sw-address>
  */
-export default {
-    name: 'sw-address',
+Component.register('sw-address', {
     template,
 
     props: {
@@ -61,4 +62,4 @@ export default {
             };
         }
     }
-};
+});

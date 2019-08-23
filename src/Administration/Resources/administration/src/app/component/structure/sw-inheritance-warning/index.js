@@ -1,6 +1,8 @@
 import template from './sw-inheritance-warning.html.twig';
 import './sw-inheritance-warning.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description
@@ -10,8 +12,7 @@ import './sw-inheritance-warning.scss';
  * @component-example
  * <sw-inheritance-warning :name="'This product'"></sw-inheritance-warning>
  */
-export default {
-    name: 'sw-inheritance-warning',
+Component.register('sw-inheritance-warning', {
     template,
     props: {
         name: {
@@ -19,4 +20,4 @@ export default {
             required: true
         }
     }
-};
+});

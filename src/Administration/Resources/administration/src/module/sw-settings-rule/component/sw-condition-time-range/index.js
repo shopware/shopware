@@ -1,6 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-condition-time-range.html.twig';
 
+const { Component } = Shopware;
 const defaultTimeValue = '12:00';
 
 Component.extend('sw-condition-time-range', 'sw-condition-base', {

@@ -1,5 +1,6 @@
-import { Mixin } from 'src/core/shopware';
 import template from './sw-text-field.html.twig';
+
+const { Component, Mixin } = Shopware;
 
 /**
  * @protected
@@ -9,8 +10,7 @@ import template from './sw-text-field.html.twig';
  * @component-example
  * <sw-text-field type="text" label="Name" placeholder="placeholder goes here..."></sw-text-field>
  */
-export default {
-    name: 'sw-text-field',
+Component.register('sw-text-field', {
     template,
     inheritAttrs: false,
 
@@ -87,4 +87,4 @@ export default {
             this.$emit('input', null);
         }
     }
-};
+});

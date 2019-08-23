@@ -1,5 +1,4 @@
-import { Mixin } from 'src/core/shopware';
-
+const { Mixin } = Shopware;
 /**
  * Mixin to handle the selection of sw-media-media-item components.
  *

@@ -1,7 +1,8 @@
-import { Component } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import './sw-order-document-settings-credit-note-modal.scss';
 import template from './sw-order-document-settings-credit-note-modal.html.twig';
+import './sw-order-document-settings-credit-note-modal.scss';
+
+const { Component } = Shopware;
 
 Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-document-settings-modal', {
     template,

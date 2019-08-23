@@ -1,4 +1,4 @@
-import { Application, Filter } from 'src/core/shopware';
+const { Application, Filter } = Shopware;
 
 Filter.register('asset', (value) => {
     if (!value) {

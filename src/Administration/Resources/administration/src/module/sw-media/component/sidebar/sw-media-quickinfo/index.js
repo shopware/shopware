@@ -1,9 +1,9 @@
-import { Component, Mixin, State } from 'src/core/shopware';
-import { format } from 'src/core/service/util.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import domUtils from 'src/core/service/utils/dom.utils';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
+
+const { Component, Mixin, State } = Shopware;
+const { domUtils, format } = Shopware.Utils;
 
 Component.register('sw-media-quickinfo', {
     template,

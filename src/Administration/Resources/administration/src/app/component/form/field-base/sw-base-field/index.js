@@ -1,9 +1,10 @@
-import utils from 'src/core/service/util.service';
 import template from './sw-base-field.html.twig';
 import './sw-base-field.scss';
 
-export default {
-    name: 'sw-base-field',
+const { Component } = Shopware;
+const utils = Shopware.Utils;
+
+Component.register('sw-base-field', {
     template,
     inheritAttrs: false,
 
@@ -108,4 +109,4 @@ export default {
             };
         }
     }
-};
+});

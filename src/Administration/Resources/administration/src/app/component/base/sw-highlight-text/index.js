@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import './sw-highlight-text.scss';
+
+const { Component } = Shopware;
 
 /**
  * @public

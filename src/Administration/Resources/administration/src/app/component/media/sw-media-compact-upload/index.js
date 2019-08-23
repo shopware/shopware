@@ -1,9 +1,9 @@
 import template from './sw-media-compact-upload.html.twig';
 import './sw-media-compact-upload.scss';
 
-export default {
-    name: 'sw-media-compact-upload',
-    extendsFrom: 'sw-media-upload',
+const { Component } = Shopware;
+
+Component.extend('sw-media-compact-upload', 'sw-media-upload', {
     template,
 
     data() {
@@ -41,4 +41,4 @@ export default {
             this.$emit('selection-change', selection, this.uploadTag);
         }
     }
-};
+});

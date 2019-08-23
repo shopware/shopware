@@ -1,6 +1,7 @@
-import { Component, State } from 'src/core/shopware';
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
+
+const { Component, State } = Shopware;
 
 Component.register('sw-cms-page-form', {
     template,

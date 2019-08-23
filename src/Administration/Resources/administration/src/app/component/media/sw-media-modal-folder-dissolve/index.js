@@ -1,5 +1,6 @@
-import { Mixin } from 'src/core/shopware';
 import template from './sw-media-modal-folder-dissolve.html.twig';
+
+const { Component, Mixin } = Shopware;
 
 /**
  * @status ready
@@ -9,8 +10,7 @@ import template from './sw-media-modal-folder-dissolve.html.twig';
  * <sw-media-modal-folder-dissolve :itemsToDissolve="[items]">
  * </sw-media-modal-folder-dissolve>
  */
-export default {
-    name: 'sw-media-modal-folder-dissolve',
+Component.register('sw-media-modal-folder-dissolve', {
     template,
 
     inject: ['mediaFolderService'],
@@ -96,4 +96,4 @@ export default {
             );
         }
     }
-};
+});

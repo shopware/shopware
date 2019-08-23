@@ -1,5 +1,5 @@
-import { warn } from 'src/core/service/utils/debug.utils';
-import util from 'src/core/service/util.service';
+const util = Shopware.Utils;
+const { warn } = Shopware.Utils.debug;
 
 let pluginInstalled = false;
 

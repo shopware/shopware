@@ -1,4 +1,3 @@
-import { Module } from 'src/core/shopware';
 import './service/cms.service';
 import './state/cms-page.state';
 import './mixin/sw-cms-element.mixin';
@@ -11,6 +10,8 @@ import './page/sw-cms-create';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-cms', {
     type: 'core',

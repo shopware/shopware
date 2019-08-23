@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-condition-line-item-total-price.html.twig';
+
+const { Component } = Shopware;
 
 /**
  * @public

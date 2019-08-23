@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-product-restriction-selection.html.twig';
 import './sw-product-restriction-selection.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-product-restriction-selection', {
     template,

@@ -1,4 +1,3 @@
-import { Module } from 'src/core/shopware';
 import './page/sw-import-export-index';
 import './page/sw-import-export-profile-list';
 import './page/sw-import-export-profile-create';
@@ -10,6 +9,8 @@ import './component/sw-import-export-progress';
 import { NEXT733 } from 'src/flag/feature_next733';
 import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-import-export', {
     type: 'core',

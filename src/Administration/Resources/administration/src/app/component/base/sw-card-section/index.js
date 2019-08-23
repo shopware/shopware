@@ -1,6 +1,8 @@
 import template from './sw-card-section.html.twig';
 import './sw-card-section.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description A container component which separates the content of <code>sw-card</code> into multiple sections.
@@ -18,8 +20,7 @@ import './sw-card-section.scss';
  *     </sw-container>
  * </sw-card>
  */
-export default {
-    name: 'sw-card-section',
+Component.register('sw-card-section', {
     template,
 
     props: {
@@ -56,4 +57,4 @@ export default {
             };
         }
     }
-};
+});

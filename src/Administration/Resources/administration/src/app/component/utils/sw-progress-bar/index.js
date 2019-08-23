@@ -1,6 +1,8 @@
 import template from './sw-progress-bar.html.twig';
 import './sw-progress-bar.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description Renders a progressbar to indicate progress
@@ -9,9 +11,7 @@ import './sw-progress-bar.scss';
  * @component-example
  * <sw-progress-bar :value="0" :maxValue="480"></sw-progress-bar>
  */
-export default {
-    name: 'sw-progress-bar',
-
+Component.register('sw-progress-bar', {
     template,
 
     props: {
@@ -46,4 +46,4 @@ export default {
             };
         }
     }
-};
+});

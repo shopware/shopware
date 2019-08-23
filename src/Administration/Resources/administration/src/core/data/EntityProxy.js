@@ -1,15 +1,17 @@
-import { Application, Entity, State } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
-import { deepCopyObject, hasOwnProperty, getArrayChanges, getObjectDiff } from 'src/core/service/utils/object.utils';
 import { required } from 'src/core/service/validation.service';
 import type from 'src/core/service/utils/types.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import ApiService from 'src/core/service/api.service';
 import AssociationStore from './AssociationStore';
 import EntityStore from './EntityStore';
 
+const { Application, Entity, State } = Shopware;
+const utils = Shopware.utils;
+const { deepCopyObject, hasOwnProperty, getArrayChanges, getObjectDiff } = Shopware.Utils.object;
+const ApiService = Shopware.Classes.ApiService;
+
 /**
  * @module core/data/EntityProxy
+ * @deprecated 6.1
  */
 
 /**

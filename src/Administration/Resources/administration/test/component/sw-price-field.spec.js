@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import swPriceField from 'src/app/component/form/sw-price-field';
+import 'src/app/component/form/sw-price-field';
 
 // mock data
 const dollarPrice = {
@@ -49,7 +49,7 @@ const setup = (propOverride) => {
         ...propOverride
     };
 
-    return shallowMount(swPriceField, {
+    return shallowMount(Shopware.Component.build('sw-price-field'), {
         stubs: ['sw-field', 'sw-icon'],
         mocks: { $tc: key => key },
         propsData

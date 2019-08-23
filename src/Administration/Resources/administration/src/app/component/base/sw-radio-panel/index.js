@@ -1,6 +1,8 @@
-import utils from 'src/core/service/util.service';
 import template from './sw-radio-panel.html.twig';
 import './sw-radio-panel.scss';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public
@@ -15,8 +17,7 @@ import './sw-radio-panel.scss';
  * icon="default-badge-warning"
  * ></sw-radio-panel>
  */
-export default {
-    name: 'sw-radio-panel',
+Component.register('sw-radio-panel', {
     template,
 
     model: {
@@ -78,4 +79,4 @@ export default {
             this.$emit('input', this.value);
         }
     }
-};
+});

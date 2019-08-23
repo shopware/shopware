@@ -1,7 +1,8 @@
-import utils from 'src/core/service/util.service';
-import sort from 'src/core/service/utils/sort.utils';
 import template from './sw-tree.html.twig';
 import './sw-tree.scss';
+
+const { Component } = Shopware;
+const { debounce, sort } = Shopware.Utils;
 
 /**
  * @public
@@ -36,8 +37,7 @@ import './sw-tree.scss';
  *     </template>
  * </sw-tree>
  */
-export default {
-    name: 'sw-tree',
+Component.register('sw-tree', {
     template,
 
     props: {
@@ -182,7 +182,7 @@ export default {
             this.$emit('get-tree-items', parentId, searchTerm);
         },
 
-        searchItems: utils.debounce(function debouncedTreeSearch() {
+        searchItems: debounce(function debouncedTreeSearch() {
             this.$emit('search-tree-items', this.currentTreeSearch);
         }, 600),
 
@@ -539,4 +539,4 @@ export default {
             this.toDeleteItem = null;
         }
     }
-};
+});

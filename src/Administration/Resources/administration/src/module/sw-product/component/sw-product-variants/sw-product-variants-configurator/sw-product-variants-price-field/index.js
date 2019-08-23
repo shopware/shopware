@@ -1,7 +1,8 @@
-import { Component, Application } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-product-variants-price-field.html.twig';
 import './sw-product-variants-price-field.scss';
+
+const { Component, Application } = Shopware;
+const utils = Shopware.Utils;
 
 Component.register('sw-product-variants-price-field', {
     template,

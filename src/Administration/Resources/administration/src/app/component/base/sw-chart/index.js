@@ -1,10 +1,12 @@
 import VueApexCharts from 'vue-apexcharts';
 import en from 'apexcharts/dist/locales/en.json';
 import de from 'apexcharts/dist/locales/de.json';
-import { object } from 'src/core/service/util.service';
-import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-chart.html.twig';
 import './sw-chart.scss';
+
+const { Component } = Shopware;
+const { object } = Shopware.Utils;
+const { warn } = Shopware.Utils.debug;
 
 /**
  * @public
@@ -79,8 +81,7 @@ import './sw-chart.scss';
  *     :sort="true">
  * </sw-chart>
  */
-export default {
-    name: 'sw-chart',
+Component.register('sw-chart', {
     template,
     inheritAttrs: false,
 
@@ -345,4 +346,4 @@ export default {
             return zeroTimestamps;
         }
     }
-};
+});

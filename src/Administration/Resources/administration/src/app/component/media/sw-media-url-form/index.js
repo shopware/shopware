@@ -1,5 +1,7 @@
 import template from './sw-media-url-form.html.twig';
 
+const { Component } = Shopware;
+
 /**
  * @status ready
  * @description The <u>sw-media-url-form</u> component is used to validate urls from the user.
@@ -8,8 +10,7 @@ import template from './sw-media-url-form.html.twig';
  * <sw-media-url-form variant="inline">
  * </sw-media-url-form>
  */
-export default {
-    name: 'sw-media-url-form',
+Component.register('sw-media-url-form', {
     template,
 
     props: {
@@ -103,4 +104,4 @@ export default {
             this.$emit('modal-close');
         }
     }
-};
+});

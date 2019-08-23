@@ -1,7 +1,8 @@
-import { Component } from 'src/core/shopware';
 import { mapState } from 'vuex';
 import template from './sw-product-visibility-detail.html.twig';
 import './sw-product-visibility-detail.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-product-visibility-detail', {
     template,

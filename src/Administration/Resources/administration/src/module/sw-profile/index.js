@@ -1,9 +1,10 @@
-import { Module } from 'src/core/shopware';
 import './extension/sw-admin-menu';
 import './page/sw-profile-index';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-profile', {
     type: 'core',

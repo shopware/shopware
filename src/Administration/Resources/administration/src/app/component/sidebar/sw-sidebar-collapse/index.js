@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-sidebar-collapse.html.twig';
 import './sw-sidebar-collaps.scss';
+
+const { Component } = Shopware;
 
 Component.extend('sw-sidebar-collapse', 'sw-collapse', {
     template,

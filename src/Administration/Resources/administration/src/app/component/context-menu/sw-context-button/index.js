@@ -1,6 +1,8 @@
 import template from './sw-context-button.html.twig';
 import './sw-context-button.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @status ready
@@ -12,8 +14,7 @@ import './sw-context-button.scss';
  *     </sw-context-menu-item>
  * </sw-context-button>
  */
-export default {
-    name: 'sw-context-button',
+Component.register('sw-context-button', {
     template,
 
     props: {
@@ -209,4 +210,4 @@ export default {
             }
         }
     }
-};
+});

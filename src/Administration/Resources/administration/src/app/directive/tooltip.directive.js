@@ -1,6 +1,7 @@
-import { Directive } from 'src/core/shopware';
-import utils, { debug } from 'src/core/service/util.service';
-import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+const { Directive } = Shopware;
+const { debug } = Shopware.Utils;
+const { hasOwnProperty } = Shopware.Utils.object;
+const utils = Shopware.Utils;
 
 const availableTooltipPlacements = [
     'top',

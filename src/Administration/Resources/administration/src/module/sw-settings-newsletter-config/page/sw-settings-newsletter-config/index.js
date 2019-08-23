@@ -1,5 +1,6 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-settings-newsletter-config.html.twig';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-settings-newsletter-config', {
     template,

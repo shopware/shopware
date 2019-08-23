@@ -1,4 +1,4 @@
-import { Application } from 'src/core/shopware';
+const { Application } = Shopware;
 
 /**
  * @module core/service/plugin-updates-listener

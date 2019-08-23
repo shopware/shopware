@@ -1,10 +1,9 @@
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-condition-value',
-    extendsFrom: 'sw-select',
-
+Component.extend('sw-condition-value', 'sw-select', {
     watch: {
         value() {
             if (this.multi) {
@@ -43,4 +42,4 @@ export default {
             this.$emit('input', itemIds);
         }
     }
-};
+});

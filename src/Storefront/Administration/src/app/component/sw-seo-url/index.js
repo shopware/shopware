@@ -1,8 +1,9 @@
-import { Component } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
 import swSeoUrlState from './state';
 import template from './sw-seo-url.html.twig';
+
+const { Component } = Shopware;
+const Criteria = Shopware.Data.Criteria;
+const EntityCollection = Shopware.Data.EntityCollection;
 
 Component.register('sw-seo-url', {
     template,

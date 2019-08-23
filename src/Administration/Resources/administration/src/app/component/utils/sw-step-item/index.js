@@ -1,7 +1,7 @@
 import template from './sw-step-item.html.twig';
 import './sw-step-item.scss';
 
-
+const { Component } = Shopware;
 /**
  * @public
  * @description Renders a step and must be used in the slot of the sw-step-display component.
@@ -12,9 +12,7 @@ import './sw-step-item.scss';
  *     Finish
  * </sw-step-item>
  */
-export default {
-    name: 'sw-step-item',
-
+Component.register('sw-step-item', {
     template,
 
     props: {
@@ -67,4 +65,4 @@ export default {
             this.variant = variant;
         }
     }
-};
+});

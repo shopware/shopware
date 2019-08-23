@@ -1,7 +1,8 @@
-import { State } from 'src/core/shopware';
-import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-page.html.twig';
 import './sw-page.scss';
+
+const { Component, State } = Shopware;
+const { dom } = Shopware.Utils;
 
 /**
  * @public
@@ -38,8 +39,7 @@ import './sw-page.scss';
  *     </template>
  * </sw-page>
  */
-export default {
-    name: 'sw-page',
+Component.register('sw-page', {
     template,
 
     props: {
@@ -202,4 +202,4 @@ export default {
             }
         }
     }
-};
+});

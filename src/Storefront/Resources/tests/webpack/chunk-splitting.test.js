@@ -40,7 +40,8 @@ describe('webpack/chunk-splitting', () => {
             // console.log(config.optimization.splitChunks);
             expect(config.optimization.runtimeChunk.name).toBe('runtime');
             expect(Object.prototype.hasOwnProperty.call(config.optimization.splitChunks, 'cacheGroups')).toBeTruthy();
-            expect(Object.prototype.hasOwnProperty.call(config.optimization.splitChunks.cacheGroups, 'vendor')).toBeTruthy();
+            expect(Object.prototype.hasOwnProperty.call(config.optimization.splitChunks.cacheGroups, 'vendor-node')).toBeTruthy();
+            expect(Object.prototype.hasOwnProperty.call(config.optimization.splitChunks.cacheGroups, 'vendor-shared')).toBeTruthy();
         });
     });
 

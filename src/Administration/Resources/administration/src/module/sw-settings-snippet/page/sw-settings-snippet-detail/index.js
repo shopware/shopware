@@ -1,7 +1,8 @@
-import { Component, State, Mixin } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
-import ShopwareError from 'src/core/data/ShopwareError';
 import template from './sw-settings-snippet-detail.html.twig';
+
+const { Component, Mixin, State } = Shopware;
+const ShopwareError = Shopware.Classes.ShopwareError;
+const utils = Shopware.Utils;
 
 Component.register('sw-settings-snippet-detail', {
     template,

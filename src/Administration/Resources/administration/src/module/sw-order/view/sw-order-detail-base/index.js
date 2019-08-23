@@ -1,9 +1,8 @@
-import { Component, Application } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
-import { format } from 'src/core/service/util.service';
-
 import template from './sw-order-detail-base.html.twig';
 
+const { Component, Application } = Shopware;
+const { Criteria } = Shopware.Data;
+const format = Shopware.Utils.format;
 
 Component.register('sw-order-detail-base', {
     template,

@@ -1,5 +1,5 @@
-import { Mixin } from 'src/core/shopware';
-import { types } from 'src/core/service/util.service';
+const { Mixin } = Shopware;
+const types = Shopware.Utils.types;
 
 /**
  * @module app/mixin/validation

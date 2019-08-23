@@ -1,4 +1,3 @@
-import { EntityDefinition } from 'src/core/shopware';
 import types from 'src/core/service/utils/types.utils';
 import Entity from './entity.data';
 import EntityCollection from './entity-collection.data';
@@ -45,7 +44,7 @@ export default class EntityHydrator {
     hydrate(route, entityName, data, context, criteria) {
         this.cache = {};
 
-        const collection = new EntityCollection(route, entityName, context, criteria);
+        const collection = new Shopware.EntityCollection(route, entityName, context, criteria);
 
         data.data.forEach((row) => {
             collection.add(
@@ -73,7 +72,7 @@ export default class EntityHydrator {
             return this.cache[cacheKey];
         }
 
-        const schema = EntityDefinition.get(entityName);
+        const schema = Shopware.EntityDefinition.get(entityName);
         // currently translation can not be hydrated
         if (!schema) {
             return null;

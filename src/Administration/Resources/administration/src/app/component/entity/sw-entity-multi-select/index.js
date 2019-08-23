@@ -1,9 +1,7 @@
-import Criteria from 'src/core/data-new/criteria.data';
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
-export default {
-    name: 'sw-entity-multi-select',
-    extendsFrom: 'sw-multi-select',
-
+Component.extend('sw-entity-multi-select', 'sw-multi-select', {
     inject: ['repositoryFactory', 'context'],
 
     props: {
@@ -190,4 +188,4 @@ export default {
             this.$emit('search-finished', this.currentOptions);
         }
     }
-};
+});

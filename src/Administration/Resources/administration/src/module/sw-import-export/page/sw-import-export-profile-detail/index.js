@@ -1,6 +1,7 @@
-import { Component, Mixin } from 'src/core/shopware';
-import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-import-export-profile-detail.html.twig';
+
+const { Component, Mixin } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-import-export-profile-detail', {
     template,

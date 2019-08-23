@@ -1,7 +1,8 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
+
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-product-stream-modal-preview', {
     template,

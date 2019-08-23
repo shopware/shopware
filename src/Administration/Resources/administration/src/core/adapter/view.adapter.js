@@ -1,4 +1,4 @@
-import { warn } from 'src/core/service/utils/debug.utils';
+const { warn } = Shopware.Utils.debug;
 
 /**
  * View Adapter Boilerplate class which provides a blueprint for view adapters (like for React, VueJS, ...)

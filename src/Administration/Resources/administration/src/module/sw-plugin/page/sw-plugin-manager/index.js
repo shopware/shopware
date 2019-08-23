@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-plugin-manager.html.twig';
 import './sw-plugin-manager.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-plugin-manager', {
     template,

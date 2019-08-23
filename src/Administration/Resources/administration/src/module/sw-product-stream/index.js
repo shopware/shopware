@@ -1,4 +1,3 @@
-import { Module } from 'src/core/shopware';
 import './page/sw-product-stream-list';
 import './page/sw-product-stream-detail';
 import './page/sw-product-stream-create';
@@ -7,6 +6,8 @@ import './component/sw-product-stream-filter';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-product-stream', {
     type: 'core',

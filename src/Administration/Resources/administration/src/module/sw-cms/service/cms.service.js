@@ -1,4 +1,4 @@
-import { Application, Entity } from 'src/core/shopware';
+const { Application, Entity } = Shopware;
 
 Application.addServiceProvider('cmsService', () => {
     return {

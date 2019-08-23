@@ -1,4 +1,3 @@
-import { Module } from 'src/core/shopware';
 import './mixin/plugin-error-handler.mixin';
 import './page/sw-plugin-manager';
 import './view/sw-plugin-list';
@@ -16,6 +15,8 @@ import pluginSettings from './component/sw-plugin-config';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-plugin', {
     type: 'core',

@@ -1,8 +1,9 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import EntityProxy from 'src/core/data/EntityProxy';
-import utils from 'src/core/service/util.service';
 import template from './sw-cms-create.html.twig';
+
+const { Component, Mixin, State } = Shopware;
+const utils = Shopware.Utils;
 
 Component.extend('sw-cms-create', 'sw-cms-detail', {
     template,

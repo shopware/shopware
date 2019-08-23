@@ -1,4 +1,3 @@
-import { EntityDefinition } from 'src/core/shopware';
 import utils from 'src/core/service/util.service';
 import { warn } from 'src/core/service/utils/debug.utils';
 import Entity from './entity.data';
@@ -18,7 +17,7 @@ export default class EntityFactory {
     create(entityName, id, context) {
         id = id || utils.createId();
 
-        const definition = EntityDefinition.get(entityName);
+        const definition = Shopware.EntityDefinition.get(entityName);
 
         if (!definition) {
             warn('Entity factory', `No schema found for entity ${entityName}`);

@@ -1,6 +1,7 @@
-import { Mixin } from 'src/core/shopware';
 import template from './sw-select-field.html.twig';
 import './sw-select-field.scss';
+
+const { Component, Mixin } = Shopware;
 
 /**
  * @public
@@ -16,9 +17,9 @@ import './sw-select-field.scss';
  *     <option value="value5">Label #5</option>
  * </sw-select-field>
  */
-export default {
-    name: 'sw-select-field',
+Component.register('sw-select-field', {
     template,
+
     inheritAttrs: false,
 
     model: {
@@ -111,4 +112,4 @@ export default {
             this.$emit('change', this.currentValue);
         }
     }
-};
+});

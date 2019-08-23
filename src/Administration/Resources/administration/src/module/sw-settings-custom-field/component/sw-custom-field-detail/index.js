@@ -1,6 +1,7 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-custom-field-detail', {
     template,

@@ -1,6 +1,7 @@
-import { Application, Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-cms-el-image-slider.html.twig';
 import './sw-cms-el-image-slider.scss';
+
+const { Application, Component, Mixin, State } = Shopware;
 
 Component.register('sw-cms-el-image-slider', {
     template,

@@ -1,10 +1,11 @@
-import { Component, Mixin } from 'src/core/shopware';
 import { mapApiErrors } from 'src/app/service/map-errors.service';
-import { types } from 'src/core/service/util.service';
-import Criteria from 'src/core/data-new/criteria.data';
 import { PromotionPermissions } from 'src/module/sw-promotion/helper/promotion.helper';
 import template from './sw-promotion-basic-form.html.twig';
 import './sw-promotion-basic-form.scss';
+
+const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
+const types = Shopware.Utils.types;
 
 Component.register('sw-promotion-basic-form', {
     template,

@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-promotion-rule-select.html.twig';
 import './sw-promotion-rule-select.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-promotion-rule-select', {
     template,

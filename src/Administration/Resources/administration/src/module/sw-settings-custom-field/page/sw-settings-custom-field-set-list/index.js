@@ -1,7 +1,8 @@
-import { Component, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-custom-field-set-list.html.twig';
 import './sw-settings-custom-field-set-list.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-settings-custom-field-set-list', {
     template,

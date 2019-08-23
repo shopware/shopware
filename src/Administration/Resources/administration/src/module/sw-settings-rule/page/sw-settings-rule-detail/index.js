@@ -1,8 +1,9 @@
-import { Component, Mixin, State } from 'src/core/shopware';
-import { warn } from 'src/core/service/utils/debug.utils';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
+
+const { Component, State, Mixin } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-settings-rule-detail', {
     template,

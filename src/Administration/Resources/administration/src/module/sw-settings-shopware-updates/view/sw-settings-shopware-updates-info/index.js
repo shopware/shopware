@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-shopware-updates-info.html.twig';
+
+const { Component } = Shopware;
 
 Component.register('sw-settings-shopware-updates-info', {
     template,

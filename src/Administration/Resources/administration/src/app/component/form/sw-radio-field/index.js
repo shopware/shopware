@@ -1,6 +1,7 @@
-import { Mixin } from 'src/core/shopware';
 import template from './sw-radio-field.html.twig';
 import './sw-radio-field.scss';
+
+const { Component, Mixin } = Shopware;
 
 /**
  * @public
@@ -19,8 +20,7 @@ import './sw-radio-field.scss';
  *          {'value': 'value5', 'name': 'Label #5'}
  * ]"></sw-radio-field>
  */
-export default {
-    name: 'sw-radio-field',
+Component.register('sw-radio-field', {
     template,
     inheritAttrs: false,
 
@@ -76,4 +76,4 @@ export default {
             this.$emit('change', event.target.value);
         }
     }
-};
+});

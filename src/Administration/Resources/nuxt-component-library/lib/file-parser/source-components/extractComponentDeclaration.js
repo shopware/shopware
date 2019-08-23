@@ -22,6 +22,7 @@ module.exports = (ast) => {
         args = definition.declaration.properties;
         return getNewStructureInformation(args);
     }
+
     return args;
 };
 
@@ -66,7 +67,7 @@ function getOldStructureInformation(args) {
             }
 
             return accumulator;
-        }, []);
+        }, null) || [];
     }
 
     function getExtendedFromName(args) {

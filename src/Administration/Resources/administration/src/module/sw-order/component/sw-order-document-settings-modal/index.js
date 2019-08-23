@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-order-document-settings-modal.html.twig';
+
+const { Component } = Shopware;
 
 Component.register('sw-order-document-settings-modal', {
     template,

@@ -1,6 +1,7 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-plugin-license-list.html.twig';
 import './sw-plugin-license-list.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-plugin-license-list', {
     template,

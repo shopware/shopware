@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import './sw-order-state-history-card-entry.scss';
 import template from './sw-order-state-history-card-entry.html.twig';
+
+const { Component } = Shopware;
 
 Component.register('sw-order-state-card-entry', {
     template,

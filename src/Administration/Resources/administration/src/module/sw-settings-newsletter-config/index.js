@@ -1,8 +1,9 @@
-import { Module } from 'src/core/shopware';
 import './extension/sw-settings-index';
 import './page/sw-settings-newsletter-config';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-settings-newsletter-config', {
     type: 'core',

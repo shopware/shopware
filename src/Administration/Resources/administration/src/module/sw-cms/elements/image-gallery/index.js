@@ -1,7 +1,8 @@
-import { Application } from 'src/core/shopware';
 import './component';
 import './config';
 import './preview';
+
+const { Application } = Shopware;
 
 Application.getContainer('service').cmsService.registerCmsElement({
     name: 'image-gallery',

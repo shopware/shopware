@@ -1,9 +1,10 @@
-import { Module } from 'src/core/shopware';
 import './page/sw-manufacturer-list';
 import './page/sw-manufacturer-detail';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-manufacturer', {
     type: 'core',

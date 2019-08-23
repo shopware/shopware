@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-card-filter.html.twig';
 import './sw-card-filter.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-card-filter', {
     template,

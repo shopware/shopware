@@ -1,5 +1,5 @@
-import { fileSize } from 'src/core/service/utils/format.utils';
-import { Filter } from 'src/core/shopware';
+const { Filter } = Shopware;
+const { fileSize } = Shopware.Utils.format;
 
 Filter.register('fileSize', (value, locale) => {
     if (!value) {

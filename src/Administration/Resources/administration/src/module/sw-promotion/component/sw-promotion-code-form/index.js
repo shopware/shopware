@@ -1,9 +1,10 @@
-import { Component, Mixin } from 'src/core/shopware';
 import { mapApiErrors } from 'src/app/service/map-errors.service';
 import { string } from 'src/core/service/util.service';
 import { PromotionPermissions } from 'src/module/sw-promotion/helper/promotion.helper';
 import template from './sw-promotion-code-form.html.twig';
 import './sw-promotion-code-form.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-promotion-code-form', {
     template,

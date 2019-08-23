@@ -1,5 +1,7 @@
 import template from './sw-collapse.html.twig';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description A container which creates a collapsible list of items.
@@ -11,8 +13,7 @@ import template from './sw-collapse.html.twig';
  *     <div slot="content">Content slot</div>
  * </sw-collapse>
  */
-export default {
-    name: 'sw-collapse',
+Component.register('sw-collapse', {
     template,
 
     props: {
@@ -34,4 +35,4 @@ export default {
             this.expanded = !this.expanded;
         }
     }
-};
+});

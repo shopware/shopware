@@ -1,7 +1,8 @@
-import { Mixin, Component } from 'src/core/shopware';
-import { object, types } from 'src/core/service/util.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
+
+const { Component, Mixin } = Shopware;
+const { object, types } = Shopware.Utils;
 
 Component.register('sw-system-config', {
     name: 'sw-system-config',

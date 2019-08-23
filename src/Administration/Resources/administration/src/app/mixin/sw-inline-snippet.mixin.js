@@ -1,5 +1,5 @@
-import { Mixin } from 'src/core/shopware';
-import types from 'src/core/service/utils/types.utils';
+const { Mixin } = Shopware;
+const types = Shopware.Utils.types;
 
 Mixin.register('sw-inline-snippet', {
     computed: {

@@ -1,6 +1,7 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-snippet-list.html.twig';
+
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-settings-snippet-list', {
     template,

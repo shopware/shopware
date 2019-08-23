@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-order-saveable-field.html.twig';
 import './sw-order-saveable-field.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-order-saveable-field', {
     template,

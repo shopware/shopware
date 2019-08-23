@@ -1,5 +1,5 @@
-import { currency } from 'src/core/service/utils/format.utils';
-import { Filter } from 'src/core/shopware';
+const { Filter } = Shopware;
+const { currency } = Shopware.Utils.format;
 
 Filter.register('currency', (value, format, decimalPlaces) => {
     if (format === undefined || format === 'default') {

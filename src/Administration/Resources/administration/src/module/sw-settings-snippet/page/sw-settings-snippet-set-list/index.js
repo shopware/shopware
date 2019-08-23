@@ -1,6 +1,7 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import template from './sw-settings-snippet-set-list.html.twig';
 import './sw-settings-snippet-set-list.scss';
+
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-settings-snippet-set-list', {
     template,

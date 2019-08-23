@@ -1,6 +1,7 @@
-import { Component, State } from 'src/core/shopware';
 import template from './sw-product-variants-delivery-media.html.twig';
 import './sw-product-variants-delivery-media.scss';
+
+const { Component, State } = Shopware;
 
 Component.register('sw-product-variants-delivery-media', {
     template,

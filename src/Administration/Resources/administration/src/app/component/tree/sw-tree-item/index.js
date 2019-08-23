@@ -1,11 +1,12 @@
 import template from './sw-tree-item.html.twig';
 import './sw-tree-item.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-tree-item',
+Component.register('sw-tree-item', {
     template,
 
     props: {
@@ -333,4 +334,4 @@ export default {
             this.parentScope.onDeleteElements(item);
         }
     }
-};
+});

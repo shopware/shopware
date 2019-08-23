@@ -1,4 +1,4 @@
-import { Component } from 'src/core/shopware';
+const { Component } = Shopware;
 
 Component.extend('sw-custom-field-type-text-editor', 'sw-custom-field-type-base', {
     data() {

@@ -1,6 +1,7 @@
 import template from './sw-search-bar-item.html.twig';
 import './sw-search-bar-item.scss';
 
+const { Component } = Shopware;
 /**
  * @public
  * @description
@@ -11,8 +12,7 @@ import './sw-search-bar-item.scss';
  * <sw-search-bar-item :item="{ type: 'customer', entity: [{ name: 'customer name', id: 'uuid' }]}">
  * </sw-search-bar-item>
  */
-export default {
-    name: 'sw-search-bar-item',
+Component.register('sw-search-bar-item', {
     template,
 
     props: {
@@ -117,4 +117,4 @@ export default {
             this.isActive = true;
         }
     }
-};
+});

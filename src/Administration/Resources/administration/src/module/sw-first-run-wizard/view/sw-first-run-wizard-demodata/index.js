@@ -1,7 +1,8 @@
-import { Component } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-first-run-wizard-demodata.html.twig';
 import './sw-first-run-wizard-demodata.scss';
+
+const { Criteria } = Shopware.Data;
+const { Component } = Shopware;
 
 Component.register('sw-first-run-wizard-demodata', {
     template,

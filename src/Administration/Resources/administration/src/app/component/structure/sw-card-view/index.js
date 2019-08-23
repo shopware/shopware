@@ -1,6 +1,8 @@
 import template from './sw-card-view.html.twig';
 import './sw-card-view.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description
@@ -17,7 +19,6 @@ import './sw-card-view.scss';
  *    </sw-card>
  * </sw-card-view>
  */
-export default {
-    name: 'sw-card-view',
+Component.register('sw-card-view', {
     template
-};
+});

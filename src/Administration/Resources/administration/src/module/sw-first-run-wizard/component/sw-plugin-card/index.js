@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-plugin-card.html.twig';
 import './sw-plugin-card.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-plugin-card', {
     template,

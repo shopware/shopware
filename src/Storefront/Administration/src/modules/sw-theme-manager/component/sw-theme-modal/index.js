@@ -1,7 +1,8 @@
-import { Component, Mixin } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-theme-modal.html.twig';
 import './sw-theme-modal.scss';
+
+const { Component, Mixin } = Shopware;
+const Criteria = Shopware.Data.Criteria;
 
 Component.register('sw-theme-modal', {
     template,

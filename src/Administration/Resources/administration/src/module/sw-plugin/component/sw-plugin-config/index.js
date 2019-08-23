@@ -1,5 +1,6 @@
-import { Mixin } from 'src/core/shopware';
 import template from './sw-plugin-config.html.twig';
+
+const { Mixin } = Shopware;
 
 export default {
     name: 'sw-plugin-config',

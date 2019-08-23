@@ -1,17 +1,23 @@
+const Shopware = require('src/core/common');
+
+// Expose shopware object globally
+global.Shopware = Shopware;
+window.Shopware = Shopware;
+
 import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
 import Vuex from 'vuex';
 import VueI18n from 'vue-i18n';
 import enGBMessages from 'src/app/snippet/en-GB.json';
-import DeviceHelper from 'src/app/plugin/device-helper.plugin';
-import ValidationService from 'src/core/service/validation.service';
-import iconComponents from 'src/app/assets/icons/icons';
-import VuexModules from 'src/app/state/index';
-import EntityStore from 'src/core/data/EntityStore';
-import { State } from 'src/core/shopware';
-import ShortcutService from 'src/app/service/shortcut.service';
 
-const Shopware = require('src/core/common');
+const DeviceHelper =  require('src/app/plugin/device-helper.plugin').default;
+const ValidationService = require('src/core/service/validation.service').default;
+const iconComponents = require('src/app/assets/icons/icons').default;
+const VuexModules  = require('src/app/state/index').default;
+const EntityStore = require('src/core/data/EntityStore').default;
+const ShortcutService = require('src/app/service/shortcut.service').default;
 const ContextFactory = require('src/core/factory/context.factory').default;
+
+const { State } = Shopware;
 
 require('src/app/mixin/index');
 require('src/app/directive/index');

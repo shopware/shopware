@@ -7,6 +7,10 @@
                         {% sw_include '@Storefront/component/product/card/badges.html.twig' %}
                     {% endblock %}
 
+                    {% block component_product_box_rich_snippets %}
+                        {% sw_include '@Storefront/component/product/card/meta.html.twig' %}
+                    {% endblock %}
+
                     {% block component_product_box_image %}
                         <div class="product-image-wrapper">
                             {# fallback if display mode is not set #}
@@ -54,6 +58,19 @@
 
                     {% block component_product_box_info %}
                         <div class="product-info">
+                            {% block component_product_box_rating %}
+                                {% if shopware.config.detail.showReviews %}
+                                    <div class="product-rating">
+                                        {% if product.ratingAverage %}
+                                            {% sw_include '@Storefront/component/review/rating.html.twig' with {
+                                                points: product.ratingAverage,
+                                                style: 'text-primary'
+                                            } %}
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endblock %}
+
                             {% block component_product_box_name %}
                                 <a href="{{ productUrl(product) }}"
                                    class="product-name"

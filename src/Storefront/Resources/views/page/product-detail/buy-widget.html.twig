@@ -8,6 +8,18 @@
                 {% endif %}
             {% endblock %}
 
+            {% block page_product_detail_rich_snippets_gtin13 %}
+                {% if page.product.ean %}
+                    <meta itemprop="gtin13"
+                          content="{{ page.product.ean }}"/>
+                {% endif %}
+            {% endblock %}
+
+            {% block page_product_detail_rich_snippets_mpn %}
+                <meta itemprop="mpn"
+                      content="{{ page.product.productNumber }}"/>
+            {% endblock %}
+
             {% block page_product_detail_rich_snippets_weight %}
                 {% if page.product.weight %}
                     <meta itemprop="weight"
@@ -108,6 +120,25 @@
                             </p>
                         </div>
                     {% endblock %}
+
+					{% block page_product_detail_reviews %}
+						{% if page.reviews|length > 0 and shopware.config.detail.showReviews %}
+							<p class="product-detail-reviews">
+								{% sw_include '@Storefront/component/review/rating.html.twig' with {
+									points: page.ratingMatrix.averageRating,
+									style: 'text-primary'
+								} %}
+								<a data-toggle="tab"
+                                   class="product-detail-reviews-link"
+                                   data-offcanvas-tabs="true"
+                                   href="#review-tab-pane"
+                                   aria-controls="review-tab-pane">
+                                    {{ page.reviews.total }}
+                                    {{ "detail.reviewLinkText"|trans({'%count%': page.reviews.total}) }}
+                                </a>
+							</p>
+						{% endif %}
+					{% endblock %}
 
                     {% block page_product_detail_delivery_informations %}
                         <div class="product-detail-delivery-information">

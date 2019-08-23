@@ -19,6 +19,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader;
+use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -58,10 +59,16 @@ class ProductPageLoader
      * @var ProductDefinition
      */
     private $productDefinition;
+
     /**
      * @var ProductLoader
      */
     private $productLoader;
+
+    /**
+     * @var ProductReviewLoader
+     */
+    private $productReviewLoader;
 
     public function __construct(
         GenericPageLoader $genericLoader,
@@ -71,7 +78,8 @@ class ProductPageLoader
         CmsSlotsDataResolver $slotDataResolver,
         ProductPageConfiguratorLoader $configuratorLoader,
         ProductDefinition $productDefinition,
-        ProductLoader $productLoader
+        ProductLoader $productLoader,
+        ProductReviewLoader $productReviewLoader
     ) {
         $this->genericLoader = $genericLoader;
         $this->productRepository = $productRepository;
@@ -81,6 +89,7 @@ class ProductPageLoader
         $this->configuratorLoader = $configuratorLoader;
         $this->productDefinition = $productDefinition;
         $this->productLoader = $productLoader;
+        $this->productReviewLoader = $productReviewLoader;
     }
 
     /**
@@ -103,6 +112,9 @@ class ProductPageLoader
 
         $product = $this->productLoader->load($productId, $salesChannelContext);
         $page->setProduct($product);
+
+        $reviews = $this->productReviewLoader->load($request, $salesChannelContext);
+        $page->setReviewLoaderResult($reviews);
 
         $page->setConfiguratorSettings(
             $this->configuratorLoader->load($product, $salesChannelContext)

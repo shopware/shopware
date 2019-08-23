@@ -18,6 +18,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationColle
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
@@ -283,6 +284,11 @@ class LanguageEntity extends Entity
      * @var NumberRangeTranslationCollection|null
      */
     protected $numberRangeTranslations;
+
+    /**
+     * @var ProductReviewCollection|null
+     */
+    protected $productReviews;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -762,5 +768,15 @@ class LanguageEntity extends Entity
     public function setNumberRangeTranslations(NumberRangeTranslationCollection $numberRangeTranslations): void
     {
         $this->numberRangeTranslations = $numberRangeTranslations;
+    }
+
+    public function getProductReviews(): ?ProductReviewCollection
+    {
+        return $this->productReviews;
+    }
+
+    public function setProductReviews(?ProductReviewCollection $productReviews): void
+    {
+        $this->productReviews = $productReviews;
     }
 }

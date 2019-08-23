@@ -131,6 +131,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\ProductLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader">

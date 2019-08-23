@@ -100,9 +100,16 @@
       "cardTitlePackaging": "Measures & Packaging",
       "linkAdvancedPrices": "Advanced pricing options",
       "linkMaintainCurrencyPrices": "Currency dependent pricing",
+      "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Media",
       "labelContextMenuAddToProduct": "Add to product",
       "cardTitleSeo": "SEO"
+    },
+    "reviewForm": {
+        "labelStatus": "Status",
+        "labelCreatedAt": "Created at",
+        "labelPoints": "Stars",
+        "labelContent": "Review comment"
     },
     "prices": {
       "cardTitlePriceRule": "New pricing rule",
@@ -160,6 +167,7 @@
       "titleSaveWarning": "No change",
       "messageSaveWarning": "You have not made any changes."
     },
+
     "mediaForm": {
       "errorHeadline": "Error",
       "errorNoImage": "\"{file}\" is not an image.",

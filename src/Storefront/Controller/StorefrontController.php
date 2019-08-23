@@ -46,21 +46,15 @@ abstract class StorefrontController extends AbstractController
     protected function createActionResponse(Request $request): Response
     {
         if ($request->get('redirectTo')) {
-            $params = $request->get('redirectParameters');
-
-            if (is_string($params)) {
-                $params = json_decode($params, true);
-            }
-
-            if (empty($params)) {
-                $params = [];
-            }
+            $params = $this->decodeParam($request, 'redirectParameters');
 
             return $this->redirectToRoute($request->get('redirectTo'), $params);
         }
 
         if ($request->get('forwardTo')) {
-            return $this->forwardToRoute($request->get('forwardTo'));
+            $params = $this->decodeParam($request, 'forwardParameters');
+
+            return $this->forwardToRoute($request->get('forwardTo'), $params);
         }
 
         return new Response();
@@ -123,5 +117,20 @@ abstract class StorefrontController extends AbstractController
         }
 
         throw new CustomerNotLoggedInException();
+    }
+
+    protected function decodeParam(Request $request, string $param): array
+    {
+        $params = $request->get($param);
+
+        if (is_string($params)) {
+            $params = json_decode($params, true);
+        }
+
+        if (empty($params)) {
+            $params = [];
+        }
+
+        return $params;
     }
 }

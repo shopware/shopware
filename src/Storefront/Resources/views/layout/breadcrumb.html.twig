@@ -3,14 +3,14 @@
         {% block layout_breadcrumb_list %}
             <ol class="breadcrumb"
                 itemscope
-                itemtype="http://schema.org/BreadcrumbList">
+                itemtype="https://schema.org/BreadcrumbList">
                 {% for breadcrumb in breadcrumbList %}
                     {% block layout_breadcrumb_list_item %}
                         <li class="breadcrumb-item{% if loop.last %} active{% endif %}"
                             {% if loop.last %}aria-current="page"{% endif %}
                             itemprop="itemListElement"
                             itemscope
-                            itemtype="http://schema.org/ListItem">
+                            itemtype="https://schema.org/ListItem">
                             {% if breadcrumb.link %}
                                 <a href="{{ breadcrumb.link }}"
                                    class="breadcrumb-link"

@@ -2,11 +2,14 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Product\SalesChannel\ProductReviewService;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
+use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,22 +23,37 @@ class ProductController extends StorefrontController
     private $productPageLoader;
 
     /**
+     * @var ProductReviewLoader
+     */
+    private $productReviewLoader;
+
+    /**
      * @var ProductCombinationFinder
      */
     private $combinationFinder;
+
     /**
      * @var MinimalQuickViewPageLoader
      */
     private $minimalQuickViewPageLoader;
 
+    /**
+     * @var ProductReviewService
+     */
+    private $productReviewService;
+
     public function __construct(
         ProductPageLoader $productPageLoader,
         ProductCombinationFinder $combinationFinder,
-        MinimalQuickViewPageLoader $minimalQuickViewPageLoader
+        MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
+        ProductReviewLoader $productReviewLoader,
+        ProductReviewService $productReviewService
     ) {
         $this->productPageLoader = $productPageLoader;
+        $this->productReviewLoader = $productReviewLoader;
         $this->combinationFinder = $combinationFinder;
         $this->minimalQuickViewPageLoader = $minimalQuickViewPageLoader;
+        $this->productReviewService = $productReviewService;
     }
 
     /**
@@ -45,7 +63,9 @@ class ProductController extends StorefrontController
     {
         $page = $this->productPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/page/product-detail/index.html.twig', ['page' => $page]);
+        $ratingSuccess = $request->get('success');
+
+        return $this->renderStorefront('@Storefront/page/product-detail/index.html.twig', ['page' => $page, 'ratingSuccess' => $ratingSuccess]);
     }
 
     /**
@@ -74,5 +94,40 @@ class ProductController extends StorefrontController
         $page = $this->minimalQuickViewPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @Route("/product/{productId}/rating", name="frontend.detail.review.save", methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     */
+    public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        try {
+            $this->productReviewService->save($productId, $data, $context);
+        } catch (ConstraintViolationException $formViolations) {
+            return $this->forward('Shopware\Storefront\Controller\ProductController::loadReviews', [
+                'productId' => $productId,
+                'success' => -1,
+                'formViolations' => $formViolations,
+                'data' => $data,
+            ], ['productId' => $productId]);
+        }
+
+        return $this->forward('Shopware\Storefront\Controller\ProductController::loadReviews', ['productId' => $productId, 'success' => 1]);
+    }
+
+    /**
+     * @Route("/product/{productId}/reviews", name="frontend.product.reviews", methods={"GET","POST"}, defaults={"XmlHttpRequest"=true})
+     */
+    public function loadReviews(Request $request, SalesChannelContext $context): Response
+    {
+        $page = $this->productPageLoader->load($request, $context);
+
+        return $this->renderStorefront('page/product-detail/review/review.html.twig', [
+            'page' => $page,
+            'ratingSuccess' => $request->get('success'),
+            'data' => $request->get('data'),
+        ]);
     }
 }

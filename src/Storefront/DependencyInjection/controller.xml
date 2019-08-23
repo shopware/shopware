@@ -132,6 +132,8 @@
             <argument type="service" id="Shopware\Storefront\Page\Product\ProductPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductReviewService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -162,6 +164,11 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader">
+            <argument type="service" id="product_review.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
     </services>
 </container>

@@ -77,7 +77,7 @@ class AuthController extends StorefrontController
     }
 
     /**
-     * @Route("/account/login", name="frontend.account.login", methods={"POST"})
+     * @Route("/account/login", name="frontend.account.login", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function login(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {

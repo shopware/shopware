@@ -1,0 +1,90 @@
+{% block sw_review_list %}
+    <sw-page class="sw-review-list">
+
+        {% block sw_review_list_search_bar %}
+            <template slot="search-bar">
+                <sw-search-bar initialSearchType="product_review"
+                               :initialSearch="term"
+                               @search="onSearch">
+                </sw-search-bar>
+            </template>
+        {% endblock %}
+
+        {% block sw_review_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_review_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_review_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-review.list.textReviewOverview') }}
+                        {% endblock %}
+
+                        {% block sw_review_list_smart_bar_header_amount %}
+                            <span v-if="!isLoading" class="sw-page__smart-bar-amount">
+                                ({{ items.total }})
+                            </span>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_review_list_content %}
+            <template slot="content">
+                {% block sw_review_list_content_list %}
+                    <sw-entity-listing
+                            v-if="items"
+                            ref="listing"
+                            :items="items"
+                            :repository="repository"
+                            :columns="columns"
+                            detailRoute="sw.review.detail">
+                        {% block sw_review_list_content_list_status %}
+                            <template slot="column-status" slot-scope="{ item }">
+                                <sw-data-grid-column-boolean v-model="item.status" :isInlineEdit="false"/>
+                            </template>
+                        {% endblock %}
+                        {% block sw_review_list_content_list_created_at %}
+                            <template slot="column-createdAt" slot-scope="{ item }">
+                                {{ item.createdAt | date }}
+                            </template>
+                        {% endblock %}
+                        {% block sw_review_list_content_list_user %}
+                            <template slot="column-user" slot-scope="{ item }">
+                                <template v-if="item.customerId">
+                                        {{ item.customer.firstName }} {{ item.customer.lastName }}
+                                </template>
+                                <template v-else>
+                                    {{ item.externalUser }}
+                                </template>
+                            </template>
+                        {% endblock %}
+                        {% block sw_review_list_content_list_product %}
+                            <template slot="column-product" slot-scope="{ item }">
+                                <template v-if="item.productId">
+                                    <router-link :to="{ name: 'sw.review.detail', params: { id: item.id } }">
+                                        {{ item.product.name }}
+                                    </router-link>
+                                </template>
+                            </template>
+                        {% endblock %}
+                        {% block sw_review_list_content_list_points %}
+                            <template slot="column-points" slot-scope="{ item }">
+                                    <sw-icon v-for="i in item.points"
+                                             :key="i"
+                                             name="default-basic-shape-star"
+                                             size="14">
+                                    </sw-icon>
+                            </template>
+                        {% endblock %}
+                        {% block sw_review_list_content_list_comment %}
+                            <template slot="column-comment" slot-scope="{ item }">
+                                <sw-data-grid-column-boolean v-model="item.comment && item.comment.length > 0"
+                                                             :isInlineEdit="false"/>
+                            </template>
+                        {% endblock %}
+                    </sw-entity-listing>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

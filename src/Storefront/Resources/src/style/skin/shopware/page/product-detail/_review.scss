@@ -1,0 +1,61 @@
+// review widget
+.product-detail-review-widget {
+    top: 20px;
+}
+
+.product-detail-review-progressbar-container {
+    height: 14px;
+    margin-top: 4px;
+}
+
+.product-detail-review-progressbar-bar {
+    background-color: $progress-bar-review;
+}
+
+// review item
+.product-detail-review-item {
+    border-bottom: 1px solid $border-color;
+    margin-bottom: 10px;
+}
+
+
+.product-detail-review-item-date {
+    color: $gray-600;
+}
+
+.product-detail-review-item-verify {
+    text-align: right;
+}
+
+.product-detail-review-item-likebox {
+    text-align: right;
+}
+
+// review form
+.product-detail-review-form-star {
+    &.is-active {
+        .icon {
+            color: $icon-review-color;
+        }
+    }
+
+    .icon:hover {
+        cursor: pointer;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    // review widget
+    .product-detail-review-rating {
+        display: flex;
+    }
+
+    // review form
+    .product-detail-review-form-footer {
+        display: flex;
+
+        .product-detail-review-form-actions {
+            margin-left: auto;
+        }
+    }
+}

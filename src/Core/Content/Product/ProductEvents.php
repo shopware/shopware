@@ -550,4 +550,34 @@ class ProductEvents
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
     public const PRODUCT_CATEGORY_TREE_ID_SEARCH_RESULT_LOADED_EVENT = 'product_category_tree.id.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent")
+     */
+    public const PRODUCT_REVIEW_LOADED = 'product_review.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
+     */
+    public const PRODUCT_REVIEW_WRITTEN_EVENT = 'product_review.written';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent")
+     */
+    public const PRODUCT_REVIEW_DELETED_EVENT = 'product_review.deleted';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent")
+     */
+    public const PRODUCT_REVIEW_SEARCH_RESULT_LOADED_EVENT = 'product_review.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent")
+     */
+    public const PRODUCT_REVIEW_AGGREGATION_LOADED_EVENT = 'product_review.aggregation.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
+     */
+    public const PRODUCT_REVIEW_ID_SEARCH_RESULT_LOADED_EVENT = 'product_review.id.search.result.loaded';
 }

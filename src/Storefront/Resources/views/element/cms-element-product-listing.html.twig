@@ -21,11 +21,59 @@
         {% endblock %}
 
         {% block element_product_listing_pagination_bottom %}
-            {% sw_include '@Storefront/component/pagination.html.twig'  with {
-                searchResult: searchResult,
-                isCmsSlot: 1,
-                class: 'listing-bottom-pagination'
-            } %}
+            {% if searchResult|length > 0 %}
+                {# @var criteria \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria #}
+                {% set criteria = searchResult.criteria %}
+                {% set totalPages = (searchResult.total / criteria.limit)|round(0, 'ceil') %}
+
+                {% if totalPages > 1 %}
+                    {% block element_product_listing_pagination_form %}
+                        <form class="pagination-form"
+                              action="/"
+                              method="post"
+                              data-cms-slot-reload="true"
+                              data-cms-slot-reload-options='{
+                                    "updateHistory": true,
+                                    "navigationId": "{{ page.header.navigation.active.id }}",
+                                    "elements": {
+                                        "{{ element.id }}": [
+                                            ".js-listing-wrapper",
+                                            ".js-pagination-wrapper"
+                                        ]
+                                    },
+                                    "events": [
+                                        "change",
+                                        "submit"
+                                    ],
+                                    "hiddenParams": [
+                                        "no-aggregations"
+                                    ]
+                              }'>
+                            {% block element_product_listing_pagination_wrapper %}
+                                <div class="pagination-wrapper js-pagination-wrapper">
+                                    {% block element_product_listing_pagination_hidden_inputs %}
+                                        {% block element_product_listing_pagination_hidden_input_limit %}
+                                            <input type="hidden"
+                                                   name="limit"
+                                                   value="{{ criteria.limit }}">
+                                        {% endblock %}
+
+                                        {% block element_product_listing_pagination_hidden_input_aggregation %}
+                                            <input type="hidden"
+                                                   name="no-aggregations"
+                                                   value="true">
+                                        {% endblock %}
+                                    {% endblock %}
+
+                                    {% block element_product_listing_pagination_nav %}
+                                        {% sw_include '@Storefront/component/pagination.html.twig' %}
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </form>
+                    {% endblock %}
+                {% endif %}
+            {% endif %}
         {% endblock %}
     </div>
 {% endblock %}

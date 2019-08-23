@@ -31,13 +31,13 @@
                                         {% block page_product_detail_price_block_table_body_row %}
                                             <tr class="product-block-prices-row"
                                                 itemprop="offers" itemscope
-                                                itemtype="http://schema.org/Offer">
+                                                itemtype="https://schema.org/Offer">
                                                 
                                                 {% block page_product_detail_price_block_table_body_cell_quantity %}
                                                     <th scope="row" class="product-block-prices-cell">
                                                         <meta itemprop="priceCurrency" content="{{ page.header.activeCurrency.id }}" />
                                                         <meta itemprop="price" content="{{ price.unitPrice }}" />
-                                                        <link itemprop="availability" href="http://schema.org/InStock" />
+                                                        <link itemprop="availability" href="https://schema.org/InStock" />
 
                                                         {% if loop.last %}
                                                             {{ "detail.priceDataInfoFrom"|trans }}

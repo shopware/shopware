@@ -1,0 +1,40 @@
+{
+  "sw-review": {
+    "general": {
+      "mainMenuItemList": "Bewertungen",
+      "mainMenuItemGeneral": "Bewertungen",
+      "placeholderSearchBar": "Durchsuche alle Bewertungen"
+    },
+    "list": {
+      "textReviewOverview": "Bewertungen",
+      "columnProduct": "Produkt",
+      "columnPoints": "Punkte",
+      "columnUser": "Benutzer",
+      "columnStatus": "Status",
+      "columnCreatedAt": "Erstellt am",
+      "columnComment": "Kommentiert"
+    },
+    "detail": {
+      "textHeadline": "Bewertung",
+      "buttonCancel": "Abbrechen",
+      "buttonSave": "Speichern",
+      "cardTitleRatingInfo": "Informationen",
+      "labelTitle": "Titel",
+      "labelPoints": "Punkte",
+      "labelUser": "Benutzername",
+      "labelSalesChannel": "Verkaufskanal",
+      "labelCreatedAt": "Erstelldatum",
+      "labelProduct": "Produkt",
+      "labelEmail": "E-Mail",
+      "labelLanguage": "Sprache",
+      "labelPositive": "Positive Votes",
+      "labelNegative": "Negative Votes",
+      "labelStatus": "Status",
+      "labelContent": "Inhalt",
+      "labelComment": "Kommentar",
+      "titleCardComment": "Kommentar",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Bewerbung \"{name}\" wurde erfolgreich gespeichert."
+    }
+  }
+}

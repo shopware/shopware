@@ -1,0 +1,40 @@
+{
+  "sw-review": {
+    "general": {
+      "mainMenuItemList": "Reviews",
+      "mainMenuItemGeneral": "Reviews",
+      "placeholderSearchBar": "Search reviews"
+    },
+    "list": {
+      "textReviewOverview": "Reviews",
+      "columnProduct": "Product",
+      "columnPoints": "Points",
+      "columnUser": "User",
+      "columnStatus": "Status",
+      "columnCreatedAt": "Created at",
+      "columnComment": "Commented"
+    },
+    "detail": {
+      "textHeadline": "Review",
+      "buttonCancel": "Cancel",
+      "buttonSave": "Save",
+      "cardTitleRatingInfo": "Information",
+      "labelTitle": "Title",
+      "labelPoints": "Points",
+      "labelUser": "User",
+      "labelSalesChannel": "Sales channel",
+      "labelCreatedAt": "Created at",
+      "labelProduct": "Product",
+      "labelEmail": "E-Mail",
+      "labelLanguage": "Language",
+      "labelPositive": "Positive votes",
+      "labelNegative": "Negative votes",
+      "labelStatus": "Status",
+      "labelContent": "Content",
+      "labelComment": "Comment",
+      "titleCardComment": "Comment",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "The review \"{name}\" has been saved successful."
+    }
+  }
+}

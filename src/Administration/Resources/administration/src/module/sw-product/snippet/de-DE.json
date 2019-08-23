@@ -97,11 +97,19 @@
       "cardTitlePrices": "Preise",
       "cardTitleSettings": "Einstellungen",
       "cardTitlePackaging": "Maße & Verpackung",
+      "cardTitleRatings": "Bewertungen",
       "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
       "linkMaintainCurrencyPrices": "Währungen pflegen",
+      "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Medien",
       "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
       "cardTitleSeo": "SEO"
+    },
+    "reviewForm": {
+      "labelStatus": "Status",
+      "labelCreatedAt": "erstellt am",
+      "labelPoints": "Sterne",
+      "labelContent": "Bewertungstext"
     },
     "prices": {
       "cardTitlePriceRule": "Neue Preisregel",

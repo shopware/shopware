@@ -56,6 +56,13 @@
             <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition" />
         </service>
 
+        <service id="Shopware\Core\Framework\Demodata\Generator\ProductReviewGenerator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductGenerator">
             <tag name="shopware.demodata_generator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />

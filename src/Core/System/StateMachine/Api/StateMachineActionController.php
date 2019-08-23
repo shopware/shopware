@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
@@ -22,6 +23,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"api"})
+ */
 class StateMachineActionController extends AbstractController
 {
     /**
@@ -57,12 +61,6 @@ class StateMachineActionController extends AbstractController
     ): JsonResponse {
         $stateFieldName = $request->query->get('stateFieldName', 'stateId');
 
-        $baseUrl = $this->generateUrl('api.state_machine.transition_state', [
-            'entityName' => $entityName,
-            'entityId' => $entityId,
-            'version' => $request->attributes->get('version'),
-        ]);
-
         $availableTransitions = $this->stateMachineRegistry->getAvailableTransitions(
             $entityName,
             $entityId,
@@ -79,7 +77,12 @@ class StateMachineActionController extends AbstractController
                 'actionName' => $transition->getActionName(),
                 'fromStateName' => $transition->getFromStateMachineState()->getTechnicalName(),
                 'toStateName' => $transition->getToStateMachineState()->getTechnicalName(),
-                'url' => $baseUrl . '/' . $transition->getActionName(),
+                'url' => $this->generateUrl('api.state_machine.transition_state', [
+                    'entityName' => $entityName,
+                    'entityId' => $entityId,
+                    'version' => $request->attributes->get('version'),
+                    'transition' => $transition->getActionName(),
+                ]),
             ];
         }
 

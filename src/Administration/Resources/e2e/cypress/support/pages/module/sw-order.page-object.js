@@ -14,12 +14,12 @@ export default class OrderPageObject extends GeneralPageObject {
 
     setOrderState({stateTitle, type, signal = 'neutral', scope = 'select', call = null}) {
         const stateColor = `.sw-order-state__${signal}-select`;
-        const callType = type === 'payment' ? '-transaction' : '';
+        const callType = type === 'payment' ? '_transaction' : '';
 
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `/api/v1/_action/order${callType}/**/state/${call}`,
+            url: `/api/v1/_action/state-machine/order${callType}/**/state/${call}`,
             method: 'post'
         }).as(`${call}Call`);
 

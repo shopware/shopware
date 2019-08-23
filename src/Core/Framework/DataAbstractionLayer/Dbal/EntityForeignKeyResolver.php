@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
@@ -175,7 +176,7 @@ class EntityForeignKeyResolver
                 continue;
             }
 
-            if ($cascade instanceof ManyToOneAssociationField) {
+            if ($cascade instanceof ManyToOneAssociationField || $cascade instanceof OneToOneAssociationField) {
                 $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
 
                 $query->addSelect(

@@ -1,8 +1,9 @@
-import { Component, Mixin, State } from 'src/core/shopware';
-import { warn } from 'src/core/service/utils/debug.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
+
+const { Component, Mixin, State } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-settings-shipping-detail', {
     template,

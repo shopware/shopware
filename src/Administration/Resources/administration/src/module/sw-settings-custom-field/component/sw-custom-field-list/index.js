@@ -1,9 +1,9 @@
-import { Component, State, Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import types from 'src/core/service/utils/types.utils';
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
 
+const { Component, State, Mixin } = Shopware;
+const types = Shopware.Utils.types;
 
 Component.register('sw-custom-field-list', {
     template,

@@ -1,10 +1,10 @@
-import { Mixin } from 'src/core/shopware';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
-import { debug } from 'src/core/service/util.service';
-import types from 'src/core/service/utils/types.utils';
+
+const { Mixin } = Shopware;
+const types = Shopware.Utils.types;
+const { debug } = Shopware.Utils;
 
 Mixin.register('listing', {
-
     data() {
         return {
             page: 1,

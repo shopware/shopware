@@ -1,5 +1,7 @@
 import template from './sw-step-display.html.twig';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description This step display component need flow-items inside it's slot to work.
@@ -24,9 +26,7 @@ import template from './sw-step-display.html.twig';
  *   </sw-step-item>
  * </sw-step-display>
  */
-export default {
-    name: 'sw-step-display',
-
+Component.register('sw-step-display', {
     template,
 
     props: {
@@ -107,4 +107,4 @@ export default {
             this.items[index].setActive(active);
         }
     }
-};
+});

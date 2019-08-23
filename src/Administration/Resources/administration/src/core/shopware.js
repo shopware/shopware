@@ -111,9 +111,9 @@ export const WorkerNotification = {
 };
 
 export const Defaults = {
-    systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-    defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
-    versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425'
+    systemLanguageId: Shopware.Defaults.systemLanguageId,
+    defaultLanguageIds: Shopware.Defaults.defaultLanguageIds,
+    versionId: Shopware.Defaults.versionId
 };
 
 export default {

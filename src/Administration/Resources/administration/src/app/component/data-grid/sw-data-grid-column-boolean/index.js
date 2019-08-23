@@ -1,11 +1,11 @@
 import template from './sw-data-grid-column-boolean.html.twig';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-data-grid-column-boolean',
-
+Component.register('sw-data-grid-column-boolean', {
     template,
 
     props: {
@@ -30,4 +30,4 @@ export default {
             }
         }
     }
-};
+});

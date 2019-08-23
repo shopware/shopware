@@ -1,4 +1,4 @@
-import { deepCopyObject } from 'src/core/service/utils/object.utils';
+const { deepCopyObject } = Shopware.Utils.object;
 
 /**
  *

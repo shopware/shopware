@@ -1,4 +1,3 @@
-import { Module } from 'src/core/shopware';
 import './page/sw-order-list';
 import './page/sw-order-detail';
 import './view/sw-order-detail-base';
@@ -18,6 +17,8 @@ import './component/sw-order-document-card';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-order', {
     type: 'core',

@@ -7,7 +7,8 @@ import ScheduledTaskService from 'src/core/service/api/scheduled-task.api.servic
 import MessageQueueService from 'src/core/service/api/message-queue.api.service';
 import Axios from 'axios';
 
-onmessage = ({ data: { context, bearerAuth, host, transports } }) => {
+// eslint-disable-next-line
+self.onmessage = ({ data: { context, bearerAuth, host, transports } }) => {
     const baseURL = process.env.NODE_ENV !== 'production' ? `${host}${context.apiResourcePath}` : context.apiResourcePath;
     const client = Axios.create({
         baseURL: baseURL

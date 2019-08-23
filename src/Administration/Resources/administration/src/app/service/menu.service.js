@@ -1,8 +1,8 @@
 /**
  * @module app/service/menu
  */
-import FlatTree from 'src/core/helper/flattree.helper';
-import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+const { hasOwnProperty } = Shopware.Utils.object;
+const FlatTree = Shopware.Helper.FlatTreeHelper;
 
 /**
  * @method createMenuService

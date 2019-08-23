@@ -1,11 +1,12 @@
-import { Component, Mixin, State } from 'src/core/shopware';
 import { mapPageErrors } from 'src/app/service/map-errors.service';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-detail.html.twig';
 import errorConfig from './error-config.json';
 import swPromotionDetailState from './state';
 import IndividualCodeGenerator from '../../service/individual-code-generator.service';
 import entityHydrator from '../../helper/promotion-entity-hydrator.helper';
+
+const { Component, Mixin, State } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-detail', {
     template,

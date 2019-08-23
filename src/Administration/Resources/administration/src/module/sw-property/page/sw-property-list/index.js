@@ -1,5 +1,6 @@
-import { Component, State, Mixin } from 'src/core/shopware';
 import template from './sw-property-list.html.twig';
+
+const { Component, State, Mixin } = Shopware;
 
 Component.register('sw-property-list', {
     template,

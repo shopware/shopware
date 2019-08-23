@@ -1,6 +1,8 @@
 import template from './sw-product-image.html.twig';
 import './sw-product-image.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  * @description Component which renders an image.
@@ -9,8 +11,7 @@ import './sw-product-image.scss';
  * @component-example
  * <sw-image :item="item" isCover="true"></sw-image>
  */
-export default {
-    name: 'sw-product-image',
+Component.register('sw-product-image', {
     template,
 
     props: {
@@ -46,4 +47,4 @@ export default {
             return this.item.media;
         }
     }
-};
+});

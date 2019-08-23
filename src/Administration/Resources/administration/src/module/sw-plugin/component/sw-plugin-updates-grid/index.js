@@ -1,6 +1,7 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-plugin-updates-grid.html.twig';
 import './sw-plugin-updates-grid.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-plugin-updates-grid', {
     template,

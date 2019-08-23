@@ -1,5 +1,3 @@
-import { Module } from 'src/core/shopware';
-
 import './extension/sw-settings-index';
 import './page/sw-settings-number-range-list';
 import './page/sw-settings-number-range-detail';
@@ -7,6 +5,8 @@ import './page/sw-settings-number-range-create';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-settings-number-range', {
     type: 'core',

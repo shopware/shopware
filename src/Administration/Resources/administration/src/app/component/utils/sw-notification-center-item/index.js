@@ -1,9 +1,10 @@
 import './sw-notification-center-item.scss';
-import { date } from 'src/core/service/utils/format.utils';
 import template from './sw-notification-center-item.html.twig';
 
-export default {
-    name: 'sw-notification-center-item',
+const { Component } = Shopware;
+const { date } = Shopware.Utils.format;
+
+Component.register('sw-notification-center-item', {
     template,
 
     props: {
@@ -70,4 +71,4 @@ export default {
             this.$emit('center-close');
         }
     }
-};
+});

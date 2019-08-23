@@ -1,10 +1,11 @@
 import template from './sw-admin.html.twig';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-admin',
+Component.register('sw-admin', {
     template,
 
     metaInfo() {
@@ -12,4 +13,4 @@ export default {
             title: this.$tc('global.sw-admin-menu.textShopwareAdmin')
         };
     }
-};
+});

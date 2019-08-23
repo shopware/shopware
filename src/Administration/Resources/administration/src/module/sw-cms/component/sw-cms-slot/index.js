@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-cms-slot', {
     template,

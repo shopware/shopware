@@ -1,13 +1,14 @@
 import template from './sw-media-list-selection-item.html.twig';
 import './sw-media-list-selection-item.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  * @description Component which renders an image.
  * @status ready
  */
-export default {
-    name: 'sw-media-list-selection-item',
+Component.register('sw-media-list-selection-item', {
     template,
 
     props: {
@@ -43,4 +44,4 @@ export default {
             return this.item.mediaId || this.item.targetId || this.item.id;
         }
     }
-};
+});

@@ -1,10 +1,11 @@
-import { Component, State, Application, Mixin } from 'src/core/shopware';
-import { cloneDeep } from 'src/core/service/utils/object.utils';
-import { warn } from 'src/core/service/utils/debug.utils';
 import EntityProxy from 'src/core/data/EntityProxy';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
+
+const { Component, State, Application, Mixin } = Shopware;
+const { cloneDeep } = Shopware.Utils.object;
+const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-cms-detail', {
     template,

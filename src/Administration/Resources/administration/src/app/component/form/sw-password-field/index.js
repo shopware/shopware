@@ -1,6 +1,8 @@
 import template from './sw-password-field.html.twig';
 import './sw-password-field.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description password input field.
@@ -9,9 +11,7 @@ import './sw-password-field.scss';
  * @component-example
  * <sw-password-field type="password" label="Name" placeholder="placeholder goes here..."></sw-password-field>
  */
-export default {
-    name: 'sw-password-field',
-    extendsFrom: 'sw-text-field',
+Component.extend('sw-password-field', 'sw-text-field', {
     template,
 
     props: {
@@ -48,4 +48,4 @@ export default {
             this.showPassword = !this.showPassword;
         }
     }
-};
+});

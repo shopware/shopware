@@ -1,7 +1,8 @@
-import { Component } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
-import FlatTree from 'src/core/helper/flattree.helper';
 import template from './sw-sales-channel-menu.html.twig';
+
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
+const FlatTree = Shopware.Helper.FlatTreeHelper;
 
 Component.register('sw-sales-channel-menu', {
     template,

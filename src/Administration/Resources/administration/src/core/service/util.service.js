@@ -4,18 +4,20 @@
 import throttle from 'lodash/throttle';
 import debounce from 'lodash/debounce';
 import flattenDeep from 'lodash/flattenDeep';
-import get from 'lodash/get';
 import uuidV4 from 'uuid/v4';
+import remove from 'lodash/remove';
 
 import {
     deepCopyObject,
     hasOwnProperty,
     getObjectDiff,
     getArrayChanges,
-    merge
+    cloneDeep,
+    merge,
+    get
 } from './utils/object.utils';
 import { warn } from './utils/debug.utils';
-import { currency, date, fileSize } from './utils/format.utils';
+import { currency, date, fileSize, md5 } from './utils/format.utils';
 import domUtils from './utils/dom.utils';
 import stringUtils from './utils/string.utils';
 import typesUtils, { isUndefined } from './utils/types.utils';
@@ -27,7 +29,9 @@ export const object = {
     hasOwnProperty: hasOwnProperty,
     getObjectDiff: getObjectDiff,
     getArrayChanges: getArrayChanges,
-    merge: merge
+    cloneDeep: cloneDeep,
+    merge: merge,
+    get: get
 };
 
 export const debug = {
@@ -37,12 +41,14 @@ export const debug = {
 export const format = {
     currency: currency,
     date: date,
-    fileSize: fileSize
+    fileSize: fileSize,
+    md5: md5
 };
 
 export const dom = {
     getScrollbarHeight: domUtils.getScrollbarHeight,
-    getScrollbarWidth: domUtils.getScrollbarWidth
+    getScrollbarWidth: domUtils.getScrollbarWidth,
+    copyToClipboard: domUtils.copyToClipboard
 };
 
 export const string = {
@@ -62,6 +68,7 @@ export const types = {
     isDate: typesUtils.isDate,
     isString: typesUtils.isString,
     isBoolean: typesUtils.isBoolean,
+    isEqual: typesUtils.isEqual,
     isNumber: typesUtils.isNumber,
     isUndefined: isUndefined
 };
@@ -69,7 +76,9 @@ export const types = {
 export const fileReader = {
     readAsArrayBuffer: fileReaderUtils.readFileAsArrayBuffer,
     readAsDataURL: fileReaderUtils.readFileAsDataURL,
-    readAsText: fileReaderUtils.readFileAsText
+    readAsText: fileReaderUtils.readFileAsText,
+    getNameAndExtensionFromFile: fileReaderUtils.getNameAndExtensionFromFile,
+    getNameAndExtensionFromUrl: fileReaderUtils.getNameAndExtensionFromUrl
 };
 
 export const sort = {
@@ -77,7 +86,8 @@ export const sort = {
 };
 
 export const array = {
-    flattenDeep: flattenDeep
+    flattenDeep: flattenDeep,
+    remove: remove
 };
 
 export default {

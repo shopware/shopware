@@ -1,8 +1,9 @@
-import { Component, Mixin } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-promotion-list.html.twig';
 import './sw-promotion-list.scss';
 import entityHydrator from '../../helper/promotion-entity-hydrator.helper';
+
+const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-list', {
     template,

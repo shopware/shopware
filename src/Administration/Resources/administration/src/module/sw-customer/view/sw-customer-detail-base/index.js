@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-customer-detail-base.html.twig';
+
+const { Component } = Shopware;
 
 Component.register('sw-customer-detail-base', {
     template,

@@ -1,5 +1,6 @@
-import { Component } from '../../../../core/shopware';
 import template from './sw-plugin-recommendation.html.twig';
+
+const { Component } = Shopware;
 
 Component.register('sw-plugin-recommendation', {
     template,

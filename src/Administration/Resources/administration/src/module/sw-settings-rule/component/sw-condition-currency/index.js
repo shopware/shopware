@@ -1,5 +1,6 @@
-import { Component, State } from 'src/core/shopware';
 import template from './sw-condition-currency.html.twig';
+
+const { Component, State } = Shopware;
 
 /**
  * @public

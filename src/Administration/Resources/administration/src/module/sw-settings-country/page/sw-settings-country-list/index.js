@@ -1,7 +1,8 @@
-import { Component, Mixin } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-settings-country-list.html.twig';
 import './sw-settings-country-list.scss';
+
+const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-country-list', {
     template,

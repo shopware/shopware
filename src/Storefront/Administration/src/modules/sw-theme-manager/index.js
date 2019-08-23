@@ -1,4 +1,3 @@
-import { Module } from 'src/core/shopware';
 import './mixin/sw-theme.mixin';
 import './page/sw-theme-manager-detail';
 import './page/sw-theme-manager-list';
@@ -7,6 +6,8 @@ import './component/sw-theme-modal/';
 
 import deDE from './snippet/de_DE.json';
 import enGB from './snippet/en_GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-theme-manager', {
     type: 'core',

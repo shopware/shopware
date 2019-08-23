@@ -1,8 +1,9 @@
-import { Module } from 'src/core/shopware';
 import './page/sw-dashboard-index';
 import './component/sw-dashboard-external-link';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-dashboard', {
     type: 'core',

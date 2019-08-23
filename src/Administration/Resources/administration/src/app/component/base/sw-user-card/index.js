@@ -1,6 +1,8 @@
 import template from './sw-user-card.html.twig';
 import './sw-user-card.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description Renders a compact user information card using the provided user data.
@@ -42,8 +44,7 @@ import './sw-user-card.scss';
  * </template>
  * </sw-user-card>
  */
-export default {
-    name: 'sw-user-card',
+Component.register('sw-user-card', {
     template,
 
     props: {
@@ -84,4 +85,4 @@ export default {
             return this.$route.meta.$module.color;
         }
     }
-};
+});

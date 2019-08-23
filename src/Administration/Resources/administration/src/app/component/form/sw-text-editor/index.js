@@ -1,6 +1,8 @@
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @status ready
@@ -29,8 +31,7 @@ import './sw-text-editor.scss';
  *
  *  </sw-text-editor>
  */
-export default {
-    name: 'sw-text-editor',
+Component.register('sw-text-editor', {
     template,
 
     props: {
@@ -605,4 +606,4 @@ export default {
             this.isTableEdit = false;
         }
     }
-};
+});

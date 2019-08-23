@@ -1,6 +1,8 @@
-import utils from 'src/core/service/util.service';
 import template from './sw-simple-search-field.html.twig';
 import './sw-simple-search-field.scss';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public
@@ -10,8 +12,7 @@ import './sw-simple-search-field.scss';
  * @component-example
  * <sw-simple-search-field :delay="1000"></sw-simple-search-field>
  */
-export default {
-    name: 'sw-simple-search-field',
+Component.register('sw-simple-search-field', {
     template,
     inheritAttrs: false,
 
@@ -70,4 +71,4 @@ export default {
             }, this.delay);
         }
     }
-};
+});

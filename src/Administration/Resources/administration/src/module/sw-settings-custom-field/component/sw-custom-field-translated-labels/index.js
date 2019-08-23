@@ -1,6 +1,7 @@
-import { Component, Mixin } from 'src/core/shopware';
 import template from './sw-custom-field-translated-labels.html.twig';
 import './sw-custom-field-translated-labels.scss';
+
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-custom-field-translated-labels', {
     template,

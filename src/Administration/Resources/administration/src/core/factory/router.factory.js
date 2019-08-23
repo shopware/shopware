@@ -3,7 +3,8 @@
  */
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
-import { Application } from 'src/core/shopware';
+
+const { Application } = Shopware;
 
 /**
  * Initializes the router for the application.

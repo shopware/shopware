@@ -17,6 +17,22 @@ module.exports = {
             ? config.build.performanceHints
             : config.dev.performanceHints
     },
+    optimization: {
+        moduleIds: 'hashed',
+        chunkIds: 'named',
+        runtimeChunk: {
+            name: 'runtime'
+        },
+        splitChunks: {
+            cacheGroups: {
+                'runtime-vendor': {
+                    test: utils.resolve('node_modules'),
+                    name: 'vendors-node',
+                    chunks: 'all'
+                }
+            }
+        }
+    },
     entry: {
         commons: [`${resolve('src')}/core/common.js`, `${resolve('src')}/core/shopware.js`],
         app: `${resolve('src')}/app/main.js`

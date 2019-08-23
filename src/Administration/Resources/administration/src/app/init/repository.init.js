@@ -1,8 +1,7 @@
-import EntityHydrator from 'src/core/data-new/entity-hydrator.data';
-import ChangesetGenerator from 'src/core/data-new/changeset-generator.data';
-import EntityFactory from 'src/core/data-new/entity-factory.data';
-import RepositoryFactory from 'src/core/data-new/repository-factory.data';
 import ErrorResolverError from 'src/core/data/error-resolver.data';
+import RepositoryFactory from 'src/core/data-new/repository-factory.data';
+
+const { EntityHydrator, ChangesetGenerator, EntityFactory } = Shopware.Data;
 
 export default function initializeRepositoryFactory(container) {
     const httpClient = container.httpClient;

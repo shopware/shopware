@@ -1,6 +1,8 @@
 import template from './sw-avatar.html.twig';
 import './sw-avatar.scss';
 
+const { Component } = Shopware;
+
 const colors = [
     '#FFD700',
     '#FFC700',
@@ -32,8 +34,7 @@ const colors = [
  *            imageUrl="https://randomuser.me/api/portraits/women/68.jpg"></sw-avatar>
  * </div>
  */
-export default {
-    name: 'sw-avatar',
+Component.register('sw-avatar', {
     template,
 
     props: {
@@ -159,4 +160,4 @@ export default {
             this.lineHeight = Math.round(avatarSize * 0.98);
         }
     }
-};
+});

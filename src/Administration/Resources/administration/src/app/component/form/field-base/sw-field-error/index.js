@@ -1,11 +1,12 @@
 import template from './sw-field-error.html.twig';
 import './sw-field-error.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-field-error',
+Component.register('sw-field-error', {
     template,
 
     props: {
@@ -31,4 +32,4 @@ export default {
             return translation;
         }
     }
-};
+});

@@ -1,8 +1,9 @@
-import { Mixin, State } from 'src/core/shopware';
-import fileReader from 'src/core/service/utils/file-reader.utils';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-media-upload.html.twig';
 import './sw-media-upload.scss';
+
+const { Component, Mixin, State } = Shopware;
+const { fileReader } = Shopware.Utils;
 
 /**
  * @status ready
@@ -19,8 +20,7 @@ import './sw-media-upload.scss';
  *     label="My image-upload">
  * </sw-media-upload>
  */
-export default {
-    name: 'sw-media-upload',
+Component.register('sw-media-upload', {
     template,
 
     mixins: [
@@ -355,4 +355,4 @@ export default {
             }
         }
     }
-};
+});

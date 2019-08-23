@@ -1,6 +1,8 @@
 import template from './sw-card.html.twig';
 import './sw-card.scss';
 
+const { Component } = Shopware;
+
 /**
  * @public
  * @description A card is a flexible and extensible content container.
@@ -11,8 +13,7 @@ import './sw-card.scss';
  *     Your content
  * </sw-card>
  */
-export default {
-    name: 'sw-card',
+Component.register('sw-card', {
     template,
 
     props: {
@@ -48,4 +49,4 @@ export default {
             };
         }
     }
-};
+});

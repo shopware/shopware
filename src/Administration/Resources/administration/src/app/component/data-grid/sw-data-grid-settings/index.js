@@ -1,12 +1,12 @@
 import template from './sw-data-grid-settings.html.twig';
 import './sw-data-grid-settings.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-data-grid-settings',
-
+Component.register('sw-data-grid-settings', {
     template,
 
     props: {
@@ -74,4 +74,4 @@ export default {
             this.$emit('change-column-order', columnIndex, columnIndex + 1);
         }
     }
-};
+});

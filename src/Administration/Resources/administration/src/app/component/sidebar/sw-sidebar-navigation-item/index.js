@@ -1,11 +1,12 @@
 import template from './sw-sidebar-navigation-item.html.twig';
 import './sw-sidebar-navigation-item.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-sidebar-navigation-item',
+Component.register('sw-sidebar-navigation-item', {
     template,
 
     props: {
@@ -20,4 +21,4 @@ export default {
             this.$emit('item-click', this.sidebarItem);
         }
     }
-};
+});

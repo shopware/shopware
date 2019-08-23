@@ -1,10 +1,10 @@
-import { Mixin } from 'src/core/shopware';
 import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-notification-center.html.twig';
 import './sw-notification-center.scss';
 
-export default {
-    name: 'sw-notification-center',
+const { Component, Mixin } = Shopware;
+
+Component.register('sw-notification-center', {
     template,
 
     mixins: [
@@ -89,4 +89,4 @@ export default {
             });
         }
     }
-};
+});

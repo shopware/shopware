@@ -1,6 +1,5 @@
-import { Mixin } from 'src/core/shopware';
-import types from 'src/core/service/utils/types.utils';
-import { debug } from 'src/core/service/util.service';
+const { Mixin } = Shopware;
+const { types, debug } = Shopware.Utils;
 
 /**
  * Mixin which resets entity changes on page leave or if the id of the entity changes.

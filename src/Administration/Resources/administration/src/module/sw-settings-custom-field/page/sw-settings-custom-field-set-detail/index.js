@@ -1,5 +1,6 @@
-import { Component, State, Mixin } from 'src/core/shopware';
 import template from './sw-settings-custom-field-set-detail.html.twig';
+
+const { Component, State, Mixin } = Shopware;
 
 Component.register('sw-settings-custom-field-set-detail', {
     template,

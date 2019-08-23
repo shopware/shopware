@@ -1,5 +1,5 @@
-import { Directive } from 'src/core/shopware';
-import types from 'src/core/service/utils/types.utils';
+const { Directive } = Shopware;
+const { types } = Shopware.Utils;
 
 /**
  * An object representing the current drag element and config.

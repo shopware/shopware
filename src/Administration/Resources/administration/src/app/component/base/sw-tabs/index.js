@@ -1,7 +1,9 @@
-import util from 'src/core/service/util.service';
-import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-tabs.html.twig';
 import './sw-tabs.scss';
+
+const { Component } = Shopware;
+const util = Shopware.Utils;
+const dom = Shopware.Utils.dom;
 
 /**
  * @public
@@ -21,8 +23,7 @@ import './sw-tabs.scss';
  *
  * </sw-tabs>
  */
-export default {
-    name: 'sw-tabs',
+Component.register('sw-tabs', {
     template,
 
     props: {
@@ -248,4 +249,4 @@ export default {
             this.scrollbarOffset = dom.getScrollbarHeight(this.$refs.swTabContent);
         }
     }
-};
+});

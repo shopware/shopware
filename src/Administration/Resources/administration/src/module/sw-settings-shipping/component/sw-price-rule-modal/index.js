@@ -1,5 +1,6 @@
-import { Component, State } from 'src/core/shopware';
 import template from './sw-price-rule-modal.html.twig';
+
+const { Component, State } = Shopware;
 
 Component.extend('sw-price-rule-modal', 'sw-rule-modal', {
     template,

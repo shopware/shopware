@@ -1,6 +1,7 @@
-import { Component, Mixin, State } from 'src/core/shopware';
-import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-mail-header-footer-detail.html.twig';
+
+const { Component, Mixin, State } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-mail-header-footer-detail', {
     template,

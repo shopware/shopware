@@ -1,6 +1,7 @@
-import { Mixin } from 'src/core/shopware';
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
+
+const { Component, Mixin } = Shopware;
 
 /**
  * @public
@@ -10,8 +11,7 @@ import './sw-custom-field-set-renderer.scss';
  * @example-type code-only
  * @component-example
  */
-export default {
-    name: 'sw-custom-field-set-renderer',
+Component.register('sw-custom-field-set-renderer', {
     template,
 
     mixins: [
@@ -87,4 +87,4 @@ export default {
             }
         }
     }
-};
+});

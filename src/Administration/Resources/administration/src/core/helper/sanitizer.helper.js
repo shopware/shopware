@@ -1,5 +1,6 @@
 import domPurify from 'dompurify';
-import { warn } from 'src/core/service/utils/debug.utils';
+
+const { warn } = Shopware.Utils.debug;
 
 /** @type {Array<String>} Contains all valid middleware names */
 const middlewareNames = [

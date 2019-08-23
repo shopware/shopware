@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-login.html.twig';
 import './sw-login.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-login', {
     template,

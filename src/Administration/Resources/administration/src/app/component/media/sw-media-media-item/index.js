@@ -1,7 +1,8 @@
-import { Mixin, State } from 'src/core/shopware';
-import domUtils from 'src/core/service/utils/dom.utils';
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
+
+const { Component, Mixin, State } = Shopware;
+const domUtils = Shopware.Utils.dom;
 
 /**
  * @status ready
@@ -22,8 +23,7 @@ import './sw-media-media-item.scss';
  *       </sw-context-menu-item>
  * </sw-media-media-item>
  */
-export default {
-    name: 'sw-media-media-item',
+Component.register('sw-media-media-item', {
     template,
     inheritAttrs: false,
 
@@ -166,4 +166,4 @@ export default {
             });
         }
     }
-};
+});

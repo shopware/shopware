@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-plugin-table-entry.html.twig';
 import './sw-plugin-table-entry.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-plugin-table-entry', {
     template,

@@ -1,9 +1,10 @@
-import utils from 'src/core/service/util.service';
 import template from './sw-shortcut-overview.html.twig';
 import './sw-shortcut-overview.scss';
 
-export default {
-    name: 'sw-shortcut-overview',
+const { Component } = Shopware;
+const utils = Shopware.Utils;
+
+Component.register('sw-shortcut-overview', {
     template,
 
     shortcuts: {
@@ -200,4 +201,4 @@ export default {
             this.showShortcutOverviewModal = false;
         }
     }
-};
+});

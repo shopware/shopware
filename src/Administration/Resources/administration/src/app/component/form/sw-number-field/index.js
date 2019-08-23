@@ -1,6 +1,8 @@
-import { warn } from 'src/core/service/utils/debug.utils';
 import template from './sw-number-field.html.twig';
 import './sw-number-field.scss';
+
+const { Component } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 /**
  * @public
@@ -11,9 +13,7 @@ import './sw-number-field.scss';
  * <sw-number-field type="number" label="Name" v-model="model" numberType="int"
  * :max="20" :min="5" :step="5"></sw-number-field>
  */
-export default {
-    name: 'sw-number-field',
-    extendsFrom: 'sw-text-field',
+Component.extend('sw-number-field', 'sw-text-field', {
     template,
     inheritAttrs: false,
 
@@ -239,4 +239,4 @@ export default {
             };
         }
     }
-};
+});

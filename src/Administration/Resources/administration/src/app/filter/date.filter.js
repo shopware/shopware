@@ -1,5 +1,5 @@
-import { date } from 'src/core/service/utils/format.utils';
-import { Filter } from 'src/core/shopware';
+const { Filter } = Shopware;
+const { date } = Shopware.Utils.format;
 
 Filter.register('date', (value, options) => {
     if (!value) {

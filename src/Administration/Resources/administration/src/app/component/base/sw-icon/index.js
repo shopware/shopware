@@ -1,6 +1,8 @@
-import { debug } from 'src/core/service/util.service';
 import template from './sw-icon.html.twig';
 import './sw-icon.scss';
+
+const { Component } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 /**
  * @public
@@ -19,9 +21,7 @@ import './sw-icon.scss';
  *     <sw-icon name="default-default-bell-bell" color="#f1c40f"></sw-icon>
  * </div>
  */
-export default {
-    name: 'sw-icon',
-
+Component.register('sw-icon', {
     template,
 
     props: {
@@ -71,7 +71,7 @@ export default {
     methods: {
         createdComponent() {
             if (this.color && this.multicolor) {
-                debug.warn(
+                warn(
                     this.$options.name,
                     `The color of "${this.name}" cannot be adjusted because it is a multicolor icon.`
                 );
@@ -109,4 +109,4 @@ export default {
             };
         }
     }
-};
+});

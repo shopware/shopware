@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-newsletter-recipient-filter-switch.html.twig';
+
+const { Component } = Shopware;
 
 Component.register('sw-newsletter-recipient-filter-switch', {
     template,

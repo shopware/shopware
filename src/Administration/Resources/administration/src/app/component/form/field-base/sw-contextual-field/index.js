@@ -1,8 +1,9 @@
 import template from './sw-contextual-field.html.twig';
 import './sw-contextual-field.scss';
 
-export default {
-    name: 'sw-contextual-field',
+const { Component } = Shopware;
+
+Component.register('sw-contextual-field', {
     template,
     inheritAttrs: false,
 
@@ -17,4 +18,4 @@ export default {
                 && this.$scopedSlots['sw-contextual-field-suffix']({}) !== undefined;
         }
     }
-};
+});

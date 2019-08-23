@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-media-grid.html.twig';
 import './sw-media-grid.scss';
+
+const { Component } = Shopware;
 
 /**
  * @private

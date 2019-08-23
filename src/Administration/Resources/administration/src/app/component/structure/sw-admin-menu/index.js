@@ -1,13 +1,13 @@
-import { State, Mixin } from 'src/core/shopware';
-import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
+
+const { Component, State, Mixin } = Shopware;
+const { dom } = Shopware.Utils;
 
 /**
  * @private
  */
-export default {
-    name: 'sw-admin-menu',
+Component.register('sw-admin-menu', {
     template,
 
     mixins: [
@@ -284,4 +284,4 @@ export default {
             return `sw-admin-menu__flyout-item--${suffix}`;
         }
     }
-};
+});

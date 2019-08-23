@@ -1,6 +1,8 @@
-import dom from 'src/core/service/utils/dom.utils';
 import template from './sw-grid.html.twig';
 import './sw-grid.scss';
+
+const { Component } = Shopware;
+const { dom } = Shopware.Utils;
 
 /**
  * @public
@@ -24,8 +26,7 @@ import './sw-grid.scss';
  *     </template>
  * </sw-grid>
  */
-export default {
-    name: 'sw-grid',
+Component.register('sw-grid', {
     template,
 
     props: {
@@ -258,4 +259,4 @@ export default {
             this.scrollbarOffset = dom.getScrollbarWidth(this.$refs.swGridBody);
         }
     }
-};
+});

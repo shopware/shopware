@@ -1,6 +1,7 @@
-import { Application } from 'src/core/shopware';
 import template from './sw-version.html.twig';
 import './sw-version.scss';
+
+const { Application, Component } = Shopware;
 
 /**
  * @private
@@ -12,8 +13,7 @@ import './sw-version.scss';
  *     <sw-version class="collapsible-text"></sw-version>
  * </div>
  */
-export default {
-    name: 'sw-version',
+Component.register('sw-version', {
     template,
 
     computed: {
@@ -62,4 +62,4 @@ export default {
             return text;
         }
     }
-};
+});

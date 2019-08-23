@@ -1,11 +1,12 @@
 import template from './sw-context-menu-item.html.twig';
 import './sw-context-menu-item.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-context-menu-item',
+Component.register('sw-context-menu-item', {
     template,
 
     props: {
@@ -51,4 +52,4 @@ export default {
             return (this.disabled || this.variant === 'headline') ? {} : this.$listeners;
         }
     }
-};
+});

@@ -1,7 +1,8 @@
 import getErrorCode from 'src/core/data/error-codes/login.error-codes';
-import { Component, Mixin, State, Application } from 'src/core/shopware';
 import { initializeUserNotifications } from 'src/app/state/notification.store';
 import template from './sw-login-login.html.twig';
+
+const { Component, Mixin, State, Application } = Shopware;
 
 Component.register('sw-login-login', {
     template,

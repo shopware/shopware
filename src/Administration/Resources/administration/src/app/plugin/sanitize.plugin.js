@@ -1,5 +1,6 @@
-import { warn } from 'src/core/service/utils/debug.utils';
 import Sanitizer from 'src/core/helper/sanitizer.helper';
+
+const { warn } = Shopware.Utils.debug;
 
 let pluginInstalled = false;
 

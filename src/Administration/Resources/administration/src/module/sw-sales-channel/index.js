@@ -1,4 +1,3 @@
-import { Module } from 'src/core/shopware';
 import './component/structure/sw-admin-menu-extension';
 import './component/structure/sw-sales-channel-menu';
 import './component/sw-sales-channel-modal';
@@ -9,6 +8,8 @@ import './view/sw-sales-channel-create-base';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-sales-channel', {
     type: 'core',

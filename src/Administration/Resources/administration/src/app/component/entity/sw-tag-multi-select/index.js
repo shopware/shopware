@@ -1,8 +1,9 @@
-import { Component } from 'src/core/shopware';
-import './sw-tag-multi-select.scss';
-import utils from 'src/core/service/util.service';
-import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-tag-multi-select.html.twig';
+import './sw-tag-multi-select.scss';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-tag-multi-select', {
     template,

@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
 import Sanitizer from 'src/core/helper/sanitizer.helper';
-import swEmptyState from 'src/app/component/base/sw-empty-state';
+import 'src/app/component/base/sw-empty-state';
 import SanitizePlugin from 'src/app/plugin/sanitize.plugin';
 
 // Disable developer hints in jest output
@@ -127,7 +127,7 @@ describe('core/helper/sanitizer.helper.js', () => {
             return value;
         };
 
-        const wrapper = shallowMount(swEmptyState, {
+        const wrapper = shallowMount(Shopware.Component.build('sw-empty-state'), {
             localVue,
             stubs: ['sw-icon'],
             mocks: {

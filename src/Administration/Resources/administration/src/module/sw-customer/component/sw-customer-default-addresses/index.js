@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-customer-default-addresses.html.twig';
 import './sw-customer-default-addresses.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-customer-default-addresses', {
     template,

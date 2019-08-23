@@ -1,7 +1,8 @@
-import utils from 'src/core/service/util.service';
-import { Mixin } from 'src/core/shopware';
 import template from './sw-checkbox-field.html.twig';
 import './sw-checkbox-field.scss';
+
+const { Component, Mixin } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public
@@ -11,8 +12,7 @@ import './sw-checkbox-field.scss';
  * @component-example
  * <sw-checkbox-field label="Name" v-model="aBooleanProperty"></sw-checkbox-field>
  */
-export default {
-    name: 'sw-checkbox-field',
+Component.register('sw-checkbox-field', {
     template,
     inheritAttrs: false,
 
@@ -118,4 +118,4 @@ export default {
             this.$emit('change', null);
         }
     }
-};
+});

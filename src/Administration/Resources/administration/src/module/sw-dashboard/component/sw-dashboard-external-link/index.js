@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-dashboard-external-link.html.twig';
 import './sw-dashboard-external-link.scss';
+
+const { Component } = Shopware;
 
 Component.register('sw-dashboard-external-link', {
     template,

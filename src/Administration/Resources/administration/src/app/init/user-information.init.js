@@ -1,5 +1,6 @@
-import { State } from 'src/core/shopware';
 import { initializeUserNotifications } from 'src/app/state/notification.store';
+
+const { State } = Shopware;
 
 export default function initializeUserContext(container) {
     const serviceContainer = this.getContainer('service');

@@ -1,8 +1,9 @@
-import { Component } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-category-select.html.twig';
 import './sw-category-select.scss';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 Component.extend('sw-category-select', 'sw-select', {
     template,

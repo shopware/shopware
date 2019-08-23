@@ -1,7 +1,8 @@
-import { Component, Mixin, Entity } from 'src/core/shopware';
 import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
+
+const { Component, Mixin, Entity } = Shopware;
 
 Component.register('sw-customer-detail-addresses', {
     template,

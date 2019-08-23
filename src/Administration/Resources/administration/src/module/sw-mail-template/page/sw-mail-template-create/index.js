@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
-import utils from 'src/core/service/util.service';
 import template from './sw-mail-template-create.html.twig';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 Component.extend('sw-mail-template-create', 'sw-mail-template-detail', {
     template,

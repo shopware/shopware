@@ -1,11 +1,12 @@
 import template from './sw-text-editor-toolbar.html.twig';
 import './sw-text-editor-toolbar.scss';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-text-editor-toolbar',
+Component.register('sw-text-editor-toolbar', {
     template,
 
     props: {
@@ -22,7 +23,6 @@ export default {
         },
 
         selection: {
-            type: Selection,
             required: false,
             default: null
         },
@@ -422,4 +422,4 @@ export default {
             button.expanded = !button.expanded;
         }
     }
-};
+});

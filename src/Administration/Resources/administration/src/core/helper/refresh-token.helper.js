@@ -1,4 +1,4 @@
-import { Application } from 'src/core/shopware';
+const { Application } = Shopware;
 
 /**
  * Refresh token helper which manages a cache of requests to retry them after the token got refreshed.

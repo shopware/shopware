@@ -3,10 +3,12 @@ import {
     setCompleters,
     textCompleter
 } from 'ace-builds/src-noconflict/ext-language_tools';
-import utils from 'src/core/service/util.service';
 import 'ace-builds/src-noconflict/mode-twig';
 import template from './sw-code-editor.html.twig';
 import './sw-code-editor.scss';
+
+const { Component } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @public
@@ -18,8 +20,7 @@ import './sw-code-editor.scss';
  * <sw-code-editor label="Description">
  * </sw-code-editor>
  */
-export default {
-    name: 'sw-code-editor',
+Component.register('sw-code-editor', {
     template,
 
     props: {
@@ -202,4 +203,4 @@ export default {
             }
         }
     }
-};
+});

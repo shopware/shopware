@@ -1,7 +1,8 @@
-import { Component } from 'src/core/shopware';
 import 'src/app/component/base/sw-collapse';
 import template from './sw-media-collapse.html.twig';
 import './sw-media-collapse.scss';
+
+const { Component } = Shopware;
 
 Component.extend('sw-media-collapse', 'sw-collapse', {
     template,

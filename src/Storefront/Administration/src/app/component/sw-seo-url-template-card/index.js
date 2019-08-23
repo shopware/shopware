@@ -1,10 +1,11 @@
-import { Component, Mixin } from 'src/core/shopware';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
-import Criteria from 'src/core/data-new/criteria.data';
-import utils from 'src/core/service/util.service';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-seo-url-template-card.html.twig';
 import './sw-seo-url-template-card.scss';
+
+const { Component, Mixin } = Shopware;
+const EntityCollection = Shopware.Data.EntityCollection;
+const Criteria = Shopware.Data.Criteria;
+const utils = Shopware.Utils;
 
 Component.register('sw-seo-url-template-card', {
     template,

@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-tree-input-field.html.twig';
 import './sw-tree-input-field.scss';
+
+const { Component } = Shopware;
 
 /**
  * @private

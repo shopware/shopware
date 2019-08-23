@@ -1,7 +1,8 @@
-import { Component, Mixin, State } from 'src/core/shopware';
-import { cloneDeep } from '../../../../../core/service/utils/object.utils';
 import template from './sw-cms-el-config-image-gallery.html.twig';
 import './sw-cms-el-config-image-gallery.scss';
+
+const { Component, Mixin, State } = Shopware;
+const { cloneDeep } = Shopware.Utils.object;
 
 Component.register('sw-cms-el-config-image-gallery', {
     template,

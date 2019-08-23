@@ -1,5 +1,5 @@
-import { Application } from 'src/core/shopware';
-import { debug } from 'src/core/service/util.service';
+const { Application } = Shopware;
+const debug = Shopware.Utils.debug;
 
 export default {
     state: {

@@ -1,4 +1,3 @@
-import { EntityDefinition } from 'src/core/shopware';
 import Criteria from './criteria.data';
 
 export default class Repository {
@@ -22,7 +21,7 @@ export default class Repository {
     }
 
     get schema() {
-        return EntityDefinition.get(this.entityName);
+        return Shopware.EntityDefinition.get(this.entityName);
     }
 
     /**

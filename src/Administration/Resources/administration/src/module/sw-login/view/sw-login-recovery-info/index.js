@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-login-recovery-info.html.twig';
+
+const { Component } = Shopware;
 
 Component.register('sw-login-recovery-info', {
     template,

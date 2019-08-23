@@ -1,7 +1,8 @@
 /**
  * @module app/service/shortcut
  */
-import { Application } from 'src/core/shopware';
+
+const { Application } = Shopware;
 
 /**
  *

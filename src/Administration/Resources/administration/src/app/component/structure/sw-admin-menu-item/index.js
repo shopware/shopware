@@ -1,10 +1,11 @@
 import template from './sw-admin-menu-item.html.twig';
 
+const { Component } = Shopware;
+
 /**
  * @private
  */
-export default {
-    name: 'sw-admin-menu-item',
+Component.register('sw-admin-menu-item', {
     template,
 
     props: {
@@ -88,4 +89,4 @@ export default {
             return this.entry.id === compareTo;
         }
     }
-};
+});

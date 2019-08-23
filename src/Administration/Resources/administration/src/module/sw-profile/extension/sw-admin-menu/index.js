@@ -1,5 +1,6 @@
-import { Component } from 'src/core/shopware';
 import template from './sw-admin-menu.html.twig';
+
+const { Component } = Shopware;
 
 Component.override('sw-admin-menu', {
     template

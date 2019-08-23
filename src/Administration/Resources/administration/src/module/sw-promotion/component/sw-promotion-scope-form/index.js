@@ -1,8 +1,9 @@
-import { Component } from 'src/core/shopware';
-import Criteria from 'src/core/data-new/criteria.data';
 import { PromotionPermissions } from 'src/module/sw-promotion/helper/promotion.helper';
 import template from './sw-promotion-scope-form.html.twig';
 import './sw-promotion-scope-form.scss';
+
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-scope-form', {
     template,

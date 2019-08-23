@@ -1,6 +1,7 @@
-import { Mixin, State } from 'src/core/shopware';
 import template from './sw-media-modal-move.html.twig';
 import './sw-media-modal-move.scss';
+
+const { Component, Mixin, State } = Shopware;
 
 /**
  * @status ready
@@ -10,8 +11,7 @@ import './sw-media-modal-move.scss';
  * <sw-media-modal-move itemsToDelete="[items]">
  * </sw-media-modal-move>
  */
-export default {
-    name: 'sw-media-modal-move',
+Component.register('sw-media-modal-move', {
     template,
 
     inject: ['mediaFolderService'],
@@ -203,4 +203,4 @@ export default {
             );
         }
     }
-};
+});

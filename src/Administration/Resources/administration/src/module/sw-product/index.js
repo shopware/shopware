@@ -1,4 +1,3 @@
-import { Module } from 'src/core/shopware';
 import './component/sw-product-basic-form';
 import './component/sw-product-deliverability-form';
 import './component/sw-product-category-form';
@@ -28,6 +27,8 @@ import './page/sw-product-detail';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
+
+const { Module } = Shopware;
 
 Module.register('sw-product', {
     type: 'core',

@@ -1,4 +1,3 @@
-import { Application } from 'src/core/shopware';
 import 'src/module/sw-settings-rule/component/sw-condition-billing-country';
 import 'src/module/sw-settings-rule/component/sw-condition-billing-street';
 import 'src/module/sw-settings-rule/component/sw-condition-billing-zip-code';
@@ -31,6 +30,8 @@ import 'src/module/sw-settings-rule/component/sw-condition-shipping-zip-code';
 import 'src/module/sw-settings-rule/component/sw-condition-time-range';
 import 'src/module/sw-settings-rule/component/sw-condition-weight-of-cart';
 import 'src/module/sw-settings-rule/component/sw-condition-line-item-tag';
+
+const { Application } = Shopware;
 
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
     ruleConditionService.addCondition('dateRange', {

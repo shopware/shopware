@@ -1,8 +1,9 @@
 import template from './sw-shortcut-overview-item.html.twig';
 import './sw-shortcut-overview-item.scss';
 
-export default {
-    name: 'sw-shortcut-overview-item',
+const { Component } = Shopware;
+
+Component.register('sw-shortcut-overview-item', {
     template,
 
     props: {
@@ -21,4 +22,4 @@ export default {
             return this.content.split(' ') || [];
         }
     }
-};
+});

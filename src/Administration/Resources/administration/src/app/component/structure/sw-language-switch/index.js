@@ -1,7 +1,8 @@
-import { Component, State } from 'src/core/shopware';
-import { debug } from 'src/core/service/util.service';
 import template from './sw-language-switch.html.twig';
 import './sw-language-switch.scss';
+
+const { Component, State } = Shopware;
+const { warn } = Shopware.Utils.debug;
 
 /**
  * @public
@@ -120,7 +121,7 @@ Component.register('sw-language-switch', {
             if (typeof this.saveChangesFunction === 'function') {
                 save = this.saveChangesFunction();
             } else {
-                debug.warn('sw-language-switch', 'You need to implement an own save function to save the changes!');
+                warn('sw-language-switch', 'You need to implement an own save function to save the changes!');
             }
             return Promise.resolve(save).then(() => {
                 this.changeToNewLanguage();

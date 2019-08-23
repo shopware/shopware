@@ -1,4 +1,4 @@
-import { string } from 'src/core/service/util.service';
+const { string } = Shopware.Utils;
 
 export function mapApiErrors(subject, properties = []) {
     const map = {};

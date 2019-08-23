@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import swChart from 'src/app/component/base/sw-chart';
+import 'src/app/component/base/sw-chart';
 
 // mock data
 const chartOptions = {
@@ -60,7 +60,7 @@ const setup = ({ type, series, options, fillEmptyDates, sort } = {}) => {
         sort: sort || false
     };
 
-    return shallowMount(swChart, {
+    return shallowMount(Shopware.Component.build('sw-chart'), {
         stubs: ['apexchart'],
         mocks: {
             $tc: key => key,

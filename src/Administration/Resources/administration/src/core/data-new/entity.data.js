@@ -1,5 +1,4 @@
 import { cloneDeep } from 'src/core/service/utils/object.utils';
-import { Application } from 'src/core/shopware';
 
 export default class Entity {
     constructor(id, entityName, data) {
@@ -21,7 +20,7 @@ export default class Entity {
             },
 
             set(target, property, value) {
-                Application.view.setReactive(that._draft, property, value);
+                Shopware.Application.view.setReactive(that._draft, property, value);
                 that._isDirty = true;
 
                 return true;

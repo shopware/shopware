@@ -1,6 +1,7 @@
-import { Component } from 'src/core/shopware';
 import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-condition-line-item-of-type.html.twig';
+
+const { Component } = Shopware;
 
 /**
  * @public

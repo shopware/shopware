@@ -314,8 +314,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         if ($definition->isChildrenAware()) {
             $query->addSelect('parent_id');
-        } elseif (!$definition->isInheritanceAware()) {
-            $query->addSelect('1 as `exists`');
         } else {
             $parent = $this->getParentField($definition);
 

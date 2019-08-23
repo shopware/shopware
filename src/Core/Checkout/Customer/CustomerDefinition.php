@@ -110,7 +110,7 @@ class CustomerDefinition extends EntityDefinition
             new OneToManyAssociationField('orderCustomers', OrderCustomerDefinition::class, 'customer_id', 'id'),
             new ManyToManyAssociationField('tags', TagDefinition::class, CustomerTagDefinition::class, 'customer_id', 'tag_id'),
             new ManyToManyAssociationField('promotions', PromotionDefinition::class, PromotionPersonaCustomerDefinition::class, 'customer_id', 'promotion_id'),
-            (new OneToManyAssociationField('reviews', ProductReviewDefinition::class, 'customer_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'customer_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

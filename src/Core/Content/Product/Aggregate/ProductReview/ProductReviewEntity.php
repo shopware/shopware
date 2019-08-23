@@ -61,7 +61,7 @@ class ProductReviewEntity extends Entity
     /**
      * @var SalesChannelEntity|null
      */
-    protected $sales_channel;
+    protected $salesChannel;
 
     /**
      * @var LanguageEntity|null
@@ -218,14 +218,14 @@ class ProductReviewEntity extends Entity
         $this->customer = $customer;
     }
 
-    public function getSales_channel(): ?SalesChannelEntity
+    public function getSalesChannel(): ?SalesChannelEntity
     {
-        return $this->sales_channel;
+        return $this->salesChannel;
     }
 
-    public function setSales_channel(?SalesChannelEntity $sales_channel): void
+    public function setSalesChannel(?SalesChannelEntity $salesChannel): void
     {
-        $this->sales_channel = $sales_channel;
+        $this->salesChannel = $salesChannel;
     }
 
     public function getLanguage(): ?LanguageEntity

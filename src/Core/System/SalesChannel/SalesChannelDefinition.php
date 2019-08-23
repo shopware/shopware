@@ -119,7 +119,7 @@ class SalesChannelDefinition extends EntityDefinition
             new OneToManyAssociationField('numberRangeSalesChannels', NumberRangeSalesChannelDefinition::class, 'sales_channel_id'),
             new OneToManyAssociationField('promotionSalesChannels', PromotionSalesChannelDefinition::class, 'sales_channel_id', 'id'),
             new OneToManyAssociationField('documentBaseConfigSalesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'sales_channel_id', 'id'),
-            new OneToManyAssociationField('reviews', ProductReviewDefinition::class, 'sales_channel_id', 'id'),
+            new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'sales_channel_id', 'id'),
         ]);
     }
 }

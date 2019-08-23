@@ -241,7 +241,7 @@ class CustomerEntity extends Entity
     /**
      * @var ProductReviewCollection|null
      */
-    protected $reviews;
+    protected $productReviews;
 
     public function __toString()
     {
@@ -679,13 +679,13 @@ class CustomerEntity extends Entity
         $this->promotions = $promotions;
     }
 
-    public function getReviews(): ?ProductReviewCollection
+    public function getProductReviews(): ?ProductReviewCollection
     {
-        return $this->reviews;
+        return $this->productReviews;
     }
 
-    public function setReviews(?ProductReviewCollection $reviews): void
+    public function setProductReviews(?ProductReviewCollection $productReviews): void
     {
-        $this->reviews = $reviews;
+        $this->productReviews = $productReviews;
     }
 }

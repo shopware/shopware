@@ -63,10 +63,10 @@ Component.register('sw-product-detail-base', {
         },
 
         reviewItemData() {
-            this.product.reviews.forEach((review) => {
+            this.product.productReviews.forEach((review) => {
                 review.additional = true;
             });
-            return this.product.reviews;
+            return this.product.productReviews;
         }
     },
 

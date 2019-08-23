@@ -55,7 +55,7 @@ Component.register('sw-review-detail', {
             this.isLoading = true;
             const criteria = new Criteria();
             criteria.addAssociation('customer');
-            criteria.addAssociation('sales_channel');
+            criteria.addAssociation('salesChannel');
 
             this.repository.get(this.reviewId, this.context, criteria).then((review) => {
                 this.review = review;

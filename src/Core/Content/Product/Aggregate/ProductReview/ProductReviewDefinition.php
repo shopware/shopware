@@ -61,7 +61,7 @@ class ProductReviewDefinition extends EntityDefinition
             new CreatedAtField(),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
             (new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            new ManyToOneAssociationField('sales_channel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
+            new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
         ]);

@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Core\Framework\Api\Sync\SyncBehavior;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,19 +22,19 @@ class SyncController extends AbstractController
     public const ACTION_DELETE = 'delete';
 
     /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
-
-    /**
      * @var Serializer
      */
     private $serializer;
 
-    public function __construct(DefinitionInstanceRegistry $definitionRegistry, Serializer $serializer)
+    /**
+     * @var SyncService
+     */
+    private $syncService;
+
+    public function __construct(SyncService $syncService, Serializer $serializer)
     {
-        $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
+        $this->syncService = $syncService;
     }
 
     /**
@@ -53,73 +53,17 @@ class SyncController extends AbstractController
         /** @var bool $failOnError */
         $failOnError = filter_var($request->headers->get('fail-on-error', 'true'), FILTER_VALIDATE_BOOLEAN);
 
-        $errors = $result = $exceptions = [];
+        $behavior = new SyncBehavior($failOnError);
 
         $payload = $this->serializer->decode($request->getContent(), 'json');
 
-        foreach ($payload as $operation) {
-            $action = $operation['action'];
-            $entity = $operation['entity'];
-
-            $repository = $this->definitionRegistry->getRepository($entity);
-
-            switch ($action) {
-                case self::ACTION_DELETE:
-                    $generic = $repository->delete($operation['payload'], $context);
-
-                    $errors = array_merge($errors, $generic->getErrors());
-
-                    break;
-
-                case self::ACTION_UPSERT:
-                    try {
-                        $generic = $repository->upsert(
-                            $operation['payload'],
-                            $context
-                        );
-
-                        /** @var EntityWrittenEvent $event */
-                        foreach ($generic->getEvents() as $event) {
-                            $eventDefinition = $event->getDefinition();
-
-                            if (array_key_exists($eventDefinition->getClass(), $result)) {
-                                $result[$eventDefinition->getClass()]['ids'] = array_merge(
-                                    $result[$eventDefinition->getClass()]['ids'],
-                                    $event->getIds()
-                                );
-                            } else {
-                                $result[$eventDefinition->getClass()] = [
-                                    'definition' => $eventDefinition,
-                                    'ids' => $event->getIds(),
-                                ];
-                            }
-
-                            $errors = array_merge($errors, $event->getErrors());
-                        }
-                    } catch (WriteException $exception) {
-                        $errors = array_merge($errors, iterator_to_array($exception->getErrors()));
-                    } catch (\Throwable $throwable) {
-                        // we have an unexpected error,
-                        // let's see if we should fail or not
-                        if ($failOnError) {
-                            throw $throwable;
-                        }
-                        // otherwise, add it to our exception stack
-                        $exceptions[$action][$entity][] = $throwable->getMessage();
-                    }
-
-                    break;
-            }
+        $operations = [];
+        foreach ($payload as $key => $operation) {
+            $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload']);
         }
 
-        $result = array_values($result);
+        $result = $this->syncService->sync($operations, $context, $behavior);
 
-        $response = [
-            'data' => $result,
-            'errors' => $errors,
-            'exceptions' => $exceptions,
-        ];
-
-        return new JsonResponse($response);
+        return new JsonResponse($result);
     }
 }

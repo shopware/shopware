@@ -54,7 +54,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\SyncController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncService"/>
             <argument type="service" id="serializer"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

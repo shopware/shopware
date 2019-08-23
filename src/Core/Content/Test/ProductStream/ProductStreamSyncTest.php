@@ -30,6 +30,7 @@ class ProductStreamSyncTest extends TestCase
         $id2 = Uuid::randomHex();
         $data = [
             [
+                'key' => 'test',
                 'action' => SyncController::ACTION_UPSERT,
                 'entity' => $this->getContainer()->get(ProductStreamDefinition::class)->getEntityName(),
                 'payload' => [

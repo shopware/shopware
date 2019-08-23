@@ -7,7 +7,7 @@ const { Component, Mixin, State, Application } = Shopware;
 Component.register('sw-login-login', {
     template,
 
-    inject: ['loginService', 'userService', 'repositoryFactory', 'context'],
+    inject: ['loginService', 'userService', 'repositoryFactory', 'context', 'licenseViolationService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -72,6 +72,9 @@ Component.register('sw-login-login', {
                 this.$store.commit('adminUser/setCurrentUser', data);
                 initializeUserNotifications();
             });
+
+            // check for plugin license violations
+            this.licenseViolationService.checkForLicenseViolations();
 
             return Promise.all([
                 animationPromise,

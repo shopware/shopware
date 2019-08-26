@@ -112,7 +112,7 @@ Component.register('sw-promotion-discount-component', {
         createdComponent() {
             this.currencyRepository.search(new Criteria(), this.context).then((response) => {
                 this.currencies = response;
-                this.defaultCurrency = this.currencies.find(currency => currency.isDefault);
+                this.defaultCurrency = this.currencies.find(currency => currency.isSystemDefault);
                 this.currencySymbol = this.defaultCurrency.symbol;
             });
         },

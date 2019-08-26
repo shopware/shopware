@@ -101,12 +101,12 @@ Component.register('sw-product-variants-overview', {
 
         currencyColumns() {
             return this.currencies.sort((a, b) => {
-                return b.isDefault ? 1 : -1;
+                return b.isSystemDefault ? 1 : -1;
             }).map((currency) => {
                 return {
                     property: `price-${currency.isoCode}`,
                     label: currency.translated.name || currency.name,
-                    visible: currency.isDefault,
+                    visible: currency.isSystemDefault,
                     allowResize: true,
                     primary: false,
                     rawData: false,
@@ -334,7 +334,7 @@ Component.register('sw-product-variants-overview', {
             }
 
             // remove inheritance on default currency variant
-            if (!currency.isDefault) {
+            if (!currency.isSystemDefault) {
                 this.onInheritanceRemove(variant, this.defaultCurrency);
             }
 

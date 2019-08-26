@@ -4,14 +4,17 @@ namespace Shopware\Core\System\Test\Currency\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Currency\CurrencyDefinition;
 
 class CurrencyRepositoryTest extends TestCase
 {
@@ -72,5 +75,29 @@ class CurrencyRepositoryTest extends TestCase
             $result->getDataFieldOfId($recordB, '_score'),
             $result->getDataFieldOfId($recordA, '_score')
         );
+    }
+
+    public function testDeleteNonDefaultCurrency(): void
+    {
+        $context = Context::createDefaultContext();
+        $recordA = Uuid::randomHex();
+
+        $records = [
+            ['id' => $recordA, 'decimalPrecision' => 2, 'name' => 'match', 'isoCode' => 'USD', 'shortName' => 'test', 'factor' => 1, 'symbol' => 'A'],
+        ];
+
+        $this->currencyRepository->create($records, $context);
+
+        $deleteEvent = $this->currencyRepository->delete([['id' => $recordA]], $context);
+
+        static::assertEquals($recordA, $deleteEvent->getEventByDefinition(CurrencyDefinition::class)->getWriteResults()[0]->getPrimaryKey());
+    }
+
+    public function testDeleteDefaultCurrency(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $this->expectException(RestrictDeleteViolationException::class);
+        $this->currencyRepository->delete([['id' => Defaults::CURRENCY]], $context);
     }
 }

@@ -36,7 +36,7 @@ Component.extend('sw-price-rule-modal', 'sw-rule-modal', {
         },
         currentCurrency() {
             return this.currencies.find(currency => currency.id === this.currentPriceRule.currencyId)
-                || this.currencies.find(currency => currency.isDefault);
+                || this.currencies.find(currency => currency.isSystemDefault);
         }
     },
 

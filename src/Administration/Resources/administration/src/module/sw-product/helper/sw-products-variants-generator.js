@@ -194,7 +194,7 @@ export default class VariantsGenerator extends EventEmitter {
                             // use the default price as fallback when no custom price for the currency exists
                             if (!refCurrencyPrice) {
                                 const defaultCurrency = currencies.find((currency) => {
-                                    return currency.isDefault;
+                                    return currency.isSystemDefault;
                                 });
 
                                 const defaultCurrencyPrice = this.product.price.find((productPrice) => {

@@ -117,7 +117,7 @@ Component.register('sw-product-detail-context-prices', {
 
         currencyColumns() {
             return this.currencies.sort((a, b) => {
-                return b.isDefault ? 1 : -1;
+                return b.isSystemDefault ? 1 : -1;
             }).map((currency) => {
                 return {
                     property: `price-${currency.isoCode}`,

@@ -79,7 +79,7 @@ Component.register('sw-settings-shipping-price-matrices', {
         },
 
         defaultCurrency() {
-            return this.currencies.find(currency => currency.isDefault);
+            return this.currencies.find(currency => currency.isSystemDefault);
         }
     },
 

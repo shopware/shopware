@@ -75,6 +75,7 @@ PHP analyze:
 # stage: unit
 .phpunit_base:
     stage: unit
+    needs: [PHP analyze]
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -180,6 +181,7 @@ MariaDB 10.4:
 
 Administration (Jest):
     stage: unit
+    needs: [Javascript analyze]
     services:
         -   name: mariadb:10.3
             alias: mysql
@@ -194,6 +196,7 @@ Administration (Jest):
 
 Storefront (Jest):
     stage: unit
+    needs: [Javascript analyze]
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR/development
     services:
@@ -212,6 +215,7 @@ Storefront (Jest):
 
 .job_template: &e2e_definition
     stage: E2E
+    needs: [Administration (Jest)]
     services:
         -   name: docker:18.09.7-dind
             alias: docker
@@ -265,6 +269,7 @@ Storefront (Jest):
 Storefront:
     <<: *e2e_definition
     script: *storefront_definition
+    needs: [Storefront (Jest)]
 
 Administration (General):
     <<: *e2e_definition

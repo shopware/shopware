@@ -53,15 +53,19 @@ Given the hosts entry is set, you can access the Shopware instance via `https://
 
 ## Accessing Shopware
 
-Afterwards you have a fully fledged Shopware 6 up and running. Access it through your browser.
+After executing the `vagrant up` command you have a fully fledged Shopware 6 up and running. Access it through your browser.
+
 
 Basic setup ( ansible vars: `proxy_enabled = no`, `proxy_hostname = shopware.local`, `proxy_ssl = no` ):
+
 URL | UI
 ---- | --------
 [http://192.168.33.10](http://192.168.33.10) | Storefront 
 [http://192.168.33.10/admin](http://192.168.33.10/admin) | Administration
 
+
 Advanced proxy setup ( ansible vars: `proxy_enabled = yes`, `proxy_hostname = shopware.local`, `proxy_ssl = yes`, local hosts file modified or Vagrant Hostupdater plugin in use ):
+
 URL | UI
 ---- | --------
 [https://shopware.local](https://shopware.local) | Storefront 

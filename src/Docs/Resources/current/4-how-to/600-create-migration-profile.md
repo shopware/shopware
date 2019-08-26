@@ -10,8 +10,8 @@ at this HowTo: "[extend a shopware migration profile](./520-extend-shopware-migr
 ## Setup
 
 First of all, it is required that you already have installed the [Migration Assistant](https://github.com/shopware/SwagMigrationAssistant)
-plugin in Shopware 6 and have created a demo source system database with a `product` table. To create this table use this SQL
-statment:
+plugin in Shopware 6 and have created a demo source system database with a `product` table.
+To create the table, use this SQL statement:
 ```sql
 CREATE TABLE product
 (
@@ -343,11 +343,11 @@ this file: `swag-migration-profile-ownProfile-locale-credential-form.html.twig`
 {% endblock %}
 ```
 
-A few things to notice: The template filename isn't random, it has to:
-1. Be prefixed with: `swag-migration-profile-`
-2. Name of the profile
-3. Name of the gateway
-4. Be suffixed with: `-credential-form`
+A few things to notice: The component name isn't random, it has to consist of:
+1. The prefix: `swag-migration-profile-`
+2. The name of the profile
+3. The name of the gateway
+4. The suffix: `-credential-form`
 
 To see your credentials page, you have to register this component in your `main.js`:
 

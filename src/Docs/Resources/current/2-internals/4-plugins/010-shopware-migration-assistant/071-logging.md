@@ -2,8 +2,10 @@
 
 Logging is essential for anyone using the Shopware Migration Assistant. In case of failure it enables users to find out
 why part of their data might be missing. Most of the logging takes place in the `Converter` classes, each time they detect
-missing required values. Also every exception will create a log entry automatically. Here is an example of how the logging
-of warnings works in the `CustomerConverter`:
+missing required values. Also every exception will create a log entry automatically.
+
+We use `LogEntry` objects for our logging, so it's easier to group logs / errors of the same type and get the corresponding amount.
+Here is an example of how the logging works in the `CustomerConverter`:
 ```php
 <?php declare(strict_types=1);
 
@@ -15,26 +17,22 @@ class CustomerConverter extends Shopware55Converter
             array $data,
             Context $context,
             MigrationContextInterface $migrationContext
-        ): ConvertStruct {
+        ): ConvertStruct
+    {
         $oldData = $data;
         $this->runId = $migrationContext->getRunUuid();
 
         $fields = $this->checkForEmptyRequiredDataFields($data, $this->requiredDataFieldKeys);
 
         if (!empty($fields)) {
-            // This will add an entry in the `swag_migration_logging` table, because there are some necessary fields missing
-            $this->loggingService->addWarning(
-                $this->runId,
-                Shopware55LogTypes::EMPTY_NECESSARY_DATA_FIELDS,
-                'Empty necessary data fields',
-                sprintf('Customer-Entity could not be converted cause of empty necessary field(s): %s.', implode(', ', $fields)),
-                [
-                    'id' => $data['id'],
-                    'entity' => 'Customer',
-                    'fields' => $fields,
-                ],
-                \count($fields)
-            );
+            foreach ($fields as $field) {
+                $this->loggingService->addLogEntry(new EmptyNecessaryFieldRunLog(
+                    $this->runId,
+                    DefaultEntities::CUSTOMER,
+                    $data['id'],
+                    $field
+                ));
+            }
 
             return new ConvertStruct(null, $oldData);
         }
@@ -45,24 +43,92 @@ class CustomerConverter extends Shopware55Converter
     /* ... */
 }
 ```
-You can get the `LoggingService` from the service container. It has different methods depending on the log level:
+You can get the `LoggingService` from the service container. Use the `addLogEntry` method with a compatible instance of `LogEntryInterface`
+and save the logging afterwards with `saveLogging`:
 ```php
 <?php declare(strict_types=1);
 
 interface LoggingServiceInterface
 {
-    public function addInfo(string $runId, string $code, string $title, string $description, array $details = [], int $counting = 0): void;
-
-    public function addWarning(string $runId, string $code, string $title, string $description, array $details = [], int $counting = 0): void;
-
-    public function addError(string $runId, string $code, string $title, string $description, array $details = [], int $counting = 0): void;
-
+    public function addLogEntry(LogEntryInterface $logEntry): void;
+    
     public function saveLogging(Context $context): void;
 }
 ```
-The `details` parameter holds extra information on the error.
-The `counting` parameter is used to make the error snippet capable of handling single as well as multiple missing values.
 
-Keep in mind to create a new snippet, when creating a custom log type or throwing a custom exception.
-Be sure the snippet resembles this format: `swag-migration.index.error.SWAG_MIGRATION__SHOPWARE55_EMPTY_NECESSARY_DATA_FIELDS`.
-The last part of the snippet is the log type or exception error code.
+You should take a look at the already existing classes, which implement the `LogEntryInterface` to find one that fits your needs, just like the `EmptyNecessaryFieldRunLog` in the `CustomerConverter` example above.
+All the general LogEntry classes are located under the following namespace `SwagMigrationAssistant\Migration\Logging\Log`.
+
+To create a custom LogEntry make sure you at least implement the `LogEntryInterface` or, if your log happens during a running migration, you can also extend your LogEntry by the `BaseRunLogEntry`.
+
+```php
+<?php declare(strict_types=1);
+
+namespace SwagMigrationAssistant\Migration\Logging\Log;
+
+class EmptyNecessaryFieldRunLog extends BaseRunLogEntry
+{
+    /**
+     * @var string
+     */
+    private $emptyField;
+
+    public function __construct(string $runId, string $entity, string $sourceId, string $emptyField)
+    {
+        parent::__construct($runId, $entity, $sourceId);
+        $this->emptyField = $emptyField;
+    }
+
+    public function getCode(): string
+    {
+        return sprintf('SWAG_MIGRATION_EMPTY_NECESSARY_FIELD_%s', strtoupper($this->getEntity()));
+    }
+
+    public function getLevel(): string
+    {
+        return self::LOG_LEVEL_WARNING;
+    }
+
+    public function getTitle(): string
+    {
+        return sprintf('The %s entity has an empty necessary field', $this->getEntity());
+    }
+
+    public function getParameters(): array
+    {
+        return [
+            'entity' => $this->getEntity(),
+            'sourceId' => $this->getSourceId(),
+            'emptyField' => $this->emptyField,
+        ];
+    }
+
+    public function getDescription(): string
+    {
+        $args = $this->getParameters();
+
+        return sprintf(
+            'The %s entity with the source id %s does not have the necessary data for the field %s',
+                $args['entity'],
+                $args['sourceId'],
+                $args['emptyField']
+            );
+    }
+
+    public function getTitleSnippet(): string
+    {
+        return sprintf('%s.%s.title', $this->getSnippetRoot(), 'SWAG_MIGRATION__SHOPWARE_EMPTY_NECESSARY_DATA_FIELDS');
+    }
+
+    public function getDescriptionSnippet(): string
+    {
+        return sprintf('%s.%s.description', $this->getSnippetRoot(), 'SWAG_MIGRATION__SHOPWARE_EMPTY_NECESSARY_DATA_FIELDS');
+    }
+}
+```
+The important part here is the `getCode` method. It should not contain any details, otherwise grouping won't work properly.
+Also keep in mind to specify the English title and description in the respective `getTitle` and `getDescription` methods.
+Create corresponding snippets with the same content for both the `getTitleSnippet` and `getDescriptionSnippet` method.
+
+The English text is used in the international log file. Snippets instead are used all over the Administration, in order to inform or guide the user.
+Parameters for the description should be returned by the `getParameters` method so the English description and snippets can both use them.

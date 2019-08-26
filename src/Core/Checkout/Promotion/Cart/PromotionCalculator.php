@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
@@ -52,16 +53,23 @@ class PromotionCalculator
      */
     private $quantityPriceCalculator;
 
+    /**
+     * @var LineItemGroupBuilder
+     */
+    private $groupBuilder;
+
     public function __construct(
         AmountCalculator $amountCalculator,
         PercentagePriceCalculator $percentagePriceCalculator,
         AbsolutePriceCalculator $absolutePriceCalculator,
-        QuantityPriceCalculator $quantityPriceCalculator
+        QuantityPriceCalculator $quantityPriceCalculator,
+        LineItemGroupBuilder $setGroupBuilder
     ) {
         $this->amountCalculator = $amountCalculator;
         $this->percentagePriceCalculator = $percentagePriceCalculator;
         $this->absolutePriceCalculator = $absolutePriceCalculator;
         $this->quantityPriceCalculator = $quantityPriceCalculator;
+        $this->groupBuilder = $setGroupBuilder;
     }
 
     /**
@@ -577,6 +585,9 @@ class PromotionCalculator
         }
 
         $scopeWithoutLineItem = new CartRuleScope($calculated, $context);
+
+        $data = $scopeWithoutLineItem->getCart()->getData();
+        $data->set(LineItemGroupBuilder::class, $this->groupBuilder);
 
         return $lineItem->getRequirement()->match($scopeWithoutLineItem);
     }

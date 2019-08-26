@@ -11,9 +11,20 @@
     }
   },
   "sw-promotion": {
+    "setgroup": {
+      "packager": {
+        "COUNT": "Count",
+        "PRICE_UNIT_GROSS": "Amount (Gross)",
+        "PRICE_UNIT_NET": "Amount (Net)"
+      },
+      "sorter": {
+        "PRICE_ASC": "Price ascending",
+        "PRICE_DESC": "Price descending"
+      }
+    },
     "general": {
-      "mainMenuItemGeneral" : "Promotions",
-      "mainMenuItemList" : "Overview",
+      "mainMenuItemGeneral": "Promotions",
+      "mainMenuItemList": "Overview",
       "description": "Manage promotions here."
     },
     "swPromotionRuleSelect": {
@@ -58,20 +69,20 @@
           "labelTitle": "Name",
           "placeholderName": "Name",
           "labelActive": "Active",
-          "labelSalesChannels" : "Sales channels",
-          "placeholderSalesChannels" : "Add sales channel...",
+          "labelSalesChannels": "Sales channels",
+          "placeholderSalesChannels": "Add sales channel...",
           "labelValidFrom": "Valid from:",
           "labelValidUntil": "Valid until:",
           "labelMaxRedemptionsGlobal": "Total possible redemptions",
           "labelMaxRedemptionsPerCustomer": "Redemptions per customer",
           "labelPromotionExclusions": "Do not combine with",
           "placeholderPromotionExclusions": "Add promotion...",
-          "codes" : {
-            "card" : "Promotion codes",
-            "labelCode" : "General promotion code",
+          "codes": {
+            "card": "Promotion codes",
+            "labelCode": "General promotion code",
             "helpTextIndividual": "A general code cannot be used simultaneously with individual codes.",
             "placeholderCode": "Enter promotion code...",
-            "switchUseCodes" : "Promotion code required",
+            "switchUseCodes": "Promotion code required",
             "switchUseIndividualCodes": "Use individual promotion codes",
             "linkEditIndividualCodes": "Manage individual promotion codes",
             "individual": {
@@ -80,7 +91,7 @@
               "helpTextPattern": "Create your custom code pattern. Use placeholders like %s for characters and %d for digits. Example: code-%s%s%d',",
               "labelCount": "Count",
               "buttonGenerate": "Save and generate codes",
-              "labelNoCodesExist" : "No individual codes",
+              "labelNoCodesExist": "No individual codes",
               "columnCode": "Promotion code",
               "columnRedeemed": "Redeemed",
               "columnCustomer": "Customer",
@@ -104,14 +115,14 @@
             "title": "Determine which customers benefit from this promotion",
             "text": "Use rules from the rule builder to narrow down the audience for this marketing action. Without a limitation, all your customers have access to this action.",
             "labelRules": "Customer rules",
-            "placeholderRules" : "Add rules...",
+            "placeholderRules": "Add rules...",
             "switchAssignCustomers": "Assign individual customers to promotion",
-            "placeholderAddCustomers" : "Search and add customers...",
-            "customers" : {
+            "placeholderAddCustomers": "Search and add customers...",
+            "customers": {
               "grid": {
                 "headerName": "Name",
-                "headerCustomerNumber" : "Customer number",
-                "delete" : "Delete"
+                "headerCustomerNumber": "Customer number",
+                "delete": "Delete"
               }
             }
           },
@@ -120,8 +131,8 @@
             "title": "Order properties required for this promotion to be applicable.",
             "text": "Use the rule builder to determine qualified orders. Without a set limitation, the promotion will be applied to all orders.",
             "rulesModuleLink": "Open rule builder",
-            "rulesCaption" : "Order rules",
-            "rulesPlaceholder" : "Assign order rules..."
+            "rulesCaption": "Order rules",
+            "rulesPlaceholder": "Assign order rules..."
           },
           "cart": {
             "card": "Qualified shopping carts",
@@ -129,7 +140,18 @@
             "text": "Use the rule builder to determine qualified shopping cart states. Without a set limitation, the promotion will be applied to all shopping carts.",
             "rulesModuleLink": "Open rule builder",
             "rulesCaption": "Cart rules",
-            "rulesPlaceholder": "Assign cart rules..."
+            "rulesPlaceholder": "Assign cart rules...",
+            "setgroups": {
+              "switchGroupsEnabled": "Use product sets for promotion",
+              "buttonAddGroup": "+ Add group",
+              "titleName": "Group",
+              "labelMode": "Mode",
+              "labelValue": "Value",
+              "labelSorting": "Sorting",
+              "labelRules": "Product rules",
+              "buttonDuplicate": "Duplicate",
+              "buttonDelete": "Delete"
+            }
           }
         },
         "discounts": {
@@ -137,23 +159,23 @@
           "labelValue": "Value",
           "labelMaxValue": "Maximum discount",
           "placeholderValue": "Enter either a percentage or an absolute value...",
-          "labelScope" : "Apply to:",
+          "labelScope": "Apply to:",
           "flagProductScopeLabel": "Apply to specific range of products",
           "labelRules": "Product rules",
           "placeholder": "Assign product rules...",
-          "labelType" : "Type",
+          "labelType": "Type",
           "valueScopeCart": "Cart",
           "valueTypeAbsolute": "Absolute",
           "valueScopeDelivery": "Shipping costs",
           "valueTypePercentage": "Percentage",
           "valueTypeFixed": "Fixed price",
-          "buttonAddDiscount" : "Add discount",
-          "buttonDeleteDiscount" : "Delete discount",
-          "delete" : {
-            "confirmTitle" : "Delete discount",
-            "confirmText" : "Do you really want to delete this discount from the promotion?",
-            "buttonCancel" : "Cancel",
-            "buttonDelete" : "Delete discount"
+          "buttonAddDiscount": "Add discount",
+          "buttonDeleteDiscount": "Delete discount",
+          "delete": {
+            "confirmTitle": "Delete discount",
+            "confirmText": "Do you really want to delete this discount from the promotion?",
+            "buttonCancel": "Cancel",
+            "buttonDelete": "Delete discount"
           },
           "linkAdvancedPrices": "Open advanced price view",
           "pricesModal": {

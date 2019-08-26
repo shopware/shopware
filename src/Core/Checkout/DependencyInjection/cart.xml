@@ -210,5 +210,43 @@
             <argument type="service" id="shopware.cache"/>
             <argument>%shopware.cache.entity_cache.expiration_time%</argument>
         </service>
+
+
+        <!-- LINE ITEM GROUPS -->
+        <!-- ==================================================================================================================== -->
+
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry">
+            <argument type="tagged" tag="lineitem.group.packager"/>
+            <argument type="tagged" tag="lineitem.group.sorter"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager">
+            <tag name="lineitem.group.packager"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceGrossPackager">
+            <tag name="lineitem.group.packager"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceNetPackager">
+            <tag name="lineitem.group.packager"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter">
+            <tag name="lineitem.group.sorter"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceDescSorter">
+            <tag name="lineitem.group.sorter"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher">
+        </service>
+
     </services>
 </container>

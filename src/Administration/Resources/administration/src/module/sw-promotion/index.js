@@ -10,7 +10,7 @@ import './component/sw-promotion-order-condition-form';
 import './component/sw-promotion-persona-form';
 import './component/sw-promotion-discount-component';
 import './component/sw-promotion-individualcodes';
-import './component/sw-promotion-scope-form';
+import './component/sw-promotion-cart-condition-form';
 import './view/sw-promotion-detail-base';
 import './view/sw-promotion-detail-discounts';
 import './view/sw-promotion-detail-restrictions';

@@ -163,6 +163,7 @@ trait PromotionTestFixtureBehaviour
             'name' => 'Black Friday',
             'active' => true,
             'useCodes' => false,
+            'useSetGroups' => false,
             'salesChannels' => [
                 ['salesChannelId' => Defaults::SALES_CHANNEL, 'priority' => 1],
             ],

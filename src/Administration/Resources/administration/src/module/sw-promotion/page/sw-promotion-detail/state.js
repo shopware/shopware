@@ -7,6 +7,7 @@ export default {
             discounts: null,
             personaCustomerIdsAdd: null,
             personaCustomerIdsDelete: null,
+            setGroupIdsDelete: [],
             isLoading: false
         };
     },
@@ -26,6 +27,10 @@ export default {
 
         setPersonaCustomerIdsDelete(state, customerIds) {
             state.personaCustomerIdsDelete = customerIds;
+        },
+
+        setSetGroupIdsDelete(state, groupIds) {
+            state.setGroupIdsDelete = groupIds;
         },
 
         setIsLoading(state, isLoading) {

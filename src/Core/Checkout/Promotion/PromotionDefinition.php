@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionOrderRule\PromotionOrder
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaCustomer\PromotionPersonaCustomerDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionPersonaRule\PromotionPersonaRuleDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Context;
@@ -66,6 +67,7 @@ class PromotionDefinition extends EntityDefinition
             'useCodes' => false,
             'useIndividualCodes' => false,
             'individualCodePattern' => '',
+            'useSetGroups' => false,
             'maxRedemptionsGlobal' => 0,
             'maxRedemptionsPerCustomer' => 0,
         ];
@@ -82,13 +84,18 @@ class PromotionDefinition extends EntityDefinition
             (new IntField('max_redemptions_global', 'maxRedemptionsGlobal'))->addFlags(new Required()),
             (new IntField('max_redemptions_per_customer', 'maxRedemptionsPerCustomer'))->addFlags(new Required()),
             (new BoolField('exclusive', 'exclusive'))->addFlags(new Required()),
-            new BoolField('customer_restriction', 'customerRestriction'),
+            new StringField('code', 'code'),
             (new BoolField('use_codes', 'useCodes'))->addFlags(new Required()),
             (new BoolField('use_individual_codes', 'useIndividualCodes'))->addFlags(new Required()),
             new StringField('individual_code_pattern', 'individualCodePattern'),
-            new StringField('code', 'code'),
+            (new BoolField('use_setgroups', 'useSetGroups'))->addFlags(new Required()),
+            new BoolField('customer_restriction', 'customerRestriction'),
+
             (new IntField('order_count', 'orderCount'))->setFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->setFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+
+            (new OneToManyAssociationField('setgroups', PromotionSetGroupDefinition::class, 'promotion_id'))->addFlags(new CascadeDelete()),
+
             (new OneToManyAssociationField('salesChannels', PromotionSalesChannelDefinition::class, 'promotion_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('discounts', PromotionDiscountDefinition::class, 'promotion_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('individualCodes', PromotionIndividualCodeDefinition::class, 'promotion_id'))->addFlags(new CascadeDelete()),

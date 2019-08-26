@@ -83,6 +83,10 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
                             'data' => [],
                             'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/promotion-discounts', $baseUrl)],
                         ],
+                        'promotionSetGroups' => [
+                            'data' => [],
+                            'links' => ['related' => sprintf('%s/rule/f343a3c119cf42a7841aa0ac5094908c/promotion-set-groups', $baseUrl)],
+                        ],
                     ],
                     'meta' => null,
                 ],
@@ -118,6 +122,7 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
                 'createdAt' => null,
                 'updatedAt' => null,
                 'extensions' => [],
+                'promotionSetGroups' => null,
             ],
         ];
     }
@@ -133,7 +138,8 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
             $fixtures['data'][0]['relationships']['shippingMethodPriceCalculations'],
             $fixtures['data'][0]['relationships']['personaPromotions'],
             $fixtures['data'][0]['relationships']['orderPromotions'],
-            $fixtures['data'][0]['relationships']['cartPromotions']
+            $fixtures['data'][0]['relationships']['cartPromotions'],
+            $fixtures['data'][0]['relationships']['promotionSetGroups']
         );
 
         return $fixtures;
@@ -150,7 +156,8 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
             $fixtures[0]['shippingMethodPriceCalculations'],
             $fixtures[0]['personaPromotions'],
             $fixtures[0]['orderPromotions'],
-            $fixtures[0]['cartPromotions']
+            $fixtures[0]['cartPromotions'],
+            $fixtures[0]['promotionSetGroups']
         );
 
         return $fixtures;

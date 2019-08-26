@@ -1,9 +1,9 @@
-import { mapState } from 'vuex';
 import template from './sw-product-modal-variant-generation.html.twig';
 import VariantsGenerator from '../../../helper/sw-products-variants-generator';
 import './sw-product-modal-variant-generation.scss';
 
 const { Component } = Shopware;
+const { mapState } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-modal-variant-generation', {
     template,

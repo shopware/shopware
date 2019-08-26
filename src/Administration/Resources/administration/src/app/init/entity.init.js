@@ -1,9 +1,6 @@
-import EntityStore from 'src/core/data/EntityStore';
-import EntityProxy from 'src/core/data/EntityProxy';
-import LanguageStore from 'src/core/data/LanguageStore';
-
-const stringUtil = Shopware.Utils.string;
-const ApiService = Shopware.Classes.ApiService;
+const EntityStore = Shopware.DataDeprecated.EntityStore;
+const LanguageStore = Shopware.DataDeprecated.LanguageStore;
+const EntityProxy = Shopware.DataDeprecated.EntityProxy;
 
 export default function initializeEntities(container) {
     const factoryContainer = this.getContainer('factory');
@@ -46,14 +43,14 @@ export default function initializeEntities(container) {
      * @returns {ApiService}
      */
     function registerApiService(entityName) {
-        const serviceName = `${stringUtil.camelCase(entityName)}Service`;
+        const serviceName = `${Shopware.Utils.string.camelCase(entityName)}Service`;
         const kebabServiceName = entityName.replace(/_/g, '-');
 
         if (apiServiceFactory.has(serviceName)) {
             return apiServiceFactory.getByName(serviceName);
         }
 
-        const apiService = new ApiService(httpClient, loginService, kebabServiceName);
+        const apiService = new Shopware.Classes.ApiService(httpClient, loginService, kebabServiceName);
         apiServiceFactory.register(serviceName, apiService);
         application.addServiceProvider(serviceName, () => {
             return apiService;

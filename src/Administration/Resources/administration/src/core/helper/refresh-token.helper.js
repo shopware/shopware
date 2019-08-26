@@ -1,5 +1,3 @@
-const { Application } = Shopware;
-
 /**
  * Refresh token helper which manages a cache of requests to retry them after the token got refreshed.
  * @class
@@ -60,7 +58,7 @@ export default class RefreshTokenHelper {
      * @returns {Promise<String>}
      */
     fireRefreshTokenRequest() {
-        const providerContainer = Application.getContainer('service');
+        const providerContainer = Shopware.Application.getContainer('service');
         const loginService = providerContainer.loginService;
         this.isRefreshing = true;
         return loginService.refreshToken().then((newToken) => {

@@ -1,18 +1,16 @@
-import UploadStore from 'src/core/data/UploadStore';
 import VuexModules from 'src/app/state/index';
 
-export default function createCoreStates() {
+export default function createAppStates() {
     const factoryContainer = this.getContainer('factory');
     const serviceContainer = this.getContainer('service');
     const stateFactory = factoryContainer.state;
+    const UploadStore = Shopware.DataDeprecated.UploadStore;
 
     stateFactory.registerStore('upload', new UploadStore(
         serviceContainer.mediaService
     ));
 
-    Object.keys(VuexModules).forEach((storeModule) => {
-        stateFactory.registerStore(storeModule, VuexModules[storeModule]);
+    return Object.keys(VuexModules).map((storeModule) => {
+        return stateFactory.registerStore(storeModule, VuexModules[storeModule]);
     });
-
-    return true;
 }

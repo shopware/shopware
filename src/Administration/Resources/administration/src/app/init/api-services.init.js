@@ -1,4 +1,4 @@
-import apiServices from 'src/core/service/api';
+const apiServices = Shopware._private.ApiServices();
 
 export default function initializeApiServices() {
     // Add custom api service providers

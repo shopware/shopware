@@ -1,9 +1,3 @@
-const { Application, State } = Shopware;
-const utils = Shopware.Utils;
-const { types } = Shopware.Utils;
-const { deepCopyObject, hasOwnProperty } = Shopware.Utils.object;
-const ApiService = Shopware.Classes.ApiService;
-
 /**
  * @module core/data/EntityStore
  * @deprecated 6.1
@@ -25,10 +19,10 @@ export default class EntityStore {
         this._entityName = entityName;
         this.EntityClass = EntityClass;
 
-        const serviceContainer = Application.getContainer('service');
+        const serviceContainer = Shopware.Application.getContainer('service');
         this.versionId = serviceContainer.context.liveVersionId;
 
-        if (types.isString(apiService)) {
+        if (Shopware.Utils.types.isString(apiService)) {
             this.apiService = serviceContainer[apiService];
         } else {
             this.apiService = apiService;
@@ -60,8 +54,11 @@ export default class EntityStore {
             }
         }
 
+        const ApiService = Shopware.Classes.ApiService;
         const entity = this.create(id);
-        const headers = Object.assign(EntityStore.getLanguageHeader(languageId), ApiService.getVersionHeader(versionId));
+        const headers = Object.assign(
+            EntityStore.getLanguageHeader(languageId), ApiService.getVersionHeader(versionId)
+        );
 
         entity.isLoading = true;
 
@@ -97,6 +94,7 @@ export default class EntityStore {
 
         const entity = this.create(id);
 
+        const ApiService = Shopware.Classes.ApiService;
         const headers = Object.assign(EntityStore.getLanguageHeader(languageId), ApiService.getVersionHeader(versionId));
 
         entity.isLoading = true;
@@ -154,7 +152,7 @@ export default class EntityStore {
      * @return {EntityStore}
      */
     getLanguageStore() {
-        return State.getStore('language');
+        return Shopware.State.getStore('language');
     }
 
     /**
@@ -164,7 +162,7 @@ export default class EntityStore {
      * @param {String} id
      * @return {EntityProxy}
      */
-    create(id = utils.createId()) {
+    create(id = Shopware.Utils.createId()) {
         if (this.hasId(id) && !this.store[id].deleted) {
             return this.store[id];
         }
@@ -187,7 +185,8 @@ export default class EntityStore {
      * @return {EntityProxy}
      */
     duplicate(id, includeAssociations = false) {
-        const newId = utils.createId();
+        const newId = Shopware.Utils.createId();
+        const deepCopyObject = Shopware.Utils.object.deepCopyObject;
 
         this.store[newId] = new this.EntityClass(this.getEntityName(), this.apiService, newId, this);
 
@@ -225,7 +224,7 @@ export default class EntityStore {
      * @return {boolean}
      */
     add(entity) {
-        if (!hasOwnProperty(entity, 'id')) {
+        if (!Shopware.Utils.object.hasOwnProperty(entity, 'id')) {
             return false;
         }
 
@@ -252,7 +251,7 @@ export default class EntityStore {
      * @return {boolean}
      */
     remove(entity) {
-        if (!hasOwnProperty(entity, 'id') || !this.hasId(entity.id)) {
+        if (!Shopware.Utils.object.hasOwnProperty(entity, 'id') || !this.hasId(entity.id)) {
             return false;
         }
 
@@ -296,7 +295,7 @@ export default class EntityStore {
      * @return {EntityStore}
      */
     forEach(iterator, scope = this) {
-        if (!types.isFunction(iterator)) {
+        if (!Shopware.Utils.types.isFunction(iterator)) {
             return this.store;
         }
 
@@ -319,7 +318,7 @@ export default class EntityStore {
         if (!languageId || languageId.length < 1) {
             languageId = this.getLanguageStore().getCurrentId();
         }
-        const serviceContainer = Application.getContainer('service');
+        const serviceContainer = Shopware.Application.getContainer('service');
         const syncService = serviceContainer.syncService;
         let payload = this.getDeletionPayload();
 

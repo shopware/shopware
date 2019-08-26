@@ -1,10 +1,6 @@
 /**
  * @module core/factory/router
  */
-import { hasOwnProperty } from 'src/core/service/utils/object.utils';
-import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
-
-const { Application } = Shopware;
 
 /**
  * Initializes the router for the application.
@@ -17,8 +13,8 @@ const { Application } = Shopware;
  * @returns {{}}
  */
 export default function createRouter(Router, View, moduleFactory, LoginService) {
-    let allRoutes = [];
-    let moduleRoutes = [];
+    const allRoutes = [];
+    const moduleRoutes = [];
     let instance = null;
 
     return {
@@ -37,12 +33,25 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {VueRouter} router
      */
     function createRouterInstance(opts = {}) {
-        const mergedRoutes = registerModuleRoutesAsChildren(allRoutes, moduleRoutes);
+        // convert moduleRoutes to view Route
+        const viewModuleRoutes = moduleRoutes.map((route) => {
+            return convertRouteComponentToViewComponent(route);
+        });
 
+        // convert allRoutes to view Route
+        const viewAllRoutes = allRoutes.map((route) => {
+            return convertRouteComponentToViewComponent(route);
+        });
+
+        // merge all routes together
+        const mergedRoutes = registerModuleRoutesAsChildren(viewAllRoutes, viewModuleRoutes);
+
+        // assign to view router options
         const options = Object.assign({}, opts, {
             routes: mergedRoutes
         });
 
+        // create router
         const router = new Router(options);
 
         beforeRouterInterceptor(router);
@@ -74,7 +83,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         router.beforeEach((to, from, next) => {
             setModuleFavicon(to, assetPath);
             const loggedIn = LoginService.isLoggedIn();
-            const tokenHandler = new RefreshTokenHelper();
+            const tokenHandler = new Shopware.Helper.RefreshTokenHelper();
             const loginWhitelist = [
                 '/login', '/login/info', '/login/recovery'
             ];
@@ -241,11 +250,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {Array} moduleRoutes - converted routes array
      */
     function addModuleRoutes(routes) {
-        routes.map((route) => {
-            return convertRouteComponentToViewComponent(route);
-        });
-
-        moduleRoutes = [...moduleRoutes, ...routes];
+        moduleRoutes.push(...routes);
 
         return moduleRoutes;
     }
@@ -260,11 +265,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {Array} allRoutes - converted routes array
      */
     function addRoutes(routes) {
-        routes.map((route) => {
-            return convertRouteComponentToViewComponent(route);
-        });
-
-        allRoutes = [...allRoutes, ...routes];
+        allRoutes.push(...routes);
 
         return allRoutes;
     }
@@ -279,6 +280,8 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {Object} route - Converted route definition
      */
     function convertRouteComponentToViewComponent(route) {
+        const hasOwnProperty = Shopware.Utils.object.hasOwnProperty;
+
         if (hasOwnProperty(route, 'components') && Object.keys(route.components).length) {
             const componentList = {};
 
@@ -340,11 +343,11 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * @returns {Vue|null} - View component or null
      */
     function getViewComponent(componentName) {
-        return Application.view.getComponent(componentName);
+        return Shopware.Application.view.getComponent(componentName);
     }
 
     function getAssetPath() {
-        const initContainer = Application.getContainer('init');
+        const initContainer = Shopware.Application.getContainer('init');
         const context = initContainer.contextService;
         return context.assetsPath;
     }

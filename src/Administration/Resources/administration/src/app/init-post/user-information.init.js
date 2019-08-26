@@ -4,11 +4,12 @@ const { State } = Shopware;
 
 export default function initializeUserContext(container) {
     const serviceContainer = this.getContainer('service');
-    const loginService = serviceContainer.loginService;
-    const userService = serviceContainer.userService;
-    const contextService = container.contextService;
 
     return new Promise((resolve) => {
+        const loginService = serviceContainer.loginService;
+        const contextService = container.contextService;
+        const userService = serviceContainer.userService;
+
         // The user isn't logged in
         if (!loginService.isLoggedIn()) {
             // Remove existing login info from the locale storage

@@ -1,9 +1,10 @@
-import { mapApiErrors } from 'src/app/service/map-errors.service';
+import { } from 'src/app/service/map-errors.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
 
 const { Component, Mixin, State } = Shopware;
+const { mapApiErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-manufacturer-detail', {
     template,

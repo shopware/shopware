@@ -1,5 +1,7 @@
 /** Initializer */
 import initializers from 'src/app/init';
+import preInitializer from 'src/app/init-pre/';
+import postInitializer from 'src/app/init-post/';
 
 /** View Adapter */
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
@@ -20,6 +22,8 @@ import LicenseViolationsService from 'src/app/service/license-violations.service
 import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listener.service';
+
+/** Import decorators */
 import 'src/app/decorator';
 
 /** Import global styles */
@@ -31,19 +35,16 @@ const { Application } = Shopware;
 const factoryContainer = Application.getContainer('factory');
 
 /** Create View Adapter */
-const adapter = new VueAdapter({
-    componentFactory: factoryContainer.component,
-    stateFactory: factoryContainer.state,
-    filterFactory: factoryContainer.filter,
-    directiveFactory: factoryContainer.directive,
-    localeFactory: factoryContainer.locale
-});
+const adapter = new VueAdapter(Application);
 
 Application.setViewAdapter(adapter);
 
-// Add initializers
-Object.keys(initializers).forEach((key) => {
-    const initializer = initializers[key];
+// Merge all initializer
+const allInitializers = { ...preInitializer, ...initializers, ...postInitializer };
+
+// Add initializers to application
+Object.keys(allInitializers).forEach((key) => {
+    const initializer = allInitializers[key];
     Application.addInitializer(key, initializer);
 });
 

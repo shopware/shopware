@@ -1,8 +1,8 @@
-import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-customer-base-form.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapApiErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-customer-base-form', {
     template,

@@ -19,13 +19,16 @@ const storeRegistry = new Map();
  *
  * @param name
  * @param store
+ * @return {any}
  */
 function registerStore(name, store) {
     if (!name || !name.length) {
-        return;
+        return null;
     }
 
     storeRegistry.set(name, store);
+
+    return getStore(name);
 }
 
 /**

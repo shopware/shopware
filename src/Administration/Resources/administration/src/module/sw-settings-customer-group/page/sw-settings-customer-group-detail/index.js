@@ -1,7 +1,7 @@
-import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-customer-group-detail.html.twig';
 
 const { Component, State, Mixin } = Shopware;
+const { mapApiErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-customer-group-detail', {
     template,

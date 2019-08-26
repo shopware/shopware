@@ -1,10 +1,8 @@
-import { State, EntityDefinition } from 'src/core/shopware';
-
-const ShopwareError = Shopware.Classes.ShopwareError;
-
 export default class ErrorResolver {
     constructor() {
-        this.errorStore = State.getStore('error');
+        this.EntityDefinition = Shopware.EntityDefinition;
+        this.ShopwareError = Shopware.Classes.ShopwareError;
+        this.errorStore = Shopware.State.getStore('error');
     }
 
     resetApiErrors() {
@@ -22,7 +20,7 @@ export default class ErrorResolver {
         }
 
         const errors = response.data.errors;
-        const definition = EntityDefinition.get(entity.getEntityName());
+        const definition = this.EntityDefinition.get(entity.getEntityName());
 
         const systemErrors = [];
         errors.forEach((error) => {
@@ -93,7 +91,7 @@ export default class ErrorResolver {
             return;
         }
 
-        this.errorStore.addApiError(this.getErrorPath(entity, fieldName), new ShopwareError(error));
+        this.errorStore.addApiError(this.getErrorPath(entity, fieldName), new this.ShopwareError(error));
     }
 
     /**
@@ -105,7 +103,7 @@ export default class ErrorResolver {
      * @param systemErrors
      */
     resolveToManyAssociationError(error, currentField, entityCollection, changeset, systemErrors) {
-        const definition = EntityDefinition.get(entityCollection.entity);
+        const definition = this.EntityDefinition.get(entityCollection.entity);
         if (!definition) {
             systemErrors.push(error);
             return;
@@ -128,7 +126,7 @@ export default class ErrorResolver {
      */
     resolveJsonField(jsonField, subFields, error, entity) {
         const fieldPath = `${jsonField}${subFields.replace(/\//g, '.')}`;
-        this.errorStore.addApiError(this.getErrorPath(entity, fieldPath), new ShopwareError(error));
+        this.errorStore.addApiError(this.getErrorPath(entity, fieldPath), new this.ShopwareError(error));
     }
 
     /**
@@ -165,7 +163,7 @@ export default class ErrorResolver {
             throw new Error(`[ErrorResolver] translatable field ${fieldName}`);
         }
 
-        this.errorStore.addApiError(this.getErrorPath(entity, fieldName), new ShopwareError(error));
+        this.errorStore.addApiError(this.getErrorPath(entity, fieldName), new this.ShopwareError(error));
     }
 
     /**

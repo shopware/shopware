@@ -1,7 +1,8 @@
-import { Application } from 'src/core/shopware';
 import EventEmitter from 'events';
 import CodeGenerator from '../service/code-generator.service';
 import Criteria from '../../../core/data-new/criteria.data';
+
+const { Application } = Shopware;
 
 export default class IndividualCodeGenerator extends EventEmitter {
     /**

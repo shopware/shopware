@@ -20,7 +20,7 @@
 
     <link rel="stylesheet" href="{{ asset('bundles/administration/static/css/vendors-node.css') }}?{{ 'now'|date('U') }}">
     <link rel="stylesheet" href="{{ asset('bundles/administration/static/css/app.css') }}?{{ 'now'|date('U') }}">
-    {% block administration_stylesheets %}{% endblock %}
+
 </head>
 <body>
 
@@ -30,11 +30,8 @@
 
 <script src="{{ asset('bundles/administration/static/js/runtime.js') }}?{{ 'now'|date('U') }}"></script>
 <script src="{{ asset('bundles/administration/static/js/vendors-node.js') }}?{{ 'now'|date('U') }}"></script>
-<script src="{{ asset('bundles/administration/static/js/app.js') }}?{{ 'now'|date('U') }}"></script>
 <script src="{{ asset('bundles/administration/static/js/commons.js') }}?{{ 'now'|date('U') }}"></script>
-
-{# Plugins #}
-{% block administration_scripts %}{% endblock %}
+<script src="{{ asset('bundles/administration/static/js/app.js') }}?{{ 'now'|date('U') }}"></script>
 
 <script>
     /*

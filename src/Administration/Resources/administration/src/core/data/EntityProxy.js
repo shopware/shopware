@@ -1,14 +1,3 @@
-import { required } from 'src/core/service/validation.service';
-import type from 'src/core/service/utils/types.utils';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
-import AssociationStore from './AssociationStore';
-import EntityStore from './EntityStore';
-
-const { Application, Entity, State } = Shopware;
-const utils = Shopware.utils;
-const { deepCopyObject, hasOwnProperty, getArrayChanges, getObjectDiff } = Shopware.Utils.object;
-const ApiService = Shopware.Classes.ApiService;
-
 /**
  * @module core/data/EntityProxy
  * @deprecated 6.1
@@ -31,9 +20,15 @@ export default class EntityProxy {
     constructor(
         entityName,
         apiService,
-        id = utils.createId(),
+        id = Shopware.Utils.createId(),
         store = null
     ) {
+        /**
+         * Load dependecies
+         * @type {String}
+         */
+        this.deepCopyObject = Shopware.Utils.object.deepCopyObject;
+
         this.id = id;
         this._entityName = entityName;
 
@@ -92,7 +87,7 @@ export default class EntityProxy {
          *
          * @type {Object}
          */
-        this.original = Entity.getRawEntityObject(this.entitySchema);
+        this.original = Shopware.Entity.getRawEntityObject(this.entitySchema);
         this.original.id = id;
 
         /**
@@ -101,9 +96,9 @@ export default class EntityProxy {
          *
          * @type {Object}
          */
-        this.draft = deepCopyObject(this.original);
+        this.draft = this.deepCopyObject(this.original);
 
-        this.currentLanguageId = State.getStore('language').getCurrentId();
+        this.currentLanguageId = Shopware.State.getStore('language').getCurrentId();
 
         this.createAssociatedStores();
 
@@ -203,7 +198,7 @@ export default class EntityProxy {
         }
 
         this.draft = draft;
-        this.original = deepCopyObject(data);
+        this.original = this.deepCopyObject(data);
         this.isLocal = false;
     }
 
@@ -242,7 +237,7 @@ export default class EntityProxy {
      * @return {void}
      */
     discardChanges(includeAssociations = true) {
-        this.draft = deepCopyObject(this.original);
+        this.draft = this.deepCopyObject(this.original);
 
         if (includeAssociations) {
             this.discardAssociationChanges();
@@ -256,7 +251,7 @@ export default class EntityProxy {
      * @return {void}
      */
     applyChanges() {
-        this.original = deepCopyObject(this.draft);
+        this.original = this.deepCopyObject(this.draft);
     }
 
     /**
@@ -306,11 +301,12 @@ export default class EntityProxy {
      * @return {Promise}
      */
     sendCreateRequest(changes, changedAssociations) {
+        const ApiService = Shopware.Classes.ApiService;
         changes.id = this.id;
 
         this.isLoading = true;
 
-        let additionalHeaders = EntityStore.getLanguageHeader(this.currentLanguageId);
+        let additionalHeaders = Shopware.DataDeprecated.EntityStore.getLanguageHeader(this.currentLanguageId);
         if (this.versionId) {
             additionalHeaders = Object.assign(additionalHeaders, ApiService.getVersionHeader(this.versionId));
         }
@@ -345,9 +341,10 @@ export default class EntityProxy {
      * @return {Promise}
      */
     sendUpdateRequest(changes, changedAssociations = {}) {
+        const ApiService = Shopware.Classes.ApiService;
         this.isLoading = true;
 
-        let additionalHeaders = EntityStore.getLanguageHeader(this.currentLanguageId);
+        let additionalHeaders = Shopware.DataDeprecated.EntityStore.getLanguageHeader(this.currentLanguageId);
         if (this.versionId) {
             additionalHeaders = Object.assign(additionalHeaders, ApiService.getVersionHeader(this.versionId));
         }
@@ -389,7 +386,7 @@ export default class EntityProxy {
 
             const limit = 50;
             const pages = Math.ceil(associationIds.length / limit);
-            const criteria = CriteriaFactory.equalsAny('id', associationIds);
+            const criteria = Shopware.DataDeprecated.CriteriaFactory.equalsAny('id', associationIds);
 
             for (let i = 1; i <= pages; i += 1) {
                 association.getList({ page: i, limit, criteria, versionId: this.versionId }, false);
@@ -418,7 +415,7 @@ export default class EntityProxy {
 
         let additionalHeaders = {};
         if (this.versionId) {
-            additionalHeaders = ApiService.getVersionHeader(this.versionId);
+            additionalHeaders = Shopware.Classes.ApiService.getVersionHeader(this.versionId);
         }
 
         return this.apiService.delete(this.id, {}, additionalHeaders).then(() => {
@@ -456,6 +453,9 @@ export default class EntityProxy {
      * @return {Boolean}
      */
     validate(data = this.draft) {
+        const required = Shopware.Application.getContainer('service').validationService.required;
+        console.log('required', required);
+
         return this.requiredProperties.every((property) => {
             return required(data[property]);
         });
@@ -501,20 +501,20 @@ export default class EntityProxy {
     createAssociatedStores() {
         const associationDefinitions = this.associatedEntityPropDefinitions;
 
-        const initContainer = Application.getContainer('init');
-        const serviceContainer = Application.getContainer('service');
+        const initContainer = Shopware.Application.getContainer('init');
+        const serviceContainer = Shopware.Application.getContainer('service');
 
         Object.keys(associationDefinitions).forEach((prop) => {
             const definition = associationDefinitions[prop];
             const apiEndPoint = `${this.kebabEntityName}/${this.id}/${prop}`;
 
-            const apiService = new ApiService(
+            const apiService = new Shopware.Classes.ApiService(
                 initContainer.httpClient,
                 serviceContainer.loginService,
                 apiEndPoint
             );
 
-            this.associations[prop] = new AssociationStore(
+            this.associations[prop] = new Shopware.DataDeprecated.AssociationStore(
                 definition.entity,
                 apiService,
                 EntityProxy,
@@ -691,10 +691,12 @@ export default class EntityProxy {
      * @param {Object} schema
      * @return {Object}
      */
-    getChanges(a = this.original, b = this.draft, schema = Entity.getDefinition(this.getEntityName())) {
+    getChanges(a = this.original, b = this.draft, schema = Shopware.Entity.getDefinition(this.getEntityName())) {
         const properties = schema.properties;
         const propertyList = Object.keys(properties);
-        const blacklist = Entity.getPropertyBlacklist();
+        const blacklist = Shopware.Entity.getPropertyBlacklist();
+        const Entity = Shopware.Entity;
+        const type = Shopware.Utils.types;
 
         if (a === b) {
             return {};
@@ -719,7 +721,7 @@ export default class EntityProxy {
             }
 
             // The property does not exist in the base object, so it is an addition
-            if (!hasOwnProperty(a, key)) {
+            if (!Shopware.Utils.object.hasOwnProperty(a, key)) {
                 // The property is a OneToOne associated entity
                 if (type.isPlainObject(b[key]) && properties[key].entity) {
                     const addition = EntityProxy.validateSchema(b[key], Entity.getDefinition(properties[key].entity));
@@ -800,7 +802,7 @@ export default class EntityProxy {
                     return acc;
                 }
 
-                return { ...acc, [key]: deepCopyObject(b[key]) };
+                return { ...acc, [key]: this.deepCopyObject(b[key]) };
             }
 
             // The property is a OneToMany associated entity
@@ -810,7 +812,7 @@ export default class EntityProxy {
 
             // The property is a normal array
             if (type.isArray(b[key])) {
-                const changes = getArrayChanges(a[key], b[key]);
+                const changes = Shopware.Utils.object.getArrayChanges(a[key], b[key]);
 
                 if (changes.length <= 0) {
                     return acc;
@@ -821,7 +823,7 @@ export default class EntityProxy {
 
             // The property is a normal object
             if (type.isPlainObject(b[key])) {
-                const changes = getObjectDiff(a[key], b[key]);
+                const changes = Shopware.Utils.object.getObjectDiff(a[key], b[key]);
 
                 if (Object.keys(changes).length <= 0) {
                     return acc;
@@ -879,7 +881,7 @@ export default class EntityProxy {
     static validateSchema(obj, schema) {
         const properties = schema.properties;
         const propertyList = Object.keys(properties);
-        const blacklist = Entity.getPropertyBlacklist();
+        const blacklist = Shopware.Entity.getPropertyBlacklist();
 
         return Object.keys(obj).reduce((acc, key) => {
             if (!propertyList.includes(key) || blacklist.includes(key)) {
@@ -934,7 +936,7 @@ export default class EntityProxy {
      * @return {*}
      */
     get entitySchema() {
-        return Entity.getDefinition(this.getEntityName());
+        return Shopware.Entity.getDefinition(this.getEntityName());
     }
 
     /**
@@ -944,7 +946,7 @@ export default class EntityProxy {
      * @return {*}
      */
     get requiredProperties() {
-        return Entity.getRequiredProperties(this.getEntityName());
+        return Shopware.Entity.getRequiredProperties(this.getEntityName());
     }
 
     /**
@@ -954,7 +956,7 @@ export default class EntityProxy {
      * @return {*}
      */
     get translatableProperties() {
-        return Entity.getTranslatableProperties(this.getEntityName());
+        return Shopware.Entity.getTranslatableProperties(this.getEntityName());
     }
 
     /**
@@ -964,7 +966,7 @@ export default class EntityProxy {
      * @return {*}
      */
     get associatedEntityPropNames() {
-        return Entity.getAssociatedProperties(this.getEntityName());
+        return Shopware.Entity.getAssociatedProperties(this.getEntityName());
     }
 
     /**

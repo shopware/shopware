@@ -1,8 +1,8 @@
-import { mapGetters } from 'vuex';
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
 const { Component, Mixin, State } = Shopware;
+const { mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-media-form', {
     template,

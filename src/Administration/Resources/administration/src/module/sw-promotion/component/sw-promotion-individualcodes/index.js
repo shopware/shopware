@@ -1,11 +1,13 @@
-import { Component, Mixin } from 'src/core/shopware';
-import { string } from 'src/core/service/util.service';
-import { mapApiErrors } from 'src/app/service/map-errors.service';
-import Criteria from 'src/core/data-new/criteria.data';
 import IndividualCodeGenerator from '../../service/individual-code-generator.service';
 import entityHydrator from '../../helper/code-entity-hydrator.helper';
 import template from './sw-promotion-individualcodes.html.twig';
 import './sw-promotion-individualcodes.scss';
+
+const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { Component, Mixin } = Shopware;
+const { string } = Shopware.Utils;
+const Criteria = Shopware.Data.Criteria;
+
 
 /**
  * @description This component helps to manage individual

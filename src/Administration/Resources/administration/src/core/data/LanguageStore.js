@@ -1,7 +1,5 @@
 import EntityStore from './EntityStore';
 
-const { Application } = Shopware;
-
 /**
  * @module core/data/LanguageStore
  * @deprecated 6.1
@@ -15,7 +13,7 @@ export default class LanguageStore extends EntityStore {
     ) {
         super('language', apiService, EntityClass);
 
-        this.systemLanguageId = Application.getContainer('init').contextService.systemLanguageId;
+        this.systemLanguageId = Shopware.Application.getContainer('init').contextService.systemLanguageId;
 
         if (!currentLanguageId || !currentLanguageId.length) {
             currentLanguageId = this.systemLanguageId;
@@ -32,7 +30,7 @@ export default class LanguageStore extends EntityStore {
      */
     setCurrentId(languageId) {
         this.currentLanguageId = languageId;
-        Application.getContainer('init').contextService.languageId = languageId;
+        Shopware.Application.getContainer('init').contextService.languageId = languageId;
         return this.getByIdAsync(languageId);
     }
 

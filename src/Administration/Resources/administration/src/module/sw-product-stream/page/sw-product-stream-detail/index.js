@@ -3,7 +3,7 @@ import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 
 const { Component, Mixin, State } = Shopware;
-const { warn } = Shopware.Utils;
+const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-product-stream-detail', {
     template,

@@ -8,14 +8,16 @@ export default class ViewAdapter {
     /**
      * @constructor
      */
-    constructor({ componentFactory, stateFactory, filterFactory, directiveFactory, localeFactory }) {
-        this.componentFactory = componentFactory;
-        this.stateFactory = stateFactory;
-        this.filterFactory = filterFactory;
-        this.directiveFactory = directiveFactory;
-        this.localeFactory = localeFactory;
+    constructor(Application) {
+        this.Application = Application;
+        this.applicationFactory = Application.getContainer('factory');
+
+        this.componentFactory = this.applicationFactory.component;
+        this.stateFactory = this.applicationFactory.state;
+        this.localeFactory = this.applicationFactory.locale;
         this.root = null;
     }
+
 
     /**
      * Creates the main instance for the view layer.

@@ -1,4 +1,4 @@
-import ContextFactory from 'src/core/factory/context.factory';
+const ContextFactory = Shopware._private.ContextFactory;
 
 /**
  * Initializes the context of application. The context contains information about the installation path,

@@ -59,6 +59,9 @@ A list of all available icons can be found [here](https://component-library.shop
 ```js
 import './page/custom-module-overview';
 
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
+
 Shopware.Module.register('custom-module', {
     type: 'plugin',
     name: 'Custom',
@@ -72,9 +75,25 @@ Shopware.Module.register('custom-module', {
 You've registered your module, but neither does it have a navigation entry, nor does it have any routes
 to open, once your navigation item is clicked.
 
+### Snippets
+
+First thing to do is registering new snippets. It is recommended to release plugins with snippets for multiple languages
+included, to either provide snippet translations or at least make them possible. You may already have noticed the import
+statements for `deDE` or `enGB` in the example above. These are your files, which only have to be registered as snippets
+in order to work properly. This can be achieved by putting the following snippets right below the first block of information
+and register those files to their designated locale code:
+
+```js
+snippets: {
+    'de-DE': deDE,
+    'en-GB': enGB
+},
+```
+
+
 ### Routes
 
-Let's start with the routes, because a navigation entry will need a route to link to.
+In order to get the navigation working, every navigation entry needs an individual route to link to.
 
 A module's routes are defined using the `routes` property, which expects an object containing multiple route configuration objects.
 Each route is defined by its name, which is set using the configuration object's key, a component to link to and a path.
@@ -143,6 +162,9 @@ navigation: [{
 
 This is how your module should look like now:
 ```js
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
+
 Shopware.Module.register('custom-module', {
     type: 'plugin',
     name: 'Custom',
@@ -150,6 +172,11 @@ Shopware.Module.register('custom-module', {
     description: 'Description for your custom module',
     color: '#62ff80',
     icon: 'default-object-lab-flask',
+
+    snippets: {
+        'de-DE': deDE,
+        'en-GB': enGB
+    },
 
     routes: {
         overview: {

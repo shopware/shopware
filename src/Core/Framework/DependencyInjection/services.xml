@@ -139,6 +139,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Routing\RouteScopeListener">
+            <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!-- Translation -->
         <service id="Shopware\Core\Framework\Translation\Translator"
                  decorates="translator">
@@ -269,6 +276,22 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\RouteScope">
+            <tag name="shopware.route_scope"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\ApiRouteScope">
+            <tag name="shopware.route_scope"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\SalesChannelApiRouteScope">
+            <tag name="shopware.route_scope"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\RouteScopeRegistry">
+            <argument type="tagged" tag="shopware.route_scope"/>
         </service>
 
         <!-- Logging -->

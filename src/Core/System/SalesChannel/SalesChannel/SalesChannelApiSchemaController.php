@@ -5,11 +5,15 @@ namespace Shopware\Core\System\SalesChannel\SalesChannel;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\Exception\ApiBrowserNotPublicException;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"api"})
+ */
 class SalesChannelApiSchemaController extends AbstractController
 {
     /**
@@ -29,7 +33,7 @@ class SalesChannelApiSchemaController extends AbstractController
     }
 
     /**
-     * @Route("/sales-channel-api/v{version}/_info/openapi3.json", name="sales-channel-api.info.openapi3", methods={"GET"}, defaults={"auth_required"=false})
+     * @Route("/sales-channel-api/v{version}/_info/openapi3.json", name="sales-channel-api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
      */
@@ -45,7 +49,7 @@ class SalesChannelApiSchemaController extends AbstractController
     }
 
     /**
-     * @Route("/sales-channel-api/v{version}/_info/open-api-schema.json", name="sales-channel-api.info.open-api-schema", methods={"GET"}, defaults={"auth_required"=false})
+     * @Route("/sales-channel-api/v{version}/_info/open-api-schema.json", name="sales-channel-api.info.open-api-schema", methods={"GET"})
      */
     public function openApiSchema(): JsonResponse
     {
@@ -59,7 +63,7 @@ class SalesChannelApiSchemaController extends AbstractController
     }
 
     /**
-     * @Route("/sales-channel-api/v{version}/_info/swagger.html", name="sales-channel-api.info.swagger", methods={"GET"}, defaults={"auth_required"=false})
+     * @Route("/sales-channel-api/v{version}/_info/swagger.html", name="sales-channel-api.info.swagger", methods={"GET"})
      */
     public function infoHtml(): Response
     {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Update\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Update\Event\UpdateFinishedEvent;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\ApiClient;
@@ -23,6 +24,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"api"})
+ */
 class UpdateController extends AbstractController
 {
     public const UPDATE_TOKEN_KEY = 'core.update.token';

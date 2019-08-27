@@ -4,10 +4,14 @@ namespace Shopware\Core\Content\Product\Api;
 
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"api"})
+ */
 class ProductActionController extends AbstractController
 {
     /**

@@ -2,11 +2,15 @@
 
 namespace Shopware\Core\Framework\ScheduledTask\Api;
 
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"api"})
+ */
 class ScheduledTaskController extends AbstractController
 {
     /**

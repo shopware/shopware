@@ -47,6 +47,7 @@ You can use them with every URL in your templates
       The second parameter `$criteria` has been removed. Use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::getAssociation` instead.  
     * Changed the name of `core.<locale>.json` to `messages.<locale>.json` and changed to new base file.
     * Changed name of property in CurrencyDefinition from `isDefault` to `isSystemDefault`
+    * Added RouteScopes as required Annotation for all Routes
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
     * Changed the name of `messages.<locale>.json` to `storefront.<locale>.json` and changed to **not** be a base file anymore.

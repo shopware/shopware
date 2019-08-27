@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\MailTemplate\Api;
 
 use Shopware\Core\Content\MailTemplate\Service\MailService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -12,6 +13,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"api"})
+ */
 class MailActionController extends AbstractController
 {
     /**

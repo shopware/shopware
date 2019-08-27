@@ -40,6 +40,16 @@ trait ElasticsearchTestTestBehaviour
             ->setEnabled(false);
     }
 
+    /**
+     * @afterClass
+     */
+    public static function cleanupElasticsearchIndices()
+    {
+        $self = new self();
+        $self->getDiContainer()->get(Client::class)
+            ->indices()->delete(['index' => '_all']);
+    }
+
     public function indexElasticSearch(): void
     {
         $this->getDiContainer()

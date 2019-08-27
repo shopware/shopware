@@ -24,7 +24,7 @@ Current implemented RouteScopes are:
 * administration - *AdministrationRouteScope* - Scope for Administration-Routes. Only allowed when basePath begins with "/admin".
 * storeront - *StorefrontRouteScope* - Scope for Storefront-Routes. Only allowed when request is a qualified SalesChannelRequest.
 
-When multiple scopes are defined for one Route, it is an OR conjunction - if one RouteScoep matches the request, the Route will be allowed to process.
+When multiple scopes are defined for one Route, it is an OR conjunction - if one RouteScope matches the request, the Route will be allowed to process.
 
 The RouteScopeInterface defines the public methods 
 * *isAllowedPath(string $path):bool* to determine if a given route path is allowed. 

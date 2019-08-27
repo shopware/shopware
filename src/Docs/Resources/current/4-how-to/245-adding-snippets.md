@@ -1,5 +1,5 @@
-[titleEn]: <>(Extending snippets)
-[metaDescriptionEn]: <>(Learn here how to extend Shopwares snippet files for the administration and the storefront)
+[titleEn]: <>(Adding snippets)
+[metaDescriptionEn]: <>(Learn here how to add and extend Shopwares snippet files for the administration and the storefront)
 
 ## Overview
 
@@ -95,12 +95,10 @@ Language packs for that matter are available via the Shopware plugin store.
 Here's a simple example: 
 
 ```js
-import { Module } from 'src/core/shopware';
-
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
-Module.register('custom-module', {
+Shopware.Module.register('custom-module', {
     type: 'plugin',
     // ...
     
@@ -208,10 +206,9 @@ only thing you have to do is to register a basic snippet `.json` file and associ
 should look like this:
 
 ```js
-const { Application } = Shopware;
 import deAT from './snippet/de-AT.json';
 
-Application.addInitializerDecorator('locale', (localeFactory) => {
+Shopware.Application.addInitializerDecorator('locale', (localeFactory) => {
     const locale = 'de-AT';
     localeFactory.register(locale, deAT);
 

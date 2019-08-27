@@ -96,7 +96,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
 
         if ($plugins->count() === 0) {
             $io->warning('No plugins found');
-            $io->text('Try the plugin:refresh command first, or change your search term');
+            $io->text('Try the plugin:refresh command first, run composer update for changes in the plugin\'s composer.json, or change your search term');
 
             return $plugins;
         }

@@ -86,14 +86,16 @@
                     <sw-field type="number"
                               v-model="discount.maxValue"
                               :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')"
-                              :disabled="isEditingDisabled">
+                              :helpText="maxValueAdvancedPricesTooltip"
+                              :disabled="isEditingDisabled"
+                              @change="onMaxValueChanged">
                         <template #suffix>
                             {{ maxValueSuffix }}
                         </template>
                     </sw-field>
                 {% endblock %}
                 {% block sw_promotion_discount_max_value_advanced_prices %}
-                    <a @click="onClickAdvancedPrices" class="sw-card__quick-link advanced-prices">
+                    <a @click="onClickAdvancedPrices" class="sw-card__quick-link advanced-prices" v-if="showMaxValueAdvancedPrices">
                         {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
                         <sw-icon name="default-arrow-simple-right" small></sw-icon>
                     </a>

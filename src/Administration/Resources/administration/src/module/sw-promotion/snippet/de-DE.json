@@ -158,6 +158,7 @@
           "card": "Rabatt",
           "labelValue": "Wert",
           "labelMaxValue": "Maximaler Rabatt",
+          "helpTextMaxValueAdvancedPrices": "Der maximale Betrag besitzt erweiterte Preise.",
           "placeholderValue": "Gib den Wert der Rabattaktion an ...",
           "labelScope": "Anwenden auf:",
           "flagProductScopeLabel": "Nur auf ausgewählte Produkte anwenden",

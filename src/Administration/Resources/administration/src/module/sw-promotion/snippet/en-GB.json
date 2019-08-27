@@ -158,6 +158,7 @@
           "card": "Discount",
           "labelValue": "Value",
           "labelMaxValue": "Maximum discount",
+          "helpTextMaxValueAdvancedPrices": "The maximum discount value has advanced prices.",
           "placeholderValue": "Enter either a percentage or an absolute value...",
           "labelScope": "Apply to:",
           "flagProductScopeLabel": "Apply to specific range of products",

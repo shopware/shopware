@@ -79,6 +79,8 @@
                                 </a>
                             {% endblock %}
 
+                            {{ product.productNumber }}
+
                             {% block component_product_box_description %}
                                 <div class="product-description">
                                     {{ product.translated.description|striptags }}

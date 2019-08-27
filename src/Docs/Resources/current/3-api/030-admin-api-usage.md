@@ -540,7 +540,6 @@ List of products with their media associations limited to one.
                 "012898efd28d4ab18866b9e277deb273",
                 "08b5071307c341e8aba2de8319093e37"
             ],
-            "displayInListing": true,
             "additionalText": null,
             "name": "Practical Wool CompuBooth",
             "keywords": null,

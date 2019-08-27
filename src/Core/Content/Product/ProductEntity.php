@@ -66,6 +66,11 @@ class ProductEntity extends Entity
     protected $active;
 
     /**
+     * @var string
+     */
+    protected $displayGroup;
+
+    /**
      * @var PriceCollection|null
      */
     protected $price;
@@ -199,11 +204,6 @@ class ProductEntity extends Entity
      * @var array|null
      */
     protected $propertyIds;
-
-    /**
-     * @var bool
-     */
-    protected $displayInListing;
 
     /**
      * @var string|null
@@ -1033,16 +1033,6 @@ class ProductEntity extends Entity
         $this->configuratorGroupConfig = $configuratorGroupConfig;
     }
 
-    public function getDisplayInListing(): bool
-    {
-        return $this->displayInListing;
-    }
-
-    public function setDisplayInListing(bool $displayInListing): void
-    {
-        $this->displayInListing = $displayInListing;
-    }
-
     public function getAvailableStock(): ?int
     {
         return $this->availableStock;
@@ -1101,5 +1091,15 @@ class ProductEntity extends Entity
     public function setRatingAverage(?float $ratingAverage): void
     {
         $this->ratingAverage = $ratingAverage;
+    }
+
+    public function getDisplayGroup(): string
+    {
+        return $this->displayGroup;
+    }
+
+    public function setDisplayGroup(string $displayGroup): void
+    {
+        $this->displayGroup = $displayGroup;
     }
 }

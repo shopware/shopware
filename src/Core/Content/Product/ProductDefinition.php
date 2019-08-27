@@ -123,7 +123,7 @@ class ProductDefinition extends EntityDefinition
             (new BoolField('available', 'available'))->addFlags(new WriteProtected()),
 
             (new JsonField('variant_restrictions', 'variantRestrictions'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
-            new BoolField('display_in_listing', 'displayInListing'),
+            (new StringField('display_group', 'displayGroup'))->addFlags(new WriteProtected()),
 
             (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
 

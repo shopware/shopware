@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -87,6 +88,12 @@ class RequestCriteriaBuilder
 
         if (isset($payload['filter'])) {
             $this->addFilter($definition, $payload, $criteria, $searchException);
+        }
+
+        if (isset($payload['grouping'])) {
+            foreach ($payload['grouping'] as $groupField) {
+                $criteria->addGroupField(new FieldGrouping($groupField));
+            }
         }
 
         if (isset($payload['post-filter'])) {

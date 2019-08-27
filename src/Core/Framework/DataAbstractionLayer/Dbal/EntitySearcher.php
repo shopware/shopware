@@ -88,11 +88,7 @@ class EntitySearcher implements EntitySearcherInterface
             $this->addIdCondition($criteria, $definition, $query);
         }
 
-        if ($query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
-            $query->addGroupBy(
-                EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
-            );
-        }
+        $this->addGroupBy($definition, $criteria, $context, $query, $table);
 
         //add pagination
         if ($criteria->getOffset() !== null) {
@@ -179,7 +175,7 @@ class EntitySearcher implements EntitySearcherInterface
             return;
         }
 
-        if ($query->hasState('_score')) {
+        if ($query->hasState('_score') || \count($criteria->getGroupFields())) {
             $selects = $query->getQueryPart('select');
             $selects[0] = 'SQL_CALC_FOUND_ROWS ' . $selects[0];
             $query->select($selects);
@@ -192,7 +188,7 @@ class EntitySearcher implements EntitySearcherInterface
             return \count($data);
         }
 
-        if ($query->hasState('_score')) {
+        if ($query->hasState('_score') || !empty($query->getQueryPart('groupBy'))) {
             return (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
         }
 
@@ -219,5 +215,24 @@ class EntitySearcher implements EntitySearcherInterface
         $query->resetQueryPart('orderBy');
 
         return (int) $query->execute()->fetchColumn();
+    }
+
+    private function addGroupBy(EntityDefinition $definition, Criteria $criteria, Context $context, QueryBuilder $query, string $table): void
+    {
+        if ($criteria->getGroupFields()) {
+            foreach ($criteria->getGroupFields() as $grouping) {
+                $accessor = $this->getDefinitionHelper()->getFieldAccessor($grouping->getField(), $definition, $definition->getEntityName(), $context);
+
+                $query->addGroupBy($accessor);
+            }
+
+            return;
+        }
+
+        if ($query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
+            $query->addGroupBy(
+                EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
+            );
+        }
     }
 }

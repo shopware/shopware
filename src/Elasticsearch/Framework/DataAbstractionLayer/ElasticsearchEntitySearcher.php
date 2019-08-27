@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
@@ -46,12 +47,14 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         $search = $this->createSearch($criteria, $definition, $context);
 
+        $search = $this->convertSearch($criteria, $definition, $context, $search);
+
         try {
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
                 'type' => $definition->getEntityName(),
                 'track_total_hits' => true,
-                'body' => $search->toArray(),
+                'body' => $search,
             ]);
         } catch (\Throwable $e) {
             $this->helper->logOrThrowException($e);
@@ -85,8 +88,10 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             return new IdSearchResult(0, [], $criteria, $context);
         }
 
+        $hits = $this->extractHits($result);
+
         $data = [];
-        foreach ($result['hits']['hits'] as $hit) {
+        foreach ($hits as $hit) {
             $id = $hit['_id'];
 
             $data[$id] = [
@@ -101,5 +106,56 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $total = (int) $result['hits']['total']['value'];
 
         return new IdSearchResult($total, $data, $criteria, $context);
+    }
+
+    private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search)
+    {
+        $array = $search->toArray();
+
+        if ($criteria->getGroupFields()) {
+            $array['collapse'] = $this->parseGrouping($criteria->getGroupFields());
+        }
+
+        return $array;
+    }
+
+    private function extractHits(array $result): array
+    {
+        $records = [];
+        $hits = $result['hits']['hits'];
+
+        foreach ($hits as $hit) {
+            if (!isset($hit['inner_hits'])) {
+                $records[] = $hit;
+                continue;
+            }
+
+            $nested = $this->extractHits($hit['inner_hits']['inner']);
+            foreach ($nested as $inner) {
+                $records[] = $inner;
+            }
+        }
+
+        return $records;
+    }
+
+    /**
+     * @param FieldGrouping[] $groupings
+     */
+    private function parseGrouping(array $groupings): array
+    {
+        $grouping = array_shift($groupings);
+
+        if (empty($groupings)) {
+            return ['field' => $grouping->getField()];
+        }
+
+        return [
+            'field' => $grouping->getField(),
+            'inner_hits' => [
+                'name' => 'inner',
+                'collapse' => $this->parseGrouping($groupings),
+            ],
+        ];
     }
 }

@@ -101,4 +101,22 @@ class IdSearchResult extends Struct
 
         return null;
     }
+
+    /**
+     * @param string|array $primaryKey
+     */
+    public function has($primaryKey): bool
+    {
+        if (!is_array($primaryKey)) {
+            return in_array($primaryKey, $this->ids, true);
+        }
+
+        foreach ($this->ids as $id) {
+            if ($id === $primaryKey) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

@@ -204,12 +204,6 @@
                     </template>
                 {% endblock %}
 
-                {% block sw_product_variants_overview_data_grid_column_display_in_listing %}
-                    <template slot="column-displayInListing" slot-scope="{ item, isInlineEdit }">
-                        <sw-data-grid-column-boolean v-model="item.displayInListing" :isInlineEdit="false" />
-                    </template>
-                {% endblock %}
-
                 {% block sw_product_variants_overview_data_grid_action_modals %}
                     <template slot="action-modals" slot-scope="{ item }">
                         <sw-modal v-if="showDeleteModal === item.id"

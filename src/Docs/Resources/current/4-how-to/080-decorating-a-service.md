@@ -26,8 +26,8 @@ Here's an example `services.xml`:
     <services>
         <service id="Swag\ServiceDecoration\Service\MyService" />
 
-        <service id="Swag\ServiceDecoration\Service\DecoratedService" decorates="Swag\ServiceDecoration\Service\MyService">
-            <argument type="service" id="Swag\ServiceDecoration\Service\MyService.inner" />
+        <service id="Swag\ServiceDecoration\Service\ServiceDecorator" decorates="Swag\ServiceDecoration\Service\MyService">
+            <argument type="service" id="Swag\ServiceDecoration\Service\ServiceDecorator.inner" />
         </service>
     </services>
 </container>
@@ -41,8 +41,9 @@ namespace Swag\ServiceDecoration\Service;
 
 class MyService implements MyServiceInterface
 {
-    public function doSomething(): void
+    public function doSomething(): string
     {
+        return 'Did something.';
     }
 }
 ```
@@ -52,19 +53,27 @@ class MyService implements MyServiceInterface
 
 namespace Swag\ServiceDecoration\Service;
 
-class DecoratedService
+class ServiceDecorator implements MyServiceInterface
 {
     /**
+     * The original service which could be used in the decorator
+     *
      * @var MyServiceInterface
      */
-    private $coreService;
+    private $decoratedService;
 
     public function __construct(MyServiceInterface $myService)
     {
-        $this->coreService = $myService;
+        $this->decoratedService = $myService;
+    }
+
+    public function doSomething(): string
+    {
+        $originalResult = $this->decoratedService->doSomething();
+        
+        return $originalResult . ' Did something additionally.';
     }
 }
-
 ```
 
 Note: It's **highly recommended** to work with interfaces when using the decoration pattern.

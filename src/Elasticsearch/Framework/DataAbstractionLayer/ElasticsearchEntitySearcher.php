@@ -89,7 +89,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             return new IdSearchResult(0, [], $criteria, $context);
         }
 
-        $hits = $result['hits']['hits'];
+        $hits = $this->extractHits($result);
 
         $data = [];
         foreach ($hits as $hit) {
@@ -112,20 +112,33 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         return new IdSearchResult($total, $data, $criteria, $context);
     }
 
+    private function extractHits(array $result): array
+    {
+        $records = [];
+        $hits = $result['hits']['hits'];
+
+        foreach ($hits as $hit) {
+            if (!isset($hit['inner_hits'])) {
+                $records[] = $hit;
+                continue;
+            }
+
+            $nested = $this->extractHits($hit['inner_hits']['inner']);
+            foreach ($nested as $inner) {
+                $records[] = $inner;
+            }
+        }
+
+        return $records;
+    }
+
     private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search)
     {
         if (!$criteria->getGroupFields()) {
             return $search->toArray();
         }
 
-        $fields = array_map(function (FieldGrouping $grouping) {
-            return "doc['" . $grouping->getField() . "'].value";
-        }, $criteria->getGroupFields());
-
-        $fields = implode(" + ' ' + ", $fields);
-
-        $aggregation = new CardinalityAggregation('total-count');
-        $aggregation->setScript($fields);
+        $aggregation = $this->buildTotalCountAggregation($criteria);
 
         $search->addAggregation($aggregation);
 
@@ -153,5 +166,47 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
                 'collapse' => $this->parseGrouping($groupings),
             ],
         ];
+    }
+
+    private function buildTotalCountAggregation(Criteria $criteria): CardinalityAggregation
+    {
+        $groupings = $criteria->getGroupFields();
+
+        if (count($groupings) === 1) {
+            $first = array_shift($groupings);
+            $aggregation = new CardinalityAggregation('total-count');
+            $aggregation->setField($first->getField());
+
+            return $aggregation;
+        }
+
+        $fields = array_map(
+            function (FieldGrouping $grouping) {
+                return sprintf(
+                    "
+                if (doc['%s'].size()==0) { 
+                    value = value + 'empty'; 
+                } else { 
+                    value = value + doc['%s'].value; 
+                }",
+                    $grouping->getField(),
+                    $grouping->getField()
+                );
+            },
+            $criteria->getGroupFields()
+        );
+
+        $script = '
+            def value = \'\';
+            
+            ' . implode(' ', $fields) . '
+            
+            return value;
+        ';
+
+        $aggregation = new CardinalityAggregation('total-count');
+        $aggregation->setScript($script);
+
+        return $aggregation;
     }
 }

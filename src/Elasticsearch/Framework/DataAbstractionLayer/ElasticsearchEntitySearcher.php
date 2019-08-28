@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use Elasticsearch\Client;
+use ONGR\ElasticsearchDSL\Aggregation\Metric\CardinalityAggregation;
 use ONGR\ElasticsearchDSL\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -88,7 +89,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             return new IdSearchResult(0, [], $criteria, $context);
         }
 
-        $hits = $this->extractHits($result);
+        $hits = $result['hits']['hits'];
 
         $data = [];
         foreach ($hits as $hit) {
@@ -104,39 +105,34 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         }
 
         $total = (int) $result['hits']['total']['value'];
+        if ($criteria->getGroupFields()) {
+            $total = (int) $result['aggregations']['total-count']['value'];
+        }
 
         return new IdSearchResult($total, $data, $criteria, $context);
     }
 
     private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search)
     {
-        $array = $search->toArray();
-
-        if ($criteria->getGroupFields()) {
-            $array['collapse'] = $this->parseGrouping($criteria->getGroupFields());
+        if (!$criteria->getGroupFields()) {
+            return $search->toArray();
         }
+
+        $fields = array_map(function (FieldGrouping $grouping) {
+            return "doc['" . $grouping->getField() . "'].value";
+        }, $criteria->getGroupFields());
+
+        $fields = implode(" + ' ' + ", $fields);
+
+        $aggregation = new CardinalityAggregation('total-count');
+        $aggregation->setScript($fields);
+
+        $search->addAggregation($aggregation);
+
+        $array = $search->toArray();
+        $array['collapse'] = $this->parseGrouping($criteria->getGroupFields());
 
         return $array;
-    }
-
-    private function extractHits(array $result): array
-    {
-        $records = [];
-        $hits = $result['hits']['hits'];
-
-        foreach ($hits as $hit) {
-            if (!isset($hit['inner_hits'])) {
-                $records[] = $hit;
-                continue;
-            }
-
-            $nested = $this->extractHits($hit['inner_hits']['inner']);
-            foreach ($nested as $inner) {
-                $records[] = $inner;
-            }
-        }
-
-        return $records;
     }
 
     /**

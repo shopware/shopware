@@ -66,6 +66,9 @@ trait ElasticsearchTestTestBehaviour
         $this->getDiContainer()
             ->get(CreateAliasTaskHandler::class)
             ->run();
+
+        $client = $this->getDiContainer()->get(Client::class);
+        $client->indices()->refresh();
     }
 
     protected function createEntityAggregator(): ElasticsearchEntityAggregator

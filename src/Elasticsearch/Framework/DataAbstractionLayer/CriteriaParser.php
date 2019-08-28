@@ -206,8 +206,14 @@ class CriteriaParser
         foreach ($filter->getQueries() as $nested) {
             $bool->add(
                 $this->parse($nested, $definition, $root, $context),
-                BoolQuery::MUST
+                BoolQuery::SHOULD
             );
+        }
+
+        if ($filter->getOperator() === MultiFilter::CONNECTION_OR) {
+            $bool->addParameter('minimum_should_match', '1');
+        } else {
+            $bool->addParameter('minimum_should_match', (string) count($filter->getQueries()));
         }
 
         return $bool;

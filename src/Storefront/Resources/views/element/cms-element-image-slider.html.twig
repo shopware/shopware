@@ -1,9 +1,11 @@
 {% block element_image_slider %}
     {%  set sliderConfig = element.fieldConfig.elements %}
-    
+
     <div class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == "standard" and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
         {% block element_image_slider_alignment %}
-            <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+            {% if config.verticalAlign.value %}
+                <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+            {%  endif %}
                 <div class="base-slider image-slider{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigationDots.value == "outside" %} has-dots-outside{% endif %}"
                      data-base-slider="true"
                      data-base-slider-options='{
@@ -15,12 +17,12 @@
                             "autoHeight": {% if sliderConfig.displayMode.value == "standard" %}true{% else %}false{% endif %}
                         }
                     }'>
-                    
+
                     {% block element_image_slider_inner %}
                         <div class="image-slider-container"
                              data-base-slider-container="true">
                             {% for image in element.data.sliderItems %}
-            
+
                                 {% set imageElement %}
                                     <div class="image-slider-item is-{{ sliderConfig.displayMode.value }}"{% if sliderConfig.minHeight.value and  sliderConfig.displayMode.value == "cover" %} style="min-height: {{ sliderConfig.minHeight.value }}"{% endif %}>
                                         {% set attributes = {
@@ -38,7 +40,7 @@
                                         } %}
                                     </div>
                                 {% endset %}
-            
+
                                 {% block element_image_slider_inner_item %}
                                     <div class="image-slider-item-container">
                                         {% if image.url %}
@@ -54,7 +56,7 @@
                                 {% endblock %}
                             {% endfor %}
                         </div>
-                
+
                         {% block element_image_slider_controls %}
                             {% if sliderConfig.navigationArrows.value %}
                                 <div class="image-slider-controls-container">
@@ -80,7 +82,9 @@
                         {% endblock %}
                     {% endblock %}
                 </div>
-            </div>
+            {% if config.verticalAlign.value %}
+                </div>
+            {% endif %}
         {% endblock %}
     </div>
 {% endblock %}

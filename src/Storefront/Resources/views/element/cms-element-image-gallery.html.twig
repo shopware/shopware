@@ -20,7 +20,9 @@
 
     <div class="cms-element-{{ element.type }}{% if displayMode == "standard" and verticalAlign %} has-vertical-alignment{% endif %}">
         {% block element_image_gallery_alignment %}
-            <div class="cms-element-alignment{% if verticalAlign == "center" %} align-self-center{% elseif verticalAlign == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+            {% if config.verticalAlign.value %}
+                <div class="cms-element-alignment{% if verticalAlign == "center" %} align-self-center{% elseif verticalAlign == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+            {% endif %}
 
                 {% block element_image_gallery_inner %}
                     <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% endif %} js-gallery-zoom-modal-container"
@@ -378,7 +380,7 @@
                                                                                 </div>
                                                                             </div>
                                                                         {% endblock %}
-                                                                        
+
                                                                         {% block element_image_gallery_inner_zoom_modal_thumbnails %}
                                                                             <div class="gallery-slider-thumbnails"
                                                                                  data-gallery-slider-thumbnails=true>
@@ -422,7 +424,9 @@
                     </div>
                 {% endblock %}
 
-            </div>
+            {% if config.verticalAlign.value %}
+                </div>
+            {% endif %}
         {% endblock %}
     </div>
 {% endblock %}

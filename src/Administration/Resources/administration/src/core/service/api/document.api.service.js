@@ -28,6 +28,7 @@ class DocumentApiService extends ApiService {
     }
 
     generateDocumentPreviewLink(orderId, orderDeepLink, documentTypeName, config, context) {
+        // eslint-disable-next-line max-len
         return `${context.apiPath}/v1/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview?config=${config}`;
     }
 

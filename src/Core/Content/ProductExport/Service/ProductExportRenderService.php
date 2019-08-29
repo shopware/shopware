@@ -6,8 +6,12 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderFooterContextEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEvent;
+use Shopware\Core\Content\ProductExport\Exception\RenderFooterException;
+use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
+use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Twig\StringTemplateRenderer;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -39,10 +43,14 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
             )
         );
 
-        return $this->templateRenderer->render(
-            $productExportEntity->getHeaderTemplate(),
-            $headerContext->getContext()
-        ) . PHP_EOL;
+        try {
+            return $this->templateRenderer->render(
+                    $productExportEntity->getHeaderTemplate(),
+                    $headerContext->getContext()
+                ) . PHP_EOL;
+        } catch (StringTemplateRenderingException $exception) {
+            throw new RenderHeaderException($exception->getMessage());
+        }
     }
 
     public function renderFooter(ProductExportEntity $productExportEntity): string
@@ -59,10 +67,14 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
             )
         );
 
-        return $this->templateRenderer->render(
-            $productExportEntity->getFooterTemplate(),
-            $footerContext->getContext()
-        ) . PHP_EOL;
+        try {
+            return $this->templateRenderer->render(
+                    $productExportEntity->getFooterTemplate(),
+                    $footerContext->getContext()
+                ) . PHP_EOL;
+        } catch (StringTemplateRenderingException $exception) {
+            throw new RenderFooterException($exception->getMessage());
+        }
     }
 
     public function renderBody(ProductExportEntity $productExportEntity, EntityCollection $productCollection): string
@@ -88,10 +100,13 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
                 ]
             )
         );
-
-        return $this->templateRenderer->render(
-                $productExportEntity->getBodyTemplate(),
-                $productContext->getContext()
-            ) . PHP_EOL;
+        try {
+            return $this->templateRenderer->render(
+                    $productExportEntity->getBodyTemplate(),
+                    $productContext->getContext()
+                ) . PHP_EOL;
+        } catch (StringTemplateRenderingException $exception) {
+            throw new RenderProductException($exception->getMessage());
+        }
     }
 }

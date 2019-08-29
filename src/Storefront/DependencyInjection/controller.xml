@@ -140,6 +140,16 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\ProductExportController">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportService"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileService"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="event_dispatcher"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Storefront\Controller\RegisterController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>

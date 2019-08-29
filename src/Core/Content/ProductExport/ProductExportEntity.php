@@ -30,7 +30,7 @@ class ProductExportEntity extends Entity
     protected $fileName;
 
     /** @var string */
-    protected $accessToken;
+    protected $accessKey;
 
     /** @var string */
     protected $encoding;
@@ -53,7 +53,7 @@ class ProductExportEntity extends Entity
     /** @var bool */
     protected $generateByCronjob;
 
-    /** @var \DateTimeInterface */
+    /** @var \DateTimeInterface|null */
     protected $lastGeneration;
 
     /** @var int */
@@ -108,14 +108,14 @@ class ProductExportEntity extends Entity
         $this->fileName = $fileName;
     }
 
-    public function getAccessToken(): string
+    public function getAccessKey(): string
     {
-        return $this->accessToken;
+        return $this->accessKey;
     }
 
-    public function setAccessToken(string $accessToken): void
+    public function setAccessKey(string $accessKey): void
     {
-        $this->accessToken = $accessToken;
+        $this->accessKey = $accessKey;
     }
 
     public function getEncoding(): string
@@ -188,12 +188,12 @@ class ProductExportEntity extends Entity
         $this->generateByCronjob = $generateByCronjob;
     }
 
-    public function getLastGeneration(): \DateTimeInterface
+    public function getLastGeneration(): ?\DateTimeInterface
     {
         return $this->lastGeneration;
     }
 
-    public function setLastGeneration(\DateTimeInterface $lastGeneration): void
+    public function setLastGeneration(?\DateTimeInterface $lastGeneration): void
     {
         $this->lastGeneration = $lastGeneration;
     }

@@ -8,9 +8,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductExport\Service\ProductExportFileService;
+use Shopware\Core\Content\ProductExport\Service\ProductExportGenerateService;
+use Shopware\Core\Content\ProductExport\Service\ProductExportGenerateServiceInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRenderService;
-use Shopware\Core\Content\ProductExport\Service\ProductExportService;
-use Shopware\Core\Content\ProductExport\Service\ProductExportServiceInterface;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -21,7 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class ProductExportServiceTest extends TestCase
+class ProductExportGenerateServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -40,7 +41,7 @@ class ProductExportServiceTest extends TestCase
      */
     private $salesChannelContext;
 
-    /** @var ProductExportServiceInterface */
+    /** @var ProductExportGenerateServiceInterface */
     private $service;
 
     /** @var FilesystemInterface */
@@ -49,7 +50,7 @@ class ProductExportServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('product_export.repository');
-        $this->service = $this->getContainer()->get(ProductExportService::class);
+        $this->service = $this->getContainer()->get(ProductExportGenerateService::class);
         $this->context = Context::createDefaultContext();
         $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
 
@@ -77,12 +78,12 @@ class ProductExportServiceTest extends TestCase
     {
         $this->createTestEntity();
 
-        $service = new ProductExportService(
+        $service = new ProductExportGenerateService(
             $this->getContainer()->get('product_export.repository'),
             $this->getContainer()->get(ProductStreamService::class),
             $this->getContainer()->get(ProductExportRenderService::class),
             $this->getContainer()->get('shopware.filesystem.private'),
-            $this->getContainer()->getParameter('product_export.directory'),
+            $this->getContainer()->get(ProductExportFileService::class),
             1
         );
 

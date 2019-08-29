@@ -84,7 +84,9 @@ class ProductStreamService implements ProductStreamServiceInterface
         $criteria
             ->setOffset($offset)
             ->setLimit($limit)
-            ->setTotalCountMode($totalCountMode);
+            ->setTotalCountMode($totalCountMode)
+            ->addAssociation('manufacturer')
+            ->addAssociation('media');
 
         if ($productStream->getFilters() === null || $productStream->getFilters()->count() === 0) {
             throw new NoFilterException($productStream->getId());

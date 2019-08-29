@@ -6,13 +6,17 @@ use Shopware\Core\Framework\ShopwareHttpException;
 
 class ExportNotFoundException extends ShopwareHttpException
 {
-    public function __construct(?string $id = null)
+    public function __construct(?string $id = null, ?string $fileName = null)
     {
-        $message = $id
-            ? 'Product export with ID {{ id }} not found'
-            : 'No product exports found';
+        $message = 'No product exports found';
 
-        parent::__construct($message, ['id' => $id]);
+        if ($id) {
+            $message = 'Product export with ID {{ id }} not found';
+        } elseif ($fileName) {
+            $message = 'Product export with file name {{ fileName }} not found. Please check your access key.';
+        }
+
+        parent::__construct($message, ['id' => $id, 'fileName' => $fileName]);
     }
 
     public function getErrorCode(): string

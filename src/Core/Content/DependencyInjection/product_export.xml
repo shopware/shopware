@@ -17,13 +17,25 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportService" public="true">
+        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportService">
+            <argument type="service" id="product_export.repository"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerateService"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileService"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerateService" public="true">
             <argument type="service" id="product_export.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamService"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderService"/>
             <argument type="service" id="shopware.filesystem.private"/>
-            <argument type="string">%product_export.directory%</argument>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileService"/>
             <argument type="string">%product_export.read_buffer_size%</argument>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportFileService">
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="string">%product_export.directory%</argument>
         </service>
     </services>
 </container>

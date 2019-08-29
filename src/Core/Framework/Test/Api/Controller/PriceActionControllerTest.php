@@ -180,7 +180,7 @@ class PriceActionControllerTest extends TestCase
                 10,
                 20,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(3.20, 19, 20),
+                    new CalculatedTax(3.19, 19, 20),
                 ]),
                 new TaxRuleCollection([
                     new TaxRule(19, 100),

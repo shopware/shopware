@@ -6,11 +6,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -33,8 +35,7 @@ class AbsolutePriceCalculatorTest extends TestCase
         $rounding = new PriceRounding();
 
         $taxCalculator = new TaxCalculator(
-            new PriceRounding(),
-            new TaxRuleCalculator($rounding)
+            new TaxRuleCalculator()
         );
 
         $referencePriceCalculator = new ReferencePriceCalculator($rounding);
@@ -94,5 +95,59 @@ class AbsolutePriceCalculatorTest extends TestCase
                 $prices,
             ],
         ];
+    }
+
+    public function testHundertPercentageDiscount()
+    {
+        $rounding = new PriceRounding();
+        $taxCalculator = new TaxCalculator(new TaxRuleCalculator());
+        $referencePriceCalculator = new ReferencePriceCalculator($rounding);
+
+        $priceDefinition = new QuantityPriceDefinition(
+            29.00,
+            new TaxRuleCollection([new TaxRule(17, 100)]),
+            2,
+            10,
+            true
+        );
+
+        $priceCalculator = new QuantityPriceCalculator(
+            new GrossPriceCalculator($taxCalculator, $rounding, $referencePriceCalculator),
+            new NetPriceCalculator($taxCalculator, $rounding, $referencePriceCalculator),
+            Generator::createGrossPriceDetector(),
+            $referencePriceCalculator
+        );
+
+        $absolutePriceCalculator = new AbsolutePriceCalculator(
+            new QuantityPriceCalculator(
+                new GrossPriceCalculator($taxCalculator, $rounding, $referencePriceCalculator),
+                new NetPriceCalculator($taxCalculator, $rounding, $referencePriceCalculator),
+                Generator::createGrossPriceDetector(),
+                $referencePriceCalculator
+            ),
+            new PercentageTaxRuleBuilder()
+        );
+
+        $percentageCalculator = new PercentagePriceCalculator(
+            $rounding,
+            new PercentageTaxRuleBuilder()
+        );
+
+        $price = $priceCalculator->calculate($priceDefinition, Generator::createSalesChannelContext());
+
+        static::assertEquals(290, $price->getTotalPrice());
+        static::assertEquals(29, $price->getUnitPrice());
+        static::assertEquals(42.14, $price->getCalculatedTaxes()->get('17')->getTax());
+
+        $discount = $absolutePriceCalculator->calculate(-290, new PriceCollection([$price]), Generator::createSalesChannelContext());
+
+        static::assertEquals(-290, $discount->getTotalPrice());
+        static::assertEquals(-290, $discount->getUnitPrice());
+        static::assertEquals(-42.14, $discount->getCalculatedTaxes()->get('17')->getTax());
+
+        $discount = $percentageCalculator->calculate(-100, new PriceCollection([$price]), Generator::createSalesChannelContext());
+        static::assertEquals(-290, $discount->getTotalPrice());
+        static::assertEquals(-290, $discount->getUnitPrice());
+        static::assertEquals(-42.14, $discount->getCalculatedTaxes()->get('17')->getTax());
     }
 }

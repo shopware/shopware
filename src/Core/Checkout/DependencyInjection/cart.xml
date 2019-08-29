@@ -76,13 +76,10 @@
         <service id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
 
         <service id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
-        </service>
+        <service id="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator" />
 
         <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder" />
 

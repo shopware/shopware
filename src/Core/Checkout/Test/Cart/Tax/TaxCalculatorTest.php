@@ -18,15 +18,17 @@ class TaxCalculatorTest extends TestCase
     public function testCalculateGrossPriceOfNetPrice(float $expected, PriceRoundingInterface $rounding, int $precision, TaxRule $taxRule, float $net): void
     {
         $calculator = new TaxCalculator(
-            $rounding,
-            new TaxRuleCalculator($rounding)
+            new TaxRuleCalculator()
         );
 
         $rules = new TaxRuleCollection([$taxRule]);
 
-        static::assertSame(
+        static::assertEquals(
             $expected,
-            $calculator->calculateGross($net, $precision, $rules)
+            $rounding->round(
+                $calculator->calculateGross($net, $rules),
+                $precision
+            )
         );
     }
 

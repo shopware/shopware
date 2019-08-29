@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
@@ -17,7 +19,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class AggregationParser
 {
-    public static function buildAggregations(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionInstanceRegistry;
+
+    public function __construct(DefinitionInstanceRegistry $definitionInstanceRegistry)
+    {
+        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+    }
+
+    public function buildAggregations(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
     {
         if (!\is_array($payload['aggregations'])) {
             throw new InvalidAggregationQueryException('The aggregations parameter has to be a list of aggregations.');
@@ -88,7 +100,15 @@ class AggregationParser
                 case 'value_count':
                     $criteria->addAggregation(new ValueCountAggregation($field, $name, ...array_values($groupByFields)));
                     break;
+                case 'entity':
+                    if (!isset($aggregation['definition'])) {
+                        $searchRequestException->add(new InvalidAggregationQueryException('The aggregation should contain a "definition".'), '/aggregations/' . $index . '/' . $type . '/field');
+                        break;
+                    }
 
+                    $definition = $this->definitionInstanceRegistry->getByEntityName($aggregation['definition']);
+                    $criteria->addAggregation(new EntityAggregation($field, $definition->getClass(), $name, ...array_values($groupByFields)));
+                    break;
                 default:
                     $searchRequestException->add(new InvalidAggregationQueryException(sprintf('The aggregation type "%s" used as key does not exists.', $type)), '/aggregations/' . $index);
             }

@@ -9,9 +9,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -445,9 +444,8 @@ class SearchCriteriaBuilderTest extends TestCase
 
     private function fakeHandleRequest($maxLimit = 0, array $allowedLimits = [], $params = []): Criteria
     {
-        $interpreter = $this->getContainer()->get(SearchTermInterpreter::class);
-        $scoreBuilder = $this->getContainer()->get(EntityScoreQueryBuilder::class);
-        $requestBuilder = new RequestCriteriaBuilder($maxLimit, $allowedLimits);
+        $parser = $this->getContainer()->get(AggregationParser::class);
+        $requestBuilder = new RequestCriteriaBuilder($parser, $maxLimit, $allowedLimits);
         $context = Context::createDefaultContext();
         $definition = $this->getContainer()->get(ProductDefinition::class);
 

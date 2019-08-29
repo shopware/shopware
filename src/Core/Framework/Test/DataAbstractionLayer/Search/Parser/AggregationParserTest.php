@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Parser;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
@@ -16,11 +18,22 @@ class AggregationParserTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    /**
+     * @var AggregationParser
+     */
+    private $parser;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->parser = $this->getContainer()->get(AggregationParser::class);
+    }
+
     public function testWithUnsupportedFormat(): void
     {
         $this->expectException(InvalidAggregationQueryException::class);
         $criteria = new Criteria();
-        AggregationParser::buildAggregations(
+        $this->parser->buildAggregations(
             $this->getContainer()->get(ProductDefinition::class),
             ['aggregations' => 'foo'],
             $criteria,
@@ -32,7 +45,7 @@ class AggregationParserTest extends TestCase
     {
         $criteria = new Criteria();
         $exception = new SearchRequestException();
-        AggregationParser::buildAggregations(
+        $this->parser->buildAggregations(
             $this->getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
@@ -69,7 +82,7 @@ class AggregationParserTest extends TestCase
     {
         $criteria = new Criteria();
         $exception = new SearchRequestException();
-        AggregationParser::buildAggregations(
+        $this->parser->buildAggregations(
             $this->getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
@@ -106,7 +119,7 @@ class AggregationParserTest extends TestCase
     {
         $criteria = new Criteria();
         $exception = new SearchRequestException();
-        AggregationParser::buildAggregations(
+        $this->parser->buildAggregations(
             $this->getContainer()->get(ProductDefinition::class),
             [
                 'aggregations' => [
@@ -132,5 +145,61 @@ class AggregationParserTest extends TestCase
         static::assertEquals('max', $maxAggregation->getName());
         static::assertEquals('product.tax.taxRate', $maxAggregation->getField());
         static::assertEquals(['product.tax.name', 'product.tax.id'], $maxAggregation->getGroupByFields());
+    }
+
+    public function testICanCreateAnEntityAggregation()
+    {
+        $criteria = new Criteria();
+        $exception = new SearchRequestException();
+
+        $this->parser->buildAggregations(
+            $this->getContainer()->get(ProductDefinition::class),
+            [
+                'aggregations' => [
+                    [
+                        'name' => 'entity_test',
+                        'type' => 'entity',
+                        'field' => 'product.manufacturerId',
+                        'definition' => 'product_manufacturer',
+                    ],
+                ],
+            ],
+            $criteria,
+            $exception
+        );
+
+        static::assertCount(0, $exception->getErrors());
+        static::assertCount(1, $criteria->getAggregations());
+
+        $entity = $criteria->getAggregation('entity_test');
+
+        /** @var EntityAggregation $entity */
+        static::assertInstanceOf(EntityAggregation::class, $entity);
+        static::assertEquals('product.manufacturerId', $entity->getField());
+        static::assertEquals(ProductManufacturerDefinition::class, $entity->getDefinition());
+    }
+
+    public function testThrowExceptionByEntityAggregationWithoutDefinition()
+    {
+        $criteria = new Criteria();
+        $exception = new SearchRequestException();
+
+        $this->parser->buildAggregations(
+            $this->getContainer()->get(ProductDefinition::class),
+            [
+                'aggregations' => [
+                    [
+                        'name' => 'entity_test',
+                        'type' => 'entity',
+                        'field' => 'manufacturerId',
+                    ],
+                ],
+            ],
+            $criteria,
+            $exception
+        );
+
+        static::assertCount(1, $exception->getErrors());
+        static::assertCount(0, $criteria->getAggregations());
     }
 }

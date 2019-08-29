@@ -161,6 +161,16 @@ or exchanging ideas in Gitter or the Shopware Forum - you are a vital part of th
 - **Chat:** [gitter.im/shopware/platform](https://gitter.im/shopware/platform)
 - **Follow us on Twitter:** [@ShopwareDevs](https://twitter.com/ShopwareDevs)
 
+Subscribe to our **[developer newsletter](https://www.shopware.com/en/community/developers/#newsletter)** and get updates about:
+
+- Releases
+- Upcoming breaking changes
+- Important documentation changes and updates
+- Community events
+- Relevant blog articles
+
+[Subscribe now](https://www.shopware.com/en/community/developers/#newsletter)
+
 ### Give us feedback
 
 <table>

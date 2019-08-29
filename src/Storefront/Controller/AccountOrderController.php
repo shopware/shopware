@@ -16,6 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class AccountOrderController extends StorefrontController
 {
     /**
@@ -33,7 +36,6 @@ class AccountOrderController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -48,7 +50,6 @@ class AccountOrderController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/account/order/detail/{id}", name="widgets.account.order.detail", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function ajaxOrderDetail(Request $request, SalesChannelContext $context)

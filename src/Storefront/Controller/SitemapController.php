@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class SitemapController extends StorefrontController
 {
     /**
@@ -22,7 +25,6 @@ class SitemapController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/sitemap.xml", name="frontend.sitemap.xml", methods={"GET"}, defaults={"_format"="xml"})
      */
     public function sitemapXml(SalesChannelContext $context, Request $request): Response

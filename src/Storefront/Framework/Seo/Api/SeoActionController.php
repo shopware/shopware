@@ -82,7 +82,6 @@ class SeoActionController extends AbstractController
     }
 
     /**
-     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/_action/seo-url-template/validate", name="api.seo-url-template.validate", methods={"POST"}, requirements={"version"="\d+"})
      */
     public function validate(Request $request, Context $context): JsonResponse
@@ -97,7 +96,6 @@ class SeoActionController extends AbstractController
     }
 
     /**
-     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/_action/seo-url-template/preview", name="api.seo-url-template.preview", methods={"POST"}, requirements={"version"="\d+"})
      */
     public function preview(Request $request, Context $context): JsonResponse
@@ -110,7 +108,6 @@ class SeoActionController extends AbstractController
     }
 
     /**
-     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/_action/seo-url-template/context", name="api.seo-url-template.context", methods={"POST"}, requirements={"version"="\d+"})
      */
     public function getSeoUrlContext(RequestDataBag $data, Context $context): JsonResponse
@@ -140,7 +137,6 @@ class SeoActionController extends AbstractController
     }
 
     /**
-     * @RouteScope(scopes={"api"})
      * @Route("/api/v{version}/_action/seo-url/canonical", name="api.seo-url.canonical", methods={"PATCH"}, requirements={"version"="\d+"})
      */
     public function updateCanonicalUrl(RequestDataBag $seoUrl, Context $context): Response

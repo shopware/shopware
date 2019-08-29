@@ -22,6 +22,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class AddressController extends StorefrontController
 {
     /**
@@ -57,7 +60,6 @@ class AddressController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -72,7 +74,6 @@ class AddressController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -90,7 +91,6 @@ class AddressController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -105,7 +105,6 @@ class AddressController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/address/default-{type}/{addressId}", name="frontend.account.address.set-default-address", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -138,7 +137,6 @@ class AddressController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/address/delete/{addressId}", name="frontend.account.address.delete", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -163,7 +161,6 @@ class AddressController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/address/create", name="frontend.account.address.create", options={"seo"="false"}, methods={"POST"})
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.save", options={"seo"="false"}, methods={"POST"})
      *
@@ -194,7 +191,6 @@ class AddressController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/account/address-book", name="frontend.account.addressbook", options={"seo"=true}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function addressBook(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response

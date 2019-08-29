@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class ContactPageController extends StorefrontController
 {
     /**
@@ -30,7 +33,6 @@ class ContactPageController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/contact", name="frontend.page.contact", methods={"GET"})
      */
     public function showContactForm(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -44,7 +46,6 @@ class ContactPageController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/contact", name="frontend.page.contact.send", methods={"POST"})
      */
     public function sendContactForm(RequestDataBag $data, SalesChannelContext $context): Response

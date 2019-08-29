@@ -16,6 +16,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class ProductController extends StorefrontController
 {
     /**
@@ -58,7 +61,6 @@ class ProductController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/detail/{productId}", name="frontend.detail.page", methods={"GET"})
      */
     public function index(SalesChannelContext $context, Request $request): Response
@@ -71,7 +73,6 @@ class ProductController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/detail/{productId}/switch", name="frontend.detail.switch", methods={"POST"})
      */
     public function switch(string $productId, RequestDataBag $data, SalesChannelContext $context): RedirectResponse
@@ -90,7 +91,6 @@ class ProductController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/quickview/{productId}", name="widgets.quickview.minimal", methods={"GET"}, defaults={"XmlHttpRequest": true})
      */
     public function quickviewMinimal(Request $request, SalesChannelContext $context): Response
@@ -101,7 +101,6 @@ class ProductController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/product/{productId}/rating", name="frontend.detail.review.save", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
@@ -123,7 +122,6 @@ class ProductController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/product/{productId}/reviews", name="frontend.product.reviews", methods={"GET","POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function loadReviews(Request $request, SalesChannelContext $context): Response

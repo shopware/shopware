@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class NavigationController extends StorefrontController
 {
     /**
@@ -30,7 +33,6 @@ class NavigationController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/", name="frontend.home.page", options={"seo"="true"}, methods={"GET"})
      */
     public function home(Request $request, SalesChannelContext $context): ?Response
@@ -41,7 +43,6 @@ class NavigationController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/navigation/{navigationId}", name="frontend.navigation.page", options={"seo"=true}, methods={"GET"})
      */
     public function index(SalesChannelContext $context, Request $request): Response
@@ -56,7 +57,6 @@ class NavigationController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/menu/offcanvas", name="frontend.menu.offcanvas", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function offcanvas(Request $request, SalesChannelContext $context): Response

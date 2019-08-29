@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class AuthController extends StorefrontController
 {
     /**
@@ -33,7 +36,6 @@ class AuthController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
      */
     public function loginPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -57,7 +59,6 @@ class AuthController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/logout", name="frontend.account.logout.page", methods={"GET"})
      */
     public function logout(SalesChannelContext $context): Response
@@ -80,7 +81,6 @@ class AuthController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/login", name="frontend.account.login", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function login(Request $request, RequestDataBag $data, SalesChannelContext $context): Response

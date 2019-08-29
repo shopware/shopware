@@ -18,6 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class CmsController extends StorefrontController
 {
     /**
@@ -41,7 +44,6 @@ class CmsController extends StorefrontController
     /**
      * Route for stand alone cms pages
      *
-     * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})
      *
      * @throws MissingRequestParameterException
@@ -62,7 +64,6 @@ class CmsController extends StorefrontController
      * Route to load a cms page which assigned to the provided navigation id.
      * Navigation id is required to load the slot config for the navigation
      *
-     * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/cms/navigation/{navigationId}", name="frontend.cms.navigation.page", methods={"GET", "POST"}, defaults={"navigationId"=null, "XmlHttpRequest"=true})
      *
      * @throws CategoryNotFoundException

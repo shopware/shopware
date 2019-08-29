@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 
@@ -36,7 +37,7 @@ class SeoUrlTemplateLoader
         $this->routeRegistry = $routeRegistory;
     }
 
-    public function getTemplateGroups(string $routeName): array
+    public function getTemplateGroups(string $routeName, array $salesChannelEntities): array
     {
         $groups = FetchModeHelper::group(
             $this->connection->executeQuery('
@@ -76,7 +77,14 @@ class SeoUrlTemplateLoader
 
             $templateGroups = [];
             foreach ($tmpGroups as $template => $salesChannelIds) {
-                $templateGroups[] = new TemplateGroup($languageId, $template, $salesChannelIds);
+                $tmpSalesChannelEntities = array_filter($salesChannelEntities, function (?SalesChannelEntity $value) use ($salesChannelIds) {
+                    if ($value === null) {
+                        return in_array(null, $salesChannelIds, true);
+                    }
+
+                    return in_array($value->getId(), $salesChannelIds, true);
+                });
+                $templateGroups[] = new TemplateGroup($languageId, $template, $tmpSalesChannelEntities);
             }
 
             $data[$languageId] = $templateGroups;

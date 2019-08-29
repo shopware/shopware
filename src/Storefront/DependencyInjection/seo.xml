@@ -15,6 +15,7 @@
             <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="sales_channel.repository"/>
 
             <tag name="shopware.dal_indexing.indexer" priority="250"/>
         </service>
@@ -91,6 +92,7 @@
             <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
             <argument type="service" id="Shopware\Storefront\Framework\Seo\Validation\SeoUrlValidationService"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="sales_channel.repository"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -99,12 +101,14 @@
 
         <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="product.repository"/>
 
             <tag name="shopware.seo_url.route"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute">
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
+            <argument type="service" id="category.repository"/>
 
             <tag name="shopware.seo_url.route"/>
         </service>

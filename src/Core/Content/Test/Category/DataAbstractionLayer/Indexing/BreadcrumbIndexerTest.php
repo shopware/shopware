@@ -75,7 +75,7 @@ class BreadcrumbIndexerTest extends TestCase
         $c3 = $categories->get($ids->level3);
 
         static::assertSame(['DE-A'], $c1->getBreadcrumb());
-        static::assertSame(['DE-A', 'DE-B'], $c2->getBreadcrumb());
+        static::assertSame(['DE-A',  'DE-B'], $c2->getBreadcrumb());
         static::assertSame(['DE-A', 'DE-B', 'DE-C'], $c3->getBreadcrumb());
     }
 

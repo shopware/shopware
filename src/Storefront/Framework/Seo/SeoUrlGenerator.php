@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\Exception\InvalidTemplateException;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlMapping;
@@ -58,6 +59,7 @@ class SeoUrlGenerator
      * @param TemplateGroup[] $templateGroups
      *
      * @throws InvalidTemplateException
+     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
     public function generateSeoUrls(Context $context, SeoUrlRouteInterface $seoUrlRoute, array $ids, array $templateGroups, ?SeoUrlRouteConfig $configOverride = null): iterable
     {
@@ -78,7 +80,7 @@ class SeoUrlGenerator
             $config->setTemplate($template);
             $this->setTwigTemplate($config);
 
-            yield from $this->generate($seoUrlRoute, $config, $templateGroup->getSalesChannelIds(), $entities);
+            yield from $this->generate($seoUrlRoute, $config, $templateGroup->getSalesChannels(), $entities);
         }
     }
 
@@ -99,33 +101,39 @@ class SeoUrlGenerator
         );
     }
 
-    private function generate(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, array $salesChannelIds, EntityCollection $entities): iterable
+    private function generate(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, array $salesChannels, EntityCollection $entities): iterable
     {
         /** @var Entity $entity */
         foreach ($entities as $entity) {
-            $mapping = $seoUrlRoute->getMapping($entity);
-
             $seoUrl = new SeoUrlEntity();
             $seoUrl->setForeignKey($entity->getUniqueIdentifier());
-
-            $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
-            $seoUrl->setPathInfo($pathInfo);
-
-            $seoPathInfo = $this->getSeoPathInfo($mapping, $config);
-            if ($seoPathInfo === null) {
-                continue;
-            }
-
-            $seoUrl->setSeoPathInfo($seoPathInfo);
 
             $seoUrl->setIsCanonical(true);
             $seoUrl->setIsModified(false);
             $seoUrl->setIsDeleted(false);
             $seoUrl->setIsValid(true);
 
-            foreach ($salesChannelIds as $salesChannelId) {
+            /** @var SalesChannelEntity|null $salesChannel */
+            foreach ($salesChannels as $salesChannel) {
                 $copy = clone $seoUrl;
-                $copy->setSalesChannelId($salesChannelId);
+
+                $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
+                $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
+                $copy->setPathInfo($pathInfo);
+
+                $seoPathInfo = $this->getSeoPathInfo($mapping, $config);
+
+                if ($seoPathInfo === null) {
+                    continue;
+                }
+
+                $copy->setSeoPathInfo($seoPathInfo);
+
+                if ($salesChannel !== null) {
+                    $copy->setSalesChannelId($salesChannel->getId());
+                } else {
+                    $copy->setSalesChannelId(null);
+                }
 
                 yield $copy;
             }

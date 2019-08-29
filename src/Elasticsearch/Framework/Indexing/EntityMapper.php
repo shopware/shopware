@@ -82,7 +82,6 @@ class EntityMapper
                 return null;
 
             case $field instanceof ListField:
-
             case $field instanceof BlacklistRuleField:
             case $field instanceof WhitelistRuleField:
                 return self::KEYWORD_FIELD;

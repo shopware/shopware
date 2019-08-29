@@ -19,7 +19,8 @@ trait StorefrontSalesChannelTestHelper
         string $id,
         string $name,
         string $defaultLanguageId = Defaults::LANGUAGE_SYSTEM,
-        array $languageIds = []
+        array $languageIds = [],
+        ?string $categoryEntrypoint = null
     ): SalesChannelContext {
         /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('sales_channel.repository');
@@ -62,13 +63,21 @@ trait StorefrontSalesChannelTestHelper
             'countries' => [['id' => $country]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             'domains' => $domains,
-            'navigationCategoryId' => $this->getValidCategoryId(),
+            'navigationCategoryId' => !$categoryEntrypoint ? $this->getValidCategoryId() : $categoryEntrypoint,
         ]], Context::createDefaultContext());
 
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
 
         return $this->createSalesChannelContext($salesChannel);
+    }
+
+    public function updateSalesChannelNavigationEntryPoint(string $id, string $categoryId): void
+    {
+        /** @var EntityRepositoryInterface $repo */
+        $repo = $this->getContainer()->get('sales_channel.repository');
+
+        $repo->update([['id' => $id, 'navigationCategoryId' => $categoryId]], Context::createDefaultContext());
     }
 
     private function createSalesChannelContext(SalesChannelEntity $salesChannel): SalesChannelContext

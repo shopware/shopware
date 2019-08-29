@@ -11,7 +11,7 @@ class SeoUrlTemplateEntity extends Entity
     use EntityIdTrait;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $salesChannelId;
 
@@ -45,12 +45,12 @@ class SeoUrlTemplateEntity extends Entity
      */
     protected $customFields;
 
-    public function getSalesChannelId(): string
+    public function getSalesChannelId(): ?string
     {
         return $this->salesChannelId;
     }
 
-    public function setSalesChannelId(string $salesChannelId): void
+    public function setSalesChannelId(?string $salesChannelId): void
     {
         $this->salesChannelId = $salesChannelId;
     }

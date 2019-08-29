@@ -439,13 +439,70 @@ class CategoryEntity extends Entity
         $this->description = $description;
     }
 
-    public function getBreadcrumb(): ?array
+    public function getBreadcrumb(): array
     {
-        return $this->breadcrumb;
+        return array_values($this->sortBreadcrumb());
     }
 
     public function setBreadcrumb(?array $breadcrumb): void
     {
         $this->breadcrumb = $breadcrumb;
+    }
+
+    public function buildSeoBreadcrumb(?string $navigationCategoryId): ?array
+    {
+        $categoryBreadcrumb = $this->getBreadcrumb();
+
+        // If the current SalesChannel is null ( which refers to the default template SalesChannel) or
+        // this category has no root, we return the full breadcrumb
+        if ($navigationCategoryId === null) {
+            return array_values($categoryBreadcrumb);
+        }
+
+        $categoryPath = $this->getPath();
+        if ($categoryPath === null) {
+            return null;
+        }
+
+        // Check where this category is located in relation to the navigation entry point of the sales channel
+        $pathArray = array_slice(explode('|', $categoryPath), 1, -1);
+        $salesChannelPos = array_search($navigationCategoryId, $pathArray, true);
+
+        if ($salesChannelPos !== false) {
+            // Remove all breadcrumbs preceding the navigation category
+            return array_slice(array_values($categoryBreadcrumb), $salesChannelPos + 1);
+        }
+
+        return $categoryBreadcrumb;
+    }
+
+    public function jsonSerialize(): array
+    {
+        // Make sure that the sorted breadcrumb gets serialized
+        $data = parent::jsonSerialize();
+        $data['translated']['breadcrumb'] = $data['breadcrumb'] = $this->getBreadcrumb();
+
+        return $data;
+    }
+
+    private function sortBreadcrumb(): array
+    {
+        if ($this->breadcrumb === null) {
+            return [];
+        }
+        if ($this->path === null) {
+            return $this->breadcrumb;
+        }
+
+        $parts = array_slice(explode('|', $this->path), 1, -1);
+
+        $breadcrumb = [];
+        foreach ($parts as $id) {
+            $breadcrumb[$id] = $this->breadcrumb[$id];
+        }
+
+        $breadcrumb[$this->getId()] = $this->breadcrumb[$this->getId()];
+
+        return $breadcrumb;
     }
 }

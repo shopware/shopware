@@ -52,4 +52,42 @@ class Tree
     {
         $this->active = $active;
     }
+
+    public function getChildren(string $categoryId): ?Tree
+    {
+        if ($this->active->getId() === $categoryId) {
+            return new Tree(
+                $this->active,
+                [new TreeItem($this->active, $this->tree)]
+            );
+        }
+
+        $match = $this->find($categoryId, $this->tree);
+
+        if (!$match) {
+            return null;
+        }
+
+        return new Tree($match->getCategory(), [$match]);
+    }
+
+    /**
+     * @param TreeItem[] $tree
+     */
+    private function find(string $categoryId, array $tree): ?TreeItem
+    {
+        if (isset($tree[$categoryId])) {
+            return $tree[$categoryId];
+        }
+
+        foreach ($tree as $item) {
+            $nested = $this->find($categoryId, $item->getChildren());
+
+            if ($nested) {
+                return $nested;
+            }
+        }
+
+        return null;
+    }
 }

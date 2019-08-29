@@ -30,14 +30,21 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
      */
     private $helper;
 
+    /**
+     * @var CriteriaParser
+     */
+    private $criteriaParser;
+
     public function __construct(
         Client $client,
         EntitySearcherInterface $searcher,
-        ElasticsearchHelper $helper
+        ElasticsearchHelper $helper,
+        CriteriaParser $criteriaParser
     ) {
         $this->client = $client;
         $this->decorated = $searcher;
         $this->helper = $helper;
+        $this->criteriaParser = $criteriaParser;
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
@@ -138,12 +145,12 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             return $search->toArray();
         }
 
-        $aggregation = $this->buildTotalCountAggregation($criteria);
+        $aggregation = $this->buildTotalCountAggregation($criteria, $definition, $context);
 
         $search->addAggregation($aggregation);
 
         $array = $search->toArray();
-        $array['collapse'] = $this->parseGrouping($criteria->getGroupFields());
+        $array['collapse'] = $this->parseGrouping($criteria->getGroupFields(), $definition, $context);
 
         return $array;
     }
@@ -151,50 +158,54 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
     /**
      * @param FieldGrouping[] $groupings
      */
-    private function parseGrouping(array $groupings): array
+    private function parseGrouping(array $groupings, EntityDefinition $definition, Context $context): array
     {
         $grouping = array_shift($groupings);
 
+        $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
         if (empty($groupings)) {
-            return ['field' => $grouping->getField()];
+            return ['field' => $accessor];
         }
 
         return [
-            'field' => $grouping->getField(),
+            'field' => $accessor,
             'inner_hits' => [
                 'name' => 'inner',
-                'collapse' => $this->parseGrouping($groupings),
+                'collapse' => $this->parseGrouping($groupings, $definition, $context),
             ],
         ];
     }
 
-    private function buildTotalCountAggregation(Criteria $criteria): CardinalityAggregation
+    private function buildTotalCountAggregation(Criteria $criteria, EntityDefinition $definition, Context $context): CardinalityAggregation
     {
         $groupings = $criteria->getGroupFields();
 
         if (count($groupings) === 1) {
             $first = array_shift($groupings);
             $aggregation = new CardinalityAggregation('total-count');
-            $aggregation->setField($first->getField());
+
+            $accessor = $this->criteriaParser->buildAccessor($definition, $first->getField(), $context);
+
+            $aggregation->setField($accessor);
 
             return $aggregation;
         }
 
-        $fields = array_map(
-            function (FieldGrouping $grouping) {
-                return sprintf(
-                    "
+        $fields = [];
+        foreach ($groupings as $grouping) {
+            $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
+
+            $fields[] = sprintf(
+                "
                 if (doc['%s'].size()==0) { 
                     value = value + 'empty'; 
                 } else { 
                     value = value + doc['%s'].value; 
                 }",
-                    $grouping->getField(),
-                    $grouping->getField()
-                );
-            },
-            $criteria->getGroupFields()
-        );
+                $accessor,
+                $accessor
+            );
+        }
 
         $script = '
             def value = \'\';

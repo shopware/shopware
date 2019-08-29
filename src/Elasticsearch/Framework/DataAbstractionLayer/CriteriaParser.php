@@ -53,6 +53,32 @@ class CriteriaParser
         $this->helper = $helper;
     }
 
+    public function buildAccessor(EntityDefinition $definition, string $fieldName, Context $context): string
+    {
+        $root = $definition->getEntityName();
+
+        $accessor = $fieldName;
+        if (strpos($fieldName, $root . '.') !== false) {
+            $accessor = str_replace($root . '.', '', $fieldName);
+        }
+
+        $field = $this->helper->getField($fieldName, $definition, $root);
+
+        if ($field instanceof TranslatedField) {
+            $parts = explode('.', $accessor);
+            array_pop($parts);
+            $parts[] = 'translated';
+            $parts[] = $field->getPropertyName();
+            $accessor = implode('.', $parts);
+        }
+
+        if ($field instanceof PriceField) {
+            $accessor .= '.gross';
+        }
+
+        return $accessor;
+    }
+
     public function parseSorting(FieldSorting $sorting, EntityDefinition $definition, Context $context): FieldSort
     {
         $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
@@ -252,31 +278,5 @@ class CriteriaParser
         }
 
         return implode('.', $path);
-    }
-
-    private function buildAccessor(EntityDefinition $definition, string $fieldName, Context $context): string
-    {
-        $root = $definition->getEntityName();
-
-        $accessor = $fieldName;
-        if (strpos($fieldName, $root . '.') !== false) {
-            $accessor = str_replace($root . '.', '', $fieldName);
-        }
-
-        $field = $this->helper->getField($fieldName, $definition, $root);
-
-        if ($field instanceof TranslatedField) {
-            $parts = explode('.', $accessor);
-            array_pop($parts);
-            $parts[] = 'translated';
-            $parts[] = $field->getPropertyName();
-            $accessor = implode('.', $parts);
-        }
-
-        if ($field instanceof PriceField) {
-            $accessor .= '.gross';
-        }
-
-        return $accessor;
     }
 }

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -98,7 +99,8 @@ trait ElasticsearchTestTestBehaviour
         return new ElasticsearchEntitySearcher(
             $this->getDiContainer()->get(Client::class),
             $decorated,
-            $this->getDiContainer()->get(ElasticsearchHelper::class)
+            $this->getDiContainer()->get(ElasticsearchHelper::class),
+            $this->getDiContainer()->get(CriteriaParser::class)
         );
     }
 

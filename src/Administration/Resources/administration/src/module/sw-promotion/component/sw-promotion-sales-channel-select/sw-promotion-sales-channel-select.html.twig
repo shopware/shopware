@@ -5,18 +5,11 @@
                      valueProperty="id"
                      v-model="salesChannelIds">
 
-        <template #labelProperty="{ item }">
+        <template #selection-label-property="{ item }">
             {{ item.name || item.translated.name }}
         </template>
-
-        <template #result_items="{ item, index }">
-            {% block sw_multi_select_results_list_item_slot %}
-                <sw-multi-select-option :index="index" :item="item">
-                    <span>
-                        {{ item.name || item.translated.name }}
-                    </span>
-                </sw-multi-select-option>
-            {% endblock %}
+        <template #result-label-property="{ item }">
+            {{ item.name || item.translated.name }}
         </template>
     </sw-multi-select>
 {% endblock %}

@@ -22,7 +22,8 @@
       "labelFirstName": "Vorname",
       "labelLastName": "Nachname",
       "labelCompany": "Firma",
-      "labelEmail": "E-Mail"
+      "labelEmail": "E-Mail",
+      "labelTags": "Tags"
     },
     "list": {
       "textCustomers": "Kunden",
@@ -67,7 +68,8 @@
       "placeholderSalutation": "Anrede wählen ...",
       "placeholderCustomerGroup": "Bitte wähle eine Kundengruppe ...",
       "placeholderSalesChannel": "Bitte wähle einen Verkaufskanal ...",
-      "placeholderPaymentMethod": "Bitte wähle eine Zahlungsart ..."
+      "placeholderPaymentMethod": "Bitte wähle eine Zahlungsart ...",
+      "labelTags": "Tags"
     },
     "baseInfo": {
       "contactEmail": "E-Mail",

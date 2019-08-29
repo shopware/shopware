@@ -5,6 +5,7 @@ const { Component } = Shopware;
 
 /**
  * @private
+ * @status deprecated 6.1
  */
 Component.register('sw-select-option', {
     template,

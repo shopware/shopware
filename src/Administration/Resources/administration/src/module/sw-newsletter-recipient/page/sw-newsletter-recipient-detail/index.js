@@ -53,6 +53,7 @@ Component.register('sw-newsletter-recipient-detail', {
             const recipientCriteria = new Criteria(1, 1);
 
             recipientCriteria.addFilter(Criteria.equals('id', this.$route.params.id));
+            recipientCriteria.addAssociation('tags');
             this.newsletterRecipientStore.search(recipientCriteria, this.context).then((newsletterRecipient) => {
                 this.newsletterRecipient = newsletterRecipient.first();
                 this.isLoading = false;

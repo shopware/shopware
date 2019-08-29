@@ -33,20 +33,19 @@ Component.register('sw-promotion-rule-select', {
     },
 
     methods: {
+        onChange(collection) {
+            this.$emit('collection-added-item', collection);
+        },
         onSaveRule(rule) {
             const ruleRepository = this.repositoryFactory.create(
                 this.collection.entity,
                 this.collection.source
             );
 
-            if (this.$attrs.localMode) {
-                this.collection.add(rule);
-                return;
-            }
-
             ruleRepository.assign(rule.id, this.collection.context).then(() => {
                 ruleRepository.search(this.collection.criteria, this.collection.context).then((searchResult) => {
                     this.$emit('collection-added-item', searchResult);
+                    this.$refs.ruleSelect.sendSearchRequest();
                 });
             });
         }

@@ -3,19 +3,18 @@
 $sw-order-user-card-link: $color-shopware-blue;
 
 .sw-order-user-card {
-
     .sw-order-user-card__container {
         padding-bottom: 24px;
     }
 
-    .sw-order-user-card__metadata-user-name, .sw-order-user-card__metadata-price {
+    .sw-order-user-card__metadata-user-name,
+    .sw-order-user-card__metadata-price {
         font-weight: 600;
         font-size: 18px;
         margin-bottom: 8px;
     }
 
     .sw-order-user-card__metadata {
-
         .sw-select.is--disabled .sw-select__inner {
             background: none;
             border: none;
@@ -41,6 +40,7 @@ $sw-order-user-card-link: $color-shopware-blue;
 
     .sw-order-user-card__summary-vertical {
         line-height: 15px;
+
         dt,
         dd {
             padding: 4px;
@@ -49,15 +49,17 @@ $sw-order-user-card-link: $color-shopware-blue;
 
         dt {
             font-weight: 600;
-            &:not(:first-child), &:only-of-type {
+
+            &:not(:first-child),
+            &:only-of-type {
                 padding-top: 21px;
             }
-
         }
     }
 
     .sw-description-list {
-        .sw-order-user-card__address-edit-button, .sw-order-user-card__address-add-button {
+        .sw-order-user-card__address-edit-button,
+        .sw-order-user-card__address-add-button {
             color: $sw-order-user-card-link;
             background: transparent;
             border: none;
@@ -66,10 +68,18 @@ $sw-order-user-card-link: $color-shopware-blue;
             padding-bottom: 0;
             vertical-align: top;
         }
+
         .sw-order-user-card__address-add-button {
             margin-top: 5px;
             padding-top: 12px;
         }
     }
 
+    .sw-order-user-card__tag-select {
+        &.is--disabled {
+            .sw-select__selection-indicators {
+                display: none;
+            }
+        }
+    }
 }

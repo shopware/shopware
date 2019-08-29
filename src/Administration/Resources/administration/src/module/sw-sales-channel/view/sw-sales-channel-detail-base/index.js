@@ -1,3 +1,4 @@
+import { mapApiErrors } from 'src/app/service/map-errors.service';
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
@@ -67,7 +68,16 @@ Component.register('sw-sales-channel-detail-base', {
             const criteria = new Criteria(1, 10);
 
             return criteria.addFilter(Criteria.equals('type', 'page'));
-        }
+        },
+
+        ...mapApiErrors('salesChannel',
+            [
+                'paymentMethodId',
+                'shippingMethodId',
+                'countryId',
+                'currencyId',
+                'languageId'
+            ])
     },
 
     methods: {
@@ -82,11 +92,17 @@ Component.register('sw-sales-channel-detail-base', {
             });
         },
 
-        onItemRemove(removeItemId, accessor) {
-            const assignedId = this.salesChannel[accessor];
+        onDefaultItemAdd(itemId, ref, property) {
+            const defaultSelection = this.$refs[ref].singleSelection;
+            if (!this.salesChannel[property].has(defaultSelection.id)) {
+                this.salesChannel[property].push(defaultSelection);
+            }
+        },
 
-            if (removeItemId === assignedId) {
-                this.salesChannel[accessor] = null;
+        onRemoveItem(item, ref, property) {
+            const defaultSelection = this.$refs[ref].singleSelection;
+            if (defaultSelection !== null && item.id === defaultSelection.id) {
+                this.salesChannel[property] = null;
             }
         },
 

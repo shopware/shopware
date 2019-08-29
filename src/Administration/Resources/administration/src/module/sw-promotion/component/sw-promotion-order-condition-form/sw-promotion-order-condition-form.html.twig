@@ -9,8 +9,7 @@
             <sw-promotion-rule-select
                     v-if="promotion"
                     class="sw-promotion-order-condition-form__order-rules"
-                    :localMode="promotion.isNew()"
-                    :collection="promotion.orderRules"
+                    v-model="promotion.orderRules"
                     :label="$tc('sw-promotion.detail.main.preconditions.order.rulesCaption')"
                     :placeholder="$tc('sw-promotion.detail.main.preconditions.order.rulesPlaceholder')"
                     :criteria="ruleFilter"

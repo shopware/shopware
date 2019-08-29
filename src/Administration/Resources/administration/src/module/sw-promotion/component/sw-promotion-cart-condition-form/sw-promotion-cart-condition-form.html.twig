@@ -94,6 +94,7 @@
                                 <sw-promotion-rule-select :label="$tc('sw-promotion.detail.main.preconditions.cart.setgroups.labelRules')"
                                                           class="sw-promotion-cart-condition-form__setgroup-rules"
                                                           v-model="group.setGroupRules"
+                                                          :criteria="ruleFilter"
                                                           :disabled="isEditingDisabled">
                                 </sw-promotion-rule-select>
                             {% endblock %}

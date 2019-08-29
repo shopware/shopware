@@ -7,7 +7,7 @@ const utils = Shopware.Utils;
 
 /**
  * @public
- * @status ready
+ * @status deprecated 6.1
  * @example-type code-only
  * @component-example
  * // Single select

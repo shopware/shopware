@@ -1,0 +1,97 @@
+@import "~scss/variables";
+
+$sw-select-focus-transition: all ease-in-out 0.2s;
+
+.sw-select {
+    position: relative;
+    background-color: $color-white;
+
+    .sw-block-field__block {
+        transition: $sw-select-focus-transition;
+    }
+
+    .sw-select__selection {
+        position: relative;
+        padding: 0 8px;
+        border: none;
+        font-size: $font-size-small;
+        font-family: $font-family-default;
+        line-height: 22px;
+        color: $color-darkgray-200;
+        outline: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
+    .sw-select__selection-indicators {
+        position: absolute;
+        display: flex;
+        top: 14px;
+        right: 16px;
+    }
+
+    .sw-select__selection-indicators .sw-loader {
+        position: static;
+        width: 16px;
+        height: 16px;
+        margin: 0;
+
+        .sw-loader__container {
+            transform: none;
+            left: 0;
+            top: 0;
+        }
+    }
+
+    .sw-select__select-indicator {
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+
+    .sw-select__select-indicator + .sw-select__select-indicator {
+        margin-left: 8px;
+    }
+
+    &.sw-field--medium .sw-select__selection {
+        padding: 4px 6px 0;
+
+        .sw-select__selection-indicators {
+            top: 10px;
+        }
+    }
+
+    &.sw-field--small .sw-select__selection {
+        padding: 4px 6px 0;
+
+        .sw-select__selection-indicators {
+            top: 6px;
+        }
+    }
+
+    &.is--disabled {
+        .sw-block-field__block {
+            background-color: $color-gray-100;
+        }
+
+        .sw-label {
+            background-color: $color-gray-100;
+        }
+
+        input {
+            background-color: $color-gray-100;
+        }
+    }
+}
+
+// Vue.js transitions
+.sw-select-result-list-fade-down-enter-active,
+.sw-select-result-list-fade-down-leave-active {
+    transition: $sw-select-focus-transition;
+    transform: translateY(0);
+}
+
+.sw-select-result-list-fade-down-enter,
+.sw-select-result-list-fade-down-leave-to {
+    transform: translateY(-10px);
+    opacity: 0;
+}

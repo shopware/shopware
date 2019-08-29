@@ -93,7 +93,8 @@
       "labelSameDeliveryAndBillingAddress" : "Billing and shipping address identical",
       "buttonContinueOnVersionedOrder" : "Load",
       "tax": "Included taxes:",
-      "shippingCostsTax": "{taxRate}%: {tax}"
+      "shippingCostsTax": "{taxRate}%: {tax}",
+      "placeholderTagSelect": "Search tags..."
     },
     "detailDeliveries": {
       "cardTitleItems": "Shipment {count}",

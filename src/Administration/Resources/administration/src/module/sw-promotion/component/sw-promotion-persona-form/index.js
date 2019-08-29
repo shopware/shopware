@@ -46,7 +46,8 @@ Component.register('sw-promotion-persona-form', {
         },
 
         ruleFilter() {
-            return Criteria.multi('AND', [
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.multi('AND', [
                 Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
                 Criteria.equalsAny('conditions.type', [
                     'customerBillingCountry', 'customerBillingStreet', 'customerBillingZipCode', 'customerIsNewCustomer',
@@ -54,7 +55,9 @@ Component.register('sw-promotion-persona-form', {
                     'customerDifferentAddresses', 'customerLastName', 'customerOrderCount', 'customerShippingCountry',
                     'customerShippingStreet', 'customerShippingZipCode'
                 ])
-            ]);
+            ]));
+
+            return criteria;
         },
 
         gridCustomersColumns() {

@@ -361,9 +361,21 @@
     "sw-select": {
       "messageNoResults": "No results found for \"{term}\"."
     },
+    "sw-select-result-list": {
+      "messageNoResults": "No results found."
+    },
     "sw-single-select": {
       "messageNoResults": "No results found for \"{term}\".",
       "valuePlaceholder": "Select..."
+    },
+    "sw-multi-select": {
+      "messageNoResults": "No results found for \"{term}\"."
+    },
+    "sw-entity-multi-select": {
+      "messageNoResults": "No results found for \"{term}\"."
+    },
+    "sw-entity-many-to-many-select": {
+      "messageNoResults": "No results found for \"{term}\"."
     },
     "sw-label": {
       "buttonDismiss": "Dismiss"

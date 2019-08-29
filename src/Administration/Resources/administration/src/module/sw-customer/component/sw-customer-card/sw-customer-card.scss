@@ -3,7 +3,6 @@
 $sw-customer-color-mail-to-link: $color-shopware-blue;
 
 .sw-customer-card {
-
     .sw-customer-card__metadata {
         padding-top: 17px;
     }
@@ -32,6 +31,30 @@ $sw-customer-color-mail-to-link: $color-shopware-blue;
 
             &:last-of-type {
                 margin-right: 0;
+            }
+        }
+    }
+
+    .sw-customer-card__tag-select {
+        &.is--disabled {
+            background-color: transparent;
+            border-color: transparent;
+
+            .sw-block-field__block {
+                border: none;
+                background: transparent;
+            }
+
+            .sw-select__selection {
+                padding-left: 0;
+            }
+
+            .sw-select__selection-indicators {
+                display: none;
+            }
+
+            input {
+                background: transparent;
             }
         }
     }

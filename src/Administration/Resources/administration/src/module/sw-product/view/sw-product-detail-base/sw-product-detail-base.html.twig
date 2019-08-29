@@ -122,7 +122,9 @@
         {% endblock %}
 
         {% block sw_product_detail_base_ratings_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitleReviews')" :isLoading="product.isLoading">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitleReviews')"
+                     v-if="reviewItemData"
+                     :isLoading="product.isLoading">
                 <template slot="grid">
                         <sw-one-to-many-grid :collection="reviewItemData"
                                              :localMode="true"

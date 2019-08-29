@@ -76,15 +76,12 @@ class HeaderPageletLoader
             $salesChannelContext->getSalesChannel()->getNavigationCategoryId()
         );
 
-        $offCanvasNavigation = $this->navigationLoader->loadLevel((string) $navigationId, $salesChannelContext);
-
         $languages = $this->loadLanguages($salesChannelContext);
 
         $currencies = $this->loadCurrencies($salesChannelContext);
 
         $page = new HeaderPagelet(
             $category,
-            $offCanvasNavigation,
             $languages,
             $currencies,
             $languages->get($salesChannelContext->getContext()->getLanguageId()),

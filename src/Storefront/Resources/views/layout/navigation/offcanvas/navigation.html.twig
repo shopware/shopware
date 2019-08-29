@@ -13,10 +13,10 @@
         </nav>
     {% endblock %}
 
-    {% if page.header.offcanvasNavigation %}
-        {% set offcanvasNavigation = page.header.offcanvasNavigation %}
-    {% else %}
-        {% set offcanvasNavigation = page.navigation %}
+    {# @var page \Shopware\Storefront\Page\Page   #}
+    {% set offcanvasNavigation = page.header.navigation.children(page.header.navigation.active.id) %}
+    {% if offcanvasNavigation is null %}
+        {% set offcanvasNavigation = page.header.navigation %}
     {% endif %}
 
     {% block layout_navigation_offcanvas_navigation %}

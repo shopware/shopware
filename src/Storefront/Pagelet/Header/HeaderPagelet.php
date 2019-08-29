@@ -18,11 +18,6 @@ class HeaderPagelet extends Struct
     private $navigation;
 
     /**
-     * @var Tree
-     */
-    private $offcanvasNavigation;
-
-    /**
      * @var LanguageCollection
      */
     private $languages;
@@ -49,14 +44,12 @@ class HeaderPagelet extends Struct
 
     public function __construct(
         Tree $navigation,
-        Tree $offcanvasNavigation,
         LanguageCollection $languages,
         CurrencyCollection $currencies,
         LanguageEntity $activeLanguage,
         CurrencyEntity $activeCurrency,
         CategoryCollection $serviceMenu
     ) {
-        $this->offcanvasNavigation = $offcanvasNavigation;
         $this->navigation = $navigation;
         $this->languages = $languages;
         $this->currencies = $currencies;
@@ -68,11 +61,6 @@ class HeaderPagelet extends Struct
     public function getNavigation(): Tree
     {
         return $this->navigation;
-    }
-
-    public function getOffcanvasNavigation(): Tree
-    {
-        return $this->offcanvasNavigation;
     }
 
     public function getLanguages(): LanguageCollection

@@ -56,6 +56,19 @@ class EntityCollection extends Collection
         }
     }
 
+    public function insert(int $position, Entity $entity): void
+    {
+        $items = array_values($this->elements);
+
+        $this->elements = [];
+        foreach ($items as $index => $item) {
+            if ($index === $position) {
+                $this->add($entity);
+            }
+            $this->add($item);
+        }
+    }
+
     /**
      * @return static
      */

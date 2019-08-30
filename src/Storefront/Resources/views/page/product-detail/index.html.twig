@@ -18,13 +18,19 @@
                             </div>
                         {% endblock %}
 
+                        {% set mediaItems = page.product.media.media %}
+
+                        {% if page.product.cover %}
+                            {{ mediaItems.insert(0, page.product.cover.media) }}
+                        {% endif %}
+
                         {% block page_product_detail_main %}
                             <div class="row product-detail-main">
                                 {% block page_product_detail_media %}
                                     <div class="col-lg-7 product-detail-media">
                                         {% if page.product.media %}
                                             {% sw_include '@Storefront/element/cms-element-image-gallery.html.twig' with {
-                                                'mediaItems': page.product.media,
+                                                'mediaItems': mediaItems,
                                                 'zoom': true,
                                                 'zoomModal': true,
                                                 'displayMode': 'cover',

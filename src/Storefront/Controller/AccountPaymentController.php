@@ -15,6 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class AccountPaymentController extends StorefrontController
 {
     /**
@@ -36,7 +39,6 @@ class AccountPaymentController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -51,7 +53,6 @@ class AccountPaymentController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/payment", name="frontend.account.payment.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException

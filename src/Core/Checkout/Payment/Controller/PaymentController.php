@@ -30,7 +30,7 @@ class PaymentController extends AbstractController
     }
 
     /**
-     * @RouteScope(scopes={"api"})
+     * @RouteScope(scopes={"storefront"})
      * @Route("/payment/finalize-transaction", defaults={"auth_required"=false}, name="payment.finalize.transaction", methods={"GET"})
      *
      * @throws AsyncPaymentFinalizeException

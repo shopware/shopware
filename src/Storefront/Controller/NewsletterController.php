@@ -18,6 +18,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class NewsletterController extends StorefrontController
 {
     /**
@@ -60,7 +63,6 @@ class NewsletterController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/newsletter", name="frontend.newsletter.register.page", methods={"GET"})
      */
     public function index(SalesChannelContext $context, Request $request): Response
@@ -71,7 +73,6 @@ class NewsletterController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/newsletter", name="frontend.newsletter.register.handle", methods={"POST"})
      */
     public function handle(Request $request, SalesChannelContext $context, RequestDataBag $requestDataBag): Response
@@ -103,7 +104,6 @@ class NewsletterController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/newsletter/subscribe", name="frontend.newsletter.subscribe", methods={"GET"})
      */
     public function subscribeMail(SalesChannelContext $context, Request $request, QueryDataBag $queryDataBag): Response
@@ -122,7 +122,6 @@ class NewsletterController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/account/newsletter", name="frontend.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response

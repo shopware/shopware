@@ -21,6 +21,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class ContextController extends StorefrontController
 {
     /**
@@ -63,7 +66,6 @@ class ContextController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/configure", name="frontend.checkout.configure", methods={"POST"}, options={"seo"="false"}, defaults={"XmlHttpRequest": true})
      */
     public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -81,7 +83,6 @@ class ContextController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/language", name="frontend.checkout.switch-language", methods={"POST"})
      */
     public function switchLanguage(Request $request, SalesChannelContext $context): RedirectResponse

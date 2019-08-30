@@ -21,6 +21,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class RegisterController extends StorefrontController
 {
     /**
@@ -69,7 +72,6 @@ class RegisterController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/register", name="frontend.account.register.page", methods={"GET"})
      */
     public function accountRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -95,7 +97,6 @@ class RegisterController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/register", name="frontend.checkout.register.page", options={"seo"="false"}, methods={"GET"})
      */
     public function checkoutRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -120,7 +121,6 @@ class RegisterController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
      */
     public function register(Request $request, RequestDataBag $data, SalesChannelContext $context): Response

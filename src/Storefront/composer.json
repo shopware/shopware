@@ -27,6 +27,7 @@
         "symfony/http-kernel": "4.3.4",
         "symfony/routing": "4.3.4",
         "symfony/service-contracts": "1.1.6",
+        "symfony/validator": "4.3.4",
         "twig/extensions": "1.5.4",
         "twig/twig": "2.11.3"
     },

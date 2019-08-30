@@ -27,6 +27,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class CartLineItemController extends StorefrontController
 {
     /**
@@ -62,7 +65,6 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", methods={"POST", "DELETE"}, defaults={"XmlHttpRequest": true})
      */
     public function deleteLineItem(Cart $cart, string $id, Request $request, SalesChannelContext $salesChannelContext): Response
@@ -89,7 +91,6 @@ class CartLineItemController extends StorefrontController
      * It has some individual code for the storefront layouts, like visual
      * error and success messages.
      *
-     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/promotion/add", name="frontend.checkout.promotion.add", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
     public function addPromotion(Cart $cart, Request $request, SalesChannelContext $salesChannelContext): Response
@@ -145,7 +146,6 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/line-item/change-quantity/{id}", name="frontend.checkout.line-item.change-quantity", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
     public function changeQuantity(Cart $cart, string $id, Request $request, SalesChannelContext $salesChannelContext): Response
@@ -174,7 +174,6 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/product/add-by-number", name="frontend.checkout.product.add-by-number", methods={"POST"})
      *
      * @throws InconsistentCriteriaIdsException
@@ -216,7 +215,6 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/checkout/line-item/add", name="frontend.checkout.line-item.add", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      *
      * requires the provided items in the following form

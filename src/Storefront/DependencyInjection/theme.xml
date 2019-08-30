@@ -72,7 +72,6 @@
         <!-- Controller -->
         <service id="Shopware\Storefront\Theme\Controller\ThemeController" public="true">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
-            <argument type="service" id="Shopware\Core\Framework\Translation\Translator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

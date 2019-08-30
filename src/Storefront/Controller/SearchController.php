@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class SearchController extends StorefrontController
 {
     /**
@@ -29,7 +32,6 @@ class SearchController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/search", name="frontend.search.page", options={"seo"=false}, methods={"GET"})
      */
     public function search(SalesChannelContext $context, Request $request): Response
@@ -40,7 +42,6 @@ class SearchController extends StorefrontController
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/suggest", name="frontend.search.suggest", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function suggest(SalesChannelContext $context, Request $request): Response

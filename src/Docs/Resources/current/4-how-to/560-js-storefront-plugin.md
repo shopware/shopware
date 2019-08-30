@@ -152,6 +152,13 @@ As the value of this attribute use the options you want to override as a json ob
 {% endblock %}
 ```
 
+<p class="alert is--error">
+    IMPORTANT: Please note that a JavaScript class can have variables.
+    These variables get `undefined` on `this` when used in an event listener.
+    If you don't declare them in the JavaScript class they won't reset to `undefined`.
+    To keep type hints add a `@property {Type} variable` to the class documentation.
+</p>
+
 ## Configuring your plugins script path
 
 This can be ignored if you are on version 6.0.0 EA2 or newer. 

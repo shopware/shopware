@@ -930,13 +930,13 @@ Let's quickly add them in the `services.xml` again:
 
             <!-- inject before product processor (5000) -->
             <tag name="shopware.cart.processor" priority="6000" />
-            <tag name="shopware.cart.processor" priority="6000" />
+            <tag name="shopware.cart.collector" priority="6000" />
         </service>
     </services>
 </container>
 ```
 
-The necessary calculators are injected into your processor. Note the tags though, `shopware.cart.processor` and `shopware.cart.processor`.
+The necessary calculators are injected into your processor. Note the tags though, `shopware.cart.processor` and `shopware.cart.collector`.
 The `priority` defines the order they are executed and as you might remember, your processor has to run before the `ProductCartProcessor`.
 
 Your plugin is almost done, just some last polishing is necessary. Head over to the [next step](./100-final-preparation.md) for the last few changes necessary.

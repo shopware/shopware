@@ -1050,7 +1050,7 @@ class RecalculationServiceTest extends TestCase
         $calculatedTaxes = $customLineItem->getPrice()->getCalculatedTaxes()->first();
         static::assertSame($calculatedTaxes->getPrice(), 333.1);
         static::assertSame($calculatedTaxes->getTaxRate(), 19.0);
-        static::assertSame($calculatedTaxes->getTax(), 53.20);
+        static::assertSame($calculatedTaxes->getTax(), 53.18);
 
         static::assertSame($customLineItem->getPrice()->getTotalPrice() + $oldTotal, $order->getAmountTotal());
     }

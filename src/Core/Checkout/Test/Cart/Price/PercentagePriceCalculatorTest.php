@@ -12,8 +12,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
 class PercentagePriceCalculatorTest extends TestCase
@@ -24,11 +22,6 @@ class PercentagePriceCalculatorTest extends TestCase
     public function testCalculatePercentagePriceOfGrossPrices(float $percentage, CalculatedPrice $expected, PriceCollection $prices): void
     {
         $rounding = new PriceRounding();
-
-        $taxCalculator = new TaxCalculator(
-            $rounding,
-            new TaxRuleCalculator(new PriceRounding())
-        );
 
         $calculator = new PercentagePriceCalculator($rounding, new PercentageTaxRuleBuilder());
 

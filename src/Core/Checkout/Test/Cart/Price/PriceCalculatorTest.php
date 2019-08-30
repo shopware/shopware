@@ -32,8 +32,7 @@ class PriceCalculatorTest extends TestCase
         QuantityPriceDefinition $priceDefinition
     ): void {
         $taxCalculator = new TaxCalculator(
-            $priceRounding,
-            new TaxRuleCalculator($priceRounding)
+            new TaxRuleCalculator()
         );
 
         $referencePriceCalculator = new ReferencePriceCalculator($priceRounding);
@@ -68,8 +67,7 @@ class PriceCalculatorTest extends TestCase
         $referencePriceCalculator = new ReferencePriceCalculator($priceRounding);
 
         $taxCalculator = new TaxCalculator(
-            $priceRounding,
-            new TaxRuleCalculator($priceRounding)
+            new TaxRuleCalculator()
         );
 
         $calculator = new QuantityPriceCalculator(
@@ -101,8 +99,7 @@ class PriceCalculatorTest extends TestCase
         $referencePriceCalculator = new ReferencePriceCalculator($priceRounding);
 
         $taxCalculator = new TaxCalculator(
-            $priceRounding,
-            new TaxRuleCalculator($priceRounding)
+            new TaxRuleCalculator()
         );
 
         $calculator = new QuantityPriceCalculator(

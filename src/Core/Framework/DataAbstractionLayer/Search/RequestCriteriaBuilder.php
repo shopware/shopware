@@ -35,10 +35,16 @@ class RequestCriteriaBuilder
      */
     private $allowedLimits;
 
-    public function __construct(int $maxLimit, array $availableLimits = [])
+    /**
+     * @var AggregationParser
+     */
+    private $aggregationParser;
+
+    public function __construct(AggregationParser $aggregationParser, int $maxLimit, array $availableLimits = [])
     {
         $this->maxLimit = $maxLimit;
         $this->allowedLimits = $availableLimits;
+        $this->aggregationParser = $aggregationParser;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
@@ -120,7 +126,7 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['aggregations'])) {
-            AggregationParser::buildAggregations($definition, $payload, $criteria, $searchException);
+            $this->aggregationParser->buildAggregations($definition, $payload, $criteria, $searchException);
         }
 
         if (isset($payload['associations'])) {

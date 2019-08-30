@@ -539,5 +539,10 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Api\Sync\SyncService" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
     </services>
 </container>

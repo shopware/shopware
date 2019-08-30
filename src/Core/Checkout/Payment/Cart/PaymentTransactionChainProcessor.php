@@ -80,7 +80,11 @@ class PaymentTransactionChainProcessor
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('lineItems');
 
-        $criteria->addAssociation('deliveries');
+        $criteria->addAssociation('deliveries.shippingMethod');
+        $criteria->addAssociation('deliveries.shippingOrderAddress.country');
+        $criteria->addAssociation('addresses.country');
+        $criteria->addAssociation('addresses.salutation');
+
         $criteria->addAssociationPath('deliveries.shippingMethod');
         $criteria->addAssociationPath('deliveries.shippingOrderAddress.country');
         $criteria->addAssociation('addresses');

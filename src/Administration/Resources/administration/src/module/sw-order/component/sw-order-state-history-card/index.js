@@ -12,11 +12,10 @@ Component.register('sw-order-state-history-card', {
 
     inject: [
         'orderService',
-        'orderTransactionService',
+        'stateMachineService',
         'repositoryFactory',
         'context'
     ],
-
     props: {
         title: {
             type: String,
@@ -145,8 +144,8 @@ Component.register('sw-order-state-history-card', {
             return Promise.all(
                 [
                     this.getAllStates(),
-                    this.orderService.getState(this.order.id, this.order.versionId),
-                    this.orderTransactionService.getState(this.order.transactions[0].id, this.order.versionId)
+                    this.stateMachineService.getState('order', this.order.id),
+                    this.stateMachineService.getState('order_transaction', this.order.transactions[0].id)
                 ]
             ).then((data) => {
                 const allStates = data[0];
@@ -219,7 +218,7 @@ Component.register('sw-order-state-history-card', {
                 return;
             }
 
-            this.orderService.transitionState(this.order.id, actionName).then(() => {
+            this.stateMachineService.transitionState('order', this.order.id, actionName).then(() => {
                 this.$emit('order-state-change');
                 this.loadHistory();
             }).catch((error) => {
@@ -233,7 +232,7 @@ Component.register('sw-order-state-history-card', {
                 return;
             }
 
-            this.orderTransactionService.transitionState(this.order.transactions[0].id, actionName).then(() => {
+            this.stateMachineService.transitionState('order_transaction', this.order.transactions[0].id, actionName).then(() => {
                 this.$emit('order-state-change');
                 this.loadHistory();
             }).catch((error) => {

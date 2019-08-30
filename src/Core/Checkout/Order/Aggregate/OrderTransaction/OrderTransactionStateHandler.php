@@ -3,151 +3,164 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
 
 class OrderTransactionStateHandler
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderTransactionRepository;
-
     /**
      * @var StateMachineRegistry
      */
     private $stateMachineRegistry;
 
-    public function __construct(
-        EntityRepositoryInterface $orderTransactionRepository,
-        StateMachineRegistry $stateMachineRegistry
-    ) {
-        $this->orderTransactionRepository = $orderTransactionRepository;
+    public function __construct(StateMachineRegistry $stateMachineRegistry)
+    {
         $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     /**
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineNotFoundException
-     * @throws StateMachineStateNotFoundException
+     * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
-    public function open(string $transactionId, Context $context): void
+    public function reopen(string $transactionId, Context $context): void
     {
-        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_OPEN,
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                StateMachineTransitionActions::ACTION_REOPEN,
+                'stateId'
+            ),
             $context
-        )->getId();
-
-        $this->writeNewState($transactionId, $stateId, $context);
+        );
     }
 
     /**
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineNotFoundException
-     * @throws StateMachineStateNotFoundException
+     * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
     public function pay(string $transactionId, Context $context): void
     {
-        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_PAID,
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                StateMachineTransitionActions::ACTION_PAY,
+                'stateId'
+            ),
             $context
-        )->getId();
-
-        $this->writeNewState($transactionId, $stateId, $context);
+        );
     }
 
     /**
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineNotFoundException
-     * @throws StateMachineStateNotFoundException
+     * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
     public function payPartially(string $transactionId, Context $context): void
     {
-        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_PARTIALLY_PAID,
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                StateMachineTransitionActions::ACTION_PAY_PARTIALLY,
+                'stateId'
+            ),
             $context
-        )->getId();
-
-        $this->writeNewState($transactionId, $stateId, $context);
+        );
     }
 
     /**
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineNotFoundException
-     * @throws StateMachineStateNotFoundException
+     * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
     public function refund(string $transactionId, Context $context): void
     {
-        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_REFUNDED,
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                StateMachineTransitionActions::ACTION_REFUND,
+                'stateId'
+            ),
             $context
-        )->getId();
-
-        $this->writeNewState($transactionId, $stateId, $context);
+        );
     }
 
     /**
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineNotFoundException
-     * @throws StateMachineStateNotFoundException
+     * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
     public function refundPartially(string $transactionId, Context $context): void
     {
-        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_PARTIALLY_REFUNDED,
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                StateMachineTransitionActions::ACTION_REFUND_PARTIALLY,
+                'stateId'
+            ),
             $context
-        )->getId();
-
-        $this->writeNewState($transactionId, $stateId, $context);
+        );
     }
 
     /**
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineNotFoundException
-     * @throws StateMachineStateNotFoundException
+     * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
     public function cancel(string $transactionId, Context $context): void
     {
-        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_CANCELLED,
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                StateMachineTransitionActions::ACTION_CANCEL,
+                'stateId'
+            ),
             $context
-        )->getId();
-
-        $this->writeNewState($transactionId, $stateId, $context);
+        );
     }
 
     /**
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineNotFoundException
-     * @throws StateMachineStateNotFoundException
+     * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
     public function remind(string $transactionId, Context $context): void
     {
-        $stateId = $this->stateMachineRegistry->getStateByTechnicalName(
-            OrderTransactionStates::STATE_MACHINE,
-            OrderTransactionStates::STATE_REMINDED,
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                StateMachineTransitionActions::ACTION_REMIND,
+                'stateId'
+            ),
             $context
-        )->getId();
-
-        $this->writeNewState($transactionId, $stateId, $context);
-    }
-
-    private function writeNewState(string $transactionId, string $stateId, Context $context): void
-    {
-        $data = [
-            'id' => $transactionId,
-            'stateId' => $stateId,
-        ];
-
-        $this->orderTransactionRepository->update([$data], $context);
+        );
     }
 }

@@ -88,7 +88,7 @@ class OrderTransactionStateHandlerTest extends TestCase
         static::assertSame(OrderTransactionStates::STATE_PAID, $transaction->getStateMachineState()->getTechnicalName());
     }
 
-    public function testSetOpenState(): void
+    public function testSetReopenState(): void
     {
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer($context);
@@ -103,7 +103,7 @@ class OrderTransactionStateHandlerTest extends TestCase
 
         static::assertSame(OrderTransactionStates::STATE_CANCELLED, $transaction->getStateMachineState()->getTechnicalName());
 
-        $this->orderTransactionStateHelper->open($transactionId, $context);
+        $this->orderTransactionStateHelper->reopen($transactionId, $context);
 
         $criteria = new Criteria([$transactionId]);
         $criteria->addAssociation('stateMachineState');

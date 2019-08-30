@@ -118,6 +118,17 @@ class WriteContext
         return $this->exceptions;
     }
 
+    public function scope(string $scope, callable $callback)
+    {
+        $originalContext = $this->context;
+
+        $this->context->scope($scope, function (Context $context) use ($callback, $originalContext) {
+            $this->context = $context;
+            $callback($this);
+            $this->context = $originalContext;
+        });
+    }
+
     private function getLanguageCodeToIdMapping(): array
     {
         if ($this->languageCodeIdMapping !== null) {

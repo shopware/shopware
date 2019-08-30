@@ -20,7 +20,7 @@ class SnippetServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public static function tearDownAfterClass(): void
+    public function tearDown(): void
     {
         foreach (glob(__DIR__ . '/Mock/_fixtures/*.json') as $mockFile) {
             unlink($mockFile);

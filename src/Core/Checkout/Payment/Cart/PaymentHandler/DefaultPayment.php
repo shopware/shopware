@@ -21,7 +21,6 @@ class DefaultPayment implements SynchronousPaymentHandlerInterface
 
     public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
     {
-        $context = $salesChannelContext->getContext();
-        $this->transactionStateHandler->open($transaction->getOrderTransaction()->getId(), $context);
+        // needed for payment methods like Cash on delivery and Paid in advance
     }
 }

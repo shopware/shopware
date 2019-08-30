@@ -43,6 +43,11 @@ You can use them with every URL in your templates
     * Added new event `\Shopware\Core\Content\Category\Event\NavigationLoadedEvent` which dispatched after a sales channel navigation loaded
     * Added restriction to storefront API to prevent filtering, sorting, aggregating and association loading of ReadProtected fields/entities
     * Added `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociations` which allows to add multiple association paths
+    * Added `\Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField`
+    * Added generic `\Shopware\Core\System\StateMachine\Api\StateMachineActionController`
+    * Changed field `stateId` from `FkField` to `StateMachineStateField` in `OrderDefinition` and `OrderTransactionDefinition`
+    * Changed parameter of `\Shopware\Core\System\StateMachine\StateMachineRegistry::transition`. `\Shopware\Core\System\StateMachine\Transition` is now expected.
+    * Changed behaviour of `\Shopware\Core\System\StateMachine\StateMachineRegistry::transition` to now expect the action name instead of the toStateName
     * Changed signature of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociation`
       The second parameter `$criteria` has been removed. Use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::getAssociation` instead.  
     * Changed the name of `core.<locale>.json` to `messages.<locale>.json` and changed to new base file.
@@ -57,3 +62,6 @@ You can use them with every URL in your templates
 * Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function
 * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria`
 * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociationPath` use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociation` instead
+* Removed `\Shopware\Core\Checkout\Order\Api\OrderActionController` which is now replaced by the generic `\Shopware\Core\System\StateMachine\Api\StateMachineActionController`
+* Removed `\Shopware\Core\Checkout\Order\Api\OrderDeliveryActionController` which is now replaced by the generic `\Shopware\Core\System\StateMachine\Api\StateMachineActionController`
+* Removed `\Shopware\Core\Checkout\Order\Api\OrderTransactionActionController` which is now replaced by the generic `\Shopware\Core\System\StateMachine\Api\StateMachineActionController`

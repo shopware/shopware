@@ -8,4 +8,5 @@
     <import resource="../../SystemConfig/**/*Controller.php" type="annotation" />
     <import resource="../../NumberRange/**/*Controller.php" type="annotation" />
     <import resource="../../SalesChannel/SalesChannel/**/*Controller.php" type="annotation" />
+    <import resource="../../StateMachine/Api/*Controller.php" type="annotation" />
 </routes>

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -43,8 +44,18 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
 
         $referenceField = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
         $value = $data->getValue();
+
+        $fkField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());
+
+        $isPrimary = ($fkField && $fkField->is(PrimaryKey::class));
+
         if (isset($value[$referenceField->getPropertyName()])) {
             $id = $value[$referenceField->getPropertyName()];
+
+        // plugins can add a ManyToOne where they define that the local/storage column is the primary and the reference is the foreign key
+        // in this case we have a reversed many to one association configuration
+        } elseif ($isPrimary) {
+            $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $fkField->getPropertyName());
         } else {
             $id = Uuid::randomHex();
             $value[$referenceField->getPropertyName()] = $id;
@@ -58,7 +69,10 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
             )
         );
 
-        $fkField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());
+        // in case of a reversed many to one configuration we have to return nothing, otherwise the primary key would be overwritten
+        if ($isPrimary) {
+            return;
+        }
 
         /* @var FkField $fkField */
         yield $fkField->getPropertyName() => $id;

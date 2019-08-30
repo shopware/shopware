@@ -10,10 +10,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
@@ -106,6 +108,18 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
     private function update(EntityDefinition $definition, array $ids, Context $context)
     {
         if (empty($ids)) {
+            return;
+        }
+
+        if ($definition instanceof MappingEntityDefinition) {
+            $fkFields = $definition->getFields()->filterInstance(FkField::class);
+
+            /** @var FkField $field */
+            foreach ($fkFields as $field) {
+                $foreignKeys = array_column($ids, $field->getPropertyName());
+                $this->update($field->getReferenceDefinition(), $foreignKeys, $context);
+            }
+
             return;
         }
 

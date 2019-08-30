@@ -9,11 +9,13 @@ class AccessKeyHelper
     private const USER_IDENTIFIER = 'SWUA';
     private const INTEGRATION_IDENTIFIER = 'SWIA';
     private const SALES_CHANNEL_IDENTIFIER = 'SWSC';
+    private const PRODUCT_EXPORT_IDENTIFIER = 'SWPE';
 
     public static $mapping = [
         self::USER_IDENTIFIER => 'user',
         self::INTEGRATION_IDENTIFIER => 'integration',
         self::SALES_CHANNEL_IDENTIFIER => 'sales-channel',
+        self::PRODUCT_EXPORT_IDENTIFIER => 'product-export',
     ];
 
     public static function generateAccessKey(string $identifier): string

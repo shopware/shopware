@@ -19,7 +19,7 @@ class Migration1565705280ProductExport extends MigrationStep
                 `id` BINARY(16) NOT NULL,
                 `product_stream_id` BINARY(16) NOT NULL,
                 `sales_channel_id` BINARY(16) NOT NULL,
-                `sales_channel_domain_id` BINARY(16) NOT NULL,
+                `sales_channel_domain_id` BINARY(16) NULL,
                 `file_name` VARCHAR(255) NOT NULL,
                 `access_key` VARCHAR(255) NOT NULL,
                 `encoding` VARCHAR(255) NOT NULL,

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
@@ -79,6 +80,55 @@ class EntityExtensionReadTest extends TestCase
         $this->removeExtension(ProductExtension::class);
 
         parent::tearDown();
+    }
+
+    public function testICanAddAManyToOneAsExtension()
+    {
+        $productId = Uuid::randomHex();
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'name' => 'Test product',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
+                'manyToOne' => [
+                    'productId' => $productId,
+                    'name' => 'test',
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $created = $this->connection->fetchAll('SELECT * FROM extended_product');
+
+        static::assertCount(1, $created);
+        $reference = array_shift($created);
+        static::assertSame($productId, Uuid::fromBytesToHex($reference['product_id']));
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('manyToOne');
+
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        /** @var ProductEntity $product */
+        static::assertSame($productId, $product->getId());
+
+        static::assertTrue($product->hasExtension('manyToOne'));
+        $extension = $product->getExtension('manyToOne');
+
+        /** @var ArrayEntity $extension */
+        static::assertInstanceOf(ArrayEntity::class, $extension);
+        static::assertEquals('test', $extension->get('name'));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('manyToOne.name', 'test'));
+        $criteria->addExtension('test', new ArrayEntity());
+
+        $products = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
+        static::assertTrue($products->has($productId));
     }
 
     public function testICanReadNestedAssociationsFromToOneExtensions(): void

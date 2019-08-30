@@ -108,6 +108,8 @@ class EntityDefinitionQueryHelper
 
         if (strpos($fieldName, $prefix) === 0) {
             $fieldName = substr($fieldName, \strlen($prefix));
+        } else {
+            $original = $prefix . $original;
         }
 
         $fields = $definition->getFields();
@@ -169,6 +171,8 @@ class EntityDefinitionQueryHelper
 
         if (strpos($fieldName, $prefix) === 0) {
             $fieldName = substr($fieldName, \strlen($prefix));
+        } else {
+            $original = $prefix . $original;
         }
 
         $fields = $definition->getFields();
@@ -314,6 +318,8 @@ class EntityDefinitionQueryHelper
 
         if (strpos($fieldName, $prefix) === 0) {
             $fieldName = substr($fieldName, \strlen($prefix));
+        } else {
+            $original = $prefix . $original;
         }
 
         $fields = $definition->getFields();

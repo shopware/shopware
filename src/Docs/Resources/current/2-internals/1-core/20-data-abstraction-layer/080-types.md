@@ -265,10 +265,6 @@ writing and working with the relation.
 1. `$propertyName` is the name used in your struct and used to search, write and work.
 2. `$referenceClass` is the related definition class reference
 3. `$referenceField` is the foreign key field the related definition
-4. `$loadInBasic` indicates if the relationship should be loaded when the entity is read.
-
-**Heads up!** It is strongly recommended to set `$loadInBasic` to `false` as a further query would be required to fetch
-the data.
 
 **Optional**
 
@@ -285,8 +281,8 @@ This field is used for building `n:1` relations.
 1. `$propertyName` is the name used in your struct and used to search, write and work.
 2. `$storageName` is the name in your storage used for as foreign key.
 3. `$referenceClass` is the related definition class reference
-4. `$loadInBasic` indicates if the relationship should be loaded when the entity is read. In most cases, it is safe to
-set this parameter to `true` as it can simply be joined without a further query.
+4. `$autoload` indicates if the relationship should be loaded when the entity is read. However, this parameter should 
+only be set to `true` if it makes no sense to load this entity without this relation
 
 **Optional**
 
@@ -302,14 +298,10 @@ This field is used for building `n:m` relations. It does not have a storage fiel
 mapping table and its corresponding mapping definition.
 
 1. `$propertyName` is the name used in your struct and used to search, write and work.
-2. `$referenceClass` is the related definition class reference
+2. `$referenceDefinition` is the related definition class reference
 3. `$mappingDefinition` is the mapping definition to relate both definitions to each other
-4. `$loadInBasic` indicates if the relationship should be loaded when the entity is read.
-5. `$mappingLocalColumn` is the foreign key field for the local definition in the mapping definition
-6. `$mappingReferenceColumn` is the foreign key field for the related definition in the mapping definition
-
-**Heads up!** It is strongly recommended to set `$loadInBasic` to `false` as a further query would be required to fetch
-the data.
+4. `$mappingLocalColumn` is the foreign key field for the local definition in the mapping definition
+5. `$mappingReferenceColumn` is the foreign key field for the related definition in the mapping definition
 
 **Optional**
 

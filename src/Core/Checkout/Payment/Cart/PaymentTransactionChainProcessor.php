@@ -85,12 +85,6 @@ class PaymentTransactionChainProcessor
         $criteria->addAssociation('addresses.country');
         $criteria->addAssociation('addresses.salutation');
 
-        $criteria->addAssociationPath('deliveries.shippingMethod');
-        $criteria->addAssociationPath('deliveries.shippingOrderAddress.country');
-        $criteria->addAssociation('addresses');
-        $criteria->addAssociationPath('addresses.country');
-        $criteria->addAssociationPath('addresses.salutation');
-
         /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
 

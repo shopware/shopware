@@ -53,6 +53,7 @@ class VariantListingIndexer implements IndexerInterface
         $context = Context::createDefaultContext();
 
         $iterator = $this->iteratorFactory->createIterator($this->productDefinition);
+        $iterator->getQuery()->andWhere('product.parent_id IS NULL');
 
         $this->eventDispatcher->dispatch(
             new ProgressStartedEvent('Start indexing listing variants', $iterator->fetchCount()),
@@ -83,6 +84,15 @@ class VariantListingIndexer implements IndexerInterface
             $ids = $products->getIds();
         }
 
+        $query = $this->connection->createQueryBuilder();
+        $query->addSelect('LOWER(HEX(IFNULL(product.parent_id, product.id))) as product_id');
+        $query->from('product');
+        $query->where('product.id IN (:ids)');
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
+
+        $ids = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+        $ids = array_filter($ids);
+
         $this->update($ids, $event->getContext());
     }
 
@@ -91,9 +101,8 @@ class VariantListingIndexer implements IndexerInterface
         $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
 
         $query = $this->connection->createQueryBuilder();
-        $query->select(['IFNULL(parent.id, product.id) as id', 'IFNULL(parent.configurator_group_config, product.configurator_group_config) as config']);
+        $query->select(['product.id as id', 'product.configurator_group_config as config', '(SELECT COUNT(id) FROM product as child WHERE product.id = child.parent_id) as child_count']);
         $query->from('product');
-        $query->leftJoin('product', 'product', 'parent', 'parent.id = product.parent_id');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('product.id IN (:ids)');
         $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
@@ -105,14 +114,17 @@ class VariantListingIndexer implements IndexerInterface
         foreach ($configuration as $config) {
             $config['config'] = $config['config'] === null ? [] : json_decode($config['config'], true);
 
-            $listing = [];
+            $groups = [];
             foreach ($config['config'] as $group) {
                 if ($group['expressionForListings']) {
-                    $listing[] = $group['id'];
+                    $groups[] = $group['id'];
                 }
             }
 
-            $listingConfiguration[$config['id']] = $listing;
+            $listingConfiguration[$config['id']] = [
+                'groups' => $groups,
+                'child_count' => $config['child_count'],
+            ];
         }
 
         return $listingConfiguration;
@@ -123,86 +135,67 @@ class VariantListingIndexer implements IndexerInterface
         if (empty($ids)) {
             return;
         }
+
+        $ids = array_keys(array_flip($ids));
+
         $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
 
         $listingConfiguration = $this->getListingConfiguration($ids, $context);
 
         foreach ($listingConfiguration as $parentId => $config) {
-            // display only "container" product, if the config is empty
-            if (empty($config)) {
+            $childCount = (int) $config['child_count'];
+            $groups = $config['groups'];
+
+            if ($childCount <= 0) {
                 $this->connection->executeUpdate(
-                    'UPDATE product SET display_in_listing = 0 WHERE product.parent_id = :id AND product.version_id = :versionId',
+                    'UPDATE product SET display_group = MD5(HEX(product.id)) WHERE product.id = :id AND product.version_id = :versionId',
                     ['id' => $parentId, 'versionId' => $versionBytes]
                 );
+            } else {
                 $this->connection->executeUpdate(
-                    'UPDATE product SET display_in_listing = 1 WHERE product.id = :id AND product.version_id = :versionId',
+                    'UPDATE product SET display_group = NULL WHERE product.id = :id AND product.version_id = :versionId',
+                    ['id' => $parentId, 'versionId' => $versionBytes]
+                );
+            }
+
+            if (empty($groups)) {
+                $this->connection->executeUpdate(
+                    'UPDATE product SET display_group = MD5(HEX(product.parent_id)) WHERE product.parent_id = :id AND product.version_id = :versionId',
                     ['id' => $parentId, 'versionId' => $versionBytes]
                 );
                 continue;
             }
+
             $query = $this->connection->createQueryBuilder();
 
-            $query->select('product.id');
-            $query->from('product');
-            $query->andWhere('product.version_id = :version');
-            $query->andWhere('product.parent_id = :parentId');
-            $query->andWhere('product.active = 1');
-            $query->setParameter('parentId', $parentId);
-            $query->setParameter('version', $versionBytes);
+            $query->from('(SELECT 1)', 'root');
 
-            foreach ($config as $groupId) {
-                $groupAlias = 'group_' . $groupId;
+            $fields = [];
+            $params = ['parentId' => $parentId];
+            foreach ($groups as $index => $groupId) {
                 $mappingAlias = 'mapping' . $groupId;
                 $optionAlias = 'option' . $groupId;
 
-                //INNER JOIN product_option color_mapping ON color_mapping.product_id = product.id
-                $query->innerJoin('product', 'product_option', $mappingAlias, $mappingAlias . '.product_id = product.id');
+                $query->innerJoin('root', 'product_option', $mappingAlias, $mappingAlias . '.product_id IS NOT NULL');
+                $query->innerJoin($mappingAlias, 'property_group_option', $optionAlias, $optionAlias . '.id = ' . $mappingAlias . '.property_group_option_id AND ' . $optionAlias . '.property_group_id = :' . $optionAlias);
+                $query->andWhere($mappingAlias . '.product_id = product.id');
 
-                //INNER JOIN property_group_option colors ON colors.id = color_mapping.property_group_option_id
-                $query->innerJoin($mappingAlias, 'property_group_option', $optionAlias, $mappingAlias . '.property_group_option_id = ' . $optionAlias . '.id');
+                $fields[] = 'LOWER(HEX(' . $optionAlias . '.id))';
 
-                //INNER JOIN property_group color ON color.id = colors.property_group_id AND color.id = UNHEX('e5ebdf386d6043be92014b38bcfec0d5')
-                $query->innerJoin($optionAlias, 'property_group', $groupAlias, $optionAlias . '.property_group_id = ' . $groupAlias . '.id AND ' . $groupAlias . '.id = :' . $groupAlias);
-
-                $query->addGroupBy($optionAlias . '.id');
-
-                $query->setParameter($groupAlias, Uuid::fromHexToBytes($groupId));
+                $params[$optionAlias] = Uuid::fromHexToBytes($groupId);
             }
 
-            $ids = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
+            $query->addSelect('CONCAT(' . implode(',', $fields) . ')');
 
-            // disable all variants and the "container" product
-            $this->connection->executeUpdate(
-                'UPDATE product SET display_in_listing = 0 WHERE (product.parent_id = :id OR (product.id = :id))  AND product.version_id = :versionId',
-                ['id' => $parentId, 'versionId' => $versionBytes]
-            );
+            $sql = '
+            UPDATE product SET display_group = MD5(
+                CONCAT(
+                    LOWER(HEX(product.parent_id)),
+                    (' . $query->getSQL() . ')
+                )
+            ) WHERE parent_id = :parentId';
 
-            // no variants found? display "container" product
-            if (!empty($ids)) {
-                // activate found variants for listings
-                $this->connection->executeUpdate(
-                    'UPDATE product SET display_in_listing = 1 WHERE product.id IN (:ids) AND product.version_id = :versionId',
-                    ['ids' => $ids, 'versionId' => $versionBytes],
-                    ['ids' => Connection::PARAM_STR_ARRAY]
-                );
-
-                continue;
-            }
-
-            $available = $this->connection->fetchColumn(
-                'SELECT 1 FROM `product` WHERE `parent_id` = :parentId AND `active` = 1 LIMIT 1',
-                ['parentId' => $parentId]
-            );
-
-            // product has no more available variant
-            if (!$available) {
-                continue;
-            }
-
-            $this->connection->executeUpdate(
-                'UPDATE product SET display_in_listing = 1 WHERE product.parent_id = :id AND product.version_id = :versionId',
-                ['id' => $parentId, 'versionId' => $versionBytes]
-            );
+            $this->connection->executeUpdate($sql, $params);
         }
     }
 }

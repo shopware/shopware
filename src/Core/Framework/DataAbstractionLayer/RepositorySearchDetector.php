@@ -26,6 +26,11 @@ class RepositorySearchDetector
             return true;
         }
 
+        //group by is only supported by entity searcher
+        if (\count($criteria->getGroupFields())) {
+            return true;
+        }
+
         //sortings are only supported by entity searcher
         if (\count($criteria->getSorting())) {
             return true;

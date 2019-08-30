@@ -89,12 +89,6 @@ Component.register('sw-product-variants-overview', {
                     allowResize: true,
                     inlineEdit: 'boolean',
                     align: 'center'
-                },
-                {
-                    property: 'displayInListing',
-                    label: this.$tc('sw-product.variations.generatedListColumnDisplayInListing'),
-                    allowResize: true,
-                    align: 'center'
                 }
             ];
         },

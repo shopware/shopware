@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
@@ -13,12 +14,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(Connection $connection)
+    {
+        $this->connection = $connection;
+    }
+
     public static function getSubscribedEvents()
     {
         return [
@@ -33,7 +48,14 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria = $event->getCriteria();
 
         $criteria->addAssociation('cover.media');
-        $criteria->addFilter(new EqualsFilter('product.displayInListing', true));
+
+        $criteria->addGroupField(new FieldGrouping('displayGroup'));
+        $criteria->addFilter(
+            new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [new EqualsFilter('displayGroup', null)]
+            )
+        );
     }
 
     public function handleRequest(ProductListingCriteriaEvent $event): void
@@ -43,7 +65,14 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria = $event->getCriteria();
 
         $criteria->addAssociation('cover.media');
-        $criteria->addFilter(new EqualsFilter('product.displayInListing', true));
+
+        $criteria->addGroupField(new FieldGrouping('displayGroup'));
+        $criteria->addFilter(
+            new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [new EqualsFilter('displayGroup', null)]
+            )
+        );
 
         $this->handlePagination($request, $criteria);
 
@@ -110,15 +139,27 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $criteria->addPostFilter(
-            new MultiFilter(
-                MultiFilter::CONNECTION_OR,
-                [
-                    new EqualsAnyFilter('product.optionIds', $ids),
-                    new EqualsAnyFilter('product.propertyIds', $ids),
-                ]
-            )
+        $grouped = $this->connection->fetchAll(
+            'SELECT LOWER(HEX(property_group_id)), LOWER(HEX(id)) as id FROM property_group_option WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
         );
+
+        $grouped = FetchModeHelper::group($grouped);
+
+        foreach ($grouped as $options) {
+            $options = array_column($options, 'id');
+
+            $criteria->addPostFilter(
+                new MultiFilter(
+                    MultiFilter::CONNECTION_OR,
+                    [
+                        new EqualsAnyFilter('product.optionIds', $options),
+                        new EqualsAnyFilter('product.propertyIds', $options),
+                    ]
+                )
+            );
+        }
     }
 
     private function handlePriceFilter(Request $request, Criteria $criteria): void

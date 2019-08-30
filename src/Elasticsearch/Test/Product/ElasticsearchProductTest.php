@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -76,14 +77,10 @@ class ElasticsearchProductTest extends TestCase
             $exists = $this->client->indices()->exists(['index' => $index]);
             static::assertTrue($exists);
 
-            $exists = $this->client->exists(['index' => $index, 'id' => $data->getProductId('product1')]);
-            static::assertTrue($exists);
-
-            $exists = $this->client->exists(['index' => $index, 'id' => $data->getProductId('product2')]);
-            static::assertTrue($exists);
-
-            $exists = $this->client->exists(['index' => $index, 'id' => $data->getProductId('product3')]);
-            static::assertTrue($exists);
+            foreach ($data->getProductIds() as $id) {
+                $exists = $this->client->exists(['index' => $index, 'id' => $id]);
+                static::assertTrue($exists);
+            }
         }
 
         return $data;
@@ -99,7 +96,7 @@ class ElasticsearchProductTest extends TestCase
         // check simple search without any restrictions
         $criteria = new Criteria($data->getProductIds());
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(3, $products->getIds());
+        static::assertCount(count($data->getProductIds()), $products->getIds());
     }
 
     /**
@@ -115,7 +112,7 @@ class ElasticsearchProductTest extends TestCase
 
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
         static::assertCount(1, $products->getIds());
-        static::assertSame(3, $products->getTotal());
+        static::assertSame(count($data->getProductIds()), $products->getTotal());
     }
 
     /**
@@ -144,8 +141,8 @@ class ElasticsearchProductTest extends TestCase
         $criteria->addFilter(new RangeFilter('product.stock', [RangeFilter::GTE => 10]));
 
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(2, $products->getIds());
-        static::assertSame(2, $products->getTotal());
+        static::assertCount(5, $products->getIds());
+        static::assertSame(5, $products->getTotal());
     }
 
     /**
@@ -182,8 +179,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertInstanceOf(ValueResult::class, $stock);
 
         /** @var ValueResult $stock */
-        static::assertCount(3, $stock->getValues());
-        static::assertEquals([2, 10, 200], $stock->getValues());
+        static::assertCount(4, $stock->getValues());
+        foreach ($stock->getValues() as $value) {
+            static::assertContains($value, [2, 10, 200, 300]);
+        }
     }
 
     /**
@@ -216,6 +215,54 @@ class ElasticsearchProductTest extends TestCase
         static::assertContains($data->getProductId('product1'), $products->getIds());
         static::assertContains($data->getProductId('product2'), $products->getIds());
         static::assertContains($data->getProductId('product3'), $products->getIds());
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testSingleGroupBy(ElasticsearchTestData $data)
+    {
+        $searcher = $this->createEntitySearcher();
+        // check simple equals filter
+        $criteria = new Criteria($data->getProductIds());
+        $criteria->addGroupField(new FieldGrouping('stock'));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+        static::assertCount(4, $products->getIds());
+        static::assertContains($data->getProductId('product1'), $products->getIds());
+        static::assertContains($data->getProductId('product2'), $products->getIds());
+        static::assertContains($data->getProductId('product3'), $products->getIds());
+        static::assertTrue(
+            in_array($data->getProductId('product4'), $products->getIds(), true)
+            || in_array($data->getProductId('product5'), $products->getIds(), true)
+            || in_array($data->getProductId('product6'), $products->getIds(), true)
+        );
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testMultiGroupBy(ElasticsearchTestData $data)
+    {
+        $searcher = $this->createEntitySearcher();
+        // check simple equals filter
+        $criteria = new Criteria($data->getProductIds());
+        $criteria->addGroupField(new FieldGrouping('stock'));
+        $criteria->addGroupField(new FieldGrouping('purchasePrice'));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+        static::assertCount(5, $products->getIds());
+        static::assertContains($data->getProductId('product1'), $products->getIds());
+        static::assertContains($data->getProductId('product2'), $products->getIds());
+        static::assertContains($data->getProductId('product3'), $products->getIds());
+        static::assertContains($data->getProductId('product6'), $products->getIds());
+
+        static::assertTrue(
+            in_array($data->getProductId('product4'), $products->getIds(), true)
+            || in_array($data->getProductId('product5'), $products->getIds(), true)
+        );
     }
 
     protected function getDiContainer(): ContainerInterface
@@ -262,7 +309,10 @@ class ElasticsearchProductTest extends TestCase
             ]
         );
         $product2 = $this->createProduct(['name' => 'Rubber', 'stock' => 10]);
-        $product3 = $this->createProduct(['name' => 'Stilk', 'stock' => 200]);
+        $product3 = $this->createProduct(['name' => 'Stilk', 'stock' => 200, 'active' => true]);
+        $product4 = $this->createProduct(['name' => 'Grouped 1', 'stock' => 300, 'purchasePrice' => 100]);
+        $product5 = $this->createProduct(['name' => 'Grouped 2', 'stock' => 300, 'purchasePrice' => 100]);
+        $product6 = $this->createProduct(['name' => 'Grouped 3', 'stock' => 300, 'purchasePrice' => 200]);
 
         $data = new ElasticsearchTestData();
 
@@ -270,7 +320,11 @@ class ElasticsearchProductTest extends TestCase
             ->addCategoryId('category1', $category1)
             ->addProductId('product1', $product1)
             ->addProductId('product2', $product2)
-            ->addProductId('product3', $product3);
+            ->addProductId('product3', $product3)
+            ->addProductId('product4', $product4)
+            ->addProductId('product5', $product5)
+            ->addProductId('product6', $product6)
+        ;
 
         return $data;
     }

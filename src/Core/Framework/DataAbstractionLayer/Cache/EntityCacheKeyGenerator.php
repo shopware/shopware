@@ -282,6 +282,7 @@ class EntityCacheKeyGenerator
             $criteria->getOffset(),
             $criteria->getTotalCountMode(),
             $criteria->getExtensions(),
+            $criteria->getGroupFields(),
         ]));
     }
 

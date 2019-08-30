@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\Struct;
@@ -50,6 +51,11 @@ class Criteria extends Struct
      * @var ScoreQuery[]
      */
     protected $queries = [];
+
+    /**
+     * @var FieldGrouping[]
+     */
+    protected $groupFields = [];
 
     /**
      * @var int|null
@@ -381,6 +387,7 @@ class Criteria extends Struct
             $this->postFilters,
             $this->sorting,
             $this->queries,
+            $this->groupFields,
         ]);
     }
 
@@ -421,6 +428,28 @@ class Criteria extends Struct
         $self->associations = $this->associations;
 
         return $self;
+    }
+
+    public function addGroupField(FieldGrouping $grouping): self
+    {
+        $this->groupFields[] = $grouping;
+
+        return $this;
+    }
+
+    /**
+     * @return FieldGrouping[]
+     */
+    public function getGroupFields(): array
+    {
+        return $this->groupFields;
+    }
+
+    public function resetGroupFields(): self
+    {
+        $this->groupFields = [];
+
+        return $this;
     }
 
     private function collectFields(array $parts): array

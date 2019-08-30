@@ -41,4 +41,9 @@ class LastIdQuery implements IterableQuery
 
         return (int) $query->execute()->fetchColumn();
     }
+
+    public function getQuery(): QueryBuilder
+    {
+        return $this->query;
+    }
 }

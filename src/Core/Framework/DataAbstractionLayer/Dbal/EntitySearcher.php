@@ -88,11 +88,7 @@ class EntitySearcher implements EntitySearcherInterface
             $this->addIdCondition($criteria, $definition, $query);
         }
 
-        if ($query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
-            $query->addGroupBy(
-                EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
-            );
-        }
+        $this->addGroupBy($definition, $criteria, $context, $query, $table);
 
         //add pagination
         if ($criteria->getOffset() !== null) {
@@ -107,7 +103,7 @@ class EntitySearcher implements EntitySearcherInterface
         //execute and fetch ids
         $rows = $query->execute()->fetchAll();
 
-        $total = $this->getTotalCount($definition, $query, $criteria, $rows);
+        $total = $this->getTotalCount($criteria, $rows);
 
         if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             $rows = \array_slice($rows, 0, $criteria->getLimit());
@@ -179,45 +175,36 @@ class EntitySearcher implements EntitySearcherInterface
             return;
         }
 
-        if ($query->hasState('_score')) {
-            $selects = $query->getQueryPart('select');
-            $selects[0] = 'SQL_CALC_FOUND_ROWS ' . $selects[0];
-            $query->select($selects);
-        }
+        $selects = $query->getQueryPart('select');
+        $selects[0] = 'SQL_CALC_FOUND_ROWS ' . $selects[0];
+        $query->select($selects);
     }
 
-    private function getTotalCount(EntityDefinition $definition, QueryBuilder $query, Criteria $criteria, array $data): int
+    private function getTotalCount(Criteria $criteria, array $data): int
     {
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT) {
             return \count($data);
         }
 
-        if ($query->hasState('_score')) {
-            return (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
+        return (int) $this->connection->fetchColumn('SELECT FOUND_ROWS()');
+    }
+
+    private function addGroupBy(EntityDefinition $definition, Criteria $criteria, Context $context, QueryBuilder $query, string $table): void
+    {
+        if ($criteria->getGroupFields()) {
+            foreach ($criteria->getGroupFields() as $grouping) {
+                $accessor = $this->getDefinitionHelper()->getFieldAccessor($grouping->getField(), $definition, $definition->getEntityName(), $context);
+
+                $query->addGroupBy($accessor);
+            }
+
+            return;
         }
 
-        $table = $definition->getEntityName();
-
-        $id = [];
-        foreach ($definition->getPrimaryKeys() as $field) {
-            /* @var StorageAware $field */
-            $id[] = EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
+        if ($query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
+            $query->addGroupBy(
+                EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
+            );
         }
-
-        $id = implode(',', $id);
-
-        $selects = $query->getQueryPart('select');
-        $selects[0] = 'DISTINCT ' . $selects[0];
-
-        $query->select([
-            'COUNT(DISTINCT ' . $id . ') as total',
-        ]);
-
-        $query->setMaxResults(1);
-        $query->setFirstResult(0);
-        $query->resetQueryPart('groupBy');
-        $query->resetQueryPart('orderBy');
-
-        return (int) $query->execute()->fetchColumn();
     }
 }

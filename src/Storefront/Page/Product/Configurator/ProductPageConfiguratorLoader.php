@@ -84,12 +84,12 @@ class ProductPageConfiguratorLoader
     private function loadSettings(SalesChannelProductEntity $product, SalesChannelContext $context): ?array
     {
         $criteria = (new Criteria())->addFilter(
-            new EqualsFilter('product_configurator_setting.productId', $product->getParentId() ?? $product->getId())
+            new EqualsFilter('productId', $product->getParentId() ?? $product->getId())
         );
 
         $criteria->addAssociation('option.group')
             ->addAssociation('option.media')
-            ->addAssociation('product_configurator_setting.media');
+            ->addAssociation('media');
 
         $settings = $this->configuratorRepository
             ->search($criteria, $context->getContext())

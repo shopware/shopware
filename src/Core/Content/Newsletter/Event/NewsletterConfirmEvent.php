@@ -27,7 +27,7 @@ class NewsletterConfirmEvent extends Event implements MailActionInterface
     /**
      * @var NewsletterRecipientEntity
      */
-    private $recipientEntity;
+    private $newsletterRecipient;
 
     /**
      * @var MailRecipientStruct|null
@@ -39,10 +39,10 @@ class NewsletterConfirmEvent extends Event implements MailActionInterface
      */
     private $salesChannelId;
 
-    public function __construct(Context $context, NewsletterRecipientEntity $recipientEntity, string $salesChannelId)
+    public function __construct(Context $context, NewsletterRecipientEntity $newsletterRecipient, string $salesChannelId)
     {
         $this->context = $context;
-        $this->recipientEntity = $recipientEntity;
+        $this->newsletterRecipient = $newsletterRecipient;
         $this->salesChannelId = $salesChannelId;
     }
 
@@ -62,9 +62,9 @@ class NewsletterConfirmEvent extends Event implements MailActionInterface
             ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class));
     }
 
-    public function getRecipientEntity(): NewsletterRecipientEntity
+    public function getNewsletterRecipient(): NewsletterRecipientEntity
     {
-        return $this->recipientEntity;
+        return $this->newsletterRecipient;
     }
 
     public function getMailStruct(): MailRecipientStruct
@@ -75,7 +75,7 @@ class NewsletterConfirmEvent extends Event implements MailActionInterface
 
         return new MailRecipientStruct(
             [
-                $this->recipientEntity->getEmail() => $this->recipientEntity->getFirstName() . ' ' . $this->recipientEntity->getLastName(),
+                $this->newsletterRecipient->getEmail() => $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName(),
             ]
         );
     }

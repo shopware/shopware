@@ -21,7 +21,7 @@ use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class PriceCalculatorTest extends TestCase
+class QuantityPriceCalculatorTest extends TestCase
 {
     /**
      * @dataProvider priceCalculationWithGrossPricesProvider

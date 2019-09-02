@@ -66,7 +66,7 @@
                         {% block sw_property_option_list_grid_column_color %}
                             <sw-grid-column dataIndex="colorHexCode" editable flex="300px" :label="$tc('sw-property.detail.labelOptionColor')">
                                 {{ item.colorHexCode }}
-                                <sw-colorpicker slot="inline-edit" v-model="item.colorHexCode"></sw-colorpicker>
+                                <sw-colorpicker slot="inline-edit" colorOutput="hex" v-model="item.colorHexCode" :zIndex="100"></sw-colorpicker>
                             </sw-grid-column>
                         {% endblock %}
 

@@ -9,7 +9,7 @@
         {% endblock %}
 
         {% block sw_property_option_detail_color %}
-            <sw-colorpicker v-model="currentOption.colorHexCode" :label="$tc('sw-property.detail.labelOptionColor')"></sw-colorpicker>
+            <sw-colorpicker v-model="currentOption.colorHexCode" colorOutput="hex" :label="$tc('sw-property.detail.labelOptionColor')"  :zIndex="1000"></sw-colorpicker>
         {% endblock %}
 
         {% block sw_property_option_detail_media %}

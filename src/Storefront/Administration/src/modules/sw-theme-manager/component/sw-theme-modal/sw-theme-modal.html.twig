@@ -29,7 +29,6 @@
 
                 {% block sw_theme_modal_content %}
                     <sw-container v-else columns="repeat(auto-fill, minmax(250px, 1fr))" gap="24px">
-
                         {% block sw_theme_modal_content_listing %}
                             <div v-for="theme in themes" class="sw-theme-modal__content-item" :class="{ 'is--selected': theme.id === selected }">
                                 {% block sw_theme_modal_content_listing_item %}

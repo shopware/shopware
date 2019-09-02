@@ -57,7 +57,11 @@ Component.register('sw-text-editor-toolbar-button', {
         },
 
         onToggleMenu(event, button) {
-            if (!['link', 'table'].includes(button.type) && !button.children) {
+            if (!['link', 'table', 'foreColor'].includes(button.type) && !button.children) {
+                return;
+            }
+
+            if (button.type === 'foreColor' && event.target.closest('.sw-colorpicker__colorpicker')) {
                 return;
             }
 

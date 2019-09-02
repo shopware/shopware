@@ -28,11 +28,12 @@ class MessageFailedException extends ShopwareHttpException
         $this->exception = $exception;
 
         parent::__construct(
-            'The handler "{{ handlerClass }}" threw a "{{ exceptionClass }}" for message "{{ messageClass }}".',
+            'The handler "{{ handlerClass }}" threw a "{{ exceptionClass }}" for message "{{ messageClass }}". The Exception was "{{ exceptionMessage }}.',
             [
                 'handlerClass' => $handlerClass,
                 'exceptionClass' => get_class($exception),
                 'messageClass' => get_class($originalMessage),
+                'exceptionMessage' => $exception->getMessage(),
             ]
         );
     }

@@ -1,0 +1,89 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Content\Sitemap\Service\SitemapWriter">
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapNameGenerator"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Sitemap\Service\SitemapNameGenerator">
+            <argument type="service" id="shopware.filesystem.public"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Sitemap\Service\SitemapExporter">
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapWriter"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="tagged" tag="shopware.sitemap_url_provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Sitemap\Service\SitemapLister">
+            <argument type="service" id="shopware.filesystem.public"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Sitemap\Service\ConfigHandler">
+            <argument type="tagged" tag="shopware.sitemap.config_handler"/>
+        </service>
+
+        <!-- UrlProviders -->
+        <service id="Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider">
+            <argument type="service" id="sales_channel.category.repository"/>
+            <argument type="service" id="router.default"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
+            <argument>%shopware.sitemap.batchsize%</argument>
+
+            <tag name="shopware.sitemap_url_provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Sitemap\Provider\CustomUrlProvider">
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
+
+            <tag name="shopware.sitemap_url_provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="router.default"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
+            <argument>%shopware.sitemap.batchsize%</argument>
+
+            <tag name="shopware.sitemap_url_provider"/>
+        </service>
+
+        <!-- Config Handler -->
+        <service id="Shopware\Core\Content\Sitemap\ConfigHandler\File">
+            <argument>%shopware.sitemap%</argument>
+            <tag name="shopware.sitemap.config_handler"/>
+        </service>
+
+        <!-- Commands -->
+        <service id="Shopware\Core\Content\Sitemap\Commands\SitemapGenerateCommand">
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapExporter"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <!-- scheduled task -->
+        <service id="Shopware\Core\Content\Sitemap\ScheduledTask\SitemapGenerateTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Sitemap\ScheduledTask\SitemapGenerateTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapExporter"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+    </services>
+</container>

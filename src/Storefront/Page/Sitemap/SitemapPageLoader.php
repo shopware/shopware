@@ -2,14 +2,15 @@
 
 namespace Shopware\Storefront\Page\Sitemap;
 
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
+use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
+use Shopware\Core\Content\Sitemap\Service\SitemapListerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class SitemapPageLoader
 {
@@ -19,23 +20,37 @@ class SitemapPageLoader
     private $eventDispatcher;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SitemapListerInterface
      */
-    private $categoryRepository;
+    private $sitemapLister;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SitemapExporterInterface
      */
-    private $productRepository;
+    private $sitemapExporter;
+
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
+    /**
+     * @var Session
+     */
+    private $session;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        SalesChannelRepositoryInterface $categoryRepository,
-        SalesChannelRepositoryInterface $productRepository
+        SitemapListerInterface $sitemapLister,
+        SitemapExporterInterface $sitemapExporter,
+        SystemConfigService $systemConfigService,
+        Session $session
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->categoryRepository = $categoryRepository;
-        $this->productRepository = $productRepository;
+        $this->sitemapLister = $sitemapLister;
+        $this->sitemapExporter = $sitemapExporter;
+        $this->systemConfigService = $systemConfigService;
+        $this->session = $session;
     }
 
     /**
@@ -43,38 +58,33 @@ class SitemapPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): SitemapPage
     {
+        $sitemaps = $this->sitemapLister->getSitemaps($salesChannelContext);
+
+        $lastGenerated = (int) $this->systemConfigService->get('core.sitemap.sitemapLastRefresh');
+        $refreshInterval = (int) $this->systemConfigService->get('core.sitemap.sitemapRefreshTime');
+
+        // If there are no sitemaps yet (or they are too old) and the generation strategy is "live", generate sitemaps
+        if ((int) $this->systemConfigService->get('core.sitemap.sitemapRefreshStrategy') === SitemapExporterInterface::STRATEGY_LIVE
+            && (empty($sitemaps) || time() > $refreshInterval + $lastGenerated)) {
+            // Close session to prevent session locking from waiting in case there is another request coming in
+            $this->session->save();
+
+            try {
+                $this->sitemapExporter->generate($salesChannelContext);
+            } catch (AlreadyLockedException $exception) {
+                // Silent catch, lock couldn't be acquired. Some other process already generates the sitemap.
+            }
+
+            $sitemaps = $this->sitemapLister->getSitemaps($salesChannelContext);
+        }
+
         $page = new SitemapPage();
-
-        $page->setCategories($this->getCategories($salesChannelContext));
-
-        $page->setProducts($this->getProducts($salesChannelContext));
+        $page->setSitemaps($sitemaps);
 
         $this->eventDispatcher->dispatch(
             new SitemapPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;
-    }
-
-    private function getCategories(SalesChannelContext $salesChannelContext): CategoryCollection
-    {
-        $categoriesCriteria = new Criteria();
-        $categoriesCriteria->setLimit(null);
-
-        /** @var CategoryCollection $categories */
-        $categories = $this->categoryRepository->search($categoriesCriteria, $salesChannelContext)->getEntities();
-
-        return $categories;
-    }
-
-    private function getProducts(SalesChannelContext $salesChannelContext): ProductCollection
-    {
-        $productsCriteria = new Criteria();
-        $productsCriteria->setLimit(null);
-
-        /** @var ProductCollection $products */
-        $products = $this->productRepository->search($productsCriteria, $salesChannelContext)->getEntities();
-
-        return $products;
     }
 }

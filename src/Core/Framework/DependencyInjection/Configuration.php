@@ -23,6 +23,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createCacheSection())
                 ->append($this->createAutoUpdateSection())
+                ->append($this->createSitemapSection())
             ->end();
 
         return $treeBuilder;
@@ -160,6 +161,52 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enabled')->end()
             ->end()
         ;
+
+        return $rootNode;
+    }
+
+    private function createSitemapSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('sitemap');
+
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('custom_urls')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('url')->end()
+                            ->scalarNode('lastMod')->end()
+                            ->enumNode('changeFreq')
+                                ->values([
+                                    'always',
+                                    'hourly',
+                                    'daily',
+                                    'weekly',
+                                    'monthly',
+                                    'yearly',
+                                ])
+                            ->end()
+                            ->floatNode('priority')->end()
+                            ->scalarNode('salesChannelId')->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('excluded_urls')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('resource')->end()
+                            ->scalarNode('identifier')->end()
+                            ->scalarNode('salesChannelId')->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->integerNode('batchsize')
+                    ->min(1)
+                    ->defaultValue(100)
+                ->end()
+            ->end();
 
         return $rootNode;
     }

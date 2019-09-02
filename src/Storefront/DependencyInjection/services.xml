@@ -293,8 +293,10 @@
 
         <service id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="sales_channel.category.repository"/>
-            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapLister"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapExporter"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="session"/>
         </service>
 
         <!--SnippetFiles-->

@@ -443,6 +443,10 @@ Component.register('sw-cms-detail', {
 
             block.delete();
 
+            if (this.currentBlock && this.currentBlock.id === blockId) {
+                this.currentBlock = null;
+            }
+
             this.page.blocks.splice(this.page.blocks.findIndex(b => b.id === block.id), 1);
             this.updateBlockPositions();
         },

@@ -76,7 +76,16 @@
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderConfigIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="media_folder.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="shopware.cache"/>
+            <tag name="shopware.dal_indexing.indexer" priority="500"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderSizeIndexer">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="media_folder_configuration.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="shopware.cache"/>
@@ -85,6 +94,7 @@
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaThumbnailIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="shopware.cache"/>

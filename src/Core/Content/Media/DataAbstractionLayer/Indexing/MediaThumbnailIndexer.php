@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
@@ -38,8 +39,14 @@ class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterfac
      */
     private $cache;
 
+    /**
+     * @var IteratorFactory
+     */
+    private $iteratorFactory;
+
     public function __construct(
         Connection $connection,
+        IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $mediaRepository,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         TagAwareAdapter $cache
@@ -48,6 +55,7 @@ class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterfac
         $this->mediaRepository = $mediaRepository;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->cache = $cache;
+        $this->iteratorFactory = $iteratorFactory;
     }
 
     public static function getSubscribedEvents()
@@ -61,7 +69,28 @@ class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterfac
     {
         $context = Context::createDefaultContext();
 
-        $this->updateThumbnailsRoField(null, $context);
+        $iterator = $this->iteratorFactory->createIterator($this->mediaRepository->getDefinition(), null);
+
+        while ($ids = $iterator->fetch()) {
+            $this->updateThumbnailsRoField($ids, $context);
+        }
+    }
+
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $context = Context::createDefaultContext();
+
+        $iterator = $this->iteratorFactory->createIterator($this->mediaRepository->getDefinition(), $lastId);
+
+        $ids = $iterator->fetch();
+
+        if (empty($ids)) {
+            return null;
+        }
+
+        $this->updateThumbnailsRoField($ids, $context);
+
+        return $iterator->getOffset();
     }
 
     public function onDelete(MediaThumbnailDeletedEvent $event): void
@@ -85,14 +114,10 @@ class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterfac
         }
     }
 
-    private function updateThumbnailsRoField(?array $mediaIds, Context $context): void
+    private function updateThumbnailsRoField(array $mediaIds, Context $context): void
     {
-        $criteria = new Criteria();
+        $criteria = new Criteria($mediaIds);
         $criteria->addAssociation('thumbnails');
-
-        if ($mediaIds !== null) {
-            $criteria->setIds($mediaIds);
-        }
 
         $cacheIds = [];
 

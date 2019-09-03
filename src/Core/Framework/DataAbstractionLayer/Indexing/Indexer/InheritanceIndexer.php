@@ -87,6 +87,52 @@ class InheritanceIndexer implements IndexerInterface
         }
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $context = Context::createDefaultContext();
+
+        $definitionOffset = 0;
+        $dataOffset = null;
+
+        if ($lastId) {
+            $definitionOffset = $lastId['definitionOffset'];
+            $dataOffset = $lastId['dataOffset'];
+        }
+
+        $definitions = array_filter(
+            $this->registry->getDefinitions(),
+            function (EntityDefinition $definition) {
+                return $definition->isInheritanceAware();
+            }
+        );
+        $definitions = array_values($definitions);
+
+        if (!isset($definitions[$definitionOffset])) {
+            return null;
+        }
+
+        $definition = $definitions[$definitionOffset];
+
+        $iterator = $this->iteratorFactory->createIterator($definition, $dataOffset);
+
+        $ids = $iterator->fetch();
+        if (empty($ids)) {
+            ++$definitionOffset;
+
+            return [
+                'definitionOffset' => $definitionOffset,
+                'dataOffset' => null,
+            ];
+        }
+
+        $this->update($definition, $ids, $context);
+
+        return [
+            'definitionOffset' => $definitionOffset,
+            'dataOffset' => $iterator->getOffset(),
+        ];
+    }
+
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         /** @var EntityWrittenEvent $nested */

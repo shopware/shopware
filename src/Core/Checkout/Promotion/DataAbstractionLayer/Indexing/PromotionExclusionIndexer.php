@@ -90,6 +90,22 @@ class PromotionExclusionIndexer implements IndexerInterface
         );
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $context = Context::createDefaultContext();
+
+        $iterator = $this->iteratorFactory->createIterator($this->promotionDefinition, $lastId);
+
+        $ids = $iterator->fetch();
+        if (empty($ids)) {
+            return null;
+        }
+
+        $this->update($ids, $context);
+
+        return $iterator->getOffset();
+    }
+
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         $nested = $event->getEventByDefinition(PromotionDefinition::class);

@@ -62,6 +62,7 @@ You can use them with every URL in your templates
     * Changed the name of `core.<locale>.json` to `messages.<locale>.json` and changed to new base file.
     * Changed name of property in CurrencyDefinition from `isDefault` to `isSystemDefault`
     * Added RouteScopes as required Annotation for all Routes
+    * Added new function `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface::partial` to index partially in time limited requests
     * Added `\Shopware\Core\Framework\Migration\InheritanceUpdaterTrait` to update entity schema for inherited associations
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`

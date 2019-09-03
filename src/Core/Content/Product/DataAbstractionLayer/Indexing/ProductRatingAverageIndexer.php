@@ -94,6 +94,22 @@ class ProductRatingAverageIndexer implements IndexerInterface
         );
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $context = Context::createDefaultContext();
+
+        $iterator = $this->iteratorFactory->createIterator($this->productDefinition, $lastId);
+
+        $ids = $iterator->fetch();
+        if (empty($ids)) {
+            return null;
+        }
+
+        $this->update($ids, $context);
+
+        return $iterator->getOffset();
+    }
+
     /**
      * this function checks if reviews havew been updated.
      * if so the associated products of the reviews have to be updated with the new score

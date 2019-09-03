@@ -61,6 +61,13 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\Controller\IndexingController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\Command\DumpSchemaCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>

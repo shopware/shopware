@@ -114,6 +114,23 @@ class ProductStreamIndexer implements IndexerInterface
         );
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $iterator = $this->iteratorFactory->createIterator(
+            $this->productStreamRepository->getDefinition(),
+            $lastId
+        );
+
+        $ids = $iterator->fetch();
+        if (empty($ids)) {
+            return null;
+        }
+
+        $this->update($ids);
+
+        return $iterator->getOffset();
+    }
+
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         $ids = $this->eventIdExtractor->getProductStreamIds($event);

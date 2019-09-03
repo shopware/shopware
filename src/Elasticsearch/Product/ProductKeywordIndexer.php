@@ -34,6 +34,16 @@ class ProductKeywordIndexer implements IndexerInterface
         $this->decorated->index($timestamp);
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        // deactivate sql keyword indexing
+        if ($this->helper->allowIndexing()) {
+            return null;
+        }
+
+        return $this->decorated->partial($lastId, $timestamp);
+    }
+
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         // deactivate sql keyword indexing

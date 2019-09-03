@@ -12,14 +12,14 @@ class IndexerRegistryPartialResult extends Struct
     protected $indexer;
 
     /**
-     * @var string|null
+     * @var array|null
      */
-    protected $lastId;
+    protected $offset;
 
-    public function __construct(?string $indexer, ?string $lastId)
+    public function __construct(?string $indexer, ?array $offset)
     {
         $this->indexer = $indexer;
-        $this->lastId = $lastId;
+        $this->offset = $offset;
     }
 
     public function getIndexer(): ?string
@@ -27,8 +27,8 @@ class IndexerRegistryPartialResult extends Struct
         return $this->indexer;
     }
 
-    public function getLastId(): ?string
+    public function getOffset(): ?array
     {
-        return $this->lastId;
+        return $this->offset;
     }
 }

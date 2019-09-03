@@ -26,7 +26,7 @@ class IndexerMessage
     private $actionType = self::ACTION_INDEX;
 
     /**
-     * @var string|null
+     * @var array|null
      */
     private $lastId;
 
@@ -75,12 +75,12 @@ class IndexerMessage
         $this->entityWrittenContainerEvent = $entityWrittenContainerEvent;
     }
 
-    public function getLastId(): ?string
+    public function getLastId(): ?array
     {
         return $this->lastId;
     }
 
-    public function setLastId(?string $lastId): void
+    public function setLastId(?array $lastId): void
     {
         $this->lastId = $lastId;
     }

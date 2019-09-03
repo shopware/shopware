@@ -16,6 +16,11 @@ class QueueTestIndexer implements IndexerInterface
         ++$this->indexCalls;
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        return null;
+    }
+
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         ++$this->refreshCalls;

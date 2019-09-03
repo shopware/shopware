@@ -90,12 +90,11 @@ class IndexerRegistry implements EventSubscriberInterface, IndexerRegistryInterf
         $this->eventDispatcher->dispatch($preEvent);
     }
 
-    public function partial(?string $lastIndexer, $lastId, \DateTimeInterface $timestamp): IndexerRegistryPartialResult
+    public function partial(?string $lastIndexer, ?array $lastId, \DateTimeInterface $timestamp): ?IndexerRegistryPartialResult
     {
-        $preEvent = new IndexerRegistryStartEvent(new \DateTimeImmutable());
-        $this->eventDispatcher->dispatch($preEvent);
+        $indexers = $this->getIndexers();
 
-        foreach ($this->indexer as $index => $indexer) {
+        foreach ($indexers as $index => $indexer) {
             if (!$lastIndexer) {
                 return $this->doPartial($indexer, $lastId, $index, $timestamp);
             }
@@ -105,19 +104,34 @@ class IndexerRegistry implements EventSubscriberInterface, IndexerRegistryInterf
             }
         }
 
-        return new IndexerRegistryPartialResult(null, null);
+        return null;
     }
 
-    private function doPartial(IndexerInterface $indexer, $lastId, $index, \DateTimeInterface $timestamp): IndexerRegistryPartialResult
+    private function doPartial(IndexerInterface $indexer, ?array $lastId, $index, \DateTimeInterface $timestamp): ?IndexerRegistryPartialResult
     {
         $nextId = $indexer->partial($lastId, $timestamp);
 
         $next = get_class($indexer);
 
-        if ($nextId === null) {
-            $next = isset($this->indexer[$index]) ? get_class($this->indexer[$index]) : null;
+        if ($nextId !== null) {
+            return new IndexerRegistryPartialResult($next, $nextId);
+        }
+        ++$index;
+        $indexers = $this->getIndexers();
+
+        if (!isset($indexers[$index])) {
+            return null;
         }
 
-        return new IndexerRegistryPartialResult($next, $nextId);
+        return new IndexerRegistryPartialResult(get_class($indexers[$index]), null);
+    }
+
+    private function getIndexers()
+    {
+        if (!is_array($this->indexer)) {
+            return array_values(iterator_to_array($this->indexer));
+        }
+
+        return array_values($this->indexer);
     }
 }

@@ -49,16 +49,19 @@ class IndexerHandler extends AbstractMessageHandler
         }
 
         if ($message->getActionType() === IndexerMessage::ACTION_PARTIAL) {
-            $result = $this->registry->partial($message->getIndexer(), $message->getLastId(), $message->getTimestamp());
+            $result = $indexer->partial(
+                $message->getLastId(),
+                $message->getTimestamp()
+            );
 
-            if ($result->getIndexer() === null) {
+            if ($result === null) {
                 return;
             }
 
             // add new message for next id or indexer
             $message = new IndexerMessage();
-            $message->setIndexer($result->getIndexer());
-            $message->setLastId($result->getLastId());
+            $message->setIndexer($message->getIndexer());
+            $message->setLastId($result);
             $message->setTimestamp($message->getTimestamp());
             $message->setActionType(IndexerMessage::ACTION_PARTIAL);
             $this->bus->dispatch($message);

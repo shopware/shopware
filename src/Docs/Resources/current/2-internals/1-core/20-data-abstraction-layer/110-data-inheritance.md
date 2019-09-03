@@ -80,4 +80,34 @@ If you want to add a inherited association to an entity, the following must be c
     * nullable
     * default null
     * the column name must be the property name of your association (in camel case).
-   
+
+In order not to create the column incorrectly, you can simply use the `\Shopware\Core\Framework\Migration\InheritanceUpdaterTrait` in your migrations:
+
+```php
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Migration;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
+use Shopware\Core\Framework\Migration\MigrationStep;
+
+class Migration1566817701AddInheritanceColumn extends MigrationStep
+{
+    use InheritanceUpdaterTrait;
+
+    public function getCreationTimestamp(): int
+    {
+        return 1566817701;
+    }
+
+    public function update(Connection $connection): void
+    {
+        $this->updateInheritance($connection, 'product', 'associationPropertyName');
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
+    }
+}
+```

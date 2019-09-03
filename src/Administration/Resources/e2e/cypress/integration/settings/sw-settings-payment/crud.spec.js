@@ -34,12 +34,14 @@ describe('Payment: Test crud operations', () => {
         cy.get(page.elements.paymentSaveAction).click();
 
         // Verify and check usage of payment method
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Bar bei Abholung');
-            cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-                .contains('Bar bei Abholung');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Bar bei Abholung');
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
+            .contains('Bar bei Abholung');
     });
 
     it('@settings: update and read payment method', () => {
@@ -65,12 +67,14 @@ describe('Payment: Test crud operations', () => {
         cy.get(page.elements.paymentSaveAction).click();
 
         // Verify and check usage of payment method
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('In Schokoladentafeln');
-            cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-                .contains('In Schokoladentafeln');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('In Schokoladentafeln');
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
+            .contains('In Schokoladentafeln');
     });
 
     it('@settings: delete payment method', () => {
@@ -95,9 +99,11 @@ describe('Payment: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
 
         // Verify and check usage of payment-method
-        cy.wait('@deleteData').then(() => {
-            cy.get(page.elements.modal).should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--0`).should('not.exist')
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.modal).should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--0`).should('not.exist')
     });
 });

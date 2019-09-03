@@ -34,8 +34,9 @@ describe('Customer:  Edit in various ways', () => {
         cy.get(page.elements.dataGridInlineEditSave).click();
 
         // Verify updated customer
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-data-grid__cell--firstName').contains('Woody Ech');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get('.sw-data-grid__cell--firstName').contains('Woody Ech');
     });
 });

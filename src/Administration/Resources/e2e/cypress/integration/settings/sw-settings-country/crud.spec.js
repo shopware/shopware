@@ -33,11 +33,13 @@ describe('Country: Test crud operations', () => {
         cy.get(page.elements.countrySaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
-                .contains('01.Niemandsland');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
+            .contains('01.Niemandsland');
     });
 
     it('@settings: update and read country', () => {
@@ -60,11 +62,13 @@ describe('Country: Test crud operations', () => {
         cy.get(page.elements.countrySaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
-                .contains('1.Niemandsland x2');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
+            .contains('1.Niemandsland x2');
     });
 
     it('@settings: delete country', () => {
@@ -88,9 +92,11 @@ describe('Country: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify creation
-        cy.wait('@deleteData').then(() => {
-            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`)
-                .should('not.have.value', '1.Niemandsland');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`)
+            .should('not.have.value', '1.Niemandsland');
     });
 });

@@ -54,8 +54,9 @@ describe('Product: Tagging product', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.successIcon).should('be.visible');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get(page.elements.successIcon).should('be.visible');
     });
 });

@@ -29,10 +29,11 @@ describe('Media: Test crud operations of folders', () => {
         // Create folder
         cy.get(page.elements.loader).should('not.exist');
         page.createFolder('1 thing to fold about');
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-media-base-item__name[title="1 thing to fold about"]')
-                .should('be.visible');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-media-base-item__name[title="1 thing to fold about"]')
+            .should('be.visible');
     });
 
     it('@package @content: update and read folder using rename', () => {
@@ -58,9 +59,10 @@ describe('Media: Test crud operations of folders', () => {
         cy.get(`${page.elements.folderNameInput}`).type('An Edith gets a new name');
         cy.get(`${page.elements.folderNameInput}`).type('{enter}');
 
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-media-base-item__name[title="An Edith gets a new name"]').should('be.visible');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-media-base-item__name[title="An Edith gets a new name"]').should('be.visible');
     });
 
     it('@package @content: delete folder', () => {
@@ -81,11 +83,14 @@ describe('Media: Test crud operations of folders', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`
         );
-        cy.get(`${page.elements.modal}__body p`).contains('Are you sure you want to delete the folder "A thing to fold about"?');
+        cy.get(`${page.elements.modal}__body p`)
+            .contains('Are you sure you want to delete the folder "A thing to fold about"?');
         cy.get('.sw-media-modal-delete__confirm').click();
-        cy.wait('@deleteData').then(() => {
-            cy.get('.sw-media-base-item__name[title="1 thing to fold about"]')
-                .should('not.exist');
+
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get('.sw-media-base-item__name[title="1 thing to fold about"]')
+            .should('not.exist');
     });
 });

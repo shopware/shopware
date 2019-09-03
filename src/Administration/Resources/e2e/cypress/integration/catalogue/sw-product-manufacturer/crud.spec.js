@@ -35,9 +35,10 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(page.elements.manufacturerSave).click();
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get(page.elements.smartBarBack).click();
     });
 
 
@@ -58,9 +59,10 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(page.elements.manufacturerSave).click();
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.successIcon).should('be.visible');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+            cy.get(page.elements.successIcon).should('be.visible');
     });
 
     it('@catalogue: delete manufacturer', () => {
@@ -86,8 +88,9 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify updated manufacturer
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarAmount).contains('1');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get(page.elements.smartBarAmount).contains('1');
     });
 });

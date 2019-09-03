@@ -38,11 +38,13 @@ describe('Currency: Test crud operations', () => {
         cy.get(page.elements.currencySaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get('.sw-currency-list__content').should('be.visible');
-            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`).contains('Dukaten');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-currency-list__content').should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`).contains('Dukaten');
     });
 
     it('@settings: update and read currency', () => {
@@ -66,13 +68,15 @@ describe('Currency: Test crud operations', () => {
         cy.get(page.elements.currencySaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Kreuzer');
-            cy.get('.sw-currency-list__content').should('be.visible');
-            cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
-                .contains('Kreuzer');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Kreuzer');
+        cy.get('.sw-currency-list__content').should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
+            .contains('Kreuzer');
     });
 
     it('@settings: delete currency', () => {
@@ -96,9 +100,11 @@ describe('Currency: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
 
         // Verify deletion
-        cy.wait('@deleteData').then(() => {
-            cy.get(page.elements.modal).should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--3 ${page.elements.currencyColumnName}`).should('not.exist');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.modal).should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--3 ${page.elements.currencyColumnName}`).should('not.exist');
     });
 });

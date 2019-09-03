@@ -39,10 +39,12 @@ describe('Product: Edit in various ways', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Sauerkraut');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Sauerkraut');
     });
 
     it('@catalogue: edit product via inline edit', () => {
@@ -61,8 +63,9 @@ describe('Product: Edit in various ways', () => {
         cy.awaitAndCheckNotification('Product "That\'s not my name" has been saved.');
 
         // Verify updated product
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-data-grid__cell--name').contains('That\'s not my name');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get('.sw-data-grid__cell--name').contains('That\'s not my name');
     });
 });

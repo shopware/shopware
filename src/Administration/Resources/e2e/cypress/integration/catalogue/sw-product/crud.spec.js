@@ -45,10 +45,12 @@ describe('Product: Test crud operations', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify new product
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Product with file upload image');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
+            .contains('Product with file upload image');
     });
 
     it('@p @catalogue: update and read product', () => {
@@ -73,10 +75,13 @@ describe('Product: Test crud operations', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('What remains of Edith Finch');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
+            .contains('What remains of Edith Finch');
+
     });
 
     it('@p @catalogue: delete product', () => {
@@ -101,8 +106,9 @@ describe('Product: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
 
         // Verify updated product
-        cy.wait('@deleteData').then(() => {
-            cy.get(page.elements.emptyState).should('be.visible');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get(page.elements.emptyState).should('be.visible');
     });
 });

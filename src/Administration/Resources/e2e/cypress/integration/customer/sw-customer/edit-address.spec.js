@@ -39,13 +39,6 @@ describe('Customer: Edit customer\'s addresses', () => {
     it('@package @customer: add new billing address', () => {
         const page = new CustomerPageObject();
 
-        // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/v1/customer/**/addresses',
-            method: 'post'
-        }).as('saveData');
-
         // Open customer
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
@@ -68,13 +61,6 @@ describe('Customer: Edit customer\'s addresses', () => {
 
     it('@package @customer: remove address', () => {
         const page = new CustomerPageObject();
-
-        // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/v1/customer/**/addresses/*',
-            method: 'delete'
-        }).as('saveData');
 
         // Open customer
         cy.clickContextMenuItem(

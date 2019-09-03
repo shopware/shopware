@@ -24,9 +24,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-units').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-units-card-empty').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-units-card-empty').should('be.visible');
     });
 
     it('@general: navigate to tax module', () => {
@@ -41,9 +42,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-tax').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-page__main-content').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-page__main-content').should('be.visible');
     });
 
     it('@general: navigate to snippet module', () => {
@@ -58,9 +60,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-snippet').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-snippet-set-list__actions').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-snippet-set-list__actions').should('be.visible');
     });
 
     it('@general: navigate to shipping module', () => {
@@ -75,9 +78,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-shipping').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-shipping-list__content').should('exist');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-shipping-list__content').should('exist');
     });
 
     it('@general: navigate to salutation module', () => {
@@ -92,9 +96,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-salutation').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-salutation-list-grid').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-salutation-list-grid').should('be.visible');
     });
 
     it('@general: navigate to rule builder module', () => {
@@ -110,9 +115,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-rule').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-rule-list__content').should('exist');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-rule-list__content').should('exist');
     });
 
     it('@general: navigate to payment module', () => {
@@ -127,9 +133,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-payment').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-payment-list').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-payment-list').should('be.visible');
     });
 
     it('@general: navigate to number ranges module', () => {
@@ -144,9 +151,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-number-range').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-number-range-list-grid').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-number-range-list-grid').should('be.visible');
     });
 
     it('@general: navigate to login registration module', () => {
@@ -161,9 +169,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('a[href="#/sw/settings/login/registration/index"]').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-card__title').contains('Login / registration');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-card__title').contains('Login / registration');
     });
 
     it('@general: navigate to logging module', () => {
@@ -178,9 +187,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-logging').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-data-grid').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-data-grid').should('be.visible');
     });
 
     it('@general: navigate to listing setting module', () => {
@@ -195,9 +205,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('a[href="#/sw/settings/listing/index"]').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-card__title').contains('Listing');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-card__title').contains('Listing');
     });
 
     it('@general: navigate to language module', () => {
@@ -212,9 +223,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-language').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-language-list').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-language-list').should('be.visible');
     });
 
     it('@general: navigate to document module', () => {
@@ -229,9 +241,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('a[href="#/sw/settings/document/index').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-document-list-grid').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-document-list-grid').should('be.visible');
     });
 
     it('@general: navigate to customer group module', () => {
@@ -246,9 +259,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-customer-group').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-customer-group-list-grid').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-customer-group-list-grid').should('be.visible');
     });
 
     it('@general: navigate to currency module', () => {
@@ -263,9 +277,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-currency').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-currency-list-grid').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-currency-list-grid').should('be.visible');
     });
 
     it('@general: navigate to country module', () => {
@@ -280,9 +295,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-country').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-country-list-grid').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-country-list-grid').should('be.visible');
     });
 
     it('@general: navigate to cart settings module', () => {
@@ -297,9 +313,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('a[href="#/sw/settings/cart/index"]').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-card__title').contains('Cart');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-card__title').contains('Cart');
     });
 
     it('@general: navigate to basic information module', () => {
@@ -314,9 +331,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('a[href="#/sw/settings/basic/information/index"]').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-card__title').contains('Basic information');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-card__title').contains('Basic information');
     });
 
     it('@general: navigate to address settings module', () => {
@@ -331,9 +349,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('a[href="#/sw/settings/address/index"]').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-card__title').contains('Address');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-card__title').contains('Address');
     });
 
     it('@general: navigate to email templates module', () => {
@@ -348,8 +367,9 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-mail-template').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-mail-templates-list-grid').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-mail-templates-list-grid').should('be.visible');
     });
 });

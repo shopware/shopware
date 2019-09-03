@@ -24,9 +24,10 @@ describe('Administration: Check module navigation', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-category'
         });
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-category-tree').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-category-tree').should('be.visible');
     });
 
     it('@package @general: navigate to product module', () => {
@@ -41,9 +42,10 @@ describe('Administration: Check module navigation', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-product'
         });
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-product-list__content').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-product-list__content').should('be.visible');
     });
 
     it('@package @general: navigate to manufacturer module', () => {
@@ -58,9 +60,10 @@ describe('Administration: Check module navigation', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-manufacturer'
         });
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-manufacturer-list__content').should('exist');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-manufacturer-list__content').should('exist');
     });
 
     it('@package @general: navigate to property module', () => {
@@ -75,9 +78,10 @@ describe('Administration: Check module navigation', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-property'
         });
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-property-list__content').should('exist');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-property-list__content').should('exist');
     });
 
     it('@package @general: navigate to customer module', () => {
@@ -91,9 +95,10 @@ describe('Administration: Check module navigation', () => {
             targetPath: '#/sw/customer/index',
             mainMenuId: 'sw-customer'
         });
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-customer-list__content').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-customer-list__content').should('be.visible');
     });
 
     it('@package @general: navigate to order module', () => {
@@ -107,9 +112,10 @@ describe('Administration: Check module navigation', () => {
             targetPath: '#/sw/order/index',
             mainMenuId: 'sw-order'
         });
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-order-list').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-order-list').should('be.visible');
     });
 
     it('@package @general: navigate to media module', () => {
@@ -124,9 +130,10 @@ describe('Administration: Check module navigation', () => {
             mainMenuId: 'sw-content',
             subMenuId: 'sw-media'
         });
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-media-index__page-content').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-media-index__page-content').should('be.visible');
     });
 
     it('@package @general: navigate to cms module', () => {
@@ -141,9 +148,10 @@ describe('Administration: Check module navigation', () => {
             mainMenuId: 'sw-content',
             subMenuId: 'sw-cms'
         });
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-cms-list').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-cms-list').should('be.visible');
     });
 
     it('@package @general: navigate to theme module', () => {
@@ -158,9 +166,10 @@ describe('Administration: Check module navigation', () => {
             mainMenuId: 'sw-content',
             subMenuId: 'sw-theme-manager'
         });
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-theme-list__list').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-theme-list__list').should('be.visible');
     });
 
     it('@package @general: navigate to promotion module', () => {
@@ -175,9 +184,10 @@ describe('Administration: Check module navigation', () => {
             mainMenuId: 'sw-marketing',
             subMenuId: 'sw-promotion'
         });
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-promotion-list').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-promotion-list').should('be.visible');
     });
 
     it('@package @general: navigate to newsletter recipients module', () => {
@@ -192,8 +202,9 @@ describe('Administration: Check module navigation', () => {
             mainMenuId: 'sw-marketing',
             subMenuId: 'sw-newsletter-recipient'
         });
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-newsletter-recipient-list').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-newsletter-recipient-list').should('be.visible');
     });
 });

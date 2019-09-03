@@ -58,11 +58,13 @@ describe('Payment: Test crud operations', () => {
 
         // Save and verify payment method
         cy.get(page.elements.paymentSaveAction).click();
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');
-            cy.get(page.elements.loader).should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--0`).contains('CredStick');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--0`).contains('CredStick');
     });
 });

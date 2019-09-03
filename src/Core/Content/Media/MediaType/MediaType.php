@@ -21,7 +21,7 @@ abstract class MediaType extends Struct
         return $this->name;
     }
 
-    public function setFlags(string  ...$flags): self
+    public function setFlags(string ...$flags): self
     {
         $this->flags = $flags;
 

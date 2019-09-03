@@ -115,7 +115,7 @@ class AggregationParser
         }
     }
 
-    private static function buildFieldName(EntityDefinition  $definition, string $fieldName): string
+    private static function buildFieldName(EntityDefinition $definition, string $fieldName): string
     {
         $prefix = $definition->getEntityName() . '.';
 

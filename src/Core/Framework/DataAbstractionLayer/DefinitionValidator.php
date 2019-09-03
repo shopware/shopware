@@ -530,7 +530,7 @@ class DefinitionValidator
         return $associationViolations;
     }
 
-    private function validateManyToOne(EntityDefinition  $definition, ManyToOneAssociationField $association): array
+    private function validateManyToOne(EntityDefinition $definition, ManyToOneAssociationField $association): array
     {
         $reference = $association->getReferenceDefinition();
 
@@ -776,7 +776,7 @@ class DefinitionValidator
         return self::CUSTOM_SHORT_NAMES[$normalized];
     }
 
-    private function validateReferenceNameContainedInName(EntityDefinition  $definition, AssociationField $association): array
+    private function validateReferenceNameContainedInName(EntityDefinition $definition, AssociationField $association): array
     {
         if ($definition === $association->getReferenceDefinition()) {
             return [];
@@ -891,7 +891,7 @@ class DefinitionValidator
         return $violations;
     }
 
-    private function getShortClassName(EntityDefinition  $definition): string
+    private function getShortClassName(EntityDefinition $definition): string
     {
         return lcfirst(preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));
     }

@@ -88,23 +88,23 @@ class DoctrineExtension extends AbstractExtension
 
         switch (true) {
             // Check if result is non-unicode string using PCRE_UTF8 modifier
-            case is_string($result) && !preg_match('//u', $result):
+            case \is_string($result) && !preg_match('//u', $result):
                 $result = '0x' . strtoupper(bin2hex($result));
                 break;
 
-            case is_string($result):
+            case \is_string($result):
                 $result = "'" . addslashes($result) . "'";
                 break;
 
-            case is_array($result):
+            case \is_array($result):
                 foreach ($result as &$value) {
-                    $value = static::escapeFunction($value);
+                    $value = self::escapeFunction($value);
                 }
 
                 $result = implode(', ', $result);
                 break;
 
-            case is_object($result):
+            case \is_object($result):
                 $result = addslashes((string) $result);
                 break;
 
@@ -112,7 +112,7 @@ class DoctrineExtension extends AbstractExtension
                 $result = 'NULL';
                 break;
 
-            case is_bool($result):
+            case \is_bool($result):
                 $result = $result ? '1' : '0';
                 break;
         }
@@ -135,7 +135,7 @@ class DoctrineExtension extends AbstractExtension
 
         $i = 0;
 
-        if (!array_key_exists(0, $values) && array_key_exists(1, $values)) {
+        if (!\array_key_exists(0, $values) && \array_key_exists(1, $values)) {
             $i = 1;
         }
 
@@ -143,12 +143,12 @@ class DoctrineExtension extends AbstractExtension
             '/\?|((?<!:):[a-z0-9_]+)/i',
             static function ($matches) use ($values, &$i) {
                 $key = substr($matches[0], 1);
-                if (!array_key_exists($i, $values) && (!$key || !array_key_exists($key, $values))) {
+                if (!\array_key_exists($i, $values) && (!$key || !\array_key_exists($key, $values))) {
                     return $matches[0];
                 }
 
-                $value = array_key_exists($i, $values) ? $values[$i] : $values[$key];
-                $result = DoctrineExtension::escapeFunction($value);
+                $value = \array_key_exists($i, $values) ? $values[$i] : $values[$key];
+                $result = self::escapeFunction($value);
                 ++$i;
 
                 return $result;
@@ -199,7 +199,7 @@ class DoctrineExtension extends AbstractExtension
      */
     private function getPossibleCombinations(array $elements, int $combinationsLevel): array
     {
-        $baseCount = count($elements);
+        $baseCount = \count($elements);
         $result = [];
 
         if ($combinationsLevel === 1) {
@@ -227,9 +227,9 @@ class DoctrineExtension extends AbstractExtension
                 }
 
                 $tmp = $nextLevelElement;
-                $newCombination = array_slice($tmp, 0);
+                $newCombination = \array_slice($tmp, 0);
                 $newCombination[] = $element;
-                $result[] = array_slice($newCombination, 0);
+                $result[] = \array_slice($newCombination, 0);
             }
         }
 
@@ -245,13 +245,13 @@ class DoctrineExtension extends AbstractExtension
         $result = '';
 
         $maxLength = $this->maxCharWidth;
-        $maxLength -= count($parameters) * 5;
-        $maxLength /= count($parameters);
+        $maxLength -= \count($parameters) * 5;
+        $maxLength /= \count($parameters);
 
         foreach ($parameters as $key => $value) {
             $isLarger = false;
 
-            if (strlen($value) > $maxLength) {
+            if (\strlen($value) > $maxLength) {
                 $value = wordwrap($value, $maxLength, "\n", true);
                 $value = explode("\n", $value);
                 $value = $value[0];
@@ -283,7 +283,7 @@ class DoctrineExtension extends AbstractExtension
         $mandatoryKeywords = array_splice($keywords, 0, $required);
 
         $combinations = [];
-        $combinationsCount = count($keywords);
+        $combinationsCount = \count($keywords);
 
         // Compute all the possible combinations of keywords to match the query for
         while ($combinationsCount > 0) {

@@ -14,9 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class WriteCommandQueue
 {
     /**
-     * @var array
+     * @var array<string, WriteCommandInterface[]>
      */
-    private $commands;
+    private $commands = [];
 
     /**
      * @var array[]
@@ -28,21 +28,13 @@ class WriteCommandQueue
      */
     private $definitions = [];
 
-    /**
-     * @param WriteCommandInterface[] ...$commands
-     */
-    public function __construct(WriteCommandInterface ...$commands)
-    {
-        $this->commands = $commands;
-    }
-
     public function add(EntityDefinition $senderIdentification, WriteCommandInterface $command): void
     {
         $primaryKey = $command->getPrimaryKey();
 
         sort($primaryKey);
 
-        $primaryKey = array_map(function ($id) {
+        $primaryKey = array_map(static function ($id) {
             return Uuid::fromBytesToHex($id);
         }, $primaryKey);
 
@@ -93,27 +85,31 @@ class WriteCommandQueue
     }
 
     /**
-     * @return WriteCommandInterface[][]
+     * @return array<string, WriteCommandInterface[]>
      */
     public function getCommands(): array
     {
         return $this->commands;
     }
 
-    public function ensureIs(EntityDefinition $definition, $class): void
+    /**
+     * @throws WriteTypeIntendException
+     */
+    public function ensureIs(EntityDefinition $definition, string $class): void
     {
+        /** @var WriteCommandInterface[] $commands */
         $commands = $this->commands[$definition->getClass()];
 
         foreach ($commands as $command) {
             if (!$command instanceof $class) {
-                throw new WriteTypeIntendException($definition, $class, get_class($command));
+                throw new WriteTypeIntendException($definition, $class, \get_class($command));
             }
         }
     }
 
     public function getCommandsForEntity(EntityDefinition $definition, array $primaryKey): array
     {
-        $primaryKey = array_map(function ($id) {
+        $primaryKey = array_map(static function ($id) {
             return Uuid::fromBytesToHex($id);
         }, $primaryKey);
 
@@ -121,17 +117,13 @@ class WriteCommandQueue
 
         $hash = $definition->getClass() . ':' . md5(json_encode($primaryKey));
 
-        if (!isset($this->entityCommands[$hash])) {
-            return [];
-        }
-
-        return $this->entityCommands[$hash];
+        return $this->entityCommands[$hash] ?? [];
     }
 
     private function hasDependencies(EntityDefinition $definition, array $commands): array
     {
         $fields = $definition->getFields()
-            ->filter(function (Field $field) use ($definition) {
+            ->filter(static function (Field $field) use ($definition) {
                 if ($field instanceof ManyToOneAssociationField) {
                     return true;
                 }
@@ -167,12 +159,12 @@ class WriteCommandQueue
             $class = $referenceDefinition->getClass();
 
             //check if many to one has pending commands
-            if (!array_key_exists($class, $commands)) {
+            if (!\array_key_exists($class, $commands)) {
                 continue;
             }
 
             //if the current dependency is defined also defined as OneToManyAssociationField, skip
-            if (array_key_exists($class, $toManyDefinitions)) {
+            if (\array_key_exists($class, $toManyDefinitions)) {
                 continue;
             }
 

@@ -1,15 +1,20 @@
 parameters:
+    level: 5
+    paths:
+        - %currentWorkingDirectory%/vendor/shopware/platform/src
+    inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
     excludes_analyse:
-        - %rootDir%/../src/**/*Test.php
-        - %rootDir%/../src/**/Test/**/_fixture/feature_*.php
-        - %rootDir%/../src/Core/TestBootstrap.php
-        - %rootDir%/../src/Core/Flag/feature_*.php
-        - %rootDir%/../src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
+        - %currentWorkingDirectory%/vendor/shopware/platform/src/Core/Flag/feature_*.php
+        - %currentWorkingDirectory%/vendor/shopware/platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
+        # Tests
+        - %currentWorkingDirectory%/vendor/shopware/platform/src/**/*Test.php
+        - %currentWorkingDirectory%/vendor/shopware/platform/src/**/Test/**/_fixture/feature_*.php
+        - %currentWorkingDirectory%/vendor/shopware/platform/src/Core/TestBootstrap.php
     ignoreErrors:
         # https://github.com/phpstan/phpstan/issues/1060
         - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::(variableNode|scalarNode|end|integerNode|booleanNode)\(\)\.#'
         - '#Shopware\\Core\\Framework\\DataAbstractionLayer\\CompiledFieldCollection::__construct\(\) does not call parent constructor from Shopware\\Core\\Framework\\Struct\\Collection.#'
-        - '#[F,f]unction Flag\\.* not found\.$#'
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
+        # For BC with Symfony 4
         - '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required\.#'

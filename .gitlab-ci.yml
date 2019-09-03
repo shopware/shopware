@@ -62,12 +62,13 @@ Javascript analyze:
 
 PHP analyze:
     stage: Static analyzes
-    before_script: []
     script:
         - composer install --no-interaction --optimize-autoloader --no-suggest --no-scripts
-        - php bin/phpstan.phar analyze --level 5 --configuration phpstan.neon src
-        - php bin/php-cs-fixer.phar fix --dry-run -v --allow-risky=yes --format=junit src | tee php-cs-fixer.xml
-        - php bin/generate-composer.php
+        - composer install --no-interaction --optimize-autoloader --no-suggest --working-dir=dev-ops/analyze
+        - php dev-ops/analyze/generate-composer.php
+        - php dev-ops/analyze/vendor/bin/php-cs-fixer fix --config=vendor/shopware/platform/.php_cs.dist --dry-run --format=junit | tee php-cs-fixer.xml
+        - php dev-ops/analyze/vendor/bin/phpstan analyze --configuration vendor/shopware/platform/phpstan.neon
+        - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false
     artifacts:
         reports:
             junit: php-cs-fixer.xml

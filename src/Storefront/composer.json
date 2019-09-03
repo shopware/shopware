@@ -17,6 +17,8 @@
         "padaliyajay/php-autoprefixer": "1.2",
         "scssphp/scssphp": "1.0.3",
         "shopware/core": "*",
+        "symfony/cache": "4.3.4",
+        "symfony/cache-contracts": "1.1.5",
         "symfony/console": "4.3.4",
         "symfony/config": "4.3.4",
         "symfony/dependency-injection": "4.3.4",

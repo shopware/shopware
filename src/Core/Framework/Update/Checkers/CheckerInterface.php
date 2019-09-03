@@ -6,8 +6,8 @@ use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
 interface CheckerInterface
 {
-    public const VALIDATION_SUCCESS = 1;
-    public const VALIDATION_ERROR = 0;
+    public const VALIDATION_SUCCESS = true;
+    public const VALIDATION_ERROR = false;
 
     public function supports(string $check): bool;
 

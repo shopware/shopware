@@ -16,10 +16,9 @@ class PhpVersionCheck implements CheckerInterface
      */
     public function check($values): ValidationResult
     {
-        $validVersion = (version_compare(PHP_VERSION, $values) >= 0);
         $vars = ['minVersion' => $values, 'currentVersion' => PHP_VERSION];
 
-        if ($validVersion) {
+        if (version_compare(PHP_VERSION, $values, '>=')) {
             return new ValidationResult('phpVersion', self::VALIDATION_SUCCESS, 'phpVersion', $vars);
         }
 

@@ -110,8 +110,12 @@ function getAppUrl() {
  * @return {string}
  */
 function getHostname() {
-    let url = new URL(process.env.APP_URL);
-    return url.protocol + '//' + url.hostname;
+    try {
+        const url = new URL(process.env.APP_URL);
+        return url.protocol + '//' + url.hostname;
+    } catch {
+        return undefined;
+    }
 }
 
 /**

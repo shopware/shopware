@@ -8,6 +8,7 @@ class IndexerMessage
 {
     public const ACTION_INDEX = 'index';
     public const ACTION_REFRESH = 'refresh';
+    public const ACTION_PARTIAL = 'partial';
 
     /**
      * @var string classname of the indexer
@@ -23,6 +24,11 @@ class IndexerMessage
      * @var string
      */
     private $actionType = self::ACTION_INDEX;
+
+    /**
+     * @var string|null
+     */
+    private $lastId;
 
     /**
      * @var EntityWrittenContainerEvent
@@ -67,5 +73,15 @@ class IndexerMessage
     public function setEntityWrittenContainerEvent(EntityWrittenContainerEvent $entityWrittenContainerEvent): void
     {
         $this->entityWrittenContainerEvent = $entityWrittenContainerEvent;
+    }
+
+    public function getLastId(): ?string
+    {
+        return $this->lastId;
+    }
+
+    public function setLastId(?string $lastId): void
+    {
+        $this->lastId = $lastId;
     }
 }

@@ -292,6 +292,8 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerHandler">
             <argument type="tagged" tag="shopware.dal_indexing.indexer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"/>
+            <argument type="service" id="messenger.bus.shopware" />
             <tag name="messenger.message_handler"/>
         </service>
 

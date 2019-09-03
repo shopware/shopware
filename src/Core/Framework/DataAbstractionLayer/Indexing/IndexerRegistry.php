@@ -89,4 +89,35 @@ class IndexerRegistry implements EventSubscriberInterface, IndexerRegistryInterf
         $preEvent = new IndexerRegistryEndEvent(new \DateTimeImmutable(), $event->getContext());
         $this->eventDispatcher->dispatch($preEvent);
     }
+
+    public function partial(?string $lastIndexer, $lastId, \DateTimeInterface $timestamp): IndexerRegistryPartialResult
+    {
+        $preEvent = new IndexerRegistryStartEvent(new \DateTimeImmutable());
+        $this->eventDispatcher->dispatch($preEvent);
+
+        foreach ($this->indexer as $index => $indexer) {
+            if (!$lastIndexer) {
+                return $this->doPartial($indexer, $lastId, $index, $timestamp);
+            }
+
+            if ($lastIndexer === get_class($indexer)) {
+                return $this->doPartial($indexer, $lastId, $index, $timestamp);
+            }
+        }
+
+        return new IndexerRegistryPartialResult(null, null);
+    }
+
+    private function doPartial(IndexerInterface $indexer, $lastId, $index, \DateTimeInterface $timestamp): IndexerRegistryPartialResult
+    {
+        $nextId = $indexer->partial($lastId, $timestamp);
+
+        $next = get_class($indexer);
+
+        if ($nextId === null) {
+            $next = isset($this->indexer[$index]) ? get_class($this->indexer[$index]) : null;
+        }
+
+        return new IndexerRegistryPartialResult($next, $nextId);
+    }
 }

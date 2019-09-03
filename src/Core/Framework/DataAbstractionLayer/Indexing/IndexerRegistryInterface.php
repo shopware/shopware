@@ -9,4 +9,6 @@ interface IndexerRegistryInterface
     public function index(\DateTimeInterface $timestamp): void;
 
     public function refresh(EntityWrittenContainerEvent $event): void;
+
+    public function partial(?string $lastIndexer, $lastId, \DateTimeInterface $timestamp): IndexerRegistryPartialResult;
 }

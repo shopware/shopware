@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryPartialResult;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Dispatches the tagged indexer like the IndexerRegistry but the work happens inside the message queue.
  */
-class IndexerMessageSender implements IndexerRegistryInterface
+class IndexerMessageSender
 {
     /**
      * @var MessageBusInterface
@@ -48,5 +48,19 @@ class IndexerMessageSender implements IndexerRegistryInterface
             $message->setIndexer(get_class($indexer));
             $this->bus->dispatch($message);
         }
+    }
+
+    public function partial(\DateTimeInterface $timestamp)
+    {
+        $indexer = array_shift($this->indexer);
+
+        $message = new IndexerMessage();
+        $message->setIndexer(get_class($indexer));
+        $message->setTimestamp($timestamp);
+        $message->setActionType(IndexerMessage::ACTION_PARTIAL);
+
+        $this->bus->dispatch($message);
+
+        return new IndexerRegistryPartialResult(null, null);
     }
 }

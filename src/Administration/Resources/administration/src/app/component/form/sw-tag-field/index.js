@@ -1,8 +1,8 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-tag-field.html.twig';
 import './sw-tag-field.scss';
 
 const { Component, State } = Shopware;
+const { CriteriaFactory } = Shopware.DataDeprecated;
 
 /**
  * @public

@@ -5,8 +5,8 @@ Filter.register('asset', (value) => {
         return '';
     }
 
-    const initContainer = Application.getContainer('init');
-    const context = initContainer.contextService;
+    const serviceContainer = Application.getContainer('service');
+    const context = serviceContainer.context;
 
     return `${context.assetsPath}${value}`;
 });

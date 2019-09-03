@@ -269,7 +269,7 @@ Component.register('sw-order-detail-base', {
             this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext).catch((error) => {
                 this.$emit('error', error);
             }).finally(() => {
-                this.versionContext.versionId = Application.getContainer('init').contextService.liveVersionId;
+                this.versionContext.versionId = Application.getContainer('service').context.liveVersionId;
                 this.reloadEntityData();
             });
         },
@@ -286,7 +286,7 @@ Component.register('sw-order-detail-base', {
                 this.$emit('error', error);
             });
 
-            this.versionContext.versionId = Application.getContainer('init').contextService.liveVersionId;
+            this.versionContext.versionId = Application.getContainer('service').context.liveVersionId;
             this.reloadEntityData().then(() => {
                 this.$emit('editing-change', false);
             });

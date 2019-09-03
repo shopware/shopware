@@ -8,12 +8,12 @@ let enabled = false;
  */
 export default function initializeWorker() {
     const loginService = this.getContainer('service').loginService;
-    const context = this.getContainer('init').contextService;
+    const context = this.getContainer('service').context;
     const workerNotificationFactory = this.getContainer('factory').workerNotification;
 
     registerThumbnailMiddleware(workerNotificationFactory);
 
-    return function configureWorker() {
+    return Promise.resolve(() => {
         // Enable worker notification listener regardless of the config
         enableWorkerNotificationListener(
             loginService,
@@ -23,7 +23,7 @@ export default function initializeWorker() {
         if (context.config.adminWorker.enableAdminWorker && !enabled) {
             enableAdminWorker(loginService, context, context.config.adminWorker);
         }
-    };
+    });
 }
 
 function enableAdminWorker(loginService, context, config) {

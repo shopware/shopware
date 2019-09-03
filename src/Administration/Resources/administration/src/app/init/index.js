@@ -14,11 +14,9 @@ import initRouter from 'src/app/init/router.init';
 import initFilter from 'src/app/init/filter.init';
 import initDirectives from 'src/app/init/directive.init';
 import initLocale from 'src/app/init/locale.init';
-import initApiServices from 'src/app/init/api-services.init';
 import initComponents from 'src/app/init/component.init';
 import initSvgIcons from 'src/app/init/svg-icons.init';
 import initShortcut from 'src/app/init/shortcut.init';
-import initContext from 'src/app/init/context.init';
 
 export default {
     coreState: initState,
@@ -33,9 +31,7 @@ export default {
     locale: initLocale,
     repositoryFactory: initRepository,
     shortcut: initShortcut,
-    apiServices: initApiServices,
     httpClient: initHttpClient,
     componentHelper: initComponentHelper,
-    entity: initEntity,
-    contextService: initContext
+    entity: initEntity
 };

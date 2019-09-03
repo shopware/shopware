@@ -1,8 +1,8 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-form-field-renderer.html.twig';
 import './sw-form-field-renderer.scss';
 
 const { Component, Mixin } = Shopware;
+const { LocalStore } = Shopware.DataDeprecated;
 
 /**
  * @public

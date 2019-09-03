@@ -1,4 +1,3 @@
-import { } from 'src/app/service/map-errors.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';

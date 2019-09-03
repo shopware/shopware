@@ -11,7 +11,7 @@ class UserRecoveryApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'user') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'userRecoveryService';
-        this.contextService = Application.getContainer('init').contextService;
+        this.context = Application.getContainer('service').context;
     }
 
     createRecovery(email) {

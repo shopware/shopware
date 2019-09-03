@@ -1,20 +1,23 @@
 export default function initializeConfigDecorator() {
-    return this.addInitializerDecorator('worker', (service) => {
-        const configService = this.getContainer('service').configService;
-        const loginService = this.getContainer('service').loginService;
-        const context = this.getContainer('init').contextService;
+    return new Promise((resolve) => {
+        this.addInitializerDecorator('worker', (service) => {
+            const configService = this.getContainer('service').configService;
+            const loginService = this.getContainer('service').loginService;
+            const context = this.getContainer('service').context;
 
-        function getConfig() {
-            return configService.getConfig().then((response) => {
-                context.config = response;
-                service();
-            });
-        }
-        if (loginService.isLoggedIn()) {
-            getConfig().catch();
-            return;
-        }
+            function getConfig() {
+                return configService.getConfig().then((response) => {
+                    context.config = response;
+                    service.then((configureWorker) => resolve(configureWorker()));
+                });
+            }
+            if (loginService.isLoggedIn()) {
+                getConfig().catch();
+                return;
+            }
 
-        loginService.addOnLoginListener(getConfig);
+            loginService.addOnLoginListener(getConfig);
+            resolve();
+        });
     });
 }

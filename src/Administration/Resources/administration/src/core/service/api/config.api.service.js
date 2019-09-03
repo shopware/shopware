@@ -22,14 +22,16 @@ class ConfigApiService extends ApiService {
         const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        return this.httpClient
-            .get('/_info/config', {
-                params,
-                headers
-            })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
+        return new Promise((resolve) => {
+            this.httpClient
+                .get('/_info/config', {
+                    params,
+                    headers
+                })
+                .then((response) => {
+                    resolve(ApiService.handleResponse(response));
+                });
+        });
     }
 }
 

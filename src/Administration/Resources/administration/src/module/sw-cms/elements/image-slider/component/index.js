@@ -81,9 +81,9 @@ Component.register('sw-cms-el-image-slider', {
         },
 
         contextAssetPath() {
-            const initContainer = Application.getContainer('init');
+            const serviceContainer = Application.getContainer('service');
 
-            return initContainer.contextService.assetsPath;
+            return serviceContainer.context.assetsPath;
         }
     },
 

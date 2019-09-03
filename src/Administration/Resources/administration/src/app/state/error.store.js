@@ -1,6 +1,5 @@
-import ErrorStore from 'src/core/data/error-store.data';
-
 const { State, Application } = Shopware;
+const { ErrorStore } = Shopware.DataDeprecated;
 const utils = Shopware.Utils;
 
 class VuexErrorStore {

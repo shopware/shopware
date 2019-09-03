@@ -454,7 +454,6 @@ export default class EntityProxy {
      */
     validate(data = this.draft) {
         const required = Shopware.Application.getContainer('service').validationService.required;
-        console.log('required', required);
 
         return this.requiredProperties.every((property) => {
             return required(data[property]);

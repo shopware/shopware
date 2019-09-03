@@ -25,6 +25,8 @@ const ApiService = require('src/core/service/api.service').default;
 const utils = require('src/core/service/util.service').default;
 const FlatTreeHelper = require('src/core/helper/flattree.helper').default;
 const InfiniteScrollingHelper = require('src/core/helper/infinite-scrolling.helper').default;
+const SanitizerHelper = require('src/core/helper/sanitizer.helper').default;
+const DeviceHelper = require('src/core/helper/device.helper').default;
 const MiddlewareHelper = require('src/core/helper/middleware.helper').default;
 const data = require('src/core/data-new/index').default;
 const dataDeprecated = require('src/core/data/index').default;
@@ -294,7 +296,9 @@ const Shopware = {
         FlatTreeHelper: FlatTreeHelper,
         InfiniteScrollingHelper: InfiniteScrollingHelper,
         MiddlewareHelper: MiddlewareHelper,
-        RefreshTokenHelper: RefreshTokenHelper
+        RefreshTokenHelper: RefreshTokenHelper,
+        SanitizerHelper: SanitizerHelper,
+        DeviceHelper: DeviceHelper
     },
 
     /**

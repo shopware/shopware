@@ -163,7 +163,7 @@ exports.pluginDefinitionWalker = function (baseWebPackConfig, pluginList) {
 };
 
 /**
- * Filters the "commons" and "app" from
+ * Filters main assets from output
  *
  * @param {JSON} output
  * @returns {String}
@@ -171,11 +171,9 @@ exports.pluginDefinitionWalker = function (baseWebPackConfig, pluginList) {
 exports.filterAssetsOutput = function (output) {
     const filteredOutput = { ...output };
 
-    delete filteredOutput[''];
-    delete filteredOutput.app;
-    delete filteredOutput.commons;
-    delete filteredOutput.runtime;
-    delete filteredOutput['vendors-node'];
+    ['', 'app', 'commons', 'runtime', 'vendors-node'].forEach((output) => {
+        delete filteredOutput[output];
+    });
 
     return JSON.stringify(filteredOutput);
 };

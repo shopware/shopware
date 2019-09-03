@@ -120,7 +120,7 @@ class ApplicationBootstrapper {
      *
      * @example
      * Shopware.Application.addInitializer('httpClient', (container) => {
-     *    return HttpFactory(container.contextService);
+     *    return HttpFactory(container.context);
      * });
      *
      * @param {String} name Name of the initializer
@@ -159,9 +159,12 @@ class ApplicationBootstrapper {
      * @returns {ApplicationBootstrapper}
      */
     registerContext(context) {
-        return this.addInitializer('context', () => {
-            return context;
+        this.addServiceProvider('context', () => {
+            const ContextFactory = Shopware._private.ContextFactory;
+
+            return ContextFactory(context);
         });
+        return this;
     }
 
     /**
@@ -231,7 +234,7 @@ class ApplicationBootstrapper {
      * @returns {module:core/application.ApplicationBootstrapper}
      */
     initializeFeatureFlags() {
-        const config = this.getContainer('init').context.features;
+        const config = this.getContainer('service').context.features;
 
         Shopware.FeatureConfig.init(config);
 
@@ -334,14 +337,12 @@ class ApplicationBootstrapper {
      * @returns {Promise<module:core/application.ApplicationBootstrapper>}
      */
     startBootProcess() {
-        const isUserLoggedIn = this.getContainer('service').loginService.isLoggedIn();
+        const loginService = this.getContainer('service').loginService;
+        const isUserLoggedIn = loginService.isLoggedIn();
 
         // if user is not logged in
         if (!isUserLoggedIn) {
-            // set force reload after successful login
-            sessionStorage.setItem('sw-login-should-reload', 'true');
-
-            // boot only the login
+            loginService.logout();
             return this.bootLogin();
         }
 
@@ -354,6 +355,9 @@ class ApplicationBootstrapper {
      * @returns {Promise<module:core/application.ApplicationBootstrapper>}
      */
     bootLogin() {
+        // set force reload after successful login
+        sessionStorage.setItem('sw-login-should-reload', 'true');
+
         /**
          * Login Application Booting:
          *
@@ -385,7 +389,6 @@ class ApplicationBootstrapper {
          * 4. Create the application root
          */
 
-        // if user is logged in
         return this.initializeInitializers(initContainer)
             .then(() => this.loadPlugins())
             .then(() => this.view.initDependencies())
@@ -400,12 +403,12 @@ class ApplicationBootstrapper {
      * @returns {Promise<module:core/application.ApplicationBootstrapper>}
      */
     createApplicationRoot() {
-        const container = this.getContainer('init');
-        const router = container.router.getRouterInstance();
-        const contextService = container.contextService;
+        const initContainer = this.getContainer('init');
+        const serviceContainer = this.getContainer('service');
+        const router = initContainer.router.getRouterInstance();
 
         // We're in a test environment, we're not needing an application root
-        if (contextService.environment === 'testing') {
+        if (serviceContainer.context.environment === 'testing') {
             return Promise.resolve(this);
         }
 
@@ -415,7 +418,7 @@ class ApplicationBootstrapper {
             this.getContainer('service')
         );
 
-        const firstRunWizard = container.context.firstRunWizard;
+        const firstRunWizard = serviceContainer.context.firstRunWizard;
         if (firstRunWizard && !router.history.current.name.startsWith('sw.first.run.wizard.')) {
             router.push({
                 name: 'sw.first.run.wizard.index'
@@ -478,15 +481,24 @@ class ApplicationBootstrapper {
      */
     initializeLoginInitializer() {
         const loginInitializer = [
-            'init.login',
-            'init.baseComponents',
-            'init.coreState',
-            'init.locale',
-            'init.apiServices',
-            'init.svgIcons'
+            'login',
+            'baseComponents',
+            'coreState',
+            'locale',
+            'apiServices',
+            'svgIcons'
         ];
 
-        this.$container.digest(loginInitializer);
+        const initContainer = this.getContainer('init');
+        loginInitializer.forEach((key) => {
+            const exists = initContainer.hasOwnProperty(key);
+
+            if (!exists) {
+                console.error(`The initializer "${key}" does not exists`);
+            }
+        });
+
+        this.$container.digest(loginInitializer.map(key => `init.${key}`));
 
         const asyncInitializers = this.getAsyncInitializers(loginInitializer);
         return Promise.all(asyncInitializers);
@@ -524,7 +536,7 @@ class ApplicationBootstrapper {
         }
 
         // in production
-        const context = this.getContainer('init').contextService;
+        const context = this.getContainer('service').context;
         const plugins = context.config.bundles;
 
         const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));

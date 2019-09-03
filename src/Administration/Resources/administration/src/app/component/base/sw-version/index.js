@@ -18,7 +18,7 @@ Component.register('sw-version', {
 
     computed: {
         version() {
-            const version = Application.getContainer('init').contextService.config.version;
+            const version = Application.getContainer('service').context.config.version;
             const match = version.match(/(\d+\.?\d+?\.?\d+?)-?([a-z]+)?(\d+(.\d+)*)?/i);
 
             if (match === null) {

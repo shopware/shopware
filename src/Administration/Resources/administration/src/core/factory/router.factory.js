@@ -347,8 +347,8 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
     }
 
     function getAssetPath() {
-        const initContainer = Shopware.Application.getContainer('init');
-        const context = initContainer.contextService;
+        const serviceContainer = Shopware.Application.getContainer('service');
+        const context = serviceContainer.context;
         return context.assetsPath;
     }
 

@@ -35,8 +35,7 @@ Component.register('sw-cms-el-product-box', {
         },
 
         mediaUrl() {
-            const initContainer = Application.getContainer('init');
-            const context = initContainer.contextService;
+            const context = Application.getContainer('service').context;
 
             if (this.product.cover && this.product.cover.media) {
                 if (this.product.cover.media.id) {

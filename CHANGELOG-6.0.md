@@ -48,6 +48,9 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Deprecated `sw-select-option` use `sw-result-option` instead
     * Moved the `sw-cms` from `State.getStore()` to `Repository` and added clientsided data resolver
     * Added translations for the `sw-cms` module
+    * Added `getComponentHelper` to global `Shopware` object
+    * Added async loading of plugins
+    * Added seperation of login and application boot
     * Replaced vanilla-colorpicker dependency with custom-build vuejs colorpicker
     * `EntityCollection.filter` returns a new `EntityCollection` object instead of a native array 
     * Added Sections which support sidebars to the `sw-cms`
@@ -110,6 +113,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
 * Administration
     * Removed `sw-tag-multi-select`
     * Removed `sw-multi-select-option` use `sw-result-option` instead
+    * Removed module export of `Shopware`
+    * Removed plugin functionality in login
     * Removed `sw-single-select-option` use `sw-result-option` instead
     * Removed `Criteria.value` use `Criteria.terms` instead
     * Removed `Criteria.valueCount` use `Criteria.terms` instead

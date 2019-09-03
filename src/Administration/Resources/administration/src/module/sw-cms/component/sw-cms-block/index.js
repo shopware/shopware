@@ -50,8 +50,7 @@ Component.register('sw-cms-block', {
         },
 
         blockStyles() {
-            const initContainer = Application.getContainer('init');
-            const context = initContainer.contextService;
+            const context = Application.getContainer('service').context;
             let backgroundMedia = null;
 
             if (this.block.backgroundMedia) {

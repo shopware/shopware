@@ -1,7 +1,5 @@
 import domPurify from 'dompurify';
 
-const { warn } = Shopware.Utils.debug;
-
 /** @type {Array<String>} Contains all valid middleware names */
 const middlewareNames = [
     'beforeSanitizeElements',
@@ -48,7 +46,7 @@ export default class Sanitizer {
      */
     static addMiddleware(middlewareName, middlewareFn = () => {}) {
         if (!middlewareNames.includes(middlewareName)) {
-            warn(
+            Shopware.Utils.debug.warn(
                 'Sanitizer',
                 `No middleware found for name "${middlewareName}", 
                 the following are available: ${middlewareNames.join(', ')}`
@@ -69,7 +67,7 @@ export default class Sanitizer {
      */
     static removeMiddleware(middlewareName) {
         if (!middlewareNames.includes(middlewareName)) {
-            warn(
+            Shopware.Utils.debug.warn(
                 'Sanitizer',
                 `No middleware found for name "${middlewareName}", 
                 the following are available: ${middlewareNames.join(', ')}`

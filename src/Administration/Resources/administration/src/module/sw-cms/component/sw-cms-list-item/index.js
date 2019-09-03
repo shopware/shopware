@@ -46,8 +46,7 @@ Component.register('sw-cms-list-item', {
         },
 
         defaultLayoutAsset() {
-            const initContainer = Application.getContainer('init');
-            const context = initContainer.contextService;
+            const context = Application.getContainer('service').context;
 
             return `url(${context.assetsPath}/administration/static/img/cms/default_preview_${this.page.type}.jpg)`;
         },

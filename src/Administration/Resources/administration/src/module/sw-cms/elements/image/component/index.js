@@ -28,8 +28,7 @@ Component.register('sw-cms-el-image', {
         },
 
         mediaUrl() {
-            const initContainer = Application.getContainer('init');
-            const context = initContainer.contextService;
+            const context = Application.getContainer('service').context;
             const elemData = this.element.data.media;
             const mediaSource = this.element.config.media.source;
 

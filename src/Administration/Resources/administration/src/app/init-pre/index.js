@@ -3,7 +3,9 @@
  * They can decorate the following initializer.
  */
 import initConfig from './config.init';
+import initApiServices from './api-services.init';
 
 export default {
-    config: initConfig
+    config: initConfig,
+    apiServices: initApiServices
 };

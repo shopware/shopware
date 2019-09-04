@@ -99,6 +99,25 @@ Component.register('sw-customer-detail', {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        defaultCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociationPaths([
+                'addresses',
+                'group',
+                'salutation',
+                'salesChannel',
+                'defaultPaymentMethod',
+                'lastPaymentMethod',
+                'defaultBillingAddress.country',
+                'defaultBillingAddress.salutation',
+                'defaultShippingAddress.country',
+                'defaultShippingAddress.salutation',
+                'tags'
+            ]);
+
+            return criteria;
+        },
+
         ...mapPageErrors(errorConfig)
     },
 
@@ -119,22 +138,11 @@ Component.register('sw-customer-detail', {
                 this.customerId = this.$route.params.id;
 
                 if (!this.createMode) {
-                    const criteria = new Criteria();
-                    criteria.addAssociationPaths([
-                        'addresses',
-                        'group',
-                        'salutation',
-                        'salesChannel',
-                        'defaultPaymentMethod',
-                        'lastPaymentMethod',
-                        'defaultBillingAddress.country',
-                        'defaultBillingAddress.salutation',
-                        'defaultShippingAddress.country',
-                        'defaultShippingAddress.salutation',
-                        'tags'
-                    ]);
-
-                    this.customerRepository.get(this.customerId, this.context, criteria).then((customer) => {
+                    this.customerRepository.get(
+                        this.customerId,
+                        this.context,
+                        this.defaultCriteria
+                    ).then((customer) => {
                         this.customer = customer;
                         this.languageRepository.get(this.customer.languageId, this.context).then((language) => {
                             this.language = language;

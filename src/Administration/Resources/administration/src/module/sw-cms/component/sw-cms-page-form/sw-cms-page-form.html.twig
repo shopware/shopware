@@ -2,7 +2,7 @@
     <div class="sw-cms-page-form">
 
         {% block sw_cms_page_form_content %}
-            <template v-for="block in page.blocks" v-if="isDefaultLanguage()">
+            <template v-for="block in page.blocks">
 
                 {% block sw_cms_page_form_card %}
                     <sw-card class="sw-cms-page-form__block-card" :title="getBlockTitle(block)" :key="block.id">
@@ -19,14 +19,5 @@
                 {% endblock %}
             </template>
         {% endblock %}
-
-        {# ToDo: Remove, when language handling is added to CMS #}
-        <template v-else>
-            <sw-alert class="sw-cms-page-form__language-warning"
-                      variant="warning"
-                      :title="$tc('sw-cms.detail.alertTitleTranslations')">
-                {{ $tc('sw-cms.detail.alertContentTranslations') }}
-            </sw-alert>
-        </template>
     </div>
 {% endblock %}

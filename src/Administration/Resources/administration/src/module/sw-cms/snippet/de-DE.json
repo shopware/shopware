@@ -6,7 +6,8 @@
       "moduleTitle": "Erlebniswelten",
       "greeting": "Layouts",
       "createNewLayout": "Neues Layout anlegen",
-      "deleteDisablesToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen"
+      "deleteDisablesToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen",
+      "disabledAddingBlocksToolTip": "Blöcke können nur in der Systemstandardsprache hinzugefügt werden"
     },
     "sorting": {
       "labelSort": "Sortieren nach:",

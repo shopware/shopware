@@ -6,7 +6,8 @@
       "moduleTitle": "Shopping Experiences",
       "greeting": "Layouts",
       "createNewLayout": "Create new layout",
-      "notificationDeleteErrorMessage": "The layout you want to delete is still allocated to at least one category"
+      "deleteDisabledToolTip": "The layout you want to delete is still allocated to at least one category",
+      "disabledAddingBlocksToolTip": "You can only add Blocks in your default system language"
     },
     "sorting": {
       "labelSort": "Sort by:",

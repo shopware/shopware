@@ -7,3 +7,12 @@
         <option v-for="salesChannel in salesChannels" :value="salesChannel.id">{{ placeholder(salesChannel, 'name') }}</option>
     </sw-select-field>
 {% endblock %}
+
+
+ {% block sw_cms_detail_sidebar_page_settings_name_field %}
+     <sw-field type="text"
+               :label="$tc('sw-cms.detail.labelPageName')"
+               :placeholder="placeholder(page, 'name')"
+               v-model="page.name">
+     </sw-field>
+ {% endblock %}

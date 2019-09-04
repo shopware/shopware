@@ -1,7 +1,7 @@
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
 
-const { Component, State } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-cms-page-form', {
     template,
@@ -36,11 +36,6 @@ Component.register('sw-cms-page-form', {
             }
 
             return '';
-        },
-
-        // ToDo: Remove, when language handling is added to CMS
-        isDefaultLanguage() {
-            return State.getStore('language').getCurrentId() === State.getStore('language').systemLanguageId;
         }
     }
 });

@@ -30,6 +30,7 @@ Component.register('sw-cms-el-image', {
         mediaUrl() {
             const initContainer = Application.getContainer('init');
             const context = initContainer.contextService;
+            const elemData = this.element.data.media;
 
             if (this.element.config.media.source === 'mapped') {
                 const media = this.getDemoValue(this.element.config.media.value);
@@ -37,12 +38,12 @@ Component.register('sw-cms-el-image', {
                 if (media && media.id && media.url) {
                     return media.url;
                 }
-            } else if (this.element.data && this.element.data.media) {
-                if (this.element.data.media.id) {
+            } else if (elemData) {
+                if (elemData.id) {
                     return this.element.data.media.url;
                 }
 
-                return `${context.assetsPath}${this.element.data.media.url}`;
+                return `${context.assetsPath}${elemData.url}`;
             }
 
             return `${context.assetsPath}/administration/static/img/cms/preview_mountain_large.jpg`;

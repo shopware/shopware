@@ -57,7 +57,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
 
         cy.get('.sw-cms-list-item--0').click();
 
-        // Add simple image block
+        // Add product box block
         cy.contains('Add a block').click();
         cy.get('#sw-field--currentBlockCategory').select('Commerce');
         cy.get('.sw-cms-preview-product-three-column').should('be.visible');

@@ -45,6 +45,7 @@ You can use them with every URL in your templates
     * Deprecated `sw-select` use `sw-multi-select` or `sw-single-select` instead
     * Deprecated `sw-select-option` use `sw-result-option` instead
     * Moved the `sw-cms` from `State.getStore()` to `Repository` and added clientsided data resolver
+    * Added translations for the `sw-cms` module
 * Core
     * Added DAL support for multi primary keys. 
     * Added API endpoints for translation definitions

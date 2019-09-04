@@ -111,10 +111,10 @@ class TranslatorTest extends TestCase
             'author' => 'Shopware',
         ];
 
-        $created = $snippetRepository->create([$snippet], Context::createDefaultContext())->getEventByDefinition(SnippetDefinition::class);
+        $created = $snippetRepository->create([$snippet], Context::createDefaultContext())->getEventByEntityName(SnippetDefinition::ENTITY_NAME);
         static::assertEquals([$snippet['id']], $created->getIds());
 
-        $deleted = $snippetRepository->delete([['id' => $snippet['id']]], Context::createDefaultContext())->getEventByDefinition(SnippetDefinition::class);
+        $deleted = $snippetRepository->delete([['id' => $snippet['id']]], Context::createDefaultContext())->getEventByEntityName(SnippetDefinition::ENTITY_NAME);
         static::assertEquals([$snippet['id']], $deleted->getIds());
     }
 }

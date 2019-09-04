@@ -8,10 +8,17 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Framework;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
+use Shopware\Core\Framework\Language\LanguageDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductManufacturerDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductManufacturerExtension;
@@ -33,10 +40,10 @@ class EntityExtensionRegisterTest extends TestCase
 
     public function testAddEntityExtensionToEntityWhichAlsoHasSalesChannelDefinition(): void
     {
-        $extendedProductDefinition = new ExtendedProductDefinition();
-        $this->getContainer()->set(ExtendedProductDefinition::class, $extendedProductDefinition);
+        $extendedProductDefinition = new ExtendedDummyProductDefinition();
+        $this->getContainer()->set(ExtendedDummyProductDefinition::class, $extendedProductDefinition);
         $this->getContainer()->set(
-            'sales_channel_definition.' . ExtendedProductDefinition::class,
+            'sales_channel_definition.' . ExtendedDummyProductDefinition::class,
             $extendedProductDefinition
         );
 
@@ -130,5 +137,28 @@ class EntityExtensionRegisterTest extends TestCase
             $definitionInstanceRegistry,
             $definitions
         );
+    }
+}
+
+class ExtendedDummyProductDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'extended_dummy_product';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new StringField('name', 'name'),
+
+            new FkField('product_id', 'productId', ProductDefinition::class),
+            new FkField('language_id', 'languageId', LanguageDefinition::class),
+
+            new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
+            new OneToOneAssociationField('toOne', 'product_id', 'id', ProductDefinition::class),
+            new ManyToOneAssociationField('manyToOne', 'product_id', ProductDefinition::class, 'id'),
+        ]);
     }
 }

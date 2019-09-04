@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-
 /**
  * Defines the current state of an entity in relation to the parent-child inheritance and
  * existence in the storage or command queue.
@@ -36,19 +34,19 @@ class EntityExistence
     private $state;
 
     /**
-     * @var EntityDefinition
+     * @var string|null
      */
-    private $definition;
+    private $entityName;
 
     public function __construct(
-        ?EntityDefinition $definition = null, // @see a hack in \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer
+        ?string $entityName = null, // @see a hack in \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer
         array $primaryKey,
         bool $exists,
         bool $isChild,
         bool $wasChild,
         array $state
     ) {
-        $this->definition = $definition;
+        $this->entityName = $entityName;
         $this->primaryKey = $primaryKey;
         $this->exists = $exists;
         $this->isChild = $isChild;
@@ -76,14 +74,14 @@ class EntityExistence
         return $this->wasChild;
     }
 
-    public function hasDefinition(): bool
+    public function hasEntityName(): bool
     {
-        return $this->definition !== null;
+        return $this->entityName !== null;
     }
 
-    public function getDefinition(): EntityDefinition
+    public function getEntityName(): ?string
     {
-        return $this->definition;
+        return $this->entityName;
     }
 
     public function childChangedToParent(): bool

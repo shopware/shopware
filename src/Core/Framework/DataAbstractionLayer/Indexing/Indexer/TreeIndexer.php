@@ -155,7 +155,7 @@ class TreeIndexer implements IndexerInterface
     {
         /** @var EntityWrittenEvent $nested */
         foreach ($event->getEvents() as $nested) {
-            $definition = $nested->getDefinition();
+            $definition = $this->definitionRegistry->getByEntityName($nested->getEntityName());
 
             if ($definition->isTreeAware()) {
                 $this->updateIds($nested->getIds(), $definition, $nested->getContext());

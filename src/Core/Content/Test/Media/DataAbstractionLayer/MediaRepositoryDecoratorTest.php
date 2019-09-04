@@ -306,7 +306,7 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $this->runWorker();
 
-        static::assertNull($event->getEventByDefinition(MediaDefinition::class));
+        static::assertNull($event->getEventByEntityName(MediaDefinition::ENTITY_NAME));
     }
 
     public function testDeleteForMediaWithoutFile(): void
@@ -327,8 +327,8 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $this->runWorker();
 
-        static::assertCount(1, $event->getEventByDefinition(MediaDefinition::class)->getIds());
-        static::assertEquals($firstId, $event->getEventByDefinition(MediaDefinition::class)->getIds()[0]);
+        static::assertCount(1, $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)->getIds());
+        static::assertEquals($firstId, $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)->getIds()[0]);
     }
 
     public function testDeleteWithAlreadyDeletedFile(): void
@@ -352,8 +352,8 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         $this->runWorker();
 
-        static::assertCount(1, $event->getEventByDefinition(MediaDefinition::class)->getIds());
-        static::assertEquals($firstId, $event->getEventByDefinition(MediaDefinition::class)->getIds()[0]);
+        static::assertCount(1, $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)->getIds());
+        static::assertEquals($firstId, $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)->getIds()[0]);
     }
 
     private function getOrderData($orderId, $context): array

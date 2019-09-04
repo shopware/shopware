@@ -12,12 +12,12 @@ class EventIdExtractor
     {
         $ids = [];
 
-        $event = $generic->getEventByDefinition(RuleDefinition::class);
+        $event = $generic->getEventByEntityName(RuleDefinition::ENTITY_NAME);
         if ($event) {
             $ids = $event->getIds();
         }
 
-        $event = $generic->getEventByDefinition(RuleConditionDefinition::class);
+        $event = $generic->getEventByEntityName(RuleConditionDefinition::ENTITY_NAME);
         if ($event) {
             foreach ($event->getPayloads() as $id) {
                 if (isset($id['ruleId'])) {

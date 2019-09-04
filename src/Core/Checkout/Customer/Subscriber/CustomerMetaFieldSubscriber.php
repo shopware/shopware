@@ -40,7 +40,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 
     public function fillCustomerMetaDataFields(EntityWrittenEvent $event): void
     {
-        if ($event->getDefinition()->getClass() !== OrderDefinition::class) {
+        if ($event->getEntityName() !== OrderDefinition::ENTITY_NAME) {
             return;
         }
 

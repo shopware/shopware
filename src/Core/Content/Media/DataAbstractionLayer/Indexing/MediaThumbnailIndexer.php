@@ -109,7 +109,7 @@ class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterfac
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        if ($thumbnailEvent = $event->getEventByDefinition(MediaDefinition::class)) {
+        if ($thumbnailEvent = $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)) {
             $this->updateThumbnailsRoField($thumbnailEvent->getIds(), $event->getContext());
         }
     }

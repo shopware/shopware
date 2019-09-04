@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -39,9 +41,17 @@ class WriteCommandExtractor
      */
     private $entityExistenceGateway;
 
-    public function __construct(EntityWriteGatewayInterface $entityExistenceGateway)
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionRegistry;
+
+    public function __construct(
+        EntityWriteGatewayInterface $entityExistenceGateway,
+        DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->entityExistenceGateway = $entityExistenceGateway;
+        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function extract(array $rawData, WriteParameterBag $parameters): array
@@ -54,7 +64,7 @@ class WriteCommandExtractor
 
         if ($definition instanceof MappingEntityDefinition) {
             // gateway will execute always a replace into
-            $existence = new EntityExistence($definition, [], false, false, false, []);
+            $existence = new EntityExistence($definition->getEntityName(), [], false, false, false, []);
         } else {
             $existence = $this->entityExistenceGateway->getExistence($definition, $pkData, $rawData, $parameters->getCommandQueue());
         }
@@ -83,10 +93,13 @@ class WriteCommandExtractor
     public function extractJsonUpdate($data, EntityExistence $existence, WriteParameterBag $parameters): void
     {
         foreach ($data as $storageName => $attributes) {
+            $definition = $this->definitionRegistry->getByEntityName($existence->getEntityName());
+
+            $pks = Uuid::fromHexToBytesList($existence->getPrimaryKey());
             $jsonUpdateCommand = new JsonUpdateCommand(
-                $existence->getDefinition(),
+                $definition,
                 $storageName,
-                $existence->getPrimaryKey(),
+                $pks,
                 $attributes,
                 $existence
             );
@@ -204,7 +217,7 @@ class WriteCommandExtractor
         //this function return additionally, to primary key flagged fields, foreign key fields and many to association
         $mappingFields = $this->getFieldsForPrimaryKeyMapping($fields);
 
-        $existence = new EntityExistence($parameters->getDefinition(), [], false, false, false, []);
+        $existence = new EntityExistence($parameters->getDefinition()->getEntityName(), [], false, false, false, []);
 
         //run data extraction for only this fields
         $mapped = $this->map($mappingFields, $rawData, $existence, $parameters);

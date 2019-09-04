@@ -63,7 +63,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $wasChild = $this->wasChild($definition, $state);
 
-        return new EntityExistence($definition, $primaryKey, $exists, $isChild, $wasChild, $state);
+        return new EntityExistence($definition->getEntityName(), Uuid::fromBytesToHexList($primaryKey), $exists, $isChild, $wasChild, $state);
     }
 
     /**

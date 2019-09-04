@@ -117,7 +117,7 @@ class ApiController extends AbstractController
         $this->validateAclPermissions($context, $definition, AclResourceDefinition::PRIVILEGE_CREATE);
 
         $eventContainer = $this->definitionRegistry->getRepository($definition->getEntityName())->clone($id, $context);
-        $event = $eventContainer->getEventByDefinition($definition->getClass());
+        $event = $eventContainer->getEventByEntityName($definition->getEntityName());
         if (!$event) {
             throw new NoEntityClonedException($entity, $id);
         }
@@ -606,7 +606,7 @@ class ApiController extends AbstractController
         if (\count($pathSegments) === 0) {
             $definition = $first['definition'];
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
-            $event = $events->getEventByDefinition($definition->getClass());
+            $event = $events->getEventByEntityName($definition->getEntityName());
             $eventIds = $event->getIds();
             $entityId = array_pop($eventIds);
 
@@ -647,7 +647,7 @@ class ApiController extends AbstractController
                 return $responseFactory->createRedirectResponse($definition, $parent['value'], $request, $context);
             }
 
-            $event = $events->getEventByDefinition($definition->getClass());
+            $event = $events->getEventByEntityName($definition->getEntityName());
 
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
 
@@ -658,7 +658,7 @@ class ApiController extends AbstractController
 
         if ($association instanceof ManyToOneAssociationField || $association instanceof OneToOneAssociationField) {
             $events = $this->executeWriteOperation($definition, $payload, $context, $type);
-            $event = $events->getEventByDefinition($definition->getClass());
+            $event = $events->getEventByEntityName($definition->getEntityName());
 
             $entityIds = $event->getIds();
             $entityId = array_pop($entityIds);
@@ -691,7 +691,7 @@ class ApiController extends AbstractController
         // check if we need to create the entity first
         if (\count($payload) > 1 || !array_key_exists('id', $payload)) {
             $events = $this->executeWriteOperation($reference, $payload, $context, $type);
-            $event = $events->getEventByDefinition($reference->getClass());
+            $event = $events->getEventByEntityName($reference->getEntityName());
 
             $ids = $event->getIds();
             $id = array_shift($ids);

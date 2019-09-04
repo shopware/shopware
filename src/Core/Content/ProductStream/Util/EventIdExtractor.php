@@ -12,12 +12,12 @@ class EventIdExtractor
     {
         $ids = [];
 
-        $event = $generic->getEventByDefinition(ProductStreamDefinition::class);
+        $event = $generic->getEventByEntityName(ProductStreamDefinition::ENTITY_NAME);
         if ($event) {
             $ids = $event->getIds();
         }
 
-        $event = $generic->getEventByDefinition(ProductStreamFilterDefinition::class);
+        $event = $generic->getEventByEntityName(ProductStreamFilterDefinition::ENTITY_NAME);
         if ($event) {
             foreach ($event->getPayloads() as $id) {
                 if (isset($id['productStreamId'])) {

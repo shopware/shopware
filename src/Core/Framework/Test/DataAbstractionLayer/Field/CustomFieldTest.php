@@ -95,7 +95,7 @@ class CustomFieldTest extends TestCase
 
         $repo = $this->getTestRepository();
         $result = $repo->create($entities, Context::createDefaultContext());
-        $events = $result->getEventByDefinition(CustomFieldTestDefinition::class);
+        $events = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         static::assertCount(2, $events->getPayloads());
 
         $expected = [$barId, $bazId];
@@ -225,7 +225,7 @@ class CustomFieldTest extends TestCase
             ],
         ];
         $result = $repo->upsert([$patch], Context::createDefaultContext());
-        $event = $result->getEventByDefinition(CustomFieldTestDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         static::assertCount(1, $event->getPayloads());
         $expected = $patch;
         $payload = $event->getPayloads()[0];
@@ -699,7 +699,7 @@ class CustomFieldTest extends TestCase
             ],
         ];
         $result = $repo->update([$update], Context::createDefaultContext());
-        $event = $result->getEventByDefinition(CustomFieldTestDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         static::assertCount(1, $event->getPayloads());
         $expected = $update;
         $payload = $event->getPayloads()[0];
@@ -728,7 +728,7 @@ class CustomFieldTest extends TestCase
             ],
         ];
         $result = $repo->update([$update], Context::createDefaultContext());
-        $event = $result->getEventByDefinition(CustomFieldTestDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         static::assertCount(1, $event->getPayloads());
         $expected = ['id' => $id, 'custom' => $update['custom']];
         $payload = $event->getPayloads()[0];
@@ -757,7 +757,7 @@ class CustomFieldTest extends TestCase
             ],
         ];
         $result = $repo->update([$update], Context::createDefaultContext());
-        $event = $result->getEventByDefinition(CustomFieldTestDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         static::assertCount(1, $event->getPayloads());
         $expected = $update;
         $expected['custom'] = $update['custom'];
@@ -783,7 +783,7 @@ class CustomFieldTest extends TestCase
 
         $update = ['id' => $id, 'custom' => null];
         $result = $repo->update([$update], Context::createDefaultContext());
-        $event = $result->getEventByDefinition(CustomFieldTestDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         static::assertCount(1, $event->getPayloads());
         $payload = $event->getPayloads()[0];
         unset($payload['updatedAt']);
@@ -805,7 +805,7 @@ class CustomFieldTest extends TestCase
 
         $update = ['id' => $id, 'custom' => []];
         $result = $repo->update([$update], Context::createDefaultContext());
-        $event = $result->getEventByDefinition(CustomFieldTestDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         static::assertCount(1, $event->getPayloads());
         $payload = $event->getPayloads()[0];
         unset($payload['updatedAt']);
@@ -1013,7 +1013,7 @@ class CustomFieldTest extends TestCase
             ['id' => $b, 'custom' => ['bool' => true]],
         ];
         $events = $repo->update($update, Context::createDefaultContext());
-        $event = $events->getEventByDefinition(CustomFieldTestDefinition::class);
+        $event = $events->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         $payloads = $event->getPayloads();
         static::assertCount(2, $payloads);
 
@@ -1036,7 +1036,7 @@ class CustomFieldTest extends TestCase
 
         $repo = $this->getTestRepository();
         $result = $repo->create([$entity], Context::createDefaultContext());
-        $event = $result->getEventByDefinition(CustomFieldTestDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         static::assertNotNull($event);
         static::assertCount(1, $event->getPayloads());
         static::assertEquals($entity, $event->getPayloads()[0]);

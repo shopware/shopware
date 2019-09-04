@@ -481,8 +481,8 @@ class VersionManager
             ],
             ['id' => $commitId],
             new EntityExistence(
-                $this->versionCommitDefinition,
-                ['id' => $commitId],
+                $this->versionCommitDefinition->getEntityName(),
+                ['id' => Uuid::fromBytesToHex($commitId)],
                 false,
                 false,
                 false,
@@ -499,7 +499,7 @@ class VersionManager
 
             //@todo@jp fix data format
             /** @var EntityDefinition $definition */
-            $definition = $items[0]->getDefinition();
+            $definition = $this->registry->getByEntityName($items[0]->getEntityName());
             $entityName = $definition->getEntityName();
 
             if (!$definition->isVersionAware()) {
@@ -535,8 +535,8 @@ class VersionManager
                     ],
                     ['id' => $id],
                     new EntityExistence(
-                        $this->versionCommitDataDefinition,
-                        ['id' => $id],
+                        $this->versionCommitDataDefinition->getEntityName(),
+                        ['id' => Uuid::fromBytesToHex($id)],
                         false,
                         false,
                         false,

@@ -110,7 +110,7 @@ class PromotionRedemptionIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $lineItems = $event->getEventByDefinition(OrderLineItemDefinition::class);
+        $lineItems = $event->getEventByEntityName(OrderLineItemDefinition::ENTITY_NAME);
         if (!$lineItems) {
             return;
         }

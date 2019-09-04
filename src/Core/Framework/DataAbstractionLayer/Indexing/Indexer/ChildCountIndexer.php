@@ -151,7 +151,7 @@ class ChildCountIndexer implements IndexerInterface
     {
         /** @var EntityWrittenEvent $nested */
         foreach ($event->getEvents() as $nested) {
-            $definition = $nested->getDefinition();
+            $definition = $this->definitionRegistry->getByEntityName($nested->getEntityName());
 
             if ($definition->isChildrenAware() && $definition->isChildCountAware()) {
                 $this->update($nested, $nested->getIds(), $nested->getContext());
@@ -169,12 +169,13 @@ class ChildCountIndexer implements IndexerInterface
             return Uuid::fromBytesToHex($existence->getState()['parent_id']);
         }, $event->getExistences());
 
-        $entityName = $event->getDefinition()->getEntityName();
+        $entityName = $event->getEntityName();
+        $definition = $this->definitionRegistry->getByEntityName($entityName);
 
-        $parentIds = $this->fetchParentIds($entityName, $ids, $event->getDefinition()->isVersionAware(), $context);
+        $parentIds = $this->fetchParentIds($entityName, $ids, $definition->isVersionAware(), $context);
         $parentIds = array_keys(array_flip(array_filter(array_merge($entityParents, $parentIds))));
 
-        $this->updateChildCount($event->getDefinition(), $parentIds, $event->getDefinition()->isVersionAware(), $context);
+        $this->updateChildCount($definition, $parentIds, $definition->isVersionAware(), $context);
     }
 
     private function updateChildCount(EntityDefinition $definition, array $parentIds, bool $versionAware, Context $context): void

@@ -22,17 +22,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PriceFieldSerializer extends AbstractFieldSerializer
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    protected $fieldHandlerRegistry;
-
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         ValidatorInterface $validator
     ) {
-        parent::__construct($validator);
-        $this->fieldHandlerRegistry = $definitionRegistry;
+        parent::__construct($validator, $definitionRegistry);
     }
 
     public function encode(

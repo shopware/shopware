@@ -138,12 +138,12 @@ DROP TABLE IF EXISTS `root_sub_many`;
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $event);
 
-        $rootEvent = $event->getEventByDefinition(RootDefinition::class);
+        $rootEvent = $event->getEventByEntityName(RootDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $rootEvent);
         static::assertCount(1, $rootEvent->getWriteResults());
         static::assertSame([$id2], $rootEvent->getIds());
 
-        $subEvent = $event->getEventByDefinition(SubDefinition::class);
+        $subEvent = $event->getEventByEntityName(SubDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $subEvent);
         static::assertCount(1, $subEvent->getWriteResults());
         static::assertSame([$id], $subEvent->getIds());
@@ -169,12 +169,12 @@ DROP TABLE IF EXISTS `root_sub_many`;
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $event);
 
-        $rootEvent = $event->getEventByDefinition(RootDefinition::class);
+        $rootEvent = $event->getEventByEntityName(RootDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $rootEvent);
         static::assertCount(1, $rootEvent->getWriteResults());
         static::assertSame([$id2], $rootEvent->getIds());
 
-        $subEvent = $event->getEventByDefinition(SubDefinition::class);
+        $subEvent = $event->getEventByEntityName(SubDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $subEvent);
         static::assertCount(1, $subEvent->getWriteResults());
         static::assertSame([$id], $subEvent->getIds());

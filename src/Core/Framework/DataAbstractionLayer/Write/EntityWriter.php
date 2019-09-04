@@ -171,7 +171,11 @@ class EntityWriter implements EntityWriterInterface
                         $payload = ['id' => $key];
                     }
 
-                    return new EntityWriteResult($key, $payload, $affectedDefinition, null);
+                    return new EntityWriteResult(
+                        $key,
+                        $payload,
+                        $affectedDefinition->getEntityName(),
+                        null);
                 }, $cascade);
             }
         }
@@ -185,7 +189,7 @@ class EntityWriter implements EntityWriterInterface
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
 
             if (!$existence->exists()) {
-                $skipped[$definition->getClass()][] = new EntityWriteResult($mapped, $mapped, $definition, $existence);
+                $skipped[$definition->getClass()][] = new EntityWriteResult($mapped, $mapped, $definition->getEntityName(), $existence);
                 continue;
             }
 
@@ -250,7 +254,7 @@ class EntityWriter implements EntityWriterInterface
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $primaryKey,
                     $payload,
-                    $command->getDefinition(),
+                    $command->getDefinition()->getEntityName(),
                     $command->getEntityExistence()
                 );
             }
@@ -275,7 +279,7 @@ class EntityWriter implements EntityWriterInterface
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $this->getCommandPrimaryKey($command, $primaryKeys),
                     $mergedPayload,
-                    $command->getDefinition(),
+                    $command->getDefinition()->getEntityName(),
                     $command->getEntityExistence()
                 );
             }

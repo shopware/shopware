@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -23,9 +24,15 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
      */
     protected $validator;
 
-    public function __construct(ValidatorInterface $validator)
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    protected $definitionRegistry;
+
+    public function __construct(ValidatorInterface $validator, DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->validator = $validator;
+        $this->definitionRegistry = $definitionRegistry;
     }
 
     protected function validate(
@@ -85,7 +92,8 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
             return false;
         }
 
-        if ($existence->hasDefinition() && $existence->getDefinition() instanceof EntityTranslationDefinition
+        if ($existence->hasEntityName()
+            && $this->definitionRegistry->getByEntityName($existence->getEntityName()) instanceof EntityTranslationDefinition
             && $parameters->getCurrentWriteLanguageId() !== Defaults::LANGUAGE_SYSTEM
         ) {
             return false;

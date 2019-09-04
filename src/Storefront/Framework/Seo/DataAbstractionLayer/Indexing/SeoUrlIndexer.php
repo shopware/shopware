@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -24,6 +25,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Storefront\Framework\Seo\SeoUrlTemplate\SeoUrlTemplateLoader;
 use Shopware\Storefront\Framework\Seo\SeoUrlTemplate\TemplateGroup;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class SeoUrlIndexer implements IndexerInterface
 {
@@ -77,6 +79,11 @@ class SeoUrlIndexer implements IndexerInterface
      */
     private $salesChannelRepository;
 
+    /**
+     * @var MessageBusInterface
+     */
+    private $bus;
+
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
@@ -87,7 +94,8 @@ class SeoUrlIndexer implements IndexerInterface
         SeoUrlRouteRegistry $seoUrlRouteRegistry,
         EntityRepositoryInterface $languageRepository,
         IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepositoryInterface $salesChannelRepository,
+        MessageBusInterface $bus
     ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
@@ -99,6 +107,7 @@ class SeoUrlIndexer implements IndexerInterface
         $this->languageRepository = $languageRepository;
         $this->iteratorFactory = $iteratorFactory;
         $this->salesChannelRepository = $salesChannelRepository;
+        $this->bus = $bus;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -260,10 +269,14 @@ class SeoUrlIndexer implements IndexerInterface
         $languageChains = $this->fetchLanguageChains($languages->getEntities()->getElements());
         $salesChannels = $this->fetchSalesChannels();
 
+        /** @var bool $mustReindex */
+        $mustReindex = false;
         /** @var SeoUrlRouteInterface $seoUrlRoute */
         foreach ($this->seoUrlRouteRegistry->getSeoUrlRoutes() as $seoUrlRoute) {
             $config = $seoUrlRoute->getConfig();
-            $ids = $seoUrlRoute->extractIdsToUpdate($event);
+            $extractResult = $seoUrlRoute->extractIdsToUpdate($event);
+            $mustReindex |= $extractResult->mustReindex();
+            $ids = $extractResult->getIds();
             if (empty($ids)) {
                 continue;
             }
@@ -278,6 +291,14 @@ class SeoUrlIndexer implements IndexerInterface
                     $this->seoUrlPersister->updateSeoUrls($context, $config->getRouteName(), $idsChunk, $seoUrls);
                 }
             }
+        }
+
+        if ($mustReindex) {
+            $message = new IndexerMessage();
+            $message->setIndexer(self::class);
+            $message->setTimestamp(new \DateTime());
+            $message->setActionType(IndexerMessage::ACTION_PARTIAL);
+            $this->bus->dispatch($message);
         }
     }
 

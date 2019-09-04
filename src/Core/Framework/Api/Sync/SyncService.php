@@ -123,7 +123,7 @@ class SyncService implements SyncServiceInterface
 
         /** @var EntityWrittenEvent $event */
         foreach ($result->getEvents() as $event) {
-            $entity = $event->getDefinition()->getEntityName();
+            $entity = $event->getEntityName();
 
             if (!isset($entities[$entity])) {
                 $entities[$entity] = [];

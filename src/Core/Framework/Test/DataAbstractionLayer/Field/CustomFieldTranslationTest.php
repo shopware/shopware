@@ -160,10 +160,10 @@ class CustomFieldTranslationTest extends TestCase
         ];
         $result = $repo->create([$entity], $context);
 
-        $event = $result->getEventByDefinition(CustomFieldTestDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldTestDefinition::ENTITY_NAME);
         static::assertCount(1, $event->getIds());
 
-        $event = $result->getEventByDefinition(CustomFieldTestTranslationDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldTestTranslationDefinition::ENTITY_NAME);
         static::assertCount(4, $event->getIds());
 
         /** @var Entity $result */

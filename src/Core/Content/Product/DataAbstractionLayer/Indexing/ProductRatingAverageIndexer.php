@@ -116,7 +116,7 @@ class ProductRatingAverageIndexer implements IndexerInterface
      */
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $nested = $event->getEventByDefinition(ProductReviewDefinition::class);
+        $nested = $event->getEventByEntityName(ProductReviewDefinition::ENTITY_NAME);
         if ($nested) {
             $ids = $nested->getIds();
             $this->updateByReview($ids, $event->getContext());

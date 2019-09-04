@@ -148,7 +148,8 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
 
         /** @var EntityWrittenEvent $nested */
         foreach ($written as $nested) {
-            $this->update($nested->getDefinition(), $nested->getIds(), $nested->getContext());
+            $definition = $this->registry->getByEntityName($nested->getEntityName());
+            $this->update($definition, $nested->getIds(), $nested->getContext());
         }
     }
 

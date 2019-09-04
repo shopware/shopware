@@ -6,9 +6,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryEndEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryPartialResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryStartEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
@@ -47,8 +47,8 @@ class IndexerRegistryTest extends TestCase
     {
         parent::setUp();
 
-        $this->indexer = $this->getContainer()->get(IndexerRegistryInterface::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->indexer = new IndexerRegistry([new EmptyIndexer()], $this->eventDispatcher);
         $this->events = [];
 
         $this->callbackFn = function (Event $event): void {
@@ -180,9 +180,24 @@ class IndexerRegistryTest extends TestCase
 
         static::assertSame(1, $testIndexer->getRefreshCalls(), 'Indexer were called multiple times in a single run.');
     }
+}
 
-    public function getPartialCalls(): int
+class EmptyIndexer implements IndexerInterface
+{
+    public function index(\DateTimeInterface $timestamp): void
     {
-        return $this->partialCalls;
+    }
+
+    public function refresh(EntityWrittenContainerEvent $event): void
+    {
+    }
+
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        if ($lastId === null) {
+            return ['123'];
+        }
+
+        return null;
     }
 }

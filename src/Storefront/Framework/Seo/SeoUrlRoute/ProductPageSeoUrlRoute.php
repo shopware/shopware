@@ -64,24 +64,24 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
         );
     }
 
-    public function extractIdsToUpdate(EntityWrittenContainerEvent $event): array
+    public function extractIdsToUpdate(EntityWrittenContainerEvent $event): SeoUrlExtractIdResult
     {
         $ids = [];
 
         // check if a product was written. If this is the case, its Seo Url must be updated.
-        $productEvent = $event->getEventByDefinition(ProductDefinition::class);
+        $productEvent = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
         if ($productEvent) {
             $ids = $productEvent->getIds();
         }
 
         // check if any manufacturer (or a manufacturer translation) was modified ...
         $manufacturerIds = [[]];
-        $manufacturerEvent = $event->getEventByDefinition(ProductManufacturerDefinition::class);
+        $manufacturerEvent = $event->getEventByEntityName(ProductManufacturerDefinition::ENTITY_NAME);
         if ($manufacturerEvent) {
             $manufacturerIds[] = $manufacturerEvent->getIds();
         }
 
-        $manufacturerTranslationEvent = $event->getEventByDefinition(ProductManufacturerTranslationDefinition::class);
+        $manufacturerTranslationEvent = $event->getEventByEntityName(ProductManufacturerTranslationDefinition::ENTITY_NAME);
         if ($manufacturerTranslationEvent) {
             $manufacturerTransPayloads = $manufacturerEvent->getPayloads();
 
@@ -105,6 +105,6 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
             $ids = array_merge($ids, $categoryIds);
         }
 
-        return array_unique($ids);
+        return new SeoUrlExtractIdResult($ids);
     }
 }

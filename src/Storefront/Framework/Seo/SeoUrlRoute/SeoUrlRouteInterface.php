@@ -13,7 +13,7 @@ interface SeoUrlRouteInterface
 
     public function prepareCriteria(Criteria $criteria): void;
 
-    public function extractIdsToUpdate(EntityWrittenContainerEvent $event): array;
+    public function extractIdsToUpdate(EntityWrittenContainerEvent $event): SeoUrlExtractIdResult;
 
     public function getMapping(Entity $entity, ?SalesChannelEntity $salesChannel): SeoUrlMapping;
 }

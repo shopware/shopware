@@ -10,7 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\SumResult;
@@ -22,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\RootDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubCascadeDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -68,9 +71,13 @@ class OneToOneAssociationFieldTest extends TestCase
             $this->getContainer()->get(EntityAggregatorInterface::class),
             $this->getContainer()->get('event_dispatcher')
         );
+
+        $this->registerDefinition(SubCascadeDefinition::class);
+
         $this->connection->executeUpdate('
 DROP TABLE IF EXISTS `root`;
 DROP TABLE IF EXISTS `root_sub`;
+DROP TABLE IF EXISTS `root_sub_cascade`;
 
 CREATE TABLE `root` (
   `id` binary(16) NOT NULL,
@@ -89,6 +96,17 @@ CREATE TABLE `root_sub` (
   `created_at` DATETIME(3) NOT NULL,
   `updated_at` DATETIME(3) NULL
 );
+CREATE TABLE `root_sub_cascade` (
+  `id` binary(16) NOT NULL,
+  `version_id` binary(16) NOT NULL,
+  `root_version_id` binary(16),
+  `root_id` binary(16),
+  `name` varchar(255) NULL,
+  `stock` int NULL,
+  `created_at` DATETIME(3) NOT NULL,
+  `updated_at` DATETIME(3) NULL
+);
+
 
 CREATE TABLE `root_sub_many` (
   `id` binary(16) NOT NULL,
@@ -103,6 +121,9 @@ CREATE TABLE `root_sub_many` (
 ALTER TABLE `root_sub`
 ADD FOREIGN KEY (`root_id`, `root_version_id`) REFERENCES `root` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
 
+ALTER TABLE `root_sub_cascade`
+ADD FOREIGN KEY (`root_id`, `root_version_id`) REFERENCES `root` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 ALTER TABLE `root_sub_many`
 ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`id`, `version_id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
         ');
@@ -114,8 +135,9 @@ ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`i
 
         $this->connection->executeUpdate('
 DROP TABLE IF EXISTS `root`;
-DROP TABLE IF EXISTS `root_sub`;         
-DROP TABLE IF EXISTS `root_sub_many`;         
+DROP TABLE IF EXISTS `root_sub`;
+DROP TABLE IF EXISTS `root_sub_cascade`;
+DROP TABLE IF EXISTS `root_sub_many`;
         ');
     }
 
@@ -369,6 +391,82 @@ DROP TABLE IF EXISTS `root_sub_many`;
         $sub = $root->get('sub');
         static::assertInstanceOf(ArrayEntity::class, $sub);
         static::assertSame('updated sub', $sub->get('name'));
+    }
+
+    public function testCascadeDelete()
+    {
+        $idRoot = Uuid::randomHex();
+        $idSubCascade = Uuid::randomHex();
+
+        $data = [
+            'id' => $idRoot,
+            'name' => 'root 1',
+            'subCascade' => [
+                'id' => $idSubCascade,
+                'name' => 'sub cascade 1',
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $this->repository->create([$data], $context);
+
+        $delete = $this->repository->delete([['id' => $idRoot]], $context);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $delete);
+        static::assertCount(2, $delete->getEvents());
+
+        $rootEvent = $delete->getEventByDefinition(RootDefinition::class);
+        static::assertInstanceOf(EntityDeletedEvent::class, $rootEvent);
+        static::assertCount(1, $rootEvent->getWriteResults());
+        static::assertSame([$idRoot], $rootEvent->getIds());
+
+        $subCascadeEvent = $delete->getEventByDefinition(SubCascadeDefinition::class);
+        static::assertInstanceOf(EntityDeletedEvent::class, $subCascadeEvent);
+        static::assertCount(1, $subCascadeEvent->getWriteResults());
+        static::assertSame([$idRoot], $subCascadeEvent->getIds());
+    }
+
+    public function testRestrictDelete()
+    {
+        $idRoot = Uuid::randomHex();
+        $idSub = Uuid::randomHex();
+
+        $data = [
+            'id' => $idRoot,
+            'name' => 'root 1',
+            'sub' => [
+                'id' => $idSub,
+                'name' => 'sub 1',
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $this->repository->create([$data], $context);
+
+        $e = null;
+        try {
+            $this->repository->delete([['id' => $idRoot]], $context);
+        } catch (RestrictDeleteViolationException $e) {
+        }
+
+        static::assertInstanceOf(RestrictDeleteViolationException::class, $e);
+
+        $deleteSub = $this->subRepository->delete([['id' => $idSub]], $context);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $deleteSub);
+
+        $subEvent = $deleteSub->getEventByDefinition(SubDefinition::class);
+        static::assertInstanceOf(EntityDeletedEvent::class, $subEvent);
+        static::assertCount(1, $subEvent->getWriteResults());
+        static::assertSame([$idSub], $subEvent->getIds());
+
+        $deleteRoot = $this->repository->delete([['id' => $idRoot]], $context);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $deleteRoot);
+
+        $rootEvent = $deleteRoot->getEventByDefinition(RootDefinition::class);
+        static::assertInstanceOf(EntityDeletedEvent::class, $rootEvent);
+        static::assertCount(1, $rootEvent->getWriteResults());
+        static::assertSame([$idRoot], $rootEvent->getIds());
     }
 
     public function testItInvalidatesTheCacheOnBothSides()

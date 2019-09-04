@@ -9,6 +9,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 class StateMachineTransitionEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

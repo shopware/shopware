@@ -9,6 +9,7 @@ use Shopware\Core\System\NumberRange\NumberRangeEntity;
 class NumberRangeStateEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

@@ -18,6 +18,7 @@ class TemplateFinder
      * @var Kernel
      */
     protected $kernel;
+
     /**
      * @var array
      */

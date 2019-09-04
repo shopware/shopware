@@ -36,6 +36,7 @@ class SalesChannelCreateCommand extends Command
      * @var EntityRepositoryInterface
      */
     private $shippingMethodRepository;
+
     /**
      * @var EntityRepositoryInterface
      */

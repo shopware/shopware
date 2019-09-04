@@ -45,6 +45,7 @@ class DocumentServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use RuleTestBehaviour;
+
     /**
      * @var SalesChannelContext
      */

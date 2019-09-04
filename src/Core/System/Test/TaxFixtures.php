@@ -9,6 +9,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 trait TaxFixtures
 {
     use EntityFixturesBase;
+
     /**
      * @var array
      */

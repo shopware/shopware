@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FkFieldSerializ
 class FkField extends Field implements StorageAware
 {
     public const PRIORITY = 70;
+
     /**
      * @var string
      */

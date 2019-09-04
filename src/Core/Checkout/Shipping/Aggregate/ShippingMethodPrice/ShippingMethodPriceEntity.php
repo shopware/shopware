@@ -11,6 +11,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 class ShippingMethodPriceEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

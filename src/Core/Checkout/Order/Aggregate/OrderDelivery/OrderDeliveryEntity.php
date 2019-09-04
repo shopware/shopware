@@ -14,6 +14,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 class OrderDeliveryEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

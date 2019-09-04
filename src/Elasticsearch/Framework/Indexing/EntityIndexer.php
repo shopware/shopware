@@ -64,10 +64,12 @@ class EntityIndexer implements IndexerInterface
      * @var ElasticsearchHelper
      */
     private $helper;
+
     /**
      * @var IndexCreator
      */
     private $indexCreator;
+
     /**
      * @var IndexMessageDispatcher
      */

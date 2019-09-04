@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 class NumberRangeSalesChannelEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

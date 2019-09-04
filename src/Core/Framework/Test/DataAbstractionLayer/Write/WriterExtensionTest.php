@@ -26,6 +26,7 @@ class WriterExtensionTest extends TestCase
      * @var Connection|object
      */
     private $connection;
+
     /**
      * @var object
      */

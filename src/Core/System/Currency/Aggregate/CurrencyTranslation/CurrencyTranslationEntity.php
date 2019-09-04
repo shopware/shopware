@@ -21,6 +21,7 @@ class CurrencyTranslationEntity extends TranslationEntity
      * @var string|null
      */
     protected $name;
+
     /**
      * @var CurrencyEntity|null
      */

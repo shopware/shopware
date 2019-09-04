@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Language\LanguageDefinition;
 class TranslatedField extends Field
 {
     public const PRIORITY = 100;
+
     /**
      * @var string
      */

@@ -17,10 +17,12 @@ class IndexMessageDispatcher
      * @var IteratorFactory
      */
     private $iteratorFactory;
+
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+
     /**
      * @var MessageBusInterface
      */

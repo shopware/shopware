@@ -34,6 +34,7 @@ class WriterTest extends TestCase
      * @var Connection
      */
     private $connection;
+
     private $idBytes;
 
     protected function setUp(): void

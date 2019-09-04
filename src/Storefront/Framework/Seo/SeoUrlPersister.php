@@ -25,6 +25,7 @@ class SeoUrlPersister
      * @var EntityRepositoryInterface
      */
     private $seoUrlRepository;
+
     /**
      * @var EntityCacheKeyGenerator
      */

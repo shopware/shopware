@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 class IntegrationEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

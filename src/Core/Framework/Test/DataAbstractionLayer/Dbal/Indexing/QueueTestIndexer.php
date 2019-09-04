@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 class QueueTestIndexer implements IndexerInterface
 {
     private $indexCalls = 0;
+
     private $refreshCalls = 0;
 
     public function index(\DateTimeInterface $timestamp): void

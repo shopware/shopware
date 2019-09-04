@@ -17,10 +17,12 @@ class SitemapPageLoader
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+
     /**
      * @var SalesChannelRepositoryInterface
      */
     private $categoryRepository;
+
     /**
      * @var SalesChannelRepositoryInterface
      */

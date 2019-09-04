@@ -10,6 +10,7 @@ use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollectio
 class UnitEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string|null
      */

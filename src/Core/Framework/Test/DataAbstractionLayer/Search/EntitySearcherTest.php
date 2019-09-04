@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class EntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
     /**
      * @var EntityRepositoryInterface
      */

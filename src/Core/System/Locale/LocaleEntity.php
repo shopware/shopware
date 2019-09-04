@@ -11,6 +11,7 @@ use Shopware\Core\System\User\UserCollection;
 class LocaleEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

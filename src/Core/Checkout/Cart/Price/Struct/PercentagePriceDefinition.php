@@ -15,6 +15,7 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
 {
     public const TYPE = 'percentage';
     public const SORTING_PRIORITY = 50;
+
     /**
      * @var float
      */

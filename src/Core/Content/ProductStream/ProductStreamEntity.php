@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 class ProductStreamEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

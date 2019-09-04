@@ -55,6 +55,7 @@ class AccountRegistrationService
      * @var ValidationServiceInterface
      */
     private $accountValidationService;
+
     /**
      * @var SystemConfigService
      */

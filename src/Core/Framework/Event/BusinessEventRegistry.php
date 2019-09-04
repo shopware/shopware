@@ -12,6 +12,7 @@ class BusinessEventRegistry
      * @var array
      */
     private $events = [];
+
     /**
      * @var DefinitionInstanceRegistry
      */

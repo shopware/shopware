@@ -14,6 +14,7 @@ use Shopware\Core\System\StateMachine\StateMachineEntity;
 class StateMachineStateEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

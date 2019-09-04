@@ -10,6 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 class SalesChannelTypeEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string|null
      */

@@ -9,7 +9,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ActionTestSubscriber implements EventSubscriberInterface
 {
     public $events = [];
+
     public $actions = [];
+
     public $lastActionConfig;
 
     public static function getSubscribedEvents()

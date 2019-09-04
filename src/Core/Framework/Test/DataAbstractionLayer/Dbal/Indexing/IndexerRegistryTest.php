@@ -151,6 +151,7 @@ class TestIndexer implements IndexerInterface
     private $indexer;
 
     private $indexCalls = 0;
+
     private $refreshCalls = 0;
 
     public function __construct(IndexerRegistryInterface $indexer)

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ShippingMethodRuleAccessibleTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
     /**
      * @var EntityRepositoryInterface
      */

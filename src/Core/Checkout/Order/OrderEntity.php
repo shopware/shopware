@@ -56,6 +56,7 @@ class OrderEntity extends Entity
      * @var \DateTimeInterface
      */
     protected $orderDate;
+
     /**
      * @var CartPrice
      */

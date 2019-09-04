@@ -5,6 +5,7 @@ namespace Shopware\Docs\Inspection;
 class ArrayWriter
 {
     private $data = [];
+
     /**
      * @var string
      */

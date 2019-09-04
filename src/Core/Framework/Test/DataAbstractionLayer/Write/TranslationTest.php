@@ -55,6 +55,7 @@ class TranslationTest extends TestCase
      * @var Connection
      */
     private $connection;
+
     /**
      * @var Context
      */

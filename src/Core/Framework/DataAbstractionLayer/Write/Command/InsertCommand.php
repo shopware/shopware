@@ -22,6 +22,7 @@ class InsertCommand implements WriteCommandInterface
      * @var array
      */
     private $primaryKey;
+
     /**
      * @var EntityExistence
      */

@@ -16,6 +16,7 @@ class ApiRouteLoader extends Loader
     private $definitionRegistry;
 
     private $isLoaded = false;
+
     /**
      * @var SalesChannelDefinitionInstanceRegistry
      */

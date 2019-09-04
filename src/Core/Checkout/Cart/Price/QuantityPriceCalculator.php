@@ -25,6 +25,7 @@ class QuantityPriceCalculator
      * @var TaxDetector
      */
     private $taxDetector;
+
     /**
      * @var ReferencePriceCalculator
      */

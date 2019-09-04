@@ -34,14 +34,15 @@ describe('Category: Create several categories', () => {
         cy.get(`${page.elements.categoryTreeItem}__content input`).type('{enter}');
 
         // Verify category
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-confirm-field__button-list').then((btn) => {
-                if (btn.attr('style').includes('display: none;')) {
-                    cy.get('.sw-tree-actions__headline').click();
-                } else {
-                    cy.get('.sw-confirm-field__button--cancel').click();
-                }
-            });
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-confirm-field__button-list').then((btn) => {
+            if (btn.attr('style').includes('display: none;')) {
+                cy.get('.sw-tree-actions__headline').click();
+            } else {
+                cy.get('.sw-confirm-field__button--cancel').click();
+            }
             cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).contains('Categorian');
         });
     });
@@ -66,16 +67,17 @@ describe('Category: Create several categories', () => {
         cy.get(`${page.elements.categoryTreeItem}__content input`).type('{enter}');
 
         // Verify category
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-confirm-field__button-list').then((btn) => {
-                if (btn.attr('style').includes('display: none;')) {
-                    cy.get('.sw-tree-actions__headline').click();
-                } else {
-                    cy.get('.sw-confirm-field__button--cancel').click();
-                }
-            });
-            cy.get(`${page.elements.categoryTreeItem}:nth-child(1)`).contains('Categorian');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-confirm-field__button-list').then((btn) => {
+            if (btn.attr('style').includes('display: none;')) {
+                cy.get('.sw-tree-actions__headline').click();
+            } else {
+                cy.get('.sw-confirm-field__button--cancel').click();
+            }
+        });
+        cy.get(`${page.elements.categoryTreeItem}:nth-child(1)`).contains('Categorian');
     });
 
     it('@package @catalogue: create a subcategory', () => {
@@ -99,15 +101,16 @@ describe('Category: Create several categories', () => {
         cy.get(`${page.elements.categoryTreeItem}__content input`).type('{enter}');
 
         // Verify category
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-confirm-field__button-list').then((btn) => {
-                if (btn.attr('style').includes('display: none;')) {
-                    cy.get('.sw-tree-actions__headline').click();
-                } else {
-                    cy.get('.sw-confirm-field__button--cancel').click();
-                }
-            });
-            cy.get(`${page.elements.categoryTreeItem}:nth-child(1)`).contains('Categorian');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-confirm-field__button-list').then((btn) => {
+            if (btn.attr('style').includes('display: none;')) {
+                cy.get('.sw-tree-actions__headline').click();
+            } else {
+                cy.get('.sw-confirm-field__button--cancel').click();
+            }
+        });
+        cy.get(`${page.elements.categoryTreeItem}:nth-child(1)`).contains('Categorian');
     });
 });

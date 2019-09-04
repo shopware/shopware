@@ -44,7 +44,9 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').then(() => {
+        cy.wait('@orderCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+
             cy.get('.sw-loader__element').should('not.exist');
             cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
             page.setOrderState({
@@ -55,7 +57,9 @@ describe('Order: Test order state', () => {
             });
         });
 
-        cy.wait('@orderCall').then(() => {
+        cy.wait('@orderCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+
             cy.get('.sw-loader__element').should('not.exist');
             cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
 
@@ -78,7 +82,9 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').then(() => {
+        cy.wait('@orderCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+
             cy.get('.sw-loader__element').should('not.exist');
             cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
             page.setOrderState({
@@ -100,7 +106,9 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').then(() => {
+        cy.wait('@orderCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+
             cy.get('.sw-loader__element').should('not.exist');
             cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
             page.setOrderState({
@@ -110,7 +118,9 @@ describe('Order: Test order state', () => {
                 call: 'process'
             });
         });
-        cy.wait('@orderCall').then(() => {
+        cy.wait('@orderCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+
             cy.get('.sw-loader__element').should('not.exist');
             cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
 
@@ -122,7 +132,9 @@ describe('Order: Test order state', () => {
                 call: 'pay'
             });
         });
-        cy.wait('@orderCall').then(() => {
+        cy.wait('@orderCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+
             cy.get('.sw-loader__element').should('not.exist');
             cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
 
@@ -158,7 +170,9 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').then(() => {
+        cy.wait('@orderCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+
             cy.get(`${page.elements.userMetadata}-user-name`)
                 .contains('Max Mustermann');
         });

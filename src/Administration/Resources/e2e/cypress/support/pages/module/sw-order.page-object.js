@@ -29,7 +29,9 @@ export default class OrderPageObject extends GeneralPageObject {
             .should('be.visible')
             .select(stateTitle);
 
-        cy.wait(`@${call}Call`).then(() => {
+        cy.wait(`@${call}Call`).then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+
             cy.get(`.sw-order-state-${scope}__${type}-state .sw-loader__element`).should('not.exist');
             cy.get(this.elements.loader).should('not.exist');
             cy.get(this.elements.smartBarHeader).click();

@@ -36,10 +36,12 @@ describe('Sales Channel: Test crud operations', () => {
         page.fillInBasicSalesChannelData('1st Epic Sales Channel');
 
         cy.get(page.elements.salesChannelSaveAction).click();
-        cy.wait('@saveData').then(() => {
-            // Verify creation
-            cy.get(page.elements.salesChannelNameInput).should('have.value', '1st Epic Sales Channel');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        // Verify creation
+        cy.get(page.elements.salesChannelNameInput).should('have.value', '1st Epic Sales Channel');
 
         // Check if the sales channel can be used in other modules
         cy.clickMainMenuItem({
@@ -65,9 +67,10 @@ describe('Sales Channel: Test crud operations', () => {
         cy.get(page.elements.salesChannelNameInput).clear();
         cy.get(page.elements.salesChannelNameInput).type('Channel No 9');
         cy.get(page.elements.salesChannelSaveAction).click();
-        cy.wait('@saveData').then(() => {
-            cy.contains('Channel No 9');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.contains('Channel No 9');
     });
 
     it('@package @general: delete sales channel', () => {
@@ -83,9 +86,10 @@ describe('Sales Channel: Test crud operations', () => {
         // Delete sales channel
         page.openSalesChannel('Headless');
         page.deleteSingleSalesChannel('Headless');
-        cy.wait('@deleteData').then(() => {
-            cy.get('.sw-admin-menu__sales-channel-item--1').should('not.exist');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get('.sw-admin-menu__sales-channel-item--1').should('not.exist');
     });
 });
 

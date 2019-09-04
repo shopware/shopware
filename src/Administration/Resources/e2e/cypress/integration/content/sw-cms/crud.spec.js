@@ -41,11 +41,11 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-cms-detail__back-btn').click();
-            cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Laid out');
-        })
-
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-cms-detail__back-btn').click();
+        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Laid out');
     });
 
     it('@package @content: update and read layout', () => {
@@ -67,10 +67,11 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-cms-detail__back-btn').click();
-            cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-cms-detail__back-btn').click();
+        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -101,9 +102,10 @@ describe('CMS: Test crud operations of layouts', () => {
             .contains('Are you sure you really want to delete the layout "Vierte Wand"?');
         cy.get('.sw-button--danger').click();
 
-        cy.wait('@deleteData').then(() => {
-            cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title')
-                .should('not.have.value', 'Vierte Wand');
-        })
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title')
+            .should('not.have.value', 'Vierte Wand');
     });
 });

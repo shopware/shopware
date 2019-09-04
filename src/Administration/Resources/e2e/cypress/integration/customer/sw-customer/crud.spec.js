@@ -66,13 +66,15 @@ describe('Customer: Test crud operations', () => {
         cy.get(page.elements.customerSaveAction).click();
 
         // Verify new customer in detail
-        cy.wait('@saveData').then(() => {
-            cy.get(`${page.elements.customerMetaData}-customer-name`)
-                .contains(`${customer.firstName} ${customer.lastName}`);
-            cy.get('.sw-customer-card-email-link').contains('test@example.com');
-            cy.get('.sw-customer-base__label-customer-number').contains('1');
-            cy.get('.sw-address__location').contains(customer.addresses[0].zipcode);
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(`${page.elements.customerMetaData}-customer-name`)
+            .contains(`${customer.firstName} ${customer.lastName}`);
+        cy.get('.sw-customer-card-email-link').contains('test@example.com');
+        cy.get('.sw-customer-base__label-customer-number').contains('1');
+        cy.get('.sw-address__location').contains(customer.addresses[0].zipcode);
     });
 
     it('@package @customer: edit customers\' base data', () => {
@@ -99,10 +101,11 @@ describe('Customer: Test crud operations', () => {
         cy.get(page.elements.customerSaveAction).click();
 
         // Verify updated customer
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get('.sw-data-grid__cell--firstName').contains('Ronald Weasley');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-data-grid__cell--firstName').contains('Ronald Weasley');
     });
 
     it('@customer: delete customer', () => {
@@ -126,11 +129,12 @@ describe('Customer: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
 
         // Verify updated customer
-        cy.wait('@deleteData').then(() => {
-            cy.get(page.elements.emptyState).should('be.visible');
-            cy.get(page.elements.smartBarAmount).contains('(0)');
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Pep Eroni');
-            cy.get(page.elements.smartBarAmount).contains('(0)');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get(page.elements.emptyState).should('be.visible');
+        cy.get(page.elements.smartBarAmount).contains('(0)');
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Pep Eroni');
+        cy.get(page.elements.smartBarAmount).contains('(0)');
     });
 });

@@ -35,11 +35,12 @@ describe('Property: Test crud operations', () => {
         cy.get(page.elements.propertySaveAction).click();
 
         // Verify property in listing
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get('.sw-data-grid__cell--0 .sw-data-grid__cell-content').click();
-            cy.get(`${page.elements.dataGridRow}--0 a`).contains('1 Coleur');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-data-grid__cell--0 .sw-data-grid__cell-content').click();
+        cy.get(`${page.elements.dataGridRow}--0 a`).contains('1 Coleur');
     });
 
     it('@package @catalogue: update and read property', () => {
@@ -73,10 +74,11 @@ describe('Property: Test crud operations', () => {
         cy.get(page.elements.propertySaveAction).click();
 
         // Verify new options in listing
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--0`).contains('Bleu');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Bleu');
     });
 
     it('@package @catalogue: delete property', () => {
@@ -124,9 +126,10 @@ describe('Property: Test crud operations', () => {
 
 
         // Verify new options in listing
-        cy.wait('@deleteData').then(() => {
-            cy.get(page.elements.modal).should('not.exist');
-            cy.get(page.elements.emptyState).should('be.visible');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get(page.elements.modal).should('not.exist');
+        cy.get(page.elements.emptyState).should('be.visible');
     });
 });

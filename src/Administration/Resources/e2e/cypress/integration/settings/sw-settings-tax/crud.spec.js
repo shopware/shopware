@@ -35,11 +35,13 @@ describe('Tax: Test crud operations', () => {
         cy.get(page.elements.taxSaveAction).click();
 
         // Verify tax
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--3 ${page.elements.taxColumnName}`).should('be.visible')
-                .contains('Very high tax');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--3 ${page.elements.taxColumnName}`).should('be.visible')
+            .contains('Very high tax');
     });
 
     it('@settings: update and read tax', () => {
@@ -65,11 +67,13 @@ describe('Tax: Test crud operations', () => {
         cy.get(page.elements.taxSaveAction).click();
 
         // Verify tax
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--2 ${page.elements.taxColumnName}`).should('be.visible')
-                .contains('Still high tax');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--2 ${page.elements.taxColumnName}`).should('be.visible')
+            .contains('Still high tax');
     });
 
     it('@settings: delete tax', () => {
@@ -93,9 +97,11 @@ describe('Tax: Test crud operations', () => {
             .contains('Are you sure you want to delete the tax "High tax"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
 
-        cy.wait('@deleteData').then(() => {
-            cy.get(page.elements.modal).should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--2`).should('not.exist');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.modal).should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--2`).should('not.exist');
     });
 });

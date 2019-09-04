@@ -25,9 +25,10 @@ describe('Administration: Check module navigation in settings', () => {
         });
         cy.get('.sw-settings__tab-system').click();
         cy.get('a[href="#/sw/settings/user/list"]').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-user-list').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-user-list').should('be.visible');
     });
 
     it('@general: navigate to shopware account module', () => {
@@ -43,9 +44,10 @@ describe('Administration: Check module navigation in settings', () => {
         });
         cy.get('.sw-settings__tab-system').click();
         cy.get('a[href="#/sw/settings/store/index"]').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-system-config').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-system-config').should('be.visible');
     });
 
     it('@general: navigate to shopware update module', () => {
@@ -61,9 +63,10 @@ describe('Administration: Check module navigation in settings', () => {
         });
         cy.get('.sw-settings__tab-system').click();
         cy.get('a[href="#/sw/settings/shopware/updates/index"]').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-card__title').contains('Shopware Updates');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-card__title').contains('Shopware Updates');
     });
 
     it('@general: navigate to custom field module', () => {
@@ -79,9 +82,10 @@ describe('Administration: Check module navigation in settings', () => {
         });
         cy.get('.sw-settings__tab-system').click();
         cy.get('a[href="#/sw/settings/custom/field/index"]').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-settings-custom-field-set-list__card').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-settings-custom-field-set-list__card').should('be.visible');
     });
 
     it('@general: navigate to plugin module', () => {
@@ -97,9 +101,10 @@ describe('Administration: Check module navigation in settings', () => {
         });
         cy.get('.sw-tabs-item[title="System"]').click();
         cy.get('a[href="#/sw/plugin/index"]').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-plugin-list').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-plugin-list').should('be.visible');
     });
 
     it('@general: navigate to integrations module', () => {
@@ -115,8 +120,9 @@ describe('Administration: Check module navigation in settings', () => {
         });
         cy.get('.sw-settings__tab-system').click();
         cy.get('a[href="#/sw/integration/index"]').click();
-        cy.wait('@getData').then(() => {
-            cy.get('.sw-integration-list__overview').should('be.visible');
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-integration-list__overview').should('be.visible');
     });
 });

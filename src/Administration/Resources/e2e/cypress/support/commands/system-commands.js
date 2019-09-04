@@ -56,7 +56,8 @@ Cypress.Commands.add('openInitialPage', (url) => {
 
 
     cy.visit(url);
-    cy.wait('@meCall').then(() => {
-        cy.get('.sw-desktop').should('be.visible');
+    cy.wait('@meCall').then((xhr) => {
+        expect(xhr).to.have.property('status', 200);
     });
+    cy.get('.sw-desktop').should('be.visible');
 });

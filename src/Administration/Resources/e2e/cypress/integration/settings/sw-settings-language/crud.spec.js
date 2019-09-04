@@ -45,11 +45,13 @@ describe('Language: Test crud operations', () => {
         cy.get(page.elements.languageSaveAction).click();
 
         // Verify and check usage of customer-group
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`)
-                .contains('Japanese');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`)
+            .contains('Japanese');
 
         // Check if language can be selected as translation
         cy.clickMainMenuItem({
@@ -89,11 +91,13 @@ describe('Language: Test crud operations', () => {
         cy.get(page.elements.languageSaveAction).click();
 
         // Verify and check usage of customer-group
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')
-                .contains('Kyoto Japanese');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')
+            .contains('Kyoto Japanese');
     });
 
     it('@settings: delete language', () => {
@@ -119,8 +123,10 @@ describe('Language: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify and check usage of customer-group
-        cy.wait('@deleteData').then(() => {
-            cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('not.exist');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('not.exist');
     });
 });

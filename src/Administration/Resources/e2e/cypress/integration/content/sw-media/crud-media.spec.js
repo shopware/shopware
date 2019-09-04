@@ -24,10 +24,12 @@ describe('Media: Test crud operations', () => {
         }).as('saveData');
 
         page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
-                .should('be.visible');
+
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
+            .should('be.visible');
     });
 
     it('@package @content: update and read medium\'s meta data (uploaded via url)', () => {
@@ -56,12 +58,13 @@ describe('Media: Test crud operations', () => {
         cy.get('input[placeholder="Title"]').type('{enter}');
 
         // Verify meta data
-        cy.wait('@saveData').then(() => {
-            cy.get('input[placeholder="Cypress example title"]').should('be.visible');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('input[placeholder="Cypress example title"]').should('be.visible');
     });
 
-    it.skip('@package @content: delete medium', () => {
+    it('@package @content: delete medium', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -78,8 +81,9 @@ describe('Media: Test crud operations', () => {
         cy.get('li.quickaction--delete').click();
         cy.get(`${page.elements.modal}__body`).contains('Are you sure you want to delete "sw-login-background.png"?');
         cy.get('.sw-media-modal-delete__confirm').click();
-        cy.wait('@deleteData').then(() => {
-            cy.get('input[placeholder="sw-login-background.png"]').should('not.exist');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get('input[placeholder="sw-login-background.png"]').should('not.exist');
     });
 });

@@ -92,7 +92,8 @@ describe('Product: Editing context prices', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Check if values matches the inputs
-        cy.wait('@saveData').then(() => {
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
 
             // second price group should be visible
             cy.get(`${priceGroup}-1`)

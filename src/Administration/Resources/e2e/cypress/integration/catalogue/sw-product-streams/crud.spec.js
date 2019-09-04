@@ -34,11 +34,14 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.get(page.elements.streamSaveAction).click();
 
         // Verify property in listing
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('01st1st Productstream');
-            cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('01st1st Productstream');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('01st1st Productstream');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
+            .contains('01st1st Productstream');
     });
 
     it('@package @catalogue: update and read dynamic product group', () => {
@@ -63,11 +66,13 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.get(page.elements.streamSaveAction).click();
 
         // Verify property in listing
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Streamline');
-            cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Streamline');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Streamline');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Streamline');
     });
 
     it('@package @catalogue: delete dynamic product group', () => {
@@ -87,8 +92,9 @@ describe('Dynamic product group: Test crud operations', () => {
         page.deleteProductStream('1st Productstream');
 
         // Verify property in listing
-        cy.wait('@deleteData').then(() => {
-            cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');
     });
 });

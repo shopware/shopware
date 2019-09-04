@@ -65,13 +65,16 @@ export default class ProductPageObject extends GeneralPageObject {
         cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary')
             .click();
 
-        cy.wait('@productCall').then(() => {
-            cy.get('.sw-product-modal-variant-generation__notification-modal').should('not.exist');
-            cy.get('.generate-variant-progress-bar__description').contains('0 of 3 variations generated');
+        cy.wait('@productCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
 
-        cy.wait('@searchCall').then(() => {
-            cy.get('.sw-product-modal-variant-generation').should('not.exist');
+        cy.get('.sw-product-modal-variant-generation__notification-modal').should('not.exist');
+        cy.get('.generate-variant-progress-bar__description').contains('0 of 3 variations generated');
+
+        cy.wait('@searchCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-product-modal-variant-generation').should('not.exist');
     }
 }

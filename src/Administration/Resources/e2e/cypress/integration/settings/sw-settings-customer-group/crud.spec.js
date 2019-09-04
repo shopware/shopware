@@ -36,11 +36,13 @@ describe('Customer group: Test crud operations', () => {
         cy.get(page.elements.customerGroupSaveAction).click();
 
         // Verify and check usage of customer-group
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).should('be.visible')
-                .contains('E2E Merchant');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).should('be.visible')
+            .contains('E2E Merchant');
 
         // Check usage of customer group in customer
         cy.clickMainMenuItem({
@@ -83,11 +85,13 @@ describe('Customer group: Test crud operations', () => {
         cy.get(page.elements.customerGroupSaveAction).click();
 
         // Verify and check usage of customer-group
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
-                .contains('E2E Merchant');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
+            .contains('E2E Merchant');
     });
 
     it('@package @settings: delete customer group', () => {
@@ -114,8 +118,8 @@ describe('Customer group: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify deletion
-        cy.wait('@deleteData').then(() => {
-
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
     });
 });

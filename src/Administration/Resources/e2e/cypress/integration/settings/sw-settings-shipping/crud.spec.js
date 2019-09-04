@@ -32,11 +32,13 @@ describe('Shipping: Test crud operations', () => {
         cy.get(page.elements.shippingSaveAction).click();
 
         // Verify shipping method
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click({ force: true });
-            cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
-                .contains('Automated test shipping');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+
+        cy.get(page.elements.smartBarBack).click({ force: true });
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
+            .contains('Automated test shipping');
     });
 
     it('@package @settings: update and read shipping method', () => {
@@ -63,11 +65,13 @@ describe('Shipping: Test crud operations', () => {
         cy.get(page.elements.shippingSaveAction).click();
 
         // Verify shipping method
-        cy.wait('@saveData').then(() => {
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')
-                .contains('Wasserpost');
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')
+            .contains('Wasserpost');
     });
 
     it('@package @settings: delete shipping method', () => {
@@ -93,8 +97,10 @@ describe('Shipping: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
-        cy.wait('@deleteData').then(() => {
-            cy.awaitAndCheckNotification('Shipping method "Luftpost" has been deleted.');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.awaitAndCheckNotification('Shipping method "Luftpost" has been deleted.');
     });
 });

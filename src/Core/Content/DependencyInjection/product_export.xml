@@ -17,14 +17,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportService">
-            <argument type="service" id="product_export.repository"/>
-            <argument type="service" id="shopware.filesystem.private"/>
-            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerateService"/>
-            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileService"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerateService" public="true">
+        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportService" public="true">
             <argument type="service" id="product_export.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamService"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderService"/>
@@ -36,6 +29,24 @@
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportFileService">
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="string">%product_export.directory%</argument>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportService"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <tag name="messenger.message_handler"/>
         </service>
     </services>
 </container>

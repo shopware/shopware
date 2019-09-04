@@ -22,9 +22,8 @@ class ProductExportFileService implements ProductExportFileServiceInterface
     public function getFilePath(ProductExportEntity $productExportEntity): string
     {
         return $this->getDirectory() . sprintf(
-                '/%s.%s',
-                $productExportEntity->getFileName(),
-                $productExportEntity->getFileFormat()
+                '/%s',
+                $productExportEntity->getFileName()
             );
     }
 

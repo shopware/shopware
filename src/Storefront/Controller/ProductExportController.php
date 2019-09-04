@@ -3,9 +3,14 @@
 namespace Shopware\Storefront\Controller;
 
 use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileServiceInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportServiceInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\ProductExportContentTypeEvent;
@@ -28,16 +33,21 @@ class ProductExportController extends StorefrontController
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
 
+    /** @var EntityRepositoryInterface */
+    private $repository;
+
     public function __construct(
         ProductExportServiceInterface $productExportService,
         ProductExportFileServiceInterface $productExportFileService,
         FilesystemInterface $fileSystem,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        EntityRepositoryInterface $repository
     ) {
         $this->productExportService = $productExportService;
         $this->productExportFileService = $productExportFileService;
         $this->fileSystem = $fileSystem;
         $this->eventDispatcher = $eventDispatcher;
+        $this->repository = $repository;
     }
 
     /**
@@ -46,11 +56,29 @@ class ProductExportController extends StorefrontController
      */
     public function index(SalesChannelContext $context, Request $request): Response
     {
-        $productExport = $this->productExportService->get(
-            $request->get('fileName'),
-            $request->get('accessKey'),
-            $context
-        );
+        $criteria = new Criteria();
+        $criteria
+            ->addFilter(new EqualsFilter('fileName', $request->get('fileName')))
+            ->addFilter(new EqualsFilter('accessKey', $request->get('accessKey')))
+            ->addFilter(new EqualsFilter('product_export.salesChannel.active', true))
+            ->addFilter(new MultiFilter(
+                'OR',
+                [
+                    new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
+                    new EqualsFilter('product_export.salesChannelDomain.salesChannel.id', $context->getSalesChannel()->getId()),
+                ]
+            ))
+            ->addAssociation('productStream.filters.queries')
+            ->addAssociation('salesChannel');
+
+        /** @var ProductExportEntity|null $productExport */
+        $productExport = $this->repository->search($criteria, $context->getContext())->first();
+
+        if ($productExport === null) {
+            throw new ExportNotFoundException(null, $request->get('fileName'));
+        }
+
+        $this->productExportService->generateExport($productExport, $context);
 
         $filePath = $this->productExportFileService->getFilePath($productExport);
         $content = $this->fileSystem->read($filePath);

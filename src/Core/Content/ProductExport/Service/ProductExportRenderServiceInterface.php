@@ -5,14 +5,29 @@ namespace Shopware\Core\Content\ProductExport\Service;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface ProductExportRenderServiceInterface
 {
-    public function renderHeader(ProductExportEntity $productExportEntity): string;
+    public function renderHeader(
+        ProductExportEntity $productExportEntity,
+        SalesChannelContext $salesChannelContext
+    ): string;
 
-    public function renderFooter(ProductExportEntity $productExportEntity): string;
+    public function renderFooter(
+        ProductExportEntity $productExportEntity,
+        SalesChannelContext $salesChannelContext
+    ): string;
 
-    public function renderBody(ProductExportEntity $productExportEntity, EntityCollection $productCollection): string;
+    public function renderBody(
+        ProductExportEntity $productExportEntity,
+        EntityCollection $productCollection,
+        SalesChannelContext $salesChannelContext
+    ): string;
 
-    public function renderProduct(ProductExportEntity $productExportEntity, SalesChannelProductEntity $productEntity): string;
+    public function renderProduct(
+        ProductExportEntity $productExportEntity,
+        SalesChannelProductEntity $productEntity,
+        SalesChannelContext $salesChannelContext
+    ): string;
 }

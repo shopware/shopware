@@ -13,6 +13,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Twig\StringTemplateRenderer;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductExportRenderService implements ProductExportRenderServiceInterface
@@ -29,8 +30,10 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function renderHeader(ProductExportEntity $productExportEntity): string
-    {
+    public function renderHeader(
+        ProductExportEntity $productExportEntity,
+        SalesChannelContext $salesChannelContext
+    ): string {
         if ($productExportEntity->getHeaderTemplate() === null) {
             return '';
         }
@@ -39,6 +42,7 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
             new ProductExportRenderHeaderContextEvent(
                 [
                     'productExport' => $productExportEntity,
+                    'context' => $salesChannelContext,
                 ]
             )
         );
@@ -53,8 +57,10 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
         }
     }
 
-    public function renderFooter(ProductExportEntity $productExportEntity): string
-    {
+    public function renderFooter(
+        ProductExportEntity $productExportEntity,
+        SalesChannelContext $salesChannelContext
+    ): string {
         if ($productExportEntity->getFooterTemplate() === null) {
             return '';
         }
@@ -63,6 +69,7 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
             new ProductExportRenderFooterContextEvent(
                 [
                     'productExport' => $productExportEntity,
+                    'context' => $salesChannelContext,
                 ]
             )
         );
@@ -77,12 +84,15 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
         }
     }
 
-    public function renderBody(ProductExportEntity $productExportEntity, EntityCollection $productCollection): string
-    {
+    public function renderBody(
+        ProductExportEntity $productExportEntity,
+        EntityCollection $productCollection,
+        SalesChannelContext $salesChannelContext
+    ): string {
         $body = '';
 
         foreach ($productCollection as $productEntity) {
-            $body .= $this->renderProduct($productExportEntity, $productEntity);
+            $body .= $this->renderProduct($productExportEntity, $productEntity, $salesChannelContext);
         }
 
         return $body;
@@ -90,13 +100,15 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
 
     public function renderProduct(
         ProductExportEntity $productExportEntity,
-        SalesChannelProductEntity $productEntity
+        SalesChannelProductEntity $productEntity,
+        SalesChannelContext $salesChannelContext
     ): string {
         $productContext = $this->eventDispatcher->dispatch(
             new ProductExportRenderBodyContextEvent(
                 [
                     'product' => $productEntity,
                     'productExport' => $productExportEntity,
+                    'context' => $salesChannelContext,
                 ]
             )
         );

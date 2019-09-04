@@ -1,30 +1,33 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ProductExport\Service;
+namespace Shopware\Core\Content\Test\ProductExport\Command;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
+use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Content\ProductExport\Service\ProductExportFileService;
-use Shopware\Core\Content\ProductExport\Service\ProductExportGenerateService;
-use Shopware\Core\Content\ProductExport\Service\ProductExportGenerateServiceInterface;
-use Shopware\Core\Content\ProductExport\Service\ProductExportRenderService;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 
-class ProductExportGenerateServiceTest extends TestCase
+class ProductExportGenerateCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use CommandTestBehaviour;
+
+    /** @var ProductExportGenerateCommand */
+    private $productExportGenerateCommand;
 
     /**
      * @var EntityRepositoryInterface
@@ -41,28 +44,28 @@ class ProductExportGenerateServiceTest extends TestCase
      */
     private $salesChannelContext;
 
-    /** @var ProductExportGenerateServiceInterface */
-    private $service;
-
     /** @var FilesystemInterface */
     private $fileSystem;
 
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('product_export.repository');
-        $this->service = $this->getContainer()->get(ProductExportGenerateService::class);
         $this->context = Context::createDefaultContext();
         $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
+        $this->productExportGenerateCommand = $this->getContainer()->get(ProductExportGenerateCommand::class);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), $this->getSalesChannelDomain()->getSalesChannelId());
     }
 
-    public function testGenerate(): void
+    public function testExecute(): void
     {
         $this->createTestEntity();
 
-        $this->service->generate($this->salesChannelContext);
+        $input = new StringInput($this->getSalesChannelDomain()->getSalesChannelId());
+        $output = new BufferedOutput();
+
+        $this->runCommand($this->productExportGenerateCommand, $input, $output);
 
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         $fileContent = $this->fileSystem->read($filePath);
@@ -74,46 +77,6 @@ class ProductExportGenerateServiceTest extends TestCase
         static::assertCount(4, $csvRows);
     }
 
-    public function testGeneratePagination(): void
-    {
-        $this->createTestEntity();
-
-        $service = new ProductExportGenerateService(
-            $this->getContainer()->get('product_export.repository'),
-            $this->getContainer()->get(ProductStreamService::class),
-            $this->getContainer()->get(ProductExportRenderService::class),
-            $this->getContainer()->get('shopware.filesystem.private'),
-            $this->getContainer()->get(ProductExportFileService::class),
-            1
-        );
-
-        $service->generate($this->salesChannelContext);
-
-        $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
-
-        static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->has($filePath));
-        static::assertCount(4, explode(PHP_EOL, $this->fileSystem->read($filePath)));
-    }
-
-    public function testGenerateNotFound(): void
-    {
-        static::expectException(ExportNotFoundException::class);
-        static::expectExceptionMessage('No product exports found');
-
-        $this->service->generate($this->salesChannelContext);
-    }
-
-    public function testGenerateIdNotFound(): void
-    {
-        $id = Uuid::randomHex();
-
-        static::expectException(ExportNotFoundException::class);
-        static::expectExceptionMessage(sprintf('Product export with ID %s not found', $id));
-
-        $this->service->generate($this->salesChannelContext, $id);
-    }
-
     private function getSalesChannelId(): string
     {
         /** @var EntityRepositoryInterface $repository */
@@ -122,12 +85,17 @@ class ProductExportGenerateServiceTest extends TestCase
         return $repository->search(new Criteria(), $this->context)->first()->getId();
     }
 
-    private function getSalesChannelDomainId(): string
+    private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first()->getId();
+        return $repository->search(new Criteria(), $this->context)->first();
+    }
+
+    private function getSalesChannelDomainId(): string
+    {
+        return $this->getSalesChannelDomain()->getId();
     }
 
     private function createTestEntity(): string
@@ -138,7 +106,7 @@ class ProductExportGenerateServiceTest extends TestCase
         $this->repository->upsert([
             [
                 'id' => $id,
-                'fileName' => 'Testexport',
+                'fileName' => 'Testexport.csv',
                 'accessKey' => Uuid::randomHex(),
                 'encoding' => ProductExportEntity::ENCODING_UTF8,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
@@ -187,7 +155,7 @@ class ProductExportGenerateServiceTest extends TestCase
         $productRepository = $this->getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
-        $salesChannelId = Defaults::SALES_CHANNEL;
+        $salesChannelId = $this->getSalesChannelDomain()->getSalesChannelId();
         $products = [];
 
         for ($i = 0; $i < 10; ++$i) {

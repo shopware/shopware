@@ -131,7 +131,7 @@ class Migration1567154268ProductExportBasicData extends MigrationStep
                 'product_stream_id' => $this->productStreamId,
                 'sales_channel_id' => $this->idealoSalesChannelId,
                 'file_name' => 'idealo.csv',
-                'access_token' => AccessKeyHelper::generateAccessKey('product-export'),
+                'access_key' => AccessKeyHelper::generateAccessKey('product-export'),
                 'encoding' => ProductExportEntity::ENCODING_ISO88591,
                 'file_format' => ProductExportEntity::FILE_FORMAT_CSV,
                 'generate_by_cronjob' => 0,
@@ -186,7 +186,7 @@ Produkt Kurztext{#- -#}',
                 'product_stream_id' => $this->productStreamId,
                 'sales_channel_id' => $this->billigerSalesChannelId,
                 'file_name' => 'billiger.csv',
-                'access_token' => AccessKeyHelper::generateAccessKey('product-export'),
+                'access_key' => AccessKeyHelper::generateAccessKey('product-export'),
                 'encoding' => ProductExportEntity::ENCODING_ISO88591,
                 'file_format' => ProductExportEntity::FILE_FORMAT_CSV,
                 'generate_by_cronjob' => 0,
@@ -209,7 +209,7 @@ pzn{#- -#}',
                 'body_template' => '{{ product.productNumber }},{#- -#}
 {{ product.manufacturer.translated.name }},{#- -#}
 {{ product.manufacturer.id }},{#- -#}
-{{ product.ean }}},{#- -#}
+{{ product.ean }},{#- -#}
 {{ product.translated.name|length > 80 ? product.translated.name|slice(0, 80) ~ \'...\' : product.translated.name }},{#- -#}
 {{ product.translated.description|raw|length > 900 ? product.translated.description|raw|slice(0,900) ~ \'...\' : product.translated.description|raw }}{#- -#}
 ,{#- -#}

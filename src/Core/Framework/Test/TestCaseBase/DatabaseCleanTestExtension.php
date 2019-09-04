@@ -15,6 +15,7 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
         'version_commit',
         'version_commit_data',
     ];
+
     /**
      * @var array
      */

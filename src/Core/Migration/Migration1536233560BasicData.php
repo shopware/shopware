@@ -35,6 +35,7 @@ class Migration1536233560BasicData extends MigrationStep
      * @var array
      */
     private $mailTypes;
+
     /**
      * @var string
      */

@@ -13,6 +13,7 @@ class TestUser
      * @var string
      */
     private $password;
+
     /**
      * @var string
      */

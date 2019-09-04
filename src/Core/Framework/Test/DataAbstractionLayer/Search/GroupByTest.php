@@ -41,6 +41,7 @@ class GroupByTest extends TestCase
      * @var GroupByDefinition
      */
     private $definition;
+
     /**
      * @var TestData
      */

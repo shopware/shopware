@@ -39,10 +39,12 @@ class PromotionExclusionIndexer implements IndexerInterface
      * @var PromotionDefinition
      */
     private $promotionDefinition;
+
     /**
      * @var TagAwareAdapterInterface
      */
     private $cache;
+
     /**
      * @var EntityCacheKeyGenerator
      */

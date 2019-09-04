@@ -45,6 +45,7 @@ use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollectio
 class LanguageEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string|null
      */

@@ -31,6 +31,7 @@ class DemodataService
      * @var DefinitionInstanceRegistry
      */
     private $registry;
+
     /**
      * @var Connection
      */

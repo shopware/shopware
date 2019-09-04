@@ -13,6 +13,7 @@ use Shopware\Core\System\Salutation\SalutationEntity;
 class OrderAddressEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

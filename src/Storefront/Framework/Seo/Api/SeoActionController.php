@@ -40,10 +40,12 @@ class SeoActionController extends AbstractController
      * @var DefinitionInstanceRegistry
      */
     private $definitionRegistry;
+
     /**
      * @var SeoUrlRouteRegistry
      */
     private $seoUrlRouteRegistry;
+
     /**
      * @var SeoUrlPersister
      */
@@ -53,6 +55,7 @@ class SeoActionController extends AbstractController
      * @var SeoUrlValidationService
      */
     private $seoUrlValidator;
+
     /**
      * @var DataValidator
      */

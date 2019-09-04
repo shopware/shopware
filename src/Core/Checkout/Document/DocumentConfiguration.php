@@ -65,6 +65,7 @@ class DocumentConfiguration extends Struct
      * @var int|null
      */
     protected $itemsPerPage;
+
     /**
      * @var bool|null
      */

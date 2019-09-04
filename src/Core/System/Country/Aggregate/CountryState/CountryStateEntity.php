@@ -12,6 +12,7 @@ use Shopware\Core\System\Country\CountryEntity;
 class CountryStateEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

@@ -19,14 +19,17 @@ final class ContactFormEvent extends Event implements BusinessEventInterface, Ma
      * @var Context
      */
     private $context;
+
     /**
      * @var string
      */
     private $salesChannelId;
+
     /**
      * @var MailRecipientStruct
      */
     private $recipients;
+
     /**
      * @var DataBag
      */

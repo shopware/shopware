@@ -33,7 +33,9 @@ class ProductCombinationFinderTest extends TestCase
     private $salesChannelId;
 
     private $optionIds = [];
+
     private $groupIds = [];
+
     private $variantIds = [];
 
     /**

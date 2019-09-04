@@ -47,6 +47,7 @@ class ChildCountIndexer implements IndexerInterface
      * @var TagAwareAdapter
      */
     private $cache;
+
     /**
      * @var IteratorFactory
      */

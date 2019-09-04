@@ -14,7 +14,9 @@ class UserValidationServiceTest extends TestCase
     use IntegrationTestBehaviour;
 
     private $userRepository;
+
     private $localeRepository;
+
     private $userValidationService;
 
     public function setUp(): void

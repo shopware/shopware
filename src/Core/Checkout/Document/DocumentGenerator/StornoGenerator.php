@@ -19,6 +19,7 @@ class StornoGenerator implements DocumentGeneratorInterface
      * @var string
      */
     private $rootDir;
+
     /**
      * @var DocumentTemplateRenderer
      */

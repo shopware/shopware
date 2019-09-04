@@ -8,10 +8,12 @@ class MatrixElement
      * @var int
      */
     private $points;
+
     /**
      * @var int
      */
     private $count;
+
     /**
      * @var float
      */

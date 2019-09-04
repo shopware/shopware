@@ -18,14 +18,17 @@ class ContactFormService
      * @var ValidationServiceInterface
      */
     private $contactFormValidationService;
+
     /**
      * @var DataValidator
      */
     private $validator;
+
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+
     /**
      * @var SystemConfigService
      */

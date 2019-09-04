@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 class PaymentMethodTranslationEntity extends TranslationEntity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

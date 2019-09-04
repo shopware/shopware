@@ -14,6 +14,7 @@ use Shopware\Core\System\Tag\TagCollection;
 class CategoryEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string|null
      */

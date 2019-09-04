@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class CartWeightRuleTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
     /**
      * @var CartWeightRule
      */

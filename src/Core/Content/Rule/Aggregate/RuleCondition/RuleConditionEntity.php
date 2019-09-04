@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 class RuleConditionEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

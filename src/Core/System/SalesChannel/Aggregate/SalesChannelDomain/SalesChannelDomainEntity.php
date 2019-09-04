@@ -12,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 class SalesChannelDomainEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

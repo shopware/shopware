@@ -32,7 +32,9 @@ class VariantListingIndexerTest extends TestCase
     private $salesChannelId;
 
     private $optionIds = [];
+
     private $groupIds = [];
+
     private $variantIds = [];
 
     /**

@@ -50,6 +50,7 @@ class RegisterController extends StorefrontController
      * @var CheckoutRegisterPageLoader
      */
     private $registerPageLoader;
+
     /**
      * @var SystemConfigService
      */

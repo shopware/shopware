@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Version\Aggregate\VersionCommit\VersionCommitCollect
 class VersionEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

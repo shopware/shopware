@@ -21,6 +21,7 @@ class ContactPageController extends StorefrontController
      * @var ContactPageLoader
      */
     private $contactPageLoader;
+
     /**
      * @var ContactFormService
      */

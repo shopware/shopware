@@ -38,6 +38,7 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
      * @var IteratorFactory
      */
     private $iteratorFactory;
+
     /**
      * @var EventDispatcherInterface
      */

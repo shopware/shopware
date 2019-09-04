@@ -18,6 +18,7 @@ class CustomerProfileValidationService implements ValidationServiceInterface
      * @var SalutationDefinition
      */
     private $salutationDefinition;
+
     /**
      * @var SystemConfigService
      */

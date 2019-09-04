@@ -56,6 +56,7 @@ class TestTreeAware extends CategoryEntity
      * @var string
      */
     protected $id;
+
     /**
      * @var string
      */

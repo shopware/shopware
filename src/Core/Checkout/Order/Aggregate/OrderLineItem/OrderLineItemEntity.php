@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 class OrderLineItemEntity extends Entity
 {
     use EntityIdTrait;
+
     /**
      * @var string
      */

@@ -17,10 +17,12 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
      * @var EntityWriterInterface
      */
     private $writer;
+
     /**
      * @var ProductReviewDefinition
      */
     private $productReviewDefinition;
+
     /**
      * @var Connection
      */

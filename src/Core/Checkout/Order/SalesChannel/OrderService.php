@@ -19,14 +19,17 @@ class OrderService
      * @var DataValidator
      */
     private $dataValidator;
+
     /**
      * @var OrderValidationService
      */
     private $orderValidationService;
+
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+
     /**
      * @var CartService
      */

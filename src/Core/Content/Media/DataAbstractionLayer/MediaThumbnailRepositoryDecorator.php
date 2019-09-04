@@ -29,10 +29,12 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+
     /**
      * @var EntityRepositoryInterface
      */
     private $innerRepo;
+
     /**
      * @var MessageBusInterface
      */

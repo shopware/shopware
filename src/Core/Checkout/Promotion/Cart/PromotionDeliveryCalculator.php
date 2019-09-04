@@ -37,10 +37,12 @@ class PromotionDeliveryCalculator
      * @var QuantityPriceCalculator
      */
     private $quantityPriceCalculator;
+
     /**
      * @var PercentagePriceCalculator
      */
     private $percentagePriceCalculator;
+
     /**
      * @var PromotionItemBuilder
      */

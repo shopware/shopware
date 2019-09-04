@@ -16,6 +16,7 @@ class GenerateThumbnailsHandler extends AbstractMessageHandler
      * @var ThumbnailService
      */
     private $thumbnailService;
+
     /**
      * @var EntityRepositoryInterface
      */

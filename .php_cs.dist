@@ -35,6 +35,7 @@ return Config::create()
         'blank_line_after_opening_tag' => false,
         'concat_space' => ['spacing' => 'one'],
         'array_syntax' => ['syntax' => 'short'],
+        'class_attributes_separation' => ['elements' => ['method', 'property']],
         // Removes @param and @return tags that don't provide any useful information.
         'no_superfluous_phpdoc_tags' => true,
         // add declare strict type to every file

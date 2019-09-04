@@ -35,10 +35,12 @@ p code {
 </style>
 
 EOD;
+
     /**
      * @var string
      */
     private $html;
+
     /**
      * @var array
      */

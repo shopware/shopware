@@ -17,6 +17,7 @@ class AdministrationController extends AbstractController
      * @var TemplateFinder
      */
     private $finder;
+
     /**
      * @var FirstRunWizardClient
      */

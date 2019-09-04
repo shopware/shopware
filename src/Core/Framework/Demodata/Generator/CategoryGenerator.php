@@ -31,6 +31,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
      * @var EntityRepositoryInterface
      */
     private $cmsPageRepository;
+
     /**
      * @var EntityWriter
      */

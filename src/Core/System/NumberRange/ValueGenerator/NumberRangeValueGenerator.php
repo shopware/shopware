@@ -37,6 +37,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+
     /**
      * @var NumberRangeDefinition
      */

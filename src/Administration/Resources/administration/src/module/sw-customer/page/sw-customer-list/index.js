@@ -42,7 +42,18 @@ Component.register('sw-customer-list', {
 
         customerColumns() {
             return this.getCustomerColumns();
-        }
+        },
+
+        defaultCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+            this.naturalSorting = this.sortBy === 'customerNumber';
+
+            criteria.setTerm(this.term);
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+            criteria.addAssociation('defaultBillingAddress');
+
+            return criteria;
+        },
     },
 
     methods: {
@@ -63,14 +74,8 @@ Component.register('sw-customer-list', {
 
         getList() {
             this.isLoading = true;
-            const criteria = new Criteria(this.page, this.limit);
-            this.naturalSorting = this.sortBy === 'customerNumber';
 
-            criteria.setTerm(this.term);
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
-            criteria.addAssociation('defaultBillingAddress');
-
-            this.customerRepository.search(criteria, this.context).then((items) => {
+            this.customerRepository.search(this.defaultCriteria, this.context).then((items) => {
                 this.total = items.total;
                 this.customers = items;
                 this.isLoading = false;

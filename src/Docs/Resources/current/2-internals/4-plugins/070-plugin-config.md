@@ -68,6 +68,7 @@ Below you'll find a list of all available `<input-field type="?">`.
 |---------------|--------------------------------------------------|-------------------|
 | int           | disabled, label, helpText                        | Integer field     |
 | text          | copyable, disabled, label, placeholder, helpText | Text field        |
+| textarea      | copyable, disabled, label, placeholder, helpText | Textarea          |
 | single-select | options, disabled, label, placeholder, helpText  | Single-Select box |
 | multi-select  | options, disabled, label, placeholder, helpText  | Multi-Select box  |
 | password      | disabled, label, placeholder, helpText           | Password field    |

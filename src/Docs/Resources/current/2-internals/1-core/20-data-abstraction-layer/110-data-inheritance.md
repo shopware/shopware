@@ -69,3 +69,45 @@ the translation association.
 (new TranslatedField('supervisor'))->addFlags(new Inherited()),
 (new TranslationsAssociationField(EmployeeTranslationDefinition::class))->addFlags(new Inherited()),
 ```
+
+## Add inheritance via plugin
+If you want to add a inherited association to an entity, the following must be considered:
+1. the entity to be extended must already fulfill the above mentioned conditions
+2. you have to add the appropriate association via your EntityExtension class.
+3. the new association requires the `Inherited` flag
+4. you need to add a column in the MySQL table of the entity that has the following properties:
+    * binary(16) 
+    * nullable
+    * default null
+    * the column name must be the property name of your association (in camel case).
+
+In order not to create the column incorrectly, you can simply use the `\Shopware\Core\Framework\Migration\InheritanceUpdaterTrait` in your migrations:
+
+```php
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Migration;
+
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
+use Shopware\Core\Framework\Migration\MigrationStep;
+
+class Migration1566817701AddInheritanceColumn extends MigrationStep
+{
+    use InheritanceUpdaterTrait;
+
+    public function getCreationTimestamp(): int
+    {
+        return 1566817701;
+    }
+
+    public function update(Connection $connection): void
+    {
+        $this->updateInheritance($connection, 'product', 'associationPropertyName');
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
+    }
+}
+```

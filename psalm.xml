@@ -18,7 +18,6 @@
             <directory name="vendor/shopware/platform/src/Storefront/Test"/>
             <file name="vendor/shopware/platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
         </ignoreFiles>
-
     </projectFiles>
 
     <issueHandlers>

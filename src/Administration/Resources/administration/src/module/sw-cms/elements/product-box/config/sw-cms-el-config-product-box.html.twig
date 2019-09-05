@@ -1,14 +1,14 @@
 {% block sw_cms_element_product_box_config %}
     <div class="sw-cms-el-config-product-box">
         {% block sw_cms_element_product_box_config_product_select %}
-            <sw-select :multi="false"
-                       ref="cmsProductSelection"
-                       :label="$tc('sw-cms.elements.labelProductSelection')"
-                       :placeholder="$tc('sw-cms.elements.placeholderProductSelection')"
-                       :store="productStore"
-                       @input="onProductChange"
-                       v-model="element.config.product.value">
-            </sw-select>
+            <sw-entity-single-select
+               ref="cmsProductSelection"
+               :label="$tc('sw-cms.elements.labelProductSelection')"
+               :placeholder="$tc('sw-cms.elements.placeholderProductSelection')"
+               entity="product"
+               @input="onProductChange"
+               v-model="element.config.product.value">
+            </sw-entity-single-select>
         {% endblock %}
 
         {% block sw_cms_element_product_box_config_layout_select %}

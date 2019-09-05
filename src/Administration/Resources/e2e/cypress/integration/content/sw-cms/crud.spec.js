@@ -20,7 +20,7 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@package @content: create and read layout', () => {
         cy.server();
         cy.route({
-            url: '//api/v1/cms-page?_response=true',
+            url: '/api/v1/cms-page',
             method: 'post'
         }).as('saveData');
 
@@ -42,7 +42,7 @@ describe('CMS: Test crud operations of layouts', () => {
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Laid out');
@@ -68,7 +68,7 @@ describe('CMS: Test crud operations of layouts', () => {
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');

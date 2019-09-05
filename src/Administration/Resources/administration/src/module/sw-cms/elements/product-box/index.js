@@ -3,6 +3,9 @@ import './config';
 import './preview';
 
 const { Application } = Shopware;
+const Criteria = Shopware.Data.Criteria;
+const criteria = new Criteria();
+criteria.addAssociation('cover');
 
 Application.getContainer('service').cmsService.registerCmsElement({
     name: 'product-box',
@@ -14,7 +17,11 @@ Application.getContainer('service').cmsService.registerCmsElement({
         product: {
             source: 'static',
             value: null,
-            required: true
+            required: true,
+            entity: {
+                name: 'product',
+                criteria: criteria
+            }
         },
         boxLayout: {
             source: 'static',

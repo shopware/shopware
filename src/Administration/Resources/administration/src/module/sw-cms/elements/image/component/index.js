@@ -37,7 +37,7 @@ Component.register('sw-cms-el-image', {
                 if (media && media.id && media.url) {
                     return media.url;
                 }
-            } else if (this.element.data.media) {
+            } else if (this.element.data && this.element.data.media) {
                 if (this.element.data.media.id) {
                     return this.element.data.media.url;
                 }

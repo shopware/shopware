@@ -13,6 +13,24 @@ Component.register('sw-cms-el-product-box', {
 
     computed: {
         product() {
+            if (!this.element.data || !this.element.data.product) {
+                return {
+                    name: 'Lorem ipsum dolor',
+                    description: `Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                    sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+                    sed diam voluptua.`.trim(),
+                    price: [
+                        { gross: 19.90 }
+                    ],
+                    cover: {
+                        media: {
+                            url: '/administration/static/img/cms/preview_glasses_large.jpg',
+                            alt: 'Lorem Ipsum dolor'
+                        }
+                    }
+                };
+            }
+
             return this.element.data.product;
         },
 
@@ -55,7 +73,6 @@ Component.register('sw-cms-el-product-box', {
     methods: {
         createdComponent() {
             this.initElementConfig('product-box');
-            this.initElementData('product-box');
         }
     }
 });

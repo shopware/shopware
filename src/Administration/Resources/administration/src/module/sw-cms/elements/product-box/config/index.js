@@ -1,7 +1,8 @@
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-cms-el-config-product-box.html.twig';
 import './sw-cms-el-config-product-box.scss';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-el-config-product-box', {
     template,
@@ -10,9 +11,14 @@ Component.register('sw-cms-el-config-product-box', {
         Mixin.getByName('cms-element')
     ],
 
+    inject: [
+        'repositoryFactory',
+        'context'
+    ],
+
     computed: {
-        productStore() {
-            return State.getStore('product');
+        productRepository() {
+            return this.repositoryFactory.create('product');
         }
     },
 
@@ -31,11 +37,14 @@ Component.register('sw-cms-el-config-product-box', {
                 this.$set(this.element.data, 'productId', null);
                 this.$set(this.element.data, 'product', null);
             } else {
-                const product = this.productStore.getById(productId);
+                const criteria = new Criteria();
+                criteria.addAssociation('cover');
 
-                this.element.config.product.value = productId;
-                this.$set(this.element.data, 'productId', productId);
-                this.$set(this.element.data, 'product', product);
+                this.productRepository.get(productId, this.context, criteria).then((product) => {
+                    this.element.config.product.value = productId;
+                    this.$set(this.element.data, 'productId', productId);
+                    this.$set(this.element.data, 'product', product);
+                });
             }
 
             this.$emit('element-update', this.element);

@@ -14,7 +14,10 @@ Application.getContainer('service').cmsService.registerCmsElement({
         media: {
             source: 'static',
             value: null,
-            required: true
+            required: true,
+            entity: {
+                name: 'media'
+            }
         },
         displayMode: {
             source: 'static',

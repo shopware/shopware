@@ -12,7 +12,7 @@ Component.register('sw-cms-el-image-gallery', {
 
     data() {
         return {
-            galleryLimit: 0,
+            galleryLimit: 3,
             activeMedia: null
         };
     },

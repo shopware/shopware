@@ -1,4 +1,5 @@
 import './service/cms.service';
+import './service/cmsDataResolver.service';
 import './state/cms-page.state';
 import './mixin/sw-cms-element.mixin';
 import './blocks';

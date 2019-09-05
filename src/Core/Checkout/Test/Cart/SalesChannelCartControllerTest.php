@@ -319,11 +319,9 @@ class SalesChannelCartControllerTest extends TestCase
         static::assertNotEmpty($cart);
         static::assertArrayHasKey('errors', $cart);
 
-        static::assertTrue(
-            array_key_exists(
-                'CHECKOUT__CART_LINEITEM_NOT_FOUND',
-                array_flip(array_column($cart['errors'], 'code'))
-            ),
+        static::assertArrayHasKey(
+            'CHECKOUT__CART_LINEITEM_NOT_FOUND',
+            array_flip(array_column($cart['errors'], 'code')),
             print_r($cart, true)
         );
     }

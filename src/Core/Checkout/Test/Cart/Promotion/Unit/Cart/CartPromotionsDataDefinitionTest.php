@@ -88,7 +88,7 @@ class CartPromotionsDataDefinitionTest extends TestCase
         $definition->addCodePromotions('codeB', [$promotion2]);
         $definition->addAutomaticPromotions([$promotion3]);
 
-        static::assertEquals(3, count($definition->getPromotionCodeTuples()));
+        static::assertCount(3, $definition->getPromotionCodeTuples());
     }
 
     /**

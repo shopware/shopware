@@ -517,7 +517,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $response = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
 
-        static::assertTrue(array_key_exists('CHECKOUT__CART_EMPTY', array_flip(array_column($response['errors'], 'code'))));
+        static::assertArrayHasKey('CHECKOUT__CART_EMPTY', array_flip(array_column($response['errors'], 'code')));
     }
 
     public function testDeepLinkGuestOrderWithoutAccessKey(): void

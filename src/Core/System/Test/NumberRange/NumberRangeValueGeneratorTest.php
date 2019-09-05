@@ -22,55 +22,58 @@ class NumberRangeValueGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /** @var Context */
+    /**
+     * @var Context
+     */
     private $context;
 
-    /** @var Connection */
+    /**
+     * @var Connection
+     */
     private $connection;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->setUpDatabase();
+        $this->setupDatabase();
         $this->context = Context::createDefaultContext();
     }
 
     public function testGenerateStandardPattern(): void
     {
-        $generator = $this->getGenerator('Pre_{n}_suf');
-        $value = $generator->getValue(ProductDefinition::class, $this->context, null);
+        $value = $this->getGenerator('Pre_{n}_suf')->getValue(ProductDefinition::class, $this->context, null);
         static::assertEquals('Pre_5_suf', $value);
     }
 
     public function testGenerateDatePattern(): void
     {
-        $generator = $this->getGenerator('Pre_{date}_suf');
-        $value = $generator->getValue(ProductDefinition::class, $this->context, null);
+        $value = $this->getGenerator('Pre_{date}_suf')->getValue(ProductDefinition::class, $this->context, null);
         static::assertEquals('Pre_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_suf', $value);
     }
 
     public function testGenerateDateWithFormatPattern(): void
     {
-        $generator = $this->getGenerator('Pre_{date_ymd}_suf');
-        $value = $generator->getValue(ProductDefinition::class, $this->context, null);
+        $value = $this->getGenerator('Pre_{date_ymd}_suf')->getValue(ProductDefinition::class, $this->context, null);
         static::assertEquals('Pre_' . date('ymd') . '_suf', $value);
     }
 
     public function testGenerateAllPatterns(): void
     {
-        $generator = $this->getGenerator('Pre_{date}_{date_ymd}_{n}_suf');
-        $value = $generator->getValue(ProductDefinition::class, $this->context, null);
+        $value = $this->getGenerator('Pre_{date}_{date_ymd}_{n}_suf')->getValue(ProductDefinition::class, $this->context, null);
         static::assertEquals(
-            'Pre_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . date('ymd') . '_5_suf', $value
+            'Pre_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . date('ymd') . '_5_suf',
+            $value
         );
     }
 
     public function testGenerateExtraCharsAllPatterns(): void
     {
-        $generator = $this->getGenerator('Pre_!"§$%&/()=_{date}_{date_ymd}_{n}_suf');
-        $value = $generator->getValue(ProductDefinition::class, $this->context, null);
-        static::assertEquals('Pre_!"§$%&/()=_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . date('ymd') . '_5_suf', $value);
+        $value = $this->getGenerator('Pre_!"§$%&/()=_{date}_{date_ymd}_{n}_suf')->getValue(ProductDefinition::class, $this->context, null);
+        static::assertEquals(
+            'Pre_!"§$%&/()=_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . date('ymd') . '_5_suf',
+            $value
+        );
     }
 
     public function testGetConfiguration(): void
@@ -105,16 +108,16 @@ class NumberRangeValueGeneratorTest extends TestCase
 
         $patternRegMock = $this->createMock(ValueGeneratorPatternRegistry::class);
         $incrPattern = $this->createMock(ValueGeneratorPatternIncrement::class);
-        $incrPattern->expects(static::any())->method('resolve')->willReturn('5');
+        $incrPattern->method('resolve')->willReturn('5');
 
-        $patternRegMock->expects(static::any())->method('getPatternResolver')->will(
-            static::returnCallback(function ($arg) use ($incrPattern, $patternReg) {
+        $patternRegMock->method('getPatternResolver')->willReturnCallback(
+            static function ($arg) use ($incrPattern, $patternReg) {
                 if ($arg === 'n') {
                     return $incrPattern;
                 }
 
                 return $patternReg->getPatternResolver($arg);
-            })
+            }
         );
 
         $configuration = new NumberRangeEntity();
@@ -137,7 +140,7 @@ class NumberRangeValueGeneratorTest extends TestCase
         return $generator;
     }
 
-    private function setupDatabase()
+    private function setupDatabase(): void
     {
         $sql = <<<SQL
             DELETE FROM `number_range_state`;

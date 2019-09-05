@@ -201,7 +201,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
                         JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
         );
 
-        static::assertEquals(0, count($records));
+        static::assertCount(0, $records);
     }
 
     /**

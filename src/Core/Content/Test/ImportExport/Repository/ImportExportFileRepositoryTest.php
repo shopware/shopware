@@ -249,7 +249,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
-        static::assertEquals(0, count($records));
+        static::assertCount(0, $records);
     }
 
     public function testImportExportFileDeleteUnknown(): void

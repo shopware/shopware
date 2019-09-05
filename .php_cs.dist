@@ -32,23 +32,26 @@ return Config::create()
         'ordered_imports' => true,
         'phpdoc_order' => true,
         'phpdoc_summary' => false,
+        // Removes @param and @return tags that don't provide any useful information.
+        'no_superfluous_phpdoc_tags' => true,
         'blank_line_after_opening_tag' => false,
         'concat_space' => ['spacing' => 'one'],
         'array_syntax' => ['syntax' => 'short'],
         'class_attributes_separation' => ['elements' => ['method', 'property']],
-        // Removes @param and @return tags that don't provide any useful information.
-        'no_superfluous_phpdoc_tags' => true,
         // add declare strict type to every file
         'declare_strict_types' => true,
+        // comparisons should always be strict
+        'strict_comparison' => true,
         // use native phpunit methods
         'php_unit_construct' => true,
         // Enforce camel case for PHPUnit test methods
         'php_unit_method_casing' => ['case' => 'camel_case'],
-        'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
         'php_unit_test_case_static_method_calls' => true,
         'php_unit_dedicate_assert' => ['target' => 'newest'],
-        // comparisons should always be strict
-        'strict_comparison' => true,
+        'php_unit_dedicate_assert_internal_type' => true,
+        'php_unit_mock' => true,
+        'php_unit_mock_short_will_return' => true,
+        'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
         // functions should be used with $strict param set to true
         'strict_param' => true,
         'array_indentation' => true,

@@ -1,7 +1,5 @@
 // / <reference types="Cypress" />
 
-import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
-
 describe('CMS: Test crud operations of layouts', () => {
     beforeEach(() => {
         cy.setToInitialState()

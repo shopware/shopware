@@ -198,3 +198,59 @@ Cypress.Commands.add('setToInitialState', () => {
         return cy.setLocaleToEnGb();
     });
 });
+
+/**
+ * Sets category and visibility for a product in order to set it visible in the Storefront
+ * @memberOf Cypress.Chainable#
+ * @name setProductFixtureVisibility
+ * @function
+ */
+Cypress.Commands.add('setProductFixtureVisibility', (productName, categoryName) => {
+    let salesChannelId = '';
+    let productId = '';
+
+    return cy.searchViaAdminApi({
+        endpoint: 'sales-channel',
+        data: {
+            field: 'name',
+            value: 'Storefront'
+        }
+    }).then((result) => {
+        salesChannelId = result.id;
+
+        return cy.searchViaAdminApi({
+            endpoint: 'product',
+            data: {
+                field: 'name',
+                value: productName
+            }
+        });
+    }).then((result) => {
+        productId = result.id;
+
+        return cy.updateViaAdminApi('product', productId, {
+            data: {
+                visibilities: [{
+                    visibility: 30,
+                    salesChannelId: salesChannelId,
+                }]
+            }
+        });
+    }).then(() => {
+        return cy.searchViaAdminApi({
+            endpoint: 'category',
+            data: {
+                field: 'name',
+                value: categoryName
+            }
+        });
+    }).then((result) => {
+        return cy.updateViaAdminApi('product', productId, {
+            data: {
+                categories: [{
+                    id: result.id
+                }]
+            }
+        });
+    });
+});

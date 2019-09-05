@@ -59,3 +59,52 @@ Cypress.Commands.add('searchViaAdminApi', (data) => {
     });
 });
 
+/**
+ * Handling API requests
+ * @memberOf Cypress.Chainable#
+ * @name requestAdminApi
+ * @function
+ */
+Cypress.Commands.add('requestAdminApi', (method, url, requestData = {}) => {
+    return cy.authenticate().then((result) => {
+        const requestConfig = {
+            headers: {
+                Accept: 'application/vnd.api+json',
+                Authorization: `Bearer ${result.access}`,
+                'Content-Type': 'application/json'
+            },
+            method: method,
+            url: url,
+            qs: {
+                response: true
+            },
+            body: requestData.data
+        };
+        return cy.request(requestConfig);
+    }).then((response) => {
+        if (response.body) {
+            const responseBodyObj = response.body ? JSON.parse(response.body) : response;
+
+            if (Array.isArray(responseBodyObj.data) && responseBodyObj.data.length <= 1) {
+                return responseBodyObj.data[0];
+            }
+            return responseBodyObj.data;
+        }
+        return response;
+    });
+});
+
+/**
+ * Updates an existing entity using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name updateViaAdminApi
+ * @function
+ * @param {String} endpoint - API endpoint for the request
+ * @param {String} id - Id of the entity to be updated
+ * @param {Object} data - Necessary data for the API request
+ */
+Cypress.Commands.add('updateViaAdminApi', (endpoint, id, data) => {
+    return cy.requestAdminApi('PATCH', `${Cypress.env('apiPath')}/${endpoint}/${id}`, data).then((responseData) => {
+        return responseData;
+    });
+});

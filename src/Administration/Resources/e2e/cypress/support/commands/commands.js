@@ -424,6 +424,7 @@ Cypress.Commands.add('fillAndCheckDateField', {
  * Performs a drag and drop operation
  * @memberOf Cypress.Chainable#
  * @name dragTo
+ * @param {String} targetEl - The target element to drag source to
  * @function
  */
 Cypress.Commands.add('dragTo', { prevSubject: 'element' }, (subject, targetEl) => {
@@ -432,6 +433,7 @@ Cypress.Commands.add('dragTo', { prevSubject: 'element' }, (subject, targetEl) =
 
     cy.get('.is--dragging').should('be.visible');
     cy.get(targetEl)
+        .should('be.visible')
         .trigger('mouseenter')
         .trigger('mousemove', 'center')
         .should('have.class', 'is--valid-drop')

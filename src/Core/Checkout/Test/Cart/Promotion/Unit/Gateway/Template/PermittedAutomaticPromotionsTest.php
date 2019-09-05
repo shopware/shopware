@@ -7,13 +7,12 @@ use Shopware\Core\Checkout\Promotion\Gateway\Template\ActiveDateRange;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class PermittedAutomaticPromotionsTest extends TestCase
 {
     /**
-     * @var SalesChannelContext
+     * @var SalesChannelEntity
      */
     private $salesChannel;
 
@@ -27,7 +26,6 @@ class PermittedAutomaticPromotionsTest extends TestCase
      * This test verifies, that we get the
      * expected and defined criteria from the template.
      *
-     * @test
      * @group promotions
      */
     public function testCriteria(): void
@@ -39,9 +37,6 @@ class PermittedAutomaticPromotionsTest extends TestCase
         static::assertEquals($this->getExpectedFilter()->getQueries(), $template->getQueries());
     }
 
-    /**
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
-     */
     private function getExpectedFilter(): MultiFilter
     {
         return new MultiFilter(

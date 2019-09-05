@@ -8,13 +8,12 @@ use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedGlobalCodePromoti
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class PermittedGlobalCodePromotionsTest extends TestCase
 {
     /**
-     * @var SalesChannelContext
+     * @var SalesChannelEntity
      */
     private $salesChannel;
 
@@ -28,7 +27,6 @@ class PermittedGlobalCodePromotionsTest extends TestCase
      * This test verifies, that we get the
      * expected and defined criteria from the template.
      *
-     * @test
      * @group promotions
      */
     public function testCriteria(): void
@@ -40,9 +38,6 @@ class PermittedGlobalCodePromotionsTest extends TestCase
         static::assertEquals($this->getExpectedFilter($codes)->getQueries(), $template->getQueries());
     }
 
-    /**
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
-     */
     private function getExpectedFilter(array $codes): MultiFilter
     {
         return new MultiFilter(

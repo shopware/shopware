@@ -10,8 +10,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\CallableClass;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
@@ -154,9 +154,9 @@ class CartServiceTest extends TestCase
         $cart = $cartService->add($cart, $lineItem, $context);
 
         static::assertTrue($cart->has($productId));
-        static::assertEquals(0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(0.0, $cart->getPrice()->getTotalPrice());
         $calculatedLineItem = $cart->getLineItems()->get($productId);
-        static::assertEquals(0, $calculatedLineItem->getPrice()->getTotalPrice());
-        static::assertEquals(0, $calculatedLineItem->getPrice()->getCalculatedTaxes()->getAmount());
+        static::assertSame(0.0, $calculatedLineItem->getPrice()->getTotalPrice());
+        static::assertSame(0.0, $calculatedLineItem->getPrice()->getCalculatedTaxes()->getAmount());
     }
 }

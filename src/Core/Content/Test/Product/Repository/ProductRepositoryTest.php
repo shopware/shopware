@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Pricing\PriceCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -371,7 +372,7 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
 
-        $keywords = $product->getSearchKeywords()->map(function (ProductSearchKeywordEntity $entity) {
+        $keywords = $product->getSearchKeywords()->map(static function (ProductSearchKeywordEntity $entity) {
             return $entity->getKeyword();
         });
 
@@ -394,7 +395,7 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
 
-        $keywords = $product->getSearchKeywords()->map(function (ProductSearchKeywordEntity $entity) {
+        $keywords = $product->getSearchKeywords()->map(static function (ProductSearchKeywordEntity $entity) {
             return $entity->getKeyword();
         });
 
@@ -2309,7 +2310,7 @@ class ProductRepositoryTest extends TestCase
         ?int $quantityEnd,
         ?float $net = null,
         ?string $id = null
-    ) {
+    ): array {
         $id = $id ?? Uuid::randomHex();
 
         return [
@@ -2357,12 +2358,5 @@ class ProductRepositoryTest extends TestCase
         }
 
         return $filtered;
-    }
-}
-
-class CallableClass
-{
-    public function __invoke(): void
-    {
     }
 }

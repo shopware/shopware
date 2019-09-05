@@ -64,13 +64,13 @@ class ProductExportService implements ProductExportServiceInterface
                 'OR',
                 [
                     new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
-                    new EqualsFilter('product_export.salesChannelDomain.salesChannel.id', $context->getSalesChannel()->getId()),
+                    new EqualsFilter('salesChannelDomain.salesChannel.id', $context->getSalesChannel()->getId()),
                 ]
             ))
         ;
 
         if (!$includeInactive) {
-            $criteria->addFilter(new EqualsFilter('product_export.salesChannel.active', true));
+            $criteria->addFilter(new EqualsFilter('salesChannel.active', true));
         }
 
         $productExports = $this->productExportRepository->search($criteria, $context->getContext());

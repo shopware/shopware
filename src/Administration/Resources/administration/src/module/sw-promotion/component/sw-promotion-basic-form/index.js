@@ -4,7 +4,7 @@ import template from './sw-promotion-basic-form.html.twig';
 import './sw-promotion-basic-form.scss';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 const types = Shopware.Utils.types;
 
 Component.register('sw-promotion-basic-form', {
@@ -26,7 +26,7 @@ Component.register('sw-promotion-basic-form', {
 
     data() {
         return {
-            excludedPromotions: []
+            excludedPromotions: null
         };
     },
 
@@ -57,7 +57,7 @@ Component.register('sw-promotion-basic-form', {
     methods: {
         loadExclusions() {
             if (types.isEmpty(this.promotion.exclusionIds)) {
-                this.excludedPromotions = [];
+                this.excludedPromotions = this.createPromotionCollection();
                 return;
             }
 
@@ -81,6 +81,10 @@ Component.register('sw-promotion-basic-form', {
             promotions.forEach((promotion) => {
                 this.promotion.exclusionIds.push(promotion.id);
             });
+        },
+
+        createPromotionCollection() {
+            return new EntityCollection('/promotion', 'promotion', this.context, new Criteria());
         }
     }
 });

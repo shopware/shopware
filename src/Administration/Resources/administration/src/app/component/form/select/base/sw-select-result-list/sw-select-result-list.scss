@@ -1,0 +1,27 @@
+@import "~scss/variables";
+
+$sw-select-result-list-transition: all ease-in-out 0.2s;
+
+.sw-select-result-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    width: 100%;
+    max-height: 315px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    left: 0;
+    z-index: $z-index-select-results;
+    border: 1px solid $color-gray-100;
+    box-shadow: 0 3px 6px 0 $color-gray-300;
+    background-color: $color-white;
+    font-size: $font-size-small;
+    font-family: $font-family-default;
+
+    .sw-select-result-list__item-list {
+        list-style: none;
+    }
+
+    .sw-select-result-list__empty {
+        padding: 10px 16px;
+    }
+}

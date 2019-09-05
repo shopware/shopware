@@ -2,16 +2,28 @@ import template from './sw-cms-el-config-product-slider.html.twig';
 import './sw-cms-el-config-product-slider.scss';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 Component.register('sw-cms-el-config-product-slider', {
     template,
+
+    inject: ['repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('cms-element')
     ],
 
+    data() {
+        return {
+            productCollection: null
+        };
+    },
+
     computed: {
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
         products() {
             if (this.element.data && this.element.data.products && this.element.data.products.length > 0) {
                 return this.element.data.products;
@@ -35,20 +47,28 @@ Component.register('sw-cms-el-config-product-slider', {
     methods: {
         createdComponent() {
             this.initElementConfig('product-slider');
+
+            this.productCollection = new EntityCollection('/product', 'product', this.context);
+
+            // We have to fetch the assigned entities again
+            // ToDo: Fix with NEXT-4830
+            if (this.element.config.products.value.length > 0) {
+                const criteria = new Criteria(1, 100);
+                criteria.setIds(this.element.config.products.value);
+                this.productRepository.search(criteria, this.context).then(result => {
+                    this.productCollection = result;
+                });
+            }
         },
 
-        onProductsChange(products) {
-            this.element.config.products.value = [];
-
-            products.forEach((product) => {
-                this.element.config.products.value.push(product.id);
-            });
+        onProductsChange() {
+            this.element.config.products.value = this.productCollection.getIds();
 
             if (!this.element.data) {
                 this.$set(this.element, 'data', {});
             }
 
-            this.$set(this.element.data, 'products', products);
+            this.$set(this.element.data, 'products', this.productCollection);
         }
     }
 });

@@ -19,7 +19,9 @@ Component.register('sw-promotion-order-condition-form', {
 
     computed: {
         ruleFilter() {
-            return Criteria.multi('AND', [
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.multi('AND', [
                 Criteria.equalsAny('conditions.type', [
                     'customerOrderCount', 'customerDaysSinceLastOrder', 'customerBillingCountry',
                     'customerBillingStreet', 'customerBillingZipCode', 'customerCustomerGroup',
@@ -28,7 +30,9 @@ Component.register('sw-promotion-order-condition-form', {
                     'customerShippingZipCode'
                 ]),
                 Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
-            ]);
+            ]));
+
+            return criteria;
         },
 
         isEditingDisabled() {

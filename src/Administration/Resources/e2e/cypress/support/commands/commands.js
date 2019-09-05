@@ -93,8 +93,8 @@ Cypress.Commands.add('typeAndCheck', {
 Cypress.Commands.add('typeMultiSelectAndCheck', {
     prevSubject: 'element'
 }, (subject, value, options = {}) => {
-    const resultPrefix = '.sw-multi-select';
-    const inputCssSelector = `${resultPrefix}__input`;
+    const resultPrefix = '.sw-select';
+    const inputCssSelector = '.sw-select-selection-list__input';
     const searchTerm = options.searchTerm || value;
     const position = options.position || 0;
 
@@ -127,7 +127,7 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
         .click({force: true});
 
     // in multi selects we can check if the value is the selected item
-    cy.get(`${subject.selector} ${resultPrefix}__selection-item-holder--0`).contains(value);
+    cy.get(`${subject.selector} .sw-select-selection-list__item-holder--0`).contains(value);
 
     // close search results
     cy.get(`${subject.selector} ${inputCssSelector}`).type('{esc}');

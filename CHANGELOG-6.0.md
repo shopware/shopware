@@ -37,6 +37,13 @@ You can use them with every URL in your templates
 
 * Administration
     * Moved the global state of the module `sw-cms` to VueX
+    * Renamed rename `sw-many-to-many` to `sw-entity-many-to-many`
+    * Renamed `sw-tag-field-new` to `sw-entity-tag-select`
+    * Added `sw-select-base`, `sw-select-result`, `sw-select-result-list` and `sw-select-selection-list` as base components for select fields
+    * Changed select components in path `administration/src/app/component/form/select` to operate with v-model 
+    * Deprecated `sw-tag-field` use `sw-entity-tag-select` instead
+    * Deprecated `sw-select` use `sw-multi-select` or `sw-single-select` instead
+    * Deprecated `sw-select-option` use `sw-result-option` instead
     * Moved the `sw-cms` from `State.getStore()` to `Repository` and added clientsided data resolver
 * Core
     * Added DAL support for multi primary keys. 
@@ -59,11 +66,16 @@ You can use them with every URL in your templates
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
     * Changed the name of `messages.<locale>.json` to `storefront.<locale>.json` and changed to **not** be a base file anymore.
     * Added `extractIdsToUpdate` to `Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface`
+    
 **Removals**
 
-* Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function
-* Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria`
-* Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociationPath` use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociation` instead
-* Removed `\Shopware\Core\Checkout\Order\Api\OrderActionController` which is now replaced by the generic `\Shopware\Core\System\StateMachine\Api\StateMachineActionController`
-* Removed `\Shopware\Core\Checkout\Order\Api\OrderDeliveryActionController` which is now replaced by the generic `\Shopware\Core\System\StateMachine\Api\StateMachineActionController`
-* Removed `\Shopware\Core\Checkout\Order\Api\OrderTransactionActionController` which is now replaced by the generic `\Shopware\Core\System\StateMachine\Api\StateMachineActionController`
+* Administration
+    * Removed `sw-tag-multi-select`
+    * Removed `sw-multi-select-option` use `sw-result-option` instead
+* Core
+    * Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function
+    * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria`
+    * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociationPath` use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociation` instead
+    * Removed `\Shopware\Core\Checkout\Order\Api\OrderActionController` which is now replaced by the generic `\Shopware\Core\System\StateMachine\Api\StateMachineActionController`
+    * Removed `\Shopware\Core\Checkout\Order\Api\OrderDeliveryActionController` which is now replaced by the generic `\Shopware\Core\System\StateMachine\Api\StateMachineActionController`
+    * Removed `\Shopware\Core\Checkout\Order\Api\OrderTransactionActionController` which is now replaced by the generic `\Shopware\Core\System\StateMachine\Api\StateMachineActionController`

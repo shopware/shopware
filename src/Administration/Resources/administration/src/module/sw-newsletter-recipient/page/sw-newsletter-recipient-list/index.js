@@ -1,10 +1,9 @@
 import LocalStore from 'src/core/data/LocalStore';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
 import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
 
 const { Component, Mixin, State } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 Component.register('sw-newsletter-recipient-list', {
     template,

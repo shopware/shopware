@@ -35,10 +35,9 @@
                                         class="sw-cms-el-config-product-slider__products"
                                         :label="$tc('sw-cms.elements.labelProductSliderSelection')"
                                         :placeholder="$tc('sw-cms.elements.placeholderProductSliderSelection')"
-                                        localMode
-                                        @input="onProductsChange"
-                                        :criteria="productMediaFilter"
-                                        entity="product">
+                                        v-model="productCollection"
+                                        @change="onProductsChange"
+                                        :criteria="productMediaFilter">
                                 </sw-entity-multi-select>
                             {% endblock %}
                         </sw-container>

@@ -155,12 +155,16 @@ Component.register('my-component', {
     }
 ```
 Where the criteria is the required criteria for this entity
-
 (in this case `const criteria = new Criteria(); criteria.addAssociation('cover');`).
- 
-Furthermore you can now define your custon `collect` and `enrich` method in the `cmsService.registerCmsElement` method.
-
+Furthermore you can now define your custom `collect` and `enrich` method in the `cmsService.registerCmsElement` method.
 See `2019-09-02-cms-remove-store.md` for more information
+
+* Refactored select components and folder structure
+    * Select components are now located in the folder `administration/src/app/component/form/select` divided in the subfolders `base` and `entity` 
+        * `base` contains the base components for creating new selects and the static `sw-single-select` and `sw-multi-select`
+        * `entity` contains components working with the api such as `sw-entity-multi-select` or `sw-entity-tag-select`
+    * Components work with v-model and do not mutate the value property anymore
+    * Components are based on the sw-field base components to provide a consistent styling, error handling etc for all form fields   
 
 Storefront
 ----------

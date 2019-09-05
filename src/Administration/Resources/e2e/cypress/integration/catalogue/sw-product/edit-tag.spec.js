@@ -36,19 +36,19 @@ describe('Product: Tagging product', () => {
         );
 
         // Use existing ones
-        cy.get('.sw-tag-field').click();
-        cy.get('.sw-tag-field input').type('Schöner');
+        cy.get('.sw-product-category-form__tag-field').click();
+        cy.get('.sw-product-category-form__tag-field input').type('Schöner');
         cy.contains('Schöner Tag').click();
-        cy.get('.sw-tag-field .sw-label').contains('Schöner Tag');
+        cy.get('.sw-product-category-form__tag-field .sw-label').contains('Schöner Tag');
 
         // Add existing tag
         cy.get(`.product-basic-form ${page.elements.loader}`).should('not.exist');
         cy.get(page.elements.smartBarHeader).contains('Product name');
-        cy.get('.sw-tag-field').should('be.visible');
+        cy.get('.sw-product-category-form__tag-field').should('be.visible');
 
         // Create new tag
-        cy.get('.sw-tag-field .sw-multi-select__selection-item-input input').clear();
-        page.createTag('What does it means[TM]???', 1);
+        cy.get('.sw-product-category-form__tag-field input').clear();
+        page.createTag('What does it means[TM]???');
 
         // Save product with tag
         cy.get(page.elements.productSaveAction).click();

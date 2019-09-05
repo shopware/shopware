@@ -32,13 +32,17 @@ Component.register('sw-promotion-cart-condition-form', {
         },
 
         ruleFilter() {
-            return Criteria.multi('AND', [
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.multi('AND', [
                 Criteria.equalsAny('conditions.type', [
                     'cartHasDeliveryFreeItem', 'cartWeight', 'cartLineItemsInCart', 'cartLineItemsInCartCount',
                     'cartGoodsCount', 'cartGoodsPrice'
                 ]),
                 Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
-            ]);
+            ]));
+
+            return criteria;
         },
 
         packagers() {

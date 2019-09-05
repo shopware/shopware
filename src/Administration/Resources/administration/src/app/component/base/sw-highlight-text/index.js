@@ -49,8 +49,13 @@ Component.register('sw-highlight-text', {
             const prefix = '<span class="sw-highlight-text__highlight">';
             const suffix = '</span>';
 
-            const regExp = new RegExp(this.searchTerm, 'ig');
+            const regExp = new RegExp(this.escapeRegExp(this.searchTerm), 'ig');
             return this.text.replace(regExp, str => `${prefix}${str}${suffix}`);
+        },
+
+        // Remove regex special characters from search string
+        escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
         }
     }
 });

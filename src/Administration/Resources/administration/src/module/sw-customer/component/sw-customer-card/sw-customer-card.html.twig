@@ -102,11 +102,12 @@
                                         {% endblock %}
 
                                         {% block sw_customer_card_metadata_customer_tag %}
-                                            <sw-tag-multi-select :entity="customer"
-                                                                 :size="editMode ? 'default' : 'small'"
-                                                                 :disabled="!editMode"
-                                                                 :showLabel="editMode ? true : false">
-                                            </sw-tag-multi-select >
+                                            <sw-entity-tag-select :label="editMode ? $tc('sw-customer.baseForm.labelTags') : ''"
+                                                                  class="sw-customer-card__tag-select"
+                                                                  :disabled="!editMode"
+                                                                  :size="editMode ? 'default' : 'medium'"
+                                                                  v-model="customer.tags">
+                                            </sw-entity-tag-select>
                                         {% endblock %}
 
                                         {% block sw_customer_card_metadata_additional %}

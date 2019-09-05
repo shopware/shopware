@@ -63,6 +63,9 @@ Component.register('sw-product-detail-base', {
         },
 
         reviewItemData() {
+            if (!this.product.productReviews) {
+                return null;
+            }
             this.product.productReviews.forEach((review) => {
                 review.additional = true;
             });

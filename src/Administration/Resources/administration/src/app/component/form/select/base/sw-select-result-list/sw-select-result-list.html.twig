@@ -1,0 +1,25 @@
+{% block sw_select_result_list %}
+    <div class="sw-select-result-list" @scroll="onScroll">
+        <div class="sw-select-result-list__content">
+            <slot name="before-item-list"></slot>
+
+            <ul class="sw-select-result-list__item-list">
+                <template v-for="(item, index) in options">
+                    <slot name="result-item" v-bind="{ item, index }"></slot>
+                </template>
+            </ul>
+
+            <slot name="after-item-list"></slot>
+
+            <div v-if="!isLoading && options && options.length < 1" class="sw-select-result-list__empty">
+                {% block sw_select_result_list_empty_icon %}
+                    <sw-icon name="default-action-search" size="20px"></sw-icon>
+                {% endblock %}
+
+                {% block sw_select_result_list_empty_text %}
+                    {{ emptyMessageText }}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

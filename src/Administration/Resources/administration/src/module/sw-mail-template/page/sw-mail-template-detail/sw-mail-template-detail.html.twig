@@ -58,14 +58,13 @@
 
                         {% block sw_mail_template_basic_form_sales_channels_field %}
                             <sw-entity-multi-select
-                                :selectedEntities="mailTemplateSalesChannels"
+                                ref="mailTemplateSalesChannelSelect"
+                                v-model="mailTemplateSalesChannels"
                                 v-if="mailTemplateSalesChannels !== null"
-                                ref="mailTemplateSalesChannel"
                                 labelProperty="name"
                                 :criteria="salesChannelTypeCriteria"
                                 :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
-                                :placeholder="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
-                                entity="sales_channel">
+                                :placeholder="$tc('sw-mail-template.detail.basic.labelSalesChannels')">
                             </sw-entity-multi-select>
                         {% endblock %}
 

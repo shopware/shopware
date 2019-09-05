@@ -3,6 +3,7 @@ import { mapState, mapGetters } from 'vuex';
 import template from './sw-product-category-form.html.twig';
 
 const { Component } = Shopware;
+const { EntityCollection, Criteria } = Shopware.Data;
 
 Component.register('sw-product-category-form', {
     template,
@@ -12,7 +13,8 @@ Component.register('sw-product-category-form', {
     data() {
         return {
             displayVisibilityDetail: false,
-            multiSelectVisible: true
+            multiSelectVisible: true,
+            salesChannel: null
         };
     },
 
@@ -38,19 +40,21 @@ Component.register('sw-product-category-form', {
         }
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.salesChannel = new EntityCollection('/sales-channel', 'sales_channel', this.context, new Criteria());
+        },
+
         displayAdvancedVisibility() {
             this.displayVisibilityDetail = true;
         },
 
         closeAdvancedVisibility() {
             this.displayVisibilityDetail = false;
-        },
-
-        reloadProductVisibility() {
-            this.$nextTick(() => {
-                this.$refs.productVisibility.reloadVisibleItems();
-            });
         }
     }
 });

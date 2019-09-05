@@ -30,7 +30,8 @@
     },
     "categoryForm": {
       "labelCategory": "Category assignment",
-      "placeholderCategory": "Select category..."
+      "placeholderCategory": "Select category...",
+      "placeholderTags": "Enter a tag..."
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",

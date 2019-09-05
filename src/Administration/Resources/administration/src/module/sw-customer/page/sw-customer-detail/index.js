@@ -130,7 +130,8 @@ Component.register('sw-customer-detail', {
                         'defaultBillingAddress.country',
                         'defaultBillingAddress.salutation',
                         'defaultShippingAddress.country',
-                        'defaultShippingAddress.salutation'
+                        'defaultShippingAddress.salutation',
+                        'tags'
                     ]);
 
                     this.customerRepository.get(this.customerId, this.context, criteria).then((customer) => {

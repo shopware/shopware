@@ -174,8 +174,8 @@ Component.register('sw-inherit-wrapper', {
             // if association
             if (this.isAssociation) {
                 // remove all items from value
-                this.value.forEach((item) => {
-                    this.value.remove(item.id);
+                this.value.getIds().forEach((id) => {
+                    this.value.remove(id);
                 });
 
                 // return new value

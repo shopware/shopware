@@ -11,7 +11,7 @@
             box-sizing: border-box;
             grid-template-columns: minmax(150px, 200px) minmax(120px, 150px);
             background-color: $color-white;
-            max-height: 47px;
+            max-height: 48px;
             border-radius: 4px 0 0 4px;
             border-top: 1px solid $color-steam-cloud;
             border-bottom: 1px solid $color-steam-cloud;
@@ -27,7 +27,7 @@
 
         .sw-field.sw-product-restriction-selection__select-group select {
             color: $color-white;
-            background-color: #758CA3;
+            background-color: #758ca3;
             border-width: 0;
         }
 
@@ -79,7 +79,7 @@
             padding-right: 8px;
         }
 
-        .sw-product-restriction-selection__isFrom::after, .sw-product-restriction-selection__isFrom::before {
+        .sw-product-restriction-selection__isFrom::after .sw-product-restriction-selection__isFrom::before {
             content: '';
             position: absolute;
             width: 0;
@@ -90,36 +90,37 @@
             right: 0;
             transform: translate(calc(100% + 1px), 0);
         }
+
         .sw-product-restriction-selection__isFrom::before {
             background-color: #fff;
         }
+
         .sw-product-restriction-selection__isFrom::after {
             border-color: transparent transparent transparent $color-white;
             right: 1px;
         }
 
-        .sw-multi-select.sw-multi-select--multi .sw-multi-select__inner {
-            height: 100%;
-            min-height: 47px;
+        .sw-multi-select {
             border: 1px solid $color-steam-cloud;
             border-radius: 0;
         }
 
-        .sw-multi-select.sw-multi-select--multi .sw-multi-select__selection-item-input {
+        .sw-multi-select .sw-multi-select__selection-item-input {
             max-width: 0;
         }
 
-        .sw-multi-select.sw-multi-select--multi .sw-multi-select__results {
+        .sw-multi-select .sw-multi-select__results {
             border-color: $color-steam-cloud;
         }
 
-        .sw-multi-select.sw-multi-select--multi .sw-multi-select__results-list {
+        .sw-multi-select .sw-multi-select__results-list {
             max-height: 140px;
         }
 
         .sw-product-restriction-selection__select-option-wrapper .sw-context-button {
             display: flex;
             justify-content: center;
+            height: 48px;
             align-items: center;
             background-color: $color-white;
             border: 1px solid $color-steam-cloud;

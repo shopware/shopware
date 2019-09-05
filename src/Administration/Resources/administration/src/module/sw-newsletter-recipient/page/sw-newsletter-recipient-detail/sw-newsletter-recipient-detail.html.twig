@@ -100,7 +100,9 @@
                         {% endblock %}
 
                         {% block sw_newsletter_recipient_detail_form_tags %}
-                            <sw-tag-multi-select :entity="newsletterRecipient"></sw-tag-multi-select>
+                            <sw-entity-tag-select :label="$tc('sw-newsletter-recipient.general.tags')"
+                                                  v-model="newsletterRecipient.tags">
+                            </sw-entity-tag-select>
                         {% endblock %}
 
                     {% endblock %}

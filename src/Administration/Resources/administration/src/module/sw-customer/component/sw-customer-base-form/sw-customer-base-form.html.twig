@@ -126,7 +126,9 @@
         </sw-container>
 
         {% block sw_customer_base_form_tag_field %}
-            <sw-tag-multi-select :entity="customer"></sw-tag-multi-select >
+            <sw-entity-tag-select :label="$tc('sw-customer.baseForm.labelTags')"
+                                  v-model="customer.tags">
+            </sw-entity-tag-select>
         {% endblock %}
     </div>
 {% endblock %}

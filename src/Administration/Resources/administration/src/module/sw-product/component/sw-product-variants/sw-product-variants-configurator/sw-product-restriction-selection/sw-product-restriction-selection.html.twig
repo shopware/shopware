@@ -40,7 +40,10 @@
                             :options="options"
                             valueProperty="optionId">
 
-                            <template slot="labelProperty" slot-scope="{ item }">
+                            <template slot="selection-label-property" slot-scope="{ item }">
+                                {{ item.option.translated.name }}
+                            </template>
+                            <template slot="result-label-property" slot-scope="{ item }">
                                 {{ item.option.translated.name }}
                             </template>
                         </sw-multi-select>

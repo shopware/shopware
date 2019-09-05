@@ -93,7 +93,8 @@
       "buttonAddDeliveryAddress" : "Neue Addresse hinzufügen",
       "labelSameDeliveryAndBillingAddress" : "Rechnungs- und Lieferadresse sind identisch",
       "tax": "Enthaltene Steuern:",
-      "shippingCostsTax": "{taxRate}%: {tax}"
+      "shippingCostsTax": "{taxRate}%: {tax}",
+      "placeholderTagSelect": "Tags durchsuchen..."
     },
     "addressSelection": {
       "modalTitleEditAddress": "Adressen",

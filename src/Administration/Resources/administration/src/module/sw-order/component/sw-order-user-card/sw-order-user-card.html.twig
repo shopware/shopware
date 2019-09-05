@@ -44,13 +44,15 @@
                                     {% endblock %}
                                     {% block sw_order_user_card_metadata_tags %}
                                         {# TODO: add versioning after NEXT-3898 and activate it editing mode and disable in non-editing mode #}
-                                        <sw-tag-multi-select v-if="isEditing || hasTags"
-                                                             :entity="currentOrder"
-                                                             :size="!isEditing ? 'default' : 'small'"
-                                                             :disabled="!isEditing"
-                                                             :showLabel="false"
-                                                             @change-selection="emitChange">
-                                        </sw-tag-multi-select >
+                                        <sw-entity-tag-select v-if="isEditing || hasTags"
+                                                              class="sw-order-user-card__tag-select"
+                                                              :placeholder="$tc('sw-order.detailBase.placeholderTagSelect')"
+                                                              :size="!isEditing ? 'default' : 'medium'"
+                                                              :disabled="!isEditing"
+                                                              :entityCollection="currentOrder.tags"
+                                                              @item-add="onAddTag"
+                                                              @item-remove="onRemoveTag">
+                                        </sw-entity-tag-select>
                                     {% endblock %}
                                 </div>
                             {% endblock %}

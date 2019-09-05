@@ -1,0 +1,183 @@
+import template from './sw-select-result-list.html.twig';
+import './sw-select-result-list.scss';
+
+const { Component } = Shopware;
+
+/**
+ * @public
+ * @status ready
+ * @description Base component for rendering result lists.
+ * @example-type code-only
+ */
+Component.register('sw-select-result-list', {
+    template,
+
+    provide() {
+        return {
+            setActiveItemIndex: this.setActiveItemIndex
+        };
+    },
+
+    props: {
+        options: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            }
+        },
+
+        emptyMessage: {
+            type: String,
+            required: false,
+            default: null
+        },
+
+        focusEl: {
+            type: [HTMLDocument, HTMLElement],
+            required: false,
+            default() { return document; }
+        },
+
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
+    data() {
+        return {
+            activeItemIndex: 0
+        };
+    },
+
+    computed: {
+        emptyMessageText() {
+            return this.emptyMessage || this.$tc('global.sw-select-result-list.messageNoResults');
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    mounted() {
+        this.mountedComponent();
+    },
+
+    beforeDestroy() {
+        this.beforeDestroyedComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.addEventListeners();
+        },
+
+        mountedComponent() {
+            // Set first item active
+            this.emitActiveItemIndex();
+        },
+
+        beforeDestroyedComponent() {
+            this.removeEventListeners();
+        },
+
+        setActiveItemIndex(index) {
+            this.activeItemIndex = index;
+            this.emitActiveItemIndex();
+        },
+
+        addEventListeners() {
+            this.focusEl.addEventListener('keydown', this.navigate);
+        },
+
+        removeEventListeners() {
+            this.focusEl.removeEventListener('keydown', this.navigate);
+        },
+
+        emitActiveItemIndex() {
+            this.$emit('changed-active-item', this.activeItemIndex);
+        },
+
+        navigate({ key }) {
+            key = key.toUpperCase();
+            if (key === 'ARROWDOWN') {
+                this.navigateNext();
+                return;
+            }
+
+            if (key === 'ARROWUP') {
+                this.navigatePrevious();
+                return;
+            }
+
+            if (key === 'ENTER') {
+                this.emitClicked();
+            }
+        },
+
+        navigateNext() {
+            if (this.activeItemIndex >= this.options.length - 1) {
+                this.$emit('paginate');
+                return;
+            }
+
+            this.activeItemIndex += 1;
+
+            this.emitActiveItemIndex();
+            this.updateScrollPosition();
+        },
+
+        navigatePrevious() {
+            if (this.activeItemIndex > 0) {
+                this.activeItemIndex -= 1;
+            }
+
+            this.emitActiveItemIndex();
+            this.updateScrollPosition();
+        },
+
+        updateScrollPosition() {
+            // wait until the new active item is rendered and has the active class
+            this.$nextTick(() => {
+                const resultContainer = this.$el;
+                const activeItem = resultContainer.querySelector('.is--active');
+                const itemHeight = activeItem.offsetHeight;
+                const activeItemPosition = activeItem.offsetTop;
+                const actualScrollTop = resultContainer.scrollTop;
+
+                if (activeItemPosition === 0) {
+                    return;
+                }
+
+                // Check if we need to scroll down
+                if (resultContainer.offsetHeight + actualScrollTop < activeItemPosition + itemHeight) {
+                    resultContainer.scrollTop += itemHeight;
+                }
+
+                // Check if we need to scroll up
+                if (actualScrollTop !== 0 && activeItemPosition - actualScrollTop - itemHeight <= 0) {
+                    resultContainer.scrollTop -= itemHeight;
+                }
+            });
+        },
+
+        emitClicked(originalDomEvent) {
+            this.$emit('item-select', this.options[this.activeItemIndex], originalDomEvent);
+        },
+
+        onScroll(event) {
+            if (this.getBottomDistance(event.target) !== 0) {
+                return;
+            }
+
+            this.$emit('paginate');
+        },
+
+        getBottomDistance(element) {
+            return element.scrollHeight - element.clientHeight - element.scrollTop;
+        }
+    }
+});

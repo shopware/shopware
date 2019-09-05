@@ -13,14 +13,14 @@ export default class ProductPageObject extends GeneralPageObject {
         };
     }
 
-    createTag(value, position = 0) {
-        cy.get('.sw-tag-field .sw-multi-select__selection-item-input input')
+    createTag(value) {
+        cy.get('.sw-product-category-form__tag-field input')
             .type(value);
-        cy.get('.sw-multi-select__results-empty-message').contains(`No results found for "${value}".`);
-        cy.get('.sw-tag-field .sw-multi-select__selection-item-input input')
+        cy.get('.sw-select-result-list').contains(`Add "${value}"`);
+        cy.get('.sw-product-category-form__tag-field input')
             .type('{enter}');
-        cy.get(`.sw-multi-select__selection-item-holder--${position}`).contains(value);
-        cy.get('.sw-tag-field .sw-multi-select__selection-item-input input').type('{esc}');
+        cy.get('.sw-select-result-list').contains(value);
+        cy.get('.sw-product-category-form__tag-field input').type('{esc}');
     }
 
     changeTranslation(language, position) {

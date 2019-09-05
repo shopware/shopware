@@ -1,0 +1,25 @@
+{% block sw_select_result %}
+    <li class="sw-select-result"
+        :class="resultClasses"
+        @mouseenter="onMouseEnter"
+        @click.stop="onClickResult">
+        {% block sw_select_result_item_text_holder %}
+            <span class="sw-select-result__result-item-text">
+                 {% block sw_select_result_item_text %}
+                     <slot></slot>
+                 {% endblock %}
+             </span>
+        {% endblock %}
+
+        {% block sw_select_result_item_icon_transition %}
+            <transition name="sw-select-result-appear">
+                {% block sw_select_result_item_icon %}
+                    <sw-icon v-if="selected"
+                             name="small-default-checkmark-line-medium"
+                             size="16px">
+                    </sw-icon>
+                {% endblock %}
+            </transition>
+        {% endblock %}
+    </li>
+{% endblock %}

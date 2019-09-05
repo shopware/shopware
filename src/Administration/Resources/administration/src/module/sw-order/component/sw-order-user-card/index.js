@@ -54,11 +54,19 @@ Component.register('sw-order-user-card', {
             return this.repositoryFactory.create('order_address');
         },
 
+        OrderTagRepository() {
+            return this.repositoryFactory.create(
+                this.currentOrder.tags.entity,
+                this.currentOrder.tags.source
+            );
+        },
+
         billingAddress() {
             return this.currentOrder.addresses.find((address) => {
                 return address.id === this.currentOrder.billingAddressId;
             });
         },
+
         delivery() {
             return this.currentOrder.deliveries[0];
         },
@@ -69,16 +77,20 @@ Component.register('sw-order-user-card', {
             }
             return '';
         },
+
         hasDeliveries() {
             return this.currentOrder.deliveries.length > 0;
         },
+
         hasDeliveryTrackingCode() {
             return this.hasDeliveries && this.delivery.trackingCode;
         },
+
         hasDifferentBillingAndShippingAddress() {
             return this.hasDeliveries &&
                 this.billingAddress.id !== this.delivery.shippingOrderAddress.id;
         },
+
         lastChangedDate() {
             if (this.currentOrder) {
                 if (this.currentOrder.updatedAt) {
@@ -188,8 +200,21 @@ Component.register('sw-order-user-card', {
                 this.$emit('error', error);
             });
         },
+
         emitChange() {
             this.$emit('order-change');
+        },
+
+        onAddTag(item) {
+            this.OrderTagRepository.assign(item.id, this.context).then(() => {
+                this.emitChange();
+            });
+        },
+
+        onRemoveTag(item) {
+            this.OrderTagRepository.delete(item.id, this.context).then(() => {
+                this.emitChange();
+            });
         }
     }
 

@@ -4,6 +4,11 @@ import './sw-tag-field.scss';
 
 const { Component, State } = Shopware;
 
+/**
+ * @public
+ * @status deprecated 6.1
+ * @example-type code-only
+ */
 Component.register('sw-tag-field', {
     template,
 

@@ -30,7 +30,8 @@
     },
     "categoryForm": {
       "labelCategory": "Kategorie",
-      "placeholderCategory": "Tippe, um Kategorien zu suchen ..."
+      "placeholderCategory": "Tippe, um Kategorien zu suchen ...",
+      "placeholderTags": "Gib einen Tag ein ..."
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",

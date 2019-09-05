@@ -1,9 +1,8 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Application, Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Mixin } = Shopware;
+const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-mail-template-detail', {
@@ -23,7 +22,6 @@ Component.register('sw-mail-template-detail', {
             mailTemplateId: null,
             isLoading: false,
             isSaveSuccessful: false,
-            eventAssociationStore: {},
             mailTemplateType: {},
             mailTemplateSalesChannels: null,
             mailTemplateSalesChannelsAssoc: {},
@@ -106,16 +104,6 @@ Component.register('sw-mail-template-detail', {
                 this.mailTemplateId = this.$route.params.id;
                 this.loadEntityData();
             }
-            const initContainer = Application.getContainer('init');
-            const httpClient = initContainer.httpClient;
-
-            this.eventAssociationStore = new LocalStore();
-
-            httpClient.get('_info/business-events.json').then((response) => {
-                Object.keys(response.data.events).forEach((eventName) => {
-                    this.eventAssociationStore.add(eventName);
-                });
-            });
         },
 
         loadEntityData() {
@@ -126,14 +114,16 @@ Component.register('sw-mail-template-detail', {
             criteria.addAssociation('mailTemplateType');
             this.mailTemplateRepository.get(this.mailTemplateId, this.context, criteria).then((item) => {
                 this.mailTemplate = item;
-                this.mailTemplateSalesChannels = null;
-                const tempArray = [];
+                this.mailTemplateSalesChannels = this.createSalesChannelCollection();
                 this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
-                    tempArray.push(salesChannelAssoc.salesChannel);
+                    this.mailTemplateSalesChannels.push(salesChannelAssoc.salesChannel);
                 });
-                this.mailTemplateSalesChannels = tempArray;
                 this.onChangeType(this.mailTemplate.mailTemplateType.id);
             });
+        },
+
+        createSalesChannelCollection() {
+            return new EntityCollection('/sales-channel', 'sales_channel', this.context);
         },
 
         getMailTemplateType() {
@@ -250,6 +240,8 @@ Component.register('sw-mail-template-detail', {
                 this.selectedType = item;
             });
 
+            // Reset the selected salesChannel
+            this.mailTemplateSalesChannels = this.createSalesChannelCollection();
             const mailTemplateSalesChannelsEntry = this.repositoryFactory.create('mail_template_sales_channel');
             const mailTemplateSalesChannelCriteria = new Criteria();
             mailTemplateSalesChannelCriteria.addFilter(
@@ -308,6 +300,8 @@ Component.register('sw-mail-template-detail', {
                         ]));
                 }
             }
+            // Reset the results of the select field. So it fetches new results with the new criteria
+            this.$refs.mailTemplateSalesChannelSelect.resetResultCollection();
         },
         enrichAssocStores(responseAssoc) {
             this.mailTemplateSalesChannelsAssoc = responseAssoc;
@@ -323,7 +317,7 @@ Component.register('sw-mail-template-detail', {
         },
         handleSalesChannel() {
             // check selected saleschannels and associate to config
-            const selectedIds = this.$refs.mailTemplateSalesChannel.selectedIds;
+            const selectedIds = this.mailTemplateSalesChannels.getIds();
             if (selectedIds && selectedIds.length > 0) {
                 selectedIds.forEach((salesChannelId) => {
                     if (!this.mailTemplateHasSaleschannel(salesChannelId)) {
@@ -351,10 +345,7 @@ Component.register('sw-mail-template-detail', {
 
         salesChannelIsSelected(salesChannelId) {
             // SalesChannel is selected in select field?
-            return (
-                this.$refs.mailTemplateSalesChannel.selectedIds &&
-                this.$refs.mailTemplateSalesChannel.selectedIds.includes(salesChannelId)
-            );
+            return this.mailTemplateSalesChannels.has(salesChannelId);
         },
 
         undeleteSaleschannel(salesChannelId) {

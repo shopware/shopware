@@ -9,7 +9,7 @@
             <slot name="prefix" v-bind="{disabled, identification}"></slot>
         </template>
 
-        <template #sw-field-input="{ identification, error, disabled, swBlockSize, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
+        <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
             <input type="text"
                 :name="identification"
                 :id="identification"

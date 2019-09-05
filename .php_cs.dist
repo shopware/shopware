@@ -46,6 +46,7 @@ return Config::create()
         'php_unit_method_casing' => ['case' => 'camel_case'],
         'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
         'php_unit_test_case_static_method_calls' => true,
+        'php_unit_dedicate_assert' => ['target' => 'newest'],
         // comparisons should always be strict
         'strict_comparison' => true,
         // functions should be used with $strict param set to true

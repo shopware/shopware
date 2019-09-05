@@ -1,13 +1,30 @@
-.sw-cms-el-preview-category-navigation {
-    align-items: center;
-    display: grid;
-    grid-template-columns: 20px 1fr 20px;
-    grid-gap: 5px;
-    height: 100%;
-    padding: 5px;
+@import "~scss/variables";
 
-    .sw-cms-preview-category-navigation__category-box {
-        border-color: #0c5460;
-        border-radius: 2px;
+.sw-cms-preview-category-navigation {
+    width: 100%;
+    background: $color-white;
+    font-size: 22px;
+    color: $color-darkgray-200;
+    font-weight: 600;
+
+    .sw-cms-el-category-placeholder-listing div {
+        margin: 10px 30px;
+        height: 0.7em;
+        border-radius: 4px;
+        background-color: $color-gray-100;
+
+        &.sw-cms-el-category-navigation__placeholder--subcategory {
+            margin: 7px 30px 7px 70px;
+        }
+    }
+
+    hr {
+        max-width: 90%;
+        margin: 10px auto;
+        border: 1px solid $color-steam-cloud;
+    }
+
+    p {
+        margin: auto 10px;
     }
 }

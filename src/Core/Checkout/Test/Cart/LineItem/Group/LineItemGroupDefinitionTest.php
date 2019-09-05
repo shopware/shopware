@@ -19,7 +19,7 @@ class LineItemGroupDefinitionTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testPackagerKeyProperty()
+    public function testPackagerKeyProperty(): void
     {
         $group = new LineItemGroupDefinition('COUNT', 2, 'PRICE_ASC', new RuleCollection());
 
@@ -33,7 +33,7 @@ class LineItemGroupDefinitionTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testValueProperty()
+    public function testValueProperty(): void
     {
         $group = new LineItemGroupDefinition('COUNT', 2, 'PRICE_ASC', new RuleCollection());
 
@@ -47,7 +47,7 @@ class LineItemGroupDefinitionTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function tesSorterKeyProperty()
+    public function tesSorterKeyProperty(): void
     {
         $group = new LineItemGroupDefinition('COUNT', 2, 'PRICE_ASC', new RuleCollection());
 
@@ -61,7 +61,7 @@ class LineItemGroupDefinitionTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testRulesProperty()
+    public function testRulesProperty(): void
     {
         $ruleEntity = $this->buildRuleEntity(
             $this->getMinQuantityRule(Uuid::randomBytes(), 2)

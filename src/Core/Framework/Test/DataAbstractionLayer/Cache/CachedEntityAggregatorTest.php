@@ -208,7 +208,7 @@ class CachedEntityAggregatorTest extends TestCase
         static::assertNotEquals($databaseEntities->getAggregations(), $cachedEntities->getAggregations());
     }
 
-    public function testDisableCacheOption()
+    public function testDisableCacheOption(): void
     {
         $dbalReader = $this->createMock(EntityAggregator::class);
 

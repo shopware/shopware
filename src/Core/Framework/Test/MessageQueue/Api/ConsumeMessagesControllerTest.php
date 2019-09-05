@@ -17,7 +17,7 @@ class ConsumeMessagesControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
     use QueueTestBehaviour;
 
-    public function testConsumeMessages()
+    public function testConsumeMessages(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->exec('DELETE FROM scheduled_task');

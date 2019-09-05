@@ -64,5 +64,7 @@ EOF
             ],
         ];
         $output->writeln($dumper->dump($stateMachine, $options));
+
+        return null;
     }
 }

@@ -31,7 +31,7 @@ class ManyToManyIdFieldIndexerTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
     }
 
-    public function testPropertyIndexing()
+    public function testPropertyIndexing(): void
     {
         $productId = Uuid::randomHex();
         $redId = Uuid::randomHex();

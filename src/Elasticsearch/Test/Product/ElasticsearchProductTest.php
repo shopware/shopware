@@ -89,7 +89,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testEmptySearch(ElasticsearchTestData $data)
+    public function testEmptySearch(ElasticsearchTestData $data): void
     {
         $searcher = $this->createEntitySearcher();
 
@@ -102,7 +102,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testPagination(ElasticsearchTestData $data)
+    public function testPagination(ElasticsearchTestData $data): void
     {
         $searcher = $this->createEntitySearcher();
 
@@ -118,7 +118,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testEqualsFilter(ElasticsearchTestData $data)
+    public function testEqualsFilter(ElasticsearchTestData $data): void
     {
         $searcher = $this->createEntitySearcher();
         // check simple equals filter
@@ -133,7 +133,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testRangeFilter(ElasticsearchTestData $data)
+    public function testRangeFilter(ElasticsearchTestData $data): void
     {
         $searcher = $this->createEntitySearcher();
         // check simple range filter
@@ -148,7 +148,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testEqualsAnyFilter(ElasticsearchTestData $data)
+    public function testEqualsAnyFilter(ElasticsearchTestData $data): void
     {
         $searcher = $this->createEntitySearcher();
         // check filter for categories
@@ -164,7 +164,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testValueAggregation(ElasticsearchTestData $data)
+    public function testValueAggregation(ElasticsearchTestData $data): void
     {
         $aggregator = $this->createEntityAggregator();
         $criteria = new Criteria($data->getProductIds());
@@ -188,7 +188,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testQueries(ElasticsearchTestData $data)
+    public function testQueries(ElasticsearchTestData $data): void
     {
         $searcher = $this->createEntitySearcher();
         $criteria = new Criteria($data->getProductIds());
@@ -220,7 +220,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testSingleGroupBy(ElasticsearchTestData $data)
+    public function testSingleGroupBy(ElasticsearchTestData $data): void
     {
         $searcher = $this->createEntitySearcher();
         // check simple equals filter
@@ -243,7 +243,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testMultiGroupBy(ElasticsearchTestData $data)
+    public function testMultiGroupBy(ElasticsearchTestData $data): void
     {
         $searcher = $this->createEntitySearcher();
         // check simple equals filter
@@ -381,7 +381,7 @@ class ElasticsearchTestData
         return $this->categoryIds[$key];
     }
 
-    public function setContext(Context $context)
+    public function setContext(Context $context): void
     {
         $this->context = $context;
     }

@@ -19,7 +19,7 @@ class CartServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testLineItemAddedEventFired()
+    public function testLineItemAddedEventFired(): void
     {
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -40,7 +40,7 @@ class CartServiceTest extends TestCase
         );
     }
 
-    public function testLineItemRemovedEventFired()
+    public function testLineItemRemovedEventFired(): void
     {
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -83,7 +83,7 @@ class CartServiceTest extends TestCase
         static::assertFalse($cart->has($productId));
     }
 
-    public function testLineItemQuantityChangedEventFired()
+    public function testLineItemQuantityChangedEventFired(): void
     {
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -124,7 +124,7 @@ class CartServiceTest extends TestCase
         $cartService->changeQuantity($cart, $productId, 100, $context);
     }
 
-    public function testZeroPricedItemsCanBeAddedToCart()
+    public function testZeroPricedItemsCanBeAddedToCart(): void
     {
         $cartService = $this->getContainer()->get(CartService::class);
 

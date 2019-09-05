@@ -81,7 +81,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testAbsoluteDeliveryDiscount()
+    public function testAbsoluteDeliveryDiscount(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -125,7 +125,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testPercentageDeliveryDiscount()
+    public function testPercentageDeliveryDiscount(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -169,7 +169,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testPercentageAutoDeliveryDiscount()
+    public function testPercentageAutoDeliveryDiscount(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -205,7 +205,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testPercentageAbsoluteDeliveryDiscountCombination()
+    public function testPercentageAbsoluteDeliveryDiscountCombination(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -251,7 +251,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testAbsoluteDeliveryDiscountHigherThanShippingCosts()
+    public function testAbsoluteDeliveryDiscountHigherThanShippingCosts(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -291,7 +291,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testFixedDeliveryDiscountHigherThanShippingCosts()
+    public function testFixedDeliveryDiscountHigherThanShippingCosts(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -331,7 +331,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testFixedDeliveryDiscount()
+    public function testFixedDeliveryDiscount(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -372,7 +372,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testFixedDeliveryDiscountWithCurrency()
+    public function testFixedDeliveryDiscountWithCurrency(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -418,7 +418,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testMultipleDeliveryDiscountsWithFixed()
+    public function testMultipleDeliveryDiscountsWithFixed(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -467,7 +467,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testMultipleDeliveryDiscountsWithoutFixed()
+    public function testMultipleDeliveryDiscountsWithoutFixed(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -514,7 +514,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testMultipleFixedPriceDeliveryDiscounts()
+    public function testMultipleFixedPriceDeliveryDiscounts(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();

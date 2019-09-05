@@ -76,7 +76,7 @@ class ThemeService
         Context $context,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
         bool $withAssets = true
-    ) {
+    ): void {
         $themePluginConfiguration = $this->getPluginConfiguration(
             $salesChannelId,
             $themeId,

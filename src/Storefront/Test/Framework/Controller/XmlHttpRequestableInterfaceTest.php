@@ -9,7 +9,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    public function testPageLoads()
+    public function testPageLoads(): void
     {
         $client = $this->createSalesChannelBrowser(null, true);
         $client->request('GET', getenv('APP_URL'));
@@ -17,7 +17,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
         static::assertEquals(200, $client->getResponse()->getStatusCode());
     }
 
-    public function testAccessDeniedForXmlHttpRequest()
+    public function testAccessDeniedForXmlHttpRequest(): void
     {
         $client = $this->createSalesChannelBrowser(null, true);
 
@@ -26,7 +26,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
         static::assertEquals(403, $client->getResponse()->getStatusCode());
     }
 
-    public function testPageletLoads()
+    public function testPageletLoads(): void
     {
         $client = $this->createSalesChannelBrowser(null, true);
 
@@ -35,7 +35,7 @@ class XmlHttpRequestableInterfaceTest extends TestCase
         static::assertEquals(200, $client->getResponse()->getStatusCode());
     }
 
-    public function testPageletLoadsForXmlHttpRequest()
+    public function testPageletLoadsForXmlHttpRequest(): void
     {
         $client = $this->createSalesChannelBrowser(null, true);
 

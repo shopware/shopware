@@ -34,7 +34,7 @@ class PromotionSetGroupEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPropertyPackagerKey()
+    public function testPropertyPackagerKey(): void
     {
         $group = new PromotionSetGroupEntity();
         $group->setPackagerKey(self::KEY_PACKAGER_COUNT);
@@ -52,7 +52,7 @@ class PromotionSetGroupEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPropertyValue()
+    public function testPropertyValue(): void
     {
         $group = new PromotionSetGroupEntity();
         $group->setPackagerKey('0');
@@ -70,7 +70,7 @@ class PromotionSetGroupEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPropertySorterKey()
+    public function testPropertySorterKey(): void
     {
         $group = new PromotionSetGroupEntity();
         $group->setPackagerKey('0');
@@ -88,7 +88,7 @@ class PromotionSetGroupEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPropertyRules()
+    public function testPropertyRules(): void
     {
         $ruleEntity = new RuleEntity();
         $ruleEntity->setId('R1');

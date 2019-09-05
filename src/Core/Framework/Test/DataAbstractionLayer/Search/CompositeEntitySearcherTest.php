@@ -57,7 +57,7 @@ class CompositeEntitySearcherTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testDefinitionsAreUnique()
+    public function testDefinitionsAreUnique(): void
     {
         $closure = \Closure::fromCallable(function (): array {
             return iterator_to_array($this->definitions);

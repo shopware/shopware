@@ -41,7 +41,7 @@ final class PluginRecommendationCollection extends Collection
         // disallow set
     }
 
-    public function sort(\Closure $closure)
+    public function sort(\Closure $closure): void
     {
         // disallow sorting
     }

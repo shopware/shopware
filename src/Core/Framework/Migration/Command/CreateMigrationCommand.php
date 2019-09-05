@@ -108,6 +108,8 @@ class CreateMigrationCommand extends Command
         }
 
         $this->createMigrationFile($name, $output, $directory, $namespace);
+
+        return null;
     }
 
     private function createMigrationFile(string $name, OutputInterface $output, string $directory, string $namespace): void

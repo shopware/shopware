@@ -112,6 +112,8 @@ class MigrationCommand extends Command
 
         $this->cache->clear();
         $this->io->writeln('cleared the shopware cache');
+
+        return null;
     }
 
     private function finishProgress(int $migrated, int $total): void

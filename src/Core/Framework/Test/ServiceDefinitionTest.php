@@ -22,7 +22,7 @@ class ServiceDefinitionTest extends TestCase
         parent::__construct();
     }
 
-    public function testEverythingIsInstantiatable()
+    public function testEverythingIsInstantiatable(): void
     {
         $seperateKernel = KernelLifecycleManager::createKernel();
         $seperateKernel->boot();

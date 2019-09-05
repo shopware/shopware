@@ -44,7 +44,7 @@ class TaxRuleCollection extends Collection
         $new = new self($this->elements);
 
         $rules->map(
-            function (TaxRule $rule) use ($new) {
+            function (TaxRule $rule) use ($new): void {
                 if (!$new->exists($rule)) {
                     $new->add($rule);
                 }

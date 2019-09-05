@@ -811,7 +811,7 @@ class EntityRepositoryTest extends TestCase
 
 class CallableClass
 {
-    public function __invoke()
+    public function __invoke(): void
     {
     }
 }

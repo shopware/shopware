@@ -7,19 +7,19 @@ use Shopware\Core\Framework\Snippet\Filter\TranslationKeyFilter;
 
 class TranslationKeyFilterTest extends TestCase
 {
-    public function testGetFilterName()
+    public function testGetFilterName(): void
     {
         static::assertSame('translationKey', (new TranslationKeyFilter())->getName());
     }
 
-    public function testSupports()
+    public function testSupports(): void
     {
         static::assertTrue((new TranslationKeyFilter())->supports('translationKey'));
         static::assertFalse((new TranslationKeyFilter())->supports(''));
         static::assertFalse((new TranslationKeyFilter())->supports('test'));
     }
 
-    public function testFilter()
+    public function testFilter(): void
     {
         $snippets = [
             'firstSetId' => [
@@ -71,7 +71,7 @@ class TranslationKeyFilterTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    public function testFilterMultipleTranslationKeys()
+    public function testFilterMultipleTranslationKeys(): void
     {
         $snippets = [
             'firstSetId' => [

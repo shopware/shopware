@@ -48,7 +48,7 @@ class GenerateMediaTypesCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('media:generate-media-types')
@@ -73,6 +73,8 @@ class GenerateMediaTypesCommand extends Command
         $this->detectMediaTypes($context);
 
         $this->io->progressFinish();
+
+        return null;
     }
 
     private function validateBatchSize(InputInterface $input): int
@@ -129,7 +131,7 @@ class GenerateMediaTypesCommand extends Command
         $type = $this->typeDetector->detect($file);
         $changeSet = ['id' => $media->getId(), 'mediaTypeRaw' => serialize($type)];
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($changeSet) {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($changeSet): void {
             $this->mediaRepository->upsert([$changeSet], $context);
         });
     }

@@ -21,7 +21,7 @@ class DeleteFileHandlerTest extends TestCase
         $this->handler = $this->getContainer()->get(DeleteFileHandler::class);
     }
 
-    public function testItHandlesDeletes()
+    public function testItHandlesDeletes(): void
     {
         $filesystem = $this->getPublicFilesystem();
 
@@ -40,7 +40,7 @@ class DeleteFileHandlerTest extends TestCase
         static::assertFalse($filesystem->has($file2));
     }
 
-    public function testItDealsWithMissingFiles()
+    public function testItDealsWithMissingFiles(): void
     {
         $filesystem = $this->getPublicFilesystem();
 

@@ -118,11 +118,11 @@ class WriteContext
         return $this->exceptions;
     }
 
-    public function scope(string $scope, callable $callback)
+    public function scope(string $scope, callable $callback): void
     {
         $originalContext = $this->context;
 
-        $this->context->scope($scope, function (Context $context) use ($callback, $originalContext) {
+        $this->context->scope($scope, function (Context $context) use ($callback, $originalContext): void {
             $this->context = $context;
             $callback($this);
             $this->context = $originalContext;

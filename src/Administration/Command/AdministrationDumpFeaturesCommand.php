@@ -41,5 +41,7 @@ class AdministrationDumpFeaturesCommand extends Command
 
         $style = new ShopwareStyle($input, $output);
         $style->success('Successfully dumped administration feature configuration');
+
+        return null;
     }
 }

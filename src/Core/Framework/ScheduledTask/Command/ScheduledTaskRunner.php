@@ -71,6 +71,8 @@ class ScheduledTaskRunner extends Command
                 $output->writeln(sprintf('Scheduled task runner stopped due to memory limit of %d exceeded', $memoryLimit));
             }
         }
+
+        return null;
     }
 
     private function convertToBytes(string $memoryLimit): int

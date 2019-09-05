@@ -61,7 +61,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         ], $this->salesChannelContext->getContext());
     }
 
-    public function testBuildPriceDefinitionsWithoutContextRules()
+    public function testBuildPriceDefinitionsWithoutContextRules(): void
     {
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
@@ -76,7 +76,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         static::assertSame(0, $definitions->count());
     }
 
-    public function testBuildPriceDefinitionsWithContextRulesInDefaultCurrencyUsesFirstMatchingRule()
+    public function testBuildPriceDefinitionsWithContextRulesInDefaultCurrencyUsesFirstMatchingRule(): void
     {
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
@@ -135,7 +135,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($second, 70, 21);
     }
 
-    public function testBuildPriceDefinitionsWithContextRulesUsesContextCurrency()
+    public function testBuildPriceDefinitionsWithContextRulesUsesContextCurrency(): void
     {
         $ruleId = Uuid::randomHex();
 
@@ -185,7 +185,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($second, 50 * 0.8, 21);
     }
 
-    public function testBuildPriceDefinitionsWithContextRulesConvertsToContextCurrency()
+    public function testBuildPriceDefinitionsWithContextRulesConvertsToContextCurrency(): void
     {
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
@@ -245,7 +245,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($second, 40, 21);
     }
 
-    public function testBuildPriceDefinitionInDefaultCurrency()
+    public function testBuildPriceDefinitionInDefaultCurrency(): void
     {
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
@@ -260,7 +260,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition, 10, 1);
     }
 
-    public function testBuildPriceDefinitionInDifferentCurrency()
+    public function testBuildPriceDefinitionInDifferentCurrency(): void
     {
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
@@ -277,7 +277,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition, 8, 1);
     }
 
-    public function testBuildPriceDefinitionInDefaultCurrencyWithNetTaxState()
+    public function testBuildPriceDefinitionInDefaultCurrencyWithNetTaxState(): void
     {
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
@@ -293,7 +293,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition, 7, 1);
     }
 
-    public function testBuildListingPriceDefinitionWithListingPrices()
+    public function testBuildListingPriceDefinitionWithListingPrices(): void
     {
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
@@ -343,7 +343,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition->getTo(), 100, 1);
     }
 
-    public function testBuildListingPriceDefinitionWithPrices()
+    public function testBuildListingPriceDefinitionWithPrices(): void
     {
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
@@ -395,7 +395,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition, 40, 1);
     }
 
-    public function testBuildListingPriceDefinitionWithSimplePrice()
+    public function testBuildListingPriceDefinitionWithSimplePrice(): void
     {
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
@@ -411,7 +411,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition, 10, 1);
     }
 
-    public function testBuildListingPriceDefinitionWithDifferentCurrency()
+    public function testBuildListingPriceDefinitionWithDifferentCurrency(): void
     {
         $ruleId = Uuid::randomHex();
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
@@ -474,7 +474,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition->getTo(), 90, 1);
     }
 
-    public function testBuildListingPriceDefinitionConvertsPriceToContextCurrency()
+    public function testBuildListingPriceDefinitionConvertsPriceToContextCurrency(): void
     {
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
@@ -529,7 +529,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition->getTo(), 80, 1);
     }
 
-    public function testBuildListingPriceDefinitionConvertsSimplePriceToContextCurrency()
+    public function testBuildListingPriceDefinitionConvertsSimplePriceToContextCurrency(): void
     {
         $product = (new ProductEntity())->assign([
             'id' => Uuid::randomHex(),
@@ -549,7 +549,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition->getTo(), 8, 1);
     }
 
-    public function testBuildingListingPriceFromPrice()
+    public function testBuildingListingPriceFromPrice(): void
     {
         $ruleId = Uuid::randomHex();
 
@@ -570,7 +570,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definitions->getTo(), 10, 1);
     }
 
-    public function testBuildingListingPriceFromPrices()
+    public function testBuildingListingPriceFromPrices(): void
     {
         $ruleId = Uuid::randomHex();
 
@@ -604,7 +604,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definitions->getTo(), 100, 1);
     }
 
-    public function testBuildPriceDefinitionForQuantityWithDefaultCurrency()
+    public function testBuildPriceDefinitionForQuantityWithDefaultCurrency(): void
     {
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
@@ -659,7 +659,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition, 50, 21);
     }
 
-    public function testBuildPriceDefinitionForQuantityWithDifferentCurrency()
+    public function testBuildPriceDefinitionForQuantityWithDifferentCurrency(): void
     {
         $ruleId = Uuid::randomHex();
         $salesChannelContext = $this->createSalesChannelContext([SalesChannelContextService::CURRENCY_ID => $this->currencyId]);
@@ -711,7 +711,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition, 50 * 0.8, 22);
     }
 
-    public function testBuildPriceDefinitionForQuantityConvertsPriceToContextCurrency()
+    public function testBuildPriceDefinitionForQuantityConvertsPriceToContextCurrency(): void
     {
         $ruleId = Uuid::randomHex();
         $ruleId2 = Uuid::randomHex();
@@ -764,7 +764,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition, 80, 20);
     }
 
-    public function testBuildPriceDefinitionForQuantityWithSimplePriceAndDefaultCurrency()
+    public function testBuildPriceDefinitionForQuantityWithSimplePriceAndDefaultCurrency(): void
     {
         $ruleId = Uuid::randomHex();
 
@@ -795,7 +795,7 @@ class ProductPriceDefinitionBuilderTest extends TestCase
         $this->assertPriceDefinition($definition, 10, 20);
     }
 
-    public function testBuildPriceDefinitionForQuantityConvertsSimplePriceToContextCurrency()
+    public function testBuildPriceDefinitionForQuantityConvertsSimplePriceToContextCurrency(): void
     {
         $ruleId = Uuid::randomHex();
 

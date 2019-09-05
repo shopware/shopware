@@ -28,7 +28,7 @@ class ProductTagTest extends TestCase
         $this->repository = $this->getContainer()->get('product.repository');
     }
 
-    public function testEqualsAnyFilter()
+    public function testEqualsAnyFilter(): void
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
@@ -72,7 +72,7 @@ class ProductTagTest extends TestCase
         static::assertNotContains($id2, $ids->getIds());
     }
 
-    public function testNotEqualsAnyFilter()
+    public function testNotEqualsAnyFilter(): void
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
@@ -128,7 +128,7 @@ class ProductTagTest extends TestCase
         static::assertContains($id2, $ids->getIds());
     }
 
-    private function createProduct(string $id, array $tags)
+    private function createProduct(string $id, array $tags): void
     {
         $data = [
             'id' => $id,

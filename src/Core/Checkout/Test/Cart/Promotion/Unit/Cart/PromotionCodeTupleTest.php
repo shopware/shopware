@@ -16,7 +16,7 @@ class PromotionCodeTupleTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testCode()
+    public function testCode(): void
     {
         $promotion1 = new PromotionEntity();
 
@@ -33,7 +33,7 @@ class PromotionCodeTupleTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPromotion()
+    public function testPromotion(): void
     {
         $promotion1 = new PromotionEntity();
 

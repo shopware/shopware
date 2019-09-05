@@ -122,7 +122,7 @@ class LineItemGroupBuilderTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testRulesMatchingFirst()
+    public function testRulesMatchingFirst(): void
     {
         $cart = $this->buildCart(1);
 
@@ -150,7 +150,7 @@ class LineItemGroupBuilderTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testSortingIsCalled()
+    public function testSortingIsCalled(): void
     {
         $cart = $this->buildCart(1);
 
@@ -178,7 +178,7 @@ class LineItemGroupBuilderTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testPackagerIsCalled()
+    public function testPackagerIsCalled(): void
     {
         $cart = $this->buildCart(1);
 
@@ -207,7 +207,7 @@ class LineItemGroupBuilderTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testCanOnlyFind1Group()
+    public function testCanOnlyFind1Group(): void
     {
         $cart = $this->buildCart(3);
 
@@ -228,7 +228,7 @@ class LineItemGroupBuilderTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testShouldFind3Groups()
+    public function testShouldFind3Groups(): void
     {
         $cart = $this->buildCart(7);
 
@@ -248,7 +248,7 @@ class LineItemGroupBuilderTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testPackagerNotFound()
+    public function testPackagerNotFound(): void
     {
         $cart = $this->buildCart(3);
 
@@ -267,7 +267,7 @@ class LineItemGroupBuilderTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testSorterNotFound()
+    public function testSorterNotFound(): void
     {
         $cart = $this->buildCart(3);
 

@@ -44,7 +44,7 @@ trait ElasticsearchTestTestBehaviour
     /**
      * @afterClass
      */
-    public static function cleanupElasticsearchIndices()
+    public static function cleanupElasticsearchIndices(): void
     {
         $self = new self();
         $self->getDiContainer()->get(Client::class)

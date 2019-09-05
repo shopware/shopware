@@ -12,7 +12,7 @@ namespace ExampleCreateNew {
         /**
          * @Route("/", name="cart.test")
          */
-        public function createNewCart()
+        public function createNewCart(): void
         {
             // Load the token through the request or from other sources
             $token = '596a70b408014230a140fd5d94d3402b';
@@ -34,7 +34,7 @@ namespace ExampleCurrentCart {
         /**
          * @Route("/", name="cart.test")
          */
-        public function getCart(SalesChannelContext $salesChannelContext)
+        public function getCart(SalesChannelContext $salesChannelContext): void
         {
             // if not cart exists, a new one will be created
             $cart = $this->cartService->getCart(
@@ -59,7 +59,7 @@ namespace ExampleAddToCart {
         /**
          * @Route("/", name="cart.test")
          */
-        public function addToCart(SalesChannelContext $salesChannelContext)
+        public function addToCart(SalesChannelContext $salesChannelContext): void
         {
             // unique identifier to reference the line item, usually the source id, but can be random
             // and id of the referenced product
@@ -85,7 +85,7 @@ namespace ExampleChangeQuantity {
         /**
          * @Route("/", name="cart.test")
          */
-        public function changeLineItemQuantity(SalesChannelContext $salesChannelContext)
+        public function changeLineItemQuantity(SalesChannelContext $salesChannelContext): void
         {
             $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
@@ -107,7 +107,7 @@ namespace ExampleRemoveItem {
         /**
          * @Route("/", name="cart.test")
          */
-        public function removeLineItem(SalesChannelContext $salesChannelContext)
+        public function removeLineItem(SalesChannelContext $salesChannelContext): void
         {
             $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
@@ -129,7 +129,7 @@ namespace ExampleGetDeliveries {
         /**
          * @Route("/", name="cart.test")
          */
-        public function getDeliveries(SalesChannelContext $salesChannelContext)
+        public function getDeliveries(SalesChannelContext $salesChannelContext): void
         {
             $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
@@ -151,7 +151,7 @@ namespace ExampleOrder {
         /**
          * @Route("/", name="cart.test")
          */
-        public function order(SalesChannelContext $salesChannelContext)
+        public function order(SalesChannelContext $salesChannelContext): void
         {
             $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
@@ -188,7 +188,7 @@ namespace DocsTest {
         /**
          * @before
          */
-        public function resetCarts()
+        public function resetCarts(): void
         {
             $cartService = $this->getContainer()->get(CartService::class);
             $refl = (new \ReflectionObject($cartService))->getProperty('cart');
@@ -198,7 +198,7 @@ namespace DocsTest {
             $this->salesChannelToken = Uuid::randomHex();
         }
 
-        public function testLineItemIsInCorrectVersion()
+        public function testLineItemIsInCorrectVersion(): void
         {
             static::assertSame(
                 'd7027c5562a7a0de1aefae3581a00d9859e83399',
@@ -207,7 +207,7 @@ namespace DocsTest {
             );
         }
 
-        public function testExampleCreateNew()
+        public function testExampleCreateNew(): void
         {
             $controller = new NewCartController();
 
@@ -217,7 +217,7 @@ namespace DocsTest {
             static::assertTrue(true); //indicate all went well
         }
 
-        public function testExampleGetCart()
+        public function testExampleGetCart(): void
         {
             $controller = new GetCartController();
 
@@ -227,7 +227,7 @@ namespace DocsTest {
             static::assertTrue(true); //indicate all went well
         }
 
-        public function testExampleAddToCart()
+        public function testExampleAddToCart(): void
         {
             $controller = new AddToCartController();
 
@@ -238,7 +238,7 @@ namespace DocsTest {
             static::assertTrue(true); //indicate all went well
         }
 
-        public function testExampleChangeQuantity()
+        public function testExampleChangeQuantity(): void
         {
             $this->ensureProductInCart();
             $controller = new ChangeQuantityController();
@@ -249,7 +249,7 @@ namespace DocsTest {
             static::assertTrue(true); //indicate all went well
         }
 
-        public function testExampleRemoveItem()
+        public function testExampleRemoveItem(): void
         {
             $this->ensureProductInCart();
             $controller = new RemoveController();
@@ -260,7 +260,7 @@ namespace DocsTest {
             static::assertTrue(true); //indicate all went well
         }
 
-        public function testExampleGetDeliveries()
+        public function testExampleGetDeliveries(): void
         {
             $this->ensureProductInCart();
             $controller = new GetDeliveriesController();
@@ -271,7 +271,7 @@ namespace DocsTest {
             static::assertTrue(true); //indicate all went well
         }
 
-        public function testExampleOrder()
+        public function testExampleOrder(): void
         {
             $this->ensureProductInCart();
             $controller = new PlaceOrderController();

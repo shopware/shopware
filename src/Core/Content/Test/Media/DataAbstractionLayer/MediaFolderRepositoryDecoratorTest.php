@@ -57,7 +57,7 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
         ], $this->context);
 
         $folderRepository = $this->folderRepository;
-        $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$media, $folderId, $folderRepository) {
+        $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$media, $folderId, $folderRepository): void {
             $media = $folderRepository->search(new Criteria([$folderId]), $context);
         });
 

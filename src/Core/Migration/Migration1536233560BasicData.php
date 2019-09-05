@@ -984,7 +984,7 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function createDefaultFolder(Connection $connection, string $defaultFolderId, string $entity): void
     {
-        $connection->transactional(function (Connection $connection) use ($defaultFolderId, $entity) {
+        $connection->transactional(function (Connection $connection) use ($defaultFolderId, $entity): void {
             $configurationId = Uuid::randomBytes();
             $folderId = Uuid::randomBytes();
             $folderName = $this->getMediaFolderName($entity);
@@ -1452,7 +1452,7 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert('document_type_translation', ['document_type_id' => $creditNoteId, 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), 'name' => 'Credit note', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
     }
 
-    private function createNewsletterMailTemplate(Connection $connection)
+    private function createNewsletterMailTemplate(Connection $connection): void
     {
         $registerMailId = Uuid::randomBytes();
         $confirmMailId = Uuid::randomBytes();
@@ -1850,7 +1850,7 @@ class Migration1536233560BasicData extends MigrationStep
         ];
     }
 
-    private function createMailTemplateTypes(Connection $connection)
+    private function createMailTemplateTypes(Connection $connection): void
     {
         $definitionMailTypes = $this->getMailTypeMapping();
 
@@ -1893,7 +1893,7 @@ class Migration1536233560BasicData extends MigrationStep
         }
     }
 
-    private function createDocumentConfiguration(Connection $connection)
+    private function createDocumentConfiguration(Connection $connection): void
     {
         $stornoId = Uuid::randomBytes();
 
@@ -2087,7 +2087,7 @@ class Migration1536233560BasicData extends MigrationStep
         }
     }
 
-    private function createMailEvents(Connection $connection)
+    private function createMailEvents(Connection $connection): void
     {
         $orderCofirmationTemplateId = Uuid::randomBytes();
 

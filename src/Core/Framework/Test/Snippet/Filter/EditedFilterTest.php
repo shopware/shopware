@@ -7,19 +7,19 @@ use Shopware\Core\Framework\Snippet\Filter\EditedFilter;
 
 class EditedFilterTest extends TestCase
 {
-    public function testGetFilterName()
+    public function testGetFilterName(): void
     {
         static::assertSame('edited', (new EditedFilter())->getName());
     }
 
-    public function testSupports()
+    public function testSupports(): void
     {
         static::assertTrue((new EditedFilter())->supports('edited'));
         static::assertFalse((new EditedFilter())->supports(''));
         static::assertFalse((new EditedFilter())->supports('test'));
     }
 
-    public function testFilterOnlyCustomSnippets()
+    public function testFilterOnlyCustomSnippets(): void
     {
         $snippets = [
             'firstSetId' => [
@@ -94,7 +94,7 @@ class EditedFilterTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    public function testFilterDoesntIncludeAddedSnippets()
+    public function testFilterDoesntIncludeAddedSnippets(): void
     {
         $snippets = [
             'firstSetId' => [

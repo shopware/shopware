@@ -28,7 +28,7 @@ class EntityDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public function testEntityDefinitionCompilation()
+    public function testEntityDefinitionCompilation(): void
     {
         $definition = $this->getContainer()->get(ProductDefinition::class);
 
@@ -38,7 +38,7 @@ class EntityDefinitionTest extends TestCase
         static::assertSame($this->getContainer()->get(ProductManufacturerDefinition::class), $definition->getFields()->get('productManufacturerVersionId')->getVersionReferenceDefinition());
     }
 
-    public function testTranslationCompilation()
+    public function testTranslationCompilation(): void
     {
         $definition = $this->getContainer()->get(ProductTranslationDefinition::class);
 

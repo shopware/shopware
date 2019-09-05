@@ -24,7 +24,7 @@ class PromotionEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPreconditionRuleEmpty()
+    public function testPreconditionRuleEmpty(): void
     {
         $promotion = new PromotionEntity();
 
@@ -42,7 +42,7 @@ class PromotionEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPreconditionRulePersonaRules()
+    public function testPreconditionRulePersonaRules(): void
     {
         $fakePersonaRule = new AndRule();
 
@@ -78,7 +78,7 @@ class PromotionEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPreconditionRulePersonaCustomers()
+    public function testPreconditionRulePersonaCustomers(): void
     {
         $customer1 = new CustomerEntity();
         $customer1->setId('C1');
@@ -123,7 +123,7 @@ class PromotionEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPreconditionRuleCartRules()
+    public function testPreconditionRuleCartRules(): void
     {
         $fakeCartRule = new AndRule();
 
@@ -154,7 +154,7 @@ class PromotionEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPreconditionRuleOrderRules()
+    public function testPreconditionRuleOrderRules(): void
     {
         $fakeOrderRule = new AndRule();
 
@@ -189,7 +189,7 @@ class PromotionEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPreconditionRuleWithAllConditions()
+    public function testPreconditionRuleWithAllConditions(): void
     {
         $fakePersonaRule = new AndRule();
         $personaRuleEntity = new RuleEntity();
@@ -246,7 +246,7 @@ class PromotionEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPromotionHasDiscountNo()
+    public function testPromotionHasDiscountNo(): void
     {
         $promotion = new PromotionEntity();
 
@@ -260,7 +260,7 @@ class PromotionEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPromotionHasDiscountYes()
+    public function testPromotionHasDiscountYes(): void
     {
         $discount = new PromotionDiscountEntity();
         $discount->setId('D1');

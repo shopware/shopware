@@ -86,7 +86,7 @@ class ImportExportLogRepositoryTest extends TestCase
         $data = $this->prepareImportExportLogTestData();
 
         try {
-            $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($data) {
+            $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($data): void {
                 $this->logRepository->create(array_values($data), $context);
             });
             static::fail(sprintf("Create within wrong scope '%s'", Context::USER_SCOPE));
@@ -238,7 +238,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         // Verify update only in system scope.
         try {
-            $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate) {
+            $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate): void {
                 $this->logRepository->upsert(array_values($origDate), $context);
             });
             static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
@@ -293,7 +293,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         // Verify update only in system scope.
         try {
-            $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate) {
+            $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate): void {
                 $this->logRepository->upsert(array_values($origDate), $context);
             });
             static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
@@ -351,7 +351,7 @@ class ImportExportLogRepositoryTest extends TestCase
         }
 
         try {
-            $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($ids) {
+            $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($ids): void {
                 $this->logRepository->delete($ids, $context);
             });
             static::fail(sprintf("Delete within wrong scope '%s'", Context::USER_SCOPE));

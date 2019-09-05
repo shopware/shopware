@@ -62,7 +62,7 @@ class ThemeDumpCommand extends Command
         $this->context = Context::createDefaultContext();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('theme:dump');
     }
@@ -77,7 +77,8 @@ class ThemeDumpCommand extends Command
 
         if ($themes->count() === 0) {
             $this->io->error('No theme found which is connected to a storefront sales channel');
-            exit(1);
+
+            return 1;
         }
 
         /** @var ThemeEntity $themeEntity */
@@ -96,5 +97,7 @@ class ThemeDumpCommand extends Command
             $this->cacheDir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'theme-files.json',
             json_encode($dump, JSON_PRETTY_PRINT)
         );
+
+        return null;
     }
 }

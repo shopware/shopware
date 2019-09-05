@@ -138,7 +138,7 @@ class InitiationService
             $logEntity->setUserId($userId);
         }
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity) {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity): void {
             $logData = array_filter($logEntity->jsonSerialize(), function ($value) {
                 return $value !== null;
             });

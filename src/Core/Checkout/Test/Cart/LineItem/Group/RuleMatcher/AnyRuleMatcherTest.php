@@ -49,7 +49,7 @@ class AnyRuleMatcherTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testMatchesForSingleRule()
+    public function testMatchesForSingleRule(): void
     {
         $rules = new AndRule(
             [
@@ -94,7 +94,7 @@ class AnyRuleMatcherTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testMatchesForMultipleRules()
+    public function testMatchesForMultipleRules(): void
     {
         $minPrice = 50;
         $minQuantity = 3;

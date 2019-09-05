@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 
 class EntityTypeTest extends TestCase
 {
-    public function testToArray()
+    public function testToArray(): void
     {
         $definition = CustomerDefinition::class;
 

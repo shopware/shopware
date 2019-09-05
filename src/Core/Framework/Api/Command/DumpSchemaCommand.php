@@ -56,5 +56,7 @@ class DumpSchemaCommand extends Command
         $output->writeln('Writing definition to file ...');
         file_put_contents($outFile, json_encode($definitionContents, $jsonFlags));
         $output->writeln('Done!');
+
+        return null;
     }
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-$dir = $vendorDir = __DIR__;
+$dir = __DIR__;
 while (!file_exists($dir . '/composer.json') || !is_dir($dir . '/vendor')) {
     if ($dir === \dirname($dir)) {
         break;
@@ -37,6 +37,7 @@ return Config::create()
         'blank_line_after_opening_tag' => false,
         'concat_space' => ['spacing' => 'one'],
         'array_syntax' => ['syntax' => 'short'],
+        'void_return' => true,
         'class_attributes_separation' => ['elements' => ['method', 'property']],
         // add declare strict type to every file
         'declare_strict_types' => true,

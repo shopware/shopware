@@ -17,14 +17,23 @@ class FakeResultStatement extends TraversableDummy implements ResultStatement
         $this->dbResult = $dbResult;
     }
 
+    /**
+     * @return bool
+     */
     public function closeCursor()
     {
     }
 
+    /**
+     * @return int
+     */
     public function columnCount()
     {
     }
 
+    /**
+     * @return bool
+     */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
     }
@@ -39,6 +48,9 @@ class FakeResultStatement extends TraversableDummy implements ResultStatement
         return $this->dbResult;
     }
 
+    /**
+     * @return mixed|false
+     */
     public function fetchColumn($columnIndex = 0)
     {
     }

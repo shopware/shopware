@@ -70,6 +70,8 @@ class ElasticsearchTestAnalyzerCommand extends Command
         }
 
         $this->io->table(['Analyzer', 'Tokens'], $rows);
+
+        return null;
     }
 
     protected function getAnalyzers(): array

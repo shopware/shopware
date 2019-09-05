@@ -63,7 +63,7 @@ class ProductRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testWritePrice()
+    public function testWritePrice(): void
     {
         $id = Uuid::randomHex();
 
@@ -94,7 +94,7 @@ class ProductRepositoryTest extends TestCase
         );
     }
 
-    public function testWriteMultipleCurrencyPrices()
+    public function testWriteMultipleCurrencyPrices(): void
     {
         $id = Uuid::randomHex();
 
@@ -148,7 +148,7 @@ class ProductRepositoryTest extends TestCase
         );
     }
 
-    public function testVariantNameIsNullable()
+    public function testVariantNameIsNullable(): void
     {
         $parentId = Uuid::randomHex();
         $variantId = Uuid::randomHex();
@@ -194,7 +194,7 @@ class ProductRepositoryTest extends TestCase
         static::assertNull($variant->getName());
     }
 
-    public function testNameIsRequiredForParent()
+    public function testNameIsRequiredForParent(): void
     {
         $id = Uuid::randomHex();
 
@@ -254,7 +254,7 @@ class ProductRepositoryTest extends TestCase
         static::assertNull($variant->getName());
     }
 
-    public function testPriceUpdateConsideredInListingPriceIndexer()
+    public function testPriceUpdateConsideredInListingPriceIndexer(): void
     {
         $ruleA = Uuid::randomHex();
         $ruleB = Uuid::randomHex();
@@ -343,7 +343,7 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($aPrice->isDifferent());
     }
 
-    public function testSearchKeywordIndexerConsidersUpdate()
+    public function testSearchKeywordIndexerConsidersUpdate(): void
     {
         $id = Uuid::randomHex();
 
@@ -2362,7 +2362,7 @@ class ProductRepositoryTest extends TestCase
 
 class CallableClass
 {
-    public function __invoke()
+    public function __invoke(): void
     {
     }
 }

@@ -177,7 +177,7 @@ class DocumentService
             $generatedDocument->setFilename($document->getDocumentMediaFile()->getFileName());
             $fileBlob = '';
             $mediaService = $this->mediaService;
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaService, $document, &$fileBlob) {
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaService, $document, &$fileBlob): void {
                 $fileBlob = $mediaService->loadFile($document->getDocumentMediaFileId(), $context);
             });
             $generatedDocument->setFileBlob($fileBlob);
@@ -334,7 +334,7 @@ class DocumentService
                 $document,
                 $config,
                 &$mediaId
-            ) {
+            ): void {
                 $mediaId = $mediaService->saveFile(
                     $fileBlob,
                     $fileGenerator->getExtension(),

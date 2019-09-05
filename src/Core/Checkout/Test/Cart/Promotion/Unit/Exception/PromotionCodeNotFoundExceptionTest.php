@@ -14,7 +14,7 @@ class PromotionCodeNotFoundExceptionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testCodeInMessage()
+    public function testCodeInMessage(): void
     {
         $exception = new PromotionCodeNotFoundException('MY-CODE-123');
 
@@ -27,7 +27,7 @@ class PromotionCodeNotFoundExceptionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testErrorCode()
+    public function testErrorCode(): void
     {
         $exception = new PromotionCodeNotFoundException('');
 
@@ -40,7 +40,7 @@ class PromotionCodeNotFoundExceptionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testStatusCode()
+    public function testStatusCode(): void
     {
         $exception = new PromotionCodeNotFoundException('');
 

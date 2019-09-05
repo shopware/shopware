@@ -113,7 +113,7 @@ class ThemeCompiler
         StorefrontPluginConfiguration $configuration,
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $outputPath
-    ) {
+    ): void {
         if (!$configuration->getAssetPaths()) {
             return;
         }

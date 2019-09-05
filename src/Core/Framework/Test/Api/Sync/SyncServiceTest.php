@@ -33,7 +33,7 @@ class SyncServiceTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    public function testSingleOperation()
+    public function testSingleOperation(): void
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
@@ -73,7 +73,7 @@ class SyncServiceTest extends TestCase
         static::assertArrayHasKey('product_manufacturer_translation', $written['entities']);
     }
 
-    public function testError()
+    public function testError(): void
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
@@ -113,7 +113,7 @@ class SyncServiceTest extends TestCase
         static::assertEmpty($written['entities']);
     }
 
-    public function testFailOnErrorContinues()
+    public function testFailOnErrorContinues(): void
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
@@ -141,7 +141,7 @@ class SyncServiceTest extends TestCase
         static::assertCount(1, $written);
     }
 
-    public function testFailOnErrorRollback()
+    public function testFailOnErrorRollback(): void
     {
         $this->connection->rollBack();
 
@@ -173,7 +173,7 @@ class SyncServiceTest extends TestCase
         $this->connection->beginTransaction();
     }
 
-    public function testFailOnErrorWithMultipleOperations()
+    public function testFailOnErrorWithMultipleOperations(): void
     {
         $this->connection->rollBack();
 

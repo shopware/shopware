@@ -266,7 +266,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return $this
      */
     public function addPlugin(PluginInterface $plugin)
     {

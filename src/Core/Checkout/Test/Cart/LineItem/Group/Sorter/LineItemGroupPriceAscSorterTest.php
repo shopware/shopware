@@ -33,7 +33,7 @@ class LineItemGroupPriceAscSorterTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testKey()
+    public function testKey(): void
     {
         static::assertEquals('PRICE_ASC', $this->sorter->getKey());
     }
@@ -46,7 +46,7 @@ class LineItemGroupPriceAscSorterTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testSortPriceASC()
+    public function testSortPriceASC(): void
     {
         $items = new LineItemCollection();
         $items->add($this->createProductItem(50.0, 0));
@@ -68,7 +68,7 @@ class LineItemGroupPriceAscSorterTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testSortWithPriceNullA()
+    public function testSortWithPriceNullA(): void
     {
         $items = new LineItemCollection();
         $a = $this->createProductItem(50.0, 0);
@@ -93,7 +93,7 @@ class LineItemGroupPriceAscSorterTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testSortWithPriceNullB()
+    public function testSortWithPriceNullB(): void
     {
         $items = new LineItemCollection();
         $a = $this->createProductItem(50.0, 0);

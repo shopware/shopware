@@ -206,7 +206,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         StorefrontPluginConfiguration $config,
         StorefrontPluginConfigurationCollection $configurationCollection,
         Context $context
-    ) {
+    ): void {
         if ($config->getIsTheme()) {
             $this->themeLifecycleService->refreshTheme($config, $context);
         }

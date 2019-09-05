@@ -57,5 +57,7 @@ class FeatureFlagCreateCommand extends Command
 
         $io->success("Created flag: $name");
         $io->note('Please remember to add and commit the files');
+
+        return null;
     }
 }

@@ -85,7 +85,7 @@ class InvoiceServiceTest extends TestCase
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
     }
 
-    public function testGenerateWithDifferentTaxes()
+    public function testGenerateWithDifferentTaxes(): void
     {
         /** @var InvoiceGenerator $invoiceService */
         $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);

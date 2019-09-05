@@ -14,7 +14,7 @@ class LineItemGroupPackagerNotFoundExceptionTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testCodeInMessage()
+    public function testCodeInMessage(): void
     {
         $exception = new LineItemGroupPackagerNotFoundException('COUNT');
 
@@ -27,7 +27,7 @@ class LineItemGroupPackagerNotFoundExceptionTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testErrorCode()
+    public function testErrorCode(): void
     {
         $exception = new LineItemGroupPackagerNotFoundException('');
 
@@ -40,7 +40,7 @@ class LineItemGroupPackagerNotFoundExceptionTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testStatusCode()
+    public function testStatusCode(): void
     {
         $exception = new LineItemGroupPackagerNotFoundException('');
 

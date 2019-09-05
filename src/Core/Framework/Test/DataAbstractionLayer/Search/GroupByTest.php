@@ -87,7 +87,7 @@ class GroupByTest extends TestCase
         $this->writer->insert($this->definition, $data, WriteContext::createFromContext(Context::createDefaultContext()));
     }
 
-    public function testSingleGroupBy()
+    public function testSingleGroupBy(): void
     {
         $criteria = new Criteria(
             $this->testData->getList(['1', '2', '3', '4'])
@@ -108,7 +108,7 @@ class GroupByTest extends TestCase
         );
     }
 
-    public function testMultiGroupBy()
+    public function testMultiGroupBy(): void
     {
         $criteria = new Criteria(
             $this->testData->getAll()
@@ -137,7 +137,7 @@ class GroupByTest extends TestCase
         );
     }
 
-    private function assertGroupByExclusion(string $id1, string $id2, IdSearchResult $result)
+    private function assertGroupByExclusion(string $id1, string $id2, IdSearchResult $result): void
     {
         static::assertTrue(
             $result->has($id1)
@@ -159,7 +159,7 @@ class TestData
      */
     protected $ids = [];
 
-    public function add(string $key, string $id)
+    public function add(string $key, string $id): void
     {
         $this->ids[$key] = $id;
     }

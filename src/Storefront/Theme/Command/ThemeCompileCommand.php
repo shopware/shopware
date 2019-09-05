@@ -56,6 +56,8 @@ class ThemeCompileCommand extends Command
         }
 
         $this->io->note(sprintf('Took %f seconds', (float) microtime(true) - $start));
+
+        return null;
     }
 
     private function getSalesChannels(Context $context): SalesChannelCollection

@@ -67,7 +67,7 @@ class PromotionSessionCodesTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testAddLineItemAddsToSession()
+    public function testAddLineItemAddsToSession(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -102,7 +102,7 @@ class PromotionSessionCodesTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testDeleteLineItemRemovesFromSession()
+    public function testDeleteLineItemRemovesFromSession(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -144,7 +144,7 @@ class PromotionSessionCodesTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testDeleteLineItemFixedDiscountByCode()
+    public function testDeleteLineItemFixedDiscountByCode(): void
     {
         $productId = Uuid::randomHex();
         $productTwoId = Uuid::randomHex();
@@ -195,7 +195,7 @@ class PromotionSessionCodesTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testAutoAddingOfPreviousCodes()
+    public function testAutoAddingOfPreviousCodes(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();

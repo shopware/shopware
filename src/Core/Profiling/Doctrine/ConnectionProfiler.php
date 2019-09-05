@@ -37,7 +37,7 @@ class ConnectionProfiler implements DataCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function collect(Request $request, Response $response, ?\Exception $exception = null)
+    public function collect(Request $request, Response $response, ?\Exception $exception = null): void
     {
         if (!$this->logger || !$this->logger instanceof DebugStack) {
             $this->data['queries'] = [];
@@ -50,7 +50,7 @@ class ConnectionProfiler implements DataCollectorInterface
         $this->data = ['queries' => $queries];
     }
 
-    public function reset()
+    public function reset(): void
     {
         $this->data = [
             'queries' => [],

@@ -60,7 +60,7 @@ class RetryMiddleware implements MiddlewareInterface
 
     private function createDeadMessageFromEnvelope(Envelope $envelope, MessageFailedException $e): void
     {
-        $this->context->scope(Context::SYSTEM_SCOPE, function () use ($envelope, $e) {
+        $this->context->scope(Context::SYSTEM_SCOPE, function () use ($envelope, $e): void {
             $encrypted = count($envelope->all(DecryptedStamp::class)) > 0;
             $scheduledTaskId = null;
             if ($envelope->getMessage() instanceof ScheduledTask) {
@@ -112,7 +112,7 @@ class RetryMiddleware implements MiddlewareInterface
 
     private function incrementErrorCount(DeadMessageEntity $deadMessage): void
     {
-        $this->context->scope(Context::SYSTEM_SCOPE, function () use ($deadMessage) {
+        $this->context->scope(Context::SYSTEM_SCOPE, function () use ($deadMessage): void {
             $this->deadMessageRepository->update([
                 [
                     'id' => $deadMessage->getId(),
@@ -125,7 +125,7 @@ class RetryMiddleware implements MiddlewareInterface
 
     private function createDeadMessageFromExistingMessage(DeadMessageEntity $message, MessageFailedException $e): void
     {
-        $this->context->scope(Context::SYSTEM_SCOPE, function () use ($message, $e) {
+        $this->context->scope(Context::SYSTEM_SCOPE, function () use ($message, $e): void {
             $id = Uuid::randomHex();
             $this->deadMessageRepository->create([
                 [

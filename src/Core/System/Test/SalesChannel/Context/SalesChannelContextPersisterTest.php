@@ -30,7 +30,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $this->contextPersister = new SalesChannelContextPersister($this->connection);
     }
 
-    public function testLoad()
+    public function testLoad(): void
     {
         $token = Random::getAlphanumericString(32);
         $expected = [
@@ -45,14 +45,14 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertSame($expected, $this->contextPersister->load($token));
     }
 
-    public function testLoadNotExisting()
+    public function testLoadNotExisting(): void
     {
         $token = Random::getAlphanumericString(32);
 
         static::assertSame([], $this->contextPersister->load($token));
     }
 
-    public function testSaveWithoutExistingContext()
+    public function testSaveWithoutExistingContext(): void
     {
         $token = Random::getAlphanumericString(32);
         $expected = [
@@ -64,7 +64,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertSame($expected, $this->contextPersister->load($token));
     }
 
-    public function testSaveMergesWithExisting()
+    public function testSaveMergesWithExisting(): void
     {
         $token = Random::getAlphanumericString(32);
 
@@ -92,7 +92,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
-    public function testReplaceWithoutExistingContext()
+    public function testReplaceWithoutExistingContext(): void
     {
         $token = Random::getAlphanumericString(32);
 
@@ -102,7 +102,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertFalse($this->contextExists($token));
     }
 
-    public function testSaveReplaceWithExistingContext()
+    public function testSaveReplaceWithExistingContext(): void
     {
         $token = Random::getAlphanumericString(32);
 
@@ -120,7 +120,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertFalse($this->contextExists($token));
     }
 
-    public function testRepalceUpdatesCartTokenToo()
+    public function testRepalceUpdatesCartTokenToo(): void
     {
         $token = Random::getAlphanumericString(32);
 

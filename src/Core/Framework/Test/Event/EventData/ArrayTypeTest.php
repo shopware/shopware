@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 
 class ArrayTypeTest extends TestCase
 {
-    public function testToArray()
+    public function testToArray(): void
     {
         $expected = [
             'type' => 'array',

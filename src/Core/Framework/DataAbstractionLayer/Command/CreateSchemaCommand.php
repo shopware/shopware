@@ -38,7 +38,7 @@ class CreateSchemaCommand extends Command
         $this->dir = $rootDir . '/../schema/';
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('dal:create:schema');
     }
@@ -67,5 +67,7 @@ class CreateSchemaCommand extends Command
         foreach ($schema as $domain => $sql) {
             file_put_contents($this->dir . '/' . $domain . '.sql', implode("\n\n", $sql));
         }
+
+        return null;
     }
 }

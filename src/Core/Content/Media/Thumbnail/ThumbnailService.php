@@ -190,7 +190,7 @@ class ThumbnailService
                 'thumbnails' => $savedThumbnails,
             ];
 
-            $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($mediaData) {
+            $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($mediaData): void {
                 $this->mediaRepository->update([$mediaData], $context);
             });
 

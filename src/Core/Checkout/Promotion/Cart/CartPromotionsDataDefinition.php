@@ -103,7 +103,7 @@ class CartPromotionsDataDefinition extends Struct
      * Removes the assigne promotions for the
      * provided code, if existing.
      */
-    public function removeCode(string $code)
+    public function removeCode(string $code): void
     {
         if (!array_key_exists($code, $this->codePromotions)) {
             return;

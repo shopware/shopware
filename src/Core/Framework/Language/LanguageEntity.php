@@ -536,7 +536,7 @@ class LanguageEntity extends Entity
         return $this->salutationTranslations;
     }
 
-    public function setSalutationTranslations(?SalutationTranslationCollection $salutationTranslations)
+    public function setSalutationTranslations(?SalutationTranslationCollection $salutationTranslations): void
     {
         $this->salutationTranslations = $salutationTranslations;
     }

@@ -13,7 +13,7 @@ trait QueueTestBehaviour
     /**
      * @before
      */
-    public function clearQueue()
+    public function clearQueue(): void
     {
         if (file_exists($this->getQueueFile())) {
             file_put_contents($this->getQueueFile(), '');
@@ -23,7 +23,7 @@ trait QueueTestBehaviour
     /**
      * @after
      */
-    public function removeQueue()
+    public function removeQueue(): void
     {
         if (file_exists($this->getQueueFile())) {
             unlink($this->getQueueFile());
@@ -55,7 +55,7 @@ trait QueueTestBehaviour
         $worker = new Worker([$this->getReceiver()], $bus);
         $worker->run([
             'sleep' => 1000,
-        ], function (?Envelope $envelope) use ($worker) {
+        ], function (?Envelope $envelope) use ($worker): void {
             if ($envelope === null) {
                 $worker->stop();
             }

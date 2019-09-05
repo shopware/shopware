@@ -31,7 +31,7 @@ class PermittedIndividualCodePromotionsTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testCriteria()
+    public function testCriteria(): void
     {
         $codes = ['code-123'];
 

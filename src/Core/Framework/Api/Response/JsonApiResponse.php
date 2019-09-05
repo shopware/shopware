@@ -11,5 +11,7 @@ class JsonApiResponse extends JsonResponse
         parent::update();
 
         $this->headers->set('Content-Type', 'application/vnd.api+json');
+
+        return $this;
     }
 }

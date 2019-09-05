@@ -14,7 +14,7 @@ class LineItemGroupSorterNotFoundExceptionTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testCodeInMessage()
+    public function testCodeInMessage(): void
     {
         $exception = new LineItemGroupSorterNotFoundException('PRICE_ASC');
 
@@ -27,7 +27,7 @@ class LineItemGroupSorterNotFoundExceptionTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testErrorCode()
+    public function testErrorCode(): void
     {
         $exception = new LineItemGroupSorterNotFoundException('');
 
@@ -40,7 +40,7 @@ class LineItemGroupSorterNotFoundExceptionTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testStatusCode()
+    public function testStatusCode(): void
     {
         $exception = new LineItemGroupSorterNotFoundException('');
 

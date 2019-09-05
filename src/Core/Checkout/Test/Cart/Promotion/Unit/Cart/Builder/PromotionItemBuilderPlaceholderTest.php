@@ -16,7 +16,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testLineItemType()
+    public function testLineItemType(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -33,7 +33,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testDefaultPriceIsEmpty()
+    public function testDefaultPriceIsEmpty(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -53,7 +53,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testCodeValueInReferenceId()
+    public function testCodeValueInReferenceId(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -71,7 +71,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testKeyIsUnique()
+    public function testKeyIsUnique(): void
     {
         $builder = new PromotionItemBuilder();
 

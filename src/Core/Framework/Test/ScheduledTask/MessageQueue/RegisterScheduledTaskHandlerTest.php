@@ -9,12 +9,12 @@ use Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry;
 
 class RegisterScheduledTaskHandlerTest extends TestCase
 {
-    public function testItHandlesTheRightMessage()
+    public function testItHandlesTheRightMessage(): void
     {
         static::assertEquals([RegisterScheduledTaskMessage::class], RegisterScheduledTaskHandler::getHandledMessages());
     }
 
-    public function testItCallsRegister()
+    public function testItCallsRegister(): void
     {
         $registry = $this->createMock(TaskRegistry::class);
         $registry->expects(static::once())

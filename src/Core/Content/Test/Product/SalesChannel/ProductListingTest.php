@@ -67,7 +67,7 @@ class ProductListingTest extends TestCase
         $this->insertProducts();
     }
 
-    public function testListing()
+    public function testListing(): void
     {
         $request = new Request();
 
@@ -148,7 +148,7 @@ class ProductListingTest extends TestCase
     /**
      * Small helper function which asserts the one of the provided pool ids are in the result set but the remaining ids are excluded.
      */
-    private static function assertVariationsInListing(EntitySearchResult $result, array $pool)
+    private static function assertVariationsInListing(EntitySearchResult $result, array $pool): void
     {
         $match = null;
         // find matching id
@@ -209,7 +209,7 @@ class ProductListingTest extends TestCase
         );
     }
 
-    private function createProduct(string $key, array $options, array $listingGroups)
+    private function createProduct(string $key, array $options, array $listingGroups): void
     {
         $config = [];
         foreach ($listingGroups as $groupId) {
@@ -295,7 +295,7 @@ class ProductListingTest extends TestCase
         return $all;
     }
 
-    private function insertOptions()
+    private function insertOptions(): void
     {
         $data = [
             [

@@ -60,7 +60,7 @@ class PromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testAbsoluteDiscount()
+    public function testAbsoluteDiscount(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -101,7 +101,7 @@ class PromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function test100PercentageDiscount()
+    public function test100PercentageDiscount(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -141,7 +141,7 @@ class PromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function test50PercentageDiscount()
+    public function test50PercentageDiscount(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -266,7 +266,7 @@ class PromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testAbsoluteAndPercentageDiscount()
+    public function testAbsoluteAndPercentageDiscount(): void
     {
         $productId = Uuid::randomHex();
         $promotionId1 = Uuid::randomHex();
@@ -434,7 +434,7 @@ class PromotionCalculationTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testRemoveOfFixedPromotionsWithoutCode()
+    public function testRemoveOfFixedPromotionsWithoutCode(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -483,7 +483,7 @@ class PromotionCalculationTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function testRemoveDiscountByCode()
+    public function testRemoveDiscountByCode(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -564,7 +564,7 @@ class PromotionCalculationTest extends TestCase
     /**
      * create a promotion with a currency based price value discount.
      */
-    private function createAdvancedCurrencyPriceValuePromotion(string $promotionId, string $code, float $discountPrice, float $advancedPrice)
+    private function createAdvancedCurrencyPriceValuePromotion(string $promotionId, string $code, float $discountPrice, float $advancedPrice): void
     {
         $discountId = Uuid::randomHex();
 

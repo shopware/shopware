@@ -25,7 +25,7 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
         $this->customerRepository = $customerRepository;
     }
 
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerEmailUnique) {
             throw new UnexpectedTypeException($constraint, CustomerEmailUnique::class);

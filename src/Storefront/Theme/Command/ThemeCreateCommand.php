@@ -12,11 +12,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class ThemeCreateCommand extends Command
 {
     /**
-     * @var SymfonyStyle
-     */
-    private $io;
-
-    /**
      * @var string
      */
     private $projectDir;
@@ -27,7 +22,7 @@ class ThemeCreateCommand extends Command
         $this->projectDir = $projectDir;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('theme:create')
             ->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name')
@@ -36,7 +31,7 @@ class ThemeCreateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->io = new SymfonyStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $helper = $this->getHelper('question');
 
         $name = $input->getArgument('theme-name');
@@ -47,23 +42,31 @@ class ThemeCreateCommand extends Command
         }
 
         if (preg_match('/^[A-Z]\w{3,}$/', $name) !== 1) {
-            $this->io->error('Theme name is too short (min 4 characters), contains invalid characters or doesn\'t start with a uppercase character');
-            exit(1);
+            $io->error('Theme name is too short (min 4 characters), contains invalid characters or doesn\'t start with a uppercase character');
+
+            return 1;
         }
 
         $directory = $this->projectDir . '/custom/plugins/' . $name;
 
         if (file_exists($directory)) {
-            $this->io->error(sprintf('Plugin directory %s already exists', $directory));
-            exit(1);
+            $io->error(sprintf('Plugin directory %s already exists', $directory));
+
+            return 1;
         }
 
-        $this->io->writeln('Creating theme structure under ' . $directory);
+        $io->writeln('Creating theme structure under ' . $directory);
 
-        $this->createDirectory($directory . '/src/Resources/storefront/');
-        $this->createDirectory($directory . '/src/Resources/storefront/style');
-        $this->createDirectory($directory . '/src/Resources/storefront/asset');
-        $this->createDirectory($directory . '/src/Resources/storefront/dist/script');
+        try {
+            $this->createDirectory($directory . '/src/Resources/storefront/');
+            $this->createDirectory($directory . '/src/Resources/storefront/style');
+            $this->createDirectory($directory . '/src/Resources/storefront/asset');
+            $this->createDirectory($directory . '/src/Resources/storefront/dist/script');
+        } catch (\RuntimeException $e) {
+            $io->error($e->getMessage());
+
+            return 1;
+        }
 
         $composerFile = $directory . '/composer.json';
         $bootstrapFile = $directory . '/src/' . $name . '.php';
@@ -93,13 +96,17 @@ class ThemeCreateCommand extends Command
 
         touch($directory . '/src/Resources/storefront/dist/script/all.js');
         touch($directory . '/src/Resources/storefront/style/base.scss');
+
+        return null;
     }
 
-    private function createDirectory(string $pathename)
+    /**
+     * @throws \RuntimeException
+     */
+    private function createDirectory(string $pathName): void
     {
-        if (!mkdir($pathename, 0755, true) && !is_dir($pathename)) {
-            $this->io->error(sprintf('Unable to ceate directory "%s". Please check permissions', $pathename));
-            exit(1);
+        if (!mkdir($pathName, 0755, true) && !is_dir($pathName)) {
+            throw new \RuntimeException(sprintf('Unable to create directory "%s". Please check permissions', $pathName));
         }
     }
 

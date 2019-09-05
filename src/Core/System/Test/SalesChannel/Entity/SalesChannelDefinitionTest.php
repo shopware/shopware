@@ -146,7 +146,7 @@ class SalesChannelDefinitionTest extends TestCase
 
 class CallableClass
 {
-    public function __invoke()
+    public function __invoke(): void
     {
     }
 }

@@ -212,7 +212,7 @@ class FileSaver
         ];
 
         try {
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($updateData) {
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($updateData): void {
                 $this->mediaRepository->update([$updateData], $context);
             });
         } catch (\Exception $e) {
@@ -305,7 +305,7 @@ class FileSaver
             'uploadedAt' => new \DateTime(),
         ];
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data) {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {
             $this->mediaRepository->update([$data], $context);
         });
 

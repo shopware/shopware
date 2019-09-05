@@ -74,7 +74,7 @@ class MediaRepositoryDecoratorTest extends TestCase
             $this->context
         );
         $mediaRepository = $this->mediaRepository;
-        $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, &$media, $mediaRepository) {
+        $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, &$media, $mediaRepository): void {
             $media = $mediaRepository->search(new Criteria([$mediaId]), $this->context);
         });
 
@@ -134,14 +134,14 @@ class MediaRepositoryDecoratorTest extends TestCase
             $this->context
         );
         $mediaRepository = $this->mediaRepository;
-        $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, &$media, $mediaRepository) {
+        $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($mediaId, &$media, $mediaRepository): void {
             $media = $mediaRepository->search(new Criteria([$mediaId]), $context);
         });
 
         static::assertEquals(0, $media->count());
 
         $documentRepository = $this->documentRepository;
-        $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$document, $documentId, $documentRepository) {
+        $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$document, $documentId, $documentRepository): void {
             $criteria = new Criteria([$documentId]);
             $criteria->addAssociation('documentMediaFile');
             $document = $documentRepository->search($criteria, $context);

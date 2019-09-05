@@ -8,7 +8,7 @@ use Twig\Node\IncludeNode;
 
 class SwInclude extends IncludeNode
 {
-    protected function addGetTemplate(Compiler $compiler)
+    protected function addGetTemplate(Compiler $compiler): void
     {
         $compiler
             ->write("((function () use (\$context, \$blocks) {\n")

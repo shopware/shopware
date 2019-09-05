@@ -122,6 +122,8 @@ class GenerateThumbnailsCommand extends Command
         } else {
             $this->generateAsynchronous($mediaIterator, $context);
         }
+
+        return null;
     }
 
     private function initializeCommand(InputInterface $input, Context $context): void

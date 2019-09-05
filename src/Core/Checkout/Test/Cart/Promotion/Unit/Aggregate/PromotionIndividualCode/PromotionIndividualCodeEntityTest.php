@@ -17,7 +17,7 @@ class PromotionIndividualCodeEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testRedeemedPayload()
+    public function testRedeemedPayload(): void
     {
         $entity = new PromotionIndividualCodeEntity();
         $entity->setCode('my-code-123');
@@ -43,7 +43,7 @@ class PromotionIndividualCodeEntityTest extends TestCase
      *
      * @throws CodeAlreadyRedeemedException
      */
-    public function testAlreadyRedeemedThrowsException()
+    public function testAlreadyRedeemedThrowsException(): void
     {
         $this->expectException(CodeAlreadyRedeemedException::class);
 
@@ -64,7 +64,7 @@ class PromotionIndividualCodeEntityTest extends TestCase
      *
      * @throws CodeAlreadyRedeemedException
      */
-    public function testAlreadyRedeemedIsOkWithSameData()
+    public function testAlreadyRedeemedIsOkWithSameData(): void
     {
         $entity = new PromotionIndividualCodeEntity();
         $entity->setCode('my-code-123');

@@ -29,7 +29,7 @@ trait ConsoleProgressTrait
         ];
     }
 
-    public function startProgress(ProgressStartedEvent $event)
+    public function startProgress(ProgressStartedEvent $event): void
     {
         if (!$this->io) {
             return;
@@ -40,7 +40,7 @@ trait ConsoleProgressTrait
         $this->progress->setMessage($event->getMessage());
     }
 
-    public function advanceProgress(ProgressAdvancedEvent $event)
+    public function advanceProgress(ProgressAdvancedEvent $event): void
     {
         if (!$this->progress) {
             return;
@@ -49,7 +49,7 @@ trait ConsoleProgressTrait
         $this->progress->advance($event->getStep());
     }
 
-    public function finishProgress(ProgressFinishedEvent $event)
+    public function finishProgress(ProgressFinishedEvent $event): void
     {
         if (!$this->progress) {
             return;

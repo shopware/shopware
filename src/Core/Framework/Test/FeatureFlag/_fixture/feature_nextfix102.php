@@ -18,7 +18,7 @@ namespace Shopware\Core\Framework\Test\FeatureFlag\_fixture {
 
     function ifNextFix102Call($object, string $methodName, ...$arguments): void
     {
-        $closure = function () use ($methodName, $arguments) {
+        $closure = function () use ($methodName, $arguments): void {
             $this->{$methodName}(...$arguments);
         };
 

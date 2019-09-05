@@ -151,7 +151,7 @@ class StateMachineActionControllerTest extends TestCase
         static::assertArrayHasKey('errors', $response);
     }
 
-    public function testOrderCartDe()
+    public function testOrderCartDe(): void
     {
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer($context);
@@ -211,7 +211,7 @@ class StateMachineActionControllerTest extends TestCase
         static::assertEquals($order->getLanguageId(), $this->getDeDeLanguageId());
     }
 
-    public function testOrderCartEn()
+    public function testOrderCartEn(): void
     {
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer($context);

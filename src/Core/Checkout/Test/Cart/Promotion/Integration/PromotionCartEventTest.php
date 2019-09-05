@@ -63,7 +63,7 @@ class PromotionCartEventTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testAvoidInfiniteLoopEventsWithLotsOfPromotions()
+    public function testAvoidInfiniteLoopEventsWithLotsOfPromotions(): void
     {
         $productId = Uuid::randomHex();
 
@@ -99,7 +99,7 @@ class PromotionCartEventTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testAvoidInifiniteLoopEventsWhenRemovingLotsOfPromotions()
+    public function testAvoidInifiniteLoopEventsWhenRemovingLotsOfPromotions(): void
     {
         $productId = Uuid::randomHex();
 
@@ -128,7 +128,7 @@ class PromotionCartEventTest extends TestCase
         $this->cartService->remove($cart, $productId, $this->context);
     }
 
-    private function createBulkPromotions(array $codes)
+    private function createBulkPromotions(array $codes): void
     {
         /** @var int $percentage */
         foreach ($codes as $percentage) {

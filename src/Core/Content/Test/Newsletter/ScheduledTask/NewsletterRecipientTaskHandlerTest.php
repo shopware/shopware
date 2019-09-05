@@ -40,7 +40,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         static::assertSame('notSet', $equalsFilter->getValue());
     }
 
-    public function testRun()
+    public function testRun(): void
     {
         $this->installTestData();
 
@@ -61,7 +61,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         }
     }
 
-    private function installTestData()
+    private function installTestData(): void
     {
         $salutationSql = file_get_contents(__DIR__ . '/../fixtures/salutation.sql');
         $this->getContainer()->get(Connection::class)->exec($salutationSql);

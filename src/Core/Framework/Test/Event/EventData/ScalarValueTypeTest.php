@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 
 class ScalarValueTypeTest extends TestCase
 {
-    public function testToArray()
+    public function testToArray(): void
     {
         $expected = [
             'type' => 'float',
@@ -16,7 +16,7 @@ class ScalarValueTypeTest extends TestCase
         static::assertEquals($expected, (new ScalarValueType(ScalarValueType::TYPE_FLOAT))->toArray());
     }
 
-    public function testThrowExceptionOnInvalidType()
+    public function testThrowExceptionOnInvalidType(): void
     {
         static::expectException(\InvalidArgumentException::class);
 

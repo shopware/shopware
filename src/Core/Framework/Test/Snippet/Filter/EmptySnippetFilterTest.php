@@ -7,19 +7,19 @@ use Shopware\Core\Framework\Snippet\Filter\EmptySnippetFilter;
 
 class EmptySnippetFilterTest extends TestCase
 {
-    public function testGetFilterName()
+    public function testGetFilterName(): void
     {
         static::assertSame('empty', (new EmptySnippetFilter())->getName());
     }
 
-    public function testSupports()
+    public function testSupports(): void
     {
         static::assertTrue((new EmptySnippetFilter())->supports('empty'));
         static::assertFalse((new EmptySnippetFilter())->supports(''));
         static::assertFalse((new EmptySnippetFilter())->supports('test'));
     }
 
-    public function testFilterOnlyEmptySnippets()
+    public function testFilterOnlyEmptySnippets(): void
     {
         $snippets = [
             'firstSetId' => [

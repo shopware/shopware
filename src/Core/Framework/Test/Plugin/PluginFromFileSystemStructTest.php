@@ -10,7 +10,7 @@ class PluginFromFileSystemStructTest extends TestCase
     /**
      * @dataProvider dataProviderTestGetName
      */
-    public function testGetName(PluginFromFileSystemStruct $pluginFromFileSystem, string $expectedResult)
+    public function testGetName(PluginFromFileSystemStruct $pluginFromFileSystem, string $expectedResult): void
     {
         static::assertSame($expectedResult, $pluginFromFileSystem->getName());
     }

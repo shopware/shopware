@@ -127,7 +127,7 @@ class EntityScoreBuilderTest extends TestCase
         );
     }
 
-    public function testReadProtectedFieldIsNotIncludedInSearch()
+    public function testReadProtectedFieldIsNotIncludedInSearch(): void
     {
         $builder = new EntityScoreQueryBuilder();
 
@@ -141,7 +141,7 @@ class EntityScoreBuilderTest extends TestCase
 
         $queries = [];
 
-        $this->context->scope(SalesChannelApiSource::class, function () use ($builder, $pattern, &$queries) {
+        $this->context->scope(SalesChannelApiSource::class, function () use ($builder, $pattern, &$queries): void {
             $queries = $builder->buildScoreQueries($pattern, $this->testDefinition, 'test', $this->context);
         });
 

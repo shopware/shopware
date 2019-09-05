@@ -59,7 +59,7 @@ class PromotionItemBuilderTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
      */
-    public function testLineItemType()
+    public function testLineItemType(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -88,7 +88,7 @@ class PromotionItemBuilderTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
      */
-    public function testLineItemKey()
+    public function testLineItemKey(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -116,7 +116,7 @@ class PromotionItemBuilderTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
      */
-    public function testLineItemReferenceId()
+    public function testLineItemReferenceId(): void
     {
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -142,7 +142,7 @@ class PromotionItemBuilderTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
      */
-    public function testPriceTypePercentage()
+    public function testPriceTypePercentage(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -172,7 +172,7 @@ class PromotionItemBuilderTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
      */
-    public function testPriceTypeAbsolute()
+    public function testPriceTypeAbsolute(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -198,7 +198,7 @@ class PromotionItemBuilderTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testDiscountTargetFilter()
+    public function testDiscountTargetFilter(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -237,7 +237,7 @@ class PromotionItemBuilderTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testDiscountTargetFilterIfDiscountRulesShouldBeIgnored()
+    public function testDiscountTargetFilterIfDiscountRulesShouldBeIgnored(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -273,7 +273,7 @@ class PromotionItemBuilderTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testDiscountTargetFilterIfDiscountRulesAreEmpty()
+    public function testDiscountTargetFilterIfDiscountRulesAreEmpty(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -301,7 +301,7 @@ class PromotionItemBuilderTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testLineItemPayload()
+    public function testLineItemPayload(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -337,7 +337,7 @@ class PromotionItemBuilderTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testDiscountCurrencyCustomPrices()
+    public function testDiscountCurrencyCustomPrices(): void
     {
         $builder = new PromotionItemBuilder();
 
@@ -390,7 +390,7 @@ class PromotionItemBuilderTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
      */
-    public function testPercentagePayloadWithoutAdvancedPrices()
+    public function testPercentagePayloadWithoutAdvancedPrices(): void
     {
         $discount = new PromotionDiscountEntity();
         $discount->setId('P123');
@@ -429,7 +429,7 @@ class PromotionItemBuilderTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
      */
-    public function testPercentagePayloadMaxValueWithAdvancedPrices()
+    public function testPercentagePayloadMaxValueWithAdvancedPrices(): void
     {
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -469,7 +469,7 @@ class PromotionItemBuilderTest extends TestCase
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
      * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
      */
-    public function testAbsolutePayloadMaxValueIsNull()
+    public function testAbsolutePayloadMaxValueIsNull(): void
     {
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -493,7 +493,7 @@ class PromotionItemBuilderTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testDiscountPayloadValues()
+    public function testDiscountPayloadValues(): void
     {
         $builder = new PromotionItemBuilder();
 

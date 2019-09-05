@@ -20,7 +20,7 @@ class PromotionEventSubscriberTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testSubscribeToOrderLineItemWritten()
+    public function testSubscribeToOrderLineItemWritten(): void
     {
         $expectedEvent = CheckoutOrderPlacedEvent::class;
 

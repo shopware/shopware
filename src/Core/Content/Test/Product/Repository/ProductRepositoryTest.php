@@ -310,8 +310,8 @@ class ProductRepositoryTest extends TestCase
         /** @var ListingPrice $aPrice */
         $aPrice = $aPrices[0];
 
-        static::assertEquals(5, $aPrice->getFrom()->getGross());
-        static::assertEquals(15, $aPrice->getTo()->getGross());
+        static::assertSame(5.0, $aPrice->getFrom()->getGross());
+        static::assertSame(15.0, $aPrice->getTo()->getGross());
 
         $update = [
             'id' => $id,
@@ -339,8 +339,8 @@ class ProductRepositoryTest extends TestCase
         /** @var ListingPrice $aPrice */
         $aPrice = $aPrices[0];
 
-        static::assertEquals(5, $aPrice->getFrom()->getGross());
-        static::assertEquals(30, $aPrice->getTo()->getGross());
+        static::assertSame(5.0, $aPrice->getFrom()->getGross());
+        static::assertSame(30.0, $aPrice->getTo()->getGross());
         static::assertTrue($aPrice->isDifferent());
     }
 
@@ -426,8 +426,8 @@ class ProductRepositoryTest extends TestCase
         /** @var array $record */
         $record = $this->connection->fetchAssoc('SELECT * FROM product_category WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($record);
-        static::assertEquals($record['product_id'], Uuid::fromHexToBytes($id));
-        static::assertEquals($record['category_id'], Uuid::fromHexToBytes($id));
+        static::assertSame($record['product_id'], Uuid::fromHexToBytes($id));
+        static::assertSame($record['category_id'], Uuid::fromHexToBytes($id));
 
         $record = $this->connection->fetchAssoc('SELECT * FROM category WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($record);
@@ -487,32 +487,32 @@ class ProductRepositoryTest extends TestCase
         /* @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(TaxEntity::class, $product->getTax());
-        static::assertEquals('without id', $product->getTax()->getName());
-        static::assertEquals(19, $product->getTax()->getTaxRate());
+        static::assertSame('without id', $product->getTax()->getName());
+        static::assertSame(19.0, $product->getTax()->getTaxRate());
 
         $product = $products->get($ids[1]);
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(TaxEntity::class, $product->getTax());
-        static::assertEquals($tax, $product->getTaxId());
-        static::assertEquals($tax, $product->getTax()->getId());
-        static::assertEquals('with id', $product->getTax()->getName());
-        static::assertEquals(18, $product->getTax()->getTaxRate());
+        static::assertSame($tax, $product->getTaxId());
+        static::assertSame($tax, $product->getTax()->getId());
+        static::assertSame('with id', $product->getTax()->getName());
+        static::assertSame(18.0, $product->getTax()->getTaxRate());
 
         $product = $products->get($ids[2]);
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(TaxEntity::class, $product->getTax());
-        static::assertEquals($tax, $product->getTaxId());
-        static::assertEquals($tax, $product->getTax()->getId());
-        static::assertEquals('with id', $product->getTax()->getName());
-        static::assertEquals(18, $product->getTax()->getTaxRate());
+        static::assertSame($tax, $product->getTaxId());
+        static::assertSame($tax, $product->getTax()->getId());
+        static::assertSame('with id', $product->getTax()->getName());
+        static::assertSame(18.0, $product->getTax()->getTaxRate());
 
         $product = $products->get($ids[2]);
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(TaxEntity::class, $product->getTax());
-        static::assertEquals($tax, $product->getTaxId());
-        static::assertEquals($tax, $product->getTax()->getId());
-        static::assertEquals('with id', $product->getTax()->getName());
-        static::assertEquals(18, $product->getTax()->getTaxRate());
+        static::assertSame($tax, $product->getTaxId());
+        static::assertSame($tax, $product->getTax()->getId());
+        static::assertSame('with id', $product->getTax()->getName());
+        static::assertSame(18.0, $product->getTax()->getTaxRate());
     }
 
     public function testWriteProductWithDifferentManufacturerStructures(): void
@@ -570,29 +570,29 @@ class ProductRepositoryTest extends TestCase
         /* @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
-        static::assertEquals('without id', $product->getManufacturer()->getName());
+        static::assertSame('without id', $product->getManufacturer()->getName());
 
         $product = $products->get($ids[1]);
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
-        static::assertEquals($manufacturerId, $product->getManufacturerId());
-        static::assertEquals($manufacturerId, $product->getManufacturer()->getId());
-        static::assertEquals('with id', $product->getManufacturer()->getName());
+        static::assertSame($manufacturerId, $product->getManufacturerId());
+        static::assertSame($manufacturerId, $product->getManufacturer()->getId());
+        static::assertSame('with id', $product->getManufacturer()->getName());
 
         $product = $products->get($ids[2]);
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
-        static::assertEquals($manufacturerId, $product->getManufacturerId());
-        static::assertEquals($manufacturerId, $product->getManufacturer()->getId());
-        static::assertEquals('with id', $product->getManufacturer()->getName());
+        static::assertSame($manufacturerId, $product->getManufacturerId());
+        static::assertSame($manufacturerId, $product->getManufacturer()->getId());
+        static::assertSame('with id', $product->getManufacturer()->getName());
 
         $product = $products->get($ids[2]);
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
-        static::assertEquals($manufacturerId, $product->getManufacturerId());
-        static::assertEquals($manufacturerId, $product->getManufacturer()->getId());
-        static::assertEquals('with id', $product->getManufacturer()->getName());
-        static::assertEquals('test', $product->getManufacturer()->getLink());
+        static::assertSame($manufacturerId, $product->getManufacturerId());
+        static::assertSame($manufacturerId, $product->getManufacturer()->getId());
+        static::assertSame('with id', $product->getManufacturer()->getName());
+        static::assertSame('test', $product->getManufacturer()->getLink());
     }
 
     public function testReadAndWriteOfProductManufacturerAssociation(): void
@@ -637,14 +637,14 @@ class ProductRepositoryTest extends TestCase
 
         //check data loading is as expected
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertEquals($id, $product->getId());
-        static::assertEquals('Test', $product->getName());
+        static::assertSame($id, $product->getId());
+        static::assertSame('Test', $product->getName());
 
         static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
 
         //check nested element loaded
         $manufacturer = $product->getManufacturer();
-        static::assertEquals('test', $manufacturer->getName());
+        static::assertSame('test', $manufacturer->getName());
     }
 
     public function testReadAndWriteProductPrices(): void
@@ -698,19 +698,19 @@ class ProductRepositoryTest extends TestCase
         $product = $products->get($id);
 
         /* @var ProductEntity $product */
-        static::assertEquals($id, $product->getId());
+        static::assertSame($id, $product->getId());
 
         static::assertEquals(new Price(Defaults::CURRENCY, 10, 15, false), $product->getCurrencyPrice(Defaults::CURRENCY));
         static::assertCount(2, $product->getPrices());
 
         /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->get($ruleA);
-        static::assertEquals(15, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-        static::assertEquals(10, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getNet());
+        static::assertSame(15.0, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame(10.0, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getNet());
 
         $price = $product->getPrices()->get($ruleB);
-        static::assertEquals(10, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-        static::assertEquals(8, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getNet());
+        static::assertSame(10.0, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame(8.0, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getNet());
     }
 
     public function testPriceRulesSorting(): void
@@ -791,7 +791,7 @@ class ProductRepositoryTest extends TestCase
 
         $products = $this->repository->searchIds($criteria, $context);
 
-        static::assertEquals(
+        static::assertSame(
             [$id2, $id3, $id],
             $products->getIds()
         );
@@ -803,7 +803,7 @@ class ProductRepositoryTest extends TestCase
         /** @var IdSearchResult $products */
         $products = $this->repository->searchIds($criteria, $context);
 
-        static::assertEquals(
+        static::assertSame(
             [$id, $id3, $id2],
             $products->getIds()
         );
@@ -815,9 +815,9 @@ class ProductRepositoryTest extends TestCase
         $greenId = Uuid::randomHex();
         $parentId = Uuid::randomHex();
 
-        $parentPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true];
+        $parentPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 10.0, 'net' => 9, 'linked' => true];
         $parentName = 'T-shirt';
-        $greenPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 14, 'linked' => true];
+        $greenPrice = ['currencyId' => Defaults::CURRENCY, 'gross' => 15.0, 'net' => 14, 'linked' => true];
 
         $redName = 'Red shirt';
 
@@ -874,14 +874,14 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
 
-        static::assertEquals($parentPrice['gross'], $parent->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-        static::assertEquals($parentName, $parent->getName());
+        static::assertSame($parentPrice['gross'], $parent->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame($parentName, $parent->getName());
 
-        static::assertEquals($parentPrice['gross'], $red->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-        static::assertEquals($redName, $red->getName());
+        static::assertSame($parentPrice['gross'], $red->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame($redName, $red->getName());
 
-        static::assertEquals($greenPrice['gross'], $green->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-        static::assertEquals($parentName, $green->getTranslated()['name']);
+        static::assertSame($greenPrice['gross'], $green->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame($parentName, $green->getTranslated()['name']);
         static::assertNull($green->getName());
 
         /** @var array $row */
@@ -890,7 +890,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-        static::assertEquals($parentName, $row['name']);
+        static::assertSame($parentName, $row['name']);
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
@@ -898,7 +898,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
-        static::assertEquals($redName, $row['name']);
+        static::assertSame($redName, $row['name']);
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
@@ -941,11 +941,11 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->get($id);
 
-        static::assertEquals('Update', $product->getName());
-        static::assertEquals(12, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame('Update', $product->getName());
+        static::assertSame(12.0, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
 
-        $count = $this->connection->fetchColumn('SELECT COUNT(id) FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
-        static::assertEquals(1, $count);
+        $count = (int) $this->connection->fetchColumn('SELECT COUNT(id) FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
+        static::assertSame(1, $count);
     }
 
     public function testSwitchVariantToFullProduct(): void
@@ -968,7 +968,7 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(2, $raw);
 
         $name = $this->connection->fetchColumn('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);
-        static::assertEquals('Update', $name);
+        static::assertSame('Update', $name);
 
         $data = [
             [
@@ -990,7 +990,7 @@ class ProductRepositoryTest extends TestCase
         $constraintViolation = $e->getExceptions()[0];
         static::assertInstanceOf(WriteConstraintViolationException::class, $constraintViolation);
 
-        static::assertEquals('taxId', $constraintViolation->getViolations()[0]->getPropertyPath());
+        static::assertSame('taxId', $constraintViolation->getViolations()[0]->getPropertyPath());
 
         $data = [
             [
@@ -1019,16 +1019,14 @@ class ProductRepositoryTest extends TestCase
         $product = $products->get($child);
 
         /* @var ProductEntity $product */
-        static::assertEquals('Child transformed to parent', $product->getName());
-        static::assertEquals(13, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-        static::assertEquals('test3', $product->getManufacturer()->getName());
-        static::assertEquals(15, $product->getTax()->getTaxRate());
+        static::assertSame('Child transformed to parent', $product->getName());
+        static::assertSame(13.0, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame('test3', $product->getManufacturer()->getName());
+        static::assertSame(15.0, $product->getTax()->getTaxRate());
     }
 
     public function testSwitchVariantToFullProductWithoutName(): void
     {
-        static::markTestSkipped('The test should error with because of a missing name.');
-
         $id = Uuid::randomHex();
         $child = Uuid::randomHex();
 
@@ -1039,11 +1037,15 @@ class ProductRepositoryTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 10],
                 'manufacturer' => ['name' => 'test'],
+                'stock' => 1,
+                'productNumber' => 'SW100',
             ],
             [
                 'id' => $child,
                 'parentId' => $id,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 12, 'net' => 11, 'linked' => false]],
+                'stock' => 2,
+                'productNumber' => 'SW100.1',
             ],
         ];
 
@@ -1066,6 +1068,7 @@ class ProductRepositoryTest extends TestCase
             ],
         ];
 
+        /** @var WriteException|null $e */
         $e = null;
         try {
             $this->repository->upsert($data, Context::createDefaultContext());
@@ -1073,10 +1076,12 @@ class ProductRepositoryTest extends TestCase
         }
         static::assertInstanceOf(WriteException::class, $e);
 
-        /* @var WriteException $e */
-        static::assertArrayHasKey('/taxId', $e->toArray());
-        static::assertArrayHasKey('/manufacturerId', $e->toArray());
-        static::assertArrayHasKey('/translations', $e->toArray(), print_r($e->toArray(), true));
+        $message = $e->getMessage();
+
+        static::assertStringContainsString('/0/taxId', $message);
+        static::assertStringContainsString('/0/stock', $message);
+        static::assertStringContainsString('/0/price', $message);
+        static::assertStringContainsString('/0/productNumber', $message);
 
         $data = [
             [
@@ -1086,6 +1091,8 @@ class ProductRepositoryTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 13, 'net' => 12, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'manufacturer' => ['name' => 'test3'],
+                'stock' => 3,
+                'productNumber' => 'SW200',
             ],
         ];
 
@@ -1098,14 +1105,18 @@ class ProductRepositoryTest extends TestCase
 
         static::assertNull($raw['parent_id']);
 
-        $products = $this->repository->search(new Criteria([$child]), Context::createDefaultContext());
+        $criteria = new Criteria([$child]);
+        $criteria->addAssociation('manufacturer');
+
+        $products = $this->repository->search($criteria, Context::createDefaultContext());
         $product = $products->get($child);
 
         /* @var ProductEntity $product */
-        static::assertEquals('Child transformed to parent', $product->getName());
-        static::assertEquals(13, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
-        static::assertEquals('test3', $product->getManufacturer()->getName());
-        static::assertEquals(15, $product->getTax()->getTaxRate());
+        static::assertSame('Child transformed to parent', $product->getName());
+        static::assertSame(13.0, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
+        static::assertSame('test3', $product->getManufacturer()->getName());
+        static::assertSame(15.0, $product->getTax()->getTaxRate());
+        static::assertSame('SW200', $product->getProductNumber());
     }
 
     public function testVariantInheritanceWithTax(): void
@@ -1179,25 +1190,25 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
 
-        static::assertEquals($parentTax, $parent->getTax()->getId());
-        static::assertEquals($parentTax, $red->getTax()->getId());
-        static::assertEquals($greenTax, $green->getTax()->getId());
+        static::assertSame($parentTax, $parent->getTax()->getId());
+        static::assertSame($parentTax, $red->getTax()->getId());
+        static::assertSame($greenTax, $green->getTax()->getId());
 
-        static::assertEquals($parentTax, $parent->getTaxId());
-        static::assertEquals($parentTax, $red->getTaxId());
-        static::assertEquals($parentTax, $red->getTaxId());
-        static::assertEquals($greenTax, $green->getTaxId());
+        static::assertSame($parentTax, $parent->getTaxId());
+        static::assertSame($parentTax, $red->getTaxId());
+        static::assertSame($parentTax, $red->getTaxId());
+        static::assertSame($greenTax, $green->getTaxId());
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
 
         static::assertEquals(
             [
-                'c' . Defaults::CURRENCY => ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true],
+                'c' . Defaults::CURRENCY => ['net' => 9, 'gross' => 10, 'linked' => true, 'currencyId' => Defaults::CURRENCY],
             ],
             json_decode($row['price'], true)
         );
-        static::assertEquals($parentTax, Uuid::fromBytesToHex($row['tax_id']));
+        static::assertSame($parentTax, Uuid::fromBytesToHex($row['tax_id']));
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
@@ -1207,7 +1218,7 @@ class ProductRepositoryTest extends TestCase
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertNull($row['price']);
-        static::assertEquals($greenTax, Uuid::fromBytesToHex($row['tax_id']));
+        static::assertSame($greenTax, Uuid::fromBytesToHex($row['tax_id']));
 
         $criteria = new Criteria([$redId, $greenId]);
         $criteria->addAssociation('tax');
@@ -1328,7 +1339,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-        static::assertEquals($parentMedia, Uuid::fromBytesToHex($row['media_id']));
+        static::assertSame($parentMedia, Uuid::fromBytesToHex($row['media_id']));
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
@@ -1336,7 +1347,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
-        static::assertEquals($greenMedia, Uuid::fromBytesToHex($row['media_id']));
+        static::assertSame($greenMedia, Uuid::fromBytesToHex($row['media_id']));
     }
 
     public function testVariantInheritanceWithCategories(): void
@@ -1406,24 +1417,24 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $red */
         $red = $products->get($redId);
 
-        static::assertEquals([$parentCategory], array_values($parent->getCategories()->getIds()));
-        static::assertEquals([$parentCategory], array_values($red->getCategories()->getIds()));
-        static::assertEquals([$greenCategory], array_values($green->getCategories()->getIds()));
+        static::assertSame([$parentCategory], array_values($parent->getCategories()->getIds()));
+        static::assertSame([$parentCategory], array_values($red->getCategories()->getIds()));
+        static::assertSame([$greenCategory], array_values($green->getCategories()->getIds()));
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
         static::assertContains($parentCategory, json_decode($row['category_tree'], true));
-        static::assertEquals($parentId, Uuid::fromBytesToHex($row['categories']));
+        static::assertSame($parentId, Uuid::fromBytesToHex($row['categories']));
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
         static::assertContains($parentCategory, json_decode($row['category_tree'], true));
-        static::assertEquals($parentId, Uuid::fromBytesToHex($row['categories']));
+        static::assertSame($parentId, Uuid::fromBytesToHex($row['categories']));
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertContains($greenCategory, json_decode($row['category_tree'], true));
-        static::assertEquals($greenId, Uuid::fromBytesToHex($row['categories']));
+        static::assertSame($greenId, Uuid::fromBytesToHex($row['categories']));
     }
 
     public function testSearchByInheritedName(): void
@@ -1608,7 +1619,7 @@ class ProductRepositoryTest extends TestCase
         $repository = $this->getContainer()->get('category.repository');
         $categories = $repository->searchIds($criteria, $context);
 
-        static::assertEquals(1, $categories->getTotal());
+        static::assertSame(1, $categories->getTotal());
         static::assertContains($categoryId, $categories->getIds());
 
         $criteria = new Criteria();
@@ -1618,7 +1629,7 @@ class ProductRepositoryTest extends TestCase
         $repository = $this->getContainer()->get('category.repository');
         $categories = $repository->searchIds($criteria, $context);
 
-        static::assertEquals(1, $categories->getTotal());
+        static::assertSame(1, $categories->getTotal());
         static::assertContains($categoryId, $categories->getIds());
     }
 
@@ -1742,7 +1753,7 @@ class ProductRepositoryTest extends TestCase
 
         $result = $this->getContainer()->get('product_manufacturer.repository')->searchIds($criteria, $context);
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
         static::assertContains($manufacturerId, $result->getIds());
     }
 
@@ -1821,7 +1832,7 @@ class ProductRepositoryTest extends TestCase
         $product = $products->get($productId);
 
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertEquals($manufacturerId, $product->getManufacturerId());
+        static::assertSame($manufacturerId, $product->getManufacturerId());
     }
 
     public function testCreateAndAssignProductProperty(): void
@@ -1870,11 +1881,11 @@ class ProductRepositoryTest extends TestCase
         $blue = $sheet->get($blueId);
         $red = $sheet->get($redId);
 
-        static::assertEquals('red', $red->getName());
-        static::assertEquals('blue', $blue->getName());
+        static::assertSame('red', $red->getName());
+        static::assertSame('blue', $blue->getName());
 
-        static::assertEquals($colorId, $red->getGroupId());
-        static::assertEquals($colorId, $blue->getGroupId());
+        static::assertSame($colorId, $red->getGroupId());
+        static::assertSame($colorId, $blue->getGroupId());
     }
 
     public function testCreateAndAssignProductOption(): void
@@ -1923,11 +1934,11 @@ class ProductRepositoryTest extends TestCase
         $blue = $sheet->get($blueId);
         $red = $sheet->get($redId);
 
-        static::assertEquals('red', $red->getName());
-        static::assertEquals('blue', $blue->getName());
+        static::assertSame('red', $red->getName());
+        static::assertSame('blue', $blue->getName());
 
-        static::assertEquals($colorId, $red->getGroupId());
-        static::assertEquals($colorId, $blue->getGroupId());
+        static::assertSame($colorId, $red->getGroupId());
+        static::assertSame($colorId, $blue->getGroupId());
     }
 
     public function testCreateAndAssignProductConfigurator(): void
@@ -1984,14 +1995,14 @@ class ProductRepositoryTest extends TestCase
         $blue = $configuratorSettings->get($blueId);
         $red = $configuratorSettings->get($redId);
 
-        static::assertEquals(['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false], $red->getPrice());
-        static::assertEquals(['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 90, 'linked' => false], $blue->getPrice());
+        static::assertEquals(['net' => 25, 'gross' => 50, 'linked' => false, 'currencyId' => Defaults::CURRENCY], $red->getPrice());
+        static::assertEquals(['net' => 90, 'gross' => 100, 'linked' => false, 'currencyId' => Defaults::CURRENCY], $blue->getPrice());
 
-        static::assertEquals('red', $red->getOption()->getName());
-        static::assertEquals('blue', $blue->getOption()->getName());
+        static::assertSame('red', $red->getOption()->getName());
+        static::assertSame('blue', $blue->getOption()->getName());
 
-        static::assertEquals($colorId, $red->getOption()->getGroupId());
-        static::assertEquals($colorId, $blue->getOption()->getGroupId());
+        static::assertSame($colorId, $red->getOption()->getGroupId());
+        static::assertSame($colorId, $blue->getOption()->getGroupId());
     }
 
     public function testListingPriceWithoutVariants(): void
@@ -2058,7 +2069,7 @@ class ProductRepositoryTest extends TestCase
         $price = $price[0];
 
         /** @var ListingPrice $price */
-        static::assertEquals(10, $price->getFrom()->getGross());
+        static::assertSame(10.0, $price->getFrom()->getGross());
     }
 
     public function testModifyProductPriceMatrix(): void
@@ -2107,7 +2118,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->first();
-        static::assertEquals($ruleA, $price->getRuleId());
+        static::assertSame($ruleA, $price->getRuleId());
 
         $data = [
             'id' => $id,
@@ -2148,7 +2159,7 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->get($id);
 
-        static::assertEquals($ruleA, $price->getRuleId());
+        static::assertSame($ruleA, $price->getRuleId());
         static::assertInstanceOf(PriceCollection::class, $price->getPrice());
 
         static::assertEquals(
@@ -2156,8 +2167,8 @@ class ProductRepositoryTest extends TestCase
             $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)
         );
 
-        static::assertEquals(1, $price->getQuantityStart());
-        static::assertEquals(20, $price->getQuantityEnd());
+        static::assertSame(1, $price->getQuantityStart());
+        static::assertSame(20, $price->getQuantityEnd());
 
         $id3 = Uuid::randomHex();
 
@@ -2190,14 +2201,14 @@ class ProductRepositoryTest extends TestCase
 
         /** @var ProductPriceEntity $price */
         $price = $product->getPrices()->get($id3);
-        static::assertEquals($ruleB, $price->getRuleId());
+        static::assertSame($ruleB, $price->getRuleId());
 
         static::assertEquals(
             new Price(Defaults::CURRENCY, 50, 50, false),
             $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)
         );
 
-        static::assertEquals(1, $price->getQuantityStart());
+        static::assertSame(1, $price->getQuantityStart());
         static::assertNull($price->getQuantityEnd());
     }
 

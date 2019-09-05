@@ -33,7 +33,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
     public function testType(): void
     {
-        static::assertEquals('product-box', $this->productBoxResolver->getType());
+        static::assertSame('product-box', $this->productBoxResolver->getType());
     }
 
     public function testCollectWithEmptyConfig(): void
@@ -67,7 +67,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
         static::assertNotNull($criteriaCollection);
         static::assertCount(1, $criteriaCollection->all());
-        static::assertEquals(['product123'], $criteriaCollection->all()[ProductDefinition::class]['product_id']->getIds());
+        static::assertSame(['product123'], $criteriaCollection->all()[ProductDefinition::class]['product_id']->getIds());
     }
 
     public function testCollectWithMappedConfig(): void
@@ -99,9 +99,11 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ProductBoxStruct::class, $slot->getData());
-        static::assertNull($slot->getData()->getProductId());
-        static::assertNull($slot->getData()->getProduct());
+        /** @var ProductBoxStruct|null $productBoxStruct */
+        $productBoxStruct = $slot->getData();
+        static::assertInstanceOf(ProductBoxStruct::class, $productBoxStruct);
+        static::assertNull($productBoxStruct->getProductId());
+        static::assertNull($productBoxStruct->getProduct());
     }
 
     public function testEnrichWithStaticConfig(): void
@@ -129,9 +131,11 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ProductBoxStruct::class, $slot->getData());
-        static::assertEquals($product->getId(), $slot->getData()->getProductId());
-        static::assertSame($product, $slot->getData()->getProduct());
+        /** @var ProductBoxStruct|null $productBoxStruct */
+        $productBoxStruct = $slot->getData();
+        static::assertInstanceOf(ProductBoxStruct::class, $productBoxStruct);
+        static::assertSame($product->getId(), $productBoxStruct->getProductId());
+        static::assertSame($product, $productBoxStruct->getProduct());
     }
 
     public function testEnrichWithStaticConfigButNoResult(): void
@@ -156,9 +160,11 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ProductBoxStruct::class, $slot->getData());
-        static::assertNull($slot->getData()->getProductId());
-        static::assertNull($slot->getData()->getProduct());
+        /** @var ProductBoxStruct|null $productBoxStruct */
+        $productBoxStruct = $slot->getData();
+        static::assertInstanceOf(ProductBoxStruct::class, $productBoxStruct);
+        static::assertNull($productBoxStruct->getProductId());
+        static::assertNull($productBoxStruct->getProduct());
     }
 
     public function testEnrichWithMappedConfig(): void
@@ -183,9 +189,11 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ProductBoxStruct::class, $slot->getData());
-        static::assertEquals($parent->getId(), $slot->getData()->getProductId());
-        static::assertSame($parent, $slot->getData()->getProduct());
+        /** @var ProductBoxStruct|null $productBoxStruct */
+        $productBoxStruct = $slot->getData();
+        static::assertInstanceOf(ProductBoxStruct::class, $productBoxStruct);
+        static::assertSame($parent->getId(), $productBoxStruct->getProductId());
+        static::assertSame($parent, $productBoxStruct->getProduct());
     }
 
     public function testEnrichWithMappedConfigButInvalidProperty(): void

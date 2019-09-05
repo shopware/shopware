@@ -38,7 +38,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testType(): void
     {
-        static::assertEquals('image', $this->imageResolver->getType());
+        static::assertSame('image', $this->imageResolver->getType());
     }
 
     public function testCollectWithEmptyConfig(): void
@@ -92,10 +92,12 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ImageStruct::class, $slot->getData());
-        static::assertEmpty($slot->getData()->getUrl());
-        static::assertEmpty($slot->getData()->getMedia());
-        static::assertEmpty($slot->getData()->getMediaId());
+        /** @var ImageStruct|null $imageStruct */
+        $imageStruct = $slot->getData();
+        static::assertInstanceOf(ImageStruct::class, $imageStruct);
+        static::assertEmpty($imageStruct->getUrl());
+        static::assertEmpty($imageStruct->getMedia());
+        static::assertEmpty($imageStruct->getMediaId());
     }
 
     public function testEnrichWithUrlOnly(): void
@@ -114,10 +116,12 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ImageStruct::class, $slot->getData());
-        static::assertEquals('http://shopware.com/image.jpg', $slot->getData()->getUrl());
-        static::assertEmpty($slot->getData()->getMedia());
-        static::assertEmpty($slot->getData()->getMediaId());
+        /** @var ImageStruct|null $imageStruct */
+        $imageStruct = $slot->getData();
+        static::assertInstanceOf(ImageStruct::class, $imageStruct);
+        static::assertSame('http://shopware.com/image.jpg', $imageStruct->getUrl());
+        static::assertEmpty($imageStruct->getMedia());
+        static::assertEmpty($imageStruct->getMediaId());
     }
 
     public function testEnrichWithUrlAndNewTabOnly(): void
@@ -137,11 +141,13 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ImageStruct::class, $slot->getData());
-        static::assertEquals('http://shopware.com/image.jpg', $slot->getData()->getUrl());
-        static::assertTrue($slot->getData()->getNewTab());
-        static::assertEmpty($slot->getData()->getMedia());
-        static::assertEmpty($slot->getData()->getMediaId());
+        /** @var ImageStruct|null $imageStruct */
+        $imageStruct = $slot->getData();
+        static::assertInstanceOf(ImageStruct::class, $imageStruct);
+        static::assertSame('http://shopware.com/image.jpg', $imageStruct->getUrl());
+        static::assertTrue($imageStruct->getNewTab());
+        static::assertEmpty($imageStruct->getMedia());
+        static::assertEmpty($imageStruct->getMediaId());
     }
 
     public function testEnrichWithMediaOnly(): void
@@ -173,11 +179,13 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ImageStruct::class, $slot->getData());
-        static::assertEmpty($slot->getData()->getUrl());
-        static::assertInstanceOf(MediaEntity::class, $slot->getData()->getMedia());
-        static::assertEquals('media123', $slot->getData()->getMediaId());
-        static::assertEquals($media, $slot->getData()->getMedia());
+        /** @var ImageStruct|null $imageStruct */
+        $imageStruct = $slot->getData();
+        static::assertInstanceOf(ImageStruct::class, $imageStruct);
+        static::assertEmpty($imageStruct->getUrl());
+        static::assertInstanceOf(MediaEntity::class, $imageStruct->getMedia());
+        static::assertSame('media123', $imageStruct->getMediaId());
+        static::assertSame($media, $imageStruct->getMedia());
     }
 
     public function testEnrichWithMediaAndUrl(): void
@@ -210,11 +218,13 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ImageStruct::class, $slot->getData());
-        static::assertEquals('http://shopware.com/image.jpg', $slot->getData()->getUrl());
-        static::assertInstanceOf(MediaEntity::class, $slot->getData()->getMedia());
-        static::assertEquals('media123', $slot->getData()->getMediaId());
-        static::assertEquals($media, $slot->getData()->getMedia());
+        /** @var ImageStruct|null $imageStruct */
+        $imageStruct = $slot->getData();
+        static::assertInstanceOf(ImageStruct::class, $imageStruct);
+        static::assertSame('http://shopware.com/image.jpg', $imageStruct->getUrl());
+        static::assertInstanceOf(MediaEntity::class, $imageStruct->getMedia());
+        static::assertSame('media123', $imageStruct->getMediaId());
+        static::assertSame($media, $imageStruct->getMedia());
     }
 
     public function testEnrichWithMissingMediaId(): void
@@ -246,10 +256,12 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ImageStruct::class, $slot->getData());
-        static::assertEmpty($slot->getData()->getUrl());
-        static::assertEquals('media123', $slot->getData()->getMediaId());
-        static::assertEmpty($slot->getData()->getMedia());
+        /** @var ImageStruct|null $imageStruct */
+        $imageStruct = $slot->getData();
+        static::assertInstanceOf(ImageStruct::class, $imageStruct);
+        static::assertEmpty($imageStruct->getUrl());
+        static::assertSame('media123', $imageStruct->getMediaId());
+        static::assertEmpty($imageStruct->getMedia());
     }
 
     public function testMediaWithRemote(): void
@@ -281,10 +293,12 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ImageStruct::class, $slot->getData());
-        static::assertEmpty($slot->getData()->getUrl());
-        static::assertEquals('media123', $slot->getData()->getMediaId());
-        static::assertEquals($media, $slot->getData()->getMedia());
+        /** @var ImageStruct|null $imageStruct */
+        $imageStruct = $slot->getData();
+        static::assertInstanceOf(ImageStruct::class, $imageStruct);
+        static::assertEmpty($imageStruct->getUrl());
+        static::assertSame('media123', $imageStruct->getMediaId());
+        static::assertSame($media, $imageStruct->getMedia());
     }
 
     public function testMediaWithLocal(): void
@@ -321,10 +335,12 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ImageStruct::class, $slot->getData());
-        static::assertEmpty($slot->getData()->getUrl());
-        static::assertEquals('media123', $slot->getData()->getMediaId());
-        static::assertEquals($media, $slot->getData()->getMedia());
+        /** @var ImageStruct|null $imageStruct */
+        $imageStruct = $slot->getData();
+        static::assertInstanceOf(ImageStruct::class, $imageStruct);
+        static::assertEmpty($imageStruct->getUrl());
+        static::assertSame('media123', $imageStruct->getMediaId());
+        static::assertSame($media, $imageStruct->getMedia());
     }
 
     public function testUrlWithLocal(): void
@@ -349,9 +365,11 @@ class ImageTypeDataResolverTest extends TestCase
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ImageStruct::class, $slot->getData());
-        static::assertEquals($manufacturer->getLink(), $slot->getData()->getUrl());
-        static::assertEmpty($slot->getData()->getMediaId());
-        static::assertEmpty($slot->getData()->getMedia());
+        /** @var ImageStruct|null $imageStruct */
+        $imageStruct = $slot->getData();
+        static::assertInstanceOf(ImageStruct::class, $imageStruct);
+        static::assertSame($manufacturer->getLink(), $imageStruct->getUrl());
+        static::assertEmpty($imageStruct->getMediaId());
+        static::assertEmpty($imageStruct->getMedia());
     }
 }

@@ -93,7 +93,7 @@ Example:
 namespace Swag\ThemeQuickStart;
 
 use Shopware\Core\Framework\Plugin;
-use Showpare\Storefront\Framework\ThemeInterface;
+use Shopware\Storefront\Framework\ThemeInterface;
 
 class ThemeQuickStart extends Plugin implements ThemeInterface
 {

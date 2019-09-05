@@ -60,12 +60,12 @@ class ProductExportController extends StorefrontController
         $criteria
             ->addFilter(new EqualsFilter('fileName', $request->get('fileName')))
             ->addFilter(new EqualsFilter('accessKey', $request->get('accessKey')))
-            ->addFilter(new EqualsFilter('product_export.salesChannel.active', true))
+            ->addFilter(new EqualsFilter('salesChannel.active', true))
             ->addFilter(new MultiFilter(
                 'OR',
                 [
                     new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
-                    new EqualsFilter('product_export.salesChannelDomain.salesChannel.id', $context->getSalesChannel()->getId()),
+                    new EqualsFilter('salesChannelDomain.salesChannel.id', $context->getSalesChannel()->getId()),
                 ]
             ))
             ->addAssociation('productStream.filters.queries')

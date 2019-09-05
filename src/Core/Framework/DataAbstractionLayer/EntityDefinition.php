@@ -6,12 +6,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
@@ -122,11 +124,38 @@ abstract class EntityDefinition
 
             /** @var Field $field */
             foreach ($new as $field) {
-                if ((!$field instanceof AssociationField) && (!$field->is(Runtime::class))) {
-                    throw new \Exception('Only AssociationFields or fields flagged as Runtime can be added as Extension.');
+                $field->addFlags(new Extension());
+
+                if ($field instanceof AssociationField) {
+                    $fields->add($field);
+                    continue;
                 }
 
-                $field->addFlags(new Extension());
+                if ($field->is(Runtime::class)) {
+                    $fields->add($field);
+                    continue;
+                }
+
+                if (!$field instanceof FkField) {
+                    throw new \Exception('Only AssociationFields, fk fields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
+                }
+
+                $hasManyToOne = false;
+                foreach ($new as $association) {
+                    if (!$association instanceof ManyToOneAssociationField) {
+                        continue;
+                    }
+
+                    if ($association->getStorageName() === $field->getStorageName()) {
+                        $hasManyToOne = true;
+                        break;
+                    }
+                }
+
+                if (!$hasManyToOne) {
+                    throw new \Exception(sprintf('FkField %s has no configured ManyToOneAssociationField', $field->getPropertyName()));
+                }
+
                 $fields->add($field);
             }
         }

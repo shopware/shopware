@@ -127,6 +127,59 @@ class SeoUrlPersisterTest extends TestCase
         static::assertSame($fk2, $invalid->getForeignKey());
     }
 
+    /**
+     * @depends testDuplicatesSameSalesChannel
+     */
+    public function testReturnToPreviousUrl(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $fk1 = Uuid::randomHex();
+        $initialSeoUrlUpdates = [
+            [
+                'salesChannelId' => $salesChannelId,
+                'foreignKey' => $fk1,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'fancy-path',
+            ],
+        ];
+        $fks = array_column($initialSeoUrlUpdates, 'foreignKey');
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $initialSeoUrlUpdates);
+
+        $intermediateSeoUrlUpdates = [
+            [
+                'salesChannelId' => $salesChannelId,
+                'foreignKey' => $fk1,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'intermediate',
+            ],
+        ];
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $intermediateSeoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $initialSeoUrlUpdates);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('foreignKey', [$fk1]));
+        /** @var SeoUrlCollection $result */
+        $result = $this->seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        /** @var SeoUrlCollection $valid */
+        $valid = $result->filterByProperty('isValid', true);
+        static::assertCount(2, $valid);
+
+        $invalid = $result->filterByProperty('isValid', false);
+        static::assertEmpty($invalid);
+
+        $canonicals = $result->filterByProperty('isCanonical', true);
+        static::assertCount(1, $canonicals);
+
+        /** @var SeoUrlEntity $canonical */
+        $canonical = $canonicals->first();
+
+        static::assertEquals($fk1, $canonical->getForeignKey());
+        static::assertTrue($canonical->getIsValid());
+    }
+
     public function testSameSeoPathDifferentLanguage(): void
     {
         $defaultContext = Context::createDefaultContext();

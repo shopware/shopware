@@ -174,6 +174,7 @@ class SeoUrlExtensionTest extends TestCase
                 $canonicalUrl = $category->getExtension('canonicalUrl');
                 static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
                 static::assertEquals($case['expected'], $canonicalUrl->getSeoPathInfo());
+                static::assertTrue($canonicalUrl->getIsValid());
             }
         }
     }
@@ -237,6 +238,7 @@ class SeoUrlExtensionTest extends TestCase
             $canonicalUrl = $category->getExtension('canonicalUrl');
             static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
             static::assertEquals($case['expected'], $canonicalUrl->getSeoPathInfo());
+            static::assertTrue($canonicalUrl->getIsValid());
         }
     }
 

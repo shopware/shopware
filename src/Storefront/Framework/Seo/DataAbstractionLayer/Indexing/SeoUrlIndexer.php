@@ -202,7 +202,7 @@ class SeoUrlIndexer implements IndexerInterface
 
         $mapped = [];
         foreach ($templateGroups as $languageId => $groups) {
-            $mapped[] = ['languageId' => $languages, 'groups' => $groups];
+            $mapped[] = ['languageId' => $languageId, 'groups' => $groups];
         }
 
         if (!isset($mapped[$groupOffset])) {

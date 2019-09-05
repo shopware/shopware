@@ -63,6 +63,7 @@ class SeoUrlPersister
         $seoUrlIds = [];
 
         $processed = [];
+        $inserts = [];
 
         foreach ($seoUrls as $seoUrl) {
             if ($seoUrl instanceof \JsonSerializable) {
@@ -116,10 +117,15 @@ class SeoUrlPersister
             $insert['is_valid'] = true;
             $insert['created_at'] = $dateTime;
 
-            $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
+            $inserts[] = $insert;
         }
 
+        $inserts = $this->reenableOldEntries($inserts, $languageId);
+        foreach ($inserts as $insert) {
+            $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
+        }
         $insertQuery->execute();
+
         $this->invalidateEntityCache();
 
         $this->obsoleteIds($obsoleted, $dateTime);
@@ -130,6 +136,62 @@ class SeoUrlPersister
         $this->invalidateDuplicates($context->getLanguageId(), $salesChannelIds, $foreignKeys);
 
         $this->invalidateEntityCache($seoUrlIds);
+    }
+
+    private function reenableOldEntries(array $inserts, string $languageId): array
+    {
+        $languageId = Uuid::fromHexToBytes($languageId);
+        $foreignKeys = array_column($inserts, 'foreign_key');
+        $salesChannelIds = array_column($inserts, 'sales_channel_id');
+        $seoUrls = array_column($inserts, 'seo_path_info');
+
+        $query = $this->connection->createQueryBuilder();
+        $query->select(['LOWER(HEX(seo_url.id)) as id',
+            'LOWER(HEX(seo_url.foreign_key)) as fk',
+            'LOWER(HEX(seo_url.sales_channel_id)) as sales_channel_id',
+            'seo_url.seo_path_info as seo_path_info', ]);
+        $query->from('seo_url', 'seo_url');
+
+        $query->andWhere('seo_url.seo_path_info IN (:seo_urls)');
+        $query->andWhere('seo_url.language_id = :language_ids');
+        $query->andWhere('seo_url.foreign_key IN (:foreign_keys)');
+        $query->andWhere('seo_url.sales_channel_id IN (:sales_channel_ids)');
+
+        $query->setParameter('seo_urls', $seoUrls, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('language_ids', $languageId);
+        $query->setParameter('foreign_keys', $foreignKeys, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('sales_channel_ids', $salesChannelIds, Connection::PARAM_STR_ARRAY);
+
+        $rows = $query->execute()->fetchAll(FetchMode::ASSOCIATIVE);
+
+        $newInserts = array_filter($inserts, function (array $insert) use ($rows) {
+            $foreignKey = Uuid::fromBytesToHex($insert['foreign_key']);
+            $url = $insert['seo_path_info'];
+
+            $salesChannelId = null;
+            if (isset($insert['sales_channel_id'])) {
+                $salesChannelId = Uuid::fromBytesToHex($insert['sales_channel_id']);
+            }
+
+            $candidates = array_filter($rows, function ($row) use ($foreignKey, $salesChannelId, $url) {
+                return $row['fk'] === $foreignKey
+                        && $row['sales_channel_id'] === $salesChannelId
+                        && $row['seo_path_info'] === $url;
+            });
+
+            return count($candidates) === 0;
+        }
+        );
+
+        if (!empty($rows)) {
+            $this->connection->executeQuery(
+                'UPDATE seo_url SET is_valid = 1, is_canonical = 1 WHERE id IN (:ids)',
+                ['ids' => Uuid::fromHexToBytesList(array_column($rows, 'id'))],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+        }
+
+        return $newInserts;
     }
 
     private function skipUpdate($existing, $seoUrl): bool
@@ -224,10 +286,10 @@ class SeoUrlPersister
 
         /*
          * If we find duplicates for a seo_path_info we need to mark all but one seo_url as invalid.
-         * The first created seo_url wins. The ordering is established by the auto_increment column.
+         * The newest seo_url wins. The ordering is established by the auto_increment column.
          */
         $dupIds = $this->connection->executeQuery(
-            'SELECT DISTINCT invalid.id
+            'SELECT DISTINCT invalid.id 
             FROM seo_url valid
             INNER JOIN seo_url invalid
                 ON valid.seo_path_info = invalid.seo_path_info
@@ -245,6 +307,7 @@ class SeoUrlPersister
         if (empty($dupIds)) {
             return;
         }
+
         $this->connection->executeQuery(
             'UPDATE seo_url SET is_valid = 0 WHERE id IN (:ids)',
             ['ids' => $dupIds],

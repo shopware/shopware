@@ -65,13 +65,13 @@ class LogCleanupTaskHandlerTest extends TestCase
     public function testCleanupWithAgeLimit(): void
     {
         $year = 60 * 60 * 24 * 31 * 12;
-        $this->runWithOptions(intval($year * 1.5), -1, ['test1']);
+        $this->runWithOptions((int) ($year * 1.5), -1, ['test1']);
     }
 
     public function testCleanupWithBothLimits(): void
     {
         $year = 60 * 60 * 24 * 31 * 12;
-        $this->runWithOptions(intval($year * 1.5), 2, ['test1']);
+        $this->runWithOptions((int) ($year * 1.5), 2, ['test1']);
     }
 
     private function runWithOptions(int $age, int $maxEntries, array $expectedMessages): void

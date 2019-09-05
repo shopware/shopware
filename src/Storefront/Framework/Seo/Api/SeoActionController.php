@@ -204,7 +204,7 @@ class SeoActionController extends AbstractController
             $salesChannel = $this->salesChannelRepository->search((new Criteria([$salesChannelId]))->setLimit(1), $context)->get($salesChannelId);
 
             if ($salesChannel === null) {
-                throw new InvalidSalesChannelIdException(strval($salesChannelId));
+                throw new InvalidSalesChannelIdException((string) $salesChannelId);
             }
         }
 

@@ -4,6 +4,7 @@ export default {
 
     state() {
         return {
+            salesChannelCollection: null,
             seoUrlCollection: null,
             originalSeoUrls: [],
             defaultSeoUrl: null,
@@ -26,6 +27,10 @@ export default {
 
         setDefaultSeoUrl(state, defaultSeoUrl) {
             state.defaultSeoUrl = defaultSeoUrl;
+        },
+
+        setSalesChannelCollection(state, salesChannelCollection) {
+            state.salesChannelCollection = salesChannelCollection;
         }
     },
 

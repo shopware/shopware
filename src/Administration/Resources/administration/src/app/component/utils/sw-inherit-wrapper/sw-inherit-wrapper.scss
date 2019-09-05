@@ -24,7 +24,7 @@
         }
     }
 
-    &.is--required .sw-inherit-wrapper__toggle-wrapper label::after{
+    &.is--required .sw-inherit-wrapper__toggle-wrapper label::after {
         content: "*";
         color: $color-shopware-blue;
     }
@@ -42,7 +42,13 @@
         }
     }
 
-    .sw-card__inherited .sw-card__content{
+    .sw-card__inherited .sw-card__content {
         border-color: $color-purple;
+    }
+
+    .sw-card__toolbar {
+        border-top-color: $color-purple;
+        border-left-color: $color-purple;
+        border-right-color: $color-purple;
     }
 }

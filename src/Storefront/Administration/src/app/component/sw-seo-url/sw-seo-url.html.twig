@@ -1,32 +1,47 @@
 {% block sw_seo_url %}
     <div class="sw-seo-url">
-        {% block sw_seo_url_card %}
-            <sw-card class="sw-seo-url-card"
-                     :title="$tc('sw-seo-url.titleCard')"
-                     :isLoading="isLoading">
-                <template v-if="showEmptySeoUrlError">
-                    {{ $tc('sw-seo-url.textEmptySeoUrls') }}
-                </template>
-                <template v-else>
-                    {% block sw_seo_url_card_toolbar %}
-                        <template slot="toolbar">
-                            <sw-sales-channel-switch
-                                    ref="salesChannelSwitch"
-                                    :label="$tc('sw-seo-url.labelSalesChannelSelect')"
-                                    @change-sales-channel-id="onSalesChannelChanged">
-                            </sw-sales-channel-switch>
-                        </template>
-                    {% endblock %}
+        <sw-card class="sw-seo-url__card"
+                 :title="$tc('sw-seo-url.titleCard')"
+                 :isLoading="isLoading">
+            {% block sw_seo_url_card %}
+                    <template v-if="showEmptySeoUrlError">
+                        {{ $tc('sw-seo-url.textEmptySeoUrls') }}
+                    </template>
 
-                    {% block sw_seo_url_card_seo_path %}
-                        <sw-text-field
-                                :label="$tc('sw-seo-url.labelSeoPathInfo')"
-                                v-model="currentSeoUrl.seoPathInfo">
-                        </sw-text-field>
-                    {% endblock %}
-                </template>
+                    <template v-else>
+                        {% block sw_seo_url_card_toolbar %}
+                            <template slot="toolbar">
+                                <sw-sales-channel-switch
+                                        ref="salesChannelSwitch"
+                                        :label="$tc('sw-seo-url.labelSalesChannelSelect')"
+                                        @change-sales-channel-id="onSalesChannelChanged">
+                                </sw-sales-channel-switch>
+                            </template>
+                        {% endblock %}
 
-            </sw-card>
-        {% endblock %}
+                        {% block sw_seo_url_card_seo_path %}
+                        <sw-inherit-wrapper v-model="currentSeoUrl.seoPathInfo"
+                                            :hasParent="currentSalesChannelId !== null && !isHeadlessSalesChannel"
+                                            :inheritedValue="(currentSeoUrl.salesChannelId !== null && !isHeadlessSalesChannel) ? defaultSeoUrl.seoPathInfo : null">
+
+                            <template #content="props">
+                                {% block sw_seo_url_card_seo_path_edit %}
+                                    <sw-text-field :mapInheritance="props"
+                                                   :value="props.currentValue"
+                                                   @input="props.updateCurrentValue"
+                                                   :disabled="props.isInherited || isHeadlessSalesChannel"
+                                                   :disableInheritanceToggle="isHeadlessSalesChannel"
+                                                   :label="$tc('sw-seo-url.labelSeoPathInfo')"
+                                                   :help-text="seoUrlHelptext">
+                                    </sw-text-field>
+                                {% endblock %}
+                            </template>
+
+                        </sw-inherit-wrapper>
+                        {% endblock %}
+                    </template>
+
+            {% endblock %}
+        </sw-card>
     </div>
 {% endblock %}

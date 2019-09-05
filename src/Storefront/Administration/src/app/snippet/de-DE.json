@@ -11,7 +11,8 @@
       "messageSaveSuccess": "Die SEO Url Templates wurden erfolgreich gespeichert.",
       "preview": "Vorschau:",
       "placeholderSelectVariables": "Auswählen ...",
-      "labelSalesChannelSelect": "Verkaufskanal"
+      "labelSalesChannelSelect": "Verkaufskanal",
+      "textUrlPreviewNotPossible": "Für dieses Template ist keine Vorschau möglich."
     },
     "routeNames": {
       "frontend-detail-page": "Produktdetailseite",
@@ -22,7 +23,8 @@
     "titleCard": "Canonical Urls",
     "labelSalesChannelSelect": "Verkaufskanal",
     "labelSeoPathInfo": "SEO Pfad",
-    "textEmptySeoUrls": "Es sind noch keine Canonical Urls vorhanden."
+    "textEmptySeoUrls": "Es sind noch keine Canonical Urls vorhanden.",
+    "textSeoUrlsDisallowedForHeadless": "Für headless Sales Channel ist die Angabe von SEO URLs nicht möglich."
   },
   "sales-channel-theme": {
     "title": "Theme Zuweisung",

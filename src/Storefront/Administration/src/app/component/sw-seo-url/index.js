@@ -54,6 +54,27 @@ Component.register('sw-seo-url', {
 
         seoUrlRepository() {
             return this.repositoryFactory.create('seo_url');
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        isHeadlessSalesChannel() {
+            if (this.$store.state.swSeoUrl.salesChannelCollection === null) {
+                return true;
+            }
+
+            const salesChannel = this.$store.state.swSeoUrl.salesChannelCollection.find((entry) => {
+                return entry.id === this.currentSalesChannelId;
+            });
+
+            // from Defaults.php
+            return this.currentSalesChannelId !== null && salesChannel.typeId === 'f183ee5650cf4bdb8a774337575067a6';
+        },
+
+        seoUrlHelptext() {
+            return this.isHeadlessSalesChannel ? this.$tc('sw-seo-url.textSeoUrlsDisallowedForHeadless') : null;
         }
     },
 
@@ -72,19 +93,32 @@ Component.register('sw-seo-url', {
     },
 
     created() {
+        this.$root.$on('seo-url-save-finish', this.clearDefaultSeoUrls);
         this.createdComponent();
     },
 
     beforeDestroy() {
+        this.$root.$off('seo-url-save-finish', this.clearDefaultSeoUrls);
         this.$store.unregisterModule('swSeoUrl');
     },
 
     methods: {
         createdComponent() {
+            this.initSalesChannelCollection();
             this.initSeoUrlCollection();
             if (!this.showEmptySeoUrlError) {
                 this.refreshCurrentSeoUrl();
             }
+        },
+
+        initSalesChannelCollection() {
+            const salesChannelCriteria = new Criteria();
+            salesChannelCriteria.setIds([]);
+            salesChannelCriteria.addAssociationPaths(['type']);
+
+            this.salesChannelRepository.search(salesChannelCriteria, this.context).then((salesChannelCollection) => {
+                this.$store.commit('swSeoUrl/setSalesChannelCollection', salesChannelCollection);
+            });
         },
 
         initSeoUrlCollection() {
@@ -95,16 +129,24 @@ Component.register('sw-seo-url', {
                 this.context, new Criteria()
             );
 
+            const defaultSeoUrlData = this.urls.find((entityData) => {
+                return entityData.salesChannelId === null;
+            });
+
+            if (defaultSeoUrlData === undefined) {
+                this.showEmptySeoUrlError = true;
+            }
+
+            const defaultSeoUrlEntity = this.seoUrlRepository.create(this.context);
+            Object.assign(defaultSeoUrlEntity, defaultSeoUrlData);
+            seoUrlCollection.add(defaultSeoUrlEntity);
+            this.$store.commit('swSeoUrl/setDefaultSeoUrl', defaultSeoUrlEntity);
+
             this.urls.forEach((entityData) => {
                 const entity = this.seoUrlRepository.create(this.context);
                 Object.assign(entity, entityData);
-                entity.isModified = true;
-                seoUrlCollection.add(entity);
 
-                // Also save the default seo url(where salesChannel is null) as blueprint for creating new
-                if (entity.salesChannelId === null) {
-                    this.$store.commit('swSeoUrl/setDefaultSeoUrl', entity);
-                }
+                seoUrlCollection.add(entity);
             });
 
             if (!this.$store.state.swSeoUrl.defaultSeoUrl) {
@@ -113,6 +155,19 @@ Component.register('sw-seo-url', {
 
             this.$store.commit('swSeoUrl/setSeoUrlCollection', seoUrlCollection);
             this.$store.commit('swSeoUrl/setOriginalSeoUrls', this.urls);
+            this.clearDefaultSeoUrls();
+        },
+
+        clearDefaultSeoUrls() {
+            this.seoUrlCollection.forEach((entity) => {
+                if (entity.id === this.defaultSeoUrl.id) {
+                    return;
+                }
+
+                if (entity.seoPathInfo === this.defaultSeoUrl.seoPathInfo) {
+                    entity.seoPathInfo = null;
+                }
+            });
         },
 
         refreshCurrentSeoUrl() {
@@ -141,7 +196,6 @@ Component.register('sw-seo-url', {
 
             this.$store.commit('swSeoUrl/setCurrentSeoUrl', currentSeoUrl);
         },
-
         onSalesChannelChanged(salesChannelId) {
             this.currentSalesChannelId = salesChannelId;
             this.refreshCurrentSeoUrl();

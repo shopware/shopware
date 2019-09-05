@@ -11,7 +11,8 @@
       "messageSaveSuccess": "SEO url templates have been saved.",
       "preview": "Preview:",
       "placeholderSelectVariables": "Search and select...",
-      "labelSalesChannelSelect": "Sales channel"
+      "labelSalesChannelSelect": "Sales channel",
+      "textUrlPreviewNotPossible": "A preview for this template could not be generated"
     },
     "routeNames": {
       "frontend-detail-page": "Product detail page",
@@ -22,7 +23,8 @@
     "titleCard": "Canonical urls",
     "labelSalesChannelSelect": "Sales channel",
     "labelSeoPathInfo": "SEO path",
-    "textEmptySeoUrls": "There are no canonical urls yet."
+    "textEmptySeoUrls": "There are no canonical urls yet.",
+    "textSeoUrlsDisallowedForHeadless": "SEO URLs cannot be assigned to headless sales channels."
   },
   "sales-channel-theme": {
     "title": "Theme assignment",

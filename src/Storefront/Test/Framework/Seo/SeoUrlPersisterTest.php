@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
-use Shopware\Storefront\Framework\Seo\SeoUrlGenerator;
 use Shopware\Storefront\Framework\Seo\SeoUrlPersister;
 
 class SeoUrlPersisterTest extends TestCase
@@ -24,21 +23,15 @@ class SeoUrlPersisterTest extends TestCase
     /**
      * @var EntityRepositoryInterface
      */
-    private $templateRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
     private $seoUrlRepository;
 
     /**
-     * @var SeoUrlGenerator
+     * @var SeoUrlPersister
      */
     private $seoUrlPersister;
 
     public function setUp(): void
     {
-        $this->templateRepository = $this->getContainer()->get('seo_url_template.repository');
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
         $this->seoUrlPersister = $this->getContainer()->get(SeoUrlPersister::class);
 
@@ -83,14 +76,14 @@ class SeoUrlPersisterTest extends TestCase
         static::assertCount(1, $canonicalUrls);
         /** @var SeoUrlEntity $first */
         $first = $canonicalUrls->first();
-        static::assertEquals('fancy-path-2', $first->getSeoPathInfo());
+        static::assertSame('fancy-path-2', $first->getSeoPathInfo());
 
         $obsoletedSeoUrls = $seoUrls->filterByProperty('isCanonical', false);
 
         static::assertCount(1, $obsoletedSeoUrls);
         /** @var SeoUrlEntity $first */
         $first = $obsoletedSeoUrls->first();
-        static::assertEquals('fancy-path', $first->getSeoPathInfo());
+        static::assertSame('fancy-path', $first->getSeoPathInfo());
     }
 
     public function testDuplicatesSameSalesChannel(): void
@@ -130,8 +123,8 @@ class SeoUrlPersisterTest extends TestCase
         static::assertNotNull($valid);
         static::assertNotNull($invalid);
 
-        static::assertEquals($fk1, $valid->getForeignKey());
-        static::assertEquals($fk2, $invalid->getForeignKey());
+        static::assertSame($fk1, $valid->getForeignKey());
+        static::assertSame($fk2, $invalid->getForeignKey());
     }
 
     public function testSameSeoPathDifferentLanguage(): void
@@ -257,7 +250,7 @@ class SeoUrlPersisterTest extends TestCase
         static::assertNotNull($canon);
 
         static::assertTrue($canon->getIsModified());
-        static::assertEquals('fancy-override', $canon->getSeoPathInfo());
+        static::assertSame('fancy-override', $canon->getSeoPathInfo());
 
         $seoUrlUpdates = [
             [

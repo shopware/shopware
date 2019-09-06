@@ -80,6 +80,7 @@ Component.register('sw-cms-el-image-gallery', {
     methods: {
         createdComponent() {
             this.initElementConfig('image-gallery');
+            this.initElementData('image-gallery');
         },
 
         mountedComponent() {

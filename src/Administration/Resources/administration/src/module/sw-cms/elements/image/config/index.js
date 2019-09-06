@@ -53,10 +53,7 @@ Component.register('sw-cms-el-config-image', {
             this.mediaRepository.get(targetId, this.context).then((mediaEntity) => {
                 this.element.config.media.value = mediaEntity.id;
 
-                if (this.element.data) {
-                    this.$set(this.element.data, 'mediaId', mediaEntity.id);
-                    this.$set(this.element.data, 'media', mediaEntity);
-                }
+                this.updateElementData(mediaEntity);
 
                 this.$emit('element-update', this.element);
             });
@@ -65,10 +62,7 @@ Component.register('sw-cms-el-config-image', {
         onImageRemove() {
             this.element.config.media.value = null;
 
-            if (this.element.data) {
-                this.$set(this.element.data, 'mediaId', null);
-                this.$set(this.element.data, 'media', null);
-            }
+            this.updateElementData();
 
             this.$emit('element-update', this.element);
         },
@@ -78,12 +72,10 @@ Component.register('sw-cms-el-config-image', {
         },
 
         onSelectionChanges(mediaEntity) {
-            this.element.config.media.value = mediaEntity[0].id;
+            const media = mediaEntity[0];
+            this.element.config.media.value = media.id;
 
-            if (this.element.data) {
-                this.$set(this.element.data, 'mediaId', mediaEntity[0].id);
-                this.$set(this.element.data, 'media', mediaEntity[0]);
-            }
+            this.updateElementData(media);
 
             this.$emit('element-update', this.element);
         },
@@ -96,6 +88,11 @@ Component.register('sw-cms-el-config-image', {
             this.element.config.minHeight.value = value === null ? '' : value;
 
             this.$emit('element-update', this.element);
+        },
+
+        updateElementData(media = null) {
+            this.$set(this.element.data, 'mediaId', media === null ? null : media.id);
+            this.$set(this.element.data, 'media', media);
         },
 
         onChangeDisplayMode(value) {

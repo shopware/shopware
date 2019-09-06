@@ -1,4 +1,5 @@
 const { Mixin } = Shopware;
+const { types } = Shopware.Utils;
 const { cloneDeep, merge } = Shopware.Utils.object;
 
 Mixin.register('cms-element', {
@@ -44,6 +45,22 @@ Mixin.register('cms-element', {
             }
 
             this.element.config = merge(cloneDeep(defaultConfig), this.element.config || {});
+        },
+
+        initElementData(elementName) {
+            if (types.isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
+                const elemData = cloneDeep(this.element.data);
+                this.$set(this.element, 'data', elemData);
+
+                return;
+            }
+
+            const elementConfig = this.cmsElements[elementName];
+            const defaultData = elementConfig.defaultData ? elementConfig.defaultData : {};
+
+            const elemData = merge(cloneDeep(defaultData), this.element.data || {});
+
+            this.$set(this.element, 'data', elemData);
         },
 
         getDemoValue(mappingPath) {

@@ -54,7 +54,9 @@ Component.register('sw-cms-el-config-product-slider', {
             // ToDo: Fix with NEXT-4830
             if (this.element.config.products.value.length > 0) {
                 const criteria = new Criteria(1, 100);
+                criteria.addAssociation('cover');
                 criteria.setIds(this.element.config.products.value);
+
                 this.productRepository.search(criteria, this.context).then(result => {
                     this.productCollection = result;
                 });
@@ -63,10 +65,6 @@ Component.register('sw-cms-el-config-product-slider', {
 
         onProductsChange() {
             this.element.config.products.value = this.productCollection.getIds();
-
-            if (!this.element.data) {
-                this.$set(this.element, 'data', {});
-            }
 
             this.$set(this.element.data, 'products', this.productCollection);
         }

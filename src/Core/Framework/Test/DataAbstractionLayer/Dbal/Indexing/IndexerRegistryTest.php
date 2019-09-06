@@ -2,17 +2,19 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal\Indexing;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryEndEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryStartEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal\Indexing\Fixture\TestIndexer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -26,7 +28,7 @@ class IndexerRegistryTest extends TestCase
     private $indexer;
 
     /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcher
+     * @var EventDispatcher
      */
     private $eventDispatcher;
 
@@ -49,7 +51,7 @@ class IndexerRegistryTest extends TestCase
         $this->events = [];
 
         $this->callbackFn = function (Event $event): void {
-            $this->events[get_class($event)] = $event;
+            $this->events[\get_class($event)] = $event;
         };
     }
 
@@ -68,7 +70,10 @@ class IndexerRegistryTest extends TestCase
         $this->indexer->index(new \DateTimeImmutable());
 
         static::assertArrayHasKey(IndexerRegistryStartEvent::class, $this->events, 'IndexStartEvent was not dispatched.');
-        static::assertNull($this->events[IndexerRegistryStartEvent::class]->getContext());
+        /** @var IndexerRegistryStartEvent $indexerRegistryStartEvent */
+        $indexerRegistryStartEvent = $this->events[IndexerRegistryStartEvent::class];
+        static::assertInstanceOf(IndexerRegistryStartEvent::class, $indexerRegistryStartEvent);
+        static::assertNull($indexerRegistryStartEvent->getContext());
     }
 
     public function testPostIndexEventIsDispatchedOnIndex(): void
@@ -80,7 +85,10 @@ class IndexerRegistryTest extends TestCase
         $this->indexer->index(new \DateTimeImmutable());
 
         static::assertArrayHasKey(IndexerRegistryEndEvent::class, $this->events, 'IndexFinishedEvent was not dispatched.');
-        static::assertNull($this->events[IndexerRegistryEndEvent::class]->getContext());
+        /** @var IndexerRegistryEndEvent $indexerRegistryEndEvent */
+        $indexerRegistryEndEvent = $this->events[IndexerRegistryEndEvent::class];
+        static::assertInstanceOf(IndexerRegistryEndEvent::class, $indexerRegistryEndEvent);
+        static::assertNull($indexerRegistryEndEvent->getContext());
     }
 
     public function testPreIndexEventIsDispatchedOnRefresh(): void
@@ -95,7 +103,10 @@ class IndexerRegistryTest extends TestCase
         $this->indexer->refresh($refreshEvent);
 
         static::assertArrayHasKey(IndexerRegistryStartEvent::class, $this->events, 'IndexStartEvent was not dispatched.');
-        static::assertEquals($context, $this->events[IndexerRegistryStartEvent::class]->getContext());
+        /** @var IndexerRegistryStartEvent $indexerRegistryStartEvent */
+        $indexerRegistryStartEvent = $this->events[IndexerRegistryStartEvent::class];
+        static::assertInstanceOf(IndexerRegistryStartEvent::class, $indexerRegistryStartEvent);
+        static::assertSame($context, $indexerRegistryStartEvent->getContext());
     }
 
     public function testPostIndexEventIsDispatchedOnRefresh(): void
@@ -110,12 +121,17 @@ class IndexerRegistryTest extends TestCase
         $this->indexer->refresh($refreshEvent);
 
         static::assertArrayHasKey(IndexerRegistryEndEvent::class, $this->events, 'IndexFinishedEvent was not dispatched.');
-        static::assertEquals($context, $this->events[IndexerRegistryEndEvent::class]->getContext());
+        /** @var IndexerRegistryEndEvent $indexerRegistryEndEvent */
+        $indexerRegistryEndEvent = $this->events[IndexerRegistryEndEvent::class];
+        static::assertInstanceOf(IndexerRegistryEndEvent::class, $indexerRegistryEndEvent);
+        static::assertSame($context, $indexerRegistryEndEvent->getContext());
     }
 
     public function testLockWhileIndexing(): void
     {
-        $indexer = new IndexerRegistry([], $this->getMockBuilder(EventDispatcherInterface::class)->getMock());
+        /** @var EventDispatcherInterface|MockObject $eventDispatcherMock */
+        $eventDispatcherMock = $this->getMockBuilder(EventDispatcherInterface::class)->getMock();
+        $indexer = new IndexerRegistry([], $eventDispatcherMock);
         $property = ReflectionHelper::getProperty(IndexerRegistry::class, 'indexer');
 
         $testIndexer = new TestIndexer($indexer);
@@ -123,12 +139,14 @@ class IndexerRegistryTest extends TestCase
 
         $indexer->index(new \DateTimeImmutable());
 
-        static::assertEquals(1, $testIndexer->getIndexCalls(), 'Indexer were called multiple times in a single run.');
+        static::assertSame(1, $testIndexer->getIndexCalls(), 'Indexer were called multiple times in a single run.');
     }
 
     public function testLockWhileRefreshing(): void
     {
-        $indexer = new IndexerRegistry([], $this->getMockBuilder(EventDispatcherInterface::class)->getMock());
+        /** @var EventDispatcherInterface|MockObject $eventDispatcherMock */
+        $eventDispatcherMock = $this->getMockBuilder(EventDispatcherInterface::class)->getMock();
+        $indexer = new IndexerRegistry([], $eventDispatcherMock);
         $property = ReflectionHelper::getProperty(IndexerRegistry::class, 'indexer');
 
         $testIndexer = new TestIndexer($indexer);
@@ -139,45 +157,6 @@ class IndexerRegistryTest extends TestCase
 
         $indexer->refresh($refreshEvent);
 
-        static::assertEquals(1, $testIndexer->getRefreshCalls(), 'Indexer were called multiple times in a single run.');
-    }
-}
-
-class TestIndexer implements IndexerInterface
-{
-    /**
-     * @var IndexerRegistryInterface
-     */
-    private $indexer;
-
-    private $indexCalls = 0;
-
-    private $refreshCalls = 0;
-
-    public function __construct(IndexerRegistryInterface $indexer)
-    {
-        $this->indexer = $indexer;
-    }
-
-    public function index(\DateTimeInterface $timestamp): void
-    {
-        ++$this->indexCalls;
-        $this->indexer->index($timestamp);
-    }
-
-    public function refresh(EntityWrittenContainerEvent $event): void
-    {
-        ++$this->refreshCalls;
-        $this->indexer->refresh($event);
-    }
-
-    public function getIndexCalls(): int
-    {
-        return $this->indexCalls;
-    }
-
-    public function getRefreshCalls(): int
-    {
-        return $this->refreshCalls;
+        static::assertSame(1, $testIndexer->getRefreshCalls(), 'Indexer were called multiple times in a single run.');
     }
 }

@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -25,11 +27,11 @@ class ValueAggregationTest extends TestCase
         $criteria->addFilter(new EqualsAnyFilter('taxRate', [10, 20, 50, 90]));
         $criteria->addAggregation(new ValueAggregation('taxRate', 'rate_agg'));
 
+        /** @var EntityRepositoryInterface $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
-        $result = $taxRepository->aggregate($criteria, $context);
 
-        /** @var \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult $rateAgg */
-        $rateAgg = $result->getAggregations()->get('rate_agg');
+        /** @var AggregationResult $rateAgg */
+        $rateAgg = $taxRepository->aggregate($criteria, $context)->getAggregations()->get('rate_agg');
 
         static::assertNotNull($rateAgg);
 
@@ -48,25 +50,33 @@ class ValueAggregationTest extends TestCase
         $criteria->addFilter(new EqualsAnyFilter('product.categories.id', $categoryIds));
         $criteria->addAggregation(new ValueAggregation('product.price.gross', 'value_agg', 'product.categories.name'));
 
+        /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
-        $result = $productRepository->aggregate($criteria, $context);
 
-        /** @var \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult $valueAgg */
-        $valueAgg = $result->getAggregations()->get('value_agg');
+        /** @var AggregationResult $valueAgg */
+        $valueAgg = $productRepository->aggregate($criteria, $context)->getAggregations()->get('value_agg');
         static::assertCount(4, $valueAgg->getResult());
 
-        static::assertContains(10, $valueAgg->get(['product.categories.name' => 'cat1'])->getValues());
-        static::assertContains(20, $valueAgg->get(['product.categories.name' => 'cat1'])->getValues());
+        /** @var ValueResult $valueAggCat1 */
+        $valueAggCat1 = $valueAgg->get(['product.categories.name' => 'cat1']);
+        static::assertContains(10, $valueAggCat1->getValues());
+        static::assertContains(20, $valueAggCat1->getValues());
 
-        static::assertContains(20, $valueAgg->get(['product.categories.name' => 'cat2'])->getValues());
-        static::assertContains(50, $valueAgg->get(['product.categories.name' => 'cat2'])->getValues());
-        static::assertContains(90, $valueAgg->get(['product.categories.name' => 'cat2'])->getValues());
+        /** @var ValueResult $valueAggCat2 */
+        $valueAggCat2 = $valueAgg->get(['product.categories.name' => 'cat2']);
+        static::assertContains(20, $valueAggCat2->getValues());
+        static::assertContains(50, $valueAggCat2->getValues());
+        static::assertContains(90, $valueAggCat2->getValues());
 
-        static::assertContains(10, $valueAgg->get(['product.categories.name' => 'cat3'])->getValues());
-        static::assertContains(50, $valueAgg->get(['product.categories.name' => 'cat3'])->getValues());
-        static::assertContains(90, $valueAgg->get(['product.categories.name' => 'cat3'])->getValues());
+        /** @var ValueResult $valueAggCat3 */
+        $valueAggCat3 = $valueAgg->get(['product.categories.name' => 'cat3']);
+        static::assertContains(10, $valueAggCat3->getValues());
+        static::assertContains(50, $valueAggCat3->getValues());
+        static::assertContains(90, $valueAggCat3->getValues());
 
-        static::assertContains(10, $valueAgg->get(['product.categories.name' => 'cat4'])->getValues());
-        static::assertContains(20, $valueAgg->get(['product.categories.name' => 'cat4'])->getValues());
+        /** @var ValueResult $valueAggCat4 */
+        $valueAggCat4 = $valueAgg->get(['product.categories.name' => 'cat4']);
+        static::assertContains(10, $valueAggCat4->getValues());
+        static::assertContains(20, $valueAggCat4->getValues());
     }
 }

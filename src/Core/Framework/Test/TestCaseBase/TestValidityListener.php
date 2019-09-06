@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\Flag\WriteProtectedF
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\JsonFieldTest;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\ListFieldTest;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\SearchCriteriaBuilderTest;
-use Shopware\Storefront\Test\OrderingProcessTest;
 
 /**
  * Helper class to debug data problems in the test suite
@@ -31,9 +30,6 @@ class TestValidityListener implements TestListener
             JsonFieldTest::class,
             ListFieldTest::class,
             WriteProtectedFlagTest::class,
-        ],
-        'traits' => [
-            OrderingProcessTest::class,
         ],
         'deletes' => [
             SearchCriteriaBuilderTest::class,

@@ -114,10 +114,6 @@ Component.register('sw-cms-el-config-image-slider', {
         },
 
         updateMediaDataValue() {
-            if (!this.element.data) {
-                this.$set(this.element, 'data', {});
-            }
-
             if (this.element.config.sliderItems.value) {
                 const sliderItems = cloneDeep(this.element.config.sliderItems.value);
 
@@ -128,7 +124,6 @@ Component.register('sw-cms-el-config-image-slider', {
                         }
                     });
                 });
-
 
                 this.$set(this.element.data, 'sliderItems', sliderItems);
             }

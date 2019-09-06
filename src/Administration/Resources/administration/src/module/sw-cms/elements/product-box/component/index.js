@@ -38,7 +38,7 @@ Component.register('sw-cms-el-product-box', {
             const initContainer = Application.getContainer('init');
             const context = initContainer.contextService;
 
-            if (this.product.cover.media) {
+            if (this.product.cover && this.product.cover.media) {
                 if (this.product.cover.media.id) {
                     return this.product.cover.media.url;
                 }
@@ -47,6 +47,14 @@ Component.register('sw-cms-el-product-box', {
             }
 
             return `${context.assetsPath}/administration/static/img/cms/preview_glasses_large.jpg`;
+        },
+
+        altTag() {
+            if (this.product.cover && this.product.cover.media && this.product.cover.media.alt) {
+                return this.product.cover.media.alt;
+            }
+
+            return null;
         },
 
         displayModeClass() {
@@ -73,6 +81,7 @@ Component.register('sw-cms-el-product-box', {
     methods: {
         createdComponent() {
             this.initElementConfig('product-box');
+            this.initElementData('product-box');
         }
     }
 });

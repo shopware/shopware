@@ -126,11 +126,7 @@ Component.register('sw-cms-el-config-image-gallery', {
         },
 
         updateMediaDataValue() {
-            if (!this.element.data) {
-                this.$set(this.element, 'data', {});
-            }
-
-            if (this.element.data && this.element.config.sliderItems.value) {
+            if (this.element.config.sliderItems.value) {
                 const sliderItems = cloneDeep(this.element.config.sliderItems.value);
 
                 sliderItems.forEach((galleryItem) => {

@@ -113,6 +113,7 @@ Component.register('sw-cms-el-image-slider', {
     methods: {
         createdComponent() {
             this.initElementConfig('image-slider');
+            this.initElementData('image-slider');
 
             if (this.element.data && this.element.data.sliderItems && this.element.data.sliderItems.length > 0) {
                 this.imgSrc = this.sliderItems[0].entity.url;

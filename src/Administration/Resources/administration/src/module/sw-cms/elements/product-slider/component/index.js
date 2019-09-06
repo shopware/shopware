@@ -106,6 +106,7 @@ Component.register('sw-cms-el-product-slider', {
     methods: {
         createdComponent() {
             this.initElementConfig('product-slider');
+            this.initElementData('product-slider');
         },
 
         mountedComponent() {

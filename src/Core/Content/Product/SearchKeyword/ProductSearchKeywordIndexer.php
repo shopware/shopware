@@ -192,7 +192,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         }
 
         $this->connection->transactional(
-            function () use ($insert, $ids, $languageId) {
+            function () use ($insert, $ids, $languageId): void {
                 $bytes = array_map(function ($id) {
                     return Uuid::fromHexToBytes($id);
                 }, $ids);

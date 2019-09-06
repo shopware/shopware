@@ -20,7 +20,7 @@ class ValueResult extends AbstractAggregationResult
         return $this->values;
     }
 
-    public function add($value)
+    public function add($value): void
     {
         $this->values[] = $value;
     }

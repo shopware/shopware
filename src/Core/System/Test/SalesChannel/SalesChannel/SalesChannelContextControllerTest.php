@@ -154,7 +154,7 @@ class SalesChannelContextControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
     }
 
-    public function testSwitchToNotExistingLanguage()
+    public function testSwitchToNotExistingLanguage(): void
     {
         $id = Uuid::randomHex();
 
@@ -173,7 +173,7 @@ class SalesChannelContextControllerTest extends TestCase
         );
     }
 
-    public function testSwitchToValidLanguage()
+    public function testSwitchToValidLanguage(): void
     {
         $id = Defaults::LANGUAGE_SYSTEM;
 
@@ -186,7 +186,7 @@ class SalesChannelContextControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $request->getStatusCode(), print_r($content, true));
     }
 
-    public function testSwitchToValidCurrency()
+    public function testSwitchToValidCurrency(): void
     {
         $id = Defaults::CURRENCY;
 
@@ -199,7 +199,7 @@ class SalesChannelContextControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $request->getStatusCode(), print_r($content, true));
     }
 
-    public function testSwitchToNotExistingCurrency()
+    public function testSwitchToNotExistingCurrency(): void
     {
         $id = Uuid::randomHex();
 

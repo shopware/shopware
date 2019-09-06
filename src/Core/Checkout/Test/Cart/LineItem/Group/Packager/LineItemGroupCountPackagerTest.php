@@ -41,7 +41,7 @@ class LineItemGroupCountPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testKey()
+    public function testKey(): void
     {
         static::assertEquals('COUNT', $this->packager->getKey());
     }
@@ -53,7 +53,7 @@ class LineItemGroupCountPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testPackageDoneWhenCountReached()
+    public function testPackageDoneWhenCountReached(): void
     {
         $items = new LineItemCollection();
         $items->add($this->createProductItem(50.0, 0));
@@ -78,7 +78,7 @@ class LineItemGroupCountPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testNoResultsIfNotEnoughtItems()
+    public function testNoResultsIfNotEnoughtItems(): void
     {
         $items = new LineItemCollection();
         $items->add($this->createProductItem(50.0, 0));
@@ -98,7 +98,7 @@ class LineItemGroupCountPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testNoItemsReturnsEmptyList()
+    public function testNoItemsReturnsEmptyList(): void
     {
         $items = new LineItemCollection();
 
@@ -115,7 +115,7 @@ class LineItemGroupCountPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testNegativeCountReturnsEmptyList()
+    public function testNegativeCountReturnsEmptyList(): void
     {
         $items = new LineItemCollection();
 
@@ -132,7 +132,7 @@ class LineItemGroupCountPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testZeroCountReturnsEmptyList()
+    public function testZeroCountReturnsEmptyList(): void
     {
         $items = new LineItemCollection();
 
@@ -151,7 +151,7 @@ class LineItemGroupCountPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testQuantityHigherAsPackage()
+    public function testQuantityHigherAsPackage(): void
     {
         $items = new LineItemCollection();
 

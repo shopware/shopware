@@ -142,5 +142,7 @@ EOL;
 
             file_put_contents($configXmlFile, $configXml);
         }
+
+        return null;
     }
 }

@@ -67,7 +67,7 @@ class IndexMessageDispatcher
         return $count;
     }
 
-    public function dispatchForIds(array $ids, string $index, EntityDefinition $definition, Context $context)
+    public function dispatchForIds(array $ids, string $index, EntityDefinition $definition, Context $context): void
     {
         $ids = $this->makeIdsSerializable($ids);
         $this->messageBus->dispatch(

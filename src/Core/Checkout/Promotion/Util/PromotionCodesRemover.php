@@ -26,7 +26,7 @@ class PromotionCodesRemover
      * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
      */
-    public function removeIndividualCodes(string $promotionId, Context $context)
+    public function removeIndividualCodes(string $promotionId, Context $context): void
     {
         $criteria = new Criteria();
 

@@ -37,7 +37,7 @@ class EntitySearcherTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
     }
 
-    public function testTotalCountWithSearchTerm()
+    public function testTotalCountWithSearchTerm(): void
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
@@ -88,7 +88,7 @@ class EntitySearcherTest extends TestCase
         static::assertCount(2, $result->getEntities());
     }
 
-    public function testSortingAndTotalCountWithManyAssociation()
+    public function testSortingAndTotalCountWithManyAssociation(): void
     {
         $redId = Uuid::randomHex();
         $greenId = Uuid::randomHex();
@@ -201,7 +201,7 @@ class EntitySearcherTest extends TestCase
         static::assertCount(6, $result->getEntities());
     }
 
-    public function testJsonListEqualsAnyFilter()
+    public function testJsonListEqualsAnyFilter(): void
     {
         $redId = Uuid::randomHex();
         $greenId = Uuid::randomHex();

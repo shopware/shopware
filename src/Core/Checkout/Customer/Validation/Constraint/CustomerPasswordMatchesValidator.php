@@ -20,7 +20,7 @@ class CustomerPasswordMatchesValidator extends ConstraintValidator
         $this->accountService = $accountService;
     }
 
-    public function validate($password, Constraint $constraint)
+    public function validate($password, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerPasswordMatches) {
             return;

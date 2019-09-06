@@ -56,7 +56,7 @@ class ConsumeMessagesController extends AbstractController
 
         $handledMessages = 0;
         $started = (new \DateTimeImmutable())->getTimestamp();
-        $worker->run([], function (?Envelope $envelope) use ($worker, $started, &$handledMessages) {
+        $worker->run([], function (?Envelope $envelope) use ($worker, $started, &$handledMessages): void {
             if ($envelope !== null) {
                 ++$handledMessages;
             }

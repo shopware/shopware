@@ -71,7 +71,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     public function execute(array $commands, WriteContext $context): void
     {
-        $this->connection->transactional(function () use ($commands, $context) {
+        $this->connection->transactional(function () use ($commands, $context): void {
             // throws exception on violation and then aborts/rollbacks this transaction
             $event = new PreWriteValidationEvent($context, $commands);
             $this->eventDispatcher->dispatch($event);

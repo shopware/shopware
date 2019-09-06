@@ -45,6 +45,8 @@ class DocsModuleCharacteristics extends Command
         (new TemplateCustomRulesList($this->moduleInspector))->render($characteristics);
 
         $io->success('Done');
+
+        return null;
     }
 
     private function createModuleFinder(): Finder

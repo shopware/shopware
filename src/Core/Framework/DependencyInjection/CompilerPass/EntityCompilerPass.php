@@ -75,7 +75,7 @@ class EntityCompilerPass implements CompilerPassInterface
         $definitionRegistry->replaceArgument(2, $repositoryNameMap);
     }
 
-    private function makeFieldSerializersPublic(ContainerBuilder $container)
+    private function makeFieldSerializersPublic(ContainerBuilder $container): void
     {
         $servicesIds = array_keys($container->findTaggedServiceIds('shopware.field_serializer'));
 
@@ -84,7 +84,7 @@ class EntityCompilerPass implements CompilerPassInterface
         }
     }
 
-    private function makeFieldResolversPublic(ContainerBuilder $container)
+    private function makeFieldResolversPublic(ContainerBuilder $container): void
     {
         $servicesIds = array_keys($container->findTaggedServiceIds('shopware.field_resolver'));
 
@@ -93,7 +93,7 @@ class EntityCompilerPass implements CompilerPassInterface
         }
     }
 
-    private function makeFieldAccessorBuildersPublic(ContainerBuilder $container)
+    private function makeFieldAccessorBuildersPublic(ContainerBuilder $container): void
     {
         $servicesIds = array_keys($container->findTaggedServiceIds('shopware.field_accessor_builder'));
 

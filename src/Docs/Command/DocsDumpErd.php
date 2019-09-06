@@ -74,6 +74,8 @@ class DocsDumpErd extends Command
 
         $this->generateModuleErd($modules, $descriptionsShort, $destPath, $descriptionsLong);
         $this->generateGlobalErd($modules, $descriptionsShort, $destPath, $definitions);
+
+        return null;
     }
 
     protected function updateTranslations(array $definitions, ArrayWriter $descriptionsLong, ArrayWriter $descriptionsShort, array $modules): void

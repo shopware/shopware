@@ -34,7 +34,7 @@ class BreadcrumbIndexerTest extends TestCase
         $this->deLanguageId = $this->getDeDeLanguageId();
     }
 
-    public function testBreadcrumbAfterCreate()
+    public function testBreadcrumbAfterCreate(): void
     {
         $ids = $this->setUpData();
 
@@ -79,7 +79,7 @@ class BreadcrumbIndexerTest extends TestCase
         static::assertSame(['DE-A', 'DE-B', 'DE-C'], $c3->getBreadcrumb());
     }
 
-    public function testUpdateTranslation()
+    public function testUpdateTranslation(): void
     {
         $ids = $this->setUpData();
 
@@ -149,7 +149,7 @@ class BreadcrumbIndexerTest extends TestCase
         static::assertSame(['DE-A', 'DE-B', 'DE-C'], $c3->getBreadcrumb());
     }
 
-    public function testLanguageInheritance()
+    public function testLanguageInheritance(): void
     {
         $ids = $this->setUpData();
 

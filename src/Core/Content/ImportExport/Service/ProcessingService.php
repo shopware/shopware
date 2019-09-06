@@ -154,7 +154,7 @@ class ProcessingService
             'id' => $logId,
             'state' => $newState,
         ];
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logData) {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logData): void {
             $this->logRepository->update([$logData], $context);
         });
     }

@@ -14,7 +14,7 @@ class CurrencyFormatterTest extends TestCase
     use KernelTestBehaviour;
     use BasicTestDataBehaviour;
 
-    public function testFormatByLanguage()
+    public function testFormatByLanguage(): void
     {
         $currencyFormatter = $this->getContainer()->get(CurrencyFormatter::class);
 

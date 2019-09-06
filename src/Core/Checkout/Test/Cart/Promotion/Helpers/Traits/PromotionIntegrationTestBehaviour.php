@@ -18,7 +18,7 @@ trait PromotionIntegrationTestBehaviour
      * This function makes sure all our required session data
      * is gone after clearing it.
      */
-    public function clearSession()
+    public function clearSession(): void
     {
         /** @var Session $session */
         $session = $this->getContainer()->get('session');

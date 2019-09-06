@@ -7,19 +7,19 @@ use Shopware\Core\Framework\Snippet\Filter\AddedFilter;
 
 class AddedFilterTest extends TestCase
 {
-    public function testGetFilterName()
+    public function testGetFilterName(): void
     {
         static::assertSame('added', (new AddedFilter())->getName());
     }
 
-    public function testSupports()
+    public function testSupports(): void
     {
         static::assertTrue((new AddedFilter())->supports('added'));
         static::assertFalse((new AddedFilter())->supports(''));
         static::assertFalse((new AddedFilter())->supports('test'));
     }
 
-    public function testFilterOnlyCustomSnippets()
+    public function testFilterOnlyCustomSnippets(): void
     {
         $snippets = [
             'firstSetId' => [

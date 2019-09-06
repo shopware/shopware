@@ -115,6 +115,8 @@ class CreatePageCommand extends Command
         $this->cmsPageRepository->create([$page], Context::createDefaultContext());
 
         $output->writeln('ID: ' . $page['id']);
+
+        return null;
     }
 
     private function resetPages(): void

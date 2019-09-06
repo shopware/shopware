@@ -291,7 +291,7 @@ class PromotionControllerTest extends TestCase
         return $promotion;
     }
 
-    private function insertPromotionInDB(string $id, string $discountId)
+    private function insertPromotionInDB(string $id, string $discountId): void
     {
         $this->promotionRepository->create(
             [

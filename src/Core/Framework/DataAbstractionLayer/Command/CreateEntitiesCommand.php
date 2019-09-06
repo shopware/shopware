@@ -38,7 +38,7 @@ class CreateEntitiesCommand extends Command
         $this->entityGenerator = $entityGenerator;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('dal:create:entities');
     }
@@ -79,5 +79,7 @@ class CreateEntitiesCommand extends Command
                 }
             }
         }
+
+        return null;
     }
 }

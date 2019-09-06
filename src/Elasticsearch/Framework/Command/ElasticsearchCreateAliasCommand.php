@@ -33,5 +33,7 @@ class ElasticsearchCreateAliasCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->handler->run();
+
+        return null;
     }
 }

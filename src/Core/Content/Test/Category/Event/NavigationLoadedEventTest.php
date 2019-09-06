@@ -26,7 +26,7 @@ class NavigationLoadedEventTest extends TestCase
         parent::setUp();
     }
 
-    public function testEventDispatched()
+    public function testEventDispatched(): void
     {
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
@@ -42,7 +42,7 @@ class NavigationLoadedEventTest extends TestCase
         $this->loader->load($navigationId, $context, $navigationId);
     }
 
-    public function testEventDispatchedForLoadLevel()
+    public function testEventDispatchedForLoadLevel(): void
     {
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');

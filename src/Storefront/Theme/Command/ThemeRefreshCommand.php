@@ -28,7 +28,7 @@ class ThemeRefreshCommand extends Command
         $this->context = Context::createDefaultContext();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('theme:refresh');
     }
@@ -36,5 +36,7 @@ class ThemeRefreshCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->themeLifecycleService->refreshThemes($this->context);
+
+        return null;
     }
 }

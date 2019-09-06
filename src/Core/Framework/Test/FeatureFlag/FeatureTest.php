@@ -71,14 +71,14 @@ class FeatureTest extends TestCase
     {
         FeatureConfig::registerFlag('nextFix101', __METHOD__);
         $indicator = false;
-        ifNextFix101(function () use (&$indicator) {
+        ifNextFix101(function () use (&$indicator): void {
             $indicator = true;
         });
         static::assertFalse($indicator);
 
         putenv(__METHOD__ . '=1');
 
-        ifNextFix101(function () use (&$indicator) {
+        ifNextFix101(function () use (&$indicator): void {
             $indicator = true;
         });
         static::assertTrue($indicator);

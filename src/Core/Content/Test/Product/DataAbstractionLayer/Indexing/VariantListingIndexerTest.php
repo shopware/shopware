@@ -56,7 +56,7 @@ class VariantListingIndexerTest extends TestCase
         parent::setUp();
     }
 
-    public function testSingleGroup()
+    public function testSingleGroup(): void
     {
         $this->createProduct(['color']);
 
@@ -68,7 +68,7 @@ class VariantListingIndexerTest extends TestCase
         static::assertContains($this->optionIds['red'], $listing->optionIds);
     }
 
-    public function testTwoGroups()
+    public function testTwoGroups(): void
     {
         $this->createProduct(['color', 'size']);
 
@@ -83,7 +83,7 @@ class VariantListingIndexerTest extends TestCase
         static::assertContains($this->optionIds['l'], $listing->optionIds);
     }
 
-    public function testAllGroups()
+    public function testAllGroups(): void
     {
         $this->createProduct(['color', 'size', 'material']);
 
@@ -91,7 +91,7 @@ class VariantListingIndexerTest extends TestCase
         static::assertCount(8, $listing->ids);
     }
 
-    public function testNoGroup()
+    public function testNoGroup(): void
     {
         $this->createProduct([]);
 
@@ -106,7 +106,7 @@ class VariantListingIndexerTest extends TestCase
         static::assertCount(0, $listing);
     }
 
-    private function createProduct($listingProperties)
+    private function createProduct($listingProperties): void
     {
         $this->productId = Uuid::randomHex();
 

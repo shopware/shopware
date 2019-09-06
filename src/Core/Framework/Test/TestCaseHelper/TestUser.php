@@ -86,7 +86,7 @@ class TestUser
         return new TestUser($password, $username);
     }
 
-    public function authorizeBrowser(KernelBrowser $browser)
+    public function authorizeBrowser(KernelBrowser $browser): void
     {
         $authPayload = [
             'grant_type' => 'password',

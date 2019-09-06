@@ -73,7 +73,7 @@ class ThemeChangeCommand extends Command
         $this->context = Context::createDefaultContext();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('theme:change');
         $this->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name');
@@ -91,7 +91,12 @@ class ThemeChangeCommand extends Command
         if (!$input->getOption('all')) {
             $question = new ChoiceQuestion('Please select a sales channel:', $this->getSalesChannelChoices($salesChannels));
             $answer = $helper->ask($input, $output, $question);
-            $salesChannels = new SalesChannelCollection([$this->parseSalesChannelAnswer($answer, $salesChannels)]);
+            $answer .= 'asdf';
+            $parsedSalesChannel = $this->parseSalesChannelAnswer($answer, $salesChannels);
+            if ($parsedSalesChannel === null) {
+                return 1;
+            }
+            $salesChannels = new SalesChannelCollection([$parsedSalesChannel]);
         }
 
         if (!$input->getArgument('theme-name')) {
@@ -111,7 +116,8 @@ class ThemeChangeCommand extends Command
 
             if ($themes->count() === 0) {
                 $this->io->error('Invalid theme name');
-                exit(1);
+
+                return 1;
             }
 
             /** @var ThemeEntity $theme */
@@ -125,6 +131,8 @@ class ThemeChangeCommand extends Command
             $this->io->writeln(sprintf('Compiling theme %s for sales channel %s', $theme->getId(), $theme->getName()));
             $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $this->context);
         }
+
+        return null;
     }
 
     protected function getSalesChannelChoices(SalesChannelCollection $salesChannels): array
@@ -150,7 +158,7 @@ class ThemeChangeCommand extends Command
         return $choices;
     }
 
-    private function parseSalesChannelAnswer($answer, SalesChannelCollection $salesChannels): SalesChannelEntity
+    private function parseSalesChannelAnswer($answer, SalesChannelCollection $salesChannels): ?SalesChannelEntity
     {
         $parts = explode('|', $answer);
         $salesChannelId = trim(array_pop($parts));
@@ -158,7 +166,8 @@ class ThemeChangeCommand extends Command
 
         if (!$salesChannelId) {
             $this->io->error('Invalid answer');
-            exit(1);
+
+            return null;
         }
 
         return $salesChannel;

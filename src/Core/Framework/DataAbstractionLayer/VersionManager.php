@@ -327,7 +327,7 @@ class VersionManager
 
         $versionContext = $context->createWithVersionId($versionId);
         $result = null;
-        $versionContext->scope(Context::SYSTEM_SCOPE, function (WriteContext $context) use ($definition, $data, &$result) {
+        $versionContext->scope(Context::SYSTEM_SCOPE, function (WriteContext $context) use ($definition, $data, &$result): void {
             $result = $this->entityWriter->insert($definition, [$data], $context);
         });
 

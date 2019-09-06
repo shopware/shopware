@@ -42,7 +42,7 @@ class DeliveryBuilderTest extends TestCase
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
-    public function testEmptyCart()
+    public function testEmptyCart(): void
     {
         $cart = new Cart('test', 'test');
 

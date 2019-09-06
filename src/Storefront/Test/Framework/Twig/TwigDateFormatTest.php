@@ -13,7 +13,7 @@ class TwigDateFormatTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public function testFallbackBehavior()
+    public function testFallbackBehavior(): void
     {
         static::markTestSkipped();
         try {
@@ -27,7 +27,7 @@ class TwigDateFormatTest extends TestCase
         static::assertSame($date->format('d/m/Y, H:i'), $output);
     }
 
-    public function testDifferentTimeZoneBehavior()
+    public function testDifferentTimeZoneBehavior(): void
     {
         static::markTestSkipped();
         $timezone = 'Europe/Berlin';

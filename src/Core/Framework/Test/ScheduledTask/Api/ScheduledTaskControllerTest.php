@@ -21,7 +21,7 @@ class ScheduledTaskControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
     use QueueTestBehaviour;
 
-    public function testRunScheduledTasks()
+    public function testRunScheduledTasks(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->exec('DELETE FROM scheduled_task');
@@ -51,7 +51,7 @@ class ScheduledTaskControllerTest extends TestCase
         static::assertEquals(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
-    public function testGetMinRunInterval()
+    public function testGetMinRunInterval(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->exec('DELETE FROM scheduled_task');

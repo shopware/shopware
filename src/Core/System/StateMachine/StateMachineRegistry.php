@@ -195,7 +195,7 @@ class StateMachineRegistry
         ], $context);
 
         $data = [['id' => $transition->getEntityId(), $transition->getStateFieldName() => $toPlace->getId()]];
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($repository, $data) {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($repository, $data): void {
             $repository->upsert($data, $context);
         });
 

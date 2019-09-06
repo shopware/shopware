@@ -32,5 +32,7 @@ class RegisterScheduledTasksCommand extends Command
         $output->writeln('Registering scheduled tasks ...');
         $this->taskRegistry->registerTasks();
         $output->writeln('Done!');
+
+        return null;
     }
 }

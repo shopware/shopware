@@ -97,7 +97,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
                 ],
             ];
 
-            $context->scope(Context::SYSTEM_SCOPE, function () use ($data, $context) {
+            $context->scope(Context::SYSTEM_SCOPE, function () use ($data, $context): void {
                 $this->customerRepository->update($data, $context);
             });
         }

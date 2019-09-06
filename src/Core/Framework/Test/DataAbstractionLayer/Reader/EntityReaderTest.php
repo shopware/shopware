@@ -69,7 +69,7 @@ class EntityReaderTest extends TestCase
         $this->deLanguageId = $this->getDeDeLanguageId();
     }
 
-    public function testTranslated()
+    public function testTranslated(): void
     {
         $id = Uuid::randomHex();
         $data = [

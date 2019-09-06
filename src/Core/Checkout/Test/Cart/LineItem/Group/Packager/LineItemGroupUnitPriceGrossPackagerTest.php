@@ -41,7 +41,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testKey()
+    public function testKey(): void
     {
         static::assertEquals('PRICE_UNIT_GROSS', $this->packager->getKey());
     }
@@ -55,7 +55,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testPackageDoneWhenSumReached()
+    public function testPackageDoneWhenSumReached(): void
     {
         $items = new LineItemCollection();
         $items->add($this->createProductItem(49, 19));
@@ -80,7 +80,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testResultEmptyIfNotEnoughItems()
+    public function testResultEmptyIfNotEnoughItems(): void
     {
         $items = new LineItemCollection();
         $items->add($this->createProductItem(20.0, 19));
@@ -102,7 +102,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testNoItemsReturnsEmptyList()
+    public function testNoItemsReturnsEmptyList(): void
     {
         $items = new LineItemCollection();
 
@@ -119,7 +119,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testNegativeCountReturnsEmptyList()
+    public function testNegativeCountReturnsEmptyList(): void
     {
         $items = new LineItemCollection();
 
@@ -136,7 +136,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testZeroCountReturnsEmptyList()
+    public function testZeroCountReturnsEmptyList(): void
     {
         $items = new LineItemCollection();
 
@@ -153,7 +153,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testPriceNullIsIgnored()
+    public function testPriceNullIsIgnored(): void
     {
         $items = new LineItemCollection();
 

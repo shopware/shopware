@@ -60,7 +60,7 @@ class ProductStockIndexerTest extends TestCase
         );
     }
 
-    public function testAvailableOnInsert()
+    public function testAvailableOnInsert(): void
     {
         $id = Uuid::randomHex();
 
@@ -85,7 +85,7 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame(10, $product->getAvailableStock());
     }
 
-    public function testAvailableWithoutStock()
+    public function testAvailableWithoutStock(): void
     {
         $id = Uuid::randomHex();
 
@@ -111,7 +111,7 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame(0, $product->getAvailableStock());
     }
 
-    public function testAvailableAfterUpdate()
+    public function testAvailableAfterUpdate(): void
     {
         $id = Uuid::randomHex();
 
@@ -145,7 +145,7 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame(0, $product->getAvailableStock());
     }
 
-    public function testAvailableAfterOrderProduct()
+    public function testAvailableAfterOrderProduct(): void
     {
         $id = $this->createProduct();
 
@@ -166,7 +166,7 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame(5, $product->getStock());
     }
 
-    public function testStockUpdatedAfterOrderCompleted()
+    public function testStockUpdatedAfterOrderCompleted(): void
     {
         $id = $this->createProduct();
 
@@ -196,7 +196,7 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame(4, $product->getAvailableStock());
     }
 
-    public function testProductGoesOutOfStock()
+    public function testProductGoesOutOfStock(): void
     {
         $id = $this->createProduct();
 
@@ -308,7 +308,7 @@ class ProductStockIndexerTest extends TestCase
         return $this->cartService->order($cart, $this->context);
     }
 
-    private function transitionOrder(string $orderId, string $transition)
+    private function transitionOrder(string $orderId, string $transition): void
     {
         $registry = $this->getContainer()->get(StateMachineRegistry::class);
 

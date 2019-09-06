@@ -109,7 +109,7 @@ class ProductStreamServiceTest extends TestCase
         static::assertNotEquals($firstProducts, $secondProducts);
     }
 
-    private function createTestEntity()
+    private function createTestEntity(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 

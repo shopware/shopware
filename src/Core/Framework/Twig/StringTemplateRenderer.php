@@ -49,7 +49,7 @@ class StringTemplateRenderer
         $this->twig->disableStrictVariables();
     }
 
-    public function disableTestMode()
+    public function disableTestMode(): void
     {
         $this->twig->enableStrictVariables();
     }

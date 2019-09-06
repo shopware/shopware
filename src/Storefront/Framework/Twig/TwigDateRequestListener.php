@@ -25,7 +25,7 @@ class TwigDateRequestListener implements EventSubscriberInterface
         return ['kernel.request' => 'onKernelRequest'];
     }
 
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
         $timezone = $event->getRequest()->cookies->get(self::TIMEZONE_COOKIE);
 

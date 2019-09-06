@@ -73,7 +73,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
      * In this case we just make sure that we re-add all codes that the user
      * has previously added in case they might work now.
      */
-    public function onLineItemQuantityChanged(LineItemQuantityChangedEvent $event)
+    public function onLineItemQuantityChanged(LineItemQuantityChangedEvent $event): void
     {
         $this->setupSession();
 
@@ -121,7 +121,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    private function reAddPromotionsFromSession(Cart $cart, SalesChannelContext $context)
+    private function reAddPromotionsFromSession(Cart $cart, SalesChannelContext $context): void
     {
         /** @var array $allSessionCodes */
         $allSessionCodes = $this->session->get(self::SESSION_KEY_PROMOTION_CODES);
@@ -227,7 +227,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
      * Creates an empty session list if not
      * already existing.
      */
-    private function setupSession()
+    private function setupSession(): void
     {
         if (!$this->session->has(self::SESSION_KEY_PROMOTION_CODES)) {
             $this->session->set(self::SESSION_KEY_PROMOTION_CODES, []);

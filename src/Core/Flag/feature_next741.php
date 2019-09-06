@@ -18,7 +18,7 @@ namespace Flag {
 
     function ifNext741Call($object, string $methodName, ...$arguments): void
     {
-        $closure = function () use ($methodName, $arguments) {
+        $closure = function () use ($methodName, $arguments): void {
             $this->{$methodName}(...$arguments);
         };
 

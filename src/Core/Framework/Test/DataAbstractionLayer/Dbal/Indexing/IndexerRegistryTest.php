@@ -48,7 +48,7 @@ class IndexerRegistryTest extends TestCase
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->events = [];
 
-        $this->callbackFn = function (Event $event) {
+        $this->callbackFn = function (Event $event): void {
             $this->events[get_class($event)] = $event;
         };
     }

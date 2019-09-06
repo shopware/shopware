@@ -19,7 +19,7 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testAutomaticPromotionHasEmptyCode()
+    public function testAutomaticPromotionHasEmptyCode(): void
     {
         $definition = new CartPromotionsDataDefinition();
         $definition->addAutomaticPromotions([new PromotionEntity()]);
@@ -39,7 +39,7 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testCodePromotionHasCorrectCode()
+    public function testCodePromotionHasCorrectCode(): void
     {
         $definition = new CartPromotionsDataDefinition();
         $definition->addCodePromotions('codeA', [new PromotionEntity()]);
@@ -57,7 +57,7 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testMultiplePromotionForCode()
+    public function testMultiplePromotionForCode(): void
     {
         $definition = new CartPromotionsDataDefinition();
         $definition->addCodePromotions('codeA', [new PromotionEntity(), new PromotionEntity()]);
@@ -77,7 +77,7 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testGetPromotionCodeTuplesAll()
+    public function testGetPromotionCodeTuplesAll(): void
     {
         $promotion1 = new PromotionEntity();
         $promotion2 = new PromotionEntity();
@@ -100,7 +100,7 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testGetAllCodes()
+    public function testGetAllCodes(): void
     {
         $definition = new CartPromotionsDataDefinition();
         $definition->addCodePromotions('codeA', []);
@@ -118,7 +118,7 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testRemoveCode()
+    public function testRemoveCode(): void
     {
         $promotion1 = new PromotionEntity();
         $promotion2 = new PromotionEntity();
@@ -143,7 +143,7 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testHasCodeIsTrueEvenIfEmpty()
+    public function testHasCodeIsTrueEvenIfEmpty(): void
     {
         $definition = new CartPromotionsDataDefinition();
         $definition->addCodePromotions('codeA', []);
@@ -158,7 +158,7 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testHasCodeIsFalse()
+    public function testHasCodeIsFalse(): void
     {
         $definition = new CartPromotionsDataDefinition();
         $definition->addCodePromotions('codeA', []);
@@ -174,7 +174,7 @@ class CartPromotionsDataDefinitionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testIntegerCodeIsCastedWhenBuildingTuples()
+    public function testIntegerCodeIsCastedWhenBuildingTuples(): void
     {
         $promotion1 = new PromotionEntity();
 

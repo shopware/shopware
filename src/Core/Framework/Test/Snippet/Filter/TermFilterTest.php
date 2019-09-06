@@ -7,19 +7,19 @@ use Shopware\Core\Framework\Snippet\Filter\TermFilter;
 
 class TermFilterTest extends TestCase
 {
-    public function testGetFilterName()
+    public function testGetFilterName(): void
     {
         static::assertSame('term', (new TermFilter())->getName());
     }
 
-    public function testSupports()
+    public function testSupports(): void
     {
         static::assertTrue((new TermFilter())->supports('term'));
         static::assertFalse((new TermFilter())->supports(''));
         static::assertFalse((new TermFilter())->supports('test'));
     }
 
-    public function testFilterWithValueMatch()
+    public function testFilterWithValueMatch(): void
     {
         $snippets = [
             'firstSetId' => [
@@ -88,7 +88,7 @@ class TermFilterTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    public function testFilterWithKeyMatch()
+    public function testFilterWithKeyMatch(): void
     {
         $snippets = [
             'firstSetId' => [
@@ -157,7 +157,7 @@ class TermFilterTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    public function testFilterDoesntRemoveSnippetInOtherSet()
+    public function testFilterDoesntRemoveSnippetInOtherSet(): void
     {
         $snippets = [
             'firstSetId' => [

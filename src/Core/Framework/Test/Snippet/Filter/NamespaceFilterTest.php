@@ -7,19 +7,19 @@ use Shopware\Core\Framework\Snippet\Filter\NamespaceFilter;
 
 class NamespaceFilterTest extends TestCase
 {
-    public function testGetFilterName()
+    public function testGetFilterName(): void
     {
         static::assertSame('namespace', (new NamespaceFilter())->getName());
     }
 
-    public function testSupports()
+    public function testSupports(): void
     {
         static::assertTrue((new NamespaceFilter())->supports('namespace'));
         static::assertFalse((new NamespaceFilter())->supports(''));
         static::assertFalse((new NamespaceFilter())->supports('test'));
     }
 
-    public function testFilter()
+    public function testFilter(): void
     {
         $snippets = [
             'firstSetId' => [
@@ -88,7 +88,7 @@ class NamespaceFilterTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    public function testFilterMultipleNamespaces()
+    public function testFilterMultipleNamespaces(): void
     {
         $snippets = [
             'firstSetId' => [

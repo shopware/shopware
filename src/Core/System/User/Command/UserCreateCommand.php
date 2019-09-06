@@ -74,5 +74,7 @@ class UserCreateCommand extends Command
         $this->userProvisioner->provision($username, $password, $additionalData);
 
         $io->success(sprintf('User "%s" successfully created.', $username));
+
+        return null;
     }
 }

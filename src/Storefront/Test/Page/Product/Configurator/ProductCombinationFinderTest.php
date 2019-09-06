@@ -62,7 +62,7 @@ class ProductCombinationFinderTest extends TestCase
         parent::setUp();
     }
 
-    public function testSwitchVariant()
+    public function testSwitchVariant(): void
     {
         $options = [
             $this->groupIds['color'] => $this->optionIds['red'],
@@ -76,7 +76,7 @@ class ProductCombinationFinderTest extends TestCase
         static::assertEquals($this->variantIds['redXl'], $result->getVariantId());
     }
 
-    public function testSwitchToNotCombinable()
+    public function testSwitchToNotCombinable(): void
     {
         //update red-xl to inactive
         $this->repository->update(
@@ -100,7 +100,7 @@ class ProductCombinationFinderTest extends TestCase
         static::assertEquals($this->variantIds['redL'], $result->getVariantId());
     }
 
-    private function createProduct()
+    private function createProduct(): void
     {
         $this->productId = Uuid::randomHex();
 

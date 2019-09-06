@@ -104,7 +104,7 @@ class ProductVisibilityTest extends TestCase
         $this->insertData();
     }
 
-    public function testVisibilityInListing()
+    public function testVisibilityInListing(): void
     {
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
@@ -124,7 +124,7 @@ class ProductVisibilityTest extends TestCase
         static::assertTrue($data->has($this->productId1));
     }
 
-    public function testVisibilityInSearch()
+    public function testVisibilityInSearch(): void
     {
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
@@ -145,7 +145,7 @@ class ProductVisibilityTest extends TestCase
         static::assertTrue($page->getSearchResult()->has($this->productId2));
     }
 
-    public function testVisibilityOnProductPage()
+    public function testVisibilityOnProductPage(): void
     {
         $cases = [
             ['salesChannelId' => $this->salesChannelId1, 'productId' => $this->productId1, 'visible' => false],
@@ -179,7 +179,7 @@ class ProductVisibilityTest extends TestCase
         }
     }
 
-    public function testVisibilityInSuggest()
+    public function testVisibilityInSuggest(): void
     {
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId1);
 
@@ -200,7 +200,7 @@ class ProductVisibilityTest extends TestCase
         static::assertTrue($page->getSearchResult()->has($this->productId2));
     }
 
-    private function insertData()
+    private function insertData(): void
     {
         $this->salesChannelId1 = $this->createSalesChannel();
         $this->salesChannelId2 = $this->createSalesChannel();

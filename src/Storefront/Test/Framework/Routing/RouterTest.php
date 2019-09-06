@@ -17,7 +17,7 @@ class RouterTest extends TestCase
     /**
      * @dataProvider urlCases
      */
-    public function testUrls(UrlCase $case)
+    public function testUrls(UrlCase $case): void
     {
         $request = new Request();
         $request->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, $case->baseUrl);

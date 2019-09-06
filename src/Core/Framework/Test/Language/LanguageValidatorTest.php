@@ -803,7 +803,7 @@ class LanguageValidatorTest extends TestCase
 
     protected function assertUpdateViolations(array $updateData, array $expectedCodePathPairs): void
     {
-        $this->assertWriteStackViolations(function () use ($updateData) {
+        $this->assertWriteStackViolations(function () use ($updateData): void {
             $this->languageRepository->update($updateData, $this->defaultContext);
         }, $expectedCodePathPairs);
     }
@@ -814,7 +814,7 @@ class LanguageValidatorTest extends TestCase
             $insertData = $this->addDefaultTranslationCodes($insertData);
         }
         $insertData = $this->addDefaultLocales($insertData);
-        $this->assertWriteStackViolations(function () use ($insertData) {
+        $this->assertWriteStackViolations(function () use ($insertData): void {
             $this->languageRepository->create($insertData, $this->defaultContext);
         }, $expectedCodePathPairs);
     }
@@ -825,14 +825,14 @@ class LanguageValidatorTest extends TestCase
             $upsertData = $this->addDefaultTranslationCodes($upsertData);
         }
         $upsertData = $this->addDefaultLocales($upsertData);
-        $this->assertWriteStackViolations(function () use ($upsertData) {
+        $this->assertWriteStackViolations(function () use ($upsertData): void {
             $this->languageRepository->upsert($upsertData, $this->defaultContext);
         }, $expectedCodePathPairs);
     }
 
     protected function assertDeleteViolations(array $ids, array $expectedCodePathPairs): void
     {
-        $this->assertWriteStackViolations(function () use ($ids) {
+        $this->assertWriteStackViolations(function () use ($ids): void {
             $this->languageRepository->delete($ids, $this->defaultContext);
         }, $expectedCodePathPairs);
     }

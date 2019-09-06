@@ -937,7 +937,7 @@ class EntityReader implements EntityReaderInterface
         Context $context,
         EntityCollection $collection,
         Criteria $criteria
-    ) {
+    ): void {
         if (!$association instanceof OneToOneAssociationField && !$association instanceof ManyToOneAssociationField) {
             return;
         }

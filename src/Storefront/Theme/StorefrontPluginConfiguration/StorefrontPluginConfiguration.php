@@ -323,7 +323,7 @@ class StorefrontPluginConfiguration
 
     private static function addBasePathToArray(array $files, string $basePath): array
     {
-        array_walk($files, function (&$path) use ($basePath) {
+        array_walk($files, function (&$path) use ($basePath): void {
             if (strpos($path, '@') === 0) {
                 return;
             }

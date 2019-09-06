@@ -119,7 +119,7 @@ DROP TABLE IF EXISTS `root_sub_many`;
         ');
     }
 
-    public function testWriteRootOverSub()
+    public function testWriteRootOverSub(): void
     {
         $id = Uuid::randomHex();
         $id2 = Uuid::randomHex();
@@ -371,7 +371,7 @@ DROP TABLE IF EXISTS `root_sub_many`;
         static::assertSame('updated sub', $sub->get('name'));
     }
 
-    public function testItInvalidatesTheCacheOnBothSides()
+    public function testItInvalidatesTheCacheOnBothSides(): void
     {
         $idRoot = Uuid::randomHex();
         $idSub = Uuid::randomHex();

@@ -272,7 +272,7 @@ trait CriteriaQueryHelper
         }
 
         $antiJoins = [];
-        $this->walkBottomUp($filter, static function (Filter $f) use (&$antiJoins) {
+        $this->walkBottomUp($filter, static function (Filter $f) use (&$antiJoins): void {
             if ($f instanceof AntiJoinFilter) {
                 $antiJoins[] = $f;
             }

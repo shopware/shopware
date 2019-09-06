@@ -130,5 +130,7 @@ EOD;
         file_put_contents($this->targetFile, $fileContents);
 
         $io->success('Done');
+
+        return null;
     }
 }

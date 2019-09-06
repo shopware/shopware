@@ -40,5 +40,7 @@ class ElasticsearchIndexingCommand extends Command implements EventSubscriberInt
         $this->io = new ShopwareStyle($input, $output);
 
         $this->indexer->index(new \DateTime());
+
+        return null;
     }
 }

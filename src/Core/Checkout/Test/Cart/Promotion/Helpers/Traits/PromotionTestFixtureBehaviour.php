@@ -16,7 +16,7 @@ trait PromotionTestFixtureBehaviour
     /**
      * Creates a new product in the database.
      */
-    private function createTestFixtureProduct(string $productId, float $grossPrice, float $taxRate, ContainerInterface $container)
+    private function createTestFixtureProduct(string $productId, float $grossPrice, float $taxRate, ContainerInterface $container): void
     {
         /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $container->get('product.repository');
@@ -99,7 +99,7 @@ trait PromotionTestFixtureBehaviour
     /**
      * Creates a new advanced currency price for the provided discount
      */
-    private function createTestFixtureAdvancedPrice(string $discountId, string $currency, float $price, ContainerInterface $container)
+    private function createTestFixtureAdvancedPrice(string $discountId, string $currency, float $price, ContainerInterface $container): void
     {
         /** @var EntityRepositoryInterface $pricesRepository */
         $pricesRepository = $container->get('promotion_discount_prices.repository');
@@ -156,7 +156,7 @@ trait PromotionTestFixtureBehaviour
     /**
      * function creates a promotion
      */
-    private function createPromotion(string $promotionId, ?string $code, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context)
+    private function createPromotion(string $promotionId, ?string $code, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context): void
     {
         $data = [
             'id' => $promotionId,

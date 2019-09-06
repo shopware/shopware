@@ -44,7 +44,7 @@ class PromotionHandlingTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPromotionNotAddedWithoutProduct()
+    public function testPromotionNotAddedWithoutProduct(): void
     {
         $productId = Uuid::randomHex();
         $code = 'BF19';
@@ -68,7 +68,7 @@ class PromotionHandlingTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPromotionsRemovedWithProduct()
+    public function testPromotionsRemovedWithProduct(): void
     {
         $productId = Uuid::randomHex();
         $code = 'BF19';

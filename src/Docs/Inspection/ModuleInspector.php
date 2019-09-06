@@ -57,7 +57,7 @@ class ModuleInspector
                 $moduleTag->addMarkers('extendable classes', $this->findExtendableClasses($module))
                     ->addMarkers('custom events', $this->findCustomEvents($module));
             },
-            self::TAG_BUSINESS_EVENT_DISPATCHER => function (ModuleTag $moduleTag, SplFileInfo $module) {
+            self::TAG_BUSINESS_EVENT_DISPATCHER => function (ModuleTag $moduleTag, SplFileInfo $module): void {
                 $moduleTag->addMarkers('business events', $this->containsSubclassesOf($module, BusinessEventInterface::class));
             },
             self::TAG_EXTENSION => function (ModuleTag $moduleTag, SplFileInfo $module): void {

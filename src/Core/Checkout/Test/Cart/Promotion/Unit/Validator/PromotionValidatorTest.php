@@ -47,7 +47,7 @@ class PromotionValidatorTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPromotionCodeRequired()
+    public function testPromotionCodeRequired(): void
     {
         $this->expectException(WriteException::class);
 
@@ -85,7 +85,7 @@ class PromotionValidatorTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPromotionValidUntilAfterFrom()
+    public function testPromotionValidUntilAfterFrom(): void
     {
         $this->expectException(WriteException::class);
 
@@ -121,7 +121,7 @@ class PromotionValidatorTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testPromotionIndividualDoesNotRequireCode()
+    public function testPromotionIndividualDoesNotRequireCode(): void
     {
         $commands[] = new InsertCommand(
             $this->promotionDefinition,
@@ -161,7 +161,7 @@ class PromotionValidatorTest extends TestCase
      * @throws InvalidUuidLengthException
      * @throws WriteConstraintViolationException
      */
-    public function testDiscountValueInvalid(string $type, float $value)
+    public function testDiscountValueInvalid(string $type, float $value): void
     {
         $this->expectException(WriteException::class);
 
@@ -207,7 +207,7 @@ class PromotionValidatorTest extends TestCase
      * @throws InvalidUuidLengthException
      * @throws WriteConstraintViolationException
      */
-    public function testDiscountValueValid(string $type, float $value)
+    public function testDiscountValueValid(string $type, float $value): void
     {
         $commands[] = new InsertCommand(
             $this->discountDefinition,

@@ -72,7 +72,7 @@ class DeliveryCalculatorTest extends TestCase
         $delivery->expects(static::atLeastOnce())->method('getShippingCosts')->willReturn($costs);
 
         $newCosts = null;
-        $delivery->expects(static::once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts) {
+        $delivery->expects(static::once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
             $newCosts = $costsParameter;
         });
 
@@ -164,7 +164,7 @@ class DeliveryCalculatorTest extends TestCase
         $costs->expects(static::once())->method('getUnitPrice')->willReturn(0.0);
         $delivery->expects(static::atLeastOnce())->method('getShippingCosts')->willReturn($costs);
         $newCosts = null;
-        $delivery->expects(static::once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts) {
+        $delivery->expects(static::once())->method('setShippingCosts')->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
             $newCosts = $costsParameter;
         });
 

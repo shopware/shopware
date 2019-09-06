@@ -75,7 +75,7 @@ class ThemeTest extends TestCase
         }
     }
 
-    public function testDefaultThemeConfig()
+    public function testDefaultThemeConfig(): void
     {
         /** @var ThemeEntity $theme */
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
@@ -90,7 +90,7 @@ class ThemeTest extends TestCase
         static::assertEquals($themeConfigFix, $themeConfiguration);
     }
 
-    public function testDefaultThemeConfigTranslated()
+    public function testDefaultThemeConfigTranslated(): void
     {
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
         $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), true, $this->context);
@@ -102,7 +102,7 @@ class ThemeTest extends TestCase
         }
     }
 
-    public function testDefaultThemeConfigFields()
+    public function testDefaultThemeConfigFields(): void
     {
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
 
@@ -110,7 +110,7 @@ class ThemeTest extends TestCase
         static::assertEquals(ThemeFixtures::getThemeFields(), $theme);
     }
 
-    public function testInheritedThemeConfig()
+    public function testInheritedThemeConfig(): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
@@ -149,7 +149,7 @@ class ThemeTest extends TestCase
         static::assertEquals($themeInheritedConfig, $theme);
     }
 
-    public function testCompileTheme()
+    public function testCompileTheme(): void
     {
         static::markTestSkipped('theme compile is not possible cause app.js does not exists');
         $criteria = new Criteria();
@@ -182,7 +182,7 @@ class ThemeTest extends TestCase
         static::assertTrue($themeCompiled);
     }
 
-    public function testRefreshPlugin()
+    public function testRefreshPlugin(): void
     {
         $themeLifecycleService = $this->getContainer()->get(ThemeLifecycleService::class);
         $themeLifecycleService->refreshThemes($this->context);
@@ -195,7 +195,7 @@ class ThemeTest extends TestCase
         static::assertNotEmpty($theme->getLabels());
     }
 
-    public function testResetTheme()
+    public function testResetTheme(): void
     {
         /** @var ThemeEntity $theme */
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();

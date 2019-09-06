@@ -13,7 +13,7 @@ class BusinessEventRegistryTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public function testGetEvents()
+    public function testGetEvents(): void
     {
         $expectedData = [
             'test.event' => [
@@ -60,7 +60,7 @@ class BusinessEventRegistryTest extends TestCase
         static::assertEquals($expectedData, $result);
     }
 
-    public function testGetEventNames()
+    public function testGetEventNames(): void
     {
         $registry = new BusinessEventRegistry($this->getContainer()->get(DefinitionInstanceRegistry::class));
         $registry->addMultiple([
@@ -93,7 +93,7 @@ class BusinessEventRegistryTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    public function testGetAvailableDataByEvent()
+    public function testGetAvailableDataByEvent(): void
     {
         $expectedData = [
             'test.event' => [

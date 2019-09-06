@@ -43,7 +43,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function handleSuggestRequest(ProductListingCriteriaEvent $event)
+    public function handleSuggestRequest(ProductListingCriteriaEvent $event): void
     {
         $criteria = $event->getCriteria();
 

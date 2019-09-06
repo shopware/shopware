@@ -147,7 +147,7 @@ class AggregationParserTest extends TestCase
         static::assertEquals(['product.tax.name', 'product.tax.id'], $maxAggregation->getGroupByFields());
     }
 
-    public function testICanCreateAnEntityAggregation()
+    public function testICanCreateAnEntityAggregation(): void
     {
         $criteria = new Criteria();
         $exception = new SearchRequestException();
@@ -179,7 +179,7 @@ class AggregationParserTest extends TestCase
         static::assertEquals(ProductManufacturerDefinition::class, $entity->getDefinition());
     }
 
-    public function testThrowExceptionByEntityAggregationWithoutDefinition()
+    public function testThrowExceptionByEntityAggregationWithoutDefinition(): void
     {
         $criteria = new Criteria();
         $exception = new SearchRequestException();

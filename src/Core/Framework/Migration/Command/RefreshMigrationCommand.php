@@ -46,6 +46,8 @@ class RefreshMigrationCommand extends Command
         $this->updateMigrationFile($path, $search, $replace);
 
         rename($path, $newPath);
+
+        return null;
     }
 
     private function getCurrentTimestamp(string $filename): string

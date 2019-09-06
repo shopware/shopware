@@ -82,7 +82,7 @@ class EntityExtensionReadTest extends TestCase
         parent::tearDown();
     }
 
-    public function testICanAddAManyToOneAsExtension()
+    public function testICanAddAManyToOneAsExtension(): void
     {
         $productId = Uuid::randomHex();
 

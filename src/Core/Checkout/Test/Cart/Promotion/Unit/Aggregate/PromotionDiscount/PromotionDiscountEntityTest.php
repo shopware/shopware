@@ -14,7 +14,7 @@ class PromotionDiscountEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testScopeCart()
+    public function testScopeCart(): void
     {
         static::assertEquals('cart', PromotionDiscountEntity::SCOPE_CART);
     }
@@ -26,7 +26,7 @@ class PromotionDiscountEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testTypeAbsolute()
+    public function testTypeAbsolute(): void
     {
         static::assertEquals('absolute', PromotionDiscountEntity::TYPE_ABSOLUTE);
     }
@@ -38,7 +38,7 @@ class PromotionDiscountEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testTypePercentage()
+    public function testTypePercentage(): void
     {
         static::assertEquals('percentage', PromotionDiscountEntity::TYPE_PERCENTAGE);
     }
@@ -50,7 +50,7 @@ class PromotionDiscountEntityTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testTypeFixed()
+    public function testTypeFixed(): void
     {
         static::assertEquals('fixed', PromotionDiscountEntity::TYPE_FIXED);
     }

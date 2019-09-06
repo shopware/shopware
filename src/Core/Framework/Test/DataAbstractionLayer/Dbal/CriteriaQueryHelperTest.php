@@ -14,7 +14,7 @@ class CriteriaQueryHelperTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testInvalidSortingDirection()
+    public function testInvalidSortingDirection(): void
     {
         $context = Context::createDefaultContext();
         /** @var EntityRepositoryInterface $taxRepository */

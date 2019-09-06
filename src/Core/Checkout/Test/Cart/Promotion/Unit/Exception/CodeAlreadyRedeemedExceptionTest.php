@@ -14,7 +14,7 @@ class CodeAlreadyRedeemedExceptionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testCodeInMessage()
+    public function testCodeInMessage(): void
     {
         $exception = new CodeAlreadyRedeemedException('MY-CODE-123');
 
@@ -27,7 +27,7 @@ class CodeAlreadyRedeemedExceptionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testErrorCode()
+    public function testErrorCode(): void
     {
         $exception = new CodeAlreadyRedeemedException('');
 
@@ -40,7 +40,7 @@ class CodeAlreadyRedeemedExceptionTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testStatusCode()
+    public function testStatusCode(): void
     {
         $exception = new CodeAlreadyRedeemedException('');
 

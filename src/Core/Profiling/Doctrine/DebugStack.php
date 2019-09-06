@@ -12,7 +12,7 @@ class DebugStack extends DoctrineDebugStack
     /**
      * {@inheritdoc}
      */
-    public function stopQuery()
+    public function stopQuery(): void
     {
         parent::stopQuery();
         if (!$this->enabled) {

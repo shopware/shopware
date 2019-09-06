@@ -27,7 +27,7 @@ class ContextTest extends TestCase
 
         static::assertEquals(Context::SYSTEM_SCOPE, $context->getScope());
 
-        $context->scope('foo', function (Context $context) {
+        $context->scope('foo', function (Context $context): void {
             static::assertEquals('foo', $context->getScope());
         });
 

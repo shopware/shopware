@@ -236,7 +236,7 @@ class PromotionRedemptionIndexer implements IndexerInterface
             }
 
             $context->scope(Context::SYSTEM_SCOPE,
-                function (Context $context) use ($promotion, $increment, $ordersPerCustomerCount) {
+                function (Context $context) use ($promotion, $increment, $ordersPerCustomerCount): void {
                     $this->promotionRepository->update([
                         [
                             'id' => $promotion->getId(),

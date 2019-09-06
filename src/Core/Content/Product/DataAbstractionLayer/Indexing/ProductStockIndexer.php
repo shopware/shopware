@@ -122,7 +122,7 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
         $this->updateAvailableFlag($ids, $event->getContext());
     }
 
-    public function stateChanged(StateMachineTransitionEvent $event)
+    public function stateChanged(StateMachineTransitionEvent $event): void
     {
         if ($event->getEntityName() !== 'order') {
             return;
@@ -154,7 +154,7 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
         $this->clearCache($ids);
     }
 
-    public function orderPlaced(CheckoutOrderPlacedEvent $event)
+    public function orderPlaced(CheckoutOrderPlacedEvent $event): void
     {
         $ids = [];
         foreach ($event->getOrder()->getLineItems() as $lineItem) {
@@ -215,7 +215,7 @@ WHERE product.id IN (:ids);
         );
     }
 
-    private function updateStock(array $products, int $multiplier)
+    private function updateStock(array $products, int $multiplier): void
     {
         $query = $this->connection->prepare('UPDATE product SET stock = stock + :quantity WHERE id = :id AND version_id = :version');
 
@@ -272,7 +272,7 @@ WHERE product.id IN (:ids);
         return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    private function clearCache(array $ids)
+    private function clearCache(array $ids): void
     {
         $tags = [];
         foreach ($ids as $id) {

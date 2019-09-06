@@ -109,5 +109,7 @@ class PluginListCommand extends Command
                 $upgradeable
             )
         );
+
+        return null;
     }
 }

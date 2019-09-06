@@ -39,5 +39,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
         $this->io = new ShopwareStyle($input, $output);
 
         $this->indexer->index(new \DateTime());
+
+        return null;
     }
 }

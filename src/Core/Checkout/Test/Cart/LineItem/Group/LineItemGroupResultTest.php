@@ -20,7 +20,7 @@ class LineItemGroupResultTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testGroupDefinitionProperty()
+    public function testGroupDefinitionProperty(): void
     {
         $group = new LineItemGroupDefinition(
             '',
@@ -41,7 +41,7 @@ class LineItemGroupResultTest extends TestCase
      * @test
      * @group lineitemgroup
      */
-    public function testItemsResultProperty()
+    public function testItemsResultProperty(): void
     {
         $group = new LineItemGroupDefinition(
             '',

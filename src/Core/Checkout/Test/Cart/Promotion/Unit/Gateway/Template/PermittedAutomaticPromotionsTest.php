@@ -30,7 +30,7 @@ class PermittedAutomaticPromotionsTest extends TestCase
      * @test
      * @group promotions
      */
-    public function testCriteria()
+    public function testCriteria(): void
     {
         $associations = ['discounts'];
 

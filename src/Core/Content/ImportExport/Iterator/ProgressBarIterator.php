@@ -27,7 +27,7 @@ class ProgressBarIterator implements \Iterator
         return $this->inner->current();
     }
 
-    public function next()
+    public function next(): void
     {
         $this->inner->next();
         $this->progressBar->advance();
@@ -48,7 +48,7 @@ class ProgressBarIterator implements \Iterator
         return $valid;
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->inner->rewind();
         $this->progressBar->setProgress(0);

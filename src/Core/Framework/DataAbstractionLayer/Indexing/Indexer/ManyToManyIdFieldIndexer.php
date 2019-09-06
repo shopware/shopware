@@ -106,7 +106,7 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
         }
     }
 
-    private function update(EntityDefinition $definition, array $ids, Context $context)
+    private function update(EntityDefinition $definition, array $ids, Context $context): void
     {
         if (empty($ids)) {
             return;

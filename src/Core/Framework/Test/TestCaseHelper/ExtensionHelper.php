@@ -48,7 +48,7 @@ class ExtensionHelper
         }
 
         if ($object instanceof Collection) {
-            $object->map(function ($element) {
+            $object->map(function ($element): void {
                 $this->removeExtensions($element);
             });
         }

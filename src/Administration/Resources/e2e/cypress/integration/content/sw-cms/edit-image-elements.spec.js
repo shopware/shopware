@@ -166,6 +166,19 @@ describe('CMS: Check usage and editing of image elements', () => {
 
         // Verify layout in Storefront
         cy.visit('/');
-        // TODO: reimplement validation after slider bug is fixed
+        cy.get('#tns1-item0 .image-slider-image')
+            .should('be.visible')
+            .and('have.attr', 'src')
+            .and('match', /sw-login-background/);
+        cy.get('.icon-arrow-head-right').click();
+        cy.get('#tns1-item1 .image-slider-image')
+            .should('be.visible')
+            .and('have.attr', 'src')
+            .and('match', /sw-test-image/);
+        cy.get('.icon-arrow-head-right').click();
+        cy.get('#tns1-item2 .image-slider-image')
+            .should('be.visible')
+            .and('have.attr', 'src')
+            .and('match', /sw-storefront-en/);
     });
 });

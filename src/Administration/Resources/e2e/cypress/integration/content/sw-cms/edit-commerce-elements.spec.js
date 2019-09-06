@@ -1,7 +1,5 @@
 // / <reference types="Cypress" />
 
-import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
-
 describe('CMS: Check usage and editing of commerce elements', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -69,8 +67,6 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');
 
         // Configure first product
-        // TODO: reimplement validation after preview bug is fixed
-
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').first().click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
         cy.get('.sw-cms-el-config-product-box .sw-single-select').first()
@@ -79,6 +75,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
                 searchTerm: 'First product'
             });
         cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
+        cy.get('.sw-cms-el-product-box__name').first().contains('First product');
 
         // Configure second product
         cy.get('.sw-cms-slot:nth-of-type(2) .sw-cms-slot__settings-action').click();
@@ -98,7 +95,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
             searchTerm: 'Third product'
         });
         cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
-        //cy.get('.sw-cms-slot:nth-of-type(3) .sw-cms-el-product-box__name').contains('Third product');
+        cy.get('.sw-cms-slot:nth-of-type(3) .sw-cms-el-product-box__name').contains('Third product');
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();

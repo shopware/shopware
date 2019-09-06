@@ -10,7 +10,6 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -50,12 +49,7 @@ class NavigationLoader
     public function load(string $activeId, SalesChannelContext $context, string $rootId): Tree
     {
         $criteria = new Criteria();
-        $criteria->addFilter(
-            new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('id', $activeId),
-                new EqualsFilter('parentId', $rootId),
-            ])
-        );
+
         $criteria->addFilter(new EqualsFilter('category.visible', true));
         $criteria->addAssociation('media');
 
@@ -65,20 +59,6 @@ class NavigationLoader
         $active = $rootLevel->get($activeId);
         if (!$active) {
             throw new CategoryNotFoundException($activeId);
-        }
-
-        $ids = $rootLevel->getIds();
-        $ids = array_flip($ids);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('parentId', $ids));
-        $criteria->addFilter(new EqualsFilter('category.visible', true));
-
-        /** @var CategoryCollection $secondLevel */
-        $secondLevel = $this->categoryRepository->search($criteria, $context)->getEntities();
-
-        foreach ($secondLevel as $category) {
-            $rootLevel->add($category);
         }
 
         $navigation = $this->getTree($rootId, $rootLevel, $active);

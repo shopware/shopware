@@ -60,10 +60,7 @@ class ProductReviewLoader
         /** @var StorefrontSearchResult $reviews */
         $reviews = $this->getReviews($criteria, $context, $request);
 
-        $this->eventDispatcher->dispatch(
-            new ProductReviewsLoadedEvent($reviews, $context, $request),
-            ProductReviewsLoadedEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new ProductReviewsLoadedEvent($reviews, $context, $request));
 
         /** @var AggregationResult|null $aggregation */
         $aggregation = $reviews->getAggregations()->get('ratingMatrix');

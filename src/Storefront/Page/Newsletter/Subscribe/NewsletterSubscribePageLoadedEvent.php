@@ -2,52 +2,25 @@
 
 namespace Shopware\Storefront\Page\Newsletter\Subscribe;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-class NewsletterSubscribePageLoadedEvent extends NestedEvent
+class NewsletterSubscribePageLoadedEvent extends PageLoadedEvent
 {
     /**
      * @var NewsletterSubscribePage
      */
     protected $page;
 
-    /**
-     * @var SalesChannelContext
-     */
-    protected $salesChannelContext;
-
-    /**
-     * @var Request
-     */
-    protected $request;
-
     public function __construct(NewsletterSubscribePage $page, SalesChannelContext $salesChannelContext, Request $request)
     {
         $this->page = $page;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->request = $request;
+        parent::__construct($salesChannelContext, $request);
     }
 
     public function getPage(): NewsletterSubscribePage
     {
         return $this->page;
-    }
-
-    public function getSalesChannelContext(): SalesChannelContext
-    {
-        return $this->salesChannelContext;
-    }
-
-    public function getContext(): Context
-    {
-        return $this->salesChannelContext->getContext();
-    }
-
-    public function getRequest(): Request
-    {
-        return $this->request;
     }
 }

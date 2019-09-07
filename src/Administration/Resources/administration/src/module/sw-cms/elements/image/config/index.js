@@ -95,11 +95,6 @@ Component.register('sw-cms-el-config-image', {
             this.$emit('element-update', this.element);
         },
 
-        updateElementData(media = null) {
-            this.$set(this.element.data, 'mediaId', media === null ? null : media.id);
-            this.$set(this.element.data, 'media', media);
-        },
-
         onChangeDisplayMode(value) {
             if (value === 'cover') {
                 this.element.config.verticalAlign.value = null;

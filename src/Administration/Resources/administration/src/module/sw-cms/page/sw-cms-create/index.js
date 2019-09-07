@@ -32,10 +32,9 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
 
     methods: {
         createdComponent() {
-            // // ToDo: Make the navigation state accessible via global state
+            // ToDo: Make the navigation state accessible via global state
             this.$root.$children[0].$children[2].$children[0].isExpanded = false;
 
-            // ToDo: repository, not Store!
             if (!this.isSystemDefaultLanguage) {
                 this.languageStore.setCurrentId(this.context.systemLanguageId);
                 this.currentLanguageId = this.context.systemLanguageId;

@@ -31,18 +31,21 @@ Component.register('sw-cms-el-image', {
             const initContainer = Application.getContainer('init');
             const context = initContainer.contextService;
             const elemData = this.element.data.media;
+            const mediaSource = this.element.config.media.source;
 
-            if (this.element.config.media.source === 'mapped') {
-                const media = this.getDemoValue(this.element.config.media.value);
+            if (mediaSource === 'mapped') {
+                const demoMedia = this.getDemoValue(this.element.config.media.value);
 
-                if (media && media.id && media.url) {
-                    return media.url;
+                if (demoMedia && demoMedia.url) {
+                    return demoMedia.url;
                 }
-            } else if (elemData) {
-                if (elemData.id) {
-                    return this.element.data.media.url;
-                }
+            }
 
+            if (elemData && elemData.id) {
+                return this.element.data.media.url;
+            }
+
+            if (elemData && elemData.url) {
                 return `${context.assetsPath}${elemData.url}`;
             }
 

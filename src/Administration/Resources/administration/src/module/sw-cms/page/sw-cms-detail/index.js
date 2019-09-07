@@ -265,11 +265,6 @@ Component.register('sw-cms-detail', {
                 this.page = { blocks: [] };
                 this.page = page;
 
-                if (!this.page.name && this.page.translated.name) {
-                    // ToDo: fallball broken, but have to save on page.name, page.translated.name isn't working
-                    this.page.name = this.page.translated.name;
-                }
-
                 this.cmsDataResolverService.resolve(this.page).then(() => {
                     this.updateBlockPositions();
                     this.$store.commit('cmsPageState/setCurrentPage', this.page);

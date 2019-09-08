@@ -22,7 +22,7 @@
                                         } %}
                                     </div>
                                 {% else %}
-                                    <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.id})) }}"
+                                    <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.referencedId})) }}"
                                        class="cart-item-img-link"
                                        title="{{ lineItem.label }}">
                                         {% if lineItem.cover.url %}
@@ -56,7 +56,7 @@
                                 {% block component_offcanvas_product_label %}
                                     <div class="cart-item-details">
                                         {% if lineItem.type == 'product' %}
-                                            <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.id})) }}"
+                                            <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.referencedId})) }}"
                                                class="cart-item-label"
                                                title="{{ lineItem.label }}">
                                                 {{ lineItem.quantity }}{{ "checkout.quantityTimes"|trans }} {{ lineItem.label|truncate(60) }}

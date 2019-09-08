@@ -39,7 +39,7 @@
                                                             } %}
                                                         </div>
                                                     {% else %}
-                                                        <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.id})) }}"
+                                                        <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.referencedId})) }}"
                                                            class="cart-item-img-link"
                                                            title="{{ lineItem.label }}"
                                                            {% if controllerAction is same as('confirmPage') %}

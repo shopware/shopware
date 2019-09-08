@@ -23,7 +23,7 @@
                                         } %}
                                     </div>
                                 {% else %}
-                                    <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.identifier})) }}"
+                                    <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.referencedId})) }}"
                                        class="product-image-link"
                                        title="{{ lineItem.label }}">
                                         {% block page_checkout_item_info_image_element %}
@@ -57,7 +57,7 @@
                 {% block page_account_order_item_detail_name %}
                     <div class="col-12 col-md-4 order-item order-item-name">
                         {% block page_account_order_item_detail_name_value %}
-                            <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.identifier})) }}"
+                            <a href="{{ canonicalUrl(lineItem, path('frontend.detail.page', {'productId': lineItem.referencedId})) }}"
                                class="order-item-product-name"
                                title="{{ lineItem.label }}"> <strong class="name-value">
                                     {{ lineItem.label }}

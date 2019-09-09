@@ -8,6 +8,8 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
 
     .sw-block-field__block {
         transition: $sw-select-focus-transition;
+        position: relative;
+        overflow: visible;
     }
 
     .sw-select__selection {

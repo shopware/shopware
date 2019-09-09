@@ -26,7 +26,8 @@ Component.register('sw-promotion-persona-form', {
             // PAGINATION
             gridCustomersPageDataSource: [],
             gridCustomersPageNr: 1,
-            gridCustomersPageLimit: 10
+            gridCustomersPageLimit: 10,
+            customerModel: null
         };
     },
     watch: {
@@ -128,7 +129,7 @@ Component.register('sw-promotion-persona-form', {
         // -------------------------------------------------------------------------------------------------------
         // adds the provided customer to the
         // persona list and updates the grid
-        onAddCustomer({ item }) {
+        onAddCustomer(id, item) {
             // somehow also null is being passed on
             // "all the time". to avoid circular references and
             // exceeding call stacks, we check for null
@@ -139,7 +140,7 @@ Component.register('sw-promotion-persona-form', {
             this.customerService.addCustomer(item.id, this.context).then(() => {
                 // remove from vue search field
                 // and make it empty for the next searches
-                this.$refs.selectCustomerSearch.unsetValue();
+                this.$refs.selectCustomerSearch.clearSelection();
                 // also refresh our grid
                 this.refreshGridDataSource();
                 this.updateStateVariables();

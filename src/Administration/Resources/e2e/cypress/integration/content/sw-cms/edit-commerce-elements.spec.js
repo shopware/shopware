@@ -69,7 +69,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         // Configure first product
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').first().click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
-        cy.get('.sw-cms-el-config-product-box .sw-single-select').first()
+        cy.get('.sw-cms-el-config-product-box .sw-entity-single-select').first()
             .typeSingleSelectAndCheck('First product', {
                 isMulti: false,
                 searchTerm: 'First product'
@@ -80,7 +80,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         // Configure second product
         cy.get('.sw-cms-slot:nth-of-type(2) .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
-        cy.get('.sw-cms-el-config-product-box .sw-single-select').first()
+        cy.get('.sw-cms-el-config-product-box .sw-entity-single-select').first()
             .typeSingleSelectAndCheck('Second product', {
                 isMulti: false,
                 searchTerm: 'Second product'
@@ -90,7 +90,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         // Configure third product
         cy.get('.sw-cms-slot:nth-of-type(3) .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
-        cy.get('.sw-cms-el-config-product-box .sw-single-select').first().typeSingleSelectAndCheck('Third product', {
+        cy.get('.sw-cms-el-config-product-box .sw-entity-single-select').first().typeSingleSelectAndCheck('Third product', {
             isMulti: false,
             searchTerm: 'Third product'
         });

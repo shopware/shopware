@@ -44,11 +44,13 @@
                                                  entity="customer"
                                                  :criteria="customerCriteria"
                                                  labelProperty="firstName"
-                                                 @option-click="onAddCustomer"
-                                                 value=""
+                                                 @change="onAddCustomer"
+                                                 v-model="customerModel"
                                                  :disabled="isEditingDisabled">
-                            <template slot="labelProperty" slot-scope="{ item, index }">
-                                {{ item.firstName }} {{ item.lastName }}
+                            <template #result-label-property="{ item, index, searchTerm, getKey }">
+                                <sw-highlight-text :text="`${getKey(item, 'firstName')} ${getKey(item, 'lastName')}`"
+                                                   :searchTerm="searchTerm">
+                                </sw-highlight-text>
                             </template>
                         </sw-entity-single-select>
                     {% endblock %}

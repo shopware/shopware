@@ -145,8 +145,8 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
 Cypress.Commands.add('typeSingleSelect', {
     prevSubject: 'element'
 }, (subject, value, options = {}) => {
-    const resultPrefix = '.sw-single-select';
-    const inputCssSelector = `${resultPrefix}__input-single`;
+    const resultPrefix = '.sw-select';
+    const inputCssSelector = `.sw-select__selection input`;
     const searchTerm = options.searchTerm || value;
     const position = options.position || 0;
 
@@ -155,7 +155,7 @@ Cypress.Commands.add('typeSingleSelect', {
 
     // type in the search term if available
     if (searchTerm) {
-        cy.get('.sw-single-select__results-list').should('be.visible');
+        cy.get('.sw-select-result-list').should('be.visible');
         cy.get(`${subject.selector} ${inputCssSelector}`).clear();
         cy.get(`${subject.selector} ${inputCssSelector}`).type(searchTerm);
         cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', searchTerm);
@@ -169,11 +169,11 @@ Cypress.Commands.add('typeSingleSelect', {
         cy.get(`${subject.selector} ${resultPrefix}-option--${position}.is--disabled`)
             .should('not.exist');
 
-        cy.get(`${subject.selector} ${resultPrefix}-option--${position} ${resultPrefix}-option__result-item-text`)
+        cy.get(`${subject.selector} ${resultPrefix}-option--${position} .sw-select-result__result-item-text`)
             .should('be.visible');
 
         cy.get(`${resultPrefix}-option--1`).should('not.exist');
-        cy.get(`${subject.selector} ${resultPrefix}-option--${position} ${resultPrefix}-option__result-item-text`)
+        cy.get(`${subject.selector} ${resultPrefix}-option--${position} .sw-select-result__result-item-text`)
             .contains(value);
     }
 
@@ -196,8 +196,8 @@ Cypress.Commands.add('typeSingleSelectAndCheck', {
     cy.get(subject).typeSingleSelect(value);
 
     // expect the placeholder for an empty select field not be shown and search for the value
-    cy.get(`${subject.selector} .sw-select__placeholder`).should('not.exist');
-    cy.get(`${subject.selector} .sw-single-select__single-selection`).contains(value);
+    cy.get(`${subject.selector} .sw-select__selection .is--placeholder`).should('not.exist');
+    cy.get(`${subject.selector} .sw-select__selection`).contains(value);
 
     return this;
 });

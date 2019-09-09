@@ -27,6 +27,13 @@ Component.register('sw-order-product-select', {
             }
         }
     },
+
+    data() {
+        return {
+            product: null
+        };
+    },
+
     computed: {
         productRepository() {
             return this.repositoryFactory.create('product');

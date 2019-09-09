@@ -11,7 +11,9 @@
         {% endblock %}
 
         {% block sw_cms_block_toolbar %}
-            <div class="sw-cms-block__config-toolbar" :class="toolbarClasses" v-if="blockConfig.removable !== false">
+            <div class="sw-cms-block__config-toolbar"
+                 :class="toolbarClasses"
+                 v-if="(blockConfig.removable !== false) && buttonsEnabled">
                 {% block sw_cms_block_toolbar_delete_action %}
                     <div class="sw-cms-block__config-toolbar-action" @click="onBlockDelete">
                         <sw-icon name="default-action-trash" size="16"></sw-icon>

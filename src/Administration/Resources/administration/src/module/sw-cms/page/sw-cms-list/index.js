@@ -99,10 +99,6 @@ Component.register('sw-cms-list', {
             // ToDo: Make the navigation state accessible via global state
             this.$root.$children[0].$children[2].$children[0].isExpanded = false;
 
-            // ToDo: Remove, when language handling is added to CMS
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-            this.context.languageId = this.languageStore.systemLanguageId;
-
             this.setPageContext();
         },
 
@@ -308,7 +304,7 @@ Component.register('sw-cms-list', {
         deleteDisabledToolTip(page) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-cms.general.deleteDisablesToolTip'),
+                message: this.$tc('sw-cms.general.deleteDisabledToolTip'),
                 disabled: page.categories.length === 0
             };
         }

@@ -75,7 +75,7 @@ function initSlotConfig(slot) {
     const slotConfig = cmsElements[slot.type];
     const defaultConfig = slotConfig.defaultConfig || {};
 
-    slot.config = merge(cloneDeep(defaultConfig), slot.config || {});
+    slot.config = merge(cloneDeep(defaultConfig), slot.translated.config || {});
 }
 
 function initSlotDefaultData(slot) {

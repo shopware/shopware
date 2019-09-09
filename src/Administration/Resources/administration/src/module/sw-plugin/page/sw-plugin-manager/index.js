@@ -55,15 +55,6 @@ Component.register('sw-plugin-manager', {
             });
         },
 
-        refreshPlugins() {
-            this.isLoading = true;
-            this.pluginService.refresh().then(() => {
-                this.reloadPluginListing();
-            }).finally(() => {
-                this.isLoading = false;
-            });
-        },
-
         reloadPluginListing() {
             this.$root.$emit('force-refresh');
             this.$router.push({ name: 'sw.plugin.index.list' });

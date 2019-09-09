@@ -182,9 +182,15 @@ Component.register('sw-plugin-list', {
         getList() {
             this.isLoading = true;
 
-            const params = this.getListingParams();
+            this.pluginService.refresh().then(() => {
+                const params = this.getListingParams();
 
-            this.pluginsStore.getList(params, false, this.$store.state.adminLocale.languageId).then((response) => {
+                return this.pluginsStore.getList(
+                    params,
+                    false,
+                    this.$store.state.adminLocale.languageId
+                );
+            }).then((response) => {
                 this.plugins = response.items;
                 this.isConfigAvailableForPlugins();
                 this.total = response.total;

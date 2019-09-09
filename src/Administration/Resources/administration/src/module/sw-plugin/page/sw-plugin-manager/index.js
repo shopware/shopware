@@ -42,8 +42,6 @@ Component.register('sw-plugin-manager', {
                 this.fetchAvailableUpdates();
             });
 
-            this.refreshPlugins();
-
             this.storeService.ping().then(() => {
                 this.storeAvailable = true;
             }).catch(() => {
@@ -54,15 +52,6 @@ Component.register('sw-plugin-manager', {
         fetchAvailableUpdates() {
             this.storeService.getUpdateList().then((updates) => {
                 this.availableUpdates = updates.total;
-            });
-        },
-
-        refreshPlugins() {
-            this.isLoading = true;
-            this.pluginService.refresh().then(() => {
-                this.reloadPluginListing();
-            }).finally(() => {
-                this.isLoading = false;
             });
         },
 

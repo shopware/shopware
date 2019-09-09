@@ -15,6 +15,7 @@ PHP
 * `memory_limit` 512M minimum
 * `max_execution_time` 30 seconds minimum
 * Extensions: 
+    * ext-curl
     * ext-dom  
     * ext-fileinfo  
     * ext-gd  
@@ -31,13 +32,12 @@ PHP
     * ext-simplexml  
     * ext-xml  
     * ext-zip  
-    * ext-zlib  
+    * ext-zlib
 * Composer 1.6 or higher
 
 SQL
 * MySQL 5.7.21 or higher
 * MariaDB 10.3 or higher
-* With configuration `group_concat_max_len=320000`
     
 JavaScript
 * Node.js 8.10.0 or higher

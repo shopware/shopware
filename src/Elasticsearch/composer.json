@@ -13,6 +13,7 @@
     },
     "minimum-stability": "dev",
     "require": {
+        "ext-curl": "*",
         "doctrine/dbal": "2.9.2",
         "elasticsearch/elasticsearch": "7.2.1",
         "ongr/elasticsearch-dsl": "6.0.3",

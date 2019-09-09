@@ -252,7 +252,7 @@ class DocumentService
             $mediaService,
             $mediaFile,
             &$mediaId
-        ) {
+        ): void {
             $mediaId = $mediaService->saveMediaFile(
                 $mediaFile,
                 $fileName,

@@ -42,6 +42,8 @@ Component.register('sw-plugin-manager', {
                 this.fetchAvailableUpdates();
             });
 
+            this.refreshPlugins();
+
             this.storeService.ping().then(() => {
                 this.storeAvailable = true;
             }).catch(() => {

@@ -2,52 +2,25 @@
 
 namespace Shopware\Storefront\Page\Address\Detail;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-class AddressDetailPageLoadedEvent extends NestedEvent
+class AddressDetailPageLoadedEvent extends PageLoadedEvent
 {
     /**
      * @var AddressDetailPage
      */
     protected $page;
 
-    /**
-     * @var SalesChannelContext
-     */
-    protected $salesChannelContext;
-
-    /**
-     * @var Request
-     */
-    protected $request;
-
     public function __construct(AddressDetailPage $page, SalesChannelContext $salesChannelContext, Request $request)
     {
         $this->page = $page;
-        $this->salesChannelContext = $salesChannelContext;
-        $this->request = $request;
+        parent::__construct($salesChannelContext, $request);
     }
 
     public function getPage(): AddressDetailPage
     {
         return $this->page;
-    }
-
-    public function getSalesChannelContext(): SalesChannelContext
-    {
-        return $this->salesChannelContext;
-    }
-
-    public function getContext(): Context
-    {
-        return $this->salesChannelContext->getContext();
-    }
-
-    public function getRequest(): Request
-    {
-        return $this->request;
     }
 }

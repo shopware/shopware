@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadSubscriber;
@@ -38,7 +39,7 @@ class RulePayloadSubscriberTest extends TestCase
     private $context;
 
     /**
-     * @var RulePayloadIndexer
+     * @var RulePayloadIndexer|MockObject
      */
     private $indexer;
 
@@ -189,7 +190,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->fetch();
 
         static::assertNotNull($ruleData['payload']);
-        static::assertEquals(0, $ruleData['invalid']);
+        static::assertSame(0, (int) $ruleData['invalid']);
     }
 
     public function testLoadInvalidRulesFromDatabase(): void
@@ -227,6 +228,6 @@ class RulePayloadSubscriberTest extends TestCase
             ->fetch();
 
         static::assertNull($ruleData['payload']);
-        static::assertEquals(1, $ruleData['invalid']);
+        static::assertSame(1, (int) $ruleData['invalid']);
     }
 }

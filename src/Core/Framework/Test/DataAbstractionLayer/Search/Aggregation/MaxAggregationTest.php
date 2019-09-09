@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Aggregation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\MaxResult;
@@ -25,15 +26,13 @@ class MaxAggregationTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new MaxAggregation('taxRate', 'rate_agg'));
 
+        /** @var EntityRepositoryInterface $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
-        $result = $taxRepository->aggregate($criteria, $context);
 
         /** @var AggregationResult $rateAgg */
-        $rateAgg = $result->getAggregations()->get('rate_agg');
+        $rateAgg = $taxRepository->aggregate($criteria, $context)->getAggregations()->get('rate_agg');
         static::assertNotNull($rateAgg);
-        static::assertEquals([
-            new MaxResult(null, 90),
-        ], $rateAgg->getResult());
+        static::assertEquals([new MaxResult(null, 90.0)], $rateAgg->getResult());
     }
 
     public function testMaxAggregationWorksOnDateTimeFields(): void
@@ -44,13 +43,15 @@ class MaxAggregationTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new MaxAggregation('createdAt', 'created_agg'));
 
+        /** @var EntityRepositoryInterface $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
-        $result = $taxRepository->aggregate($criteria, $context);
 
         /** @var AggregationResult $createdAgg */
-        $createdAgg = $result->getAggregations()->get('created_agg');
+        $createdAgg = $taxRepository->aggregate($criteria, $context)->getAggregations()->get('created_agg');
         static::assertNotNull($createdAgg);
-        static::assertInstanceOf(\DateTime::class, $createdAgg->getResult()[0]->getMax());
+        /** @var MaxResult $firstCreatedAgg */
+        $firstCreatedAgg = $createdAgg->getResult()[0];
+        static::assertInstanceOf(\DateTime::class, $firstCreatedAgg->getMax());
     }
 
     public function testMaxAggregationWithGroupBy(): void
@@ -62,15 +63,27 @@ class MaxAggregationTest extends TestCase
         $criteria->addFilter(new EqualsAnyFilter('product.categories.id', $ids));
         $criteria->addAggregation(new MaxAggregation('product.price.gross', 'max_agg', 'product.categories.name'));
 
+        /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
-        $result = $productRepository->aggregate($criteria, $context);
 
         /** @var AggregationResult $maxAgg */
-        $maxAgg = $result->getAggregations()->get('max_agg');
+        $maxAgg = $productRepository->aggregate($criteria, $context)->getAggregations()->get('max_agg');
         static::assertCount(4, $maxAgg->getResult());
-        static::assertEquals(20, $maxAgg->get(['product.categories.name' => 'cat1'])->getMax());
-        static::assertEquals(90, $maxAgg->get(['product.categories.name' => 'cat2'])->getMax());
-        static::assertEquals(90, $maxAgg->get(['product.categories.name' => 'cat3'])->getMax());
-        static::assertEquals(20, $maxAgg->get(['product.categories.name' => 'cat4'])->getMax());
+
+        /** @var MaxResult $maxAggCat1 */
+        $maxAggCat1 = $maxAgg->get(['product.categories.name' => 'cat1']);
+        static::assertSame(20, $maxAggCat1->getMax());
+
+        /** @var MaxResult $maxAggCat2 */
+        $maxAggCat2 = $maxAgg->get(['product.categories.name' => 'cat2']);
+        static::assertSame(90, $maxAggCat2->getMax());
+
+        /** @var MaxResult $maxAggCat3 */
+        $maxAggCat3 = $maxAgg->get(['product.categories.name' => 'cat3']);
+        static::assertSame(90, $maxAggCat3->getMax());
+
+        /** @var MaxResult $maxAggCat4 */
+        $maxAggCat4 = $maxAgg->get(['product.categories.name' => 'cat4']);
+        static::assertSame(20, $maxAggCat4->getMax());
     }
 }

@@ -10,12 +10,7 @@
         <ignoreFiles>
             <directory name="vendor"/>
             <directory name="vendor/shopware/platform/src/Core/Flag"/>
-            <directory name="vendor/shopware/platform/src/Core/Checkout/Test"/>
-            <directory name="vendor/shopware/platform/src/Core/Content/Test"/>
-            <directory name="vendor/shopware/platform/src/Core/Framework/Test"/>
-            <directory name="vendor/shopware/platform/src/Core/Migration/Test"/>
-            <directory name="vendor/shopware/platform/src/Core/System/Test"/>
-            <directory name="vendor/shopware/platform/src/Storefront/Test"/>
+            <directory name="vendor/shopware/platform/src/Core/Framework/Test/FeatureFlag"/>
             <file name="vendor/shopware/platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
         </ignoreFiles>
     </projectFiles>
@@ -32,6 +27,12 @@
                 <file name="vendor/shopware/platform/src/Core/Profiling/Twig/DoctrineExtension.php"/>
             </errorLevel>
         </InvalidCast>
+        <UndefinedConstant>
+            <errorLevel type="info">
+                <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/Util/PluginFinderTest.php"/>
+                <file name="vendor/shopware/platform/src/Core/Framework/Test/TestCaseBase/KernelLifecycleManagerTest.php"/>
+            </errorLevel>
+        </UndefinedConstant>
 
         <LessSpecificReturnType errorLevel="info"/>
 

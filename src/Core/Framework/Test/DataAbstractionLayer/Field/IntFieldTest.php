@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -111,9 +110,6 @@ class IntFieldTest extends TestCase
         );
     }
 
-    /**
-     * @return WriteParameterBag|MockObject
-     */
     private function getWriteParameterBagMock(): WriteParameterBag
     {
         $mockBuilder = $this->getMockBuilder(WriteParameterBag::class);

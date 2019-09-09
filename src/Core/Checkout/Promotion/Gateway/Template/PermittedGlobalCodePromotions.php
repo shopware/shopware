@@ -11,8 +11,6 @@ class PermittedGlobalCodePromotions extends MultiFilter
     /**
      * Gets a criteria for all permitted promotions of the provided
      * sales channel context, that do require a global code.
-     *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
     public function __construct(array $codes, string $salesChannelId)
     {

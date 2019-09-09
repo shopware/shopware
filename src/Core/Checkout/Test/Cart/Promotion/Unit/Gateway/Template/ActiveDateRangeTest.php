@@ -16,7 +16,7 @@ class ActiveDateRangeTest extends TestCase
     /**
      * @var SalesChannelContext
      */
-    private $context = null;
+    private $context;
 
     public function setUp(): void
     {
@@ -24,14 +24,13 @@ class ActiveDateRangeTest extends TestCase
         $salesChannel->setId('DE');
 
         $this->context = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
-        $this->context->expects(static::any())->method('getSalesChannel')->willReturn($salesChannel);
+        $this->context->method('getSalesChannel')->willReturn($salesChannel);
     }
 
     /**
      * This test verifies, that we get the
      * expected and defined criteria from the template.
      *
-     * @test
      * @group promotions
      */
     public function testCriteria(): void

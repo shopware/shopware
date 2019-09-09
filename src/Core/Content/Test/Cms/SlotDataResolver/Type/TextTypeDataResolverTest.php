@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 class TextTypeDataResolverTest extends TestCase
 {
     /**
-     * @var \Shopware\Core\Content\Cms\DataResolver\Element\TextCmsElementResolver
+     * @var TextCmsElementResolver
      */
     private $textResolver;
 
@@ -30,7 +30,7 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testType(): void
     {
-        static::assertEquals('text', $this->textResolver->getType());
+        static::assertSame('text', $this->textResolver->getType());
     }
 
     public function testCollectWithEmptyConfig(): void
@@ -61,8 +61,10 @@ class TextTypeDataResolverTest extends TestCase
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(TextStruct::class, $slot->getData());
-        static::assertNull($slot->getData()->getContent());
+        /** @var TextStruct|null $textStruct */
+        $textStruct = $slot->getData();
+        static::assertInstanceOf(TextStruct::class, $textStruct);
+        static::assertNull($textStruct->getContent());
     }
 
     public function testWithStaticContent(): void
@@ -81,8 +83,10 @@ class TextTypeDataResolverTest extends TestCase
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(TextStruct::class, $slot->getData());
-        static::assertEquals('lorem ipsum dolor', $slot->getData()->getContent());
+        /** @var TextStruct|null $textStruct */
+        $textStruct = $slot->getData();
+        static::assertInstanceOf(TextStruct::class, $textStruct);
+        static::assertSame('lorem ipsum dolor', $textStruct->getContent());
     }
 
     public function testWithMappedContent(): void
@@ -104,8 +108,10 @@ class TextTypeDataResolverTest extends TestCase
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(TextStruct::class, $slot->getData());
-        static::assertEquals($product->getDescription(), $slot->getData()->getContent());
+        /** @var TextStruct|null $textStruct */
+        $textStruct = $slot->getData();
+        static::assertInstanceOf(TextStruct::class, $textStruct);
+        static::assertSame($product->getDescription(), $textStruct->getContent());
     }
 
     public function testWithMappedContentAndTranslationFallback(): void
@@ -127,8 +133,10 @@ class TextTypeDataResolverTest extends TestCase
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(TextStruct::class, $slot->getData());
-        static::assertEquals('fallback foo', $slot->getData()->getContent());
+        /** @var TextStruct|null $textStruct */
+        $textStruct = $slot->getData();
+        static::assertInstanceOf(TextStruct::class, $textStruct);
+        static::assertSame('fallback foo', $textStruct->getContent());
     }
 
     public function testWithMappedContentAndTranslation(): void
@@ -151,7 +159,9 @@ class TextTypeDataResolverTest extends TestCase
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(TextStruct::class, $slot->getData());
-        static::assertEquals($product->getDescription(), $slot->getData()->getContent());
+        /** @var TextStruct|null $textStruct */
+        $textStruct = $slot->getData();
+        static::assertInstanceOf(TextStruct::class, $textStruct);
+        static::assertSame($product->getDescription(), $textStruct->getContent());
     }
 }

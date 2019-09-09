@@ -13,8 +13,6 @@ class ActiveDateRange extends MultiFilter
      * for promotions that have a valid date range right now.
      * This means either no date ranges set at all, either no starting
      * or ending date, or a valid and active date range.
-     *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
     public function __construct()
     {

@@ -28,6 +28,10 @@ function registerCmsElement(config) {
             const criteriaList = {};
 
             Object.keys(elem.config).forEach((configKey) => {
+                if (elem.config[configKey].source === 'mapped') {
+                    return;
+                }
+
                 const entity = elem.config[configKey].entity;
 
                 if (entity && elem.config[configKey].value) {

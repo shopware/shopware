@@ -87,6 +87,7 @@
         "symfony/twig-bundle": "4.3.4",
         "symfony/validator": "4.3.4",
         "symfony/yaml": "4.3.4",
+        "true/punycode": "2.1.1",
         "twig/extensions": "1.5.4",
         "twig/twig": "2.11.3",
         "voku/stop-words": "2.0.1"

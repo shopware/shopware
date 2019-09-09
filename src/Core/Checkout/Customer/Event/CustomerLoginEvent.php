@@ -63,6 +63,11 @@ class CustomerLoginEvent extends Event implements BusinessEventInterface
         return $this->contextToken;
     }
 
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannelId;
+    }
+
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())

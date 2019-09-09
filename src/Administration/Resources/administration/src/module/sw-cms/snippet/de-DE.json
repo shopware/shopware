@@ -91,6 +91,7 @@
     "elements": {
       "captionMediaUpload": "Lade ein Bild hoch",
       "labelMedia": "Bild",
+      "labelNavigation": "Navigation",
       "labelMediaDisplayMode": "Anzeigemodus",
       "labelMediaDisplayModeStandard": "Standard",
       "labelMediaDisplayModeCover": "Füllen",
@@ -106,7 +107,9 @@
       "labelProductBadgeNew": "Neu",
       "labelProductPriceUnitContent": "Inhalt:",
       "labelProductSelection": "Produkt",
+      "labelCategorySelection": "Kategorie",
       "placeholderProductSelection": "Wähle ein Produkt ...",
+      "placeholderCategorySelection": "Wähle eine Kategorie ...",
       "labelProductLayoutType": "Layout Typ",
       "labelProductLayoutTypeStandard": "Standard",
       "labelProductLayoutTypeImage": "Großes Bild",
@@ -142,6 +145,7 @@
       "labelSettingsLinkTo": "Link zu",
       "labelSettingsLinkNewTab": "Link in neuem Tab öffnen",
       "infoTextListingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau.",
+      "infoTextNavigationElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau.",
       "labelImageGalleryZoom": "Zoom",
       "labelImageGalleryFullscreen": "Vollbild Galerie"
     },

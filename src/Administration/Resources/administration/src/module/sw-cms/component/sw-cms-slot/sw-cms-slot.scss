@@ -55,6 +55,15 @@
         color: $color-gutenberg;
         cursor: pointer;
 
+        &.is--disabled {
+            color: $color-gray-200;
+            cursor: default;
+
+            &:hover {
+                color: $color-gray-200;
+            }
+        }
+
         &:hover {
             color: $color-shopware-blue;
         }

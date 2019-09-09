@@ -32,11 +32,11 @@ Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-doc
                     false
                 ).then((response) => {
                     this.documentConfig.custom.deliveryNoteNumber = response.number;
-                    this.$emit('document-create', this.documentConfig, additionalAction);
+                    this.callDocumentCreate(additionalAction);
                 });
             } else {
                 this.documentConfig.custom.deliveryNoteNumber = this.documentConfig.documentNumber;
-                this.$emit('document-create', this.documentConfig, additionalAction);
+                this.callDocumentCreate(additionalAction);
             }
         },
 

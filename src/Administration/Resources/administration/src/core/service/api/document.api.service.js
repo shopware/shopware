@@ -16,14 +16,37 @@ class DocumentApiService extends ApiService {
         documentConfig = {},
         referencedDocumentId = null,
         additionalParams = {},
-        additionalHeaders = {}) {
-        const route = `/_action/order/${orderId}/document/${documentTypeName}`;
+        additionalHeaders = {},
+        file = null) {
+        let route = `/_action/order/${orderId}/document/${documentTypeName}`;
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        return this.httpClient
-            .post(route, { config: documentConfig, referenced_document_id: referencedDocumentId }, {
+        const params = {
+            config: documentConfig,
+            referenced_document_id: referencedDocumentId
+        };
+
+        if (file) {
+            params.static = true;
+        }
+
+        let docCreated = this.httpClient
+            .post(route, params, {
                 additionalParams,
                 headers
+            }).then((response) => {
+                if (file && response.data.documentId) {
+                    const fileName = file.name.split('.').shift();
+                    const fileExtension = file.name.split('.').pop();
+                    // eslint-disable-next-line max-len
+                    route = `/_action/document/${response.data.documentId}/upload?fileName=${documentConfig.documentNumber}_${fileName}&extension=${fileExtension}`;
+                    headers['Content-Type'] = file.type;
+                    docCreated = this.httpClient.post(route, file, {
+                        additionalParams,
+                        headers
+                    });
+                }
+                return docCreated;
             });
     }
 

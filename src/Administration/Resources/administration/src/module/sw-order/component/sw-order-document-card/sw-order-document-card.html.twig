@@ -68,7 +68,7 @@
                 {% block sw_order_document_card_grid_column_date %}
                     <template slot="column-createdAt" slot-scope="{ item }">
                         {% block sw_order_document_card_grid_column_date_label %}
-                            {{ item.createdAt | date }}
+                            {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}
                         {% endblock %}
                     </template>
                 {% endblock %}

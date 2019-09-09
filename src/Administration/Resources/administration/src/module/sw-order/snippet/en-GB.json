@@ -158,7 +158,8 @@
       "labelPreview": "Preview",
       "labelHighlightedItemsHeader":"Name",
       "labelHighlightedItemsEntry":"Total",
-      "labelNoItems":"No credit"
+      "labelNoItems":"No credit",
+      "fileInputLabel":"Upload custom document"
     }
   }
 }

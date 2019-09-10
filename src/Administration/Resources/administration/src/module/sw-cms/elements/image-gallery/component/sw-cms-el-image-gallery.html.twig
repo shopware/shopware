@@ -10,10 +10,10 @@
                             <sw-media-list-selection-item
                                 v-for="(sliderItem, index) in element.data.sliderItems"
                                 v-if="index < galleryLimit"
-                                :key="sliderItem.entity.id"
-                                :item="sliderItem.entity"
-                                :class="activeMediaClass(sliderItem.entity)"
-                                @click="onChangeGalleryImage(sliderItem.entity, index)"
+                                :key="sliderItem.media.id"
+                                :item="sliderItem.media"
+                                :class="activeMediaClass(sliderItem.media)"
+                                @click="onChangeGalleryImage(sliderItem.media, index)"
                                 hideActions
                                 hideTooltip>
                             </sw-media-list-selection-item>

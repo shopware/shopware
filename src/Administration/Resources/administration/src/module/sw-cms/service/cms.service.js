@@ -28,6 +28,10 @@ function registerCmsElement(config) {
             const criteriaList = {};
 
             Object.keys(elem.config).forEach((configKey) => {
+                if (elem.config[configKey].source === 'mapped') {
+                    return;
+                }
+
                 const entity = elem.config[configKey].entity;
 
                 if (entity && elem.config[configKey].value) {
@@ -89,9 +93,9 @@ function getEntityData(element, configKey) {
     if (Array.isArray(configValue)) {
         const entityIds = [];
 
-        if (configValue[0].entityId) {
+        if (configValue[0].mediaId) {
             configValue.forEach((val) => {
-                entityIds.push(val.entityId);
+                entityIds.push(val.mediaId);
             });
         } else {
             entityIds.push(...configValue);

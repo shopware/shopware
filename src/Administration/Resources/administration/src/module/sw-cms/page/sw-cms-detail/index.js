@@ -576,7 +576,6 @@ Component.register('sw-cms-detail', {
                 block.backgroundMedia = null;
 
                 block.slots.forEach((slot) => {
-                    this.deleteEntityConfigKey(slot);
                     foundEmptyRequiredField.push(...this.checkRequiredSlotConfigField(slot));
                 });
             });
@@ -592,6 +591,8 @@ Component.register('sw-cms-detail', {
                 foundEmptyRequiredField = [];
                 return Promise.reject();
             }
+
+            this.deleteEntityAndRequiredConfigKey(this.page.blocks);
 
             this.isLoading = true;
 
@@ -636,23 +637,25 @@ Component.register('sw-cms-detail', {
             });
         },
 
-        deleteEntityConfigKey(slot) {
-            Object.values(slot.config).forEach((configField) => {
-                if (configField.entity) {
-                    delete configField.entity;
-                }
+        deleteEntityAndRequiredConfigKey(blocks) {
+            blocks.forEach((block) => {
+                block.slots.forEach((slot) => {
+                    Object.values(slot.config).forEach((configField) => {
+                        if (configField.entity) {
+                            delete configField.entity;
+                        }
+                        if (configField.required) {
+                            delete configField.required;
+                        }
+                    });
+                });
             });
         },
 
         checkRequiredSlotConfigField(slot) {
             return Object.values(slot.config).filter((configField) => {
-                const returnVal = !!configField.required &&
+                return !!configField.required &&
                     (configField.value === null || configField.value.length < 1);
-
-                if (configField.required) {
-                    delete configField.required;
-                }
-                return returnVal;
             });
         },
 

@@ -143,7 +143,7 @@
                                             {% block sw_cms_element_image_slider_config_settings_link_url %}
                                                 <sw-field v-model="sliderItem.url"
                                                           class="sw-cms-el-config-image-slider__settings-link-input"
-                                                          :key="sliderItem.entityId"
+                                                          :key="sliderItem.mediaId"
                                                           :name="sliderItem.mediaUrl"
                                                           type="text"
                                                           :label="$tc('sw-cms.elements.labelSettingsLinkTo')"
@@ -160,7 +160,7 @@
                                                 <sw-field class="sw-cms-el-config-image-slider__settings-link-tab"
                                                           v-model="sliderItem.newTab"
                                                           type="switch"
-                                                          :name="sliderItem.entityId"
+                                                          :name="sliderItem.mediaId"
                                                           :label="$tc('sw-text-editor-toolbar.link.openInNewTab')">
                                                 </sw-field>
                                             {% endblock %}

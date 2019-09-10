@@ -198,7 +198,11 @@
                                                         {% endblock %}
 
                                                         {% block sw_cms_detail_sidebar_page_settings_type_field %}
-                                                            <sw-select-field :label="$tc('sw-cms.detail.labelPageType')" v-model="page.type" @change="onPageTypeChange">
+                                                            <sw-select-field
+                                                                :label="$tc('sw-cms.detail.labelPageType')"
+                                                                :disabled="!isSystemDefaultLanguage"
+                                                                v-model="page.type"
+                                                                @change="onPageTypeChange">
                                                                 {% block sw_cms_detail_sidebar_page_settings_type_field_options %}
                                                                     <option value="page">
                                                                         {{ $tc('sw-cms.detail.labelPageTypeShopPage') }}

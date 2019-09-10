@@ -48,17 +48,5 @@
             <argument type="service" id="sales_channel.repository"/>
             <tag name="messenger.message_handler"/>
         </service>
-
-        <service id="Shopware\Core\Content\ProductExport\Extension\SalesChannelExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ProductExport\Extension\SalesChannelDomainExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ProductExport\Extension\ProductStreamExtension">
-            <tag name="shopware.entity.extension"/>
-        </service>
     </services>
 </container>

@@ -30,11 +30,11 @@
     },
     "modal": {
       "modalTitleDelete":  "Delete theme",
-      "textDeleteInfo": "Are you sure you really want to delete the Theme \"{themeName}\"?",
+      "textDeleteInfo": "Are you sure you really want to delete the theme \"{themeName}\"?",
       "buttonCancel":  "Cancel",
       "buttonDelete": "Delete",
-      "modalTitleDuplicate": "Create Duplicate",
-      "textDuplicateInfo": "If you create a duplicate, you can use the theme with a different color configuration for additional sales channels.",
+      "modalTitleDuplicate": "Create duplicate",
+      "textDuplicateInfo": "If you create a duplicate, you can use the theme with a different colour configuration for additional sales channels.",
       "labelDuplicateThemeName": "Name of the duplicate",
       "placeholderDuplicateThemeName": "Enter name",
       "buttonDuplicateTheme": "Create duplicate",
@@ -66,35 +66,35 @@
       "useImageAs": "Use image as",
       "buttonReset": "Reset to default",
       "buttonCancel": "Cancel",
-      "buttonUseTheme": "Use Theme",
-      "deleteDisablesToolTip": "Theme is still assigned to Saleschannels"
+      "buttonUseTheme": "Use theme",
+      "deleteDisablesToolTip": "Theme still assigned to a sales channel."
     },
     "detail": {
       "description": "Description",
       "salesChannel": "Assigned to the following sales channels",
-      "inheritanceInfo": "This theme is a duplicate and is derived from the \"{parentThemeName}\" Theme.",
+      "inheritanceInfo": "This theme is a duplicate and is derived from the \"{parentThemeName}\" theme.",
       "label": {
         "media": "Media",
-        "colors": "Colors",
-        "generalColors": "General Colors",
-        "moreColors": "More Colors",
+        "colors": "Colours",
+        "generalColors": "General colours",
+        "moreColors": "More colours",
         "fonts": "Fonts",
         "links": "Links",
-        "textcolor": "Textcolor",
+        "textcolor": "Text colour",
         "surface": "Surface",
         "frame": "Frame",
         "text": "Text",
         "headlines": "Headlines",
-        "socialMediaLinks": "Social Media Links",
+        "socialMediaLinks": "Social media links",
         "favicon": "Favicon",
-        "shopLogo": "Shop Logo"
+        "shopLogo": "Shop logo"
       }
     },
     "themeModal": {
       "actionCancel": "Cancel",
       "actionConfirm": "Save",
       "modalTitle": "Select theme",
-      "headline": "Themes"
+      "headline": "Available themes"
     }
   }
 }

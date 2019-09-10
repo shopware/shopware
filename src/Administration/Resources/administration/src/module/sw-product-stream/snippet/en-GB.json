@@ -2,7 +2,7 @@
   "sw-product-stream": {
     "general": {
       "mainMenuItemGeneral": "Dynamic product groups",
-      "placeholderSearchBar": "Search dynamic product groups",
+      "placeholderSearchBar": "Search dynamic product groups...",
       "descriptionTextModule": "Manage dynamic product groups here."
     },
     "list": {
@@ -103,9 +103,9 @@
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "labelName": "Name",
-      "placeholderName": "Enter dynamic product group title...",
+      "placeholderName": "Enter title...",
       "labelDescription": "Description",
-      "placeholderDescription": "Enter a description...",
+      "placeholderDescription": "Enter description...",
       "textHeadline": "New dynamic product group",
       "titleFilter": "Conditions",
       "titleResult": "Product group",

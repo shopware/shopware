@@ -33,8 +33,8 @@
       "messageUploadFailureNoPluginFoundInZipFile": "In der hochgeladenen Zip-Datei wurde kein Plugin gefunden",
       "titleLoginDataInvalid": "Logindaten unvollständig",
       "messageLoginDataInvalid": "Logindaten wurden nicht vollständig angegeben",
-      "titleStoreHostMissing": "Anmelden fehlgeschlagen",
-      "messageStoreLicenseDomainMissing": "Um Dich anmelden zu können, musst Du zuvor deinen Lizenzierungshost in den Einstellungen setzen"
+      "titleStoreHostMissing": "Fehler",
+      "messageStoreLicenseDomainMissing": "Um Dich erfolgreich anmelden zu können, musst Du zunächst in \"Einstellungen/Shopware Account\" Deine Lizenzdomain angeben."
     },
     "fileUpload":{
       "buttonFileUpload":"Plugin hochladen",

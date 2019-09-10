@@ -133,7 +133,7 @@
       "columnContextOpenOrder": "Bestellung öffnen",
       "emptyTitle": "Noch keine Bestellungen",
       "emptySearchTitle": "Keine Suchergebnisse",
-      "emptySubline": "Kundenbestellungen"
+      "emptySubline": "Verwalte die Bestellungen dieses Kunden."
     },
     "addressForm": {
       "labelCompany": "Firma",

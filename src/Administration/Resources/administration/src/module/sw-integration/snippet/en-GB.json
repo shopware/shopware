@@ -32,7 +32,7 @@
       "idFieldLabel": "Access key ID",
       "secretFieldLabel": "Secret access key",
       "secretHelpText": "The access key will no longer be visible after saving. Be sure to copy and store the key in a secure place. In case you lost the key anyway, simply generate a new one here.",
-      "secretHelpText": "Please copy your access key now. For safety reasons it will be no longer visible after saving.",
+      "secretHelpText": "Please note down the access key now. After saving the integration, the key will no longer be visible, due to safety concerns.",
       "permissions": "Permissions",
       "readAccessFieldLabel": "Read (default)",
       "writeAccessFieldLabel": "Write (optional)",

@@ -133,7 +133,7 @@
       "columnContextOpenOrder": "Open order",
       "emptyTitle": "No orders yet",
       "emptySearchTitle": "No search result",
-      "emptySubline": "Customer orders"
+      "emptySubline": "Manage a customer's orders here"
     },
     "addressForm": {
       "labelCompany": "Company",

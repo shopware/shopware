@@ -27,7 +27,7 @@
       "messageSaveSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelPosition": "Position",
-      "labelActive": "Zahlungsart Aktiv",
+      "labelActive": "Aktiv",
       "labelDescription": "Beschreibung",
       "labelLogoUpload": "Logo",
       "sidebar": {

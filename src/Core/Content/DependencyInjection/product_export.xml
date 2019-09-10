@@ -12,28 +12,24 @@
             <tag name="shopware.entity.definition" entity="product_export"/>
         </service>
 
-        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderService">
+        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer">
             <argument type="service" id="Shopware\Core\Framework\Twig\StringTemplateRenderer"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportService" public="true">
+        <service id="Shopware\Core\Content\ProductExport\Service\ProductExporter" public="true">
             <argument type="service" id="product_export.repository"/>
-            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamService"/>
-            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderService"/>
+            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer"/>
             <argument type="service" id="shopware.filesystem.private"/>
-            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileService"/>
+            <argument type="service" id="sales_channel.product.repository"/>
             <argument type="string">%product_export.read_buffer_size%</argument>
-        </service>
-
-        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportFileService">
-            <argument type="service" id="shopware.filesystem.private"/>
             <argument type="string">%product_export.directory%</argument>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportService"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExporter"/>
             <tag name="console.command"/>
         </service>
 
@@ -43,10 +39,20 @@
 
         <service id="Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportService"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExporter"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="sales_channel.repository"/>
             <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\SalesChannel\ProductExportController">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExporter"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="product_export.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
     </services>
 </container>

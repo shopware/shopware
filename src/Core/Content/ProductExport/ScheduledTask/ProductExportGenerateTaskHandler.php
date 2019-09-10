@@ -3,7 +3,8 @@
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
-use Shopware\Core\Content\ProductExport\Service\ProductExportServiceInterface;
+use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
+use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -15,8 +16,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
 class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
-    /** @var ProductExportServiceInterface */
-    private $productExportService;
+    /** @var ProductExporterInterface */
+    private $productExporter;
 
     /** @var SalesChannelContextFactory */
     private $salesChannelContextFactory;
@@ -26,13 +27,13 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        ProductExportServiceInterface $productExportService,
+        ProductExporterInterface $productExporter,
         SalesChannelContextFactory $salesChannelContextFactory,
         EntityRepository $salesChannelRepository
     ) {
         parent::__construct($scheduledTaskRepository);
 
-        $this->productExportService = $productExportService;
+        $this->productExporter = $productExporter;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->salesChannelRepository = $salesChannelRepository;
     }
@@ -57,7 +58,7 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
             $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
 
             try {
-                $this->productExportService->generate($salesChannelContext);
+                $this->productExporter->generate($salesChannelContext, new ExportBehavior());
             } catch (ExportNotFoundException $_) {
                 // Ignore when storefront has no defined exports
             }

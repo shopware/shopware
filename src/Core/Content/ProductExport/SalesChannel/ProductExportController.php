@@ -1,31 +1,32 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Controller;
+namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
+use Shopware\Core\Content\ProductExport\Exception\ExportNotGeneratedException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Content\ProductExport\Service\ProductExportFileServiceInterface;
-use Shopware\Core\Content\ProductExport\Service\ProductExportServiceInterface;
+use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Event\ProductExportContentTypeEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @RouteScope(scopes={"storefront"})
+ */
 class ProductExportController extends StorefrontController
 {
-    /** @var ProductExportServiceInterface */
+    /** @var ProductExporterInterface */
     private $productExportService;
-
-    /** @var ProductExportFileServiceInterface */
-    private $productExportFileService;
 
     /** @var FilesystemInterface */
     private $fileSystem;
@@ -37,21 +38,18 @@ class ProductExportController extends StorefrontController
     private $repository;
 
     public function __construct(
-        ProductExportServiceInterface $productExportService,
-        ProductExportFileServiceInterface $productExportFileService,
+        ProductExporterInterface $productExportService,
         FilesystemInterface $fileSystem,
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $repository
     ) {
         $this->productExportService = $productExportService;
-        $this->productExportFileService = $productExportFileService;
         $this->fileSystem = $fileSystem;
         $this->eventDispatcher = $eventDispatcher;
         $this->repository = $repository;
     }
 
     /**
-     * @RouteScope(scopes={"storefront"})
      * @Route("/export/{accessKey}/{fileName}", name="frontend.export", methods={"GET"})
      */
     public function index(SalesChannelContext $context, Request $request): Response
@@ -61,15 +59,15 @@ class ProductExportController extends StorefrontController
             ->addFilter(new EqualsFilter('fileName', $request->get('fileName')))
             ->addFilter(new EqualsFilter('accessKey', $request->get('accessKey')))
             ->addFilter(new EqualsFilter('salesChannel.active', true))
-            ->addFilter(new MultiFilter(
-                'OR',
-                [
-                    new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
-                    new EqualsFilter('salesChannelDomain.salesChannel.id', $context->getSalesChannel()->getId()),
-                ]
-            ))
-            ->addAssociation('productStream.filters.queries')
-            ->addAssociation('salesChannel');
+            ->addFilter(
+                new MultiFilter(
+                    'OR',
+                    [
+                        new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
+                        new EqualsFilter('salesChannelDomain.salesChannel.id', $context->getSalesChannel()->getId()),
+                    ]
+                )
+            );
 
         /** @var ProductExportEntity|null $productExport */
         $productExport = $this->repository->search($criteria, $context->getContext())->first();
@@ -78,11 +76,12 @@ class ProductExportController extends StorefrontController
             throw new ExportNotFoundException(null, $request->get('fileName'));
         }
 
-        $this->productExportService->generateExport($productExport, $context);
+        $filePath = $this->productExportService->getFilePath($productExport);
+        if (!$this->fileSystem->has($filePath)) {
+            throw new ExportNotGeneratedException();
+        }
 
-        $filePath = $this->productExportFileService->getFilePath($productExport);
         $content = $this->fileSystem->read($filePath);
-
         $contentType = $this->getContentType($productExport->getFileFormat());
         $encoding = $productExport->getEncoding();
 

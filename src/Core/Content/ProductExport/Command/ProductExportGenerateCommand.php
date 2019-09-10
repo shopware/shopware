@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Content\ProductExport\Command;
 
-use Shopware\Core\Content\ProductExport\Service\ProductExportServiceInterface;
+use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
+use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Component\Console\Command\Command;
@@ -16,12 +17,12 @@ class ProductExportGenerateCommand extends Command
     /** @var SalesChannelContextFactory */
     private $salesChannelContextFactory;
 
-    /** @var ProductExportServiceInterface */
+    /** @var ProductExporterInterface */
     private $productExportService;
 
     public function __construct(
         SalesChannelContextFactory $salesChannelContextFactory,
-        ProductExportServiceInterface $productExportService
+        ProductExporterInterface $productExportService
     ) {
         parent::__construct();
 
@@ -50,9 +51,8 @@ class ProductExportGenerateCommand extends Command
 
         $this->productExportService->generate(
             $salesChannelContext,
-            $productExportId,
-            $includeInactive,
-            $forceGeneration
+            new ExportBehavior($forceGeneration, $includeInactive),
+            $productExportId
         );
     }
 }

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
-use Shopware\Core\Content\ProductExport\Service\ProductExportService;
+use Shopware\Core\Content\ProductExport\Service\ProductExporter;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -71,7 +71,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     {
         return new ProductExportGenerateTaskHandler(
             $this->getContainer()->get('scheduled_task.repository'),
-            $this->getContainer()->get(ProductExportService::class),
+            $this->getContainer()->get(ProductExporter::class),
             $this->getContainer()->get(SalesChannelContextFactory::class),
             $this->getContainer()->get('sales_channel.repository')
         );

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Twig\StringTemplateRenderer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class ProductExportRenderService implements ProductExportRenderServiceInterface
+class ProductExportRenderer implements ProductExportRendererInterface
 {
     /** @var StringTemplateRenderer */
     private $templateRenderer;
@@ -31,17 +31,17 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
     }
 
     public function renderHeader(
-        ProductExportEntity $productExportEntity,
+        ProductExportEntity $productExport,
         SalesChannelContext $salesChannelContext
     ): string {
-        if ($productExportEntity->getHeaderTemplate() === null) {
+        if ($productExport->getHeaderTemplate() === null) {
             return '';
         }
 
         $headerContext = $this->eventDispatcher->dispatch(
             new ProductExportRenderHeaderContextEvent(
                 [
-                    'productExport' => $productExportEntity,
+                    'productExport' => $productExport,
                     'context' => $salesChannelContext,
                 ]
             )
@@ -49,7 +49,7 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
 
         try {
             return $this->templateRenderer->render(
-                    $productExportEntity->getHeaderTemplate(),
+                    $productExport->getHeaderTemplate(),
                     $headerContext->getContext()
                 ) . PHP_EOL;
         } catch (StringTemplateRenderingException $exception) {
@@ -58,17 +58,17 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
     }
 
     public function renderFooter(
-        ProductExportEntity $productExportEntity,
+        ProductExportEntity $productExport,
         SalesChannelContext $salesChannelContext
     ): string {
-        if ($productExportEntity->getFooterTemplate() === null) {
+        if ($productExport->getFooterTemplate() === null) {
             return '';
         }
 
         $footerContext = $this->eventDispatcher->dispatch(
             new ProductExportRenderFooterContextEvent(
                 [
-                    'productExport' => $productExportEntity,
+                    'productExport' => $productExport,
                     'context' => $salesChannelContext,
                 ]
             )
@@ -76,7 +76,7 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
 
         try {
             return $this->templateRenderer->render(
-                    $productExportEntity->getFooterTemplate(),
+                    $productExport->getFooterTemplate(),
                     $footerContext->getContext()
                 ) . PHP_EOL;
         } catch (StringTemplateRenderingException $exception) {
@@ -85,36 +85,36 @@ class ProductExportRenderService implements ProductExportRenderServiceInterface
     }
 
     public function renderBody(
-        ProductExportEntity $productExportEntity,
+        ProductExportEntity $productExport,
         EntityCollection $productCollection,
         SalesChannelContext $salesChannelContext
     ): string {
         $body = '';
 
-        foreach ($productCollection as $productEntity) {
-            $body .= $this->renderProduct($productExportEntity, $productEntity, $salesChannelContext);
+        foreach ($productCollection as $product) {
+            $body .= $this->renderProduct($productExport, $product, $salesChannelContext);
         }
 
         return $body;
     }
 
-    public function renderProduct(
-        ProductExportEntity $productExportEntity,
-        SalesChannelProductEntity $productEntity,
+    private function renderProduct(
+        ProductExportEntity $productExport,
+        SalesChannelProductEntity $product,
         SalesChannelContext $salesChannelContext
     ): string {
         $productContext = $this->eventDispatcher->dispatch(
             new ProductExportRenderBodyContextEvent(
                 [
-                    'product' => $productEntity,
-                    'productExport' => $productExportEntity,
+                    'product' => $product,
+                    'productExport' => $productExport,
                     'context' => $salesChannelContext,
                 ]
             )
         );
         try {
             return $this->templateRenderer->render(
-                    $productExportEntity->getBodyTemplate(),
+                    $productExport->getBodyTemplate(),
                     $productContext->getContext()
                 ) . PHP_EOL;
         } catch (StringTemplateRenderingException $exception) {

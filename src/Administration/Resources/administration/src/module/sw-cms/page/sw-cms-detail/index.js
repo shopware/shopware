@@ -556,7 +556,8 @@ Component.register('sw-cms-detail', {
 
         onSave() {
             this.isSaveSuccessful = false;
-            if (!(this.page.name || this.page.translated.name) || !this.page.type) {
+
+            if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
                 this.$refs.pageConfigSidebar.openContent();
 
                 const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingFields');

@@ -54,14 +54,14 @@ class MediaService
         $this->fileFetcher = $fileFetcher;
     }
 
-    public function createMediaInFolder(string $folder, Context $context): string
+    public function createMediaInFolder(string $folder, Context $context, bool $private = true): string
     {
         $mediaId = Uuid::randomHex();
         $this->mediaRepository->create(
             [
                 [
                     'id' => $mediaId,
-                    'private' => true,
+                    'private' => $private,
                     'mediaFolderId' => $this->getMediaDefaultFolderId($folder, $context),
                 ],
             ],
@@ -94,12 +94,13 @@ class MediaService
         string $filename,
         Context $context,
         ?string $folder = null,
-        ?string $mediaId = null
+        ?string $mediaId = null,
+        bool $private = true
     ): string {
         $mediaFile = $this->fileFetcher->fetchBlob($blob, $extension, $contentType);
 
         if (!$mediaId) {
-            $mediaId = $this->createMediaInFolder($folder, $context);
+            $mediaId = $this->createMediaInFolder($folder, $context, $private);
         }
 
         $this->fileSaver->persistFileToMedia($mediaFile, $filename, $mediaId, $context);

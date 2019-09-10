@@ -31,6 +31,9 @@
             <errorLevel type="info">
                 <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/Util/PluginFinderTest.php"/>
                 <file name="vendor/shopware/platform/src/Core/Framework/Test/TestCaseBase/KernelLifecycleManagerTest.php"/>
+                <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/DbalKernelPluginLoaderTest.php"/>
+                <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
+                <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
             </errorLevel>
         </UndefinedConstant>
 

@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\ScheduledTask\Command;
 
+use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Messenger\Worker\StopWhenRestartSignalIsReceived;
 
 class ScheduledTaskRunner extends Command
 {
@@ -20,11 +22,17 @@ class ScheduledTaskRunner extends Command
      */
     private $shouldStop = false;
 
-    public function __construct(TaskScheduler $scheduler)
+    /**
+     * @var CacheItemPoolInterface
+     */
+    private $restartSignalCachePool;
+
+    public function __construct(TaskScheduler $scheduler, CacheItemPoolInterface $restartSignalCachePool)
     {
         parent::__construct();
 
         $this->scheduler = $scheduler;
+        $this->restartSignalCachePool = $restartSignalCachePool;
     }
 
     protected function configure(): void
@@ -51,15 +59,21 @@ class ScheduledTaskRunner extends Command
             $this->scheduler->queueScheduledTasks();
 
             $idleTime = $this->scheduler->getMinRunInterval() ?? 30;
-
             if ($endTime) {
                 $remainingSeconds = $endTime - microtime(true);
                 if ($remainingSeconds < $idleTime) {
-                    $idleTime = (int) $remainingSeconds;
+                    $idleTime = $remainingSeconds;
                 }
             }
 
+            $idleTime = max(1, min((int) $idleTime, 15));
+
             sleep($idleTime);
+
+            if ($this->shouldRestart($startTime)) {
+                $this->shouldStop = true;
+                $output->writeln(sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
+            }
 
             if ($endTime && $endTime < microtime(true)) {
                 $this->shouldStop = true;
@@ -73,6 +87,18 @@ class ScheduledTaskRunner extends Command
         }
 
         return null;
+    }
+
+    private function shouldRestart(float $workerStartedAt): bool
+    {
+        $cacheItem = $this->restartSignalCachePool->getItem(StopWhenRestartSignalIsReceived::RESTART_REQUESTED_TIMESTAMP_KEY);
+
+        if (!$cacheItem->isHit()) {
+            // no restart has ever been scheduled
+            return false;
+        }
+
+        return $workerStartedAt < $cacheItem->get();
     }
 
     private function convertToBytes(string $memoryLimit): int

@@ -2,34 +2,46 @@
 
 namespace Shopware\Core\Framework\ScheduledTask\Subscriber;
 
+use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
-use Shopware\Core\Framework\ScheduledTask\MessageQueue\RegisterScheduledTaskMessage;
+use Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Worker\StopWhenRestartSignalIsReceived;
 
 class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var MessageBusInterface
+     * @var TaskRegistry
      */
-    private $messageBus;
+    private $registry;
 
-    public function __construct(MessageBusInterface $messageBus)
+    /**
+     * @var CacheItemPoolInterface
+     */
+    private $restartSignalCachePool;
+
+    public function __construct(TaskRegistry $registry, CacheItemPoolInterface $restartSignalCachePool)
     {
-        $this->messageBus = $messageBus;
+        $this->registry = $registry;
+        $this->restartSignalCachePool = $restartSignalCachePool;
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            PluginPostActivateEvent::class => 'registerScheduledTasked',
-            PluginPostDeactivateEvent::class => 'registerScheduledTasked',
+            PluginPostActivateEvent::class => 'afterPluginStateChange',
+            PluginPostDeactivateEvent::class => 'afterPluginStateChange',
         ];
     }
 
-    public function registerScheduledTasked(): void
+    public function afterPluginStateChange(): void
     {
-        $this->messageBus->dispatch(new RegisterScheduledTaskMessage());
+        $this->registry->registerTasks();
+
+        // signal worker restart
+        $cacheItem = $this->restartSignalCachePool->getItem(StopWhenRestartSignalIsReceived::RESTART_REQUESTED_TIMESTAMP_KEY);
+        $cacheItem->set(microtime(true));
+        $this->restartSignalCachePool->save($cacheItem);
     }
 }

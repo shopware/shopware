@@ -2,7 +2,9 @@
 
 namespace SwagTest;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class SwagTest extends Plugin
 {
@@ -13,4 +15,47 @@ class SwagTest extends Plugin
     public const PLUGIN_OLD_VERSION = '1.0.0';
 
     public const PLUGIN_GERMAN_LABEL = 'Deutscher Pluginname';
+
+    /**
+     * @var SystemConfigService
+     */
+    public $systemConfig;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    public $categoryRepository;
+
+    /**
+     * @var Plugin\Context\ActivateContext|null
+     */
+    public $preActivateContext;
+
+    /**
+     * @var Plugin\Context\ActivateContext|null
+     */
+    public $postActivateContext;
+
+    /**
+     * @var Plugin\Context\DeactivateContext|null
+     */
+    public $preDeactivateContext;
+
+    /**
+     * @var Plugin\Context\DeactivateContext|null
+     */
+    public $postDeactivateContext;
+
+    /**
+     * @required
+     */
+    public function requiredSetterOfPrivateService(SystemConfigService $systemConfig): void
+    {
+        $this->systemConfig = $systemConfig;
+    }
+
+    public function manualSetter(EntityRepositoryInterface $categoryRepository): void
+    {
+        $this->categoryRepository = $categoryRepository;
+    }
 }

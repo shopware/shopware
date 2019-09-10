@@ -75,6 +75,13 @@ You can use them with every URL in your templates
     * Added `\Shopware\Core\Framework\DataAbstractionLayer\EntityWrittenContainerEvent::getEventByEntityName` which returns all `EntityWrittenEvent`s for a given entity name.
     * Changed `Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence` to store primary keys in hex.
     * Added a new required parameter `DefinitionInstanceRegistry $definitionRegistry` to `Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSerializer`.
+    * Refactored Kernel plugin loading into `\Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader`. By default the
+    `\Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader` is used. The Kernel constructor changed, see `UPGRADE-6.1.md` for more details
+    * Improved Plugin capabilities:
+        - Plugin bundle class is automatically inserted into container with autoload and autowire
+        - This allows setter injection in plugin bundle class
+        - These services are now available in `\Shopware\Core\Framework\Plugin::activate` and `\Shopware\Core\Framework\Plugin::deactivate`
+        - `\Shopware\Core\Framework\Plugin::deactivate` is now always called before `\Shopware\Core\Framework\Plugin::uninstall`
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
     * Changed the name of `messages.<locale>.json` to `storefront.<locale>.json` and changed to **not** be a base file anymore.
@@ -101,3 +108,4 @@ You can use them with every URL in your templates
     * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent::getWrittenDefinitions` as the definitions were removed from the event. 
     * Removed `\Shopware\Core\Framework\DataAbstractionLayer\EntityWrittenContainerEvent::getEventByDefinition`. Use `getEventByEntityName`.
     * Removed `\Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer::fieldHandlerRegistry`, `...\ListFieldSerializer::compositeHandler` and `...\PriceFieldSerializer::fieldHandlerRegistry` as they now use the `definitionRegistry` from their common `AbstractFieldSerializer` baseclass
+    * Removed `\Shopware\Core\Kernel::getPlugins`, use `\Shopware\Core\Framework\Plugin\KernelPluginCollection` from the container instead

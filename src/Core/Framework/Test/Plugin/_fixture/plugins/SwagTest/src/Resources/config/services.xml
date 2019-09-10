@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="SwagTest\SwagTest">
+            <call method="manualSetter">
+                <argument type="service" id="category.repository"/>
+            </call>
+        </service>
+
+        <service id="SwagTest\SwagTestSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="SwagTest\SwagTestTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="SwagTest\SwagTestTaskHandler">
+            <argument type="service" id="scheduled_task.repository" />
+            <tag name="messenger.message_handler" />
+        </service>
+    </services>
+</container>

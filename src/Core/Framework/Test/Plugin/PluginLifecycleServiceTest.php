@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use SwagTest\Migration\Migration1536761533Test;
@@ -32,7 +32,6 @@ use Symfony\Component\Filesystem\Filesystem;
 class PluginLifecycleServiceTest extends TestCase
 {
     use KernelTestBehaviour;
-    use DatabaseTransactionBehaviour;
     use PluginTestsHelper;
 
     private const PLUGIN_NAME = 'SwagTest';
@@ -74,6 +73,13 @@ class PluginLifecycleServiceTest extends TestCase
 
     protected function setUp(): void
     {
+        // force kernel boot
+        KernelLifecycleManager::bootKernel();
+
+        $this->getContainer()
+            ->get(Connection::class)
+            ->beginTransaction();
+
         $this->container = $this->getContainer();
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
@@ -92,21 +98,9 @@ class PluginLifecycleServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->connection->executeUpdate(
-            sprintf(
-                'DROP TABLE IF EXISTS `%s`',
-                Migration1536761533Test::TABLE_NAME
-            )
-        );
-        $this->connection->executeUpdate(
-            sprintf(
-                'DELETE FROM `migration` WHERE `creation_timestamp` = %d',
-                Migration1536761533Test::TIMESTAMP
-            )
-        );
-        $this->connection->executeUpdate(
-            sprintf("DELETE FROM `plugin` WHERE `name` = '%s'", self::PLUGIN_NAME)
-        );
+        $this->getContainer()
+            ->get(Connection::class)
+            ->rollBack();
     }
 
     public function testInstallPlugin(): void
@@ -123,7 +117,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
-        static::assertTrue($this->pluginTableExists());
+        static::assertSame(1, $this->getMigrationTestKeyCount());
     }
 
     public function testInstallPluginAlreadyInstalled(): void
@@ -198,7 +192,7 @@ class PluginLifecycleServiceTest extends TestCase
     public function testUpdatePlugin(): void
     {
         $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
-        static::assertFalse($this->pluginTableExists());
+        static::assertSame(0, $this->getMigrationTestKeyCount());
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
@@ -213,7 +207,7 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertNotNull($pluginUpdated->getUpgradedAt());
         static::assertSame(SwagTest::PLUGIN_VERSION, $pluginUpdated->getVersion());
 
-        static::assertTrue($this->pluginTableExists());
+        static::assertSame(1, $this->getMigrationTestKeyCount());
     }
 
     public function testActivatePlugin(): void
@@ -330,6 +324,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(AssetService::class),
             $this->container->get(CommandExecutor::class),
             $this->container->get(RequirementsValidator::class),
+            $this->container->get('cache.messenger.restart_workers_signal'),
             Kernel::SHOPWARE_FALLBACK_VERSION
         );
     }
@@ -341,18 +336,14 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginCollection->add(new SwagTest(false, $testPluginBaseDir));
     }
 
-    private function pluginTableExists(): bool
+    private function getMigrationTestKeyCount(): int
     {
-        $sql = <<<SQL
-        SELECT count(*)
-FROM information_schema.TABLES
-WHERE table_schema = DATABASE() AND table_name = :tableName;
-SQL;
-
-        return (bool) $this->connection->fetchColumn(
-            $sql,
-            ['tableName' => Migration1536761533Test::TABLE_NAME]
+        $result = $this->connection->executeQuery('
+            SELECT configuration_value FROM system_config WHERE configuration_key = ?',
+            [Migration1536761533Test::TEST_SYSTEM_CONFIG_KEY]
         );
+
+        return (int) $result->fetchColumn();
     }
 
     private function getTestPlugin(): ?PluginEntity

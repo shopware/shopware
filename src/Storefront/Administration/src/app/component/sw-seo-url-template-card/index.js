@@ -281,6 +281,11 @@ Component.register('sw-seo-url-template-card', {
         onSalesChannelChanged(salesChannelId) {
             this.salesChannelId = salesChannelId;
             this.fetchSeoUrlTemplates(salesChannelId);
+        },
+        getTemplatesForSalesChannel(salesChannelId) {
+            return this.seoUrlTemplates.filter((templateEntity) => {
+                return templateEntity.salesChannelId === salesChannelId;
+            });
         }
     }
 });

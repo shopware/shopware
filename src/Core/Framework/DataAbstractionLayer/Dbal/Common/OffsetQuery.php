@@ -33,6 +33,11 @@ class OffsetQuery implements IterableQuery
         return $data;
     }
 
+    public function getOffset(): array
+    {
+        return ['offset' => $this->offset];
+    }
+
     public function fetchCount(): int
     {
         /** @var QueryBuilder $query */

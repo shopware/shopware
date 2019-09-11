@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryEndEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryPartialResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryStartEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal\Indexing\Fixture\TestIndexer;
@@ -59,6 +60,26 @@ class IndexerRegistryTest extends TestCase
     {
         $this->eventDispatcher->removeListener(IndexerRegistryStartEvent::class, $this->callbackFn);
         $this->eventDispatcher->removeListener(IndexerRegistryEndEvent::class, $this->callbackFn);
+    }
+
+    public function testPartialCanBeExecuted(): void
+    {
+        $lastId = new IndexerRegistryPartialResult(null, null);
+        $timestamp = new \DateTime();
+
+        $executed = [];
+
+        while ($lastId = $this->indexer->partial($lastId->getIndexer(), $lastId->getOffset(), $timestamp)) {
+            $key = md5($lastId->getIndexer() . json_encode($lastId->getOffset()));
+
+            if (isset($executed[$key])) {
+                static::fail('Same iteration executed twice: ' . $lastId->getIndexer() . ' - ' . json_encode($lastId->getOffset()));
+            }
+
+            $executed[$key] = true;
+        }
+
+        static::assertNotEmpty($executed);
     }
 
     public function testPreIndexEventIsDispatchedOnIndex(): void
@@ -158,5 +179,10 @@ class IndexerRegistryTest extends TestCase
         $indexer->refresh($refreshEvent);
 
         static::assertSame(1, $testIndexer->getRefreshCalls(), 'Indexer were called multiple times in a single run.');
+    }
+
+    public function getPartialCalls(): int
+    {
+        return $this->partialCalls;
     }
 }

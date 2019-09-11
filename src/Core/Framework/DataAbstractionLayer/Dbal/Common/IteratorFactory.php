@@ -18,7 +18,7 @@ class IteratorFactory
         $this->connection = $connection;
     }
 
-    public function createIterator(EntityDefinition $definition): IterableQuery
+    public function createIterator(EntityDefinition $definition, ?array $lastId = null): IterableQuery
     {
         $entity = $definition->getEntityName();
 
@@ -33,11 +33,18 @@ class IteratorFactory
             $query->addOrderBy($escaped . '.auto_increment');
             $query->setParameter('lastId', 0);
 
+            if ($lastId !== null) {
+                $query->setParameter('lastId', $lastId['offset']);
+            }
+
             return new LastIdQuery($query);
         }
 
         $query->select([$escaped . '.id', 'LOWER(HEX(' . $escaped . '.id))']);
         $query->setFirstResult(0);
+        if ($lastId !== null) {
+            $query->setFirstResult((int) $lastId['offset']);
+        }
 
         return new OffsetQuery($query);
     }

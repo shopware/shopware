@@ -93,6 +93,52 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
         }
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $context = Context::createDefaultContext();
+
+        $dataOffset = null;
+        $definitionOffset = 0;
+
+        if ($lastId) {
+            $dataOffset = $lastId['dataOffset'];
+            $definitionOffset = $lastId['definitionOffset'];
+        }
+
+        $definitions = array_values(array_filter(
+            $this->registry->getDefinitions(),
+            function (EntityDefinition $definition) {
+                return $definition->getFields()->filterInstance(ManyToManyIdField::class)->count() > 0;
+            }
+        ));
+
+        if (!isset($definitions[$definitionOffset])) {
+            return null;
+        }
+
+        $definition = $definitions[$definitionOffset];
+
+        $iterator = $this->iteratorFactory->createIterator($definition, $dataOffset);
+
+        $ids = $iterator->fetch();
+
+        if (empty($ids)) {
+            ++$definitionOffset;
+
+            return [
+                'dataOffset' => null,
+                'definitionOffset' => $definitionOffset,
+            ];
+        }
+
+        $this->update($definition, $ids, $context);
+
+        return [
+            'dataOffset' => $iterator->getOffset(),
+            'definitionOffset' => $definitionOffset,
+        ];
+    }
+
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         $written = $event->getEvents();

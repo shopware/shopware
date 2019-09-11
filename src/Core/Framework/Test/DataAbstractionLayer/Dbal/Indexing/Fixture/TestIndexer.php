@@ -34,6 +34,10 @@ class TestIndexer implements IndexerInterface
         $this->indexer->index($timestamp);
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+    }
+
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         ++$this->refreshCalls;

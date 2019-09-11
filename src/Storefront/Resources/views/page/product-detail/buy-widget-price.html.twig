@@ -82,9 +82,12 @@
 
         <meta itemprop="price"
               content="{{ price.unitPrice }}">
-        <p class="product-detail-price">
-            {{ price.unitPrice|currency }}{{ "general.star"|trans }}
-        </p>
+
+        {% block page_product_detail_price_content %}
+            <p class="product-detail-price">
+                {{ price.unitPrice|currency }}{{ "general.star"|trans }}
+            </p>
+        {% endblock %}
 
         {% if page.product.purchaseUnit %}
             {% block page_product_detail_price_unit %}

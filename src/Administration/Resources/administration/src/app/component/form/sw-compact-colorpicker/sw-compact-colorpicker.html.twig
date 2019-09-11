@@ -1,13 +1,137 @@
-{% block sw_colorpicker %}
-    {% block sw_compact_colorpicker %}
-        <div class="sw-field sw-field--colorpicker sw-field--compact-colorpicker">
+{% block sw_compact_colorpicker %}
+    {% block sw_colorpicker_contextual_field %}
+        <div class="sw-field sw-field--colorpicker sw-field--compact-colorpicker sw-text-editor-toolbar-button__fore-color-menu" @click="toggleColorPicker">
             <div class="sw-colorpicker__field sw-colorpicker__trigger">
                 <div class="sw-colorpicker__previewWrapper">
-                    <div class="sw-colorpicker__previewColor" :style="{ background: color }"></div>
+                    <div class="sw-colorpicker__previewColor" :style="{ background: previewColorValue }">
+                    </div>
                     <div class="sw-colorpicker__previewBackground"
-                        :class="{'sw-colorpicker__previewBackground--empty': emptyColor}"></div>
+                         :class="{'sw-colorpicker__previewBackground--empty': !isColorValid}">
+                    </div>
                 </div>
             </div>
         </div>
+    {% endblock %}
+
+    {% block sw_colorpicker_popover %}
+        {% block sw_compact_colorpicker_colorpicker %}
+            <div v-if="visible" class="sw-colorpicker__colorpicker sw-colorpicker__colorpicker--compact">
+                {% block sw_colorpicker_selection %}
+                    <div ref="colorPicker"
+                         class="sw-colorpicker__colorpicker-selection"
+                         :style="{ backgroundColor: selectorBackground }"
+                         @mousedown="setDragging">
+
+                        {% block sw_compact_colorpicker_selector %}
+                            <div class="sw-colorpicker__colorpicker-selector"
+                                 :style="selectorStyles">
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+                <div class="sw-colorpicker__row">
+                    <div class="sw-colorpicker__sliders">
+                        {% block sw_compact_colorpicker_hue_slider %}
+                            <input class="sw-colorpicker__colorpicker-slider-range"
+                                   type="range"
+                                   min="0"
+                                   max="360"
+                                   step="1"
+                                   v-model.number="hueValue">
+                        {% endblock %}
+
+                        {% block sw_compact_colorpicker_alpha_slider %}
+                            <input class="sw-colorpicker__alpha-slider"
+                                   v-if="alpha"
+                                   type="range" min="0" max="1" step="0.01"
+                                   v-model.number="alphaValue"
+                                   :style="{ backgroundImage: sliderBackground }">
+                        {% endblock %}
+                    </div>
+
+                    {% block sw_compact_colorpicker_preview %}
+                        <div class="sw-colorpicker__colorpicker-wrapper"
+                             :class="{ 'is--small': !alpha }">
+                            <div class="sw-colorpicker__colorpicker-previewColor"
+                                 :style="{ background: previewColorValue}">
+                            </div>
+                            <div class="sw-colorpicker__colorpicker-previewBackground"
+                                 :class="{ 'is--invalid': !isColorValid }">
+                            </div>
+                        </div>
+                    {% endblock %}
+                </div>
+
+            {% block sw_compact_colorpicker_inputs %}
+                <div class="sw-colorpicker__row sw-colorpicker__input-row">
+                    {% block sw_compact_colorpicker_inputs_hex %}
+                        <div class="sw-colorpicker__row-column">
+                            <input v-model.lazy="hexValue"
+                                   type="text"
+                                   class="sw-colorpicker__colorpicker-input is--hex"
+                                   spellcheck="false">
+                            <span v-if="colorLabels" class="sw-colorpicker__row-column-label">HEX</span>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_compact_colorpicker_inputs_red %}
+                        <div class="sw-colorpicker__row-column">
+                            <input class="sw-colorpicker__colorpicker-input"
+                                   type="number"
+                                   min="0"
+                                   max="255"
+                                   step="1"
+                                   v-model.number="redValue"
+                                   placeholder="Red">
+                            <span v-if="colorLabels" class="sw-colorpicker__row-column-label">R</span>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_compact_colorpicker_inputs_green %}
+                        <div class="sw-colorpicker__row-column">
+                            <input class="sw-colorpicker__colorpicker-input"
+                                   type="number"
+                                   min="0"
+                                   max="255"
+                                   step="1"
+                                   v-model.number="greenValue"
+                                   placeholder="Green">
+                            <span v-if="colorLabels" class="sw-colorpicker__row-column-label">G</span>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_compact_colorpicker_inputs_blue %}
+                        <div class="sw-colorpicker__row-column">
+                            <input class="sw-colorpicker__colorpicker-input"
+                                   type="number"
+                                   min="0"
+                                   max="255"
+                                   step="1"
+                                   v-model.number="blueValue"
+                                   placeholder="Blue">
+                            <span v-if="colorLabels" class="sw-colorpicker__row-column-label">B</span>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_compact_colorpicker_inputs_alpha %}
+                        <div class="sw-colorpicker__row-column" v-if="alpha">
+                            <input class="sw-colorpicker__colorpicker-input"
+                                   type="number"
+                                   min="0"
+                                   max="100"
+                                   step="1"
+                                   v-model.number="integerAlpha"
+                                   placeholder="Alpha">
+                            <span v-if="colorLabels" class="sw-colorpicker__row-column-label">Alpha</span>
+                        </div>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+
+                {% block sw_colorpicker_button %}
+                    <sw-button class="sw-colorpicker__set-color-button" @click="emitColor" size="small" variant="primary">Set Color</sw-button>
+                {% endblock %}
+            </div>
+            {% endblock %}
     {% endblock %}
 {% endblock %}

@@ -21,35 +21,39 @@
                                 <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas"/>
                             {% endblock %}
 
-                            {% block page_account_order_item_detail_reorder_button %}
+                            {% block page_account_order_item_detail_reorder_lineitems_input %}
                                 {% for lineItem in orderDetails %}
-                                    {% if lineItem.type == 'product' %}
-                                        <input type="hidden"
-                                               name="lineItems[{{ lineItem.identifier }}][id]"
-                                               value="{{ lineItem.identifier }}">
-                                        <input type="hidden"
-                                               name="lineItems[{{ lineItem.identifier }}][referencedId]"
-                                               value="{{ lineItem.identifier }}">
-                                        <input type="hidden"
-                                               name="lineItems[{{ lineItem.identifier }}][type]"
-                                               value="{{ lineItem.type }}">
-                                        <input type="hidden"
-                                               name="lineItems[{{ lineItem.identifier }}][stackable]"
-                                               value="1">
-                                        <input type="hidden"
-                                               name="lineItems[{{ lineItem.identifier }}][removable]"
-                                               value="1">
-                                        <input type="hidden"
-                                               name="lineItems[{{ lineItem.identifier }}][quantity]"
-                                               value="{{ lineItem.quantity }}">
-                                    {% endif %}
+                                    {% block page_account_order_item_detail_reorder_lineitem_input %}
+                                        {% if lineItem.type == 'product' %}
+                                            <input type="hidden"
+                                                   name="lineItems[{{ lineItem.identifier }}][id]"
+                                                   value="{{ lineItem.identifier }}">
+                                            <input type="hidden"
+                                                   name="lineItems[{{ lineItem.identifier }}][referencedId]"
+                                                   value="{{ lineItem.identifier }}">
+                                            <input type="hidden"
+                                                   name="lineItems[{{ lineItem.identifier }}][type]"
+                                                   value="{{ lineItem.type }}">
+                                            <input type="hidden"
+                                                   name="lineItems[{{ lineItem.identifier }}][stackable]"
+                                                   value="1">
+                                            <input type="hidden"
+                                                   name="lineItems[{{ lineItem.identifier }}][removable]"
+                                                   value="1">
+                                            <input type="hidden"
+                                                   name="lineItems[{{ lineItem.identifier }}][quantity]"
+                                                   value="{{ lineItem.quantity }}">
+                                        {% endif %}
+                                    {% endblock %}
                                 {% endfor %}
                             {% endblock %}
-
-                            <button class="btn btn-buy order-item-detail-reorder-btn"
-                                    title="{{ "account.orderLinkRepeat"|trans }}">
-                                {{ "account.orderLinkRepeat"|trans }}
-                            </button>
+                                
+                            {% block page_account_order_item_detail_reorder_button %}
+                                <button class="btn btn-buy order-item-detail-reorder-btn"
+                                        title="{{ "account.orderLinkRepeat"|trans }}">
+                                    {{ "account.orderLinkRepeat"|trans }}
+                                </button>
+                            {% endblock %}
                         </form>
                     {% endblock %}
                 </div>

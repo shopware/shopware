@@ -1476,6 +1476,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'mail_template_id' => $registerMailId,
                 'language_id' => $languageEn,
                 'subject' => 'Newsletter',
+                'sender_name' => '{{ salesChannel.name }}',
                 'description' => '',
                 'content_html' => $this->getOptInTemplate_HTML_EN(),
                 'content_plain' => $this->getOptInTemplate_PLAIN_EN(),
@@ -1489,6 +1490,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'mail_template_id' => $registerMailId,
                 'language_id' => $languageDe,
                 'subject' => 'Newsletter',
+                'sender_name' => '{{ salesChannel.name }}',
                 'description' => '',
                 'content_html' => $this->getOptInTemplate_HTML_DE(),
                 'content_plain' => $this->getOptInTemplate_PLAIN_DE(),
@@ -1512,6 +1514,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'mail_template_id' => $confirmMailId,
                 'language_id' => $languageEn,
                 'subject' => 'Register',
+                'sender_name' => '{{ salesChannel.name }}',
                 'description' => '',
                 'content_html' => $this->getRegisterTemplate_HTML_EN(),
                 'content_plain' => $this->getRegisterTemplate_PLAIN_EN(),
@@ -1525,6 +1528,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'mail_template_id' => $confirmMailId,
                 'language_id' => $languageDe,
                 'subject' => 'Register',
+                'sender_name' => '{{ salesChannel.name }}',
                 'description' => '',
                 'content_html' => $this->getRegisterTemplate_HTML_DE(),
                 'content_plain' => $this->getRegisterTemplate_PLAIN_DE(),
@@ -1535,7 +1539,7 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function getRegisterTemplate_HTML_EN()
     {
-        return '<h3>Hello {{ firstName }} {{ lastName }}</h3>
+        return '<h3>Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>thank you very much for your registration.</p>
                 <p>You have successfully subscribed to our newsletter.</p>
         ';
@@ -1543,7 +1547,7 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function getRegisterTemplate_PLAIN_EN()
     {
-        return 'Hello {{ firstName }} {{ lastName }}
+        return 'Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
             
                 thank you very much for your registration.
             
@@ -1553,7 +1557,7 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function getRegisterTemplate_HTML_DE()
     {
-        return '<h3>Hallo {{ firstName }} {{ lastName }}</h3>
+        return '<h3>Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>vielen Dank für Ihre Anmeldung.</p>
                 <p>Sie haben sich erfolgreich zu unserem Newsletter angemeldet.</p>
         ';
@@ -1561,7 +1565,7 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function getRegisterTemplate_PLAIN_DE()
     {
-        return 'Hallo {{ firstName }} {{ lastName }}
+        return 'Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
             
                 vielen Dank für Ihre Anmeldung.
             
@@ -1571,7 +1575,7 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function getOptInTemplate_HTML_EN()
     {
-        return '<h3>Hello {{ firstName }} {{ lastName }}</h3>
+        return '<h3>Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>Thank you for your interest in our newsletter!</p>
                 <p>In order to prevent misuse of your email address, we have sent you this confirmation email. Confirm that you wish to receive the newsletter regularly by clicking <a href="{{ url }}">here</a>.</p>
                 <p>If you have not subscribed to the newsletter, please ignore this email.</p>
@@ -1580,7 +1584,7 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function getOptInTemplate_PLAIN_EN()
     {
-        return 'Hello {{ firstName }} {{ lastName }}
+        return 'Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
         
                 Thank you for your interest in our newsletter!
                 
@@ -1592,7 +1596,7 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function getOptInTemplate_HTML_DE()
     {
-        return '<h3>Hallo {{ firstName }} {{ lastName }}</h3>
+        return '<h3>Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>Schön, dass Sie sich für unseren Newsletter interessieren!</p>
                 <p>Um einem Missbrauch Ihrer E-Mail-Adresse vorzubeugen, haben wir Ihnen diese Bestätigungsmail gesendet. Bestätigen Sie, dass Sie den Newsletter regelmäßig erhalten wollen, indem Sie <a href="{{ url }}">hier</a> klicken.</p>
                 <p>Sollten Sie den Newsletter nicht angefordert haben, ignorieren Sie diese E-Mail.</p>
@@ -1601,7 +1605,7 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function getOptInTemplate_PLAIN_DE()
     {
-        return 'Hallo {{ firstName }} {{ lastName }}
+        return 'Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
         
                 Schön, dass Sie sich für unseren Newsletter interessieren! 
                 
@@ -2108,7 +2112,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'subject' => 'Order confirmation',
                 'description' => '',
-                'sender_name' => 'Shop',
+                'sender_name' => '{{ salesChannel.name }}',
                 'content_html' => $this->getHtmlTemplateEn(),
                 'content_plain' => $this->getPlainTemplateEn(),
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2122,7 +2126,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
                 'subject' => 'Bestellbestätigung',
                 'description' => '',
-                'sender_name' => 'Shop',
+                'sender_name' => '{{ salesChannel.name }}',
                 'content_html' => $this->getHtmlTemplateDe(),
                 'content_plain' => $this->getPlainTemplateDe(),
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),

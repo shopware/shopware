@@ -131,9 +131,9 @@ class MailService
                     $this->templateRenderer->enableTestMode();
                 }
 
-                $contents[$index] = $this->templateRenderer->render($template, $templateData);
-                $data['subject'] = $this->templateRenderer->render($data['subject'], $templateData);
-                $data['senderName'] = $this->templateRenderer->render($data['senderName'], $templateData);
+                $contents[$index] = $this->templateRenderer->render($template, $templateData, $context);
+                $data['subject'] = $this->templateRenderer->render($data['subject'], $templateData, $context);
+                $data['senderName'] = $this->templateRenderer->render($data['senderName'], $templateData, $context);
 
                 if (isset($data['testMode']) && $data['testMode'] === true) {
                     $this->templateRenderer->disableTestMode();
@@ -146,7 +146,7 @@ class MailService
                     . 'Template source:'
                     . $template . "\n"
                     . "Template data: \n"
-                    . print_r($templateData, true) . "\n"
+                    . json_encode($templateData) . "\n"
                 );
 
                 return null;

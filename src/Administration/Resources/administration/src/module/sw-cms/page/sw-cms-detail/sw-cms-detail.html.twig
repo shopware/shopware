@@ -253,6 +253,7 @@
                                                             <option value="image">{{ $tc('sw-cms.detail.labelBlockCategoryImage') }}</option>
                                                             <option value="text-image">{{ $tc('sw-cms.detail.labelBlockCategoryTextImage') }}</option>
                                                             <option value="commerce">{{ $tc('sw-cms.detail.labelBlockCategoryCommerce') }}</option>
+                                                            {% block sw_cms_detail_sidebar_block_overview_category_element_after %}{% endblock %}
                                                         </sw-select-field>
                                                     </div>
                                                 {% endblock %}

@@ -72,7 +72,9 @@ class ProductReviewLoader
 
         $customerReview = $this->loadProductCustomerReview($request, $context);
 
-        return new ReviewLoaderResult($reviews, $matrix, $customerReview);
+        $totalVisibleReviews = $this->getUnfilteredReviewCount($request, $context);
+
+        return new ReviewLoaderResult($reviews, $matrix, $customerReview, $totalVisibleReviews);
     }
 
     /**
@@ -219,5 +221,25 @@ class ProductReviewLoader
             );
 
         return $criteria;
+    }
+
+    private function getUnfilteredReviewCount(Request $request, SalesChannelContext $context): int
+    {
+        $productId = $request->get('productId');
+        if (!$productId) {
+            throw new MissingRequestParameterException('productId');
+        }
+
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(
+                new EqualsFilter('status', self::ACTIVE_STATUS),
+                new EqualsFilter('productId', $productId)
+            );
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $customerReviews = $this->reviewRepository->search($criteria, $context->getContext());
+
+        return $customerReviews->getTotal();
     }
 }

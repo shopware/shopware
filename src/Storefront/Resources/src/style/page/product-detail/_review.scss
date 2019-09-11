@@ -1,6 +1,7 @@
 // review widget
 .product-detail-review-widget {
     margin-bottom: $spacer;
+    z-index: 1;
 }
 
 .product-detail-reviews {
@@ -20,7 +21,7 @@
         .product-detail-review-teaser-show {
             display: none;
         }
-        
+
         .product-detail-review-teaser-hide {
             display: block;
         }
@@ -34,6 +35,11 @@
 // review item
 .product-detail-review-item-points {
     margin-bottom: $spacer-sm;
+}
+
+// review item
+.product-detail-review-item-content {
+    word-break: break-word;
 }
 
 // review form

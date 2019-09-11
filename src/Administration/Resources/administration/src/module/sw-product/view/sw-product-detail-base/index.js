@@ -1,4 +1,4 @@
-import { mapState, mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import template from './sw-product-detail-base.html.twig';
 
 const { Component } = Shopware;
@@ -44,17 +44,18 @@ Component.register('sw-product-detail-base', {
 
         reviewColumns() {
             return [{
+                property: 'points',
+                dataIndex: 'points',
+                label: this.$tc('sw-product.reviewForm.labelPoints')
+            }, {
                 property: 'status',
                 dataIndex: 'status',
-                label: this.$tc('sw-product.reviewForm.labelStatus')
+                label: this.$tc('sw-product.reviewForm.labelStatus'),
+                align: 'center'
             }, {
                 property: 'createdAt',
                 dataIndex: 'createdAt',
                 label: this.$tc('sw-product.reviewForm.labelCreatedAt')
-            }, {
-                property: 'points',
-                dataIndex: 'points',
-                label: this.$tc('sw-product.reviewForm.labelPoints')
             }, {
                 property: 'content',
                 dataIndex: 'content',

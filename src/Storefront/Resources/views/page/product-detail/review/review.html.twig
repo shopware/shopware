@@ -30,7 +30,7 @@
 
 		<div class="product-detail-review tab-pane-container">
 			{% block page_product_detail_review_tab_pane %}
-				<div class="row product-detail-review-content">
+                <div class="row product-detail-review-content js-review-container">
 					{% block page_product_detail_review_aside %}
 						<div class="col-sm-4">
 							{% block page_product_detail_review_widget_container %}
@@ -47,6 +47,11 @@
 										type: "success",
 										content: "detail.reviewFormSuccessAlert"|trans
 									} %}
+                                {% elseif ratingSuccess == 2  %}
+                                    {% sw_include '@Storefront/utilities/alert.html.twig' with {
+                                        type: "success",
+                                        content: "detail.reviewFormSuccessUpdateAlert"|trans
+                                    } %}
 								{% elseif ratingSuccess == -1  %}
 									{% sw_include '@Storefront/utilities/alert.html.twig' with {
 										type: "danger",
@@ -86,10 +91,7 @@
 																	  method="post"
 																	  data-form-ajax-submit="true"
 																	  data-form-ajax-submit-options='{
-																		  "replaceSelectors": [
-																		  	".js-review-content",
-																  			".js-review-filter"
-																		  ],
+																		  "replaceSelectors": ".js-review-container",
 																		  "submitOnChange": true
 																	  }'>
 
@@ -135,10 +137,7 @@
 																	  method="post"
 																	  data-form-ajax-submit="true"
 																	  data-form-ajax-submit-options='{
-																		  "replaceSelectors": [
-																		  	".js-review-content",
-																  			".js-review-filter"
-																  		  ],
+																		  "replaceSelectors": ".js-review-container",
 																		  "submitOnChange": true
 																	  }'>
 
@@ -219,10 +218,7 @@
 															  method="post"
 															  data-form-ajax-submit="true"
 															  data-form-ajax-submit-options='{
-																  "replaceSelectors": [
-																  	".js-review-content",
-																  	".js-review-filter"
-																  ],
+																  "replaceSelectors": ".js-review-container",
 																  "submitOnChange": true
 															  }'>
 

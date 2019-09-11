@@ -125,16 +125,21 @@
                         {% if page.reviews|length > 0 and shopware.config.detail.showReviews %}
                             <p class="product-detail-reviews">
                                 {% sw_include '@Storefront/component/review/rating.html.twig' with {
-                                    points: page.ratingMatrix.averageRating,
+                                    points: page.product.ratingAverage,
                                     style: 'text-primary'
                                 } %}
                                 <a data-toggle="tab"
                                    class="product-detail-reviews-link"
                                    data-offcanvas-tabs="true"
+                                   data-remote-click="true"
+                                   data-remote-click-options='{
+                                        "selector": "#review-tab",
+                                        "scrollToElement": true
+                                    }'
                                    href="#review-tab-pane"
                                    aria-controls="review-tab-pane">
-                                    {{ page.reviews.total }}
-                                    {{ "detail.reviewLinkText"|trans({'%count%': page.reviews.total}) }}
+                                    {{ page.totalReviews}}
+                                    {{ "detail.reviewLinkText"|trans({'%count%': page.totalReviews}) }}
                                 </a>
                             </p>
                         {% endif %}

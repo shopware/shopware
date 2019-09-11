@@ -535,7 +535,7 @@ Now all bundle line items are enriched with all necessary information and can be
 Implementing the `\Shopware\Core\Checkout\Cart\CartProcessorInterface` requires to implement the `process` function.
 
 In this method, it is your task to calculate the prices of the bundle and move the bundle from the previous cart to a new cart.
-But what does that even mean? The `process` method receives to instances of an cart.
+But what does that even mean? The `process` method receives two instances of a cart.
 The first one `Cart $original` contains all the original information, such as your bundle line item and all its children.
 The second instance, `Cart $toCalculate`, is actually an empty cart instance, only containing line items that were added from previous **processors**, not collectors, already. It is the one, which will be used when all the calculating is done.
 This prevents line items from sneaking through the cart process that were not considered by any processor and thus will be automatically dropped.

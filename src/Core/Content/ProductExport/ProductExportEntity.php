@@ -54,7 +54,7 @@ class ProductExportEntity extends Entity
     protected $generateByCronjob;
 
     /** @var \DateTimeInterface|null */
-    protected $lastGeneration;
+    protected $generatedAt;
 
     /** @var int */
     protected $interval;
@@ -188,14 +188,14 @@ class ProductExportEntity extends Entity
         $this->generateByCronjob = $generateByCronjob;
     }
 
-    public function getLastGeneration(): ?\DateTimeInterface
+    public function getGeneratedAt(): ?\DateTimeInterface
     {
-        return $this->lastGeneration;
+        return $this->generatedAt;
     }
 
-    public function setLastGeneration(?\DateTimeInterface $lastGeneration): void
+    public function setGeneratedAt(?\DateTimeInterface $generatedAt): void
     {
-        $this->lastGeneration = $lastGeneration;
+        $this->generatedAt = $generatedAt;
     }
 
     public function getInterval(): int

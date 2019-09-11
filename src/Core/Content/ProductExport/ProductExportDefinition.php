@@ -50,7 +50,7 @@ class ProductExportDefinition extends EntityDefinition
             (new StringField('file_format', 'fileFormat'))->addFlags(new Required()),
             new BoolField('include_variants', 'includeVariants'),
             (new BoolField('generate_by_cronjob', 'generateByCronjob'))->addFlags(new Required()),
-            new DateTimeField('last_generation', 'lastGeneration'),
+            new DateTimeField('generated_at', 'generatedAt'),
             (new IntField('interval', 'interval'))->addFlags(new Required()),
             new LongTextWithHtmlField('header_template', 'headerTemplate'),
             (new LongTextWithHtmlField('body_template', 'bodyTemplate'))->addFlags(new Required()),

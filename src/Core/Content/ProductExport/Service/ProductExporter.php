@@ -162,7 +162,7 @@ class ProductExporter implements ProductExporterInterface
             [
                 [
                     'id' => $productExport->getId(),
-                    'lastGeneration' => new \DateTime(),
+                    'generatedAt' => new \DateTime(),
                 ],
             ],
             $context->getContext()
@@ -207,11 +207,11 @@ class ProductExporter implements ProductExporterInterface
 
     private function isCacheExpired(ExportBehavior $behavior, ProductExportEntity $productExport): bool
     {
-        if ($behavior->isIgnoreCache() || $productExport->getLastGeneration() === null) {
+        if ($behavior->isIgnoreCache() || $productExport->getGeneratedAt() === null) {
             return true;
         }
 
-        $expireTimestamp = $productExport->getLastGeneration()->getTimestamp() + $productExport->getInterval();
+        $expireTimestamp = $productExport->getGeneratedAt()->getTimestamp() + $productExport->getInterval();
 
         return (new \DateTime())->getTimestamp() > $expireTimestamp;
     }

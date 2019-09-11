@@ -26,7 +26,7 @@ class Migration1565705280ProductExport extends MigrationStep
                 `file_format` VARCHAR(255) NOT NULL,
                 `include_variants` TINYINT(1) NULL DEFAULT \'0\',
                 `generate_by_cronjob` TINYINT(1) NOT NULL DEFAULT \'0\',
-                `last_generation` DATETIME(3) NULL,
+                `generated_at` DATETIME(3) NULL,
                 `interval` INT(11) NOT NULL,
                 `header_template` LONGTEXT NULL,
                 `body_template` LONGTEXT NOT NULL,

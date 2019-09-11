@@ -91,9 +91,10 @@ class ThemeChangeCommand extends Command
         if (!$input->getOption('all')) {
             $question = new ChoiceQuestion('Please select a sales channel:', $this->getSalesChannelChoices($salesChannels));
             $answer = $helper->ask($input, $output, $question);
-            $answer .= 'asdf';
             $parsedSalesChannel = $this->parseSalesChannelAnswer($answer, $salesChannels);
             if ($parsedSalesChannel === null) {
+                $this->io->error('Invalid choice');
+
                 return 1;
             }
             $salesChannels = new SalesChannelCollection([$parsedSalesChannel]);

@@ -29,6 +29,14 @@
             <tag name="shopware.entity.definition" entity="seo_url_template" />
         </service>
 
+        <service id="Shopware\Storefront\Framework\Seo\MainCategory\MainCategoryDefinition">
+            <tag name="shopware.entity.definition" entity="main_category" />
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\MainCategory\SalesChannel\SalesChannelMainCategoryDefinition">
+            <tag name="shopware.sales_channel.entity.definition" entity="main_category"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Seo\Extension\SalesChannelExtension">
             <tag name="shopware.entity.extension"/>
         </service>

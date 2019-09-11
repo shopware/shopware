@@ -315,7 +315,7 @@ class SeoUrlIndexer implements IndexerInterface
     {
         $context = Context::createDefaultContext();
         $entities = $context->disableCache(function (Context $context) {
-            return $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
+            return $this->salesChannelRepository->search((new Criteria())->addAssociation('navigationCategory'), $context)->getEntities();
         });
 
         $salesChannels = $entities->getElements();

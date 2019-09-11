@@ -153,7 +153,7 @@ abstract class EntityDefinition
                 }
 
                 if (!$hasManyToOne) {
-                    throw new \Exception(sprintf('FkField %s has no configured ManyToOneAssociationField', $field->getPropertyName()));
+                    throw new \Exception(sprintf('FkField %s has no configured ManyToOneAssociationField in entity %s', $field->getPropertyName(), $this->className));
                 }
 
                 $fields->add($field);

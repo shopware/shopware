@@ -41,6 +41,12 @@
                         {% endblock %}
                     </template>
 
+                    <div v-if="hasAdditionalSeoSlot">
+                        <slot name="seo-additional" v-bind="{currentSalesChannelId}">
+                            {% block sw_seo_url_additional %}{% endblock %}
+                        </slot>
+                    </div>
+
             {% endblock %}
         </sw-card>
     </div>

@@ -24,7 +24,9 @@
     "labelSalesChannelSelect": "Verkaufskanal",
     "labelSeoPathInfo": "SEO Pfad",
     "textEmptySeoUrls": "Es sind noch keine Canonical Urls vorhanden.",
-    "textSeoUrlsDisallowedForHeadless": "Für headless Sales Channel ist die Angabe von SEO URLs nicht möglich."
+    "textSeoUrlsDisallowedForHeadless": "Für headless Sales Channel ist die Angabe von SEO URLs nicht möglich.",
+    "labelMainCategory": "Hauptkategorie",
+    "placeholderMainCategory": "Hauptkategorie wählen..."
   },
   "sales-channel-theme": {
     "title": "Theme Zuweisung",

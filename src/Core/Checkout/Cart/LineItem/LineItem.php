@@ -261,7 +261,7 @@ class LineItem extends Struct
      */
     public function setPayloadValue(string $key, $value): self
     {
-        if (!is_string($key) || ($value !== null && !is_scalar($value) && !is_array($value))) {
+        if ($value !== null && !is_scalar($value) && !is_array($value)) {
             throw new InvalidPayloadException($key, $this->getId());
         }
 
@@ -276,6 +276,10 @@ class LineItem extends Struct
     public function setPayload(array $payload): self
     {
         foreach ($payload as $key => $value) {
+            if (!is_string($key)) {
+                throw new InvalidPayloadException("$key", $this->getId());
+            }
+            
             $this->setPayloadValue($key, $value);
         }
 

@@ -53,7 +53,7 @@
       "edit": "Bearbeiten"
     },
     "entity-components": {
-      "editAction": "Editieren",
+      "editAction": "Bearbeiten",
       "deleteAction": "Löschen",
       "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
       "deleteCancel": "Abbrechen",
@@ -83,7 +83,7 @@
       "notification": {
         "invalidFileType": {
           "title": "Nicht unterstützter Dateityp",
-          "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze nur die folgenden Formate: {supportedTypes}."
+          "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze eins der folgenden Formate: {supportedTypes}."
         },
         "invalidFileSize": {
           "title": "Dateigröße überschreitet Upload-Limit",
@@ -731,7 +731,7 @@
     "keyboardShortcutGoToPlugins": "G A",
     "functionSpecialShortcutFocusSearch": "Fokussiere Suche",
     "keyboardShortcutSpecialShortcutFocusSearch": "f",
-    "functionSpecialShortcutShortcutListing": "Tastenkürzel Übersicht",
+    "functionSpecialShortcutShortcutListing": "Tastenkürzel-Übersicht",
     "keyboardShortcutSpecialShortcutShortcutListing": "Shift ?",
     "functionSpecialShortcutSaveDetailViewWindows": "Windows: Speichern in Detailansicht",
     "keyboardShortcutSpecialShortcutSaveDetailViewWindows": "alt s",

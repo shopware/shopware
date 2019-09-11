@@ -77,7 +77,7 @@
         "secretFieldLabel": "Sicherheitsschlüssel",
         "secretHelpText": "Bitte kopiere Deinen Sicherheitsschlüssel jetzt. Nach dem Speichern wird dieser aus Sicherheitsgründen nicht wieder angezeigt.",
         "permissions": "Berechtigungen",
-        "readAccessFieldLabel": "Lesen (standard)",
+        "readAccessFieldLabel": "Lesen (Standard)",
         "writeAccessFieldLabel": "Schreiben (optional)",
         "titleSaveSuccess": "Erfolg",
         "messageSaveSuccess": "Integration erfolgreich gespeichert.",

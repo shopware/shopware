@@ -40,8 +40,8 @@
         "mysqlVersion": "Minimum MySQL Version: {minVersion}. Installed MySQL Version {currentVersion}.",
         "writeableCheckValid": "The following directories and files are writable:<br/>{checkedDirectories}",
         "writeableCheckFailed": "The following directories and files are not writable:<br>{failedDirectories}",
-        "validShopwareLicense": "The used Shopware version allows an update",
-        "invalidShopwareLicense": "No active Shopware subscription could be found for your shop.<br>The automatic update cannot be performed.<br>You can purchase a Shopware Subscription in the <a target=\"_blank\" href=\"https://account.shopware.com\">Shopware account page</a>"
+        "validShopwareLicense": "Your current Shopware is out of date. You may want to consider an update.",
+        "invalidShopwareLicense": "No active Shopware subscription could be found for your shop.<br>The automatic update cannot be performed.<br>You can purchase a Shopware subscription in the <a target=\"_blank\" href=\"https://account.shopware.com\">Shopware account page</a>"
       },
       "ready": "Ready",
       "notReady": "Not ready"

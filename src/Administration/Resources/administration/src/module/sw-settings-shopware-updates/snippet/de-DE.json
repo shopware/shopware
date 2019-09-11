@@ -54,7 +54,7 @@
       "actions": {
         "openPluginManager": "Plugin-Manager öffnen"
       },
-      "pluginNotInStore": "Dieses Plugin ist im Store nicht verfügbar. Bitte kontaktieren Sie den Plugin-Autor"
+      "pluginNotInStore": "Dieses Plugin ist im Store nicht verfügbar. Bitte kontaktieren Sie den Plugin-Autor."
     },
     "updateModal": {
       "actions": {

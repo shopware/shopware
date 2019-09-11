@@ -410,7 +410,7 @@
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",
       "tag": {
-        "placeholder": "Press ENTER to confirm input..."
+        "placeholder": "Enter condition..."
       },
       "condition": {
         "dateRangeRule": {

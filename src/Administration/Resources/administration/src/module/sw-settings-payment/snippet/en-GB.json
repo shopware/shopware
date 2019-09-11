@@ -27,7 +27,7 @@
       "messageSaveSuccess": "Payment method \"{name}\" has been saved.",
       "labelName": "Name",
       "labelPosition": "Position",
-      "labelActive": "Payment active",
+      "labelActive": "Active",
       "labelDescription": "Description",
       "labelLogoUpload": "Logo",
       "sidebar": {

@@ -77,8 +77,8 @@
       "placeholderStock": "Gib einen Lagerbestand ein ...",
       "placeholderMinPurchase": "Mindestabnahme ...",
       "placeholderMaxPurchase": "Maximalabnahme ...",
-      "placeholderPurchaseSteps": "Enter purchase steps",
-      "placeholderRestockTime": "Enter restock time in days",
+      "placeholderPurchaseSteps": "Gib ein Verkaufsintervall (Stückzahl) ein ...",
+      "placeholderRestockTime": "Gib ein Wiederauffüllintervall (in Tagen) ein ...",
       "placeholderEan": "Gib die EAN-Nummer ein ...",
       "placeholderManufacturerNumber": "Gib die Herstellernummer ein ...",
       "labelAvailableStock": "Verfügbarer Bestand",
@@ -119,8 +119,8 @@
       "buttonPriceRuleDelete": "Preisregel löschen",
       "buttonPriceRuleDuplicate": "Preisregel duplizieren",
       "buttonPriceRuleCurrencyAdd": "Währung hinzufügen",
-      "buttonAddAdditionalPriceRule": "Preisregel hinzufügen",
-      "buttonAddAdditionalPriceRuleGroup": "Preisregel-Gruppe hinzufügen",
+      "buttonAddAdditionalPriceRule": "Preisebene hinzufügen",
+      "buttonAddAdditionalPriceRuleGroup": "Preisregel hinzufügen",
       "textCurrencyDefault": "(Standard)",
       "textPriceRuleForCurrency": "Preisregel für Währung",
       "columnQuantityStart": "Menge von",
@@ -170,21 +170,21 @@
     },
     "mediaForm": {
       "errorHeadline": "Fehler",
-      "errorNoImage": "\"{file}\" ist kein Bild",
-      "errorMediaItemDuplicated": "Medium bereits verwendet"
+      "errorNoImage": "\"{file}\" ist kein Bild.",
+      "errorMediaItemDuplicated": "Medium bereits verwendet."
     },
     "advancedPrices": {
-      "deletionNotPossibleTitle": "Löschen nicht möglich",
-      "deletionNotPossibleMessage": "Der letzte Preis der Standardwährung kann nicht gelöscht werden.",
-      "newRuleWarning": "Für eine neue Preisregel musst du eine Regel auswählen.",
+      "deletionNotPossibleTitle": "Fehler",
+      "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",
+      "newRuleWarning": "Um eine neue Preisregel anzulegen, musst du erst eine Bedingungs-Regel auswählen.",
       "advancedPricesNotExisting": "Für dieses Produkt existieren noch keine erweiterten Preise.",
       "columnFrom": "Von",
       "columnTo": "Bis",
-      "selectRule": "Regel auswählen…"
+      "selectRule": "Regel auswählen ..."
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften",
-      "emptyStateNoOptionsTitle": "Keine Optionen vorhanden",
+      "emptyStateNoOptionsTitle": "Keine Optionen vorhanden.",
       "emptyStateNoOptionsDescription": "Du musst erst Optionen und Eigenschaften erstellen, um diese hier zuordnen zu können.",
       "emptyStateNoSelectedOptionsTitle": "Keine Optionen ausgewählt",
       "emptyStateNoSelectedOptionsDescription": "Bitte wähle Optionen aus der obigen Suche aus."

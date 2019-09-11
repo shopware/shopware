@@ -42,7 +42,7 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Fill in basic data
         cy.get('#sw-field--page-name').type('Laid out');
-        cy.get('#sw-field--page-type').select('Landingpage');
+        cy.get('#sw-field--page-type').select('Landing page');
 
         // Add simple text block
         cy.contains('Add a block').click();

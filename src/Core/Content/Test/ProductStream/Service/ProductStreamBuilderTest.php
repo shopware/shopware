@@ -55,7 +55,7 @@ class ProductStreamBuilderTest extends TestCase
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
-    public function testBuildFilters()
+    public function testBuildFilters(): void
     {
         $this->createTestEntity();
 
@@ -64,7 +64,7 @@ class ProductStreamBuilderTest extends TestCase
         static::assertCount(2, $products);
     }
 
-    public function testNoFilters()
+    public function testNoFilters(): void
     {
         $this->createTestEntityWithoutFilters();
 
@@ -114,7 +114,7 @@ class ProductStreamBuilderTest extends TestCase
         );
     }
 
-    private function createTestEntityWithoutFilters()
+    private function createTestEntityWithoutFilters(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 

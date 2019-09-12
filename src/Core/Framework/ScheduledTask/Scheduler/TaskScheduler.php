@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\ScheduledTask\Scheduler;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\MinResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MinResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -71,28 +71,35 @@ class TaskScheduler
         /** @var AggregationResult $aggregation */
         $aggregation = $this->scheduledTaskRepository
             ->aggregate($criteria, Context::createDefaultContext())
-            ->getAggregations()
             ->get('nextExecutionTime');
 
-        /** @var MinResult $result */
-        $result = $aggregation->getResult()[0];
+        /** @var MinResult $aggregation */
+        if (!$aggregation instanceof MinResult) {
+            return null;
+        }
+        if ($aggregation->getMin() === null) {
+            return null;
+        }
 
-        return $result->getMin();
+        return new \DateTime($aggregation->getMin());
     }
 
     public function getMinRunInterval(): ?int
     {
         $criteria = $this->buildCriteriaForMinRunInterval();
-        /** @var AggregationResult $aggregation */
         $aggregation = $this->scheduledTaskRepository
             ->aggregate($criteria, Context::createDefaultContext())
-            ->getAggregations()
             ->get('runInterval');
 
-        /** @var MinResult $result */
-        $result = $aggregation->getResult()[0];
+        /** @var MinResult $aggregation */
+        if (!$aggregation instanceof MinResult) {
+            return null;
+        }
+        if ($aggregation->getMin() === null) {
+            return null;
+        }
 
-        return $result->getMin();
+        return (int) $aggregation->getMin();
     }
 
     private function buildCriteriaForAllScheduledTask(): Criteria

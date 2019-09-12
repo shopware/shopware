@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\Snippet;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Doctrine\FetchModeHelper;
@@ -178,18 +178,16 @@ class SnippetService
         $files = $this->snippetFileCollection->toArray();
 
         $criteria = new Criteria();
-        $criteria->addAggregation(new ValueAggregation('author', 'distinct_author'));
+        $criteria->addAggregation(new TermsAggregation('distinct_author', 'author'));
 
-        /** @var ValueResult|null $aggregation */
+        /** @var TermsResult|null $aggregation */
         $aggregation = $this->snippetRepository->aggregate($criteria, $context)
-                ->getAggregations()
-                ->get('distinct_author')
-                ->get(null);
+                ->get('distinct_author');
 
-        if (!$aggregation || empty($aggregation->getValues())) {
+        if (!$aggregation || empty($aggregation->getBuckets())) {
             $result = [];
         } else {
-            $result = $aggregation->getValues();
+            $result = $aggregation->getKeys();
         }
 
         $authors = array_flip($result);

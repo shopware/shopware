@@ -3,13 +3,11 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -108,7 +106,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private function handleManufacturerFilter(Request $request, Criteria $criteria): void
     {
         $criteria->addAggregation(
-            new EntityAggregation('product.manufacturerId', ProductManufacturerDefinition::class, 'manufacturer')
+            new EntityAggregation('manufacturer', 'product.manufacturerId', 'product_manufacturer')
         );
 
         $ids = $request->query->get('manufacturer', '');
@@ -125,10 +123,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private function handlePropertyFilter(Request $request, Criteria $criteria): void
     {
         $criteria->addAggregation(
-            new EntityAggregation('product.properties.id', PropertyGroupOptionDefinition::class, 'properties')
+            new EntityAggregation('properties', 'product.properties.id', 'property_group_option')
         );
         $criteria->addAggregation(
-            new EntityAggregation('product.options.id', PropertyGroupOptionDefinition::class, 'options')
+            new EntityAggregation('options', 'product.options.id', 'property_group_option')
         );
 
         $ids = $request->query->get('properties', '');
@@ -165,7 +163,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private function handlePriceFilter(Request $request, Criteria $criteria): void
     {
         $criteria->addAggregation(
-            new StatsAggregation('product.price', 'price', false, false, false, true, true)
+            new StatsAggregation('price', 'product.price')
         );
 
         $min = $request->query->get('min-price');

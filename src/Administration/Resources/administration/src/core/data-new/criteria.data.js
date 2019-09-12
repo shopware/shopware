@@ -263,7 +263,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\AvgAggregation
      * Allows to calculate the avg value for the provided field
      *
      * @param {String} name
@@ -289,7 +289,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation
      * Allows to calculate the count value for the provided field
      *
      * @param {String} name
@@ -302,7 +302,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation
      * Allows to calculate the max value for the provided field
      *
      * @param {String} name
@@ -315,7 +315,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation
      * Allows to calculate the min value for the provided field
      *
      * @param {String} name
@@ -328,7 +328,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation
      * Allows to calculate the sum, max, min, avg, count values for the provided field
      *
      * @param {String} name
@@ -341,7 +341,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation
+     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation
      * Allows to calculate the sum value for the provided field
      *
      * @param {String} name

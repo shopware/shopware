@@ -5,31 +5,32 @@ namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 use Elasticsearch\Client;
 use ONGR\ElasticsearchDSL\Search;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\AvgAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AvgResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\CountResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\EntityResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\MaxResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\MinResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\StatsResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\SumResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueCountItem;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueCountResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\DateHistogramResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\AvgResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MaxResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MinResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\StatsResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -68,7 +69,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
     }
 
-    public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregatorResult
+    public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
         if (!$this->helper->allowSearch($definition, $context)) {
             return $this->decorated->aggregate($definition, $criteria, $context);
@@ -93,97 +94,45 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
             return $this->decorated->aggregate($definition, $criteria, $context);
         }
 
-        $aggregations = $this->hydrate($criteria, $context, $result);
-
-        return new AggregatorResult($aggregations, $context, $criteria);
+        return $this->hydrate($criteria, $context, $result);
     }
 
-    private function hydrateAggregation(Aggregation $aggregation, array $result, Context $context): ?AggregationResult
+    private function hydrateAggregation(Aggregation $aggregation, array $result, Context $context): AggregationResult
     {
         switch (true) {
             case $aggregation instanceof StatsAggregation:
-                return new AggregationResult(
-                    $aggregation,
-                    [new StatsResult(null, $result['min'], $result['max'], $result['count'], $result['avg'], $result['sum'])]
-                );
+                return new StatsResult($aggregation->getName(), $result['min'], $result['max'], $result['avg'], $result['sum']);
 
             case $aggregation instanceof AvgAggregation:
-                return new AggregationResult(
-                    $aggregation,
-                    [new AvgResult(null, $result['value'])]
-                );
+                return new AvgResult($aggregation->getName(), $result['value']);
 
-            case $aggregation instanceof CountAggregation:
-                return new AggregationResult(
-                    $aggregation,
-                    [new CountResult(null, $result['value'])]
-                );
+                case $aggregation instanceof CountAggregation:
+                return new CountResult($aggregation->getName(), $result['value']);
 
             case $aggregation instanceof EntityAggregation:
-                if (array_key_exists($aggregation->getName(), $result)) {
-                    $result = $result[$aggregation->getName()];
-                }
-
-                $ids = array_column($result['buckets'], 'key');
-
-                $definition = $this->definitionInstanceRegistry->get($aggregation->getDefinition());
-
-                $repository = $this->definitionInstanceRegistry->getRepository($definition->getEntityName());
-
-                $entities = $repository->search(new Criteria($ids), $context);
-
-                return new AggregationResult(
-                    $aggregation,
-                    [new EntityResult(null, $entities->getEntities())]
-                );
+                return $this->hydrateEntityAggregation($aggregation, $result, $context);
 
             case $aggregation instanceof MaxAggregation:
-                return new AggregationResult(
-                    $aggregation,
-                    [new MaxResult(null, $result['value'])]
-                );
+                return new MaxResult($aggregation->getName(), $result['value']);
 
             case $aggregation instanceof MinAggregation:
-                return new AggregationResult(
-                    $aggregation,
-                    [new MinResult(null, $result['value'])]
-                );
+                return new MinResult($aggregation->getName(), $result['value']);
 
             case $aggregation instanceof SumAggregation:
-                return new AggregationResult(
-                    $aggregation,
-                    [new SumResult(null, $result['value'])]
-                );
+                return new SumResult($aggregation->getName(), $result['value']);
 
-            case $aggregation instanceof ValueAggregation:
-                if (isset($result[$aggregation->getName()])) {
-                    $result = $result[$aggregation->getName()];
-                }
+            case $aggregation instanceof FilterAggregation:
+                $nested = $aggregation->getAggregation();
+                return $this->hydrateAggregation($nested, $result[$nested->getName()], $context);
 
-                if (!isset($result['buckets'])) {
-                    return null;
-                }
+            case $aggregation instanceof DateHistogramAggregation:
+                return $this->hydrateDateHistogram($aggregation, $result, $context);
 
-                $values = array_column($result['buckets'], 'key');
-
-                return new AggregationResult(
-                    $aggregation,
-                    [new ValueResult(null, $values)]
-                );
-
-            case $aggregation instanceof ValueCountAggregation:
-                $values = [];
-                foreach ($result['buckets'] as $bucket) {
-                    $values[] = new ValueCountItem($bucket['key'], $bucket['doc_count']);
-                }
-
-                return new AggregationResult(
-                    $aggregation,
-                    [new ValueCountResult(null, $values)]
-                );
+            case $aggregation instanceof TermsAggregation:
+                return $this->hydrateTermsAggregation($aggregation, $result, $context);
 
             default:
-                return null;
+                throw new \RuntimeException(sprintf('Provided aggregation of class %s is not supported', get_class($aggregation)));
         }
     }
 
@@ -202,16 +151,92 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
                 continue;
             }
 
-            $hydrated = $this->hydrateAggregation($aggregation, $aggResult, $context);
-
-            if (!$hydrated) {
-                // todo@dr log not supported aggregations
-                continue;
-            }
-
-            $aggregations->add($hydrated);
+            $aggregations->add(
+                $this->hydrateAggregation($aggregation, $aggResult, $context)
+            );
         }
 
         return $aggregations;
+    }
+
+    private function hydrateDateHistogram(DateHistogramAggregation $aggregation, array $result, Context $context)
+    {
+        if (isset($result[$aggregation->getName()])) {
+            $result = $result[$aggregation->getName()];
+        }
+
+        if (!isset($result['buckets'])) {
+            return null;
+        }
+
+        $buckets = [];
+        foreach ($result['buckets'] as $bucket) {
+            $nested = null;
+
+            $nestedAggregation  = $aggregation->getAggregation();
+            if ($nestedAggregation) {
+                $nested = $this->hydrateAggregation($nestedAggregation, $bucket[$nestedAggregation->getName()], $context);
+            }
+
+            $key = $bucket['key'][$aggregation->getName() . '.key'];
+
+            $date = new \DateTime($key);
+
+            if ($aggregation->getFormat()) {
+                $value = $date->format($aggregation->getFormat());
+            } else {
+                $value = EntityAggregator::formatDate($aggregation->getInterval(), $date);
+            }
+
+            $buckets[] = new Bucket($value, $bucket['doc_count'], $nested);
+        }
+
+        return new DateHistogramResult($aggregation->getName(), $buckets);
+    }
+
+    private function hydrateTermsAggregation(TermsAggregation $aggregation, array $result, Context $context): ?TermsResult
+    {
+        if (isset($result[$aggregation->getName()])) {
+            $result = $result[$aggregation->getName()];
+        }
+
+        if (!isset($result['buckets'])) {
+            return null;
+        }
+
+        $buckets = [];
+        foreach ($result['buckets'] as $bucket) {
+            $nested = null;
+
+            $nestedAggregation = $aggregation->getAggregation();
+            if ($nestedAggregation) {
+                $nested = $this->hydrateAggregation(
+                    $nestedAggregation,
+                    $bucket[$nestedAggregation->getName()],
+                    $context
+                );
+            }
+
+            $key = $bucket['key'][$aggregation->getName().'.key'];
+
+            $buckets[] = new Bucket($key, $bucket['doc_count'], $nested);
+        }
+
+        return new TermsResult($aggregation->getName(), $buckets);
+    }
+
+    private function hydrateEntityAggregation(EntityAggregation $aggregation, array $result, Context $context): EntityResult
+    {
+        if (array_key_exists($aggregation->getName(), $result)) {
+            $result = $result[$aggregation->getName()];
+        }
+
+        $ids = array_column($result['buckets'], 'key');
+
+        $repository = $this->definitionInstanceRegistry->getRepository($aggregation->getEntity());
+
+        $entities = $repository->search(new Criteria($ids), $context);
+
+        return new EntityResult($aggregation->getName(), $entities->getEntities());
     }
 }

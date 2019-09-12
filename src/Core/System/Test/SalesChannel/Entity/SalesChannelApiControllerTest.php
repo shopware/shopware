@@ -106,7 +106,7 @@ class SalesChannelApiControllerTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__READ_PROTECTED');
+        static::assertSame('FRAMEWORK__READ_PROTECTED', $response['errors'][0]['code']);
     }
 
     public function testRestrictedFilterForAssociation(): void

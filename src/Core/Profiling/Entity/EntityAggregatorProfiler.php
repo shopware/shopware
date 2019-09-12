@@ -4,7 +4,7 @@ namespace Shopware\Core\Profiling\Entity;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
@@ -27,7 +27,7 @@ class EntityAggregatorProfiler implements EntityAggregatorInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregatorResult
+    public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
         $this->stopwatch->start('aggregate.' . $definition->getEntityName());
 

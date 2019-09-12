@@ -1,20 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 
-class EntityResult extends AbstractAggregationResult
+class EntityResult extends AggregationResult
 {
     /**
      * @var EntityCollection
      */
     protected $entities;
 
-    public function __construct(?array $key, EntityCollection $entities)
+    public function __construct(string $name, EntityCollection $entities)
     {
-        parent::__construct($key);
+        parent::__construct($name);
         $this->entities = $entities;
     }
 

@@ -5,7 +5,7 @@ namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\NestedAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Bucketing\TermsAggregation;
+use ONGR\ElasticsearchDSL\Aggregation\Bucketing;
 use ONGR\ElasticsearchDSL\Aggregation\Metric;
 use ONGR\ElasticsearchDSL\BuilderInterface;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
@@ -23,15 +23,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\AvgAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MaxAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\MinAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\SumAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\AvgAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -92,10 +93,10 @@ class CriteriaParser
 
         $path = $this->getNestedPath($definition, $aggregation->getField());
 
-        $esAggregation = $this->createAggregation($aggregation, $fieldName);
+        $esAggregation = $this->createAggregation($aggregation, $fieldName, $definition, $context);
 
         if (!$esAggregation) {
-            return $esAggregation;
+            return null;
         }
 
         if (!$path) {
@@ -108,33 +109,33 @@ class CriteriaParser
         return $nested;
     }
 
-    public function parse(Filter $query, EntityDefinition $definition, string $root, Context $context): BuilderInterface
+    public function parseFilter(Filter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
         switch (true) {
-            case $query instanceof NotFilter:
-                return $this->parseNotFilter($query, $definition, $root, $context);
+            case $filter instanceof NotFilter:
+                return $this->parseNotFilter($filter, $definition, $root, $context);
 
-            case $query instanceof MultiFilter:
-                return $this->parseMultiFilter($query, $definition, $root, $context);
+            case $filter instanceof MultiFilter:
+                return $this->parseMultiFilter($filter, $definition, $root, $context);
 
-            case $query instanceof EqualsFilter:
-                return $this->parseEqualsFilter($query, $definition, $context);
+            case $filter instanceof EqualsFilter:
+                return $this->parseEqualsFilter($filter, $definition, $context);
 
-            case $query instanceof EqualsAnyFilter:
-                return $this->parseEqualsAnyFilter($query, $definition, $context);
+            case $filter instanceof EqualsAnyFilter:
+                return $this->parseEqualsAnyFilter($filter, $definition, $context);
 
-            case $query instanceof ContainsFilter:
-                return $this->parseContainsFilter($query, $definition, $context);
+            case $filter instanceof ContainsFilter:
+                return $this->parseContainsFilter($filter, $definition, $context);
 
-            case $query instanceof RangeFilter:
-                return $this->parseRangeFilter($query, $definition, $context);
+            case $filter instanceof RangeFilter:
+                return $this->parseRangeFilter($filter, $definition, $context);
 
             default:
-                throw new \RuntimeException(sprintf('Unsupported filter %s', get_class($query)));
+                throw new \RuntimeException(sprintf('Unsupported filter %s', get_class($filter)));
         }
     }
 
-    protected function createAggregation(Aggregation $aggregation, string $fieldName): ?AbstractAggregation
+    private function createAggregation(Aggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): ?AbstractAggregation
     {
         switch (true) {
             case $aggregation instanceof StatsAggregation:
@@ -143,11 +144,8 @@ class CriteriaParser
             case $aggregation instanceof AvgAggregation:
                 return new Metric\AvgAggregation($aggregation->getName(), $fieldName);
 
-            case $aggregation instanceof CountAggregation:
-                return new Metric\ValueCountAggregation($aggregation->getName(), $fieldName);
-
             case $aggregation instanceof EntityAggregation:
-                return new TermsAggregation($aggregation->getName(), $fieldName);
+                return new Bucketing\TermsAggregation($aggregation->getName(), $fieldName);
 
             case $aggregation instanceof MaxAggregation:
                 return new Metric\MaxAggregation($aggregation->getName(), $fieldName);
@@ -158,15 +156,96 @@ class CriteriaParser
             case $aggregation instanceof SumAggregation:
                 return new Metric\SumAggregation($aggregation->getName(), $fieldName);
 
-            case $aggregation instanceof ValueAggregation:
-                return new TermsAggregation($aggregation->getName(), $fieldName);
+            case $aggregation instanceof CountAggregation:
+                return new Metric\ValueCountAggregation($aggregation->getName(), $fieldName);
 
-            case $aggregation instanceof ValueCountAggregation:
-                return new TermsAggregation($aggregation->getName(), $fieldName);
+            case $aggregation instanceof FilterAggregation:
+                return $this->parseFilterAggregation($aggregation, $definition, $context);
 
+            case $aggregation instanceof TermsAggregation:
+                return $this->parseTermsAggregation($aggregation, $fieldName, $definition, $context);
+
+            case $aggregation instanceof DateHistogramAggregation:
+                return $this->parseDateHistogramAggregation($aggregation, $fieldName, $definition, $context);
             default:
-                return null;
+                throw new \RuntimeException(sprintf('Provided aggregation of class %s not supported', get_class($aggregation)));
         }
+    }
+
+    protected function parseFilterAggregation(FilterAggregation $aggregation, EntityDefinition $definition, Context $context): Bucketing\FilterAggregation
+    {
+        $query = new BoolQuery();
+        foreach ($aggregation->getFilter() as $filter) {
+            $query->add(
+                $this->parseFilter($filter, $definition, $definition->getEntityName(), $context)
+            );
+        }
+
+        $filter = new Bucketing\FilterAggregation($aggregation->getName(), $query);
+
+        $filter->addAggregation(
+            $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
+        );
+
+        return $filter;
+    }
+
+    protected function parseTermsAggregation(TermsAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): Bucketing\CompositeAggregation
+    {
+        $composite = new Bucketing\CompositeAggregation($aggregation->getName());
+
+        if ($aggregation->getSorting()) {
+            $accessor = $this->buildAccessor($definition, $aggregation->getSorting()->getField(), $context);
+
+            $sorting = new Bucketing\TermsAggregation($aggregation->getName().'.sorting', $accessor);
+            $sorting->addParameter('order', $aggregation->getSorting()->getDirection());
+            $composite->addSource($sorting);
+        }
+
+        $terms = new Bucketing\TermsAggregation($aggregation->getName().'.key', $fieldName);
+        $composite->addSource($terms);
+
+        if ($aggregation->getAggregation()) {
+            $composite->addAggregation(
+                $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
+            );
+        }
+
+        if ($aggregation->getLimit()) {
+            $composite->addParameter('size', (string) $aggregation->getLimit());
+        }
+
+        return $composite;
+    }
+
+    protected function parseDateHistogramAggregation(DateHistogramAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): Bucketing\CompositeAggregation
+    {
+        $composite = new Bucketing\CompositeAggregation($aggregation->getName());
+
+        if ($aggregation->getSorting()) {
+            $accessor = $this->buildAccessor($definition, $aggregation->getSorting()->getField(), $context);
+
+            $sorting = new Bucketing\TermsAggregation($aggregation->getName().'.sorting', $accessor);
+            $sorting->addParameter('order', $aggregation->getSorting()->getDirection());
+
+            $composite->addSource($sorting);
+        }
+
+        $histogram = new Bucketing\DateHistogramAggregation(
+            $aggregation->getName().'.key',
+            $fieldName,
+            $aggregation->getInterval(),
+            'yyyy-MM-dd HH:mm:ss'
+        );
+        $composite->addSource($histogram);
+
+        if ($aggregation->getAggregation()) {
+            $composite->addAggregation(
+                $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
+            );
+        }
+
+        return $composite;
     }
 
     private function parseEqualsFilter(EqualsFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
@@ -188,7 +267,7 @@ class CriteriaParser
         $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
         return $this->createNestedQuery(
-            new TermsQuery($fieldName, $filter->getValue()),
+            new TermsQuery($fieldName, array_values($filter->getValue())),
             $definition,
             $filter->getField()
         );
@@ -231,7 +310,7 @@ class CriteriaParser
         $bool = new BoolQuery();
         foreach ($filter->getQueries() as $nested) {
             $bool->add(
-                $this->parse($nested, $definition, $root, $context),
+                $this->parseFilter($nested, $definition, $root, $context),
                 BoolQuery::SHOULD
             );
         }

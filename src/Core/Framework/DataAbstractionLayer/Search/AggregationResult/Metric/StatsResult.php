@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
+namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric;
 
-class StatsResult extends AbstractAggregationResult
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+
+class StatsResult extends AggregationResult
 {
     /**
      * @var mixed|null
@@ -15,11 +18,6 @@ class StatsResult extends AbstractAggregationResult
     protected $max;
 
     /**
-     * @var int|null
-     */
-    protected $count;
-
-    /**
      * @var float|null
      */
     protected $avg;
@@ -29,12 +27,11 @@ class StatsResult extends AbstractAggregationResult
      */
     protected $sum;
 
-    public function __construct(?array $key, $min, $max, ?int $count, ?float $avg, ?float $sum)
+    public function __construct(string $name, $min, $max, ?float $avg, ?float $sum)
     {
-        parent::__construct($key);
+        parent::__construct($name);
         $this->min = $min;
         $this->max = $max;
-        $this->count = $count;
         $this->avg = $avg;
         $this->sum = $sum;
     }
@@ -47,11 +44,6 @@ class StatsResult extends AbstractAggregationResult
     public function getMax()
     {
         return $this->max;
-    }
-
-    public function getCount(): ?int
-    {
-        return $this->count;
     }
 
     public function getAvg(): ?float

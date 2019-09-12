@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\ValueResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -629,33 +629,26 @@ class BlacklistRuleFieldTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.manufacturerId', $manufacturerId));
-        $criteria->addAggregation(new ValueAggregation('product.ean', 'eans'));
+        $criteria->addAggregation(new TermsAggregation('eans', 'product.ean'));
 
         $context = $this->createContextWithRules();
-        $result = $this->repository->aggregate($criteria, $context)->getAggregations()->get('eans');
-        /** @var ValueResult $aggregation */
-        $aggregation = $result->getResult()[0];
-        $values = $aggregation->getValues();
+        /** @var TermsResult $result */
+        $result = $this->repository->aggregate($criteria, $context)->get('eans');
+        $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertContains($product2, $values);
         static::assertContains($product3, $values);
 
         $context = $this->createContextWithRules([$rule1]);
-        $result = $this->repository->aggregate($criteria, $context)->getAggregations()->get('eans');
-
-        /** @var ValueResult $aggregation */
-        $aggregation = $result->getResult()[0];
-        $values = $aggregation->getValues();
+        $result = $this->repository->aggregate($criteria, $context)->get('eans');
+        $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertContains($product2, $values);
         static::assertContains($product3, $values);
 
         $context = $this->createContextWithRules([$rule2, $rule3]);
-        $result = $this->repository->aggregate($criteria, $context)->getAggregations()->get('eans');
-
-        /** @var ValueResult $aggregation */
-        $aggregation = $result->getResult()[0];
-        $values = $aggregation->getValues();
+        $result = $this->repository->aggregate($criteria, $context)->get('eans');
+        $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertNotContains($product2, $values);
         static::assertContains($product3, $values);
@@ -709,33 +702,30 @@ class BlacklistRuleFieldTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product_manufacturer.id', $manufacturerId));
-        $criteria->addAggregation(new ValueAggregation('product_manufacturer.products.id', 'products'));
+        $criteria->addAggregation(new TermsAggregation('products', 'product_manufacturer.products.id'));
 
         /** @var EntityRepositoryInterface $manufacturerRepository */
         $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
         $context = $this->createContextWithRules();
-        $result = $manufacturerRepository->aggregate($criteria, $context)->getAggregations()->get('products');
-        /** @var ValueResult $aggregation */
-        $aggregation = $result->getResult()[0];
-        $values = $aggregation->getValues();
+        /** @var TermsResult $result */
+        $result = $manufacturerRepository->aggregate($criteria, $context)->get('products');
+        $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertContains($product2, $values);
         static::assertContains($product3, $values);
 
         $context = $this->createContextWithRules([$rule1]);
-        $result = $manufacturerRepository->aggregate($criteria, $context)->getAggregations()->get('products');
-        /** @var ValueResult $aggregation */
-        $aggregation = $result->getResult()[0];
-        $values = $aggregation->getValues();
+        $result = $manufacturerRepository->aggregate($criteria, $context)->get('products');
+
+        $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertContains($product2, $values);
         static::assertContains($product3, $values);
 
         $context = $this->createContextWithRules([$rule2, $rule3]);
-        $result = $manufacturerRepository->aggregate($criteria, $context)->getAggregations()->get('products');
-        /** @var ValueResult $aggregation */
-        $aggregation = $result->getResult()[0];
-        $values = $aggregation->getValues();
+        /** @var TermsResult $result */
+        $result = $manufacturerRepository->aggregate($criteria, $context)->get('products');
+        $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertNotContains($product2, $values);
         static::assertContains($product3, $values);
@@ -799,33 +789,27 @@ class BlacklistRuleFieldTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.id', $categoryId));
-        $criteria->addAggregation(new ValueAggregation('category.products.id', 'products'));
+        $criteria->addAggregation(new TermsAggregation('products', 'category.products.id'));
 
         /** @var EntityRepositoryInterface $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
         $context = $this->createContextWithRules();
-        $result = $categoryRepository->aggregate($criteria, $context)->getAggregations()->get('products');
-        /** @var ValueResult $aggregation */
-        $aggregation = $result->getResult()[0];
-        $values = $aggregation->getValues();
+        $result = $categoryRepository->aggregate($criteria, $context)->get('products');
+        $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertContains($product2, $values);
         static::assertContains($product3, $values);
 
         $context = $this->createContextWithRules([$rule1]);
-        $result = $categoryRepository->aggregate($criteria, $context)->getAggregations()->get('products');
-        /** @var ValueResult $aggregation */
-        $aggregation = $result->getResult()[0];
-        $values = $aggregation->getValues();
+        $result = $categoryRepository->aggregate($criteria, $context)->get('products');
+        $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertContains($product2, $values);
         static::assertContains($product3, $values);
 
         $context = $this->createContextWithRules([$rule2, $rule3]);
-        $result = $categoryRepository->aggregate($criteria, $context)->getAggregations()->get('products');
-        /** @var ValueResult $aggregation */
-        $aggregation = $result->getResult()[0];
-        $values = $aggregation->getValues();
+        $result = $categoryRepository->aggregate($criteria, $context)->get('products');
+        $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertNotContains($product2, $values);
         static::assertContains($product3, $values);

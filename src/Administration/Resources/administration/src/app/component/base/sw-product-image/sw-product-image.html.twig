@@ -3,9 +3,17 @@
     <template v-if="!isPlaceholder">
         {% block sw_product_image_preview %}
             <sw-media-preview class="sw-product-image__image"
-                              :source="item.mediaId"
+                              :source="mediaId"
                               :hideTooltip="false">
             </sw-media-preview>
+            <sw-label
+                v-if="isCover"
+                class="sw-product-image__cover-label"
+                variant="primary"
+                size="medium"
+                appearance="pill">
+                {{ $tc('sw-product.mediaForm.coverSubline') }}
+            </sw-label>
         {% endblock %}
         <sw-context-button class="sw-product-image__context-button">
             {% block sw_product_image_context %}
@@ -19,7 +27,7 @@
             {% endblock %}
         </sw-context-button>
     </template>
-    <template v-else>
+    <template v-else class="is--invalid-drag">
         {% block sw_product_image_placeholder %}
             <sw-icon class="sw-product-image__placeholder-icon" :name="'default-object-image'" :small="true"></sw-icon>
         {% endblock %}

@@ -15,7 +15,8 @@ Component.register('sw-product-image', {
     template,
 
     props: {
-        item: {
+        mediaId: {
+            type: String,
             required: true
         },
 
@@ -38,13 +39,6 @@ Component.register('sw-product-image', {
                 'is--placeholder': this.isPlaceholder,
                 'is--cover': this.isCover
             };
-        },
-
-        mediaItem() {
-            if (typeof this.item === 'string') {
-                return this.item;
-            }
-            return this.item.media;
         }
     }
 });

@@ -6,17 +6,13 @@ const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-product-media-form', {
     template,
+    inject: ['repositoryFactory', 'context'],
 
     mixins: [
         Mixin.getByName('notification')
     ],
 
     props: {
-        productId: {
-            type: String,
-            required: true
-        },
-
         disabled: {
             type: Boolean,
             required: false,
@@ -32,15 +28,14 @@ Component.register('sw-product-media-form', {
 
     data() {
         return {
-            isMediaLoading: true,
-            product: {},
-            columnCount: 7,
+            isMediaLoading: false,
+            columnCount: 5,
             columnWidth: 90
         };
     },
 
     computed: {
-        productFromStore() {
+        product() {
             const state = this.$store.state.swProductDetail;
 
             if (this.isInherited) {
@@ -50,31 +45,10 @@ Component.register('sw-product-media-form', {
             return state.product;
         },
 
-        ...mapGetters('swProductDetail', {
-            isStoreLoading: 'isLoading'
-        }),
-
-        isLoading() {
-            let isActualLoading = false;
-
-            if (this.isMediaLoading) {
-                isActualLoading = true;
-            }
-
-            if (this.isStoreLoading) {
-                isActualLoading = true;
-            }
-
-            return isActualLoading;
-        },
-
-        productStore() {
-            return State.getStore('product');
-        },
-
         mediaItems() {
             const mediaItems = this.productMedia.slice();
             const placeholderCount = this.getPlaceholderCount(this.columnCount);
+
             if (placeholderCount === 0) {
                 return mediaItems;
             }
@@ -82,11 +56,32 @@ Component.register('sw-product-media-form', {
             for (let i = 0; i < placeholderCount; i += 1) {
                 mediaItems.push(this.createPlaceholderMedia(mediaItems));
             }
-
             return mediaItems;
         },
 
+        cover() {
+            if (!this.product) {
+                return null;
+            }
+            return this.product.media.find(media => media.id === this.product.coverId);
+        },
+
+        ...mapGetters('swProductDetail', {
+            isStoreLoading: 'isLoading'
+        }),
+
+        isLoading() {
+            return this.isMediaLoading || this.isStoreLoading;
+        },
+
+        productMediaRepository() {
+            return this.repositoryFactory.create('product_media');
+        },
+
         productMedia() {
+            if (!this.product) {
+                return [];
+            }
             return this.product.media;
         },
 
@@ -98,124 +93,20 @@ Component.register('sw-product-media-form', {
             return State.getStore('upload');
         },
 
-        mediaStore() {
-            return State.getStore('media');
-        },
-
         gridAutoRows() {
             return `grid-auto-rows: ${this.columnWidth}`;
+        },
+
+        currentCoverID() {
+            const coverMediaItem = this.productMedia.find(coverMedium => coverMedium.media.id === this.product.coverId);
+
+            return coverMediaItem.id;
         }
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
-    destroyed() {
-        this.destroyedComponent();
-    },
-
     methods: {
-        mountedComponent() {
-            this.loadMedia();
-
-            const that = this;
-            this.$device.onResize({
-                listener() {
-                    that.updateColumnCount();
-                },
-                component: this
-            });
-            this.updateColumnCount();
-
-            this.$root.$on('media-added', (mediaId) => {
-                // add media
-                this.addMediaWithId(mediaId);
-            });
-        },
-
-        destroyedComponent() {
-            this.$root.$off('media-added');
-        },
-
-        addMediaWithId(mediaId) {
-            const foundMedia = this.product.media.find(media => media.mediaId === mediaId);
-            if (foundMedia) {
-                // check if media exists in productFromStore
-                const mediaProductFromStore = this.productFromStore.media.find((media) => media.mediaId === mediaId);
-                if (!mediaProductFromStore) {
-                    this.$emit('media-drop', foundMedia);
-                }
-
-                return Promise.resolve();
-            }
-
-            return new Promise((resolve) => {
-                // get media
-                this.mediaStore.getByIdAsync(mediaId).then((res) => {
-                    const responseMedia = res;
-
-                    // set mediaId
-                    responseMedia.setData({ mediaId: responseMedia.id });
-
-                    // push it to existing product
-                    this.product.media.push(responseMedia);
-
-                    // set first item as cover
-                    if (!this.productFromStore.coverId) {
-                        this.markMediaAsCover(responseMedia);
-                    }
-
-                    // check if media exists in productFromStore
-                    const mediaProductFromStore = this.productFromStore.media.find((media) => media.mediaId === mediaId);
-                    if (!mediaProductFromStore) {
-                        this.$emit('media-drop', responseMedia);
-                    }
-
-                    resolve();
-                });
-            });
-        },
-
-        loadMedia() {
-            this.isMediaLoading = true;
-
-            // create new empty product
-            this.product = this.productStore.create();
-
-            // get existing media from vuex store
-            const existingCoverId = this.productFromStore.coverId || '';
-            const mediaItemsFromStore = this.productFromStore.media;
-
-            // add cover to product
-            this.product.coverId = existingCoverId;
-
-            const mediaPromises = mediaItemsFromStore.map((media) => {
-                return new Promise((resolve) => {
-                    // get media
-                    this.mediaStore.getByIdAsync(media.mediaId).then((res) => {
-                        const responseMedia = res;
-
-                        // set mediaId
-                        responseMedia.setData({
-                            productMediaId: media.id,
-                            mediaId: responseMedia.id
-                        });
-
-                        // push it to existing product
-                        this.product.media.push(responseMedia);
-                        resolve();
-                    });
-                });
-            });
-
-            // get all media items from api
-            Promise.all(mediaPromises).then(() => {
-                this.isMediaLoading = false;
-                this.updateColumnCount();
-            });
-
-            return true;
+        onMediaUploadButtonOpenSidebar() {
+            this.$root.$emit('sidebar-toggle-open');
         },
 
         updateColumnCount() {
@@ -238,10 +129,14 @@ Component.register('sw-product-media-form', {
             if (this.productMedia.length + 3 < columnCount * 2) {
                 columnCount *= 2;
             }
-            const placeholderCount = columnCount - ((this.productMedia.length + 3) % columnCount);
 
-            if (placeholderCount === columnCount) {
-                return 0;
+            let placeholderCount = columnCount;
+
+            if (this.productMedia.length !== 0) {
+                placeholderCount = columnCount - ((this.productMedia.length) % columnCount);
+                if (placeholderCount === columnCount) {
+                    return 0;
+                }
             }
 
             return placeholderCount;
@@ -255,29 +150,8 @@ Component.register('sw-product-media-form', {
                     isPlaceholder: true,
                     name: ''
                 },
-                mediaId: mediaItems.length
+                mediaId: mediaItems.length.toString()
             };
-        },
-
-        onUploadsAdded({ data }) {
-            if (data.length === 0) {
-                return;
-            }
-
-            this.product.isLoading = true;
-            this.mediaStore.sync().then(() => {
-                this.product.isLoading = false;
-
-                this.uploadStore.runUploads(this.product.id);
-            });
-        },
-
-        onMediaUploadButtonOpenSidebar() {
-            this.$root.$emit('sidebar-toggle-open');
-        },
-
-        getKey(media) {
-            return media.id;
         },
 
         buildProductMedia(mediaId) {
@@ -295,29 +169,41 @@ Component.register('sw-product-media-form', {
         },
 
         successfulUpload({ targetId }) {
-            this.mediaStore.getByIdAsync(targetId).then((mediaItem) => {
-                this.$emit('media-drop', mediaItem);
-                return true;
-            });
+            // on replace
+            if (this.product.media.find((productMedia) => productMedia.mediaId === targetId)) {
+                return;
+            }
+
+            const productMedia = this.createMediaAssociation(targetId);
+            this.product.media.add(productMedia);
+        },
+
+        createMediaAssociation(targetId) {
+            const productMedia = this.productMediaRepository.create(this.context);
+
+            productMedia.productId = this.product.id;
+            productMedia.mediaId = targetId;
+
+            if (this.product.media.length <= 0) {
+                productMedia.position = 0;
+                this.product.coverId = productMedia.id;
+            } else {
+                productMedia.position = this.product.media.length;
+            }
+            return productMedia;
         },
 
         onUploadFailed(uploadTask) {
-            const toRemove = this.productMedia.find((productMedia) => {
+            const toRemove = this.product.media.find((productMedia) => {
                 return productMedia.mediaId === uploadTask.targetId;
             });
             if (toRemove) {
-                this.removeFile(toRemove);
+                if (this.product.coverId === toRemove.id) {
+                    this.product.coverId = null;
+                }
+                this.product.media.remove(toRemove.id);
             }
             this.product.isLoading = false;
-        },
-
-        removeFile(mediaItem) {
-            this.product.media = this.product.media.filter((m) => m.id !== mediaItem.id);
-            this.productFromStore.media.remove(mediaItem.id);
-
-            this.removeCover();
-
-            return true;
         },
 
         removeCover() {
@@ -331,15 +217,25 @@ Component.register('sw-product-media-form', {
         },
 
         isCover(productMedia) {
-            if (productMedia.isPlaceholder) {
-                return productMedia.isCover;
+            if (this.product.media.length === 0) {
+                return false;
             }
 
-            if (this.productFromStore.coverId === null && this.productFromStore.media.length > 0) {
-                this.productFromStore.coverId = (productMedia.productMediaId || productMedia.id);
+            return productMedia.id === this.product.coverId;
+        },
+
+        removeFile(productMedia) {
+            console.log('productMedia :', productMedia);
+            // this.product.media.remove(productMedia.id);
+            const media = this.product.media.find((mediaItem) => mediaItem.mediaId === productMedia.id);
+
+            // remove cover id if mediaId matches
+            if (this.product.coverId === productMedia.id) {
+                this.product.coverId = null;
             }
 
-            return this.productFromStore.coverId === (productMedia.productMediaId || productMedia.id);
+            this.product.media.remove(productMedia.id);
+            this.productMediaRepository.delete(productMedia.id, this.product.media.context)
         },
 
         markMediaAsCover(productMedia) {
@@ -348,7 +244,27 @@ Component.register('sw-product-media-form', {
         },
 
         onDropMedia(dragData) {
-            this.$emit('media-drop', dragData.mediaItem);
+            if (this.product.media.find((productMedia) => productMedia.mediaId === dragData.id)) {
+                return;
+            }
+
+            const productMedia = this.createMediaAssociation(dragData.mediaItem.id);
+            this.product.media.add(productMedia);
+        },
+
+        onMediaItemDragSort(dragData, dropData, validDrop) {
+            if (validDrop !== true) {
+                return;
+            }
+            this.product.media.moveItem(dragData.position, dropData.position);
+
+            this.updateBlockPositions();
+        },
+
+        updateBlockPositions() {
+            this.productMedia.forEach((medium, index) => {
+                medium.position = index;
+            });
         }
     }
 });

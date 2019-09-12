@@ -20,12 +20,12 @@ Component.register('sw-label', {
             type: String,
             required: false,
             default: '',
-            validValues: ['info', 'danger', 'success', 'warning', 'neutral'],
+            validValues: ['info', 'danger', 'success', 'warning', 'neutral', 'primary'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['info', 'danger', 'success', 'warning', 'neutral'].includes(value);
+                return ['info', 'danger', 'success', 'warning', 'neutral', 'primary'].includes(value);
             }
         },
         size: {

@@ -172,14 +172,9 @@ class ProductSearchKeywordIndexer implements IndexerInterface
         }
 
         $this->connection->executeUpdate(
-            'DELETE FROM product_keyword_dictionary WHERE language_id = :id AND product_id IN (:productIds)',
-            [
-                'id' => Uuid::fromHexToBytes($language->getId()),
-                'productIds' => Uuid::fromHexToBytesList($ids),
-            ],
-            [
-                'productIds' => Connection::PARAM_STR_ARRAY,
-            ]
+            'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language',
+            ['ids' => Uuid::fromHexToBytesList($ids), 'language' => Uuid::fromHexToBytes($language->getId())],
+            ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
         $this->update($ids, $context);

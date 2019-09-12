@@ -28,7 +28,7 @@ class IndexerMessage
     /**
      * @var array|null
      */
-    private $lastId;
+    private $offset;
 
     /**
      * @var EntityWrittenContainerEvent
@@ -75,13 +75,13 @@ class IndexerMessage
         $this->entityWrittenContainerEvent = $entityWrittenContainerEvent;
     }
 
-    public function getLastId(): ?array
+    public function getOffset(): ?array
     {
-        return $this->lastId;
+        return $this->offset;
     }
 
-    public function setLastId(?array $lastId): void
+    public function setOffset(?array $offset): void
     {
-        $this->lastId = $lastId;
+        $this->offset = $offset;
     }
 }

@@ -9,8 +9,8 @@
             </sw-sales-channel-switch>
         </template>
         {% block sw_seo_url_template_card_entries %}
-            <template v-if="seoUrlTemplate.salesChannelId === salesChannelId && !isLoading && !salesChannelIsHeadless">
-                <div v-for="seoUrlTemplate in seoUrlTemplates"
+            <template v-if="!isLoading && !salesChannelIsHeadless">
+                <div v-for="seoUrlTemplate in getTemplatesForSalesChannel(salesChannelId)"
                      class="sw-seo-url-template-card__seo-url">
                     <sw-container columns="3fr 1fr" gap="5px" >
                         {% block sw_seo_url_template_card_entries_input_wrapper %}

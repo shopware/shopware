@@ -17,6 +17,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTe
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Language\LanguageCollection;
@@ -259,6 +260,11 @@ class SalesChannelEntity extends Entity
      * @var ProductReviewCollection|null
      */
     protected $productReviews;
+
+    /**
+     * @var ProductExportCollection|null
+     */
+    protected $productExports;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -708,5 +714,15 @@ class SalesChannelEntity extends Entity
     public function setProductReviews(?ProductReviewCollection $productReviews): void
     {
         $this->productReviews = $productReviews;
+    }
+
+    public function getProductExports(): ?ProductExportCollection
+    {
+        return $this->productExports;
+    }
+
+    public function setProductExports(?ProductExportCollection $productExports): void
+    {
+        $this->productExports = $productExports;
     }
 }

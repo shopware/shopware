@@ -54,5 +54,7 @@ class ProductExportGenerateCommand extends Command
             new ExportBehavior($forceGeneration, $includeInactive),
             $productExportId
         );
+
+        return null;
     }
 }

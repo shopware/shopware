@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Reader;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -1059,6 +1060,78 @@ class EntityReaderTest extends TestCase
             [$addressId4, $addressId5, $addressId6],
             array_values($customer2->getAddresses()->getIds())
         );
+    }
+
+    public function testLoadOneToManySupportsSortingAndPagination(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $id = Uuid::randomHex();
+        $defaultAddressId = Uuid::randomHex();
+
+        $repository = $this->getContainer()->get('customer.repository');
+
+        $address = [
+            'street' => 'A',
+            'zipcode' => 'A',
+            'city' => 'A',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'A',
+            'lastName' => 'a',
+            'countryId' => $this->getValidCountryId(),
+        ];
+
+        $repository->upsert([
+            [
+                'id' => $id,
+                'firstName' => 'Test',
+                'lastName' => 'Test',
+                'customerNumber' => 'A',
+                'salutationId' => $this->getValidSalutationId(),
+                'password' => 'A',
+                'email' => 'test@test.com' . Uuid::randomHex(),
+                'defaultShippingAddressId' => $defaultAddressId,
+                'defaultBillingAddressId' => $defaultAddressId,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+                'group' => ['name' => 'test'],
+                'addresses' => [
+                    array_merge(['id' => $defaultAddressId], $address),
+                    array_merge($address, ['street' => 'B']),
+                    array_merge($address, ['street' => 'X']),
+                    array_merge($address, ['street' => 'E']),
+                    array_merge($address, ['street' => 'D']),
+                ],
+            ],
+        ], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->getAssociation('addresses')->setLimit(3);
+        $criteria->getAssociation('addresses')->addSorting(new FieldSorting('street'));
+
+        /** @var CustomerEntity $customer */
+        $customer = $repository->search($criteria, $context)->get($id);
+        static::assertNotNull($customer->getAddresses());
+        static::assertCount(3, $customer->getAddresses());
+
+        $streets = $customer->getAddresses()->map(function (CustomerAddressEntity $e) {
+            return $e->getStreet();
+        });
+        static::assertEquals(['A', 'B', 'D'], array_values($streets));
+
+        $criteria = new Criteria([$id]);
+        $criteria->getAssociation('addresses')->setLimit(3);
+        $criteria->getAssociation('addresses')->addSorting(new FieldSorting('street', FieldSorting::DESCENDING));
+
+        /** @var CustomerEntity $customer */
+        $customer = $repository->search($criteria, $context)->get($id);
+        static::assertNotNull($customer->getAddresses());
+        static::assertCount(3, $customer->getAddresses());
+
+        $streets = $customer->getAddresses()->map(function (CustomerAddressEntity $e) {
+            return $e->getStreet();
+        });
+        static::assertEquals(['X', 'E', 'D'], array_values($streets));
     }
 
     public function testLoadOneToManySupportsPagination(): void

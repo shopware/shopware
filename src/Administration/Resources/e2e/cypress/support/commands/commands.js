@@ -144,40 +144,37 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
  */
 Cypress.Commands.add('typeSingleSelect', {
     prevSubject: 'element'
-}, (subject, value, options = {}) => {
+}, (subject, value) => {
     const resultPrefix = '.sw-select';
     const inputCssSelector = `.sw-select__selection input`;
-    const searchTerm = options.searchTerm || value;
-    const position = options.position || 0;
 
     cy.wrap(subject).should('be.visible');
     cy.wrap(subject).click();
 
     // type in the search term if available
-    if (searchTerm) {
+    if (value) {
         cy.get('.sw-select-result-list').should('be.visible');
         cy.get(`${subject.selector} ${inputCssSelector}`).clear();
-        cy.get(`${subject.selector} ${inputCssSelector}`).type(searchTerm);
-        cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', searchTerm);
+        cy.get(`${subject.selector} ${inputCssSelector}`).type(value);
+        cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', value);
 
-        // select the first result
-        if (options.searchable) {
-            cy.get(`${resultPrefix}-option--${position}`).should('not.exist');
-            cy.get('.sw-loader__element').should('not.exist');
-        }
+        // Wait the debounce time for the search to begin
+        cy.wait(500);
 
-        cy.get(`${subject.selector} ${resultPrefix}-option--${position}.is--disabled`)
+        cy.get(`${subject.selector}.sw-loader__element`).should('not.exist');
+
+        cy.get(`${subject.selector} .is--disabled`)
             .should('not.exist');
 
-        cy.get(`${subject.selector} ${resultPrefix}-option--${position} .sw-select-result__result-item-text`)
+        cy.get(`${subject.selector} .sw-select-result__result-item-text`)
             .should('be.visible');
 
-        cy.get(`${resultPrefix}-option--1`).should('not.exist');
-        cy.get(`${subject.selector} ${resultPrefix}-option--${position} .sw-select-result__result-item-text`)
-            .contains(value);
+        cy.get(`${subject.selector} .sw-select-result__result-item-text`)
+            .contains(value).click({force: true});
+    } else {
+        // Select the first element
+        cy.get(`${resultPrefix}-option--0`).click({force: true});
     }
-
-    cy.get(`${resultPrefix}-option--${position}`).click({force: true});
 
     return this;
 });
@@ -192,7 +189,7 @@ Cypress.Commands.add('typeSingleSelect', {
  */
 Cypress.Commands.add('typeSingleSelectAndCheck', {
     prevSubject: 'element'
-}, (subject, value, options = {}) => {
+}, (subject, value) => {
     cy.get(subject).typeSingleSelect(value);
 
     // expect the placeholder for an empty select field not be shown and search for the value

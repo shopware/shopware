@@ -216,9 +216,6 @@ Component.register('sw-multi-select', {
             this.$refs.selectionList.blur();
         },
 
-        /**
-         * Wrapper for lodash get function. Needed for use in the template
-         */
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
         }

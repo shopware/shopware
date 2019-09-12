@@ -60,7 +60,7 @@
 
                                 {% block sw_single_select_base_results_list_result %}
                                     <template #result-item="{ item, index }">
-                                        <slot name="result-item" v-bind="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                        <slot name="result-item" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
                                             <li is="sw-select-result" :selected="isSelected(item)" @item-select="setValue" v-bind="{ item, index }">
                                                 {% block sw_single_select_base_results_list_result_label %}
                                                     <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey }">

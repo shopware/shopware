@@ -37,7 +37,7 @@ You can use them with every URL in your templates
 
 * Administration
     * Moved the global state of the module `sw-cms` to VueX
-    * Renamed `sw-many-to-many` to `sw-entity-many-to-many`
+    * Renamed `sw-many-to-many-select` to `sw-entity-many-to-many-select`
     * Renamed `sw-tag-field-new` to `sw-entity-tag-select`
     * Added `sw-select-base`, `sw-select-result`, `sw-select-result-list` and `sw-select-selection-list` as base components for select fields
     * Changed select components in path `administration/src/app/component/form/select` to operate with v-model 

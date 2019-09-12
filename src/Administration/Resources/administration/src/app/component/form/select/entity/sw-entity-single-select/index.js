@@ -60,7 +60,8 @@ Component.register('sw-entity-single-select', {
             singleSelection: null,
             isLoading: false,
             // used to track if an item was selected before closing the result list
-            itemRecentlySelected: false
+            itemRecentlySelected: false,
+            lastSelection: null
         };
     },
 
@@ -105,6 +106,7 @@ Component.register('sw-entity-single-select', {
             // No need to fetch again when the new value is the last one we selected
             if (this.lastSelection && this.value === this.lastSelection.id) {
                 this.singleSelection = this.lastSelection;
+                this.lastSelection = null;
                 return;
             }
 
@@ -287,9 +289,6 @@ Component.register('sw-entity-single-select', {
             this.debouncedSearch();
         },
 
-        /**
-         * Wrapper for lodash get function. Needed for use in the template
-         */
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
         }

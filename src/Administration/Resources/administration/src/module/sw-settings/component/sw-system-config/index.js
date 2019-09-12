@@ -44,7 +44,8 @@ Component.register('sw-system-config', {
             currentSalesChannelId: this.salesChannelId,
             isLoading: false,
             config: {},
-            actualConfigData: {}
+            actualConfigData: {},
+            salesChannelModel: null
         };
     },
 

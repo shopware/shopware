@@ -1,4 +1,4 @@
-{% block sw_single_select %}
+{% block sw_entity_single_select %}
     <sw-select-base class="sw-entity-single-select"
                     ref="selectBase"
                     :isLoading="isLoading"
@@ -6,13 +6,13 @@
                     @select-collapsed="onSelectCollapsed"
                     v-bind="$attrs"
                     v-on="$listeners">
-        {% block sw_single_select_base %}
-            {% block sw_single_select_base_selection %}
+        {% block sw_entity_single_select_base %}
+            {% block sw_entity_single_select_base_selection %}
                 <template #sw-select-selection="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
-                    {% block sw_single_select_base_selection_slot %}
+                    {% block sw_entity_single_select_base_selection_slot %}
                         <div class="sw-entity-single-select__selection">
-                            {% block sw_single_select_single_selection_inner %}
-                                {% block sw_single_select_single_selection_inner_label %}
+                            {% block sw_entity_single_select_single_selection_inner %}
+                                {% block sw_entity_single_select_single_selection_inner_label %}
                                     <div v-if="!isExpanded"
                                          class="sw-entity-single-select__selection-text"
                                          :class="selectionTextClasses">
@@ -26,7 +26,7 @@
                                         </template>
                                     </div>
                                 {% endblock %}
-                                {% block sw_single_select_single_selection_inner_input %}
+                                {% block sw_entity_single_select_single_selection_inner_input %}
                                     <input ref="swSelectInput"
                                            class="sw-entity-single-select__selection-input"
                                            :class="inputClasses"
@@ -41,9 +41,9 @@
                 </template>
             {% endblock %}
 
-            {% block sw_single_select_base_results %}
+            {% block sw_entity_single_select_base_results %}
                 <template #results-list>
-                    {% block sw_single_select_base_results_slot %}
+                    {% block sw_entity_single_select_base_results_slot %}
                         <sw-select-result-list :options="results"
                                                 :isLoading="isLoading"
                                                 ref="resultsList"
@@ -51,18 +51,18 @@
                                                 :focusEl="$refs.swSelectInput"
                                                 @paginate="paginate"
                                                 @item-select="setValue">
-                            {% block sw_single_select_base_results_list %}
-                                {% block sw_single_select_base_results_list_before %}
+                            {% block sw_entity_single_select_base_results_list %}
+                                {% block sw_entity_single_select_base_results_list_before %}
                                     <template #before-item-list>
                                         <slot name="before-item-list"></slot>
                                     </template>
                                 {% endblock %}
 
-                                {% block sw_single_select_base_results_list_result %}
+                                {% block sw_entity_single_select_base_results_list_result %}
                                     <template #result-item="{ item, index }">
-                                        <slot name="result-item" v-bind="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                        <slot name="result-item" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
                                             <li is="sw-select-result" :selected="isSelected(item)" @item-select="setValue" v-bind="{ item, index }">
-                                                {% block sw_single_select_base_results_list_result_label %}
+                                                {% block sw_entity_single_select_base_results_list_result_label %}
                                                     <slot name="result-label-property" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
                                                         <sw-highlight-text v-if="highlightSearchTerm"
                                                                            :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
@@ -78,7 +78,7 @@
                                     </template>
                                 {% endblock %}
 
-                                {% block sw_single_select_base_results_list_after %}
+                                {% block sw_entity_single_select_base_results_list_after %}
                                     <template #after-item-list>
                                         <slot name="after-item-list"></slot>
                                     </template>

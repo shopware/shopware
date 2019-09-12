@@ -54,7 +54,7 @@
 
                                 {% block sw_entity_multi_select_base_results_list_result %}
                                     <template #result-item="{ item, index }">
-                                        <slot name="result-item" v-bind="{ isSelected, addItem, item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey }">
+                                        <slot name="result-item" v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
                                             <li is="sw-select-result"
                                                 :selected="isSelected(item)"
                                                 @item-select="addItem"

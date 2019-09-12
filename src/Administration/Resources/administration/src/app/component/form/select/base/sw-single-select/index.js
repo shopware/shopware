@@ -212,9 +212,6 @@ Component.register('sw-single-select', {
             });
         },
 
-        /**
-         * Wrapper for lodash get function. Needed for use in the template
-         */
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
         }

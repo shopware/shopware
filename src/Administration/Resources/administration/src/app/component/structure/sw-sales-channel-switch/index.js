@@ -46,8 +46,9 @@ Component.register('sw-sales-channel-switch', {
     },
 
     methods: {
-        onChange() {
-            this.newSalesChannelId = this.salesChannelId;
+        onChange(id) {
+            this.salesChannelId = id;
+            this.newSalesChannelId = id;
 
             this.checkAbort();
         },

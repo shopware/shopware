@@ -39,7 +39,7 @@
 
         {% block sw_select_selection_list_input %}
             <li>
-                <slot name="input" v-bind="{ placeholder, searchTerm, enableSearch, onSearchTermChange, onKeyDownDelete }">
+                <slot name="input" v-bind="{ placeholder, searchTerm, onSearchTermChange, onKeyDownDelete }">
                     <input ref="swSelectInput"
                            class="sw-select-selection-list__input"
                            type="text"

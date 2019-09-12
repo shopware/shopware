@@ -373,9 +373,6 @@ Component.register('sw-entity-many-to-many-select', {
             }
         },
 
-        /**
-         * Wrapper for lodash get function. Needed for use in the template
-         */
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
         }

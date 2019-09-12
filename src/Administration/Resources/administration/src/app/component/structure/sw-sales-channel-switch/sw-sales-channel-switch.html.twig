@@ -44,7 +44,7 @@
                     :label="label"
                     :searchPlaceholder="$tc('sw-sales-channel-switch.placeholderSelect')"
                     @change="onChange"
-                    v-model="salesChannelId"
+                    :value="salesChannelId"
                     entity="sales_channel">
                 <template #labelProperty="{item, labelProperty}">
                     <span v-if="item.translated">{{ item.translated[labelProperty] }}</span>

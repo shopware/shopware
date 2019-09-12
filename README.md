@@ -245,7 +245,7 @@ This CLA ensures that Shopware will stay an open and living product.
 In short, you give the explicit right to use your code in Shopware to shopware AG.
 
 ## Reporting security issues
-Please have a look at our [security policy](security.md).
+Please have a look at our [security policy](SECURITY.md).
 
 ## License
 

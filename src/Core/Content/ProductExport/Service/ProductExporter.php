@@ -8,9 +8,9 @@ use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -113,31 +113,27 @@ class ProductExporter implements ProductExporterInterface
             return;
         }
 
-        $total = 0;
-        $offset = 0;
-        $totalMode = Criteria::TOTAL_COUNT_MODE_EXACT;
         $tmpFile = tempnam(sys_get_temp_dir(), 'productexport');
 
-        do {
-            $products = $this->getProducts(
-                $productExport->getProductStreamId(),
-                $context,
-                $offset,
-                $this->readBufferSize,
-                $totalMode
-            );
+        $filters = $this->productStreamBuilder->buildFilters(
+            $productExport->getProductStreamId(),
+            $context->getContext()
+        );
 
-            if ($totalMode === Criteria::TOTAL_COUNT_MODE_EXACT) {
-                $total = $products->getTotal();
-                $totalMode = Criteria::TOTAL_COUNT_MODE_NONE;
-            }
+        $criteria = new Criteria();
+        $criteria
+            ->addFilter(...$filters)
+            ->setLimit($this->readBufferSize);
 
-            if ($total === 0) {
-                throw new EmptyExportException($productExport->getId());
-            }
+        $iterator = new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
 
-            $offset += $products->count();
+        $total = $iterator->getTotal();
 
+        if ($total === 0) {
+            throw new EmptyExportException($productExport->getId());
+        }
+
+        while ($products = $iterator->fetch()) {
             $content = $this->fileSystem->has($tmpFile)
                 ? $this->fileSystem->read($tmpFile)
                 : '';
@@ -145,7 +141,7 @@ class ProductExporter implements ProductExporterInterface
             $content .= $this->productExportRender->renderBody($productExport, $products->getEntities(), $context);
 
             $this->fileSystem->put($tmpFile, $content);
-        } while ($offset < $total);
+        }
 
         $content
             = $this->productExportRender->renderHeader($productExport, $context)
@@ -172,25 +168,6 @@ class ProductExporter implements ProductExporterInterface
             $filePath,
             mb_convert_encoding($content, $productExport->getEncoding())
         );
-    }
-
-    private function getProducts(
-        string $productStreamId,
-        SalesChannelContext $context,
-        int $offset,
-        int $limit,
-        int $totalMode
-    ): EntitySearchResult {
-        $filters = $this->productStreamBuilder->buildFilters($productStreamId, $context->getContext());
-
-        $criteria = new Criteria();
-        $criteria
-            ->addFilter(...$filters)
-            ->setOffset($offset)
-            ->setLimit($limit)
-            ->setTotalCountMode($totalMode);
-
-        return $this->productRepository->search($criteria, $context);
     }
 
     private function isValidFile(ExportBehavior $behavior, ProductExportEntity $productExport): bool

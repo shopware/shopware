@@ -219,3 +219,6 @@ Now all that's left to do is to present you a working example `config.xml` and s
 ```
 
 ![Example plugin config](./img/plugin-config.png)
+
+There's a GitHub repository available, containing this example source.
+Check it out [here](https://github.com/shopware/swag-docs-plugin-config).

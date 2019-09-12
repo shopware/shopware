@@ -3,8 +3,9 @@
 The premapping will use the normal [Mapping](./070-converter-and-mapping.md) to store the old identifier with the equivalent new one.
 All premapping readers provide the information for the mapping choices and are registered like this:
 ```xml
-<service id="SwagMigrationNext\Profile\Shopware55\Premapping\SalutationReader">
+<service id="SwagMigrationAssistant\Profile\Shopware\Premapping\SalutationReader">
     <argument type="service" id="salutation.repository" />
+    <argument type="service" id="SwagMigrationAssistant\Migration\Gateway\GatewayRegistry"/>
     <tag name="shopware.migration.pre_mapping_reader"/>
 </service>
 ```
@@ -82,17 +83,13 @@ private function getSalutation(string $salutation): ?string
     );
 
     if ($salutationUuid === null) {
-        $this->loggingService->addWarning(
+        $this->loggingService->addLogEntry(new UnknownEntityLog(
             $this->runId,
-            Shopware55LogTypes::UNKNOWN_CUSTOMER_SALUTATION,
-            'Cannot find customer salutation',
-            'Customer-Entity could not be converted cause of unknown salutation',
-            [
-                'id' => $this->oldCustomerId,
-                'entity' => DefaultEntities::CUSTOMER,
-                'salutation' => $salutation,
-            ]
-        );
+            DefaultEntities::SALUTATION,
+            $salutation,
+            DefaultEntities::CUSTOMER,
+            $this->oldCustomerId
+        ));
     }
 
     return $salutationUuid;
@@ -103,4 +100,4 @@ private function getSalutation(string $salutation): ?string
 The `getUuid` method used in the mapping service looks up the `swag_migration_mapping` table for the combination of
 old identifier and entity name stored in the current connection. Then it returns the new Shopware 6 identifier.
 With this identifier it is possible to map your converted entity to your premapping choice. If `getUuid` returns null,
-then no valid mapping is available and you have to log this with the `LoggingService`.
+then no valid mapping is available and you have to log this with [LoggingService](./071-logging.md).

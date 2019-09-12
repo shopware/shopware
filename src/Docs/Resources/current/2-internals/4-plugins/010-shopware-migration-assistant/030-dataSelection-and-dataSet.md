@@ -22,26 +22,27 @@ The order of the `DataSets` in the `DataSelection` class is important and specif
 ```php
 <?php declare(strict_types=1);
 
-namespace SwagMigrationNext\Profile\Shopware55\DataSelection;
+namespace SwagMigrationAssistant\Profile\Shopware\DataSelection;
 
-use SwagMigrationNext\Migration\DataSelection\DataSelectionInterface;
-use SwagMigrationNext\Migration\DataSelection\DataSelectionStruct;
-use SwagMigrationNext\Profile\Shopware55\DataSelection\DataSet\ManufacturerAttributeDataSet;
-use SwagMigrationNext\Profile\Shopware55\DataSelection\DataSet\MediaFolderDataSet;
-use SwagMigrationNext\Profile\Shopware55\DataSelection\DataSet\ProductAttributeDataSet;
-use SwagMigrationNext\Profile\Shopware55\DataSelection\DataSet\ProductDataSet;
-use SwagMigrationNext\Profile\Shopware55\DataSelection\DataSet\ProductPriceAttributeDataSet;
-use SwagMigrationNext\Profile\Shopware55\DataSelection\DataSet\PropertyGroupOptionDataSet;
-use SwagMigrationNext\Profile\Shopware55\DataSelection\DataSet\TranslationDataSet;
-use SwagMigrationNext\Profile\Shopware55\Shopware55Profile;
+use SwagMigrationAssistant\Migration\DataSelection\DataSelectionInterface;
+use SwagMigrationAssistant\Migration\DataSelection\DataSelectionStruct;
+use SwagMigrationAssistant\Migration\MigrationContextInterface;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ManufacturerAttributeDataSet;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\MediaFolderDataSet;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductAttributeDataSet;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductDataSet;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductPriceAttributeDataSet;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\PropertyGroupOptionDataSet;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\TranslationDataSet;
+use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
 
 class ProductDataSelection implements DataSelectionInterface
 {
     public const IDENTIFIER = 'products';
 
-    public function supports(string $profileName, string $gatewayIdentifier): bool
+    public function supports(MigrationContextInterface $migrationContext): bool
     {
-        return $profileName === Shopware55Profile::PROFILE_NAME;
+        return $migrationContext->getProfile() instanceof ShopwareProfileInterface;
     }
 
     public function getData(): DataSelectionStruct
@@ -61,7 +62,7 @@ class ProductDataSelection implements DataSelectionInterface
     public function getEntityNames(): array
     {
         return [
-            // The order matters
+            // The order matters!
             MediaFolderDataSet::getEntity(),
             ProductAttributeDataSet::getEntity(),
             ProductPriceAttributeDataSet::getEntity(),
@@ -75,24 +76,38 @@ class ProductDataSelection implements DataSelectionInterface
 ```
 
 `DataSet` example:
+The important part here is the `getCountingInformation` method, which provides the information to count the entity in the source system.
+
 ```php
 <?php declare(strict_types=1);
 
-namespace SwagMigrationNext\Profile\Shopware55\DataSelection\DataSet;
+namespace SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet;
 
-use SwagMigrationNext\Migration\DataSelection\DefaultEntities;
-use SwagMigrationNext\Profile\Shopware55\Shopware55Profile;
+use SwagMigrationAssistant\Migration\DataSelection\DataSet\CountingInformationStruct;
+use SwagMigrationAssistant\Migration\DataSelection\DataSet\CountingQueryStruct;
+use SwagMigrationAssistant\Migration\DataSelection\DefaultEntities;
+use SwagMigrationAssistant\Migration\MigrationContextInterface;
+use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
 
-class ProductDataSet extends Shopware55DataSet
+class ProductDataSet extends ShopwareDataSet
 {
     public static function getEntity(): string
     {
         return DefaultEntities::PRODUCT;
     }
 
-    public function supports(string $profileName, string $entity): bool
+    public function supports(MigrationContextInterface $migrationContext): bool
     {
-        return $profileName === Shopware55Profile::PROFILE_NAME && $entity === self::getEntity();
+        return $migrationContext->getProfile() instanceof ShopwareProfileInterface;
+    }
+
+    public function getCountingInformation(): ?CountingInformationStruct
+    {
+        $information = new CountingInformationStruct(self::getEntity());
+        $information->addQueryStruct(new CountingQueryStruct('s_articles_details')); // It is also possible to count a table using a condition
+        // It is possible to add more Queries - the sum of the count from all queries will be stored for the entity
+
+        return $information;
     }
 
     public function getApiRoute(): string
@@ -109,7 +124,7 @@ class ProductDataSet extends Shopware55DataSet
 
 The `dataSelections` are registered the following way:
 ```xml
-<service id="SwagMigrationNext\Profile\Shopware55\DataSelection\ProductDataSelection">
+<service id="SwagMigrationAssistant\Profile\Shopware\DataSelection\ProductDataSelection">
     <tag name="shopware.migration.data_selection"/>
 </service>
 ```

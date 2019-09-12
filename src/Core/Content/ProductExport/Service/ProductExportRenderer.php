@@ -9,6 +9,7 @@ use Shopware\Core\Content\ProductExport\Exception\RenderFooterException;
 use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
 use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Twig\StringTemplateRenderer;
@@ -49,7 +50,8 @@ class ProductExportRenderer implements ProductExportRendererInterface
         try {
             return $this->templateRenderer->render(
                     $productExport->getHeaderTemplate(),
-                    $headerContext->getContext()
+                    $headerContext->getContext(),
+                    $salesChannelContext->getContext()
                 ) . PHP_EOL;
         } catch (StringTemplateRenderingException $exception) {
             throw new RenderHeaderException($exception->getMessage());
@@ -76,7 +78,8 @@ class ProductExportRenderer implements ProductExportRendererInterface
         try {
             return $this->templateRenderer->render(
                     $productExport->getFooterTemplate(),
-                    $footerContext->getContext()
+                    $footerContext->getContext(),
+                    $salesChannelContext->getContext()
                 ) . PHP_EOL;
         } catch (StringTemplateRenderingException $exception) {
             throw new RenderFooterException($exception->getMessage());
@@ -103,7 +106,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
             $context = $productContext->getContext();
             $context['product'] = $product;
 
-            $body .= $this->renderProduct($productExport, $context);
+            $body .= $this->renderProduct($productExport, $salesChannelContext->getContext(), $context);
         }
 
         return $body;
@@ -111,11 +114,13 @@ class ProductExportRenderer implements ProductExportRendererInterface
 
     private function renderProduct(
         ProductExportEntity $productExport,
-        array $context
+        Context $context,
+        array $data
     ): string {
         try {
             return $this->templateRenderer->render(
                     $productExport->getBodyTemplate(),
+                    $data,
                     $context
                 ) . PHP_EOL;
         } catch (StringTemplateRenderingException $exception) {

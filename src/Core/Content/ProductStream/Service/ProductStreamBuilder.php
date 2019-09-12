@@ -2,26 +2,30 @@
 
 namespace Shopware\Core\Content\ProductStream\Service;
 
+use Shopware\Core\Content\ProductExport\Exception\MissingRootFilterException;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterEntity;
+use Shopware\Core\Content\ProductStream\Exception\FilterNotFoundException;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 
 class ProductStreamBuilder implements ProductStreamBuilderInterface
 {
-    /** @var ProductStreamFilterFactoryInterface */
-    private $productStreamFilterService;
-
     /** @var EntityRepositoryInterface */
     private $productStreamRepository;
 
     public function __construct(
-        ProductStreamFilterFactoryInterface $productStreamFilterService,
         EntityRepositoryInterface $productStreamRepository
     ) {
-        $this->productStreamFilterService = $productStreamFilterService;
         $this->productStreamRepository = $productStreamRepository;
     }
 
@@ -46,6 +50,53 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
         return $this->buildNested($rootFilter, $productStream->getFilters());
     }
 
+    private function createFilter(ProductStreamFilterEntity $filterEntity): Filter
+    {
+        $class = $this->getFilterClass($filterEntity->getType());
+
+        switch ($class) {
+            case MultiFilter::class:
+            case NotFilter::class:
+                $queries = [];
+
+                foreach ($filterEntity->getQueries() as $query) {
+                    $queries[] = $this->createFilter($query);
+                }
+
+                return new MultiFilter($filterEntity->getOperator(), $queries);
+
+            case EqualsAnyFilter::class:
+                return new EqualsAnyFilter($filterEntity->getField(), explode('|', $filterEntity->getValue()));
+
+            default:
+                return $class::createFrom($filterEntity);
+        }
+    }
+
+    private function getFilterClass(string $type): string
+    {
+        switch ($type) {
+            case 'contains':
+                return ContainsFilter::class;
+            case 'equalsAny':
+                return EqualsAnyFilter::class;
+            case 'equals':
+                return EqualsFilter::class;
+            case 'multi':
+                return MultiFilter::class;
+            case 'not':
+                return NotFilter::class;
+            case 'range':
+                return RangeFilter::class;
+            default:
+                if (!in_array(Filter::class, class_implements($type), true)) {
+                    throw new FilterNotFoundException($type);
+                }
+
+                return $type;
+        }
+    }
+
     private function buildNested(
         ProductStreamFilterEntity $filter,
         ProductStreamFilterCollection $filterCollection
@@ -57,7 +108,7 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
         $this->ensureQueries($filter, $filterCollection);
 
         $nestedFilter = [
-            'filter' => $this->productStreamFilterService->createFilter($filter),
+            'filter' => $this->createFilter($filter),
             'position' => $filter->getPosition(),
             'children' => [],
         ];
@@ -71,7 +122,7 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
         usort(
             $nestedCollection,
             function (array $a, array $b) {
-                return $a['position'] < $b['position'] ? -1 : 1;
+                return $a['position'] <=> $b['position'];
             }
         );
 
@@ -85,6 +136,8 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
                 return $filter;
             }
         }
+
+        throw new MissingRootFilterException();
     }
 
     private function ensureQueries(

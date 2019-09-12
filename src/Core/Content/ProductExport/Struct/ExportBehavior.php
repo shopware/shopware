@@ -16,12 +16,12 @@ class ExportBehavior
         $this->includeInactive = $includeInactive;
     }
 
-    public function isIgnoreCache(): bool
+    public function ignoreCache(): bool
     {
         return $this->ignoreCache;
     }
 
-    public function isIncludeInactive(): bool
+    public function includeInactive(): bool
     {
         return $this->includeInactive;
     }

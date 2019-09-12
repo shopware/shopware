@@ -77,7 +77,7 @@ class ProductExporter implements ProductExporterInterface
                 )
             );
 
-        if (!$behavior->isIncludeInactive()) {
+        if (!$behavior->includeInactive()) {
             $criteria->addFilter(new EqualsFilter('salesChannel.active', true));
         }
 
@@ -184,7 +184,7 @@ class ProductExporter implements ProductExporterInterface
 
     private function isCacheExpired(ExportBehavior $behavior, ProductExportEntity $productExport): bool
     {
-        if ($behavior->isIgnoreCache() || $productExport->getGeneratedAt() === null) {
+        if ($behavior->ignoreCache() || $productExport->getGeneratedAt() === null) {
             return true;
         }
 

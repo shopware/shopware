@@ -29,7 +29,7 @@ class Migration1565705280ProductExport extends MigrationStep
                 `generated_at` DATETIME(3) NULL,
                 `interval` INT(11) NOT NULL,
                 `header_template` LONGTEXT NULL,
-                `body_template` LONGTEXT NOT NULL,
+                `body_template` LONGTEXT NULL,
                 `footer_template` LONGTEXT NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,

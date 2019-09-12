@@ -7,6 +7,7 @@ use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotGeneratedException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
+use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -76,6 +77,7 @@ class ProductExportController extends StorefrontController
             throw new ExportNotFoundException(null, $request->get('fileName'));
         }
 
+        $this->productExportService->generate($context, new ExportBehavior(), $productExport->getId());
         $filePath = $this->productExportService->getFilePath($productExport);
         if (!$this->fileSystem->has($filePath)) {
             throw new ExportNotGeneratedException();

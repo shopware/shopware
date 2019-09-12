@@ -45,7 +45,7 @@
             <tag name="messenger.message_handler"/>
         </service>
 
-        <service id="Shopware\Core\Content\ProductExport\SalesChannel\ProductExportController">
+        <service id="Shopware\Core\Content\ProductExport\SalesChannel\ProductExportController" public="true">
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExporter"/>
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="event_dispatcher"/>

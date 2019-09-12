@@ -53,7 +53,7 @@ class ProductExportDefinition extends EntityDefinition
             new DateTimeField('generated_at', 'generatedAt'),
             (new IntField('interval', 'interval'))->addFlags(new Required()),
             new LongTextWithHtmlField('header_template', 'headerTemplate'),
-            (new LongTextWithHtmlField('body_template', 'bodyTemplate'))->addFlags(new Required()),
+            new LongTextWithHtmlField('body_template', 'bodyTemplate'),
             new LongTextWithHtmlField('footer_template', 'footerTemplate'),
 
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),

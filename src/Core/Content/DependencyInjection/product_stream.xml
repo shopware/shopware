@@ -30,10 +30,7 @@
             <tag name="shopware.dal_indexing.indexer"/>
         </service>
 
-        <service id="Shopware\Core\Content\ProductStream\Service\ProductStreamFilterFactory"/>
-
         <service id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder" public="true">
-            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamFilterFactory"/>
             <argument type="service" id="product_stream.repository"/>
         </service>
     </services>

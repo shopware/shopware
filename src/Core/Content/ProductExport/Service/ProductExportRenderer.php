@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderFooterContextEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEvent;
@@ -91,8 +90,20 @@ class ProductExportRenderer implements ProductExportRendererInterface
     ): string {
         $body = '';
 
+        $productContext = $this->eventDispatcher->dispatch(
+            new ProductExportRenderBodyContextEvent(
+                [
+                    'productExport' => $productExport,
+                    'context' => $salesChannelContext,
+                ]
+            )
+        );
+
         foreach ($productCollection as $product) {
-            $body .= $this->renderProduct($productExport, $product, $salesChannelContext);
+            $context = $productContext->getContext();
+            $context['product'] = $product;
+
+            $body .= $this->renderProduct($productExport, $context);
         }
 
         return $body;
@@ -100,22 +111,12 @@ class ProductExportRenderer implements ProductExportRendererInterface
 
     private function renderProduct(
         ProductExportEntity $productExport,
-        SalesChannelProductEntity $product,
-        SalesChannelContext $salesChannelContext
+        array $context
     ): string {
-        $productContext = $this->eventDispatcher->dispatch(
-            new ProductExportRenderBodyContextEvent(
-                [
-                    'product' => $product,
-                    'productExport' => $productExport,
-                    'context' => $salesChannelContext,
-                ]
-            )
-        );
         try {
             return $this->templateRenderer->render(
                     $productExport->getBodyTemplate(),
-                    $productContext->getContext()
+                    $context
                 ) . PHP_EOL;
         } catch (StringTemplateRenderingException $exception) {
             throw new RenderProductException($exception->getMessage());

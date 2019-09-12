@@ -62,7 +62,7 @@ class ProductExportEntity extends Entity
     /** @var string|null */
     protected $headerTemplate;
 
-    /** @var string */
+    /** @var string|null */
     protected $bodyTemplate;
 
     /** @var string|null */
@@ -218,12 +218,12 @@ class ProductExportEntity extends Entity
         $this->headerTemplate = $headerTemplate;
     }
 
-    public function getBodyTemplate(): string
+    public function getBodyTemplate(): ?string
     {
         return $this->bodyTemplate;
     }
 
-    public function setBodyTemplate(string $bodyTemplate): void
+    public function setBodyTemplate(?string $bodyTemplate): void
     {
         $this->bodyTemplate = $bodyTemplate;
     }

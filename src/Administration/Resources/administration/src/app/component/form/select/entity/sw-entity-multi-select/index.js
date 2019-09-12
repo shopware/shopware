@@ -1,7 +1,7 @@
 import template from './sw-entity-multi-select.html.twig';
 
 const { Component } = Shopware;
-const { debounce } = Shopware.Utils;
+const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 Component.register('sw-entity-multi-select', {
@@ -275,6 +275,10 @@ Component.register('sw-entity-multi-select', {
             if (this.$refs.selectBase.expanded) {
                 this.loadData();
             }
+        },
+
+        getKey(object, keyPath, defaultValue) {
+            return get(object, keyPath, defaultValue);
         }
     }
 });

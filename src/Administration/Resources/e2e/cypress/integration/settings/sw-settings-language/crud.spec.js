@@ -36,12 +36,8 @@ describe('Language: Test crud operations', () => {
 
         // Create language
         cy.get('input[name=sw-field--language-name]').type('Japanese');
-        cy.get('.sw-settings-language-detail__select-iso-code').typeSingleSelectAndCheck('ja-JP', {
-            searchable: true
-        });
-        cy.get('.sw-settings-language-detail__select-locale').typeSingleSelectAndCheck('Japanese, Japan', {
-            searchable: true
-        });
+        cy.get('.sw-settings-language-detail__select-iso-code').typeSingleSelectAndCheck('ja-JP');
+        cy.get('.sw-settings-language-detail__select-locale').typeSingleSelectAndCheck('Japanese, Japan');
         cy.get(page.elements.languageSaveAction).click();
 
         // Verify and check usage of customer-group

@@ -76,7 +76,9 @@ Component.register('sw-sales-channel-detail-base', {
                 'shippingMethodId',
                 'countryId',
                 'currencyId',
-                'languageId'
+                'languageId',
+                'customerGroupId',
+                'navigationCategoryId'
             ])
     },
 
@@ -92,10 +94,9 @@ Component.register('sw-sales-channel-detail-base', {
             });
         },
 
-        onDefaultItemAdd(itemId, ref, property) {
-            const defaultSelection = this.$refs[ref].singleSelection;
-            if (!this.salesChannel[property].has(defaultSelection.id)) {
-                this.salesChannel[property].push(defaultSelection);
+        onDefaultItemAdd(item, ref, property) {
+            if (!this.salesChannel[property].has(item.id)) {
+                this.salesChannel[property].push(item);
             }
         },
 

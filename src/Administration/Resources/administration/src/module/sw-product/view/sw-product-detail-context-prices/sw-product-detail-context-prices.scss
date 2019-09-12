@@ -1,7 +1,6 @@
 @import "~scss/variables";
 
 .sw-product-detail-context-prices {
-
     .sw-card.context-price {
         width: 100%;
     }
@@ -33,6 +32,10 @@
         .sw-single-select .sw-single-select__indicators {
             top: 5px;
         }
+    }
+
+    .sw-product-detail-context-prices__toolbar-selection {
+        margin-bottom: 0;
     }
 
     .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content {

@@ -54,24 +54,30 @@ Component.register('sw-select-result', {
     },
 
     created() {
-        this.$parent.$on('changed-active-item', this.checkIfActive);
+        this.$parent.$on('active-item-change', this.checkIfActive);
+        this.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
     },
 
     destroyed() {
-        this.$parent.$off('changed-active-item', this.checkIfActive);
+        this.$parent.$off('active-item-change', this.checkIfActive);
+        this.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
     },
 
     methods: {
+        checkIfSelected(selectedItemIndex) {
+            if (selectedItemIndex === this.index) this.onClickResult({});
+        },
+
         checkIfActive(activeItemIndex) {
             this.active = this.index === activeItemIndex;
         },
 
-        onClickResult(originalDomEvent) {
+        onClickResult() {
             if (this.disabled) {
                 return;
             }
 
-            this.$parent.$emit('item-select', this.item, originalDomEvent);
+            this.$parent.$emit('item-select', this.item);
         },
 
         onMouseEnter() {

@@ -169,7 +169,7 @@ See `2019-09-02-cms-remove-store.md` for more information
         * `base` contains the base components for creating new selects and the static `sw-single-select` and `sw-multi-select`
         * `entity` contains components working with the api such as `sw-entity-multi-select` or `sw-entity-tag-select`
     * Components work with v-model and do not mutate the value property anymore
-    * Components are based on the sw-field base components to provide a consistent styling, error handling etc for all form fields   
+    * Components are based on the sw-field base components to provide a consistent styling, error handling etc for all form fields
 
 Storefront
 ----------

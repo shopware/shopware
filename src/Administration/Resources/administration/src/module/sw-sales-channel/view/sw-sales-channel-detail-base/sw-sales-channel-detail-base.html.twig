@@ -46,7 +46,7 @@
                                 :label="$tc('sw-sales-channel.detail.labelInputDefaultPaymentMethod')"
                                 entity="payment_method"
                                 required
-                                @input="(itemId) => onDefaultItemAdd(itemId, 'paymentMethodSelect', 'paymentMethods')"
+                                @change="(itemId, item) => onDefaultItemAdd(item, 'paymentMethodSelect', 'paymentMethods')"
                                 :error="salesChannelPaymentMethodIdError"
                                 v-model="salesChannel.paymentMethodId">
                             </sw-entity-single-select>
@@ -72,7 +72,7 @@
                                 :label="$tc('sw-sales-channel.detail.labelInputDefaultShippingMethod')"
                                 entity="shipping_method"
                                 required
-                                @input="(itemId) => onDefaultItemAdd(itemId, 'shippingMethodSelect', 'shippingMethods')"
+                                @change="(itemId, item) => onDefaultItemAdd(item, 'shippingMethodSelect', 'shippingMethods')"
                                 :error="salesChannelShippingMethodIdError"
                                 v-model="salesChannel.shippingMethodId">
                             </sw-entity-single-select>
@@ -98,7 +98,7 @@
                                 :label="$tc('sw-sales-channel.detail.labelInputDefaultCountry')"
                                 entity="country"
                                 required
-                                @input="(itemId) => onDefaultItemAdd(itemId, 'countrySelect', 'countries')"
+                                @change="(itemId, item) => onDefaultItemAdd(item, 'countrySelect', 'countries')"
                                 :error="salesChannelCountryIdError"
                                 v-model="salesChannel.countryId">
                             </sw-entity-single-select>
@@ -123,7 +123,7 @@
                                 class="sw-sales-channel-detail__assign-currencies"
                                 :label="$tc('sw-sales-channel.detail.labelInputDefaultCurrency')"
                                 entity="currency"
-                                @input="(itemId) => onDefaultItemAdd(itemId, 'currencySelect', 'currencies')"
+                                @change="(itemId, item) => onDefaultItemAdd(item, 'currencySelect', 'currencies')"
                                 :error="salesChannelCurrencyIdError"
                                 required
                                 v-model="salesChannel.currencyId">
@@ -149,7 +149,7 @@
                                 class="sw-sales-channel-detail__assign-languages"
                                 :label="$tc('sw-sales-channel.detail.labelInputDefaultLanguage')"
                                 entity="language"
-                                @input="(itemId) => onDefaultItemAdd(itemId, 'languageSelect', 'languages')"
+                                @change="(itemId, item) => onDefaultItemAdd(item, 'languageSelect', 'languages')"
                                 :error="salesChannelLanguageIdError"
                                 required
                                 v-model="salesChannel.languageId">
@@ -163,6 +163,7 @@
                         class="sw-sales-channel-detail__select-customer-group"
                         :label="$tc('sw-sales-channel.detail.customerGroup')"
                         entity="customer_group"
+                        :error="salesChannelCustomerGroupIdError"
                         v-model="salesChannel.customerGroupId">
                     </sw-entity-single-select>
                 {% endblock %}
@@ -173,12 +174,14 @@
             <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.navigation')">
                 {% block sw_sales_channel_detail_base_general_input_navigation_category %}
                     <sw-entity-single-select
+                        required
                         class="sw-sales-channel-detail__select-navigation-category-id"
                         id="navigationCategoryId"
                         :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
                         :criteria="mainNavigationCriteria"
                         :helpText="$tc('sw-sales-channel.detail.navigationCategoryHelpText')"
                         v-model="salesChannel.navigationCategoryId"
+                        :error="salesChannelNavigationCategoryIdError"
                         entity="category">
                     </sw-entity-single-select>
                 {% endblock %}

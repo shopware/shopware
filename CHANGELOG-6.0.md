@@ -37,7 +37,7 @@ You can use them with every URL in your templates
 
 * Administration
     * Moved the global state of the module `sw-cms` to VueX
-    * Renamed rename `sw-many-to-many` to `sw-entity-many-to-many`
+    * Renamed `sw-many-to-many-select` to `sw-entity-many-to-many-select`
     * Renamed `sw-tag-field-new` to `sw-entity-tag-select`
     * Added `sw-select-base`, `sw-select-result`, `sw-select-result-list` and `sw-select-selection-list` as base components for select fields
     * Changed select components in path `administration/src/app/component/form/select` to operate with v-model 
@@ -74,6 +74,7 @@ You can use them with every URL in your templates
 * Administration
     * Removed `sw-tag-multi-select`
     * Removed `sw-multi-select-option` use `sw-result-option` instead
+    * Removed `sw-single-select-option` use `sw-result-option` instead
 * Core
     * Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function
     * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria`

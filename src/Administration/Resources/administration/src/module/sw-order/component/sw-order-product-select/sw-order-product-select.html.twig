@@ -12,9 +12,9 @@
         {% block sw_order_product_select_existing_product %}
             <sw-entity-single-select v-else-if="item.type !== 'product'"
                                      v-fixed
-                                     :value="null"
+                                     v-model="product"
                                      entity="product"
-                                     @input="onItemChanged"
+                                     @change="onItemChanged"
                                      size="small">
             </sw-entity-single-select>
         {% endblock %}

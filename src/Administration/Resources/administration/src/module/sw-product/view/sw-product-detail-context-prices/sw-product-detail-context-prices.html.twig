@@ -25,20 +25,27 @@
 
                                 {% block sw_product_detail_prices_price_card_toolbar_rule_selection %}
                                     <sw-entity-single-select
+                                            class="sw-product-detail-context-prices__toolbar-selection"
                                             v-if="rules.entity"
                                             id="rule"
                                             :value="priceGroup.ruleId"
                                             :placeholder="$tc('sw-product.advancedPrices.selectRule')"
-                                            @input="onRuleChange($event, priceGroup.ruleId)"
+                                            @change="onRuleChange($event, priceGroup.ruleId)"
                                             :entity="rules.entity">
-
-                                        <template slot="result_items" slot-scope="{ item, index }">
-                                            <sw-single-select-option
-                                                    :disabled="!!priceRuleGroups[item.id]"
-                                                    :index="index"
-                                                    :item="item">
-                                                {{ item.name }}
-                                            </sw-single-select-option>
+                                        <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                            <li is="sw-select-result"
+                                                :selected="isSelected(item)"
+                                                :disabled="!!priceRuleGroups[item.id]"
+                                                @item-select="setValue"
+                                                v-bind="{ item, index }">
+                                                <sw-highlight-text v-if="highlightSearchTerm"
+                                                                   :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                                   :searchTerm="searchTerm">
+                                                </sw-highlight-text>
+                                                <template v-else>
+                                                    {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                                </template>
+                                            </li>
                                         </template>
                                     </sw-entity-single-select>
                                 {% endblock %}
@@ -160,12 +167,20 @@
                                                          :placeholder="$tc('sw-product.advancedPrices.selectRule')"
                                                          @input="onRuleChange($event, priceGroup.ruleId)"
                                                          :entity="rules.entity">
-                                    <template slot="result_items" slot-scope="{ item, index }">
-                                        <sw-single-select-option :disabled="!!priceRuleGroups[item.id]"
-                                                                 :index="index"
-                                                                 :item="item">
-                                            {{ item.name }}
-                                        </sw-single-select-option>
+                                    <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                        <li is="sw-select-result"
+                                            :selected="isSelected(item)"
+                                            :disabled="!!priceRuleGroups[item.id]"
+                                            @item-select="setValue"
+                                            v-bind="{ item, index }">
+                                            <sw-highlight-text v-if="highlightSearchTerm"
+                                                               :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                               :searchTerm="searchTerm">
+                                            </sw-highlight-text>
+                                            <template v-else>
+                                                {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                            </template>
+                                        </li>
                                     </template>
                                 </sw-entity-single-select>
                             {% endblock %}
@@ -206,10 +221,20 @@
                                                      :placeholder="$tc('sw-product.advancedPrices.selectRule')"
                                                      @input="onAddNewPriceGroup($event)"
                                                      :entity="rules.entity">
-                                <template slot="result_items" slot-scope="{ item, index }">
-                                    <sw-single-select-option :disabled="!!priceRuleGroups[item.id]" :index="index" :item="item">
-                                        {{ item.name }}
-                                    </sw-single-select-option>
+                                <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                    <li is="sw-select-result"
+                                        :selected="isSelected(item)"
+                                        :disabled="!!priceRuleGroups[item.id]"
+                                        @item-select="setValue"
+                                        v-bind="{ item, index }">
+                                        <sw-highlight-text v-if="highlightSearchTerm"
+                                                           :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                           :searchTerm="searchTerm">
+                                        </sw-highlight-text>
+                                        <template v-else>
+                                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                        </template>
+                                    </li>
                                 </template>
                             </sw-entity-single-select>
                         {% endblock %}

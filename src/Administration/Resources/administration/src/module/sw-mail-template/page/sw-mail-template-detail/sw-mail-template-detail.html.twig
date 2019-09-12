@@ -50,8 +50,8 @@
                                 v-model="mailTemplate.mailTemplateTypeId"
                                 :label="$tc('sw-mail-template.detail.basic.labelMailType')"
                                 :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
-                                validation="required"
-                                @input="onChangeType"
+                                required
+                                @change="onChangeType"
                                 required>
                             </sw-entity-single-select>
                         {% endblock %}

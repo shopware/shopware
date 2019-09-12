@@ -22,7 +22,7 @@
                                     <template #label-property="{ item, index, labelProperty, valueProperty }">
                                         {% block sw_multi_select_base_selection_list_label_inner %}
                                             <slot name="selection-label-property" v-bind="{ item, index, labelProperty, valueProperty}">
-                                                {{ item[labelProperty] }}
+                                                {{ getKey(item, labelProperty) }}
                                             </slot>
                                         {% endblock %}
                                     </template>
@@ -52,19 +52,21 @@
 
                                 {% block sw_multi_select_base_results_list_result %}
                                     <template #result-item="{ item, index }">
-                                        <li is="sw-select-result" :selected="isSelected(item)" @item-select="addItem" v-bind="{ item, index }">
-                                            {% block sw_multi_select_base_results_list_result_label %}
-                                                <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty, searchTerm }">
-                                                    <sw-highlight-text v-if="highlightSearchTerm"
-                                                                       :text="item[labelProperty]"
-                                                                       :searchTerm="searchTerm">
-                                                    </sw-highlight-text>
-                                                    <template v-else>
-                                                        {{ item[labelProperty] }}
-                                                    </template>
-                                                </slot>
-                                            {% endblock %}
-                                        </li>
+                                        <slot name="result-item" v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+                                            <li is="sw-select-result" :selected="isSelected(item)" @item-select="addItem" v-bind="{ item, index }">
+                                                {% block sw_multi_select_base_results_list_result_label %}
+                                                    <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty, searchTerm, getKey }">
+                                                        <sw-highlight-text v-if="highlightSearchTerm"
+                                                                           :text="getKey(item, labelProperty)"
+                                                                           :searchTerm="searchTerm">
+                                                        </sw-highlight-text>
+                                                        <template v-else>
+                                                            {{ getKey(item, labelProperty) }}
+                                                        </template>
+                                                    </slot>
+                                                {% endblock %}
+                                            </li>
+                                        </slot>
                                     </template>
                                 {% endblock %}
 

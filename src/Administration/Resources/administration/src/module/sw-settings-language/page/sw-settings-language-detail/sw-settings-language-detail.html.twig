@@ -64,30 +64,34 @@
 
                                 {% block sw_settings_language_detail_content_field_parentId %}
                                     <sw-entity-single-select
-                                        id="inherit"
-                                        class="sw-settings-language-detail__select-parent"
-                                        required
-                                        :label="$tc('sw-settings-language.detail.labelParent')"
-                                        :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                                        :helpText="$tc('sw-settings-language.detail.tooltipLanguageNotChoosable')"
-                                        @input="onInputLanguage"
-                                        v-model="language.parentId"
-                                        entity="language">
-
-                                        <template #result_items="{index, item}">
-                                            <template v-if="showOption(item)">
-                                                <sw-single-select-option
-                                                        :disabled="!!item.parentId"
-                                                        v-tooltip="{
-                                                            showDelay: 300,
-                                                            message: $tc('sw-settings-language.detail.textLanguageHasParent'),
-                                                            disabled: !item.parentId
-                                                        }"
-                                                        :index="index"
-                                                        :item="item">
-                                                    {{ item.name }}
-                                                </sw-single-select-option>
-                                            </template>
+                                            id="inherit"
+                                            class="sw-settings-language-detail__select-parent"
+                                            :criteria="parentLanguageCriteria"
+                                            :label="$tc('sw-settings-language.detail.labelParent')"
+                                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                                            :helpText="$tc('sw-settings-language.detail.tooltipLanguageNotChoosable')"
+                                            @change="onInputLanguage"
+                                            v-model="language.parentId"
+                                            entity="language">
+                                        <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                                <li is="sw-select-result"
+                                                    :disabled="!!item.parentId"
+                                                    v-tooltip="{
+                                                        showDelay: 300,
+                                                        message: $tc('sw-settings-language.detail.textLanguageHasParent'),
+                                                        disabled: !item.parentId
+                                                    }"
+                                                    :selected="isSelected(item)"
+                                                    @item-select="setValue"
+                                                    v-bind="{ item, index }">
+                                                    <sw-highlight-text v-if="highlightSearchTerm"
+                                                                       :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                                       :searchTerm="searchTerm">
+                                                    </sw-highlight-text>
+                                                    <template v-else>
+                                                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                                    </template>
+                                                </li>
                                         </template>
                                     </sw-entity-single-select>
                                 {% endblock %}
@@ -98,28 +102,30 @@
                                             class="sw-settings-language-detail__select-iso-code"
                                             :label="$tc('sw-settings-language.detail.labelIsoCode')"
                                             :required="isIsoCodeRequired"
+                                            labelProperty="code"
                                             :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
                                             :helpText="$tc('sw-settings-language.detail.tooltipIsoCodeNotChoosable')"
                                             entity="locale"
                                             v-model="language.translationCodeId">
-                                        <template #selected_option="{ item }">
-                                            <span v-if="item !== undefined">
-                                               {{ item.code }}
-                                            </span>
-                                        </template>
-
-                                        <template #result_items="{index, item}">
-                                            <sw-single-select-option
-                                                    :disabled="isLocaleAlreadyUsed(item)"
-                                                    v-tooltip="{
-                                                        showDelay: 300,
-                                                        message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
-                                                        disabled: !isLocaleAlreadyUsed(item)
-                                                    }"
-                                                    :index="index"
-                                                    :item="item">
-                                                {{ item.code }}
-                                            </sw-single-select-option>
+                                        <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                            <li is="sw-select-result"
+                                                :disabled="isLocaleAlreadyUsed(item)"
+                                                v-tooltip="{
+                                                    showDelay: 300,
+                                                    message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
+                                                    disabled: !isLocaleAlreadyUsed(item)
+                                                }"
+                                                :selected="isSelected(item)"
+                                                @item-select="setValue"
+                                                v-bind="{ item, index }">
+                                                <sw-highlight-text v-if="highlightSearchTerm"
+                                                                   :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                                   :searchTerm="searchTerm">
+                                                </sw-highlight-text>
+                                                <template v-else>
+                                                    {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                                </template>
+                                            </li>
                                         </template>
                                     </sw-entity-single-select>
                                 {% endblock %}
@@ -133,18 +139,18 @@
                                             entity="locale"
                                             :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
                                             v-model="language.localeId">
-                                        <template #selected_option="{ item }">
-                                            <span>
-                                                {{ item.translated.name }}, {{ item.translated.territory }}
-                                            </span>
+                                        <template #selection-label-property="{ item, getKey }">
+                                            {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
                                         </template>
 
-                                        <template #result_items="{index, item}">
-                                            <sw-single-select-option
-                                                    :index="index"
-                                                    :item="item">
-                                                {{ item.translated.name }}, {{ item.translated.territory }}
-                                            </sw-single-select-option>
+                                        <template #result-label-property="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                            <sw-highlight-text v-if="highlightSearchTerm"
+                                                               :text="`${getKey(item, 'translated.name')}, ${getKey(item, 'translated.territory')}`"
+                                                               :searchTerm="searchTerm">
+                                            </sw-highlight-text>
+                                            <template v-else>
+                                                {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
+                                            </template>
                                         </template>
                                     </sw-entity-single-select>
                                 {% endblock %}

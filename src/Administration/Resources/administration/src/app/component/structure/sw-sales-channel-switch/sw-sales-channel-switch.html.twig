@@ -43,8 +43,8 @@
                     :placeholder="$tc('sw-sales-channel-switch.labelDefaultOption')"
                     :label="label"
                     :searchPlaceholder="$tc('sw-sales-channel-switch.placeholderSelect')"
-                    @input="onInput"
-                    v-model="salesChannelId"
+                    @change="onChange"
+                    :value="salesChannelId"
                     entity="sales_channel">
                 <template #labelProperty="{item, labelProperty}">
                     <span v-if="item.translated">{{ item.translated[labelProperty] }}</span>

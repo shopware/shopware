@@ -88,6 +88,12 @@ Component.register('sw-settings-language-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        parentLanguageCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.language.id)]));
+            return criteria;
         }
     },
 
@@ -138,10 +144,6 @@ Component.register('sw-settings-language-detail', {
             }
 
             this.showAlertForChangeParentLanguage = origin.parentId !== this.language.parentId;
-        },
-
-        showOption(item) {
-            return item.id !== this.language.id;
         },
 
         isLocaleAlreadyUsed(item) {

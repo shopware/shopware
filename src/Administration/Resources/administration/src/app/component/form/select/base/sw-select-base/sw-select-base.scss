@@ -4,10 +4,12 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
 
 .sw-select {
     position: relative;
-    background-color: $color-white;
 
     .sw-block-field__block {
         transition: $sw-select-focus-transition;
+        background-color: $color-white;
+        position: relative;
+        overflow: visible;
     }
 
     .sw-select__selection {

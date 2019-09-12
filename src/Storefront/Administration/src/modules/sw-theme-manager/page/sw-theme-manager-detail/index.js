@@ -244,7 +244,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         mapSwFieldTypes(field) {
-            return !this.mappedFields[field] ? 'text' : this.mappedFields[field];
+            return !this.mappedFields[field] ? null : this.mappedFields[field];
         },
 
         getDefaultFolderId() {

@@ -151,5 +151,4 @@ class CachedEntityAggregator implements EntityAggregatorInterface
 
         return $aggregations->get($aggregation->getName());
     }
-
 }

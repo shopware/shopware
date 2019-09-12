@@ -1,7 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util;
-
 
 class DateHistogramCase
 {
@@ -42,4 +41,3 @@ class DateHistogramCase
         return $this->format;
     }
 }
-

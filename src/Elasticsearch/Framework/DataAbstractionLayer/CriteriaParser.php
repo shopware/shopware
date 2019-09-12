@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Bucketing\NestedAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing;
+use ONGR\ElasticsearchDSL\Aggregation\Bucketing\NestedAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Metric;
 use ONGR\ElasticsearchDSL\BuilderInterface;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
@@ -135,6 +135,82 @@ class CriteriaParser
         }
     }
 
+    protected function parseFilterAggregation(FilterAggregation $aggregation, EntityDefinition $definition, Context $context): Bucketing\FilterAggregation
+    {
+        $query = new BoolQuery();
+        foreach ($aggregation->getFilter() as $filter) {
+            $query->add(
+                $this->parseFilter($filter, $definition, $definition->getEntityName(), $context)
+            );
+        }
+
+        $filter = new Bucketing\FilterAggregation($aggregation->getName(), $query);
+
+        $filter->addAggregation(
+            $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
+        );
+
+        return $filter;
+    }
+
+    protected function parseTermsAggregation(TermsAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): Bucketing\CompositeAggregation
+    {
+        $composite = new Bucketing\CompositeAggregation($aggregation->getName());
+
+        if ($aggregation->getSorting()) {
+            $accessor = $this->buildAccessor($definition, $aggregation->getSorting()->getField(), $context);
+
+            $sorting = new Bucketing\TermsAggregation($aggregation->getName() . '.sorting', $accessor);
+            $sorting->addParameter('order', $aggregation->getSorting()->getDirection());
+            $composite->addSource($sorting);
+        }
+
+        $terms = new Bucketing\TermsAggregation($aggregation->getName() . '.key', $fieldName);
+        $composite->addSource($terms);
+
+        if ($aggregation->getAggregation()) {
+            $composite->addAggregation(
+                $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
+            );
+        }
+
+        if ($aggregation->getLimit()) {
+            $composite->addParameter('size', (string) $aggregation->getLimit());
+        }
+
+        return $composite;
+    }
+
+    protected function parseDateHistogramAggregation(DateHistogramAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): Bucketing\CompositeAggregation
+    {
+        $composite = new Bucketing\CompositeAggregation($aggregation->getName());
+
+        if ($aggregation->getSorting()) {
+            $accessor = $this->buildAccessor($definition, $aggregation->getSorting()->getField(), $context);
+
+            $sorting = new Bucketing\TermsAggregation($aggregation->getName() . '.sorting', $accessor);
+            $sorting->addParameter('order', $aggregation->getSorting()->getDirection());
+
+            $composite->addSource($sorting);
+        }
+
+        $histogram = new Bucketing\DateHistogramAggregation(
+            $aggregation->getName() . '.key',
+            $fieldName,
+            $aggregation->getInterval(),
+            'yyyy-MM-dd HH:mm:ss'
+        );
+        $composite->addSource($histogram);
+
+        if ($aggregation->getAggregation()) {
+            $composite->addAggregation(
+                $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
+            );
+        }
+
+        return $composite;
+    }
+
     private function createAggregation(Aggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): ?AbstractAggregation
     {
         switch (true) {
@@ -170,82 +246,6 @@ class CriteriaParser
             default:
                 throw new \RuntimeException(sprintf('Provided aggregation of class %s not supported', get_class($aggregation)));
         }
-    }
-
-    protected function parseFilterAggregation(FilterAggregation $aggregation, EntityDefinition $definition, Context $context): Bucketing\FilterAggregation
-    {
-        $query = new BoolQuery();
-        foreach ($aggregation->getFilter() as $filter) {
-            $query->add(
-                $this->parseFilter($filter, $definition, $definition->getEntityName(), $context)
-            );
-        }
-
-        $filter = new Bucketing\FilterAggregation($aggregation->getName(), $query);
-
-        $filter->addAggregation(
-            $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
-        );
-
-        return $filter;
-    }
-
-    protected function parseTermsAggregation(TermsAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): Bucketing\CompositeAggregation
-    {
-        $composite = new Bucketing\CompositeAggregation($aggregation->getName());
-
-        if ($aggregation->getSorting()) {
-            $accessor = $this->buildAccessor($definition, $aggregation->getSorting()->getField(), $context);
-
-            $sorting = new Bucketing\TermsAggregation($aggregation->getName().'.sorting', $accessor);
-            $sorting->addParameter('order', $aggregation->getSorting()->getDirection());
-            $composite->addSource($sorting);
-        }
-
-        $terms = new Bucketing\TermsAggregation($aggregation->getName().'.key', $fieldName);
-        $composite->addSource($terms);
-
-        if ($aggregation->getAggregation()) {
-            $composite->addAggregation(
-                $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
-            );
-        }
-
-        if ($aggregation->getLimit()) {
-            $composite->addParameter('size', (string) $aggregation->getLimit());
-        }
-
-        return $composite;
-    }
-
-    protected function parseDateHistogramAggregation(DateHistogramAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): Bucketing\CompositeAggregation
-    {
-        $composite = new Bucketing\CompositeAggregation($aggregation->getName());
-
-        if ($aggregation->getSorting()) {
-            $accessor = $this->buildAccessor($definition, $aggregation->getSorting()->getField(), $context);
-
-            $sorting = new Bucketing\TermsAggregation($aggregation->getName().'.sorting', $accessor);
-            $sorting->addParameter('order', $aggregation->getSorting()->getDirection());
-
-            $composite->addSource($sorting);
-        }
-
-        $histogram = new Bucketing\DateHistogramAggregation(
-            $aggregation->getName().'.key',
-            $fieldName,
-            $aggregation->getInterval(),
-            'yyyy-MM-dd HH:mm:ss'
-        );
-        $composite->addSource($histogram);
-
-        if ($aggregation->getAggregation()) {
-            $composite->addAggregation(
-                $this->parseAggregation($aggregation->getAggregation(), $definition, $context)
-            );
-        }
-
-        return $composite;
     }
 
     private function parseEqualsFilter(EqualsFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface

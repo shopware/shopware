@@ -117,7 +117,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testEmptySearch(TestDataCollection $data)
+    public function testEmptySearch(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
 
@@ -130,7 +130,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testPagination(TestDataCollection $data)
+    public function testPagination(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
 
@@ -146,7 +146,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testEqualsFilter(TestDataCollection $data)
+    public function testEqualsFilter(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
         // check simple equals filter
@@ -161,7 +161,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testRangeFilter(TestDataCollection $data)
+    public function testRangeFilter(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
         // check simple range filter
@@ -176,7 +176,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testEqualsAnyFilter(TestDataCollection $data)
+    public function testEqualsAnyFilter(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
         // check filter for categories
@@ -192,7 +192,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testQueries(TestDataCollection $data)
+    public function testQueries(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
         $criteria = new Criteria($data->prefixed('p'));
@@ -224,7 +224,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testSingleGroupBy(TestDataCollection $data)
+    public function testSingleGroupBy(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
         // check simple equals filter
@@ -247,7 +247,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testMultiGroupBy(TestDataCollection $data)
+    public function testMultiGroupBy(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
         // check simple equals filter
@@ -272,7 +272,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testAvgAggregation(TestDataCollection $data)
+    public function testAvgAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -296,7 +296,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermsAggregation(TestDataCollection $data)
+    public function testTermsAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -333,7 +333,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermsAggregationWithAvg(TestDataCollection $data)
+    public function testTermsAggregationWithAvg(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -385,7 +385,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermsAggregationWithAssociation(TestDataCollection $data)
+    public function testTermsAggregationWithAssociation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -422,7 +422,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermsAggregationWithLimit(TestDataCollection $data)
+    public function testTermsAggregationWithLimit(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -451,7 +451,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testTermsAggregationWithSorting(TestDataCollection $data)
+    public function testTermsAggregationWithSorting(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -492,7 +492,6 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
     public function testSumAggregation(TestDataCollection $data): void
     {
@@ -515,11 +514,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertEquals(1050, $result->getSum());
     }
 
-    /**                                  
+    /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testSumAggregationWithTermsAggregation(TestDataCollection $data)
+    public function testSumAggregationWithTermsAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -567,9 +565,8 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testMaxAggregation(TestDataCollection $data)
+    public function testMaxAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -592,9 +589,8 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testMaxAggregationWithTermsAggregation(TestDataCollection $data)
+    public function testMaxAggregationWithTermsAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -642,9 +638,8 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testMinAggregation(TestDataCollection $data)
+    public function testMinAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -667,9 +662,8 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testMinAggregationWithTermsAggregation(TestDataCollection $data)
+    public function testMinAggregationWithTermsAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -717,9 +711,8 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testCountAggregation(TestDataCollection $data)
+    public function testCountAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -742,9 +735,8 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testCountAggregationWithTermsAggregation(TestDataCollection $data)
+    public function testCountAggregationWithTermsAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -792,9 +784,8 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testStatsAggregation(TestDataCollection $data)
+    public function testStatsAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -820,9 +811,8 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testStatsAggregationWithTermsAggregation(TestDataCollection $data)
+    public function testStatsAggregationWithTermsAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -879,9 +869,8 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testEntityAggregation(TestDataCollection $data)
+    public function testEntityAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -908,9 +897,8 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testFilterAggregation(TestDataCollection $data)
+    public function testFilterAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
 
@@ -939,10 +927,9 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      * @dataProvider dateHistogramProvider
      */
-    public function testDateHistogram(DateHistogramCase $case, TestDataCollection $data)
+    public function testDateHistogram(DateHistogramCase $case, TestDataCollection $data): void
     {
         $context = Context::createDefaultContext();
 
@@ -1042,9 +1029,8 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
-     * @param TestDataCollection $data
      */
-    public function testDateHistogramWithNestedAvg(TestDataCollection $data)
+    public function testDateHistogramWithNestedAvg(TestDataCollection $data): void
     {
         $context = Context::createDefaultContext();
 
@@ -1141,15 +1127,15 @@ class ElasticsearchProductTest extends TestCase
         return $data;
     }
 
-    private function createData()
+    private function createData(): void
     {
         /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('product.repository');
 
         $repo->create([
-            $this->createProduct('p1', 'Silk',      't1', 'm1', 50,  '2019-01-01 10:11:00', 0, 2, ['c1', 'c2']),
-            $this->createProduct('p2', 'Rubber',    't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['c1']),
-            $this->createProduct('p3', 'Stilk',     't2', 'm2', 150, '2019-06-15 13:00:00', 100, 100, ['c1', 'c3']),
+            $this->createProduct('p1', 'Silk', 't1', 'm1', 50, '2019-01-01 10:11:00', 0, 2, ['c1', 'c2']),
+            $this->createProduct('p2', 'Rubber', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['c1']),
+            $this->createProduct('p3', 'Stilk', 't2', 'm2', 150, '2019-06-15 13:00:00', 100, 100, ['c1', 'c3']),
             $this->createProduct('p4', 'Grouped 1', 't2', 'm2', 200, '2020-09-30 15:00:00', 100, 300, ['c3']),
             $this->createProduct('p5', 'Grouped 2', 't3', 'm3', 250, '2021-12-10 11:59:00', 100, 300, []),
             $this->createProduct('p6', 'Grouped 3', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),

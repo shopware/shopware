@@ -28,6 +28,7 @@ class RatingMatrix extends Struct
     /**
      * we expect an array of CountResult elements
      * we are doing all calculation in constructor
+     *
      * @param Bucket[] $matrix
      */
     public function __construct(array $matrix)

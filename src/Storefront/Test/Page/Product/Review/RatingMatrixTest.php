@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Page\Product\Review;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Storefront\Page\Product\Review\MatrixElement;
 use Shopware\Storefront\Page\Product\Review\RatingMatrix;
 

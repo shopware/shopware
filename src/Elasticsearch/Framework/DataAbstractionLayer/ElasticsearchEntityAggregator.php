@@ -123,6 +123,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 
             case $aggregation instanceof FilterAggregation:
                 $nested = $aggregation->getAggregation();
+
                 return $this->hydrateAggregation($nested, $result[$nested->getName()], $context);
 
             case $aggregation instanceof DateHistogramAggregation:
@@ -173,7 +174,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         foreach ($result['buckets'] as $bucket) {
             $nested = null;
 
-            $nestedAggregation  = $aggregation->getAggregation();
+            $nestedAggregation = $aggregation->getAggregation();
             if ($nestedAggregation) {
                 $nested = $this->hydrateAggregation($nestedAggregation, $bucket[$nestedAggregation->getName()], $context);
             }
@@ -217,7 +218,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
                 );
             }
 
-            $key = $bucket['key'][$aggregation->getName().'.key'];
+            $key = $bucket['key'][$aggregation->getName() . '.key'];
 
             $buckets[] = new Bucket($key, $bucket['doc_count'], $nested);
         }

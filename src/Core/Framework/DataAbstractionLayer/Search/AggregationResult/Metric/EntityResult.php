@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 
 class EntityResult extends AggregationResult

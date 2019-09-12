@@ -26,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\DateHistogramBucket;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\DateHistogramResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\AvgResult;
@@ -116,6 +115,30 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         return $aggregations;
+    }
+
+    public static function formatDate(string $interval, \DateTime $date): string
+    {
+        switch ($interval) {
+            case DateHistogramAggregation::PER_MINUTE:
+                return $date->format('Y-m-d H:i:00');
+            case DateHistogramAggregation::PER_HOUR:
+                return $date->format('Y-m-d H:00:00');
+            case DateHistogramAggregation::PER_DAY:
+                return $date->format('Y-m-d 00:00:00');
+            case DateHistogramAggregation::PER_WEEK:
+                return $date->format('Y W');
+            case DateHistogramAggregation::PER_MONTH:
+                return $date->format('Y-m-01 00:00:00');
+            case DateHistogramAggregation::PER_QUARTER:
+                $month = (int) $date->format('m');
+
+                return $date->format('Y') . ' ' . ceil($month / 3);
+            case DateHistogramAggregation::PER_YEAR:
+                return $date->format('Y-01-01 00:00:00');
+            default:
+                throw new \RuntimeException('Provided date format is not supported');
+        }
     }
 
     protected function getParser(): SqlQueryParser
@@ -236,25 +259,25 @@ class EntityAggregator implements EntityAggregatorInterface
 
         switch ($aggregation->getInterval()) {
             case DateHistogramAggregation::PER_MINUTE:
-                $groupBy = 'DATE_FORMAT('. $accessor .', \'%Y-%m-%d %H:%i\')';
+                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d %H:%i\')';
                 break;
             case DateHistogramAggregation::PER_HOUR:
-                $groupBy = 'DATE_FORMAT('. $accessor .', \'%Y-%m-%d %H\')';
+                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d %H\')';
                 break;
             case DateHistogramAggregation::PER_DAY:
-                $groupBy = 'DATE_FORMAT('. $accessor .', \'%Y-%m-%d\')';
+                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d\')';
                 break;
             case DateHistogramAggregation::PER_WEEK:
-                $groupBy = 'DATE_FORMAT('. $accessor .', \'%Y-%v\')';
+                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%v\')';
                 break;
             case DateHistogramAggregation::PER_MONTH:
-                $groupBy = 'DATE_FORMAT('. $accessor .', \'%Y-%m\')';
+                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y-%m\')';
                 break;
             case DateHistogramAggregation::PER_QUARTER:
-                $groupBy = 'CONCAT(DATE_FORMAT('. $accessor .', \'%Y\'), \'-\', QUARTER('. $accessor .'))';
+                $groupBy = 'CONCAT(DATE_FORMAT(' . $accessor . ', \'%Y\'), \'-\', QUARTER(' . $accessor . '))';
                 break;
             case DateHistogramAggregation::PER_YEAR:
-                $groupBy = 'DATE_FORMAT('. $accessor .', \'%Y\')';
+                $groupBy = 'DATE_FORMAT(' . $accessor . ', \'%Y\')';
                 break;
 
             default:
@@ -390,18 +413,22 @@ class EntityAggregator implements EntityAggregatorInterface
 
             case $aggregation instanceof SumAggregation:
                 $value = $rows[0] ? $rows[0][$name] : 0;
+
                 return new SumResult($aggregation->getName(), (float) $value);
 
             case $aggregation instanceof MaxAggregation:
                 $value = $rows[0] ? $rows[0][$name] : 0;
+
                 return new MaxResult($aggregation->getName(), $value);
 
             case $aggregation instanceof MinAggregation:
                 $value = $rows[0] ? $rows[0][$name] : 0;
+
                 return new MinResult($aggregation->getName(), $value);
 
             case $aggregation instanceof CountAggregation:
                 $value = $rows[0] ? $rows[0][$name] : 0;
+
                 return new CountResult($aggregation->getName(), (int) $value);
 
             case $aggregation instanceof StatsAggregation:
@@ -410,6 +437,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 }
 
                 $row = $rows[0];
+
                 return new StatsResult($aggregation->getName(), $row[$name . '.min'], $row[$name . '.max'], (float) $row[$name . '.avg'], (float) $row[$name . '.sum']);
 
             case $aggregation instanceof EntityAggregation:
@@ -526,28 +554,5 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         return $grouped;
-    }
-
-    public static function formatDate(string $interval, \DateTime $date): string
-    {
-        switch ($interval) {
-            case DateHistogramAggregation::PER_MINUTE:
-                return $date->format('Y-m-d H:i:00');
-            case DateHistogramAggregation::PER_HOUR:
-                return $date->format('Y-m-d H:00:00');
-            case DateHistogramAggregation::PER_DAY:
-                return $date->format('Y-m-d 00:00:00');
-            case DateHistogramAggregation::PER_WEEK:
-                return $date->format('Y W');
-            case DateHistogramAggregation::PER_MONTH:
-                return $date->format('Y-m-01 00:00:00');
-            case DateHistogramAggregation::PER_QUARTER:
-                $month = (int) $date->format('m');
-                return $date->format('Y') . ' ' . ceil($month / 3);
-            case DateHistogramAggregation::PER_YEAR:
-                return $date->format('Y-01-01 00:00:00');
-            default:
-                throw new \RuntimeException('Provided date format is not supported');
-        }
     }
 }

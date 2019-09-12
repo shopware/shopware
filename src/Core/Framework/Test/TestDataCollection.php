@@ -1,6 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test;
+
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -41,6 +42,7 @@ class TestDataCollection
         foreach ($keys as $key) {
             $ordered[$key] = $this->get($key);
         }
+
         return $ordered;
     }
 
@@ -57,6 +59,7 @@ class TestDataCollection
                 $ids[$key] = $id;
             }
         }
+
         return $ids;
     }
 

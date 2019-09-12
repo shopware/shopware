@@ -14,13 +14,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\StatsResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -75,7 +72,7 @@ class CachedEntityAggregatorTest extends TestCase
                     [
                         new EntityResult('properties', new EntityCollection([$configGroupEntity])),
                         new EntityResult('manufacturer', new EntityCollection([$manufacturerEntity])),
-                        new StatsResult('price', 0, 0, 0.0, 0.0)
+                        new StatsResult('price', 0, 0, 0.0, 0.0),
                     ]
                 )
             );
@@ -131,7 +128,7 @@ class CachedEntityAggregatorTest extends TestCase
                             [
                                 new EntityResult('properties', new EntityCollection([$configGroupEntity])),
                                 new EntityResult('manufacturer', new EntityCollection([$manufacturerEntity])),
-                                new StatsResult('price', 0, 0, 0.0, 0.0)
+                                new StatsResult('price', 0, 0, 0.0, 0.0),
                             ]
                         );
                     }

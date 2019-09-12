@@ -632,8 +632,9 @@ class BlacklistRuleFieldTest extends TestCase
         $criteria->addAggregation(new TermsAggregation('eans', 'product.ean'));
 
         $context = $this->createContextWithRules();
-        /** @var TermsResult $result */
         $result = $this->repository->aggregate($criteria, $context)->get('eans');
+
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertContains($product2, $values);
@@ -641,6 +642,7 @@ class BlacklistRuleFieldTest extends TestCase
 
         $context = $this->createContextWithRules([$rule1]);
         $result = $this->repository->aggregate($criteria, $context)->get('eans');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertContains($product2, $values);
@@ -648,6 +650,7 @@ class BlacklistRuleFieldTest extends TestCase
 
         $context = $this->createContextWithRules([$rule2, $rule3]);
         $result = $this->repository->aggregate($criteria, $context)->get('eans');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertNotContains($product2, $values);
@@ -707,8 +710,9 @@ class BlacklistRuleFieldTest extends TestCase
         /** @var EntityRepositoryInterface $manufacturerRepository */
         $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
         $context = $this->createContextWithRules();
-        /** @var TermsResult $result */
+
         $result = $manufacturerRepository->aggregate($criteria, $context)->get('products');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertContains($product2, $values);
@@ -717,14 +721,15 @@ class BlacklistRuleFieldTest extends TestCase
         $context = $this->createContextWithRules([$rule1]);
         $result = $manufacturerRepository->aggregate($criteria, $context)->get('products');
 
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertContains($product2, $values);
         static::assertContains($product3, $values);
 
         $context = $this->createContextWithRules([$rule2, $rule3]);
-        /** @var TermsResult $result */
         $result = $manufacturerRepository->aggregate($criteria, $context)->get('products');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertNotContains($product2, $values);
@@ -795,6 +800,8 @@ class BlacklistRuleFieldTest extends TestCase
         $categoryRepository = $this->getContainer()->get('category.repository');
         $context = $this->createContextWithRules();
         $result = $categoryRepository->aggregate($criteria, $context)->get('products');
+
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertContains($product2, $values);
@@ -802,6 +809,7 @@ class BlacklistRuleFieldTest extends TestCase
 
         $context = $this->createContextWithRules([$rule1]);
         $result = $categoryRepository->aggregate($criteria, $context)->get('products');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertContains($product2, $values);
@@ -809,6 +817,7 @@ class BlacklistRuleFieldTest extends TestCase
 
         $context = $this->createContextWithRules([$rule2, $rule3]);
         $result = $categoryRepository->aggregate($criteria, $context)->get('products');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertNotContains($product2, $values);

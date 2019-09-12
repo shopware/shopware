@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\AvgAg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
@@ -121,7 +120,7 @@ class AggregationParserTest extends TestCase
         static::assertEquals('product.stock', $avgAggregation->getField());
     }
 
-    public function testICanCreateNestedAggregations()
+    public function testICanCreateNestedAggregations(): void
     {
         $criteria = new Criteria();
         $exception = new SearchRequestException();
@@ -145,10 +144,10 @@ class AggregationParserTest extends TestCase
                                 'field' => 'product.manufacturerId',
                                 'sort' => [
                                     'field' => 'product.price',
-                                    'direction' => FieldSorting::ASCENDING
-                                ]
-                            ]
-                        ]
+                                    'direction' => FieldSorting::ASCENDING,
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ],
@@ -176,7 +175,7 @@ class AggregationParserTest extends TestCase
         static::assertEquals(new FieldSorting('product.price'), $level->getSorting());
     }
 
-    public function testICanCreateAFilterAggregation()
+    public function testICanCreateAFilterAggregation(): void
     {
         $criteria = new Criteria();
         $exception = new SearchRequestException();
@@ -190,13 +189,13 @@ class AggregationParserTest extends TestCase
                         'type' => 'filter',
                         'filter' => [
                             ['type' => 'contains', 'field' => 'foo', 'value' => 'bar'],
-                            ['type' => 'equalsAny', 'field' => 'foo', 'value' => 'bar']
+                            ['type' => 'equalsAny', 'field' => 'foo', 'value' => 'bar'],
                         ],
                         'aggregation' => [
                             'name' => 'level1',
                             'type' => 'terms',
                             'field' => 'product.manufacturerId',
-                        ]
+                        ],
                     ],
                 ],
             ],

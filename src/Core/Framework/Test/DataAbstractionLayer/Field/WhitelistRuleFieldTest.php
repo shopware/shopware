@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -632,6 +633,7 @@ class WhitelistRuleFieldTest extends TestCase
 
         $context = $this->createContextWithRules();
         $result = $this->repository->aggregate($criteria, $context)->get('eans');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertNotContains($product2, $values);
@@ -639,6 +641,7 @@ class WhitelistRuleFieldTest extends TestCase
 
         $context = $this->createContextWithRules([$rule1]);
         $result = $this->repository->aggregate($criteria, $context)->get('eans');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertNotContains($product2, $values);
@@ -646,6 +649,7 @@ class WhitelistRuleFieldTest extends TestCase
 
         $context = $this->createContextWithRules([$rule2, $rule3]);
         $result = $this->repository->aggregate($criteria, $context)->get('eans');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertContains($product2, $values);
@@ -706,6 +710,7 @@ class WhitelistRuleFieldTest extends TestCase
         $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
         $context = $this->createContextWithRules();
         $result = $manufacturerRepository->aggregate($criteria, $context)->get('products');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertNotContains($product2, $values);
@@ -713,6 +718,7 @@ class WhitelistRuleFieldTest extends TestCase
 
         $context = $this->createContextWithRules([$rule1]);
         $result = $manufacturerRepository->aggregate($criteria, $context)->get('products');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertNotContains($product2, $values);
@@ -720,6 +726,7 @@ class WhitelistRuleFieldTest extends TestCase
 
         $context = $this->createContextWithRules([$rule2, $rule3]);
         $result = $manufacturerRepository->aggregate($criteria, $context)->get('products');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertContains($product2, $values);
@@ -790,7 +797,7 @@ class WhitelistRuleFieldTest extends TestCase
         $categoryRepository = $this->getContainer()->get('category.repository');
         $context = $this->createContextWithRules();
         $result = $categoryRepository->aggregate($criteria, $context)->get('products');
-
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertNotContains($product1, $values);
         static::assertNotContains($product2, $values);
@@ -798,6 +805,7 @@ class WhitelistRuleFieldTest extends TestCase
 
         $context = $this->createContextWithRules([$rule1]);
         $result = $categoryRepository->aggregate($criteria, $context)->get('products');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertNotContains($product2, $values);
@@ -805,6 +813,7 @@ class WhitelistRuleFieldTest extends TestCase
 
         $context = $this->createContextWithRules([$rule2, $rule3]);
         $result = $categoryRepository->aggregate($criteria, $context)->get('products');
+        static::assertInstanceOf(TermsResult::class, $result);
         $values = $result->getKeys();
         static::assertContains($product1, $values);
         static::assertContains($product2, $values);

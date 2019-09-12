@@ -27,7 +27,7 @@ class OffsetQuery implements IterableQuery
         $data = $this->query->execute()->fetchAll();
         $data = FetchModeHelper::keyPair($data);
 
-        $this->offset += \count($data);
+        $this->offset = $this->query->getFirstResult() + \count($data);
         $this->query->setFirstResult($this->offset);
 
         return $data;

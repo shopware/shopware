@@ -246,7 +246,7 @@ In short, you give the explicit right to use your code in Shopware to shopware A
 
 ## License
 
-Shopware 6 is completely free and released under the [MIT License](LICENSE).
+Shopware 6 is completely free and released under the [MIT License](license.txt).
 
 ## Authors
 

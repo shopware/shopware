@@ -267,6 +267,7 @@ class ThemeService
                         'label' => $fieldConfig['label'],
                         'helpText' => $fieldConfig['helpText'] ?? null,
                         'type' => $fieldConfig['type'],
+                        'custom' => $fieldConfig['custom'],
                     ],
                 ];
             } elseif (!isset($blocks[$fieldConfig['block']])) {
@@ -279,6 +280,7 @@ class ThemeService
                                 'label' => $fieldConfig['label'],
                                 'helpText' => $fieldConfig['helpText'] ?? null,
                                 'type' => $fieldConfig['type'],
+                                'custom' => $fieldConfig['custom'],
                             ],
                         ],
                     ],
@@ -288,6 +290,7 @@ class ThemeService
                     'label' => $fieldConfig['label'],
                     'helpText' => $fieldConfig['helpText'] ?? null,
                     'type' => $fieldConfig['type'],
+                    'custom' => $fieldConfig['custom'],
                 ];
             } else {
                 $blocks[$fieldConfig['block']]['sections'][$section] = [
@@ -296,6 +299,7 @@ class ThemeService
                         'label' => $fieldConfig['label'],
                         'helpText' => $fieldConfig['helpText'] ?? null,
                         'type' => $fieldConfig['type'],
+                        'custom' => $fieldConfig['custom'],
                     ],
                 ];
             }

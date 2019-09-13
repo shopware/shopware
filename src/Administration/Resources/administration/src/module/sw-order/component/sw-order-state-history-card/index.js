@@ -133,7 +133,7 @@ Component.register('sw-order-state-history-card', {
                 entries.push({
                     state: entry.toStateMachineState,
                     createdAt: entry.createdAt,
-                    user: entry.user
+                    user: entry.user ? entry.user : null
                 });
             });
 

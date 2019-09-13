@@ -117,13 +117,13 @@ class SeoUrlPersister
             $insert['is_valid'] = true;
             $insert['created_at'] = $dateTime;
 
-            $inserts[] = $insert;
-        }
-
-        $inserts = $this->reenableOldEntries($inserts, $languageId);
-        foreach ($inserts as $insert) {
             $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
         }
+
+        //$inserts = $this->reenableOldEntries($inserts, $languageId);
+//        foreach ($inserts as $insert) {
+//            $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
+//        }
         $insertQuery->execute();
 
         $this->invalidateEntityCache();
@@ -288,6 +288,35 @@ class SeoUrlPersister
          * If we find duplicates for a seo_path_info we need to mark all but one seo_url as invalid.
          * The newest seo_url wins. The ordering is established by the auto_increment column.
          */
+        $dupSameFkIds = $this->connection->executeQuery(
+            'SELECT DISTINCT invalid.id 
+            FROM seo_url valid
+            INNER JOIN seo_url invalid
+                ON valid.seo_path_info = invalid.seo_path_info
+                AND valid.language_id = invalid.language_id
+                AND (valid.sales_channel_id = invalid.sales_channel_id
+                    OR valid.sales_channel_id IS NULL AND invalid.sales_channel_id IS NULL
+                ) AND valid.auto_increment > invalid.auto_increment # order
+                AND valid.foreign_key = invalid.foreign_key
+                AND invalid.foreign_key IN (:foreign_keys)
+            WHERE (valid.sales_channel_id IN (:sales_channel_ids) OR valid.sales_channel_id IS NULL)
+            AND valid.language_id = :language_id',
+            ['language_id' => $languageId, 'sales_channel_ids' => $salesChannelIds, 'foreign_keys' => $foreignKeys],
+            ['language_id' => ParameterType::STRING, 'sales_channel_ids' => Connection::PARAM_STR_ARRAY, 'foreign_keys' => Connection::PARAM_STR_ARRAY]
+        )->fetchAll(FetchMode::COLUMN);
+
+        if (!empty($dupSameFkIds)) {
+            $this->connection->executeQuery(
+                'UPDATE seo_url SET is_valid = 0 WHERE id IN (:ids)',
+                ['ids' => $dupSameFkIds],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+        }
+
+        /*
+         * If we find duplicates for a seo_path_info we need to mark all but one seo_url as invalid.
+         * The newest seo_url wins. The ordering is established by the auto_increment column.
+         */
         $dupIds = $this->connection->executeQuery(
             'SELECT DISTINCT invalid.id 
             FROM seo_url valid
@@ -298,6 +327,7 @@ class SeoUrlPersister
                     OR valid.sales_channel_id IS NULL AND invalid.sales_channel_id IS NULL
                 ) AND valid.auto_increment < invalid.auto_increment # order
                 AND invalid.foreign_key IN (:foreign_keys)
+                AND invalid.foreign_key != valid.foreign_key
             WHERE (valid.sales_channel_id IN (:sales_channel_ids) OR valid.sales_channel_id IS NULL)
             AND valid.language_id = :language_id',
             ['language_id' => $languageId, 'sales_channel_ids' => $salesChannelIds, 'foreign_keys' => $foreignKeys],

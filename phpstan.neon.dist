@@ -4,6 +4,10 @@ parameters:
     paths:
         - %currentWorkingDirectory%/vendor/shopware/platform/src
         - %currentWorkingDirectory%/src
+    symfony:
+        constant_hassers: false
+        # the placeholder "%ShopwareHashedCacheDir%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
+        container_xml_path: '%rootDir%/../../../../../../..%ShopwareHashedCacheDir%/srcShopware_Development_KernelDevDebugContainer.xml'
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
     excludes_analyse:

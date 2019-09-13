@@ -62,13 +62,14 @@ Javascript analyze:
 
 PHP analyze:
     stage: Static analyzes
+    services:
+        -   name: mysql:5.7
+            alias: mysql
     script:
-        - composer install --no-interaction --optimize-autoloader --no-suggest --no-scripts
-        - composer install --no-interaction --optimize-autoloader --no-suggest --working-dir=dev-ops/analyze
+        - ./psh.phar init
         - php dev-ops/analyze/generate-composer.php
         - php dev-ops/analyze/vendor/bin/php-cs-fixer fix --config=vendor/shopware/platform/.php_cs.dist --dry-run --format=junit | tee php-cs-fixer.xml
-        - php dev-ops/analyze/vendor/bin/phpstan analyze --configuration vendor/shopware/platform/phpstan.neon
-        - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false
+        - ./psh.phar static-analyze
     artifacts:
         reports:
             junit: php-cs-fixer.xml

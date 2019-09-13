@@ -123,7 +123,9 @@ class ProductExporter implements ProductExporterInterface
         $criteria = new Criteria();
         $criteria
             ->addFilter(...$filters)
-            ->setLimit($this->readBufferSize);
+            ->setLimit($this->readBufferSize)
+            ->addAssociation('manufacturer')
+            ->addAssociation('media');
 
         $iterator = new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
 

@@ -83,13 +83,6 @@ abstract class StorefrontController extends AbstractController
 
     protected function resolveView(string $view, ?string $activeThemeName, ?string $activeThemeBaseName): string
     {
-        //remove static template inheritance prefix
-        if (strpos($view, '@') === 0) {
-            $viewParts = explode('/', $view);
-            array_shift($viewParts);
-            $view = implode('/', $viewParts);
-        }
-
         /** @var ThemeTemplateFinder $templateFinder */
         $templateFinder = $this->get(ThemeTemplateFinder::class);
 

@@ -29,7 +29,7 @@ class TwigSwExtendsTest extends TestCase
 
     public function setUp(): void
     {
-        $this->cacheDir = $this->getKernel()->getCacheDir() . '/twig_test_' . time();
+        $this->cacheDir = $this->getKernel()->getCacheDir() . '/twig_test_' . microtime();
         $this->cache = new FilesystemCache($this->cacheDir);
     }
 
@@ -98,5 +98,56 @@ class TwigSwExtendsTest extends TestCase
         $templatePath = $templateFinder->find('frontend/base.html.twig');
         $template = $twig->loadTemplate($templatePath);
         static::assertSame('Base/TestPlugin2', $template->render([]));
+    }
+
+    public function testPluginExtendsOtherPlugin(): void
+    {
+        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
+        $twig = new Environment($loader, [
+            'cache' => $this->cache,
+        ]);
+
+        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
+        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
+        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
+        // order is  important for this test. 2 needs to be loaded before 1
+        $templateFinder->addBundle($bundlePlugin2);
+        $templateFinder->addBundle($bundlePlugin1);
+        $twig->addExtension(new InheritanceExtension($templateFinder));
+        $twig->getExtension(InheritanceExtension::class)->getFinder();
+
+        $templatePath = $templateFinder->find('@TestPlugin1/frontend/new_template.html.twig');
+        $template = $twig->loadTemplate($templatePath);
+
+        $template->render([]);
+        static::assertSame('AnotherBaseTestPlugin1TestPlugin2', $template->render([]));
+    }
+
+    public function testExtendWithLoop(): void
+    {
+        $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
+        $loader->addPath(__DIR__ . '/fixtures/Storefront/Resources/views', 'Storefront');
+        $twig = new Environment($loader, [
+            'cache' => $this->cache,
+        ]);
+
+        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
+        $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
+        $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
+        // order is  important for this test. 2 needs to be loaded before 1
+        $templateFinder->addBundle($bundlePlugin2);
+        $templateFinder->addBundle($bundlePlugin1);
+        $twig->addExtension(new InheritanceExtension($templateFinder));
+        $twig->getExtension(InheritanceExtension::class)->getFinder();
+
+        $templatePath = $templateFinder->find('@Storefront/frontend/testExtendWithLoop/loop.html.twig');
+        $template = $twig->loadTemplate($templatePath);
+
+        $template->render([]);
+        static::assertSame(
+            'storefront-B-Astorefront-B-Astorefront-B-Astorefront-B-Astorefront-B-Astorefront-B-A',
+            $template->render([])
+        );
     }
 }

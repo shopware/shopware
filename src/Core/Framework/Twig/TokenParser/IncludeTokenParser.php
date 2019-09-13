@@ -34,10 +34,8 @@ final class IncludeTokenParser extends AbstractTokenParser
 
         //resolves parent template
         if ($expr->hasAttribute('value')) {
-            $template = $this->finder->getTemplateName($expr->getAttribute('value'));
-
             //set pointer to next value (contains the template file name)
-            $parent = $this->finder->find($template, $ignoreMissing);
+            $parent = $this->finder->find($expr->getAttribute('value'), $ignoreMissing);
 
             $expr->setAttribute('value', $parent);
 

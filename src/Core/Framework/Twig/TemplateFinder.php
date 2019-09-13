@@ -65,35 +65,57 @@ class TemplateFinder
     }
 
     /**
+     * A custom template resolving function is needed to allow multi inheritance of template.
+     * This function will check if any other bundle tries to extend the requested template and
+     * returns the path to the extending template. Otherwise the original path will be returned.
+     *
+     * @param string      $template      Path of the requested template, ideally with @Bundle prefix
+     * @param bool        $ignoreMissing If set to true no error is throw if the template is missing
+     * @param string|null $source        Name of the bundle which triggered the search
+     *
      * @throws LoaderError
      */
-    public function find(string $template, $ignoreMissing = false, ?string $startAt = null): string
+    public function find(string $template, $ignoreMissing = false, ?string $source = null): string
     {
-        $template = ltrim($template, '@');
+        $templatePath = $this->getTemplateName($template);
+        $originalTemplate = $source ? null : $template;
 
-        $filterdBundles = $queue = $this->filterBundles($this->bundles);
+        $queue = $this->filterBundles($this->bundles);
 
-        if ($startAt) {
-            $index = array_search($startAt, $filterdBundles, true);
+        if ($source) {
+            $index = array_search($source, $queue, true);
 
             $queue = array_merge(
-                array_slice($filterdBundles, $index + 1),
-                array_slice($filterdBundles, 0, $index + 1)
+                array_slice($queue, $index + 1),
+                array_slice($queue, 0, $index + 1)
             );
         }
 
+        // iterate over all bundles but exclude the originally requested bundle
+        // example: if @Storefront/index.html.twig is requested, all bundles except Storefront will be checked first
         foreach ($queue as $index => $prefix) {
-            $name = '@' . $prefix . '/' . $template;
+            $name = '@' . $prefix . '/' . $templatePath;
 
-            if ($this->loader->exists($name)) {
-                return $name;
+            if ($name === $originalTemplate) {
+                continue;
             }
+
+            if (!$this->loader->exists($name)) {
+                continue;
+            }
+
+            return $name;
+        }
+
+        // if no other bundle extends the requested template, load the original template
+        if ($this->loader->exists($originalTemplate)) {
+            return $originalTemplate;
         }
 
         if ($ignoreMissing === true) {
-            return $template;
+            return $templatePath;
         }
-        throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $template, implode(', ', array_values($queue))));
+        throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($queue))));
     }
 
     protected function filterBundles(array $bundles)

@@ -74,13 +74,6 @@ class DocumentTemplateRenderer
      */
     private function resolveView(string $view): string
     {
-        //remove static template inheritance prefix
-        if (strpos($view, '@') === 0) {
-            $viewParts = explode('/', $view);
-            array_shift($viewParts);
-            $view = implode('/', $viewParts);
-        }
-
         return $this->templateFinder->find($view);
     }
 }

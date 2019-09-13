@@ -165,9 +165,10 @@ class ThemeService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
+        /** @var ThemeEntity $baseTheme */
         $baseTheme = $this->themeRepository->search($criteria, $context)->first();
 
-        $baseTheme = $this->mergeStaticConfig($baseTheme);
+        $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
 
         $criteria = new Criteria([$themeId]);
 
@@ -183,7 +184,7 @@ class ThemeService
 
         $configuredTheme = $this->mergeStaticConfig($theme);
 
-        $themeConfig = array_replace_recursive($baseTheme, $configuredTheme);
+        $themeConfig = array_replace_recursive($baseThemeConfig, $configuredTheme);
 
         foreach ($themeConfig['fields'] as $name => $item) {
             $configFields[$name] = $themeConfigFieldFactory->create($name, $item);
@@ -191,12 +192,14 @@ class ThemeService
 
         $configFields = json_decode(json_encode($configFields), true);
 
-        if ($translate && $theme->getLabels()) {
-            $configFields = $this->translateLabels($configFields, $theme->getLabels());
+        $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
+        if ($translate && !empty($labels)) {
+            $configFields = $this->translateLabels($configFields, $labels);
         }
 
-        if ($translate && $theme->getHelpTexts()) {
-            $configFields = $this->translateHelpTexts($configFields, $theme->getHelpTexts());
+        $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
+        if ($translate && !empty($helpTexts)) {
+            $configFields = $this->translateHelpTexts($configFields, $helpTexts);
         }
 
         $themeConfig['fields'] = $configFields;

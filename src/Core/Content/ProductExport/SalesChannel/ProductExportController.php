@@ -77,7 +77,7 @@ class ProductExportController extends StorefrontController
             throw new ExportNotFoundException(null, $request->get('fileName'));
         }
 
-        $this->productExportService->generate($context, new ExportBehavior(), $productExport->getId());
+        $this->productExportService->export($context, new ExportBehavior(), $productExport->getId());
         $filePath = $this->productExportService->getFilePath($productExport);
         if (!$this->fileSystem->has($filePath)) {
             throw new ExportNotGeneratedException();

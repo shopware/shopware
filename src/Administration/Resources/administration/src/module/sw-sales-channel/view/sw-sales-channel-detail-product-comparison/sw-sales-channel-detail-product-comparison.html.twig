@@ -1,0 +1,72 @@
+{% block sw_sales_channel_detail_base %}
+    <div class="sw-sales-channel-detail-product-comparison">
+
+        {% block sw_sales_channel_detail_product_comparison %}
+            <sw-card :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleProductComparisonTemplate')" key="edit">
+
+                {% block sw_sales_channel_detail_product_comparison_header %}
+                    <sw-container>
+                        {% block sw_sales_channel_detail_product_comparison_input_header %}
+                            <sw-code-editor
+                                :label="$tc('sw-sales-channel.detail.product-comparison.inputHeaderLabel')"
+                                mode="twig"
+                                :softWraps="true"
+                                :setFocus="false"
+                                v-model="productExport.headerTemplate"
+                            >
+                            </sw-code-editor>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_product_comparison_body %}
+                    <sw-container>
+                        {% block sw_sales_channel_detail_product_comparison_input_body %}
+                            <sw-code-editor
+                                :label="$tc('sw-sales-channel.detail.product-comparison.inputBodyLabel')"
+                                mode="twig"
+                                :softWraps="true"
+                                :setFocus="false"
+                                v-model="productExport.bodyTemplate">
+                            </sw-code-editor>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_product_comparison_footer %}
+                    <sw-container>
+                        {% block sw_sales_channel_detail_product_comparison_input_footer %}
+                            <sw-code-editor
+                                :label="$tc('sw-sales-channel.detail.product-comparison.inputFooterLabel')"
+                                mode="twig"
+                                :softWraps="true"
+                                :setFocus="false"
+                                v-model="productExport.footerTemplate">
+                            </sw-code-editor>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_product_comparison_actions %}
+                    <sw-container columns="1fr 50%" gap="0 30px" >
+                        {% block sw_sales_channel_detail_product_comparison_actions_test_button %}
+                            <sw-button @click="validateTemplate" :disabled="false" :square="false" :block="false" :isLoading="false">
+                                {{ $tc('sw-sales-channel.detail.product-comparison.buttonTestLabel') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_product_comparison_actions_preview_button %}
+                            <sw-button-process @click="preview" :square="false" :block="false" :isLoading="isLoadingPreview" :disabled="isLoadingPreview" :processSuccess="isPreviewSuccessful">
+                                {{ $tc('sw-sales-channel.detail.product-comparison.buttonPreviewLabel') }}
+                            </sw-button-process>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_product_comparison_actions_preview_component %}
+                            <sw-sales-channel-detail-product-comparison-preview :content="previewContent" @close="onPreviewClose"></sw-sales-channel-detail-product-comparison-preview>
+                        {% endblock %}
+                    </sw-container>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

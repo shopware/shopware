@@ -6,13 +6,11 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-interface ProductExporterInterface
+interface ProductExportGeneratorInterface
 {
-    public function export(
-        SalesChannelContext $context,
-        ExportBehavior $behavior,
-        ?string $productExportId = null
-    ): void;
-
-    public function getFilePath(ProductExportEntity $productExport): string;
+    public function generate(
+        ProductExportEntity $productExport,
+        ExportBehavior $exportBehavior,
+        SalesChannelContext $context
+    ): string;
 }

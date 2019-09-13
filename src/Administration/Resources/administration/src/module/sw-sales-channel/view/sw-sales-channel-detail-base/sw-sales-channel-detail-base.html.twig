@@ -30,7 +30,7 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_payments_methods %}
-                    <sw-container columns="1fr 200px" gap="0 30px">
+                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
                         {% block sw_sales_channel_detail_base_general_input_payments_methods_selection %}
                             <sw-entity-multi-select
                                 class="sw-sales-channel-detail__select-payment-method"
@@ -56,7 +56,7 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_shipping_methods %}
-                    <sw-container columns="1fr 200px" gap="0 30px">
+                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
                         {% block sw_sales_channel_detail_base_general_input_shipping_methods_selection %}
                             <sw-entity-multi-select
                                 class="sw-sales-channel-detail__select-shipping-method"
@@ -82,7 +82,7 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_countries %}
-                    <sw-container columns="1fr 200px" gap="0 30px">
+                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
                         {% block sw_sales_channel_detail_base_general_input_countries_selection %}
                             <sw-entity-multi-select
                                 class="sw-sales-channel-detail__select-countries"
@@ -108,7 +108,7 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_currencies %}
-                    <sw-container columns="1fr 200px" gap="0 30px">
+                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
                         {% block sw_sales_channel_detail_base_general_input_currencies_selection %}
                             <sw-entity-multi-select
                                 class="sw-sales-channel-detail__select-currencies"
@@ -134,7 +134,7 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_languages %}
-                    <sw-container columns="1fr 200px" gap="0 30px">
+                    <sw-container v-if="!isProductComparison" columns="1fr 200px" gap="0 30px">
                         {% block sw_sales_channel_detail_base_general_input_languages_selection %}
                             <sw-entity-multi-select
                                 class="sw-sales-channel-detail__select-languages"
@@ -161,6 +161,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_customer_group %}
                     <sw-entity-single-select
+                        v-if="!isProductComparison"
                         class="sw-sales-channel-detail__select-customer-group"
                         :label="$tc('sw-sales-channel.detail.customerGroup')"
                         entity="customer_group"
@@ -172,7 +173,7 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_navigation %}
-            <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.navigation')">
+            <sw-card v-if="salesChannel && !isProductComparison" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.navigation')">
                 {% block sw_sales_channel_detail_base_general_input_navigation_category %}
                     <sw-entity-single-select
                         required
@@ -311,6 +312,110 @@
             </sw-card>
         {% endblock %}
 
+        {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
+            <sw-card v-if="salesChannel && isProductComparison" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.product-comparison.storefront')">
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
+                    <sw-entity-single-select
+                        @input="onStorefrontSelectionChange"
+                        :label="$tc('sw-sales-channel.detail.product-comparison.storefront')"
+                        :criteria="storefrontSalesChannelCriteria"
+                        labelProperty="name"
+                        valueProperty="id"
+                        entity="sales_channel"
+                        required
+                        v-model="selectedStorefrontSalesChannelId"
+                    >
+                    </sw-entity-single-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain %}
+                    <sw-entity-single-select
+                        :label="$tc('sw-sales-channel.detail.product-comparison.storefrontDomain')"
+                        :criteria="storefrontSalesChannelDomainCriteria"
+                        labelProperty="url"
+                        valueProperty="id"
+                        entity="sales_channel_domain"
+                        required
+                        :disabled="!productExport.salesChannelDomainId && !selectedStorefrontSalesChannel"
+                        v-model="productExport.salesChannelDomainId">
+                    </sw-entity-single-select>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_base_general_input_product_comparison_settings %}
+            <sw-card v-if="salesChannel && isProductComparison" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.product-comparison.settings')">
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_filename %}
+                    <sw-field
+                        type="text"
+                        validation="required"
+                        required
+                        :label="$tc('sw-sales-channel.detail.product-comparison.fileName')"
+                        v-model="productExport.fileName">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_encoding %}
+                    <sw-select-field
+                        :label="$tc('sw-sales-channel.detail.product-comparison.encoding')"
+                        :placeholder="$tc('sw-sales-channel.detail.product-comparison.placeholderSelectEncoding')"
+                        :options="getEncodingOptions"
+                        required
+                        v-model="productExport.encoding">
+                    </sw-select-field>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_file_format %}
+                    <sw-select-field
+                        :label="$tc('sw-sales-channel.detail.product-comparison.fileFormat')"
+                        :placeholder="$tc('sw-sales-channel.detail.product-comparison.placeholderSelectFileFormat')"
+                        :options="getFileFormatOptions"
+                        required
+                        v-model="productExport.fileFormat">
+                    </sw-select-field>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_include_variants %}
+                    <sw-field
+                        type="switch"
+                        bordered
+                        :label="$tc('sw-sales-channel.detail.product-comparison.includeVariants')"
+                        v-model="productExport.includeVariants">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_interval %}
+                    <sw-select-number-field
+                        :label="$tc('sw-sales-channel.detail.product-comparison.interval')"
+                        :options="getIntervalOptions"
+                        v-model="productExport.interval">
+                    </sw-select-number-field>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob %}
+                    <sw-field
+                        type="switch"
+                        bordered
+                        :label="$tc('sw-sales-channel.detail.product-comparison.generateByCronjob')"
+                        v-model="productExport.generateByCronjob">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_product_stream %}
+                <sw-entity-single-select
+                        :label="$tc('sw-sales-channel.detail.product-comparison.productStream')"
+                        labelProperty="name"
+                        valueProperty="id"
+                        required
+                        entity="product_stream"
+                        v-model="productExport.productStreamId"
+                >
+                </sw-entity-single-select>
+                {% endblock %}
+
+            </sw-card>
+        {% endblock %}
+
         {% block sw_sales_channel_detail_base_options %}
             <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleOptionsCard')">
                 {% block sw_sales_channel_detail_base_options_api %}
@@ -319,6 +424,7 @@
                             :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
                             :disabled="true"
                             v-model="salesChannel.accessKey"
+                            v-if="!isProductComparison"
                             :copyable="true">
                         </sw-field>
                     {% endblock %}
@@ -329,10 +435,36 @@
                                 @click="onGenerateKeys"
                                 variant="ghost"
                                 size="small"
-                                class="sw-sales-channel-detail-base__button-generate-keys">
+                                class="sw-sales-channel-detail-base__button-generate-keys"
+                                v-if="!isProductComparison">
                                 {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
                             </sw-button>
                         </div>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_base_product_comparison_access_key %}
+                        {% block sw_sales_channel_detail_base_product_comparison_input_access_key %}
+                        <sw-field
+                                :label="$tc('sw-sales-channel.detail.product-comparison.accessKey')"
+                                :disabled="true"
+                                v-model="productExport.accessKey"
+                                v-if="isProductComparison"
+                                :copyable="true">
+                        </sw-field>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_product_comparison_input_generate_key %}
+                        <div class="sw-sales-channel-detail__action-button">
+                            <sw-button
+                                    @click="onGenerateProductExportKey"
+                                    variant="ghost"
+                                    size="small"
+                                    class="sw-sales-channel-detail-base__button-generate-keys"
+                                    v-if="isProductComparison">
+                                {{ $tc('sw-sales-channel.detail.product-comparison.buttonCreateNewAccessKey') }}
+                            </sw-button>
+                        </div>
+                        {% endblock %}
                     {% endblock %}
                 {% endblock %}
 

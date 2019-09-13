@@ -10,10 +10,14 @@ class ExportBehavior
     /** @var bool */
     private $includeInactive;
 
-    public function __construct(bool $ignoreCache = false, bool $includeInactive = false)
+    /** @var bool */
+    private $preview;
+
+    public function __construct(bool $ignoreCache = false, bool $includeInactive = false, $preview = false)
     {
         $this->ignoreCache = $ignoreCache;
         $this->includeInactive = $includeInactive;
+        $this->preview = $preview;
     }
 
     public function ignoreCache(): bool
@@ -24,5 +28,10 @@ class ExportBehavior
     public function includeInactive(): bool
     {
         return $this->includeInactive;
+    }
+
+    public function preview(): bool
+    {
+        return $this->preview;
     }
 }

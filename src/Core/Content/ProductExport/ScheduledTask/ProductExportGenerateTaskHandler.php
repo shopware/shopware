@@ -58,7 +58,7 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
             $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
 
             try {
-                $this->productExporter->generate($salesChannelContext, new ExportBehavior());
+                $this->productExporter->export($salesChannelContext, new ExportBehavior());
             } catch (ExportNotFoundException $_) {
                 // Ignore when storefront has no defined exports
             }

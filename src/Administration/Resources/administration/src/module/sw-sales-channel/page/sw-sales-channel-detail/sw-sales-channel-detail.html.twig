@@ -53,11 +53,22 @@
                         {% endblock %}
 
                         {%  block sw_sales_channel_detail_content_tab_theme %}{% endblock %}
+
+                        {%  block sw_sales_channel_detail_content_tab_product_comparison %}
+                            <sw-tabs-item v-if="isProductComparison && !isLoading"
+                                          :route="{ name: 'sw.sales.channel.detail.productComparison', params: { id: $route.params.id } }"
+                                          :title="$tc('sw-sales-channel.detail.tabProductComparison')"
+                                          >
+                                {{ $tc('sw-sales-channel.detail.tabProductComparison') }}
+                            </sw-tabs-item>
+                        {% endblock %}
                     </sw-tabs>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_content_view %}
                     <router-view :salesChannel="salesChannel"
+                                 :productExport="productExport"
+                                 :storefrontSalesChannelCriteria="storefrontSalesChannelCriteria"
                                  :customFieldSets="customFieldSets"
                                  :isLoading="isLoading"
                                  :key="$route.params.id">

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ProductExport\Service;
 
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface ProductExportRendererInterface
@@ -20,7 +19,7 @@ interface ProductExportRendererInterface
 
     public function renderBody(
         ProductExportEntity $productExport,
-        EntityCollection $productCollection,
-        SalesChannelContext $salesChannelContext
+        SalesChannelContext $salesChannelContext,
+        array $data
     ): string;
 }

@@ -26,7 +26,9 @@ Component.register('sw-sales-channel-detail', {
             salesChannel: null,
             isLoading: false,
             customFieldSets: [],
-            isSaveSuccessful: false
+            storefrontSalesChannels: [],
+            isSaveSuccessful: false,
+            newProductExport: null
         };
     },
 
@@ -41,8 +43,32 @@ Component.register('sw-sales-channel-detail', {
             return this.placeholder(this.salesChannel, 'name');
         },
 
+        productExport() {
+            if (this.salesChannel && this.salesChannel.productExports.first()) {
+                return this.salesChannel.productExports.first();
+            }
+
+            if (this.newProductExport) {
+                return this.newProductExport;
+            }
+
+            this.newProductExport = this.productExportRepository.create(this.context);
+            this.newProductExport.interval = 0;
+            this.newProductExport.generateByCronjob = false;
+
+            return this.newProductExport;
+        },
+
         isStoreFront() {
             return this.salesChannel.typeId === '8a243080f92e4c719546314b577cf82b';
+        },
+
+        isProductComparison() {
+            if (!this.salesChannel) {
+                return this.$route.params.typeId === 'ed535e5722134ac1aa6524f73e26881b';
+            }
+
+            return this.salesChannel.typeId === 'ed535e5722134ac1aa6524f73e26881b';
         },
 
         salesChannelRepository() {
@@ -51,6 +77,16 @@ Component.register('sw-sales-channel-detail', {
 
         customFieldRepository() {
             return this.repositoryFactory.create('custom_field_set');
+        },
+
+        productExportRepository() {
+            return this.repositoryFactory.create('product_export');
+        },
+
+        storefrontSalesChannelCriteria() {
+            const criteria = new Criteria();
+
+            return criteria.addFilter(Criteria.equals('typeId', '8a243080f92e4c719546314b577cf82b'));
         },
 
         tooltipSave() {
@@ -96,6 +132,17 @@ Component.register('sw-sales-channel-detail', {
         },
 
         loadSalesChannel() {
+            const criteria = this.getLoadSalesChannelCriteria();
+            this.isLoading = true;
+            this.salesChannelRepository
+                .get(this.$route.params.id, this.context, criteria)
+                .then((entity) => {
+                    this.salesChannel = entity;
+                    this.isLoading = false;
+                });
+        },
+
+        getLoadSalesChannelCriteria() {
             const criteria = new Criteria();
 
             criteria.addAssociation('paymentMethods');
@@ -104,12 +151,22 @@ Component.register('sw-sales-channel-detail', {
             criteria.addAssociation('currencies');
             criteria.addAssociation('languages');
             criteria.addAssociation('domains');
+            criteria.addAssociation('productExports');
+            criteria.addAssociationPath('productExports.salesChannelDomain.salesChannel');
+
+            return criteria;
+        },
+
+        loadStorefrontSalesChannels() {
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.equals('typeId', '8a243080f92e4c719546314b577cf82b'));
 
             this.isLoading = true;
             this.salesChannelRepository
-                .get(this.$route.params.id, this.context, criteria)
-                .then((entity) => {
-                    this.salesChannel = entity;
+                .search(criteria, this.context)
+                .then((searchResult) => {
+                    this.storefrontSalesChannels = searchResult;
                     this.isLoading = false;
                 });
         },
@@ -136,6 +193,9 @@ Component.register('sw-sales-channel-detail', {
             this.isLoading = true;
 
             this.isSaveSuccessful = false;
+            if (this.isProductComparison && this.salesChannel.productExports.length === 0) {
+                this.salesChannel.productExports.add(this.productExport);
+            }
 
             this.salesChannelRepository
                 .save(this.salesChannel, this.context)

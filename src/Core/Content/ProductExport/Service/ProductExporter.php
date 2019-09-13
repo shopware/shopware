@@ -3,17 +3,13 @@
 namespace Shopware\Core\Content\ProductExport\Service;
 
 use League\Flysystem\FilesystemInterface;
-use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductExporter implements ProductExporterInterface
@@ -21,43 +17,28 @@ class ProductExporter implements ProductExporterInterface
     /** @var EntityRepositoryInterface */
     private $productExportRepository;
 
-    /** @var ProductStreamBuilderInterface */
-    private $productStreamBuilder;
-
-    /** @var ProductExportRendererInterface */
-    private $productExportRender;
-
     /** @var FilesystemInterface */
     private $fileSystem;
 
-    /** @var SalesChannelRepositoryInterface */
-    private $productRepository;
-
-    /** @var int */
-    private $readBufferSize;
+    /** @var ProductExportGeneratorInterface */
+    private $productExportGenerator;
 
     /** @var string */
     private $exportDirectory;
 
     public function __construct(
         EntityRepositoryInterface $productExportRepository,
-        ProductStreamBuilderInterface $productStreamBuilder,
-        ProductExportRendererInterface $productExportRender,
         FilesystemInterface $fileSystem,
-        SalesChannelRepositoryInterface $productRepository,
-        int $readBufferSize,
+        ProductExportGeneratorInterface $productExportGenerator,
         string $exportDirectory
     ) {
         $this->productExportRepository = $productExportRepository;
-        $this->productStreamBuilder = $productStreamBuilder;
-        $this->productExportRender = $productExportRender;
         $this->fileSystem = $fileSystem;
-        $this->productRepository = $productRepository;
-        $this->readBufferSize = $readBufferSize;
+        $this->productExportGenerator = $productExportGenerator;
         $this->exportDirectory = $exportDirectory;
     }
 
-    public function generate(
+    public function export(
         SalesChannelContext $context,
         ExportBehavior $behavior,
         ?string $productExportId = null
@@ -113,42 +94,7 @@ class ProductExporter implements ProductExporterInterface
             return;
         }
 
-        $tmpFile = tempnam(sys_get_temp_dir(), 'productexport');
-
-        $filters = $this->productStreamBuilder->buildFilters(
-            $productExport->getProductStreamId(),
-            $context->getContext()
-        );
-
-        $criteria = new Criteria();
-        $criteria
-            ->addFilter(...$filters)
-            ->setLimit($this->readBufferSize)
-            ->addAssociation('manufacturer')
-            ->addAssociation('media');
-
-        $iterator = new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
-
-        $total = $iterator->getTotal();
-
-        if ($total === 0) {
-            throw new EmptyExportException($productExport->getId());
-        }
-
-        while ($products = $iterator->fetch()) {
-            $content = $this->fileSystem->has($tmpFile)
-                ? $this->fileSystem->read($tmpFile)
-                : '';
-
-            $content .= $this->productExportRender->renderBody($productExport, $products->getEntities(), $context);
-
-            $this->fileSystem->put($tmpFile, $content);
-        }
-
-        $content
-            = $this->productExportRender->renderHeader($productExport, $context)
-            . $this->fileSystem->read($tmpFile)
-            . $this->productExportRender->renderFooter($productExport, $context);
+        $content = $this->productExportGenerator->generate($productExport, $behavior, $context);
 
         $filePath = $this->getFilePath($productExport);
 
@@ -168,7 +114,7 @@ class ProductExporter implements ProductExporterInterface
 
         $this->fileSystem->write(
             $filePath,
-            mb_convert_encoding($content, $productExport->getEncoding())
+            $content
         );
     }
 

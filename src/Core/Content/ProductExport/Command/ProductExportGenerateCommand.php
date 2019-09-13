@@ -49,7 +49,7 @@ class ProductExportGenerateCommand extends Command
 
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
 
-        $this->productExportService->generate(
+        $this->productExportService->export(
             $salesChannelContext,
             new ExportBehavior($forceGeneration, $includeInactive),
             $productExportId

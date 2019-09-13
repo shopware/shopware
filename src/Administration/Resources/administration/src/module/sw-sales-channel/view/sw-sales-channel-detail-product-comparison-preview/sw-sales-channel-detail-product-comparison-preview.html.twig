@@ -1,0 +1,17 @@
+{% block sw_sales_channel_detail_product_comparison_preview %}
+    <div class="sw-sales-channel-detail-product-comparison-preview">
+        {% block sw_sales_channel_detail_product_comparison_preview_modal %}
+            <sw-modal :title="$tc('sw-sales-channel.detail.titleProductComparisonPreview')" v-if="content" @modal-close="onModalClose" variant="full">
+                {% block sw_sales_channel_detail_product_comparison_preview_modal_content %}
+                    <sw-code-editor
+                        mode="text"
+                        :editorConfig="editorConfig"
+                        :softWraps="true"
+                        :setFocus="false"
+                        :value="content">
+                    </sw-code-editor>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
+    </div>
+{% endblock %}

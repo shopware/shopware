@@ -19,12 +19,17 @@
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExporter" public="true">
             <argument type="service" id="product_export.repository"/>
-            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
-            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer"/>
             <argument type="service" id="shopware.filesystem.private"/>
-            <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="string">%product_export.read_buffer_size%</argument>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerator"/>
             <argument type="string">%product_export.directory%</argument>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerator" public="true">
+            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="string">%product_export.read_buffer_size%</argument>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand">
@@ -43,6 +48,15 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="sales_channel.repository"/>
             <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Api\ProductExportController" public="true">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerator"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\SalesChannel\ProductExportController" public="true">

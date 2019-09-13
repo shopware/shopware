@@ -140,30 +140,33 @@ class Migration1567154268ProductExportBasicData extends MigrationStep
 Hersteller,{#- -#}
 Produktbezeichnung,{#- -#}
 Preis,{#- -#}
+Grundpreis,{#- -#}
 Hersteller-Artikelnummer,{#- -#}
 EAN,{#- -#}
-PZN,{#- -#}
-ISBN,{#- -#}
-Versandkosten Nachnahme,{#- -#}
-Versandkosten Vorkasse,{#- -#}
-Versandkosten Bankeinzug,{#- -#}
+Versandkosten,{#- -#}
 Deeplink,{#- -#}
 Lieferzeit,{#- -#}
 Artikelnummer,{#- -#}
 Link Produktbild,{#- -#}
-Produkt Kurztext{#- -#}',
+Produkt Kurztext,{#- -#}
+Vorkasse Zuschlag,{#- Change or add your payment methods -#}
+Nachnahme Zuschlag,{#- Change or add your payment methods -#}
+Rechnung Zuschlag{#- Change or add your payment methods -#}',
 
-                'body_template' => ',{#- -#}
+                'body_template' => '{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw }},{#- -#}
 {{ product.manufacturer.translated.name }},{#- -#}
 {{ product.translated.name }},{#- -#}
 {{ product.calculatedPrice.unitPrice|currency }},{#- -#}
-,{#- -#}
-,{#- -#}
-,{#- -#}
-,{#- -#}
-,{#- -#}
-,{#- -#}
-,{#- -#}
+{% set price = product.calculatedPrice %}
+{% if product.calculatedPrices|length == 1 %}
+    {% set price = product.calculatedPrices.first %}
+{% endif %}
+"{% if price.referencePrice is not null %}
+{{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
+{% endif %}",{#- -#}
+{{ product.productNumber }}, {#- -#}
+{{ product.ean }},{#- -#}
+{{ 4.90|currency }},{#- Change to your delivery costs -#}
 {{ productUrl(product) }},{#- -#}
 {% if product.availableStock >= product.minPurchase and product.deliveryTime %}
 {{ "detail.deliveryTimeAvailable"|trans({\'%name%\': product.deliveryTime.translation(\'name\')}) }}{#- -#}
@@ -174,7 +177,10 @@ Produkt Kurztext{#- -#}',
 {% endif %},{#- -#}
 {{ product.productNumber }},{#- -#}
 {{ product.media|first.media.url }},{#- -#}
-{{ product.translated.description|raw|length > 300 ? product.translated.description|raw|slice(0,300) ~ \'...\' : product.translated.description|raw }}{#- -#}',
+{{ product.translated.description|raw|length > 300 ? product.translated.description|raw|slice(0,300) ~ \'...\' : product.translated.description|raw }},{#- -#}
+0.00,{#- Change or add your payment methods -#}
+0.00,{#- Change or add your payment methods -#}
+0.00{#- Change or add your payment methods -#}',
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -204,29 +210,43 @@ link,{#- -#}
 image,{#- -#}
 dlv_time,{#- -#}
 dlv_cost,{#- -#}
-pzn{#- -#}',
+pzn,{#- -#}
+unit_pricing_measure,{#- -#}
+unit_pricing_base_measure,{#- -#}
+target_url,{#- -#}
+images{#- -#}',
 
-                'body_template' => '{{ product.productNumber }},{#- -#}
-{{ product.manufacturer.translated.name }},{#- -#}
-{{ product.manufacturer.id }},{#- -#}
-{{ product.ean }},{#- -#}
-{{ product.translated.name|length > 80 ? product.translated.name|slice(0, 80) ~ \'...\' : product.translated.name }},{#- -#}
-{{ product.translated.description|raw|length > 900 ? product.translated.description|raw|slice(0,900) ~ \'...\' : product.translated.description|raw }}{#- -#}
-,{#- -#}
-{{ product.calculatedPrice.unitPrice|currency }},{#- -#}
-{% if product.calculatedPrice.referencePrice is not null %}
-{{ product.calculatedListingPrice.from.referencePrice.price|currency }} / {{ product.calculatedListingPrice.from.referencePrice.referenceUnit }} {{ product.calculatedListingPrice.from.referencePrice.unitName }}){#- -#}
-{% endif %},{#- -#}
-{{ productUrl(product) }},{#- -#}
-{{ product.media|first.media.url }},{#- -#}
-{% if product.availableStock >= product.minPurchase and product.deliveryTime %}
+                'body_template' => '"{{ product.productNumber }}",{#- -#}
+"{{ product.manufacturer.translated.name }}",{#- -#}
+"{{ product.manufacturer.id }}",{#- -#}
+"{{ product.ean }}",{#- -#}
+"{{ product.translated.name|length > 80 ? product.translated.name|slice(0, 80) ~ \'...\' : product.translated.name }}",{#- -#}
+"{{ product.translated.description|raw|length > 900 ? product.translated.description|raw|slice(0,900) ~ \'...\' : product.translated.description|raw }}{#- -#}
+",{#- -#}
+"{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw }}",{#- -#}
+"{{ product.calculatedPrice.unitPrice|currency }}",{#- -#}
+{% set price = product.calculatedPrice %}
+{% if product.calculatedPrices|length == 1 %}
+    {% set price = product.calculatedPrices.first %}
+{% endif %}
+"{% if price.referencePrice is not null %}
+{{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
+{% endif %}",{#- -#}
+"{{ productUrl(product) }}",{#- -#}
+"{{ product.media|first.media.url }}",{#- -#}
+"{% if product.availableStock >= product.minPurchase and product.deliveryTime %}
 {{ "detail.deliveryTimeAvailable"|trans({\'%name%\': product.deliveryTime.translation(\'name\')}) }}{#- -#}
 {% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}
 {{ "detail.deliveryTimeRestock"|trans({\'%restockTime%\': product.restockTime,\'%name%\': product.deliveryTime.translation(\'name\')}) }}{#- -#}
 {% else %}
 {{ "detail.soldOut"|trans }}{#- -#}
-{% endif %},{#- -#}
-,{#- -#}',
+{% endif %}",{#- -#}
+"{{ 4.95|currency }}",{# change your default delivery costs #}{#- -#}
+,{#- -#}
+"{% if product.purchaseUnit %}{{ product.purchaseUnit }}{{ product.unit.shortCode }}{% endif %}",{#- -#}
+"{% if product.referenceUnit %}{{ product.referenceUnit }}{{ product.unit.shortCode }}{% endif %}",{#- -#}
+"{{ productUrl(product) }}",{#- -#}
+{% if product.media|length > 1 %}"{% for mediaAssociation in product.media|slice(0, 5) %}{{ mediaAssociation.media.url }}{% if not loop.last %};{% endif %}{% endfor %}"{% endif %}{#- -#}',
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

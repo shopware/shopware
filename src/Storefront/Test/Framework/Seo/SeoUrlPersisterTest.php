@@ -167,9 +167,6 @@ class SeoUrlPersisterTest extends TestCase
         $valid = $result->filterByProperty('isValid', true);
         static::assertCount(2, $valid);
 
-//        $invalid = $result->filterByProperty('isValid', false);
-//        static::assertEmpty($invalid);
-
         $canonicals = $result->filterByProperty('isCanonical', true);
         static::assertCount(1, $canonicals);
 

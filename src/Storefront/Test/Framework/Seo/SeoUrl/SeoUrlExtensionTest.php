@@ -162,21 +162,7 @@ class SeoUrlExtensionTest extends TestCase
             ['expected' => 'root/a/1', 'categoryId' => $childA1Id],
         ];
 
-        foreach ($cases as $case) {
-            $criteria = new Criteria([$case['categoryId']]);
-            $criteria->addAssociation('seoUrls');
-
-            $category = $categoryRepository->search($criteria, $context)->first();
-            static::assertInstanceOf(SeoUrlCollection::class, $category->getExtension('seoUrls'));
-
-            if (next741()) {
-                /** @var SeoUrlEntity $canonicalUrl */
-                $canonicalUrl = $category->getExtension('canonicalUrl');
-                static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
-                static::assertEquals($case['expected'], $canonicalUrl->getSeoPathInfo());
-                static::assertTrue($canonicalUrl->getIsValid());
-            }
-        }
+        $this->runChecks($cases, $categoryRepository, $context, $salesChannelId);
     }
 
     public function testSearchCategoryWithSalesChannelEntryPoint(): void
@@ -226,20 +212,86 @@ class SeoUrlExtensionTest extends TestCase
             ['expected' => '1/z', 'categoryId' => $childA1ZId],
         ];
 
-        foreach ($cases as $case) {
-            $criteria = new Criteria([$case['categoryId']]);
-            $criteria->addAssociation('seoUrls');
+        $this->runChecks($cases, $categoryRepository, $context, $salesChannelId);
+    }
 
-            $category = $categoryRepository->search($criteria, $context)->first();
-            static::assertInstanceOf(SeoUrlCollection::class, $category->getExtension('seoUrls'));
-            static::assertEquals($case['categoryId'], $category->getId());
+    public function testSearchCategoryWithComplexHierarchy(): void
+    {
+        skipTestNext741($this);
 
-            /** @var SeoUrlEntity $canonicalUrl */
-            $canonicalUrl = $category->getExtension('canonicalUrl');
-            static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
-            static::assertEquals($case['expected'], $canonicalUrl->getSeoPathInfo());
-            static::assertTrue($canonicalUrl->getIsValid());
-        }
+        $salesChannelId = Uuid::randomHex();
+        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId,
+            'test');
+
+        $categoryRepository = $this->getContainer()->get('category.repository');
+
+        $rootId = Uuid::randomHex();
+        $childAId = Uuid::randomHex();
+        $childA1Id = Uuid::randomHex();
+        $childA1ZId = Uuid::randomHex();
+        $childBId = Uuid::randomHex();
+        $childB1Id = Uuid::randomHex();
+        $childB1ZId = Uuid::randomHex();
+
+        $categoryRepository->create([[
+            'id' => $rootId,
+            'name' => 'root',
+            'children' => [
+                [
+                    'id' => $childAId,
+                    'name' => 'a',
+                    'children' => [
+                        [
+                            'id' => $childA1Id,
+                            'name' => '1',
+                            'children' => [
+                                [
+                                    'id' => $childA1ZId,
+                                    'name' => 'z',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => $childBId,
+                    'name' => 'b',
+                    'children' => [
+                        [
+                            'id' => $childB1Id,
+                            'name' => '2',
+                            'children' => [
+                                [
+                                    'id' => $childB1ZId,
+                                    'name' => 'y',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $context = $salesChannelContext->getContext();
+
+        $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $rootId);
+        $casesRoot = [
+            ['expected' => 'b', 'categoryId' => $childBId],
+            ['expected' => 'b/2/y', 'categoryId' => $childB1ZId],
+            ['expected' => 'a', 'categoryId' => $childAId],
+            ['expected' => 'a/1/z', 'categoryId' => $childA1ZId],
+        ];
+        $this->runChecks($casesRoot, $categoryRepository, $context, $salesChannelId);
+
+        $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $childAId);
+        $casesA = [
+            ['expected' => '1', 'categoryId' => $childA1Id],
+            ['expected' => '1/z', 'categoryId' => $childA1ZId],
+        ];
+        $this->runChecks($casesA, $categoryRepository, $context, $salesChannelId);
+
+        $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $rootId);
+        $this->runChecks($casesRoot, $categoryRepository, $context, $salesChannelId);
     }
 
     public function testSearchWithLimit(): void
@@ -406,6 +458,29 @@ class SeoUrlExtensionTest extends TestCase
 
         static::assertEquals('/detail/' . $id, $seoUrl->getPathInfo());
         static::assertEquals($id, $seoUrl->getForeignKey());
+    }
+
+    private function runChecks($cases, $categoryRepository, $context, $salesChannelId): void
+    {
+        foreach ($cases as $case) {
+            $criteria = new Criteria([$case['categoryId']]);
+            $criteria->addAssociation('seoUrls');
+
+            $category = $categoryRepository->search($criteria, $context)->first();
+            static::assertEquals($case['categoryId'], $category->getId());
+
+            /** @var SeoUrlCollection $seoUrls */
+            $seoUrls = $category->getExtension('seoUrls');
+            static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+            $seoUrls = $seoUrls->filterByProperty('salesChannelId', $salesChannelId);
+            static::assertCount(1, $seoUrls->filterByProperty('isCanonical', true));
+
+            /** @var SeoUrlEntity $canonicalUrl */
+            $canonicalUrl = $category->getExtension('canonicalUrl');
+            static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
+            static::assertEquals($case['expected'], $canonicalUrl->getSeoPathInfo());
+            static::assertTrue($canonicalUrl->getIsValid());
+        }
     }
 
     private function upsertProduct($data): void

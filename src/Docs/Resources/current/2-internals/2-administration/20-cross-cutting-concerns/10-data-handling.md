@@ -87,12 +87,8 @@ Component.register('sw-show-case-list', {
             Criteria.avg('average_price', 'product.price')
         );
         
-        const categoryCriteria = new Criteria();
-        categoryCriteria.addSorting(
-            Criteria.sort('category.name', 'ASC')
-        );
-        
-        criteria.addAssociation('product.categories', categoryCriteria);
+        criteria.getAssociation('product.categories')
+            .addSorting(Criteria.sort('category.name', 'ASC'));
     }
 });
 ```

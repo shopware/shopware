@@ -1,5 +1,6 @@
 import types from 'src/core/service/utils/types.utils';
 import Entity from './entity.data';
+import Criteria from './criteria.data';
 import EntityCollection from './entity-collection.data';
 
 export default class EntityHydrator {
@@ -131,11 +132,23 @@ export default class EntityHydrator {
      * @returns {*|*}
      */
     hydrateToOne(criteria, property, value, response, context) {
-        const associationCriteria = criteria.getAssociation(property);
+        const associationCriteria = this.getAssociationCriteria(criteria, property);
 
         const nestedRaw = this.getIncluded(value.data.type, value.data.id, response);
 
         return this.hydrateEntity(value.data.type, nestedRaw, response, context, associationCriteria);
+    }
+
+    /**
+     * @param {Criteria} criteria
+     * @param {string} property
+     * @returns {Criteria}
+     */
+    getAssociationCriteria(criteria, property) {
+        if (criteria.hasAssociation(property)) {
+            return criteria.getAssociation(property);
+        }
+        return new Criteria();
     }
 
     /**
@@ -150,7 +163,7 @@ export default class EntityHydrator {
      * @returns {EntityCollection}
      */
     hydrateToMany(criteria, property, value, entity, context, response) {
-        const associationCriteria = criteria.getAssociation(property);
+        const associationCriteria = this.getAssociationCriteria(criteria, property);
 
         const url = value.links.related.substr(
             value.links.related.indexOf(context.apiResourcePath)

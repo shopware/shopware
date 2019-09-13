@@ -57,6 +57,7 @@ export default class Criteria {
                 params.associations[item.association] = item.criteria.parse();
             });
         }
+
         if (this.totalCountMode !== null) {
             params['total-count-mode'] = this.totalCountMode;
         }
@@ -148,7 +149,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery.
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery.
      * These queries are used to search for documents and score them with a ranking
      *
      * @param {Object} filter - a filter object like equals, contains, ...
@@ -178,49 +179,62 @@ export default class Criteria {
     }
 
     /**
-     * @param {String} association
-     * @param {Object|null} criteria
-     * @returns {Criteria}
+     * Ensures that a criterion is created for each segment of the passed path.
+     * Existing Criteria objects are not overwritten.
+     * Returns the own instance
+     * @param {String} path
+     * @returns {Criteria} - self
      */
-    addAssociation(association, criteria = null) {
-        if (criteria === null) {
-            criteria = new Criteria();
-        }
+    addAssociation(path) {
+        const parts = path.split('.');
 
-        this.associations.push({ association, criteria });
+        let criteria = this;
+        parts.forEach((part) => {
+            criteria = criteria.getAssociation(part);
+        });
+
         return this;
     }
 
     /**
-     * Allows to add criteria objects for nested associations
-     *
-     * e.g. criteria.addAssociationPath(products.prices.rule)
+     * Ensures that a criterion is created for each segment of the passed path.
+     * Returns the criteria instance of the last path segment
      *
      * @param {String} path
      * @returns {Criteria}
      */
-    addAssociationPath(path) {
+    getAssociation(path) {
         const parts = path.split('.');
 
         let criteria = this;
         parts.forEach((part) => {
             if (!criteria.hasAssociation(part)) {
-                criteria.addAssociation(part);
+                criteria.associations.push({
+                    association: part,
+                    criteria: new Criteria(null, null)
+                });
             }
 
-            criteria = criteria.getAssociation(part);
+            criteria = criteria.getAssociationCriteria(part);
         });
-        return this;
+
+        return criteria;
     }
 
     /**
-     * Allows to add multiple association paths to the criteria
-     * @param {Array} associations
+     * @internal
+     * @param {String} part
      */
-    addAssociationPaths(associations) {
-        associations.forEach((association) => {
-            this.addAssociationPath(association);
+    getAssociationCriteria(part) {
+        let criteria = null;
+
+        this.associations.forEach((association) => {
+            if (association.association === part) {
+                criteria = association.criteria;
+            }
         });
+
+        return criteria;
     }
 
     /**
@@ -240,22 +254,6 @@ export default class Criteria {
     }
 
     /**
-     * @param {String} property
-     * @returns {Criteria}
-     */
-    getAssociation(property) {
-        let criteria = new Criteria();
-
-        this.associations.forEach((association) => {
-            if (association.association === property) {
-                criteria = association.criteria;
-            }
-        });
-
-        return criteria;
-    }
-
-    /**
      * Resets the sorting parameter
      */
     resetSorting() {
@@ -263,113 +261,122 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\AvgAggregation
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\AvgAggregation
      * Allows to calculate the avg value for the provided field
      *
      * @param {String} name
      * @param {String} field
-     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static avg(name, field, groupByFields = []) {
-        return { type: 'avg', name, field, groupByFields };
+    static avg(name, field) {
+        return { type: 'avg', name, field };
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueAggregation
-     * Allows to fetch all unique values for the provided field
-     *
-     * @param {String} name
-     * @param {String} field
-     * @param {Array} [groupByFields]
-     * @returns {{field: *, name: *, type: string}}
-     */
-    static value(name, field, groupByFields = []) {
-        return { type: 'value', name, field, groupByFields };
-    }
-
-    /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation
      * Allows to calculate the count value for the provided field
      *
      * @param {String} name
      * @param {String} field
-     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static count(name, field, groupByFields = []) {
-        return { type: 'count', name, field, groupByFields };
+    static count(name, field) {
+        return { type: 'count', name, field };
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation
      * Allows to calculate the max value for the provided field
      *
      * @param {String} name
      * @param {String} field
-     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static max(name, field, groupByFields = []) {
-        return { type: 'max', name, field, groupByFields };
+    static max(name, field) {
+        return { type: 'max', name, field };
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation
      * Allows to calculate the min value for the provided field
      *
      * @param {String} name
      * @param {String} field
-     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static min(name, field, groupByFields = []) {
-        return { type: 'min', name, field, groupByFields };
+    static min(name, field) {
+        return { type: 'min', name, field };
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation
      * Allows to calculate the sum, max, min, avg, count values for the provided field
      *
      * @param {String} name
      * @param {String} field
-     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static stats(name, field, groupByFields = []) {
-        return { type: 'stats', name, field, groupByFields };
+    static stats(name, field) {
+        return { type: 'stats', name, field };
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation
      * Allows to calculate the sum value for the provided field
      *
      * @param {String} name
      * @param {String} field
-     * @param {Array} [groupByFields]
      * @returns {{field: *, name: *, type: string}}
      */
-    static sum(name, field, groupByFields = []) {
-        return { type: 'sum', name, field, groupByFields };
+    static sum(name, field) {
+        return { type: 'sum', name, field };
     }
 
     /**
-     * Creates an object for
-     * \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCountAggregation.
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation
+     * Allows to fetch term buckets for the provided field
      *
-     * Allows to calculate the unique value and the counts for the selected entities.
-     *
-     * @param {string} name
-     * @param {string} field
-     * @param {Array} [groupByFields]
+     * @param {String} name
+     * @param {String} field
+     * @param {Integer|null} limit
+     * @param {Object|null} sort
+     * @param {Object|null} aggregation
      * @returns {Object}
      */
-    static valueCount(name, field, groupByFields = []) {
-        return { type: 'value_count', name, field, groupByFields };
+    static terms(name, field, limit = null, sort = null, aggregation = null) {
+        return { type: 'terms', name, field, limit, sort, aggregation };
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation
+     * Allows to filter an aggregation result
+     *
+     * @param {String} name
+     * @param {Array} filter
+     * @param {Object} aggregation
+     * @returns {Object}
+     */
+    static filter(name, filter, aggregation) {
+        return { type: 'terms', filter, aggregation };
+    }
+
+    /**
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation
+     * Allows to fetch date buckets for the provided date interval
+     *
+     * @param {String} name
+     * @param {String} field
+     * @param {String|null} interval
+     * @param {String|null} format
+     * @param {Object|null} aggregation
+     * @returns {Object}
+     */
+    static histogram(name, field, interval, format, aggregation) {
+        return { type: 'histogram', name, field, interval, format, aggregation };
+    }
+
+    /**
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
      * Allows to sort the documents by the provided field
      *
      * @param {string} field
@@ -383,7 +390,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
      * Allows to sort the documents by the provided field naturally
      *
      * @param {string} field
@@ -396,7 +403,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter.
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter.
      * This allows to filter documents where the value are contained in the provided field.
      *
      * Sql representation: `{field} LIKE %{value}%`
@@ -411,7 +418,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter.
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter.
      * This allows to filter documents where the field matches one of the provided values
      *
      * Sql representation: `{field} IN ({value}, {value})`
@@ -425,7 +432,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
      * This allows to filter documents where the field matches a defined range
      *
      * Sql representation: `{field} >= {value}`, `{field} <= {value}`, ...
@@ -440,7 +447,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter.
      * This allows to filter documents where the field matches a defined range
      *
      * Sql representation: `{field} = {value}`
@@ -455,7 +462,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
      * This allows to filter documents which not matches for the provided filters
      * All above listed queries can be provided (equals, equalsAny, range, contains)
      *
@@ -471,7 +478,7 @@ export default class Criteria {
     }
 
     /**
-     * Creates an object for \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter.
      * This allows to filter documents which matches for the provided filters
      * All above listed queries can be provided (equals, equalsAny, range, contains)
      *

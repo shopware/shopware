@@ -124,6 +124,8 @@ class AggregationParser
 
                 if (!isset($aggregation['interval'])) {
                     $exceptions->add(new InvalidAggregationQueryException('The aggregation should contain an date interval.'), '/aggregations/' . $index . '/' . $type . '/interval');
+
+                    return null;
                 }
 
                 $interval = $aggregation['interval'];

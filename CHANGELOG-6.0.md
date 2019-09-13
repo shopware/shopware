@@ -66,17 +66,23 @@ You can use them with every URL in your templates
     * Added `\Shopware\Core\Framework\Migration\InheritanceUpdaterTrait` to update entity schema for inherited associations
     * Changed default enqueue transport from enqueue/fs to enqueue/dbal
     * Made the service `\Shopware\Core\System\SystemConfig\SystemConfigService` public
+    * Removed `Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCount` use `Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms`instead
+    * Removed `Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Value` use `Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms`instead
+    * Refactored DAL aggregation system, see `UPGRADE-6.1.md` for more details 
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
     * Changed the name of `messages.<locale>.json` to `storefront.<locale>.json` and changed to **not** be a base file anymore.
     * Added `extractIdsToUpdate` to `Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface`
-    
+
 **Removals**
 
 * Administration
     * Removed `sw-tag-multi-select`
     * Removed `sw-multi-select-option` use `sw-result-option` instead
     * Removed `sw-single-select-option` use `sw-result-option` instead
+    * Removed `Criteria.value` use `Criteria.terms` instead
+    * Removed `Criteria.valueCount` use `Criteria.terms` instead
+    * Removed `Criteria.addAssociationPath` use `Criteria.addAssociation` instead
 * Core
     * Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function
     * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria`

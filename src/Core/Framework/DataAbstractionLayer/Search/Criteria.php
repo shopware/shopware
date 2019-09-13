@@ -197,10 +197,10 @@ class Criteria extends Struct
             }
 
             if (!$criteria->hasAssociation($part)) {
-                $this->associations[$part] = new Criteria();
+                $criteria->associations[$part] = new Criteria();
             }
 
-            $criteria = $this->associations[$part];
+            $criteria = $criteria->associations[$part];
         }
 
         return $criteria;

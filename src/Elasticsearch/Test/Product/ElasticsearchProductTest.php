@@ -453,6 +453,8 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testTermsAggregationWithSorting(TestDataCollection $data): void
     {
+        static::markTestIncomplete('Requires ongr/dsl update. Waiting for https://github.com/ongr-io/ElasticsearchDSL/pull/296');
+
         $aggregator = $this->createEntityAggregator();
 
         // check simple search without any restrictions

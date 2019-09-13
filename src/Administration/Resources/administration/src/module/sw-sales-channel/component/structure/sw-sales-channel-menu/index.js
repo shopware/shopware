@@ -55,9 +55,7 @@ Component.register('sw-sales-channel-menu', {
 
             criteria.setPage(1);
             criteria.setLimit(500);
-            criteria.addSorting(
-                Criteria.sort('sales_channel.name', 'ASC')
-            );
+            criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
             criteria.addAssociation('type');
 
             this.salesChannelRepository.search(criteria, this.context).then((response) => {

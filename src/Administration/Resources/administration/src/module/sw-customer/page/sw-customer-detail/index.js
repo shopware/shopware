@@ -101,19 +101,18 @@ Component.register('sw-customer-detail', {
 
         defaultCriteria() {
             const criteria = new Criteria();
-            criteria.addAssociationPaths([
-                'addresses',
-                'group',
-                'salutation',
-                'salesChannel',
-                'defaultPaymentMethod',
-                'lastPaymentMethod',
-                'defaultBillingAddress.country',
-                'defaultBillingAddress.salutation',
-                'defaultShippingAddress.country',
-                'defaultShippingAddress.salutation',
-                'tags'
-            ]);
+            criteria
+                .addAssociation('addresses')
+                .addAssociation('group')
+                .addAssociation('salutation')
+                .addAssociation('salesChannel')
+                .addAssociation('defaultPaymentMethod')
+                .addAssociation('lastPaymentMethod')
+                .addAssociation('defaultBillingAddress.country')
+                .addAssociation('defaultBillingAddress.salutation')
+                .addAssociation('defaultShippingAddress.country')
+                .addAssociation('defaultShippingAddress.salutation')
+                .addAssociation('tags');
 
             return criteria;
         },
@@ -260,14 +259,12 @@ Component.register('sw-customer-detail', {
          * @returns {Criteria}
          */
         buildCustomFieldCriteria(entity) {
-            const attributeCriteria = new Criteria(1, 100);
-            attributeCriteria.addFilter(Criteria.equals('relations.entityName', entity));
-            attributeCriteria.addAssociation(
-                'customFields',
-                (new Criteria(1, 100)).addSorting(Criteria.sort('config.customFieldPosition'))
-            );
+            const criteria = new Criteria(1, 100);
+            criteria.addFilter(Criteria.equals('relations.entityName', entity));
+            criteria.getAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition'));
 
-            return attributeCriteria;
+            return criteria;
         }
     }
 });

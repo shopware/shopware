@@ -94,6 +94,7 @@ class ProductExporterTest extends TestCase
             $this->getContainer()->get('product_export.repository'),
             $this->getContainer()->get('shopware.filesystem.private'),
             $generator,
+            $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->getParameter('product_export.directory')
         );
 

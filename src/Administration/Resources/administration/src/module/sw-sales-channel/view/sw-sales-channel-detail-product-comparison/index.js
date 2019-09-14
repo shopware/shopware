@@ -83,7 +83,8 @@ Component.register('sw-sales-channel-detail-product-comparison', {
 
         outerCompleterFunctionBody() {
             return this.completerFunction({
-                productExport: 'product_export'
+                productExport: 'product_export',
+                product: 'product'
             });
         },
 

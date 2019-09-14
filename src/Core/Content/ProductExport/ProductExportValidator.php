@@ -14,7 +14,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 class ProductExportValidator implements EventSubscriberInterface
 {
-    public const VIOLATION_DUPLICATE_FILENAME = 'update_product_export_duplicate_filename';
+    public const VIOLATION_DUPLICATE_FILENAME = 'write_product_export_duplicate_filename';
 
     /**
      * @var Connection

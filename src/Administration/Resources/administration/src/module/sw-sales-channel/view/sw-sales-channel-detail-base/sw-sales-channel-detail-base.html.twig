@@ -406,6 +406,7 @@
                         validation="required"
                         required
                         :label="$tc('sw-sales-channel.detail.product-comparison.fileName')"
+                        :placeholder="$tc('sw-sales-channel.detail.product-comparison.placeholderFileName')"
                         :error="invalidFileNameError"
                         v-model="productExport.fileName"
                         @change="onChangeFileName">

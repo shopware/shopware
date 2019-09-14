@@ -87,6 +87,7 @@
         "buttonPreviewLabel": "Vorschau generieren",
         "settings": "Produktexport",
         "fileName": "Dateiname",
+        "placeholderFileName": "shopware.csv",
         "encoding": "Encoding",
         "placeholderSelectEncoding": "Wähle ein Encoding aus... ",
         "fileFormat": "Dateiformat",

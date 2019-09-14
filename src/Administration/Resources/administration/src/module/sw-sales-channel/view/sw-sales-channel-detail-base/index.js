@@ -4,6 +4,8 @@ import './sw-sales-channel-detail-base.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const ShopwareError = Shopware.Classes.ShopwareError;
+const utils = Shopware.Utils;
 
 Component.register('sw-sales-channel-detail-base', {
     template,
@@ -57,7 +59,10 @@ Component.register('sw-sales-channel-detail-base', {
             isLoadingDomains: false,
             deleteDomain: null,
             storefrontSalesChannels: [],
-            storefrontDomains: []
+            storefrontDomains: [],
+            selectedStorefrontSalesChannel: null,
+            invalidFileName: false,
+            isFileNameChecking: false
         };
     },
 
@@ -97,6 +102,10 @@ Component.register('sw-sales-channel-detail-base', {
 
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
+        },
+
+        productExportRepository() {
+            return this.repositoryFactory.create('product_export');
         },
 
         mainNavigationCriteria() {
@@ -186,6 +195,16 @@ Component.register('sw-sales-channel-detail-base', {
                     name: 'UTF-8'
                 }
             ];
+        },
+
+        invalidFileNameError() {
+            if (this.invalidFileName && !this.isFileNameChecking) {
+                this.$root.$emit('sales-channel-product-comparison-invalid-file-name');
+                return new ShopwareError({ code: 'DUPLICATED_PRODUCT_EXPORT_FILE_NAME' });
+            }
+
+            this.$root.$emit('sales-channel-product-comparison-valid-file-name');
+            return null;
         },
 
         ...mapApiErrors('salesChannel',
@@ -360,6 +379,44 @@ Component.register('sw-sales-channel-detail-base', {
                 .then((searchResult) => {
                     this.storefrontDomains = searchResult;
                 });
-        }
+        },
+
+        onChangeFileName() {
+            this.isFileNameChecking = true;
+            this.onChangeFileNameDebounce();
+        },
+
+        onChangeFileNameDebounce: utils.debounce(function executeChange() {
+            if (!this.productExport) {
+                return;
+            }
+
+            if (typeof this.productExport.fileName !== 'string' ||
+                this.productExport.fileName.trim() === ''
+            ) {
+                this.invalidFileName = false;
+                this.isFileNameChecking = false;
+                return;
+            }
+
+            const criteria = new Criteria(1, 1);
+            criteria.addFilter(
+                Criteria.multi(
+                    'AND',
+                    [
+                        Criteria.equals('fileName', this.productExport.fileName),
+                        Criteria.not('AND', [Criteria.equals('id', this.productExport.id)])
+                    ]
+                )
+            );
+
+            this.productExportRepository.search(criteria, this.context).then(({ total }) => {
+                this.invalidFileName = total > 0;
+                this.isFileNameChecking = false;
+            }).catch(() => {
+                this.invalidFileName = true;
+                this.isFileNameChecking = false;
+            });
+        }, 500)
     }
 });

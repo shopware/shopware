@@ -1,4 +1,9 @@
 {
+  "global": {
+    "error-codes": {
+      "DUPLICATED_PRODUCT_EXPORT_FILE_NAME": "Dieser Dateiname wird bereits verwendet. Bitte wähle einen anderen aus."
+    }
+  },
   "sw-sales-channel": {
     "general": {
       "titleMenuItems": "Verkaufskanäle"

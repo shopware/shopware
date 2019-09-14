@@ -29,7 +29,8 @@ Component.register('sw-sales-channel-detail', {
             storefrontSalesChannels: [],
             isSaveSuccessful: false,
             newProductExport: null,
-            productComparisonAccessUrl: null
+            productComparisonAccessUrl: null,
+            invalidFileName: false
         };
     },
 
@@ -119,6 +120,8 @@ Component.register('sw-sales-channel-detail', {
         registerListener() {
             this.$root.$on('sales-channel-product-comparison-access-key-changed', this.generateAccessUrl);
             this.$root.$on('sales-channel-product-comparison-domain-changed', this.generateAccessUrl);
+            this.$root.$on('sales-channel-product-comparison-invalid-file-name', () => { this.invalidFileName = true; });
+            this.$root.$on('sales-channel-product-comparison-valid-file-name', () => { this.invalidFileName = false; });
         },
 
         loadEntityData() {

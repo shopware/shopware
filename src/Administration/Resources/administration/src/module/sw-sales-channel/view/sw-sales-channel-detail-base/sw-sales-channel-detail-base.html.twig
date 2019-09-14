@@ -313,11 +313,11 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
-            <sw-card v-if="salesChannel && isProductComparison" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.product-comparison.storefront')">
+            <sw-card v-if="salesChannel && isProductComparison" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.productComparison.storefront')">
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
                     <sw-entity-single-select
                         @input="onStorefrontSelectionChange"
-                        :label="$tc('sw-sales-channel.detail.product-comparison.storefront')"
+                        :label="$tc('sw-sales-channel.detail.productComparison.storefront')"
                         :criteria="storefrontSalesChannelCriteria"
                         labelProperty="name"
                         valueProperty="id"
@@ -331,7 +331,7 @@
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain %}
                     <sw-entity-single-select
                         @input="onStorefrontDomainSelectionChange"
-                        :label="$tc('sw-sales-channel.detail.product-comparison.storefrontDomain')"
+                        :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomain')"
                         :criteria="storefrontSalesChannelDomainCriteria"
                         labelProperty="url"
                         valueProperty="id"
@@ -345,7 +345,7 @@
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_language %}
                     <div class="sw-sales-channel-detail-base__product-comparison-container" v-if="productExport.salesChannelDomain">
                         <sw-entity-single-select
-                            :label="$tc('sw-sales-channel.detail.product-comparison.storefrontDomainLanguage.label')"
+                            :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainLanguage.label')"
                             labelProperty="name"
                             valueProperty="id"
                             entity="language"
@@ -354,7 +354,7 @@
                         </sw-entity-single-select>
                         <sw-help-text
                             class="sw-sales-channel-detail-base__product-comparison-helptext"
-                            :text="$tc('sw-sales-channel.detail.product-comparison.storefrontDomainLanguage.help')"
+                            :text="$tc('sw-sales-channel.detail.productComparison.storefrontDomainLanguage.help')"
                             tooltipPosition="top">
                         </sw-help-text>
                     </div>
@@ -363,7 +363,7 @@
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_currency %}
                     <div class="sw-sales-channel-detail-base__product-comparison-container" v-if="productExport.salesChannelDomain">
                         <sw-entity-single-select
-                            :label="$tc('sw-sales-channel.detail.product-comparison.storefrontDomainCurrency.label')"
+                            :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainCurrency.label')"
                             labelProperty="name"
                             valueProperty="id"
                             entity="currency"
@@ -372,7 +372,7 @@
                         </sw-entity-single-select>
                         <sw-help-text
                             class="sw-sales-channel-detail-base__product-comparison-helptext"
-                            :text="$tc('sw-sales-channel.detail.product-comparison.storefrontDomainCurrency.help')"
+                            :text="$tc('sw-sales-channel.detail.productComparison.storefrontDomainCurrency.help')"
                             tooltipPosition="top">
                         </sw-help-text>
                     </div>
@@ -381,7 +381,7 @@
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_sales_channel_customer_group %}
                     <div class="sw-sales-channel-detail-base__product-comparison-container">
                         <sw-entity-single-select
-                            :label="$tc('sw-sales-channel.detail.product-comparison.storefrontSalesChannelCustomerGroup.label')"
+                            :label="$tc('sw-sales-channel.detail.productComparison.storefrontSalesChannelCustomerGroup.label')"
                             labelProperty="name"
                             valueProperty="id"
                             entity="customer_group"
@@ -390,7 +390,7 @@
                         </sw-entity-single-select>
                         <sw-help-text
                             class="sw-sales-channel-detail-base__product-comparison-helptext"
-                            :text="$tc('sw-sales-channel.detail.product-comparison.storefrontSalesChannelCustomerGroup.help')"
+                            :text="$tc('sw-sales-channel.detail.productComparison.storefrontSalesChannelCustomerGroup.help')"
                             tooltipPosition="top">
                         </sw-help-text>
                     </div>
@@ -399,14 +399,14 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_product_comparison_settings %}
-            <sw-card v-if="salesChannel && isProductComparison" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.product-comparison.settings')">
+            <sw-card v-if="salesChannel && isProductComparison" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.productComparison.settings')">
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_filename %}
                     <sw-field
                         type="text"
                         validation="required"
                         required
-                        :label="$tc('sw-sales-channel.detail.product-comparison.fileName')"
-                        :placeholder="$tc('sw-sales-channel.detail.product-comparison.placeholderFileName')"
+                        :label="$tc('sw-sales-channel.detail.productComparison.fileName')"
+                        :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderFileName')"
                         :error="invalidFileNameError"
                         v-model="productExport.fileName"
                         @change="onChangeFileName">
@@ -415,8 +415,8 @@
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_encoding %}
                     <sw-select-field
-                        :label="$tc('sw-sales-channel.detail.product-comparison.encoding')"
-                        :placeholder="$tc('sw-sales-channel.detail.product-comparison.placeholderSelectEncoding')"
+                        :label="$tc('sw-sales-channel.detail.productComparison.encoding')"
+                        :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectEncoding')"
                         :options="getEncodingOptions"
                         required
                         v-model="productExport.encoding">
@@ -425,8 +425,8 @@
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_file_format %}
                     <sw-select-field
-                        :label="$tc('sw-sales-channel.detail.product-comparison.fileFormat')"
-                        :placeholder="$tc('sw-sales-channel.detail.product-comparison.placeholderSelectFileFormat')"
+                        :label="$tc('sw-sales-channel.detail.productComparison.fileFormat')"
+                        :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectFileFormat')"
                         :options="getFileFormatOptions"
                         required
                         v-model="productExport.fileFormat">
@@ -437,7 +437,7 @@
                     <sw-field
                         type="switch"
                         bordered
-                        :label="$tc('sw-sales-channel.detail.product-comparison.includeVariants')"
+                        :label="$tc('sw-sales-channel.detail.productComparison.includeVariants')"
                         v-model="productExport.includeVariants">
                     </sw-field>
                 {% endblock %}
@@ -446,14 +446,14 @@
                     <sw-field
                         type="switch"
                         bordered
-                        :label="$tc('sw-sales-channel.detail.product-comparison.generateByCronjob')"
+                        :label="$tc('sw-sales-channel.detail.productComparison.generateByCronjob')"
                         v-model="productExport.generateByCronjob">
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_interval %}
                     <sw-select-number-field
-                        :label="$tc('sw-sales-channel.detail.product-comparison.interval')"
+                        :label="$tc('sw-sales-channel.detail.productComparison.interval')"
                         :options="getIntervalOptions"
                         v-model="productExport.interval">
                     </sw-select-number-field>
@@ -462,17 +462,17 @@
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_last_generation %}
                     <div v-if="productExport.salesChannelDomainId">
                         <div v-if="productExport.generatedAt" class="sw-sales-channel-detail-base_general__last-generation-text">
-                            {{ $tc('sw-sales-channel.detail.product-comparison.lastGenerationLabel') }}{{ productExport.generatedAt | date({ hour: '2-digit', minute: '2-digit' })  }}
+                            {{ $tc('sw-sales-channel.detail.productComparison.lastGenerationLabel') }}{{ productExport.generatedAt | date({ hour: '2-digit', minute: '2-digit' })  }}
                         </div>
                         <div v-else="productExport.generatedAt" class="sw-sales-channel-detail-base_general__last-generation-text">
-                            {{ $tc('sw-sales-channel.detail.product-comparison.lastGenerationLabel') }}{{ $tc('sw-sales-channel.detail.product-comparison.notYetGenerated') }}
+                            {{ $tc('sw-sales-channel.detail.productComparison.lastGenerationLabel') }}{{ $tc('sw-sales-channel.detail.productComparison.notYetGenerated') }}
                         </div>
                     </div>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_product_stream %}
                     <sw-entity-single-select
-                            :label="$tc('sw-sales-channel.detail.product-comparison.productStream')"
+                            :label="$tc('sw-sales-channel.detail.productComparison.productStream')"
                             labelProperty="name"
                             valueProperty="id"
                             required
@@ -514,7 +514,7 @@
                     {% block sw_sales_channel_detail_base_product_comparison_access_key %}
                         {% block sw_sales_channel_detail_base_product_comparison_input_access_key %}
                         <sw-field
-                                :label="$tc('sw-sales-channel.detail.product-comparison.accessKey')"
+                                :label="$tc('sw-sales-channel.detail.productComparison.accessKey')"
                                 :disabled="true"
                                 v-model="productExport.accessKey"
                                 v-if="isProductComparison"
@@ -524,7 +524,7 @@
 
                         {% block sw_sales_channel_detail_base_product_comparison_input_access_url %}
                             <sw-field
-                                :label="$tc('sw-sales-channel.detail.product-comparison.accessUrl')"
+                                :label="$tc('sw-sales-channel.detail.productComparison.accessUrl')"
                                 :disabled="true"
                                 v-model="productComparisonAccessUrl"
                                 v-if="isProductComparison && productExport.salesChannelDomainId"
@@ -540,7 +540,7 @@
                                     size="small"
                                     class="sw-sales-channel-detail-base__button-generate-keys"
                                     v-if="isProductComparison">
-                                {{ $tc('sw-sales-channel.detail.product-comparison.buttonCreateNewAccessKey') }}
+                                {{ $tc('sw-sales-channel.detail.productComparison.buttonCreateNewAccessKey') }}
                             </sw-button>
                         </div>
                         {% endblock %}

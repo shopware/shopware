@@ -99,8 +99,8 @@ Component.register('sw-sales-channel-detail-product-comparison', {
     methods: {
         validateTemplate() {
             const notificationValidateSuccess = {
-                title: this.$tc('sw-sales-channel.detail.product-comparison.notificationTitleValidateSuccessful'),
-                message: this.$tc('sw-sales-channel.detail.product-comparison.notificationMessageValidateSuccessful')
+                title: this.$tc('sw-sales-channel.detail.productComparison.notificationTitleValidateSuccessful'),
+                message: this.$tc('sw-sales-channel.detail.productComparison.notificationMessageValidateSuccessful')
             };
 
             this.isLoadingValidate = true;
@@ -119,7 +119,7 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                     this.isLoadingValidate = false;
                 }).catch((exception) => {
                     this.createNotificationError({
-                        title: this.$tc('sw-sales-channel.detail.product-comparison.notificationTitleValidateError'),
+                        title: this.$tc('sw-sales-channel.detail.productComparison.notificationTitleValidateError'),
                         message: exception.response.data.errors[0].detail
                     });
                     warn(this._name, exception.message, exception.response);
@@ -145,7 +145,7 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                     this.isLoadingPreview = false;
                 }).catch((exception) => {
                     this.createNotificationError({
-                        title: this.$tc('sw-sales-channel.detail.product-comparison.notificationTitlePreviewError'),
+                        title: this.$tc('sw-sales-channel.detail.productComparison.notificationTitlePreviewError'),
                         message: exception.response.data.errors[0].detail
                     });
                     warn(this._name, exception.message, exception.response);

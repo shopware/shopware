@@ -80,7 +80,7 @@
       "navigationCategoryHelpText": "Für diesen Einstiegspunkt können keine Kategorien des Typs \"benutzerdefinierter Link\" oder \"Strukturkategorie\" ausgewählt werden.",
       "footerCategory": "Einstiegspunkt Footernavigation",
       "serviceCategory": "Einstiegspunkt Servicenavigation",
-      "product-comparison": {
+      "productComparison": {
         "inputHeaderLabel": "Kopfzeile",
         "inputBodyLabel": "Produktzeile",
         "inputFooterLabel": "Fußzeile",
@@ -99,7 +99,7 @@
         "accessUrl": "Export-URL",
         "buttonCreateNewAccessKey": "Zugangsschlüssel neu generieren",
         "productStream": "Dynamische Produktgruppe",
-        "file-format-labels": {
+        "fileFormatlabels": {
           "csv": "CSV",
           "xml": "XML"
         },
@@ -110,7 +110,7 @@
         "notificationMessageValidateSuccessful": "Keine Fehler gefunden",
         "notificationTitleValidateError": "Test fehlerhaft",
         "notificationTitlePreviewError": "Vorschau fehlerhaft",
-        "interval-labels": {
+        "intervalLabels": {
           "0": "Live",
           "120": "2 Minuten",
           "300": "5 Minuten",

@@ -80,7 +80,7 @@
       "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customizable link\" or \"structuring element\".",
       "footerCategory": "Entry point footer navigation",
       "serviceCategory": "Entry point service navigation",
-      "product-comparison": {
+      "productComparison": {
         "inputHeaderLabel": "Header row",
         "inputBodyLabel": "Product row",
         "inputFooterLabel": "Footer row",
@@ -99,7 +99,7 @@
         "accessUrl": "Export URL",
         "buttonCreateNewAccessKey": "Create new access key",
         "productStream": "Dynamic product group",
-        "file-format-labels": {
+        "fileFormatLabels": {
           "csv": "CSV",
           "xml": "XML"
         },
@@ -110,7 +110,7 @@
         "notificationMessageValidateSuccessful": "No errors occurred",
         "notificationTitleValidateError": "Validation failed",
         "notificationTitlePreviewError": "Preview failed",
-        "interval-labels": {
+        "intervalLabels": {
           "0": "Live",
           "120": "2 minutes",
           "300": "5 minutes",

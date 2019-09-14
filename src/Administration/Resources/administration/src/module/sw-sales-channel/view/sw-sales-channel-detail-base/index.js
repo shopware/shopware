@@ -118,55 +118,75 @@ Component.register('sw-sales-channel-detail-base', {
             return [
                 {
                     id: 0,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.0')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.0')
                 },
                 {
                     id: 120,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.120')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.120')
                 },
                 {
                     id: 300,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.300')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.300')
                 },
                 {
                     id: 600,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.600')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.600')
                 },
                 {
                     id: 900,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.900')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.900')
                 },
                 {
                     id: 1800,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.1800')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.1800')
                 },
                 {
                     id: 3600,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.3600')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.3600')
                 },
                 {
                     id: 7200,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.7200')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.7200')
                 },
                 {
                     id: 14400,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.14400')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.14400')
                 },
                 {
                     id: 28800,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.28800')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.28800')
                 },
                 {
                     id: 43200,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.43200')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.43200')
                 },
                 {
                     id: 86400,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.86400')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.86400')
                 },
                 {
                     id: 172800,
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.interval-labels.172800')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.172800')
+                },
+                {
+                    id: 259200,
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.259200')
+                },
+                {
+                    id: 345600,
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.345600')
+                },
+                {
+                    id: 432000,
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.432000')
+                },
+                {
+                    id: 518400,
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.518400')
+                },
+                {
+                    id: 604800,
+                    name: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.604800')
                 }
             ];
         },
@@ -175,11 +195,11 @@ Component.register('sw-sales-channel-detail-base', {
             return [
                 {
                     id: 'csv',
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.file-format-labels.csv')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.fileFormatLabels.csv')
                 },
                 {
                     id: 'xml',
-                    name: this.$tc('sw-sales-channel.detail.product-comparison.file-format-labels.xml')
+                    name: this.$tc('sw-sales-channel.detail.productComparison.fileFormatLabels.xml')
                 }
             ];
         },
@@ -237,8 +257,8 @@ Component.register('sw-sales-channel-detail-base', {
                 this.$root.$emit('sales-channel-product-comparison-access-key-changed');
 
                 this.createNotificationInfo({
-                    title: this.$tc('sw-sales-channel.detail.product-comparison.titleAccessKeyChanged'),
-                    message: this.$tc('sw-sales-channel.detail.product-comparison.messageAccessKeyChanged')
+                    title: this.$tc('sw-sales-channel.detail.productComparison.titleAccessKeyChanged'),
+                    message: this.$tc('sw-sales-channel.detail.productComparison.messageAccessKeyChanged')
                 });
             }).catch(() => {
                 this.createNotificationError({

@@ -260,7 +260,7 @@ images{#- -#}',
                 'id' => Uuid::randomBytes(),
                 'product_stream_id' => $this->productStreamId,
                 'sales_channel_id' => $this->googleSalesChannelId,
-                'file_name' => 'billiger.csv',
+                'file_name' => 'google.xml',
                 'access_key' => AccessKeyHelper::generateAccessKey('product-export'),
                 'encoding' => ProductExportEntity::ENCODING_UTF8,
                 'file_format' => ProductExportEntity::FILE_FORMAT_XML,
@@ -270,13 +270,13 @@ images{#- -#}',
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
 	<atom:link href="{{ productExport.salesChannelDomain.url }}/export/{{ productExport.accessKey }}/{{ productExport.fileName }}" rel="self" type="application/rss+xml" />
-	<title>{{ salesChannelContext.salesChannel.name }}</title>
+	<title>{{ context.salesChannel.name }}</title>
 	<description>Add your description</description>
 	<link>{{ productExport.salesChannelDomain.url }}</link>
 	<language>{{ productExport.salesChannelDomain.language.locale.code }}</language>
 	<image>
 		<url>Add your logo</url>
-		<title>{{ salesChannelContext.salesChannel.name }}</title>
+		<title>{{ context.salesChannel.name }}</title>
 		<link>{{ productExport.salesChannelDomain.url }}</link>
 	</image>',
 

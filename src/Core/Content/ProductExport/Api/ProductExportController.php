@@ -129,8 +129,6 @@ class ProductExportController extends AbstractController
         $entity = new ProductExportEntity();
 
         $entity->setId('');
-        $entity->setAccessKey('preview-access-key');
-        $entity->setFileName('preview-file-name');
         $entity->setHeaderTemplate($dataBag->get('header_template'));
         $entity->setBodyTemplate($dataBag->get('body_template'));
         $entity->setFooterTemplate($dataBag->get('footer_template'));
@@ -138,6 +136,8 @@ class ProductExportController extends AbstractController
         $entity->setIncludeVariants($dataBag->get('include_variants'));
         $entity->setEncoding($dataBag->get('encoding'));
         $entity->setFileFormat($dataBag->get('file_format'));
+        $entity->setFileName($dataBag->get('file_name'));
+        $entity->setAccessKey($dataBag->get('access_key'));
         $entity->setSalesChannelId($dataBag->get('sales_channel_id'));
         $entity->setSalesChannelDomainId($dataBag->get('sales_channel_domain_id'));
 

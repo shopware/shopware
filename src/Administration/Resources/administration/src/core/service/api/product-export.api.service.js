@@ -25,7 +25,9 @@ class ProductExportApiService extends ApiService {
                 footer_template: productExport.footerTemplate,
                 include_variants: productExport.includeVariants,
                 encoding: productExport.encoding,
-                file_format: productExport.fileFormat
+                file_format: productExport.fileFormat,
+                file_name: productExport.fileName,
+                access_key: productExport.accessKey
             },
             {
                 headers: this.getBasicHeaders()
@@ -49,7 +51,9 @@ class ProductExportApiService extends ApiService {
                 footer_template: productExport.footerTemplate,
                 include_variants: productExport.includeVariants,
                 encoding: productExport.encoding,
-                file_format: productExport.fileFormat
+                file_format: productExport.fileFormat,
+                file_name: productExport.fileName,
+                access_key: productExport.accessKey
             },
             {
                 headers: this.getBasicHeaders()

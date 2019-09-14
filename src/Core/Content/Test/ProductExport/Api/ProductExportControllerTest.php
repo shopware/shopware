@@ -47,6 +47,8 @@ class ProductExportControllerTest extends TestCase
             'include_variants' => false,
             'encoding' => 'UTF-8',
             'file_format' => 'CSV',
+            'file_name' => 'test.csv',
+            'access_key' => 'test',
         ]);
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
@@ -68,6 +70,8 @@ class ProductExportControllerTest extends TestCase
             'include_variants' => false,
             'encoding' => 'UTF-8',
             'file_format' => 'CSV',
+            'file_name' => 'test.csv',
+            'access_key' => 'test',
         ]);
 
         static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
@@ -87,6 +91,8 @@ class ProductExportControllerTest extends TestCase
             'include_variants' => false,
             'encoding' => 'UTF-8',
             'file_format' => 'CSV',
+            'file_name' => 'test.csv',
+            'access_key' => 'test',
         ]);
 
         static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());

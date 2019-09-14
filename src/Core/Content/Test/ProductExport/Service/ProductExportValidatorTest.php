@@ -97,7 +97,7 @@ class ProductExportValidatorTest extends TestCase
         $this->repository->upsert([
             [
                 'id' => $id,
-                'fileName' => 'Testexport.csv',
+                'fileName' => 'Testexport.xml',
                 'accessKey' => Uuid::randomHex(),
                 'encoding' => ProductExportEntity::ENCODING_UTF8,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_XML,

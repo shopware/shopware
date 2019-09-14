@@ -251,15 +251,17 @@ Component.register('sw-sales-channel-detail-base', {
             });
         },
 
-        onGenerateProductExportKey() {
+        onGenerateProductExportKey(displaySaveNotification = true) {
             this.productExportService.generateKey().then((response) => {
                 this.productExport.accessKey = response.accessKey;
                 this.$root.$emit('sales-channel-product-comparison-access-key-changed');
 
-                this.createNotificationInfo({
-                    title: this.$tc('sw-sales-channel.detail.productComparison.titleAccessKeyChanged'),
-                    message: this.$tc('sw-sales-channel.detail.productComparison.messageAccessKeyChanged')
-                });
+                if (displaySaveNotification) {
+                    this.createNotificationInfo({
+                        title: this.$tc('sw-sales-channel.detail.productComparison.titleAccessKeyChanged'),
+                        message: this.$tc('sw-sales-channel.detail.productComparison.messageAccessKeyChanged')
+                    });
+                }
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-sales-channel.detail.titleAPIError'),

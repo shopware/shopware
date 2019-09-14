@@ -18,6 +18,7 @@ class Migration1565705280ProductExport extends MigrationStep
             CREATE TABLE `product_export` (
                 `id` BINARY(16) NOT NULL,
                 `product_stream_id` BINARY(16) NOT NULL,
+                `storefront_sales_channel_id` BINARY(16) NULL,
                 `sales_channel_id` BINARY(16) NOT NULL,
                 `sales_channel_domain_id` BINARY(16) NULL,
                 `file_name` VARCHAR(255) NOT NULL,
@@ -36,9 +37,11 @@ class Migration1565705280ProductExport extends MigrationStep
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `file_name` (`file_name`),
                 KEY `fk.product_export.product_stream_id` (`product_stream_id`),
+                KEY `fk.product_export.storefront_sales_channel_id` (`storefront_sales_channel_id`),
                 KEY `fk.product_export.sales_channel_id` (`sales_channel_id`),
                 KEY `fk.product_export.sales_channel_domain_id` (`sales_channel_domain_id`),
                 CONSTRAINT `fk.product_export.product_stream_id` FOREIGN KEY (`product_stream_id`) REFERENCES `product_stream` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                CONSTRAINT `fk.product_export.storefront_sales_channel_id` FOREIGN KEY (`storefront_sales_channel_id`) REFERENCES `sales_channel` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 CONSTRAINT `fk.product_export.sales_channel_id` FOREIGN KEY (`sales_channel_id`) REFERENCES `sales_channel` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 CONSTRAINT `fk.product_export.sales_channel_domain_id` FOREIGN KEY (`sales_channel_domain_id`) REFERENCES `sales_channel_domain` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

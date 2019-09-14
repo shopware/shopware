@@ -38,6 +38,7 @@ class ProductExportControllerTest extends TestCase
         $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
 
         $this->getBrowser()->request('POST', $url, [
+            'storefront_sales_channel_id' => Defaults::SALES_CHANNEL,
             'sales_channel_id' => $this->getSalesChannelDomain()->getSalesChannelId(),
             'sales_channel_domain_id' => $this->getSalesChannelDomainId(),
             'product_stream_id' => '137b079935714281ba80b40f83f8d7eb',
@@ -58,6 +59,7 @@ class ProductExportControllerTest extends TestCase
         $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
 
         $this->getBrowser()->request('POST', $url, [
+            'storefront_sales_channel_id' => Defaults::SALES_CHANNEL,
             'sales_channel_id' => $this->getSalesChannelDomain()->getSalesChannelId(),
             'sales_channel_domain_id' => $this->getSalesChannelDomainId(),
             'product_stream_id' => '137b079935714281ba80b40f83f8d7eb',

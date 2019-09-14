@@ -323,7 +323,7 @@
                         valueProperty="id"
                         entity="sales_channel"
                         required
-                        v-model="selectedStorefrontSalesChannelId"
+                        v-model="productExport.storefrontSalesChannelId"
                     >
                     </sw-entity-single-select>
                 {% endblock %}
@@ -336,7 +336,7 @@
                         valueProperty="id"
                         entity="sales_channel_domain"
                         required
-                        :disabled="!productExport.salesChannelDomainId && !selectedStorefrontSalesChannel"
+                        :disabled="!productExport.salesChannelDomainId && !productExport.storefrontSalesChannelId"
                         v-model="productExport.salesChannelDomainId">
                     </sw-entity-single-select>
                 {% endblock %}

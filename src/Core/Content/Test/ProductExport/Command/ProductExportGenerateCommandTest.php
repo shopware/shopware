@@ -114,6 +114,7 @@ class ProductExportGenerateCommandTest extends TestCase
                 'headerTemplate' => 'name,url',
                 'bodyTemplate' => '{{ product.name }},{{ productUrl(product) }}',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+                'storefrontSalesChannelId' => Defaults::SALES_CHANNEL,
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,

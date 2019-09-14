@@ -52,8 +52,7 @@ Component.register('sw-sales-channel-detail-base', {
             isLoadingDomains: false,
             deleteDomain: null,
             storefrontSalesChannels: [],
-            storefrontDomains: [],
-            selectedStorefrontSalesChannel: null
+            storefrontDomains: []
         };
     },
 
@@ -73,22 +72,11 @@ Component.register('sw-sales-channel-detail-base', {
         storefrontSalesChannelDomainCriteria() {
             const criteria = new Criteria();
 
-            return criteria.addFilter(Criteria.equals('salesChannelId', this.selectedStorefrontSalesChannelId));
+            return criteria.addFilter(Criteria.equals('salesChannelId', this.productExport.storefrontSalesChannelId));
         },
 
         storefrontDomainsLoaded() {
             return this.storefrontDomains.length > 0;
-        },
-
-        selectedStorefrontSalesChannelId() {
-            if (this.productExport && this.productExport.salesChannelDomain) {
-                return this.productExport.salesChannelDomain.salesChannelId;
-            }
-            if (this.selectedStorefrontSalesChannel) {
-                return this.selectedStorefrontSalesChannel.id;
-            }
-
-            return null;
         },
 
         domainRepository() {
@@ -319,14 +307,9 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         onStorefrontSelectionChange(storefrontSalesChannelId) {
-            this.selectedStorefrontSalesChannelId = storefrontSalesChannelId;
-
             this.salesChannelRepository
                 .get(storefrontSalesChannelId, this.context)
                 .then((entity) => {
-                    this.selectedStorefrontSalesChannel = entity;
-                    this.selectedStorefrontSalesChannelId = entity.id;
-
                     this.salesChannel.languageId = entity.languageId;
                     this.salesChannel.currencyId = entity.currencyId;
                     this.salesChannel.paymentMethodId = entity.paymentMethodId;

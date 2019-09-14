@@ -21,6 +21,9 @@ class ProductExportEntity extends Entity
     protected $productStreamId;
 
     /** @var string */
+    protected $storefrontSalesChannelId;
+
+    /** @var string */
     protected $salesChannelId;
 
     /** @var string */
@@ -40,6 +43,9 @@ class ProductExportEntity extends Entity
 
     /** @var ProductStreamEntity */
     protected $productStream;
+
+    /** @var SalesChannelEntity */
+    protected $storefrontSalesChannel;
 
     /** @var SalesChannelEntity */
     protected $salesChannel;
@@ -76,6 +82,16 @@ class ProductExportEntity extends Entity
     public function setProductStreamId(string $productStreamId): void
     {
         $this->productStreamId = $productStreamId;
+    }
+
+    public function getStorefrontSalesChannelId(): string
+    {
+        return $this->storefrontSalesChannelId;
+    }
+
+    public function setStorefrontSalesChannelId(string $storefrontSalesChannelId): void
+    {
+        $this->storefrontSalesChannelId = $storefrontSalesChannelId;
     }
 
     public function getSalesChannelId(): string
@@ -146,6 +162,16 @@ class ProductExportEntity extends Entity
     public function setProductStream(ProductStreamEntity $productStream): void
     {
         $this->productStream = $productStream;
+    }
+
+    public function getStorefrontSalesChannel(): SalesChannelEntity
+    {
+        return $this->storefrontSalesChannel;
+    }
+
+    public function setStorefrontSalesChannel(SalesChannelEntity $storefrontSalesChannel): void
+    {
+        $this->storefrontSalesChannel = $storefrontSalesChannel;
     }
 
     public function getSalesChannel(): SalesChannelEntity

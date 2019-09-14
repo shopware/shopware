@@ -439,14 +439,6 @@
                     </sw-field>
                 {% endblock %}
 
-                {% block sw_sales_channel_detail_base_general_input_product_comparison_interval %}
-                    <sw-select-number-field
-                        :label="$tc('sw-sales-channel.detail.product-comparison.interval')"
-                        :options="getIntervalOptions"
-                        v-model="productExport.interval">
-                    </sw-select-number-field>
-                {% endblock %}
-
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob %}
                     <sw-field
                         type="switch"
@@ -456,16 +448,24 @@
                     </sw-field>
                 {% endblock %}
 
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_interval %}
+                    <sw-select-number-field
+                        :label="$tc('sw-sales-channel.detail.product-comparison.interval')"
+                        :options="getIntervalOptions"
+                        v-model="productExport.interval">
+                    </sw-select-number-field>
+                {% endblock %}
+
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_product_stream %}
-                <sw-entity-single-select
-                        :label="$tc('sw-sales-channel.detail.product-comparison.productStream')"
-                        labelProperty="name"
-                        valueProperty="id"
-                        required
-                        entity="product_stream"
-                        v-model="productExport.productStreamId"
-                >
-                </sw-entity-single-select>
+                    <sw-entity-single-select
+                            :label="$tc('sw-sales-channel.detail.product-comparison.productStream')"
+                            labelProperty="name"
+                            valueProperty="id"
+                            required
+                            entity="product_stream"
+                            v-model="productExport.productStreamId"
+                    >
+                    </sw-entity-single-select>
                 {% endblock %}
 
             </sw-card>

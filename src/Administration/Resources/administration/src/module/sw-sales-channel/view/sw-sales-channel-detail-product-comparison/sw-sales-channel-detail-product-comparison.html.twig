@@ -9,6 +9,9 @@
                         {% block sw_sales_channel_detail_product_comparison_input_header %}
                             <sw-code-editor
                                 :label="$tc('sw-sales-channel.detail.product-comparison.inputHeaderLabel')"
+                                :completerFunction="outerCompleterFunctionHeader"
+                                :editorConfig="editorConfig"
+                                completionMode="entity"
                                 mode="twig"
                                 :softWraps="true"
                                 :setFocus="false"
@@ -24,6 +27,9 @@
                         {% block sw_sales_channel_detail_product_comparison_input_body %}
                             <sw-code-editor
                                 :label="$tc('sw-sales-channel.detail.product-comparison.inputBodyLabel')"
+                                completerFunction="outerCompleterFunctionBody"
+                                :editorConfig="editorConfig"
+                                completionMode="entity"
                                 mode="twig"
                                 :softWraps="true"
                                 :setFocus="false"
@@ -38,6 +44,9 @@
                         {% block sw_sales_channel_detail_product_comparison_input_footer %}
                             <sw-code-editor
                                 :label="$tc('sw-sales-channel.detail.product-comparison.inputFooterLabel')"
+                                :completerFunction="outerCompleterFunctionFooter"
+                                :editorConfig="editorConfig"
+                                completionMode="entity"
                                 mode="twig"
                                 :softWraps="true"
                                 :setFocus="false"

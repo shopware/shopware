@@ -17,7 +17,8 @@ Component.register('sw-sales-channel-detail-product-comparison', {
         'salesChannelService',
         'repositoryFactory',
         'context',
-        'productExportService'
+        'productExportService',
+        'entityMappingService'
     ],
 
     props: {
@@ -43,7 +44,10 @@ Component.register('sw-sales-channel-detail-product-comparison', {
             deleteDomain: null,
             previewContent: null,
             isLoadingPreview: false,
-            isPreviewSuccessful: false
+            isPreviewSuccessful: false,
+            editorConfig: {
+                enableBasicAutocompletion: true
+            }
         };
     },
 
@@ -67,6 +71,24 @@ Component.register('sw-sales-channel-detail-product-comparison', {
             const criteria = new Criteria(1, 10);
 
             return criteria.addFilter(Criteria.equals('type', 'page'));
+        },
+
+        outerCompleterFunctionHeader() {
+            return this.completerFunction({
+                productExport: 'product_export'
+            });
+        },
+
+        outerCompleterFunctionBody() {
+            return this.completerFunction({
+                productExport: 'product_export'
+            });
+        },
+
+        outerCompleterFunctionFooter() {
+            return this.completerFunction({
+                productExport: 'product_export'
+            });
         }
     },
 
@@ -114,6 +136,27 @@ Component.register('sw-sales-channel-detail-product-comparison', {
         onPreviewClose() {
             this.previewContent = null;
             this.isPreviewSuccessful = false;
+        },
+
+        completerFunction(mapping) {
+            return (function completerWrapper(entityMappingService) {
+                function completerFunction(prefix) {
+                    const properties = [];
+                    Object.keys(
+                        entityMappingService.getEntityMapping(
+                            prefix,
+                            mapping
+                        )
+                    ).forEach((val) => {
+                        properties.push({
+                            value: val
+                        });
+                    });
+                    return properties;
+                }
+                return completerFunction;
+            }(this.entityMappingService));
         }
+
     }
 });

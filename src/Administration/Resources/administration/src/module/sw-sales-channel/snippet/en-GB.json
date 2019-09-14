@@ -115,8 +115,20 @@
           "86400": "1 day",
           "172800": "2 days"
         },
-        "storefront": "Storefront Saleschannel",
-        "storefrontDomain": "Storefront domain"
+        "storefront": "Storefront Sales Channel",
+        "storefrontDomain": "Storefront domain",
+        "storefrontDomainLanguage": {
+          "label": "Language",
+          "help": "Automatically selected from sales channel domain"
+        },
+        "storefrontDomainCurrency": {
+          "label": "Currency",
+          "help": "Automatically selected from sales channel domain"
+        },
+        "storefrontSalesChannelCustomerGroup": {
+          "label": "Customer Group",
+          "help": "Automatically selected from sales channel"
+        }
       }
     }
   }

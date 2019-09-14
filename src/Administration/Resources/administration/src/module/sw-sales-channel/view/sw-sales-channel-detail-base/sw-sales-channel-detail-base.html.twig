@@ -340,6 +340,60 @@
                         v-model="productExport.salesChannelDomainId">
                     </sw-entity-single-select>
                 {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_language %}
+                    <div class="sw-sales-channel-detail-base__product-comparison-container" v-if="productExport.salesChannelDomain">
+                        <sw-entity-single-select
+                            :label="$tc('sw-sales-channel.detail.product-comparison.storefrontDomainLanguage.label')"
+                            labelProperty="name"
+                            valueProperty="id"
+                            entity="language"
+                            :disabled="true"
+                            v-model="productExport.salesChannelDomain.languageId">
+                        </sw-entity-single-select>
+                        <sw-help-text
+                            class="sw-sales-channel-detail-base__product-comparison-helptext"
+                            :text="$tc('sw-sales-channel.detail.product-comparison.storefrontDomainLanguage.help')"
+                            tooltipPosition="top">
+                        </sw-help-text>
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_currency %}
+                    <div class="sw-sales-channel-detail-base__product-comparison-container" v-if="productExport.salesChannelDomain">
+                        <sw-entity-single-select
+                            :label="$tc('sw-sales-channel.detail.product-comparison.storefrontDomainCurrency.label')"
+                            labelProperty="name"
+                            valueProperty="id"
+                            entity="currency"
+                            :disabled="true"
+                            v-model="productExport.salesChannelDomain.currencyId">
+                        </sw-entity-single-select>
+                        <sw-help-text
+                            class="sw-sales-channel-detail-base__product-comparison-helptext"
+                            :text="$tc('sw-sales-channel.detail.product-comparison.storefrontDomainCurrency.help')"
+                            tooltipPosition="top">
+                        </sw-help-text>
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_sales_channel_customer_group %}
+                    <div class="sw-sales-channel-detail-base__product-comparison-container">
+                        <sw-entity-single-select
+                            :label="$tc('sw-sales-channel.detail.product-comparison.storefrontSalesChannelCustomerGroup.label')"
+                            labelProperty="name"
+                            valueProperty="id"
+                            entity="customer_group"
+                            :disabled="true"
+                            v-model="salesChannel.customerGroupId">
+                        </sw-entity-single-select>
+                        <sw-help-text
+                            class="sw-sales-channel-detail-base__product-comparison-helptext"
+                            :text="$tc('sw-sales-channel.detail.product-comparison.storefrontSalesChannelCustomerGroup.help')"
+                            tooltipPosition="top">
+                        </sw-help-text>
+                    </div>
+                {% endblock %}
             </sw-card>
         {% endblock %}
 

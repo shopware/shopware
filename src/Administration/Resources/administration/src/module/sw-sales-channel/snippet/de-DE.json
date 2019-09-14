@@ -116,7 +116,19 @@
           "172800": "2 Tage"
         },
         "storefront": "Storefront-Verkaufskanal",
-        "storefrontDomain": "Storefront-Domain"
+        "storefrontDomain": "Storefront-Domain",
+        "storefrontDomainLanguage": {
+          "label": "Sprache",
+          "help": "Auf Basis der Storefront-Domain automatisch gewählt"
+        },
+        "storefrontDomainCurrency": {
+          "label": "Währung",
+          "help": "Auf Basis der Storefront-Domain automatisch gewählt"
+        },
+        "storefrontSalesChannelCustomerGroup": {
+          "label": "Kundengruppe",
+          "help": "Auf Basis des Storefront-Verkaufskanals automatisch gewählt"
+        }
       }
     }
   }

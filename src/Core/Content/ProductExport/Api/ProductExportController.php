@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\ProductExport\Api;
 
+use Monolog\Logger;
 use Shopware\Core\Content\ProductExport\Error\Error;
+use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\RenderFooterException;
 use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
 use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
@@ -21,6 +23,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -42,16 +45,21 @@ class ProductExportController extends AbstractController
     /** @var Translator */
     private $translator;
 
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
     public function __construct(
         SalesChannelContextFactory $salesChannelContextFactory,
         EntityRepositoryInterface $salesChannelDomainRepository,
         ProductExportGeneratorInterface $productExportGenerator,
-        Translator $translator
+        Translator $translator,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->salesChannelDomainRepository = $salesChannelDomainRepository;
         $this->productExportGenerator = $productExportGenerator;
         $this->translator = $translator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -146,7 +154,15 @@ class ProductExportController extends AbstractController
         )->get($salesChannelDomainId);
 
         if (!($salesChannelDomain instanceof SalesChannelDomainEntity)) {
-            throw new SalesChannelDomainNotFoundException($salesChannelDomainId);
+            $salesChannelDomainNotFoundException = new SalesChannelDomainNotFoundException($salesChannelDomainId);
+            $loggingEvent = new ProductExportLoggingEvent(
+                $context,
+                $salesChannelDomainNotFoundException->getMessage(),
+                Logger::ERROR,
+                $salesChannelDomainNotFoundException
+            );
+            $this->eventDispatcher->dispatch($loggingEvent);
+            throw $salesChannelDomainNotFoundException;
         }
 
         $salesChannelContext = $this->salesChannelContextFactory->create(

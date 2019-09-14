@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
+use Monolog\Logger;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
 use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
-use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
@@ -70,9 +71,19 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $iterator = new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
 
         $total = $iterator->getTotal();
-
         if ($total === 0) {
-            throw new EmptyExportException($productExport->getId());
+            $exception = new EmptyExportException($productExport->getId());
+
+            $loggingEvent = new ProductExportLoggingEvent(
+                $context->getContext(),
+                $exception->getMessage(),
+                Logger::WARNING,
+                $exception
+            );
+
+            $this->eventDispatcher->dispatch($loggingEvent);
+
+            throw $exception;
         }
 
         $content = $this->productExportRender->renderHeader($productExport, $context);

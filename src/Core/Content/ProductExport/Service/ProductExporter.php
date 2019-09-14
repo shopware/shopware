@@ -3,15 +3,19 @@
 namespace Shopware\Core\Content\ProductExport\Service;
 
 use League\Flysystem\FilesystemInterface;
+use Monolog\Logger;
+use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductExporter implements ProductExporterInterface
 {
@@ -27,16 +31,21 @@ class ProductExporter implements ProductExporterInterface
     /** @var string */
     private $exportDirectory;
 
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
     public function __construct(
         EntityRepositoryInterface $productExportRepository,
         FilesystemInterface $fileSystem,
         ProductExportGeneratorInterface $productExportGenerator,
+        EventDispatcherInterface $eventDispatcher,
         string $exportDirectory
     ) {
         $this->productExportRepository = $productExportRepository;
         $this->fileSystem = $fileSystem;
         $this->productExportGenerator = $productExportGenerator;
         $this->exportDirectory = $exportDirectory;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function export(
@@ -67,7 +76,9 @@ class ProductExporter implements ProductExporterInterface
         $productExports = $this->productExportRepository->search($criteria, $context->getContext());
 
         if ($productExports->count() === 0) {
-            throw new ExportNotFoundException($productExportId);
+            $exportNotFoundException = new ExportNotFoundException($productExportId);
+            $this->logException($context->getContext(), $exportNotFoundException);
+            throw $exportNotFoundException;
         }
 
         /** @var ProductExportEntity $productExport */
@@ -99,7 +110,9 @@ class ProductExporter implements ProductExporterInterface
         $result = $this->productExportGenerator->generate($productExport, $behavior, $context);
 
         if ($result->hasErrors()) {
-            throw new ExportInvalidException($result->getErrors());
+            $exportInvalidException = new ExportInvalidException($result->getErrors());
+            $this->logException($context->getContext(), $exportInvalidException);
+            throw $exportInvalidException;
         }
 
         $filePath = $this->getFilePath($productExport);
@@ -152,5 +165,17 @@ class ProductExporter implements ProductExporterInterface
         if (!$this->fileSystem->has($this->exportDirectory)) {
             $this->fileSystem->createDir($this->exportDirectory);
         }
+    }
+
+    private function logException(Context $context, \Exception $exception): void
+    {
+        $loggingEvent = new ProductExportLoggingEvent(
+            $context,
+            $exception->getMessage(),
+            Logger::WARNING,
+            $exception
+        );
+
+        $this->eventDispatcher->dispatch($loggingEvent);
     }
 }

@@ -21,6 +21,10 @@ Component.register('sw-sales-channel-detail-product-comparison-preview', {
             return {
                 readOnly: true
             };
+        },
+
+        displayErrors() {
+            return this.errors.length > 0;
         }
     },
 

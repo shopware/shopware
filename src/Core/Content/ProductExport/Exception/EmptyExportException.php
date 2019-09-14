@@ -8,7 +8,7 @@ class EmptyExportException extends ShopwareHttpException
 {
     public function __construct(?string $id = null)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             parent::__construct('No products for export found');
         } else {
             parent::__construct('No products for export with ID {{ id }} found', ['id' => $id]);

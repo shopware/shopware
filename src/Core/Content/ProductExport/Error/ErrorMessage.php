@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Content\ProductExport\Error;
 
-use Shopware\Core\Framework\Struct\AssignArrayTrait;
-use Shopware\Core\Framework\Struct\CreateFromTrait;
-use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 class ErrorMessage extends Struct
@@ -12,10 +9,10 @@ class ErrorMessage extends Struct
     /** @var string */
     protected $message;
 
-    /** @var null|int */
+    /** @var int|null */
     protected $line;
 
-    /** @var null|int */
+    /** @var int|null */
     protected $column;
 
     public function getMessage(): string

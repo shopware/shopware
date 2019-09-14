@@ -112,7 +112,7 @@ class ProductExportController extends AbstractController
     {
         $result = $this->generateExportPreview($dataBag, $context);
 
-        if($result->hasErrors()) {
+        if ($result->hasErrors()) {
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(

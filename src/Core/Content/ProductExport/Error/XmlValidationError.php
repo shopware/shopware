@@ -29,6 +29,7 @@ class XmlValidationError extends Error
                     'line' => $error->line,
                     'column' => $error->column,
                 ]);
+
                 return $errorMessage;
             },
             $errors

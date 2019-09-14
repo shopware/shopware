@@ -15,7 +15,7 @@ class ProductExportResult
     public function __construct(string $content, array $errors)
     {
         $this->content = $content;
-        $this->errors  = $errors;
+        $this->errors = $errors;
     }
 
     public function getContent(): string

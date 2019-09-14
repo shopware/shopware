@@ -21,8 +21,8 @@ class ProductExportChangeEncodingEvent extends Event
     public function __construct(ProductExportEntity $productExportEntity, string $content, string $encodedContent)
     {
         $this->productExportEntity = $productExportEntity;
-        $this->content             = $content;
-        $this->encodedContent      = $encodedContent;
+        $this->content = $content;
+        $this->encodedContent = $encodedContent;
     }
 
     public function getProductExportEntity(): ProductExportEntity

@@ -70,14 +70,9 @@ class ProductExportLoggingEvent extends Event implements BusinessEventInterface,
         return $logData;
     }
 
-    public function getTest(): string
-    {
-        return 'test';
-    }
-
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('test', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('name', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 }

@@ -271,20 +271,19 @@ images{#- -#}',
 <channel>
 	<atom:link href="{{ productExport.salesChannelDomain.url }}/export/{{ productExport.accessKey }}/{{ productExport.fileName }}" rel="self" type="application/rss+xml" />
 	<title>{{ context.salesChannel.name }}</title>
-	<description>Add your description</description>
+	<description>{# change your shop\'s description #}</description>
 	<link>{{ productExport.salesChannelDomain.url }}</link>
 	<language>{{ productExport.salesChannelDomain.language.locale.code }}</language>
 	<image>
-		<url>Add your logo</url>
+		<url>{# add your logo URL #}</url>
 		<title>{{ context.salesChannel.name }}</title>
 		<link>{{ productExport.salesChannelDomain.url }}</link>
 	</image>',
-
                 'body_template' => '<item> 
-    <g:id>{{ product.id }}</g:id>
+	<g:id>{{ product.id }}</g:id>
 	<title>{{ product.translated.name|escape }}</title>
 	<description>{{ product.translated.description|escape }}</description>
-	<g:google_product_category>Select your google category</g:google_product_category>
+	<g:google_product_category>950{# change your Google Shopping category #}</g:google_product_category>
 	<g:product_type>{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw|escape }}</g:product_type>
 	<link>{{ productUrl(product) }}</link>
 	<g:image_link>{{ product.media|first.media.url }}</g:image_link>
@@ -295,11 +294,11 @@ images{#- -#}',
 	<g:gtin>{{ product.manufacturerNumber }}</g:gtin>
 	<g:mpn>{{ product.manufacturerNumber }}</g:mpn>
 	<g:shipping>
-       <g:country>DE</g:country>
-       <g:service>Standard</g:service>
-       <g:price>Enter your shipping costs</g:price>
-    </g:shipping>
-  {% if product.updatedAt %}<pubDate>{{ product.updatedAt|date("%a, %d %b %Y %T %Z") }}</pubDate>{% endif %}		
+		<g:country>DE</g:country>
+		<g:service>Standard</g:service>
+		<g:price>{{ 4.95|currency }}{# change your default delivery costs #}</g:price>
+	</g:shipping>
+	{% if product.updatedAt %}<pubDate>{{ product.updatedAt|date("%a, %d %b %Y %T %Z") }}</pubDate>{% endif %}
 </item>',
                 'footer_template' => '</channel>
 </rss>',
@@ -341,7 +340,7 @@ images{#- -#}',
                 'language_id' => $languageDE,
                 'name' => 'Produktvergleich',
                 'manufacturer' => 'shopware AG',
-                'description' => 'Sales channel für Produktvergleich Portale',
+                'description' => 'Verkaufskanal für Produktvergleichsportale',
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -457,7 +456,7 @@ images{#- -#}',
             [
                 'sales_channel_id' => $this->googleSalesChannelId,
                 'language_id' => $languageEN,
-                'name' => 'Google product search',
+                'name' => 'Google product search DE',
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -466,7 +465,7 @@ images{#- -#}',
             [
                 'sales_channel_id' => $this->googleSalesChannelId,
                 'language_id' => $languageDE,
-                'name' => 'Google Produktsuche',
+                'name' => 'Google Produktsuche DE',
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\ProductExport\Command;
 
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Component\Console\Command\Command;
@@ -48,6 +50,10 @@ class ProductExportGenerateCommand extends Command
         $includeInactive = $input->getOption('include-inactive');
 
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
+
+        if ($salesChannelContext->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
+            throw new SalesChannelNotFoundException();
+        }
 
         $this->productExportService->export(
             $salesChannelContext,

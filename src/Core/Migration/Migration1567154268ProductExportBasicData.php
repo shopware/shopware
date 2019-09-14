@@ -151,7 +151,7 @@ class Migration1567154268ProductExportBasicData extends MigrationStep
 "Lieferzeit",{#- -#}
 "Artikelnummer",{#- -#}
 "Link Produktbild",{#- -#}
-vProdukt Kurztext",{#- -#}
+"Produkt Kurztext",{#- -#}
 "Vorkasse Zuschlag",{#- Change or add your payment methods -#}
 "Nachnahme Zuschlag",{#- Change or add your payment methods -#}
 "Rechnung Zuschlag"{#- Change or add your payment methods -#}',

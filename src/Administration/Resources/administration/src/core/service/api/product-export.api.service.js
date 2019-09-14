@@ -48,7 +48,8 @@ class ProductExportApiService extends ApiService {
                 body_template: productExport.bodyTemplate,
                 footer_template: productExport.footerTemplate,
                 include_variants: productExport.includeVariants,
-                encoding: productExport.encoding
+                encoding: productExport.encoding,
+                file_format: productExport.fileFormat
             },
             {
                 headers: this.getBasicHeaders()

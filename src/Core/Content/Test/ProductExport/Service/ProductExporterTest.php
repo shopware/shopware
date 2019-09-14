@@ -12,6 +12,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExporter;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRenderer;
+use Shopware\Core\Content\ProductExport\Service\ProductExportValidator;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Defaults;
@@ -85,6 +86,7 @@ class ProductExporterTest extends TestCase
             $this->getContainer()->get('sales_channel.product.repository'),
             $this->getContainer()->get(ProductExportRenderer::class),
             $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(ProductExportValidator::class),
             1
         );
 

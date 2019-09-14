@@ -1,96 +1,79 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ProductExport\Api;
+namespace Shopware\Core\Content\Test\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
+use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
+use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Symfony\Component\HttpFoundation\Response;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class ProductExportControllerTest extends TestCase
+class ProductExportValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use AdminApiTestBehaviour;
 
-    /**
-     * @var Context
-     */
+    /** @var EntityRepositoryInterface */
+    private $repository;
+
+    /** @var Context */
     private $context;
+
+    /** @var SalesChannelContext */
+    private $salesChannelContext;
+
+    /** @var ProductExporterInterface */
+    private $service;
 
     protected function setUp(): void
     {
+        $this->repository = $this->getContainer()->get('product_export.repository');
+        $this->service = $this->getContainer()->get(ProductExportGenerator::class);
         $this->context = Context::createDefaultContext();
+
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), $this->getSalesChannelDomain()->getSalesChannelId());
     }
 
-    public function testValidate(): void
+    public function testValidXmlExport(): void
     {
-        $this->createProductStream();
+        $productExportId = $this->createTestEntity();
+        /** @var ProductExportEntity $productExport */
+        $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->first();
 
-        $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
+        $exportResult = $this->service->generate($productExport, new ExportBehavior(), $this->salesChannelContext);
 
-        $this->getBrowser()->request('POST', $url, [
-            'sales_channel_id' => $this->getSalesChannelDomain()->getSalesChannelId(),
-            'sales_channel_domain_id' => $this->getSalesChannelDomainId(),
-            'product_stream_id' => '137b079935714281ba80b40f83f8d7eb',
-            'header_template' => '',
-            'body_template' => '{{ product.name }}',
-            'footer_template' => '',
-            'include_variants' => false,
-            'encoding' => 'UTF-8',
-            'file_format' => 'CSV',
-        ]);
-
-        static::assertEquals(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+        $this->assertFalse($exportResult->hasErrors());
     }
 
-    public function testValidateFailure(): void
+    public function testInvalidXmlExport(): void
     {
-        $this->createProductStream();
+        $productExportId = $this->createTestEntity();
+        /** @var ProductExportEntity $productExport */
+        $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->first();
+        $productExport->setFooterTemplate('');
 
-        $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
+        $exportResult = $this->service->generate($productExport, new ExportBehavior(), $this->salesChannelContext);
 
-        $this->getBrowser()->request('POST', $url, [
-            'sales_channel_id' => $this->getSalesChannelDomain()->getSalesChannelId(),
-            'sales_channel_domain_id' => $this->getSalesChannelDomainId(),
-            'product_stream_id' => '137b079935714281ba80b40f83f8d7eb',
-            'header_template' => '',
-            'body_template' => '{{ product.name }', // Missing closing curly brace
-            'footer_template' => '',
-            'include_variants' => false,
-            'encoding' => 'UTF-8',
-            'file_format' => 'CSV',
-        ]);
-
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+        $this->assertTrue($exportResult->hasErrors());
     }
 
-    public function testValidateFalseDomain(): void
+    private function getSalesChannelId(): string
     {
-        $url = sprintf('/api/v%s/_action/product-export/validate', PlatformRequest::API_VERSION);
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('sales_channel.repository');
 
-        $this->getBrowser()->request('POST', $url, [
-            'sales_channel_id' => Uuid::randomHex(),
-            'sales_channel_domain_id' => Uuid::randomHex(),
-            'product_stream_id' => '',
-            'header_template' => '',
-            'body_template' => '',
-            'footer_template' => '',
-            'include_variants' => false,
-            'encoding' => 'UTF-8',
-            'file_format' => 'CSV',
-        ]);
-
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertStringContainsString('CONTENT__PRODUCT_EXPORT_SALES_CHANNEL_DOMAIN_NOT_FOUND', $this->getBrowser()->getResponse()->getContent());
+        return $repository->search(new Criteria(), $this->context)->first()->getId();
     }
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
@@ -104,6 +87,33 @@ class ProductExportControllerTest extends TestCase
     private function getSalesChannelDomainId(): string
     {
         return $this->getSalesChannelDomain()->getId();
+    }
+
+    private function createTestEntity(): string
+    {
+        $this->createProductStream();
+
+        $id = Uuid::randomHex();
+        $this->repository->upsert([
+            [
+                'id' => $id,
+                'fileName' => 'Testexport.csv',
+                'accessKey' => Uuid::randomHex(),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'fileFormat' => ProductExportEntity::FILE_FORMAT_XML,
+                'interval' => 0,
+                'headerTemplate' => '<?xml version="1.0"?><export>',
+                'bodyTemplate' => '<name>{{ product.name }}</name>',
+                'footerTemplate' => '</export>',
+                'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+                'storefrontSalesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => $this->getSalesChannelId(),
+                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+                'generateByCronjob' => false,
+            ],
+        ], $this->context);
+
+        return $id;
     }
 
     private function createProductStream(): void

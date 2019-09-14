@@ -12,7 +12,7 @@ class XmlValidator implements ValidatorInterface
     public function validate(ProductExportEntity $productExportEntity, string $productExportContent, ErrorCollection $errors): void
     {
         if($productExportEntity->getFileFormat() !== $productExportEntity::FILE_FORMAT_XML) {
-            //return;
+            return;
         }
 
         $internalErrorsState = libxml_use_internal_errors();

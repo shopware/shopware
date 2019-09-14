@@ -138,7 +138,9 @@
         "storefrontSalesChannelCustomerGroup": {
           "label": "Customer Group",
           "help": "Automatically selected from sales channel"
-        }
+        },
+        "titleAccessKeyChanged": "Access key changed",
+        "messageAccessKeyChanged": "The access key and the changed export URL are only active after saving the sales channel."
       }
     }
   }

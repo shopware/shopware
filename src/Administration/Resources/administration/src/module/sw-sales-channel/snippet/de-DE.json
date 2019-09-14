@@ -143,7 +143,9 @@
         "storefrontSalesChannelCustomerGroup": {
           "label": "Kundengruppe",
           "help": "Auf Basis des Storefront-Verkaufskanals automatisch gewählt"
-        }
+        },
+        "titleAccessKeyChanged": "Zugangsschlüssel geändert",
+        "messageAccessKeyChanged": "Der Zugangsschlüssel und die geänderte Export-URL werden erst nach dem Speichern aktiv."
       }
     }
   }

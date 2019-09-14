@@ -235,6 +235,11 @@ Component.register('sw-sales-channel-detail-base', {
             this.productExportService.generateKey().then((response) => {
                 this.productExport.accessKey = response.accessKey;
                 this.$root.$emit('sales-channel-product-comparison-access-key-changed');
+
+                this.createNotificationInfo({
+                    title: this.$tc('sw-sales-channel.detail.product-comparison.titleAccessKeyChanged'),
+                    message: this.$tc('sw-sales-channel.detail.product-comparison.messageAccessKeyChanged')
+                });
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-sales-channel.detail.titleAPIError'),

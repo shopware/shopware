@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductExport\Exception;
 
 use Shopware\Core\Content\ProductExport\Error\Error;
 use Shopware\Core\Content\ProductExport\Error\ErrorMessage;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 class ExportInvalidException extends ShopwareHttpException
@@ -14,7 +15,7 @@ class ExportInvalidException extends ShopwareHttpException
     /**
      * @param Error[] $errors
      */
-    public function __construct(array $errors)
+    public function __construct(ProductExportEntity $productExportEntity, array $errors)
     {
         $errorMessages = array_merge(
             ...array_map(
@@ -27,7 +28,14 @@ class ExportInvalidException extends ShopwareHttpException
 
         $this->errorMessages = $errorMessages;
 
-        parent::__construct(sprintf('Export file generation resulted in validation errors'), ['errors' => $errors, 'errorMessages' => $errorMessages]);
+        parent::__construct(
+            sprintf(
+                'Export file generation for product export %s (%s) resulted in validation errors',
+                $productExportEntity->getId(),
+                $productExportEntity->getFileName()
+            ),
+            ['errors' => $errors, 'errorMessages' => $errorMessages]
+        );
     }
 
     public function getErrorCode(): string

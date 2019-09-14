@@ -112,6 +112,18 @@ class ProductExportController extends AbstractController
     {
         $result = $this->generateExportPreview($dataBag, $context);
 
+        if($result->hasErrors()) {
+            $errors = $result->getErrors();
+            $errorMessages = array_merge(
+                ...array_map(
+                    function (Error $error) {
+                        return $error->getErrorMessages();
+                    },
+                    $errors
+                )
+            );
+        }
+
         return new JsonResponse(
             [
                 'content' => mb_convert_encoding(
@@ -119,7 +131,7 @@ class ProductExportController extends AbstractController
                     'UTF-8',
                     $dataBag->get('encoding')
                 ),
-                'errors' => $result->getErrors(),
+                'errors' => $errorMessages ?? [],
             ]
         );
     }

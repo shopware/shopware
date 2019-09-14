@@ -123,7 +123,12 @@
           "28800": "8 hours",
           "43200": "12 hours",
           "86400": "1 day",
-          "172800": "2 days"
+          "172800": "2 days",
+          "259200": "3 days",
+          "345600": "4 days",
+          "432000": "5 days",
+          "518400": "6 days",
+          "604800": "1 week"
         },
         "storefront": "Storefront Sales Channel",
         "storefrontDomain": "Storefront domain",

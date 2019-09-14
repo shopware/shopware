@@ -28,7 +28,8 @@ Component.register('sw-sales-channel-detail', {
             customFieldSets: [],
             storefrontSalesChannels: [],
             isSaveSuccessful: false,
-            newProductExport: null
+            newProductExport: null,
+            productComparisonAccessUrl: null
         };
     },
 
@@ -112,6 +113,12 @@ Component.register('sw-sales-channel-detail', {
     methods: {
         createdComponent() {
             this.loadEntityData();
+            this.registerListener();
+        },
+
+        registerListener() {
+            this.$root.$on('sales-channel-product-comparison-access-key-changed', this.generateAccessUrl);
+            this.$root.$on('sales-channel-product-comparison-domain-changed', this.generateAccessUrl);
         },
 
         loadEntityData() {
@@ -138,6 +145,9 @@ Component.register('sw-sales-channel-detail', {
                 .get(this.$route.params.id, this.context, criteria)
                 .then((entity) => {
                     this.salesChannel = entity;
+                    if (this.isProductComparison) {
+                        this.generateAccessUrl();
+                    }
                     this.isLoading = false;
                 });
         },
@@ -183,6 +193,18 @@ Component.register('sw-sales-channel-detail', {
                 .then((searchResult) => {
                     this.customFieldSets = searchResult;
                 });
+        },
+
+        generateAccessUrl() {
+            if (!this.productExport.salesChannelDomain) {
+                this.productComparisonAccessUrl = '';
+            } else {
+                this.productComparisonAccessUrl = `${this.productExport.salesChannelDomain.url.replace(/\/+$/g, '')
+                }/export/${
+                    this.productExport.accessKey
+                }/${
+                    this.productExport.fileName}`;
+            }
         },
 
         saveFinish() {

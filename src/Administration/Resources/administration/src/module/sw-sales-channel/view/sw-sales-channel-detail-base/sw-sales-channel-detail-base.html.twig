@@ -330,6 +330,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain %}
                     <sw-entity-single-select
+                        @input="onStorefrontDomainSelectionChange"
                         :label="$tc('sw-sales-channel.detail.product-comparison.storefrontDomain')"
                         :criteria="storefrontSalesChannelDomainCriteria"
                         labelProperty="url"
@@ -505,6 +506,16 @@
                                 v-if="isProductComparison"
                                 :copyable="true">
                         </sw-field>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_product_comparison_input_access_url %}
+                            <sw-field
+                                :label="$tc('sw-sales-channel.detail.product-comparison.accessUrl')"
+                                :disabled="true"
+                                v-model="productComparisonAccessUrl"
+                                v-if="isProductComparison && productExport.salesChannelDomainId"
+                                :copyable="true">
+                            </sw-field>
                         {% endblock %}
 
                         {% block sw_sales_channel_detail_base_product_comparison_input_generate_key %}

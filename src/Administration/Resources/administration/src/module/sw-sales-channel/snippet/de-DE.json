@@ -87,6 +87,7 @@
         "fileFormat": "Dateiformat",
         "placeholderSelectFileFormat": "Wähle ein Dateiformat aus...",
         "accessKey": "Zugangsschlüssel",
+        "accessUrl": "Export-URL",
         "buttonCreateNewAccessKey": "Zugangsschlüssel neu generieren",
         "productStream": "Dynamische Produktgruppe",
         "file-format-labels": {

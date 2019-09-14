@@ -42,6 +42,11 @@ Component.register('sw-sales-channel-detail-base', {
         isLoading: {
             type: Boolean,
             default: false
+        },
+
+        productComparisonAccessUrl: {
+            type: String,
+            default: ''
         }
     },
 
@@ -210,6 +215,7 @@ Component.register('sw-sales-channel-detail-base', {
         onGenerateProductExportKey() {
             this.productExportService.generateKey().then((response) => {
                 this.productExport.accessKey = response.accessKey;
+                this.$root.$emit('sales-channel-product-comparison-access-key-changed');
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-sales-channel.detail.titleAPIError'),
@@ -318,6 +324,15 @@ Component.register('sw-sales-channel-detail-base', {
                     this.salesChannel.navigationCategoryId = entity.navigationCategoryId;
                     this.salesChannel.navigationCategoryVersionId = entity.navigationCategoryVersionId;
                     this.salesChannel.customerGroupId = entity.customerGroupId;
+                });
+        },
+
+        onStorefrontDomainSelectionChange(storefrontSalesChannelDomainId) {
+            this.globalDomainRepository
+                .get(storefrontSalesChannelDomainId, this.context)
+                .then((entity) => {
+                    this.productExport.salesChannelDomain = entity;
+                    this.$root.$emit('sales-channel-product-comparison-domain-changed');
                 });
         },
 

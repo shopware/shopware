@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductExport\Service;
 
 use Monolog\Logger;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
 use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
@@ -111,8 +112,11 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         }
         $content .= $this->productExportRender->renderFooter($productExport, $context);
 
-        $content = mb_convert_encoding($content, $productExport->getEncoding());
+        /** @var ProductExportChangeEncodingEvent $encodingEvent */
+        $encodingEvent = $this->eventDispatcher->dispatch(
+            new ProductExportChangeEncodingEvent($productExport, $content, mb_convert_encoding($content, $productExport->getEncoding()))
+        );
 
-        return new ProductExportResult($content, $this->productExportValidator->validate($productExport, $content));
+        return new ProductExportResult($encodingEvent->getEncodedContent(), $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent()));
     }
 }

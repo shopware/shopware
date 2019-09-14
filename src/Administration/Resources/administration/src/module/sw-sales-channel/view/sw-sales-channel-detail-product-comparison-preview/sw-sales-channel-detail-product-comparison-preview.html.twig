@@ -3,7 +3,7 @@
         {% block sw_sales_channel_detail_product_comparison_preview_modal %}
             <sw-modal :title="$tc('sw-sales-channel.detail.titleProductComparisonPreview')" v-if="content" @modal-close="onModalClose" variant="full">
                 {% block sw_sales_channel_detail_product_comparison_preview_modal_errors %}
-                    <template v-if="displayErrors">
+                    <div v-if="displayErrors">
                         <h3>{{ $tc('sw-sales-channel.detail.titleProductComparisonPreviewErrors') }}</h3>
                         <div style="height:100px;overflow:scroll"><!-- TODO: Add scrollable container component -->
                             <p v-for="error in errors">
@@ -13,7 +13,7 @@
                                 {{ error.message }}
                             </p>
                         </div>
-                    </template>
+                    </div>
                 {% endblock %}
                 {% block sw_sales_channel_detail_product_comparison_preview_modal_content %}
                     <sw-code-editor

@@ -16,6 +16,8 @@
                                 :softWraps="true"
                                 :setFocus="false"
                                 v-model="productExport.headerTemplate"
+                                @input="resetValid"
+                                @blur="resetValid"
                             >
                             </sw-code-editor>
                         {% endblock %}
@@ -33,7 +35,10 @@
                                 mode="twig"
                                 :softWraps="true"
                                 :setFocus="false"
-                                v-model="productExport.bodyTemplate">
+                                v-model="productExport.bodyTemplate"
+                                @input="resetValid"
+                                @blur="resetValid"
+                            >
                             </sw-code-editor>
                         {% endblock %}
                     </sw-container>
@@ -50,7 +55,10 @@
                                 mode="twig"
                                 :softWraps="true"
                                 :setFocus="false"
-                                v-model="productExport.footerTemplate">
+                                v-model="productExport.footerTemplate"
+                                @input="resetValid"
+                                @blur="resetValid"
+                            >
                             </sw-code-editor>
                         {% endblock %}
                     </sw-container>
@@ -59,9 +67,9 @@
                 {% block sw_sales_channel_detail_product_comparison_actions %}
                     <sw-container columns="1fr 50%" gap="0 30px" >
                         {% block sw_sales_channel_detail_product_comparison_actions_test_button %}
-                            <sw-button @click="validateTemplate" :disabled="false" :square="false" :block="false" :isLoading="false">
+                            <sw-button-process @click="validateTemplate" :square="false" :block="false" :isLoading="isLoadingValidate" :disabled="isLoadingValidate" :processSuccess="isValidateSuccessful">
                                 {{ $tc('sw-sales-channel.detail.product-comparison.buttonTestLabel') }}
-                            </sw-button>
+                            </sw-button-process>
                         {% endblock %}
 
                         {% block sw_sales_channel_detail_product_comparison_actions_preview_button %}

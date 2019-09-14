@@ -45,6 +45,8 @@ Component.register('sw-sales-channel-detail-product-comparison', {
             previewContent: null,
             isLoadingPreview: false,
             isPreviewSuccessful: false,
+            isLoadingValidate: false,
+            isValidateSuccessful: false,
             editorConfig: {
                 enableBasicAutocompletion: true
             }
@@ -99,16 +101,23 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                 message: this.$tc('sw-sales-channel.detail.product-comparison.notificationMessageValidateSuccessful')
             };
 
+            this.isLoadingValidate = true;
+
             this.productExportService
                 .validateProductExportTemplate(this.productExport)
                 .then(() => {
                     this.createNotificationSuccess(notificationValidateSuccess);
+
+                    this.isLoadingValidate = false;
+                    this.isValidateSuccessful = true;
                 }).catch((exception) => {
                     this.createNotificationError({
                         title: this.$tc('sw-sales-channel.detail.product-comparison.notificationTitleValidateError'),
                         message: exception.response.data.errors[0].detail
                     });
                     warn(this._name, exception.message, exception.response);
+
+                    this.isLoadingValidate = false;
                 });
         },
 
@@ -133,11 +142,6 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                 });
         },
 
-        onPreviewClose() {
-            this.previewContent = null;
-            this.isPreviewSuccessful = false;
-        },
-
         completerFunction(mapping) {
             return (function completerWrapper(entityMappingService) {
                 function completerFunction(prefix) {
@@ -154,9 +158,18 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                     });
                     return properties;
                 }
+
                 return completerFunction;
             }(this.entityMappingService));
-        }
+        },
 
+        onPreviewClose() {
+            this.previewContent = null;
+            this.isPreviewSuccessful = false;
+        },
+
+        resetValid() {
+            this.isValidateSuccessful = false;
+        }
     }
 });

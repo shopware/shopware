@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ProductExport\Api;
 
 use Shopware\Core\Content\ProductExport\Error\Error;
-use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
 use Shopware\Core\Content\ProductExport\Exception\RenderFooterException;
 use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
 use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
@@ -67,7 +66,7 @@ class ProductExportController extends AbstractController
     {
         $result = $this->generateExportPreview($dataBag, $context);
 
-        if($result->hasErrors()) {
+        if ($result->hasErrors()) {
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(
@@ -88,9 +87,9 @@ class ProductExportController extends AbstractController
                     'errors' => $errorMessages,
                 ]
             );
-        } else {
-            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
         }
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     /**
@@ -122,6 +121,8 @@ class ProductExportController extends AbstractController
         $entity = new ProductExportEntity();
 
         $entity->setId('');
+        $entity->setAccessKey('preview-access-key');
+        $entity->setFileName('preview-file-name');
         $entity->setHeaderTemplate($dataBag->get('header_template'));
         $entity->setBodyTemplate($dataBag->get('body_template'));
         $entity->setFooterTemplate($dataBag->get('footer_template'));
@@ -140,7 +141,7 @@ class ProductExportController extends AbstractController
         $salesChannelDomainId = $dataBag->get('sales_channel_domain_id');
 
         $salesChannelDomain = $this->salesChannelDomainRepository->search(
-            (new Criteria([$salesChannelDomainId]))->addAssociation('language'),
+            (new Criteria([$salesChannelDomainId]))->addAssociation('language.locale'),
             $context
         )->get($salesChannelDomainId);
 
@@ -153,6 +154,8 @@ class ProductExportController extends AbstractController
             $salesChannelDomain->getSalesChannelId()
         );
         $productExportEntity = $this->createEntity($dataBag);
+        $productExportEntity->setSalesChannelDomain($salesChannelDomain);
+
         $exportBehavior = new ExportBehavior(true, true, true);
 
         $this->translator->injectSettings(

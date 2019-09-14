@@ -22,6 +22,9 @@ class Migration1567154268ProductExportBasicData extends MigrationStep
     private $billigerSalesChannelId;
 
     /** @var string */
+    private $googleSalesChannelId;
+
+    /** @var string */
     private $productStreamId;
 
     public function getCreationTimestamp(): int
@@ -136,27 +139,27 @@ class Migration1567154268ProductExportBasicData extends MigrationStep
                 'file_format' => ProductExportEntity::FILE_FORMAT_CSV,
                 'generate_by_cronjob' => 0,
                 '`interval`' => 86400,
-                'header_template' => 'Kategorie,{#- -#}
-Hersteller,{#- -#}
-Produktbezeichnung,{#- -#}
-Preis,{#- -#}
-Grundpreis,{#- -#}
-Hersteller-Artikelnummer,{#- -#}
-EAN,{#- -#}
-Versandkosten,{#- -#}
-Deeplink,{#- -#}
-Lieferzeit,{#- -#}
-Artikelnummer,{#- -#}
-Link Produktbild,{#- -#}
-Produkt Kurztext,{#- -#}
-Vorkasse Zuschlag,{#- Change or add your payment methods -#}
-Nachnahme Zuschlag,{#- Change or add your payment methods -#}
-Rechnung Zuschlag{#- Change or add your payment methods -#}',
+                'header_template' => '"Kategorie",{#- -#}
+"Hersteller",{#- -#}
+"Produktbezeichnung",{#- -#}
+"Preis",{#- -#}
+"Grundpreis",{#- -#}
+"Hersteller-Artikelnummer",{#- -#}
+"EAN",{#- -#}
+"Versandkosten",{#- -#}
+"Deeplink",{#- -#}
+"Lieferzeit",{#- -#}
+"Artikelnummer",{#- -#}
+"Link Produktbild",{#- -#}
+vProdukt Kurztext",{#- -#}
+"Vorkasse Zuschlag",{#- Change or add your payment methods -#}
+"Nachnahme Zuschlag",{#- Change or add your payment methods -#}
+"Rechnung Zuschlag"{#- Change or add your payment methods -#}',
 
-                'body_template' => '{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw }},{#- -#}
-{{ product.manufacturer.translated.name }},{#- -#}
-{{ product.translated.name }},{#- -#}
-{{ product.calculatedPrice.unitPrice|currency }},{#- -#}
+                'body_template' => '"{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw }}",{#- -#}
+"{{ product.manufacturer.translated.name }}",{#- -#}
+"{{ product.translated.name }}",{#- -#}
+"{{ product.calculatedPrice.unitPrice|currency }}",{#- -#}
 {% set price = product.calculatedPrice %}
 {% if product.calculatedPrices|length == 1 %}
     {% set price = product.calculatedPrices.first %}
@@ -164,23 +167,23 @@ Rechnung Zuschlag{#- Change or add your payment methods -#}',
 "{% if price.referencePrice is not null %}
 {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
 {% endif %}",{#- -#}
-{{ product.productNumber }}, {#- -#}
-{{ product.ean }},{#- -#}
-{{ 4.90|currency }},{#- Change to your delivery costs -#}
-{{ productUrl(product) }},{#- -#}
-{% if product.availableStock >= product.minPurchase and product.deliveryTime %}
+"{{ product.productNumber }}", {#- -#}
+"{{ product.ean }}",{#- -#}
+"{{ 4.90|currency }}",{#- Change to your delivery costs -#}
+"{{ productUrl(product) }}",{#- -#}
+"{% if product.availableStock >= product.minPurchase and product.deliveryTime %}
 {{ "detail.deliveryTimeAvailable"|trans({\'%name%\': product.deliveryTime.translation(\'name\')}) }}{#- -#}
 {% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}
 {{ "detail.deliveryTimeRestock"|trans({\'%restockTime%\': product.restockTime,\'%name%\': product.deliveryTime.translation(\'name\')}) }}{#- -#}
 {% else %}
 {{ "detail.soldOut"|trans }}{#- -#}
-{% endif %},{#- -#}
-{{ product.productNumber }},{#- -#}
-{{ product.media|first.media.url }},{#- -#}
-{{ product.translated.description|raw|length > 300 ? product.translated.description|raw|slice(0,300) ~ \'...\' : product.translated.description|raw }},{#- -#}
-0.00,{#- Change or add your payment methods -#}
-0.00,{#- Change or add your payment methods -#}
-0.00{#- Change or add your payment methods -#}',
+{% endif %}",{#- -#}
+"{{ product.productNumber }}",{#- -#}
+"{{ product.media|first.media.url }}",{#- -#}
+"{{ product.translated.description|raw|length > 300 ? product.translated.description|raw|slice(0,300) ~ \'...\' : product.translated.description|raw }}",{#- -#}
+"0.00",{#- Change or add your payment methods -#}
+"0.00",{#- Change or add your payment methods -#}
+"0.00"{#- Change or add your payment methods -#}',
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -250,6 +253,59 @@ images{#- -#}',
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
+
+        $connection->insert(
+            'product_export',
+            [
+                'id' => Uuid::randomBytes(),
+                'product_stream_id' => $this->productStreamId,
+                'sales_channel_id' => $this->googleSalesChannelId,
+                'file_name' => 'billiger.csv',
+                'access_key' => AccessKeyHelper::generateAccessKey('product-export'),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'file_format' => ProductExportEntity::FILE_FORMAT_XML,
+                'generate_by_cronjob' => 0,
+                '`interval`' => 86400,
+                'header_template' => '<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+	<atom:link href="{{ productExport.salesChannelDomain.url }}/export/{{ productExport.accessKey }}/{{ productExport.fileName }}" rel="self" type="application/rss+xml" />
+	<title>{{ salesChannelContext.salesChannel.name }}</title>
+	<description>Add your description</description>
+	<link>{{ productExport.salesChannelDomain.url }}</link>
+	<language>{{ productExport.salesChannelDomain.language.locale.code }}</language>
+	<image>
+		<url>Add your logo</url>
+		<title>{{ salesChannelContext.salesChannel.name }}</title>
+		<link>{{ productExport.salesChannelDomain.url }}</link>
+	</image>',
+
+                'body_template' => '<item> 
+    <g:id>{{ product.id }}</g:id>
+	<title>{{ product.translated.name|escape }}</title>
+	<description>{{ product.translated.description|escape }}</description>
+	<g:google_product_category>Select your google category</g:google_product_category>
+	<g:product_type>{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw|escape }}</g:product_type>
+	<link>{{ productUrl(product) }}</link>
+	<g:image_link>{{ product.media|first.media.url }}</g:image_link>
+	<g:condition>neu</g:condition>
+	<g:availability>{% if product.availableStock >= product.minPurchase and product.deliveryTime %}bestellbar{% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}vorbestellt{% else %}nicht auf lager{% endif %}</g:availability>
+	<g:price>{{ product.calculatedPrice.unitPrice|currency }}</g:price>
+	<g:brand>{{ product.manufacturer.translated.name|escape }}</g:brand>
+	<g:gtin>{{ product.manufacturerNumber }}</g:gtin>
+	<g:mpn>{{ product.manufacturerNumber }}</g:mpn>
+	<g:shipping>
+       <g:country>DE</g:country>
+       <g:service>Standard</g:service>
+       <g:price>Enter your shipping costs</g:price>
+    </g:shipping>
+  {% if product.updatedAt %}<pubDate>{{ product.updatedAt|date("%a, %d %b %Y %T %Z") }}</pubDate>{% endif %}		
+</item>',
+                'footer_template' => '</channel>
+</rss>',
+                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
     }
 
     private function createSalesChannelType(Connection $connection): void
@@ -307,6 +363,7 @@ images{#- -#}',
 
         $this->idealoSalesChannelId = Uuid::randomBytes();
         $this->billigerSalesChannelId = Uuid::randomBytes();
+        $this->googleSalesChannelId = Uuid::randomBytes();
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDE = $this->getDeDeLanguageId($connection);
 
@@ -346,6 +403,16 @@ images{#- -#}',
                 ]
             )
         );
+        $connection->insert(
+            'sales_channel',
+            array_merge(
+                $salesChannelDefault,
+                [
+                    'id' => $this->googleSalesChannelId,
+                    'access_key' => AccessKeyHelper::generateAccessKey('sales-channel'),
+                ]
+            )
+        );
 
         $connection->insert(
             'sales_channel_translation',
@@ -381,12 +448,32 @@ images{#- -#}',
                 'sales_channel_id' => $this->billigerSalesChannelId,
                 'language_id' => $languageDE,
                 'name' => 'billiger.de',
+                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        $connection->insert(
+            'sales_channel_translation',
+            [
+                'sales_channel_id' => $this->googleSalesChannelId,
+                'language_id' => $languageEN,
+                'name' => 'Google product search',
+                'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+        $connection->insert(
+            'sales_channel_translation',
+            [
+                'sales_channel_id' => $this->googleSalesChannelId,
+                'language_id' => $languageDE,
+                'name' => 'Google Produktsuche',
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
         $this->insertAdditionalSalesChannelData($connection, $this->idealoSalesChannelId);
         $this->insertAdditionalSalesChannelData($connection, $this->billigerSalesChannelId);
+        $this->insertAdditionalSalesChannelData($connection, $this->googleSalesChannelId);
     }
 
     private function insertAdditionalSalesChannelData(Connection $connection, string $salesChannelId): void

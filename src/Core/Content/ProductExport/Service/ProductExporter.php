@@ -48,6 +48,7 @@ class ProductExporter implements ProductExporterInterface
         $criteria
             ->addAssociation('salesChannel')
             ->addAssociation('salesChannelDomain.salesChannel')
+            ->addAssociation('salesChannelDomain.language.locale')
             ->addAssociation('productStream.filters.queries')
             ->addFilter(
                 new MultiFilter(
@@ -97,7 +98,7 @@ class ProductExporter implements ProductExporterInterface
 
         $result = $this->productExportGenerator->generate($productExport, $behavior, $context);
 
-        if($result->hasErrors()) {
+        if ($result->hasErrors()) {
             throw new ExportInvalidException($result->getErrors());
         }
 

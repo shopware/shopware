@@ -9,6 +9,10 @@ Component.register('sw-sales-channel-detail-product-comparison-preview', {
         content: {
             type: String,
             required: false
+        },
+        errors: {
+            type: Array,
+            required: false
         }
     },
 
@@ -23,7 +27,17 @@ Component.register('sw-sales-channel-detail-product-comparison-preview', {
     methods: {
         onModalClose() {
             this.content = null;
+            this.errors = null;
             this.$emit('close');
+        },
+
+        navigateToLine(line) {
+            if (!line) {
+                return;
+            }
+
+            this.$refs.previewEditor.editor.scrollToLine(line, true, true, () => {});
+            this.$refs.previewEditor.editor.gotoLine(line, 0, true);
         }
     }
 });

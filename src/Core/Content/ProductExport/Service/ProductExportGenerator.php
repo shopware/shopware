@@ -5,8 +5,10 @@ namespace Shopware\Core\Content\ProductExport\Service;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
 use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
+use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -31,21 +33,26 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
 
+    /** @var ProductExportValidatorInterface */
+    private $productExportValidator;
+
     public function __construct(
         ProductStreamBuilderInterface $productStreamBuilder,
         SalesChannelRepositoryInterface $productRepository,
         ProductExportRendererInterface $productExportRender,
         EventDispatcherInterface $eventDispatcher,
+        ProductExportValidatorInterface $productExportValidator,
         int $readBufferSize
     ) {
         $this->productStreamBuilder = $productStreamBuilder;
         $this->productRepository = $productRepository;
         $this->productExportRender = $productExportRender;
         $this->eventDispatcher = $eventDispatcher;
+        $this->productExportValidator = $productExportValidator;
         $this->readBufferSize = $readBufferSize;
     }
 
-    public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior, SalesChannelContext $context): string
+    public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior, SalesChannelContext $context): ProductExportResult
     {
         $filters = $this->productStreamBuilder->buildFilters(
             $productExport->getProductStreamId(),
@@ -93,6 +100,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         }
         $content .= $this->productExportRender->renderFooter($productExport, $context);
 
-        return mb_convert_encoding($content, $productExport->getEncoding());
+        $content = mb_convert_encoding($content, $productExport->getEncoding());
+
+        return new ProductExportResult($content, $this->productExportValidator->validate($productExport, $content));
     }
 }

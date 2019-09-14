@@ -32,6 +32,7 @@
       "tabProductComparison": "Template",
       "titleProductComparisonTemplate": "Template",
       "titleProductComparisonPreview": "Vorschau",
+      "titleProductComparisonPreviewErrors": "Fehler bei der Generierung",
       "labelAccessKeyField": "API-Zugangs-ID",
       "titleAPIError": "Fehler",
       "messageAPIError": "Der API-Schlüssel konnte nicht generiert werden.",

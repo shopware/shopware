@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
+use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 interface ProductExportGeneratorInterface
@@ -12,5 +14,5 @@ interface ProductExportGeneratorInterface
         ProductExportEntity $productExport,
         ExportBehavior $exportBehavior,
         SalesChannelContext $context
-    ): string;
+    ): ProductExportResult;
 }

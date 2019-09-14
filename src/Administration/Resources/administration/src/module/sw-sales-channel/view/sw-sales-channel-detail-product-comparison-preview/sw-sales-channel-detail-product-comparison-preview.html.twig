@@ -2,8 +2,20 @@
     <div class="sw-sales-channel-detail-product-comparison-preview">
         {% block sw_sales_channel_detail_product_comparison_preview_modal %}
             <sw-modal :title="$tc('sw-sales-channel.detail.titleProductComparisonPreview')" v-if="content" @modal-close="onModalClose" variant="full">
+                {% block sw_sales_channel_detail_product_comparison_preview_modal_errors %}
+                    <h3>{{ $tc('sw-sales-channel.detail.titleProductComparisonPreviewErrors') }}</h3>
+                    <div style="height:100px;overflow:scroll"><!-- TODO: Add scrollable container component -->
+                        <p v-for="error in errors">
+                            <a href="#" @click.prevent="navigateToLine(error.line)">
+                                <sw-icon name="default-badge-error" color="#c0392b" small></sw-icon>
+                            </a>
+                            {{ error.message }}
+                        </p>
+                    </div>
+                {% endblock %}
                 {% block sw_sales_channel_detail_product_comparison_preview_modal_content %}
                     <sw-code-editor
+                        ref="previewEditor"
                         mode="text"
                         :editorConfig="editorConfig"
                         :softWraps="true"

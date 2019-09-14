@@ -29,6 +29,7 @@
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportValidator"/>
             <argument type="string">%product_export.read_buffer_size%</argument>
         </service>
 
@@ -68,6 +69,14 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Service\ProductExportValidator">
+            <argument type="tagged" tag="shopware.product_export.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Validator\XmlValidator">
+            <tag name="shopware.product_export.validator"/>
         </service>
     </services>
 </container>

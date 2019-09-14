@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\ProductExport\Api;
 
+use Shopware\Core\Content\ProductExport\Error\Error;
+use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
 use Shopware\Core\Content\ProductExport\Exception\RenderFooterException;
 use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
 use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
@@ -9,6 +11,7 @@ use Shopware\Core\Content\ProductExport\Exception\SalesChannelDomainNotFoundExce
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -62,9 +65,32 @@ class ProductExportController extends AbstractController
      */
     public function validate(RequestDataBag $dataBag, Context $context): JsonResponse
     {
-        $this->generateExportPreview($dataBag, $context);
+        $result = $this->generateExportPreview($dataBag, $context);
 
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        if($result->hasErrors()) {
+            $errors = $result->getErrors();
+            $errorMessages = array_merge(
+                ...array_map(
+                    function (Error $error) {
+                        return $error->getErrorMessages();
+                    },
+                    $errors
+                )
+            );
+
+            return new JsonResponse(
+                [
+                    'content' => mb_convert_encoding(
+                        $result->getContent(),
+                        'UTF-8',
+                        $dataBag->get('encoding')
+                    ),
+                    'errors' => $errorMessages,
+                ]
+            );
+        } else {
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        }
     }
 
     /**
@@ -77,13 +103,16 @@ class ProductExportController extends AbstractController
      */
     public function preview(RequestDataBag $dataBag, Context $context): JsonResponse
     {
+        $result = $this->generateExportPreview($dataBag, $context);
+
         return new JsonResponse(
             [
                 'content' => mb_convert_encoding(
-                    $this->generateExportPreview($dataBag, $context),
+                    $result->getContent(),
                     'UTF-8',
                     $dataBag->get('encoding')
                 ),
+                'errors' => $result->getErrors(),
             ]
         );
     }
@@ -99,13 +128,14 @@ class ProductExportController extends AbstractController
         $entity->setProductStreamId($dataBag->get('product_stream_id'));
         $entity->setIncludeVariants($dataBag->get('include_variants'));
         $entity->setEncoding($dataBag->get('encoding'));
+        $entity->setFileFormat($dataBag->get('file_format'));
         $entity->setSalesChannelId($dataBag->get('sales_channel_id'));
         $entity->setSalesChannelDomainId($dataBag->get('sales_channel_domain_id'));
 
         return $entity;
     }
 
-    private function generateExportPreview(RequestDataBag $dataBag, Context $context): string
+    private function generateExportPreview(RequestDataBag $dataBag, Context $context): ProductExportResult
     {
         $salesChannelDomainId = $dataBag->get('sales_channel_domain_id');
 

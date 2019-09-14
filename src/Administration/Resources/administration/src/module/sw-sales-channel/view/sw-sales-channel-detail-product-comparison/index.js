@@ -43,6 +43,7 @@ Component.register('sw-sales-channel-detail-product-comparison', {
             isLoadingDomains: false,
             deleteDomain: null,
             previewContent: null,
+            previewErrors: null,
             isLoadingPreview: false,
             isPreviewSuccessful: false,
             isLoadingValidate: false,
@@ -106,11 +107,16 @@ Component.register('sw-sales-channel-detail-product-comparison', {
 
             this.productExportService
                 .validateProductExportTemplate(this.productExport)
-                .then(() => {
-                    this.createNotificationSuccess(notificationValidateSuccess);
+                .then((data) => {
+                    if (data.errors) {
+                        this.previewContent = data.content;
+                        this.previewErrors = data.errors;
+                    } else {
+                        this.createNotificationSuccess(notificationValidateSuccess);
+                        this.isValidateSuccessful = true;
+                    }
 
                     this.isLoadingValidate = false;
-                    this.isValidateSuccessful = true;
                 }).catch((exception) => {
                     this.createNotificationError({
                         title: this.$tc('sw-sales-channel.detail.product-comparison.notificationTitleValidateError'),
@@ -119,6 +125,7 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                     warn(this._name, exception.message, exception.response);
 
                     this.isLoadingValidate = false;
+                    this.isValidateSuccessful = false;
                 });
         },
 
@@ -129,9 +136,13 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                 .previewProductExport(this.productExport)
                 .then((data) => {
                     this.previewContent = data.content;
+                    if (data.errors) {
+                        this.previewErrors = data.errors;
+                    } else {
+                        this.isPreviewSuccessful = true;
+                    }
 
                     this.isLoadingPreview = false;
-                    this.isPreviewSuccessful = true;
                 }).catch((exception) => {
                     this.createNotificationError({
                         title: this.$tc('sw-sales-channel.detail.product-comparison.notificationTitlePreviewError'),
@@ -166,6 +177,7 @@ Component.register('sw-sales-channel-detail-product-comparison', {
 
         onPreviewClose() {
             this.previewContent = null;
+            this.previewErrors = null;
             this.isPreviewSuccessful = false;
         },
 

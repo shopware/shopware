@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Service;
 
 use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Content\ProductExport\Exception\ExportInvalidException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
@@ -94,7 +95,11 @@ class ProductExporter implements ProductExporterInterface
             return;
         }
 
-        $content = $this->productExportGenerator->generate($productExport, $behavior, $context);
+        $result = $this->productExportGenerator->generate($productExport, $behavior, $context);
+
+        if($result->hasErrors()) {
+            throw new ExportInvalidException($result->getErrors());
+        }
 
         $filePath = $this->getFilePath($productExport);
 
@@ -114,7 +119,7 @@ class ProductExporter implements ProductExporterInterface
 
         $this->fileSystem->write(
             $filePath,
-            $content
+            $result->getContent()
         );
     }
 

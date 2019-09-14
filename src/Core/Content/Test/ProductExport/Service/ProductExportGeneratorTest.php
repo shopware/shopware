@@ -50,9 +50,9 @@ class ProductExportGeneratorTest extends TestCase
         $productExportId = $this->createTestEntity();
         $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->first();
 
-        $exportContent = $this->service->generate($productExport, new ExportBehavior(), $this->salesChannelContext);
+        $exportResult = $this->service->generate($productExport, new ExportBehavior(), $this->salesChannelContext);
 
-        static::assertStringEqualsFile(__DIR__ . '/fixtures/test-export.csv', $exportContent);
+        static::assertStringEqualsFile(__DIR__ . '/fixtures/test-export.csv', $exportResult->getContent());
     }
 
     private function getSalesChannelId(): string

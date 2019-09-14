@@ -79,7 +79,11 @@
                         {% endblock %}
 
                         {% block sw_sales_channel_detail_product_comparison_actions_preview_component %}
-                            <sw-sales-channel-detail-product-comparison-preview :content="previewContent" @close="onPreviewClose"></sw-sales-channel-detail-product-comparison-preview>
+                            <sw-sales-channel-detail-product-comparison-preview
+                                :content="previewContent"
+                                :errors="previewErrors"
+                                @close="onPreviewClose">
+                            </sw-sales-channel-detail-product-comparison-preview>
                         {% endblock %}
                     </sw-container>
                 {% endblock %}

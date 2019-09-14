@@ -15,7 +15,7 @@
                         class="sw-sales-channel-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading || invalidFileName"
+                        :disabled="isLoading || invalidFileName || isFileNameChecking"
                         variant="primary"
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"

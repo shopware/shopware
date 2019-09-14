@@ -88,6 +88,8 @@
         "settings": "Product export",
         "fileName": "Filename",
         "placeholderFileName": "shopware.csv",
+        "lastGenerationLabel": "Timestamp of the last generation: ",
+        "notYetGenerated": "This export has not been generated yet.",
         "encoding": "Encoding",
         "placeholderSelectEncoding": "Please select an encoding...",
         "fileFormat": "File format",

@@ -459,6 +459,17 @@
                     </sw-select-number-field>
                 {% endblock %}
 
+                {% block sw_sales_channel_detail_base_general_input_product_comparison_last_generation %}
+                    <div v-if="productExport.salesChannelDomainId">
+                        <div v-if="productExport.generatedAt" class="sw-sales-channel-detail-base_general__last-generation-text">
+                            {{ $tc('sw-sales-channel.detail.product-comparison.lastGenerationLabel') }}{{ productExport.generatedAt | date({ hour: '2-digit', minute: '2-digit' })  }}
+                        </div>
+                        <div v-else="productExport.generatedAt" class="sw-sales-channel-detail-base_general__last-generation-text">
+                            {{ $tc('sw-sales-channel.detail.product-comparison.lastGenerationLabel') }}{{ $tc('sw-sales-channel.detail.product-comparison.notYetGenerated') }}
+                        </div>
+                    </div>
+                {% endblock %}
+
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_product_stream %}
                     <sw-entity-single-select
                             :label="$tc('sw-sales-channel.detail.product-comparison.productStream')"

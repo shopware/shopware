@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -36,14 +37,19 @@ class ProductExportController extends AbstractController
     /** @var ProductExportGeneratorInterface */
     private $productExportGenerator;
 
+    /** @var Translator */
+    private $translator;
+
     public function __construct(
         SalesChannelContextFactory $salesChannelContextFactory,
         EntityRepositoryInterface $salesChannelDomainRepository,
-        ProductExportGeneratorInterface $productExportGenerator
+        ProductExportGeneratorInterface $productExportGenerator,
+        Translator $translator
     ) {
         $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->salesChannelDomainRepository = $salesChannelDomainRepository;
         $this->productExportGenerator = $productExportGenerator;
+        $this->translator = $translator;
     }
 
     /**
@@ -104,7 +110,7 @@ class ProductExportController extends AbstractController
         $salesChannelDomainId = $dataBag->get('sales_channel_domain_id');
 
         $salesChannelDomain = $this->salesChannelDomainRepository->search(
-            new Criteria([$salesChannelDomainId]),
+            (new Criteria([$salesChannelDomainId]))->addAssociation('language'),
             $context
         )->get($salesChannelDomainId);
 
@@ -118,6 +124,13 @@ class ProductExportController extends AbstractController
         );
         $productExportEntity = $this->createEntity($dataBag);
         $exportBehavior = new ExportBehavior(true, true, true);
+
+        $this->translator->injectSettings(
+            $salesChannelDomain->getSalesChannelId(),
+            $salesChannelDomain->getLanguageId(),
+            $salesChannelDomain->getLanguage()->getLocaleId(),
+            $context
+        );
 
         return $this->productExportGenerator->generate($productExportEntity, $exportBehavior, $salesChannelContext);
     }

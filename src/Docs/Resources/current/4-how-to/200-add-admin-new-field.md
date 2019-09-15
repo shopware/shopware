@@ -43,7 +43,7 @@ Time to create the referenced twig template for your plugin now.
 *Note: We're dealing with a [TwigJS](https://github.com/twigjs/twig.js/wiki) template here.* 
 
 Create a file called `sw-product-settings-form.html.twig` in the following directory:
-`<plugin root>/src/Resources/views/administration/src/extension/sw-product-settings-form`
+`<plugin root>/src/Resources/administration/src/extension/sw-product-settings-form`
 
 *Note: The path starting from 'src' is fully customizable, yet we recommend choosing a pattern like this one.*
 

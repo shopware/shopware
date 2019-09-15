@@ -84,7 +84,7 @@ describe('Sales Channel: Test crud operations', () => {
         }).as('deleteData');
 
         // Delete sales channel
-        page.openSalesChannel('Headless', 3);
+        page.openSalesChannel('Headless', 2);
         page.deleteSingleSalesChannel('Headless');
         cy.wait('@deleteData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);

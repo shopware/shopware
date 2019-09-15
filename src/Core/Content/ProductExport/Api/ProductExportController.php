@@ -141,9 +141,9 @@ class ProductExportController extends AbstractController
         $entity = new ProductExportEntity();
 
         $entity->setId('');
-        $entity->setHeaderTemplate($dataBag->get('header_template'));
-        $entity->setBodyTemplate($dataBag->get('body_template'));
-        $entity->setFooterTemplate($dataBag->get('footer_template'));
+        $entity->setHeaderTemplate($dataBag->get('header_template' ?? ''));
+        $entity->setBodyTemplate($dataBag->get('body_template') ?? '');
+        $entity->setFooterTemplate($dataBag->get('footer_template') ?? '');
         $entity->setProductStreamId($dataBag->get('product_stream_id'));
         $entity->setIncludeVariants($dataBag->get('include_variants'));
         $entity->setEncoding($dataBag->get('encoding'));

@@ -67,13 +67,25 @@
                 {% block sw_sales_channel_detail_product_comparison_actions %}
                     <sw-container columns="1fr 50%" gap="0 30px" >
                         {% block sw_sales_channel_detail_product_comparison_actions_test_button %}
-                            <sw-button-process @click="validateTemplate" :square="false" :block="false" :isLoading="isLoadingValidate" :disabled="isLoadingValidate" :processSuccess="isValidateSuccessful">
+                            <sw-button-process
+                                @click="validateTemplate"
+                                :square="false"
+                                :block="false"
+                                :isLoading="isLoadingValidate"
+                                :disabled="isLoadingValidate || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
+                                :processSuccess="isValidateSuccessful">
                                 {{ $tc('sw-sales-channel.detail.productComparison.buttonTestLabel') }}
                             </sw-button-process>
                         {% endblock %}
 
                         {% block sw_sales_channel_detail_product_comparison_actions_preview_button %}
-                            <sw-button-process @click="preview" :square="false" :block="false" :isLoading="isLoadingPreview" :disabled="isLoadingPreview" :processSuccess="isPreviewSuccessful">
+                            <sw-button-process
+                                @click="preview"
+                                :square="false"
+                                :block="false"
+                                :isLoading="isLoadingPreview"
+                                :disabled="isLoadingPreview || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
+                                :processSuccess="isPreviewSuccessful">
                                 {{ $tc('sw-sales-channel.detail.productComparison.buttonPreviewLabel') }}
                             </sw-button-process>
                         {% endblock %}

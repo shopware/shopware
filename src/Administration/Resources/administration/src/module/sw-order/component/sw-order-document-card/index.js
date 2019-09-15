@@ -186,7 +186,15 @@ Component.register('sw-order-document-card', {
         },
 
         createDocument(orderId, documentTypeName, params, referencedDocumentId, file) {
-            return this.documentService.createDocument(orderId, documentTypeName, params, referencedDocumentId, {}, {}, file);
+            return this.documentService.createDocument(
+                orderId,
+                documentTypeName,
+                params,
+                referencedDocumentId,
+                {},
+                {},
+                file
+            );
         },
 
         onCancelCreation() {

@@ -53,7 +53,7 @@ class ProductExportValidatorTest extends TestCase
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior(), $this->salesChannelContext);
 
-        $this->assertFalse($exportResult->hasErrors());
+        static::assertFalse($exportResult->hasErrors());
     }
 
     public function testInvalidXmlExport(): void
@@ -65,7 +65,7 @@ class ProductExportValidatorTest extends TestCase
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior(), $this->salesChannelContext);
 
-        $this->assertTrue($exportResult->hasErrors());
+        static::assertTrue($exportResult->hasErrors());
     }
 
     private function getSalesChannelId(): string

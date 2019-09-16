@@ -2351,7 +2351,7 @@ class Migration1536233560BasicData extends MigrationStep
         return '<div style="font-family:arial; font-size:12px;">
     
 {% set currencyIsoCode = order.currency.isoCode %}
-Dear {{order.orderCustomer.salutation.displayName }} {{order.orderCustomer.lastName}},<br>
+{{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
 <br>
 Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.<br>
 <br>
@@ -2434,7 +2434,7 @@ Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber
     private function getPlainTemplateEn(): string
     {
         return '{% set currencyIsoCode = order.currency.isoCode %}
-Dear {{order.orderCustomer.salutation.displayName }} {{order.orderCustomer.lastName}},
+{{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
 Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.
 
@@ -2493,7 +2493,7 @@ If you have any questions, do not hesitate to contact us.
         return '<div style="font-family:arial; font-size:12px;">
     
 {% set currencyIsoCode = order.currency.isoCode %}
-Hallo {{order.orderCustomer.salutation.displayName }} {{order.orderCustomer.lastName}},<br>
+Hallo {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
 <br>
 vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.<br>
 <br>
@@ -2577,7 +2577,7 @@ vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.ord
     private function getPlainTemplateDe(): string
     {
         return '{% set currencyIsoCode = order.currency.isoCode %}
-Hallo {{order.orderCustomer.salutation.displayName }} {{order.orderCustomer.lastName}},
+Hallo {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
 vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.
 
@@ -2635,7 +2635,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     {
         return '<div style="font-family:arial; font-size:12px;">
             <p>
-                Dear {{ customer.salutation.displayName }} {{ customer.lastName }},<br/>
+                {{ customer.salutation.letterName }} {{ customer.firstName }} {{ customer.lastName }},<br/>
                 <br/>
                 thank you for your registration with our Shop.<br/>
                 You will gain access via the email address <strong>{{ customer.email }}</strong> and the password you have chosen.<br/>
@@ -2646,7 +2646,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
 
     private function getRegistrationPlainTemplateEn(): string
     {
-        return 'Dear {{ customer.salutation.displayName }} {{ customer.lastName }},
+        return '{{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},
                 
                 thank you for your registration with our Shop.
                 You will gain access via the email address {{ customer.email }} and the password you have chosen.
@@ -2658,7 +2658,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     {
         return '<div style="font-family:arial; font-size:12px;">
             <p>
-                Hallo {{ customer.salutation.displayName }} {{ customer.lastName }},<br/>
+                Hallo {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},<br/>
                 <br/>
                 vielen Dank für Ihre Anmeldung in unserem Shop.<br/>
                 Sie erhalten Zugriff über Ihre E-Mail-Adresse <strong>{{ customer.email }}</strong> und dem von Ihnen gewählten Kennwort.<br/>
@@ -2669,7 +2669,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
 
     private function getRegistrationPlainTemplateDe(): string
     {
-        return 'Hallo {{ customer.salutation.displayName }} {{ customer.lastName }},
+        return 'Hallo {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},
                 
                 vielen Dank für Ihre Anmeldung in unserem Shop.
                 Sie erhalten Zugriff über Ihre E-Mail-Adresse {{ customer.email }} und dem von Ihnen gewählten Kennwort.
@@ -2681,7 +2681,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     {
         return '<div style="font-family:arial; font-size:12px;">
     <p>
-        Dear {{ customer.salutation.displayName }} {{ customer.lastName }},<br/>
+        {{ customer.salutation.letterName }} {{ customer.firstName }} {{ customer.lastName }},<br/>
         <br/>
         there has been a request to reset you Password in the Shop {{ salesChannel.name }}
         Please confirm the link below to specify a new password.<br/>
@@ -2697,7 +2697,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     private function getPasswordChangePlainTemplateEn(): string
     {
         return '
-        Dear {{ customer.salutation.displayName }} {{ customer.lastName }},
+        {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},
 
         there has been a request to reset you Password in the Shop {{ salesChannel.name }}
         Please confirm the link below to specify a new password.
@@ -2713,7 +2713,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     {
         return '<div style="font-family:arial; font-size:12px;">
     <p>
-        Hallo {{ customer.salutation.displayName }} {{ customer.lastName }},<br/>
+        Hallo {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},<br/>
         <br/>
         im Shop {{ salesChannel.name }} wurde eine Anfrage gestellt, um Ihr Passwort zurück zu setzen.
         Bitte bestätigen Sie den unten stehenden Link, um ein neues Passwort zu definieren.<br/>
@@ -2729,7 +2729,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     private function getPasswordChangePlainTemplateDe(): string
     {
         return '
-        Hallo {{ customer.salutation.displayName }} {{ customer.lastName }},
+        Hallo {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},
     
         im Shop {{ salesChannel.name }} wurde eine Anfrage gestellt, um Ihr Passwort zurück zu setzen.
         Bitte bestätigen Sie den unten stehenden Link, um ein neues Passwort zu definieren.

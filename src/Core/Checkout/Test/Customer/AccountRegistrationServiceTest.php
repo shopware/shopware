@@ -45,7 +45,7 @@ class AccountRegistrationServiceTest extends TestCase
         $phpunit = $this;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $dataBag): void {
             $eventDidRun = true;
-            $phpunit->assertStringContainsString('Dear Mr. Mustermann', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Dear Mr. Max Mustermann', $event->getContents()['text/html']);
             $phpunit->assertStringContainsString($dataBag->get('email'), $event->getContents()['text/html']);
         };
 

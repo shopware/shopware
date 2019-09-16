@@ -61,6 +61,11 @@ class ThemeConfigField extends Struct
      */
     protected $blockOrder;
 
+    /**
+     * @var array|null
+     */
+    protected $custom;
+
     public function getName(): string
     {
         return $this->name;
@@ -169,5 +174,15 @@ class ThemeConfigField extends Struct
     public function setHelpText(?array $helpText): void
     {
         $this->helpText = $helpText;
+    }
+
+    public function getCustom(): ?array
+    {
+        return $this->custom;
+    }
+
+    public function setCustom(?array $custom): void
+    {
+        $this->custom = $custom;
     }
 }

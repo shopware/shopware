@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordEntity;
@@ -1245,6 +1246,63 @@ class ProductRepositoryTest extends TestCase
         $taxes = $this->repository->create($data, Context::createDefaultContext())->getEventByDefinition(TaxDefinition::class);
         static::assertInstanceOf(EntityWrittenEvent::class, $taxes);
         static::assertCount(1, array_unique($taxes->getIds()));
+    }
+
+    public function testProductMediaAssociationWithSortingAndPagination(): void
+    {
+        $id = Uuid::randomHex();
+        $a = Uuid::randomHex();
+        $b = Uuid::randomHex();
+        $c = Uuid::randomHex();
+        $d = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => $id,
+            'name' => 'T-shirt',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'stock' => 10,
+            'media' => [
+                ['id' => $d, 'position' => 4, 'media' => ['fileName' => 'd']],
+                ['id' => $b, 'position' => 2, 'media' => ['fileName' => 'b']],
+                ['id' => $a, 'position' => 1, 'media' => ['fileName' => 'a']],
+                ['id' => $c, 'position' => 3, 'media' => ['fileName' => 'c']],
+            ],
+        ];
+
+        $this->repository->create([$data], Context::createDefaultContext());
+
+        $criteria = new Criteria([$id]);
+        $criteria->getAssociation('media')
+            ->setLimit(3)
+            ->addSorting(new FieldSorting('product_media.position', FieldSorting::ASCENDING));
+
+        $product = $this->repository->search($criteria, Context::createDefaultContext())
+            ->first();
+
+        $ids = $product->getMedia()->map(function (ProductMediaEntity $a) {
+            return $a->getId();
+        });
+
+        $order = [$a, $b, $c];
+        static::assertEquals($order, array_values($ids));
+
+        $criteria = new Criteria([$id]);
+        $criteria->getAssociation('media')
+            ->setLimit(3)
+            ->addSorting(new FieldSorting('product_media.position', FieldSorting::DESCENDING));
+
+        $product = $this->repository->search($criteria, Context::createDefaultContext())
+            ->first();
+
+        $ids = $product->getMedia()->map(function (ProductMediaEntity $a) {
+            return $a->getId();
+        });
+
+        $order = [$d, $c, $b];
+        static::assertEquals($order, array_values($ids));
     }
 
     public function testVariantInheritanceWithMedia(): void

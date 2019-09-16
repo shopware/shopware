@@ -32,7 +32,7 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
 
             this.salesChannel = this.salesChannelRepository.create(this.context);
             this.salesChannel.typeId = this.$route.params.typeId;
-            this.salesChannel.active = true;
+            this.salesChannel.active = false;
 
             this.$super.createdComponent();
         },

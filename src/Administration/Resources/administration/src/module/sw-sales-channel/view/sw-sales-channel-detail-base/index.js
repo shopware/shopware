@@ -107,6 +107,29 @@ Component.register('sw-sales-channel-detail-base', {
             }
         },
 
+        onToggleActive() {
+            if (this.salesChannel.active !== true) {
+                return;
+            }
+            const criteria = new Criteria();
+            criteria.addAssociation('themes');
+            this.salesChannelRepository
+                .get(this.$route.params.id, this.context, criteria)
+                .then((entity) => {
+                    if (entity.extensions.themes !== undefined && entity.extensions.themes.length >= 1) {
+                        return;
+                    }
+
+                    this.salesChannel.active = false;
+                    this.createNotificationError({
+                        title: this.$tc('sw-sales-channel.detail.titleActivateError'),
+                        message: this.$tc('sw-sales-channel.detail.messageActivateWithoutThemeError', 0, {
+                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name')
+                        })
+                    });
+                });
+        },
+
         onCloseDeleteModal() {
             this.showDeleteModal = false;
         },

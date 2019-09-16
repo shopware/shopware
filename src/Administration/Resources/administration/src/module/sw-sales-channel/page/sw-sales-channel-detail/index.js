@@ -139,7 +139,7 @@ Component.register('sw-sales-channel-detail', {
 
             this.isSaveSuccessful = false;
 
-            return this.salesChannelRepository
+            this.salesChannelRepository
                 .save(this.salesChannel, this.context)
                 .then(() => {
                     this.isLoading = false;

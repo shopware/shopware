@@ -22,6 +22,7 @@
                                 type="switch"
                                 bordered
                                 :label="$tc('sw-sales-channel.detail.labelInputActive')"
+                                @change="onToggleActive"
                                 v-model="salesChannel.active">
                             </sw-field>
                         {% endblock %}

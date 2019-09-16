@@ -209,7 +209,7 @@
                                                 </sw-field>
                                                 <sw-form-field-renderer
                                                         v-else
-                                                        :config="field"
+                                                        v-bind="getBind(field)"
                                                         v-model="themeConfig[fieldIndex].value">
                                                 </sw-form-field-renderer>
                                             </div>

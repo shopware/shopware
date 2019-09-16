@@ -261,5 +261,23 @@ Component.register('sw-theme-manager-detail', {
                 return null;
             });
         },
+
+        /**
+         *  Convert the field to the right structure for the form field renderer:
+         *  bind: {
+         *      type: field.type,
+         *      config: anything else from field, including field.custom
+         *  }
+         */
+        getBind(field) {
+            const config = Object.assign({}, field);
+
+            delete config.type;
+
+            Object.assign(config, config.custom);
+            delete config.custom;
+
+            return { type: field.type, config: config };
+        }
     }
 });

@@ -10,42 +10,42 @@ Core
     We removed the `$criteria` parameter from the `addAssociation` function. By setting the criteria object the already added criteria was overwritten. This led to problems especially with multiple extensions by plugins. Furthermore the function `addAssociationPath` was removed from the criteria. The following functions are now available on the criteria object:
 
     * `addAssociation(string $path): self`
-    
+
         This function allows you to load additional associations. The transferred path can also point to deeper levels:
-    
+
         `$criteria->addAssociation('categories.media.thumbnails);`
-    
+
         For each association in the provided path, a criteria object with the corresponding association is now ensured. If a criteria is already stored, it will no longer be overwritten.
 
     * `getAssociation(string $path): Criteria`
 
         This function allows access to the criteria for an association. If the association is not added to the criteria, it will be created automatically. The provided path can also point to deeper levels:
-    
+
         ```
         $criteria = new Criteria();
         $thumbnailCriteria = $criteria->getAssociation('categories.media.thumbnail');
         $thumbnailCriteria->setLimit(5);
         ```
  * Added RouteScopes as required Annotation for all Routes
- 
+
     We have added Scopes for Routes. The Scopes hold and resolve information of allowed paths and contexts.
     A RouteScope is mandatory for a Route. From now on every Route defined, needs a defined RouteScope.
-    
+
     RouteScopes are defined via Annotation:
     ```php
     /**
      * @RouteScope(scopes={"storefront"})
      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
      */
-     
+
      /**
       * @RouteScope(scopes={"storefront", "my_additional_scope"})
       * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
       */
-    
+
     ```
 
-* If you have implemented a custom `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`, you need to implement the `partial` method. 
+* If you have implemented a custom `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`, you need to implement the `partial` method.
     Here are two good example implementations:
     1. simple iteration: `\Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer::partial`
     2. iteration with several ids: `\Shopware\Core\Content\Category\DataAbstractionLayer\Indexing\BreadcrumbIndexer::partial`
@@ -147,7 +147,27 @@ Component.register('my-component', {
 
 ```
 
-* **Important Change:** The Shopping Experiences data handling has changed. To get an entity resolved in an element you now need to configure a configfield like this: 
+* Replaced vanilla-colorpicker dependency with custom-build vuejs colorpicker
+  * `editorFormat` and `colorCallback` got replaced with `colorOutput`
+  * the default value for the property `alpha` is now `true`
+
+  Before:
+  ```
+  <sw-colorpicker value="myColorVariable"
+                  editorFormat="rgb"
+                  colorCallback="rgbString">
+  </sw-colorpicker>
+  ```
+
+  After:
+  ```
+  <sw-colorpicker value="myColorVariable"
+                  colorOutput="rgb"
+                  :alpha="false">
+  </sw-colorpicker>
+  ```
+
+* **Important Change:** The Shopping Experiences data handling has changed. To get an entity resolved in an element you now need to configure a configfield like this:
 ```
     product: {
         source: 'static',
@@ -165,7 +185,7 @@ Furthermore you can now define your custom `collect` and `enrich` method in the 
 See `2019-09-02-cms-remove-store.md` for more information
 
 * Refactored select components and folder structure
-    * Select components are now located in the folder `administration/src/app/component/form/select` divided in the subfolders `base` and `entity` 
+    * Select components are now located in the folder `administration/src/app/component/form/select` divided in the subfolders `base` and `entity`
         * `base` contains the base components for creating new selects and the static `sw-single-select` and `sw-multi-select`
         * `entity` contains components working with the api such as `sw-entity-multi-select` or `sw-entity-tag-select`
     * Components work with v-model and do not mutate the value property anymore

@@ -19,6 +19,13 @@ Component.register('sw-cms-el-config-product-box', {
     computed: {
         productRepository() {
             return this.repositoryFactory.create('product');
+        },
+
+        productSelectContext() {
+            const context = Object.assign({}, this.context);
+            context.inheritance = true;
+
+            return context;
         }
     },
 
@@ -40,7 +47,7 @@ Component.register('sw-cms-el-config-product-box', {
                 const criteria = new Criteria();
                 criteria.addAssociation('cover');
 
-                this.productRepository.get(productId, this.context, criteria).then((product) => {
+                this.productRepository.get(productId, this.productSelectContext, criteria).then((product) => {
                     this.element.config.product.value = productId;
                     this.$set(this.element.data, 'productId', productId);
                     this.$set(this.element.data, 'product', product);

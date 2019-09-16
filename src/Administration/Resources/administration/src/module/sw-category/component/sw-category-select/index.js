@@ -62,6 +62,8 @@ Component.extend('sw-category-select', 'sw-select', {
             this.isLoading = true;
             this.results = [];
 
+            params.headers = { 'sw-inheritance': true };
+
             this.store.getList(params).then(response => {
                 this.getAssociations(response.items).then(() => {
                     this.results = response.items;

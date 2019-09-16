@@ -13,7 +13,7 @@ Component.register('sw-entity-multi-select', {
         event: 'change'
     },
 
-    inject: ['repositoryFactory', 'context'],
+    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'context' },
 
     props: {
         labelProperty: {
@@ -51,6 +51,13 @@ Component.register('sw-entity-multi-select', {
         entityCollection: {
             type: Array,
             required: true
+        },
+        context: {
+            type: Object,
+            required: false,
+            default() {
+                return this.adminContext;
+            }
         }
     },
 

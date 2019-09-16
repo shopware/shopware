@@ -191,8 +191,10 @@ function fetchByCriteria(searches) {
                 return;
             }
 
+            const context = entity.context || contextService;
+
             fetchPromises.push(
-                repo.search(criteria, contextService).then((response) => {
+                repo.search(criteria, context).then((response) => {
                     results[slotId][searchKey] = response;
                 })
             );

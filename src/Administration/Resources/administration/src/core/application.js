@@ -385,12 +385,14 @@ class ApplicationBootstrapper {
          *
          * 1. Initialize all initializer
          * 2. Load plugins
-         * 3. Initialize the conversion of dependencies in view adapter
-         * 4. Create the application root
+         * 3. Wait until plugin promises are resolved
+         * 4. Initialize the conversion of dependencies in view adapter
+         * 5. Create the application root
          */
 
         return this.initializeInitializers(initContainer)
             .then(() => this.loadPlugins())
+            .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
             .then(() => this.view.initDependencies())
             .then(() => this.createApplicationRoot())
             .catch((error) => this.createApplicationRootError(error));

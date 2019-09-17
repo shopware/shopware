@@ -15,6 +15,7 @@ const FilterFactory = require('src/core/factory/filter.factory').default;
 const DirectiveFactory = require('src/core/factory/directive.factory').default;
 const LocaleFactory = require('src/core/factory/locale.factory').default;
 const ShortcutFactory = require('src/core/factory/shortcut.factory').default;
+const PluginBootFactory = require('src/core/factory/plugin-boot.factory').default;
 const ApiServiceFactory = require('src/core/factory/api-service.factory').default;
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 const WorkerNotificationFactory = require('src/core/factory/worker-notification.factory').default;
@@ -75,6 +76,9 @@ application
     })
     .addFactory('shortcut', () => {
         return ShortcutFactory;
+    })
+    .addFactory('plugin', () => {
+        return PluginBootFactory;
     })
     .addFactory('apiService', () => {
         return ApiServiceFactory;
@@ -196,6 +200,15 @@ const Shopware = {
         getShortcutRegistry: ShortcutFactory.getShortcutRegistry,
         getPathByCombination: ShortcutFactory.getPathByCombination,
         register: ShortcutFactory.register
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Plugin: {
+        addBootPromise: PluginBootFactory.addBootPromise,
+        getBootPromises: PluginBootFactory.getBootPromises
     },
 
     /**

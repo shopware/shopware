@@ -65,6 +65,7 @@ You can use them with every URL in your templates
     * Added new function `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface::partial` to index partially in time limited requests
     * Added `\Shopware\Core\Framework\Migration\InheritanceUpdaterTrait` to update entity schema for inherited associations
     * Changed default enqueue transport from enqueue/fs to enqueue/dbal
+    * Made the service `\Shopware\Core\System\SystemConfig\SystemConfigService` public
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
     * Changed the name of `messages.<locale>.json` to `storefront.<locale>.json` and changed to **not** be a base file anymore.

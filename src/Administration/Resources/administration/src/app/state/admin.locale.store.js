@@ -28,14 +28,14 @@ export default {
 
     actions: {
         setAdminLocale({ commit }, locale) {
-            const loginService = Application.getContainer('service').loginService;
+            const loginService = Shopware.Service.get('loginService');
 
             if (!loginService.isLoggedIn()) {
                 commit('setAdminLocale', { locale, languageId: '' });
                 return;
             }
 
-            const localeToLanguageService = Application.getContainer('service').localeToLanguageService;
+            const localeToLanguageService = Shopware.Service.get('localeToLanguageService');
             localeToLanguageService.localeToLanguage(locale).then((languageId) => {
                 commit('setAdminLocale', { locale, languageId });
             });

@@ -13,7 +13,7 @@ export default class LanguageStore extends EntityStore {
     ) {
         super('language', apiService, EntityClass);
 
-        this.systemLanguageId = Shopware.Application.getContainer('service').context.systemLanguageId;
+        this.systemLanguageId = Shopware.Context.get().systemLanguageId;
 
         if (!currentLanguageId || !currentLanguageId.length) {
             currentLanguageId = this.systemLanguageId;
@@ -30,7 +30,7 @@ export default class LanguageStore extends EntityStore {
      */
     setCurrentId(languageId) {
         this.currentLanguageId = languageId;
-        Shopware.Application.getContainer('service').context.languageId = languageId;
+        Shopware.Context.get().languageId = languageId;
         return this.getByIdAsync(languageId);
     }
 

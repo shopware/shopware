@@ -38,10 +38,6 @@ Component.register('sw-promotion-basic-form', {
         }
     },
 
-        isEditingDisabled() {
-            return !PromotionPermissions.isEditingAllowed(this.promotion);
-        }
-    },
     watch: {
         promotion() {
             if (this.promotion) {

@@ -1,7 +1,7 @@
 import template from './sw-settings-shopware-updates-index.html.twig';
 import './sw-settings-shopware-updates-index.scss';
 
-const { Component, Mixin, Application } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-settings-shopware-updates-index', {
     template,
@@ -75,7 +75,7 @@ Component.register('sw-settings-shopware-updates-index', {
 
     computed: {
         shopwareVersion() {
-            return Application.getContainer('service').context.config.version;
+            return Shopware.Context.get().config.version;
         }
     }
 });

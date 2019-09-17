@@ -1,9 +1,7 @@
 import './component';
 import './preview';
 
-const { Application } = Shopware;
-
-Application.getContainer('service').cmsService.registerCmsBlock({
+Shopware.Service.get('cmsService').registerCmsBlock({
     name: 'image-gallery',
     label: 'Image gallery',
     category: 'image',

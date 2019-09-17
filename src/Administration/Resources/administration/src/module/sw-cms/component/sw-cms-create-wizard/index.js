@@ -1,7 +1,7 @@
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
 
-const { Component, Application } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-cms-create-wizard', {
     template,
@@ -37,8 +37,7 @@ Component.register('sw-cms-create-wizard', {
                 return '';
             }
 
-            const initContainer = Application.getContainer('init');
-            const context = initContainer.contextService;
+            const context = Shopware.Context.get();
             const imgPath = 'administration/static/img/cms';
 
             return `url(${context.assetsPath}/${imgPath}/preview_${this.page.type}_${this.page.sections[0].type}.png)`;

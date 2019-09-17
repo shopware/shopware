@@ -20,7 +20,7 @@ export default class EntityStore {
         this.EntityClass = EntityClass;
 
         const serviceContainer = Shopware.Application.getContainer('service');
-        this.versionId = serviceContainer.context.liveVersionId;
+        this.versionId = Shopware.Context.get().liveVersionId;
 
         if (Shopware.Utils.types.isString(apiService)) {
             this.apiService = serviceContainer[apiService];
@@ -318,8 +318,7 @@ export default class EntityStore {
         if (!languageId || languageId.length < 1) {
             languageId = this.getLanguageStore().getCurrentId();
         }
-        const serviceContainer = Shopware.Application.getContainer('service');
-        const syncService = serviceContainer.syncService;
+        const syncService = Shopware.Service.get('syncService');
         let payload = this.getDeletionPayload();
 
         if (deletionsOnly === false) {

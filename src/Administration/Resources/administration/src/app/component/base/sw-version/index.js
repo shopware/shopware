@@ -1,7 +1,7 @@
 import template from './sw-version.html.twig';
 import './sw-version.scss';
 
-const { Application, Component } = Shopware;
+const { Component } = Shopware;
 
 /**
  * @private
@@ -18,7 +18,7 @@ Component.register('sw-version', {
 
     computed: {
         version() {
-            const version = Application.getContainer('service').context.config.version;
+            const version = Shopware.Context.get().config.version;
             const match = version.match(/(\d+\.?\d+?\.?\d+?)-?([a-z]+)?(\d+(.\d+)*)?/i);
 
             if (match === null) {

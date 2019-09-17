@@ -213,6 +213,27 @@ const Shopware = {
 
     /**
      * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Service: {
+        get: (name) => application.getContainer('service')[name],
+        list: () => application.getContainer('service').$list(),
+        register: (name, service) => application.addServiceProvider(name, service),
+        registerMiddleware: (...args) => application.addServiceProviderMiddleware(...args),
+        registerDecorator: (...args) => application.addServiceProviderDecorator(...args)
+    },
+
+    /**
+     * @memberOf module:Shopware
+     * @type {Object}
+     */
+    Context: {
+        get: () => application.getContainer('service').context,
+        getCopy: () => Shopware.Utils.object.cloneDeep(application.getContainer('service').context)
+    },
+
+    /**
+     * @memberOf module:Shopware
      * @type {module:core/service/utils}
      */
     Utils: utils,

@@ -39,10 +39,18 @@ Component.register('sw-review-detail', {
             return this.repositoryFactory.create('product_review');
         },
         stars() {
-            return this.review.points;
+            if (this.review.points >= 0) {
+                return this.review.points;
+            }
+
+            return 0;
         },
         missingStars() {
-            return 5 - this.review.points;
+            if (this.review.points >= 0) {
+                return 5 - this.review.points;
+            }
+
+            return 5;
         }
     },
 

@@ -1,9 +1,7 @@
 import './component';
 import './preview';
 
-const { Application } = Shopware;
-
-Application.getContainer('service').cmsService.registerCmsBlock({
+Shopware.Service.get('cmsService').registerCmsBlock({
     name: 'product-slider',
     label: 'Product slider',
     category: 'commerce',

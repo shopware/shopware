@@ -35,8 +35,7 @@ Component.register('sw-theme-list-item', {
         },
 
         defaultThemeAsset() {
-            const initContainer = Application.getContainer('init');
-            const context = initContainer.contextService;
+            const context = Application.getContainer('service').context;
 
             return `url('${context.assetsPath}/administration/static/img/theme/default_theme_preview.jpg')`;
         },

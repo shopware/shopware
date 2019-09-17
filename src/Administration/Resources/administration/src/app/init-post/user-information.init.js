@@ -3,12 +3,10 @@ import { initializeUserNotifications } from 'src/app/state/notification.store';
 const { State } = Shopware;
 
 export default function initializeUserContext() {
-    const serviceContainer = this.getContainer('service');
-
     return new Promise((resolve) => {
-        const loginService = serviceContainer.loginService;
-        const context = Shopware.Application.getContainer('service').context;
-        const userService = serviceContainer.userService;
+        const loginService = Shopware.Service.get('loginService');
+        const context = Shopware.Context.get();
+        const userService = Shopware.Service.get('userService');
 
         // The user isn't logged in
         if (!loginService.isLoggedIn()) {

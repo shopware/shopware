@@ -2,8 +2,6 @@ import EventEmitter from 'events';
 import CodeGenerator from '../service/code-generator.service';
 import Criteria from '../../../core/data-new/criteria.data';
 
-const { Application } = Shopware;
-
 export default class IndividualCodeGenerator extends EventEmitter {
     /**
      * Code saver service, which generates codes and saves them using the provided repository
@@ -24,7 +22,7 @@ export default class IndividualCodeGenerator extends EventEmitter {
         this.chunkSize = 100;
         this.maxRetryCount = 5;
 
-        this.syncService = Application.getContainer('service').syncService;
+        this.syncService = Shopware.Service.get('syncService');
         this.httpClient = this.syncService.httpClient;
     }
 

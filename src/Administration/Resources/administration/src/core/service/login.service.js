@@ -142,8 +142,8 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
      * notifies the listener for the onLoginEvent
      */
     function notifyOnLoginListener() {
-        onLoginListener.forEach((callback) => {
-            callback.call(null);
+        return onLoginListener.map((callback) => {
+            return callback.call(null);
         });
     }
 

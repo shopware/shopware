@@ -1,4 +1,3 @@
-const { Application } = Shopware;
 const { Criteria } = Shopware.Data;
 
 export default function createLocaleToLanguageService() {
@@ -11,8 +10,8 @@ export default function createLocaleToLanguageService() {
      * @return {Promise} languageIdPromise
      */
     function localeToLanguage(locale) {
-        const context = Application.getContainer('service').context;
-        const repoFactory = Application.getContainer('service').repositoryFactory;
+        const context = Shopware.Context.get();
+        const repoFactory = Shopware.Service.get('repositoryFactory');
         const localeRepo = repoFactory.create('locale', '/locale');
         const languageRepo = repoFactory.create('language', '/language');
         const localeCriteria = new Criteria();

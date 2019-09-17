@@ -2,12 +2,11 @@ import './component';
 import './config';
 import './preview';
 
-const { Application } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const criteria = new Criteria();
 criteria.addAssociation('cover');
 
-Application.getContainer('service').cmsService.registerCmsElement({
+Shopware.Service.get('cmsService').registerCmsElement({
     name: 'product-box',
     label: 'Product box',
     component: 'sw-cms-el-product-box',
@@ -57,7 +56,7 @@ Application.getContainer('service').cmsService.registerCmsElement({
     collect: function collect(elem) {
         const context = Object.assign(
             {},
-            Shopware.Application.getContainer('service').context,
+            Shopware.Context.get(),
             { inheritance: true }
         );
 

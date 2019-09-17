@@ -158,7 +158,7 @@ class InfoController extends AbstractController
                 continue;
             }
 
-            $bundleName = strtolower($bundle->getName());
+            $bundleName = mb_strtolower($bundle->getName());
 
             $styles = array_map(static function (string $filename) use ($package, $bundleName) {
                 $url = sprintf('bundles/%s/administration/css/%s', $bundleName, $filename);

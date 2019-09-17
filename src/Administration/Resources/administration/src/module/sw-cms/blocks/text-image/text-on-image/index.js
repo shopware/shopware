@@ -1,9 +1,7 @@
 import './component';
 import './preview';
 
-const { Application } = Shopware;
-
-Application.getContainer('service').cmsService.registerCmsBlock({
+Shopware.Service.get('cmsService').registerCmsBlock({
     name: 'text-on-image',
     label: 'Text on top of an image',
     category: 'text-image',

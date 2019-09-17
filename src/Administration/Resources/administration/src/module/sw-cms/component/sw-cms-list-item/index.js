@@ -1,7 +1,7 @@
 import template from './sw-cms-list-item.html.twig';
 import './sw-cms-list-item.scss';
 
-const { Component, Application } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-cms-list-item', {
     template,
@@ -46,14 +46,13 @@ Component.register('sw-cms-list-item', {
         },
 
         defaultLayoutAsset() {
-            const context = Application.getContainer('service').context;
+            const context = Shopware.Context.get();
 
             return `url(${context.assetsPath}/administration/static/img/cms/default_preview_${this.page.type}.jpg)`;
         },
 
         defaultItemLayoutAssetBackground() {
-            const initContainer = Application.getContainer('init');
-            const context = initContainer.contextService;
+            const context = Shopware.Context.get();
             const path = 'administration/static/img/cms';
 
             if (this.page.sections.length < 1) {

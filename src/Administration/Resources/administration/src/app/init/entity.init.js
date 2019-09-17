@@ -4,10 +4,8 @@ const EntityProxy = Shopware.DataDeprecated.EntityProxy;
 
 export default function initializeEntities(container) {
     const factoryContainer = this.getContainer('factory');
-    const serviceContainer = this.getContainer('service');
-    const application = this;
     const httpClient = container.httpClient;
-    const loginService = serviceContainer.loginService;
+    const loginService = Shopware.Service.get('loginService');
     const entityFactory = factoryContainer.entity;
     const stateFactory = factoryContainer.state;
     const apiServiceFactory = factoryContainer.apiService;
@@ -52,7 +50,7 @@ export default function initializeEntities(container) {
 
         const apiService = new Shopware.Classes.ApiService(httpClient, loginService, kebabServiceName);
         apiServiceFactory.register(serviceName, apiService);
-        application.addServiceProvider(serviceName, () => {
+        Shopware.Service.register(serviceName, () => {
             return apiService;
         });
 

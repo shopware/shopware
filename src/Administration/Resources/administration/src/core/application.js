@@ -168,28 +168,6 @@ class ApplicationBootstrapper {
     }
 
     /**
-     * Registers an initializer middleware for either every initializer in the container or a defined one.
-     *
-     * @example
-     * Shopware.Application.addInitializerMiddleware((container, next) => {
-     *    // Do something with the container
-     *    next();
-     * });
-     *
-     * @example
-     * Shopware.Application.addInitializerMiddleware('httpClient', (service, next) => {
-     *    // Do something with the service
-     *    next();
-     * });
-     *
-     * @param args
-     * @returns {module:core/application.ApplicationBootstrapper}
-     */
-    addInitializerMiddleware(...args) {
-        return this._addMiddleware('init', args);
-    }
-
-    /**
      * Registers a service provider middleware for either every service provider in the container or a defined one.
      *
      * @example
@@ -239,28 +217,6 @@ class ApplicationBootstrapper {
         Shopware.FeatureConfig.init(config);
 
         return this;
-    }
-
-    /**
-     * Registers a decorator for either every initializer in the container or a defined one.
-     *
-     * @example
-     * Shopware.Application.addInitializerDecorator((container, next) => {
-     *    // Do something with the container
-     *    next();
-     * });
-     *
-     * @example
-     * Shopware.Application.addInitializerDecorator('httpClient', (service, next) => {
-     *    // Do something with the service
-     *    next();
-     * });
-     *
-     * @param args
-     * @returns {module:core/application.ApplicationBootstrapper}
-     */
-    addInitializerDecorator(...args) {
-        return this._addDecorator('init', args);
     }
 
     /**

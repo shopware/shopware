@@ -81,6 +81,7 @@ Component.register('sw-custom-field-set-renderer', {
         createdComponent() {
             this.initializeCustomFields();
         },
+
         initializeCustomFields() {
             if (!this.entity.customFields) {
                 this.entity.customFields = {};

@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image.html.twig';
 import './sw-cms-el-image.scss';
 
-const { Application, Component, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-cms-el-image', {
     template,
@@ -28,7 +28,7 @@ Component.register('sw-cms-el-image', {
         },
 
         mediaUrl() {
-            const context = Application.getContainer('service').context;
+            const context = Shopware.Context.get();
             const elemData = this.element.data.media;
             const mediaSource = this.element.config.media.source;
 

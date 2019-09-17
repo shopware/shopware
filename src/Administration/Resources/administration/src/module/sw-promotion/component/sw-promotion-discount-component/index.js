@@ -3,7 +3,7 @@ import template from './sw-promotion-discount-component.html.twig';
 import './sw-promotion-discount-component.scss';
 import DiscountHandler from './handler';
 
-const { Application, Component, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 
@@ -236,7 +236,7 @@ Component.register('sw-promotion-discount-component', {
     },
     methods: {
         createdComponent() {
-            this.syncService = Application.getContainer('service').syncService;
+            this.syncService = Shopware.Service.get('syncService');
             this.httpClient = this.syncService.httpClient;
 
             this.currencyRepository.search(new Criteria(), this.context).then((response) => {

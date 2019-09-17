@@ -1,7 +1,7 @@
 import EntityStore from 'src/core/data/EntityStore';
 import EventEmitter from 'events';
 
-const { Application, State } = Shopware;
+const { State } = Shopware;
 const { deepCopyObject } = Shopware.Utils.object;
 const { md5 } = Shopware.Utils.format;
 
@@ -12,7 +12,7 @@ export default class VariantsGenerator extends EventEmitter {
         this.product = null;
 
         // set dependencies
-        this.syncService = Application.getContainer('service').syncService;
+        this.syncService = Shopware.Service.get('syncService');
         this.EntityStore = EntityStore;
         this.State = State;
         this.httpClient = this.syncService.httpClient;

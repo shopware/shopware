@@ -2,7 +2,7 @@ import { PromotionPermissions } from 'src/module/sw-promotion/helper/promotion.h
 import template from './sw-promotion-cart-condition-form.html.twig';
 import './sw-promotion-cart-condition-form.scss';
 
-const { Application, Component } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-cart-condition-form', {
@@ -88,7 +88,7 @@ Component.register('sw-promotion-cart-condition-form', {
     },
     methods: {
         createdComponent() {
-            this.syncService = Application.getContainer('service').syncService;
+            this.syncService = Shopware.Service.get('syncService');
             this.httpClient = this.syncService.httpClient;
 
             if (this.promotion) {

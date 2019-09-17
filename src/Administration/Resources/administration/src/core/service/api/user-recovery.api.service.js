@@ -1,7 +1,5 @@
 import ApiService from '../api.service';
 
-const { Application } = Shopware;
-
 /**
  * Custom gateway for the "user/user-recovery" routes
  * @class
@@ -11,7 +9,7 @@ class UserRecoveryApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'user') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'userRecoveryService';
-        this.context = Application.getContainer('service').context;
+        this.context = Shopware.Context.get();
     }
 
     createRecovery(email) {

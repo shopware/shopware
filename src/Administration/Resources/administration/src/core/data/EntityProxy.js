@@ -453,7 +453,7 @@ export default class EntityProxy {
      * @return {Boolean}
      */
     validate(data = this.draft) {
-        const required = Shopware.Application.getContainer('service').validationService.required;
+        const required = Shopware.Service.get('validationService').required;
 
         return this.requiredProperties.every((property) => {
             return required(data[property]);
@@ -501,7 +501,6 @@ export default class EntityProxy {
         const associationDefinitions = this.associatedEntityPropDefinitions;
 
         const initContainer = Shopware.Application.getContainer('init');
-        const serviceContainer = Shopware.Application.getContainer('service');
 
         Object.keys(associationDefinitions).forEach((prop) => {
             const definition = associationDefinitions[prop];
@@ -509,7 +508,7 @@ export default class EntityProxy {
 
             const apiService = new Shopware.Classes.ApiService(
                 initContainer.httpClient,
-                serviceContainer.loginService,
+                Shopware.Service.get('loginService'),
                 apiEndPoint
             );
 

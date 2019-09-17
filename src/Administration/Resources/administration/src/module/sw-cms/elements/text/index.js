@@ -2,9 +2,7 @@ import './component';
 import './config';
 import './preview';
 
-const { Application } = Shopware;
-
-Application.getContainer('service').cmsService.registerCmsElement({
+Shopware.Service.get('cmsService').registerCmsElement({
     name: 'text',
     label: 'Text',
     component: 'sw-cms-el-text',

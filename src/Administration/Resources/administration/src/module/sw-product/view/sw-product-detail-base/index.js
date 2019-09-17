@@ -1,3 +1,4 @@
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
 

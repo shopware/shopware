@@ -1,7 +1,7 @@
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
-const { Component, Application } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-cms-block', {
     template,
@@ -50,7 +50,7 @@ Component.register('sw-cms-block', {
         },
 
         blockStyles() {
-            const context = Application.getContainer('service').context;
+            const context = Shopware.Context.get();
             let backgroundMedia = null;
 
             if (this.block.backgroundMedia) {

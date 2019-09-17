@@ -15,7 +15,7 @@ export default class AdminFixtureService {
         if (!userData.id) {
             throw new Error('Update fixtures must always contain an id');
         }
-        return this.apiClient.patch(`/v1/${userData.type}/${userData.id}?_response=true`, userData.data);
+        return this.apiClient.patch(`/v1/${userData.type}/${userData.id}`, userData.data);
     }
 
     authenticate() {

@@ -1,4 +1,4 @@
-const AdminFixtureService = require('../fixture.service.js').default;
+const AdminFixtureService = require('../fixture.service.js');
 
 export default class PropertyFixtureService extends AdminFixtureService {
     constructor() {
@@ -18,15 +18,7 @@ export default class PropertyFixtureService extends AdminFixtureService {
 
         const finalData = this.mergeFixtureWithData(propertyJson, userData);
 
-        return this.apiClient.post('/v1/property-group?_response=true', finalData)
-            .then((data) => {
-                const endTime = new Date() - startTime;
-                global.logger.success(`${data.id} (${endTime / 1000}s)`);
-                global.logger.lineBreak();
-            }).catch((err) => {
-                global.logger.error(err);
-                global.logger.lineBreak();
-            });
+        return this.apiClient.post('/v1/property-group?_response=true', finalData);
     }
 }
 

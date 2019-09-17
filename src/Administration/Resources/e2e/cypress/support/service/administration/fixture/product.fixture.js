@@ -27,7 +27,6 @@ export default class ProductFixture extends AdminFixtureService {
 
     setProductVisible(productId) {
         let salesChannelId = '';
-        const startTime = new Date();
 
         return this.apiClient.post('/v1/search/sales-channel?response=true', {
             filter: [{
@@ -53,17 +52,6 @@ export default class ProductFixture extends AdminFixtureService {
                 }
             });
         })
-            .then((data) => {
-                const endTime = new Date() - startTime;
-                global.logger.success(`Updated product: ${data.id} (${endTime / 1000}s)`);
-                global.logger.lineBreak();
-
-                return data.id;
-            })
-            .catch((err) => {
-                global.logger.error(err);
-                global.logger.lineBreak();
-            });
     }
 }
 

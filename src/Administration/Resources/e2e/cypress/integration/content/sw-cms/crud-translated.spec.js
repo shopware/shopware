@@ -10,6 +10,9 @@ describe('CMS: Test crud operations of layouts', () => {
                 return cy.createDefaultFixture('cms-page');
             })
             .then(() => {
+                return cy.setSalesChannelDomain('Storefront');
+            })
+            .then(() => {
                 cy.viewport(1920, 1080);
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
             });
@@ -160,8 +163,10 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-category-detail__save-action').click();
 
         // Verify layout in Storefront
-        // ToDo: storefront needs to have german domain to test translated layout
         cy.visit('/');
         cy.get('.cms-block h2').contains('Lorem Ipsum dolor sit amet');
+        cy.get('#languagesDropdown-top-bar').click();
+        cy.contains('Deutsch').click();
+        cy.get('.cms-block h2').contains('Deutsch');
     });
 });

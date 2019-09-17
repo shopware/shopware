@@ -46,15 +46,6 @@ export default class SnippetFixtureService extends AdminFixtureService {
             })
             .then((finalSnippetData) => {
                 return this.apiClient.post('/v1/snippet?_response=true', finalSnippetData, userData);
-            })
-            .then((data) => {
-                const endTime = new Date() - startTime;
-                global.logger.success(`${data.id} (${endTime / 1000}s)`);
-                global.logger.lineBreak();
-            })
-            .catch((err) => {
-                global.logger.error(err);
-                global.logger.lineBreak();
             });
     }
 }

@@ -48,7 +48,7 @@ This example adds another association named `custom_struct` to the `ProductDefin
 The `Runtime` flag tells the data abstraction layer, that you're going to take care of the field's content yourself.
 Have a look at our detailed list of [flags](./../2-internals/1-core/20-data-abstraction-layer/090-flags.md) and what their purpose is, or find out which [field types](./../2-internals/1-core/20-data-abstraction-layer/080-types.md) are available in Shopware 6.
 
-So, time to take care about the product entities' new field yourself.
+So, time to take care of the product entities' new field yourself.
 You're going to need a new subscriber for this. Have a look [here](./040-register-subscriber.md) to find out how to properly add your own subscriber class.
 
 ```php

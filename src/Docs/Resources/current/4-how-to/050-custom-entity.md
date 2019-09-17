@@ -1,11 +1,11 @@
 [titleEn]: <>(Creating a custom entity)
-[metaDescriptionEn]: <>(Quite often, your plugin has to save data into a custom database table. Shopware 6's data abstraction layer fully supports custom entities, so you don't have to take care about the data handling at all.)
+[metaDescriptionEn]: <>(Quite often, your plugin has to save data into a custom database table. Shopware 6's data abstraction layer fully supports custom entities, so you don't have to take care of the data handling at all.)
 
 ## Overview
 
 Quite often, your plugin has to save data into a custom database table.
 Shopware 6's [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) fully supports custom entities,
-so you don't have to take care about the data handling at all.
+so you don't have to take care of the data handling at all.
 
 ## Plugin base class
 

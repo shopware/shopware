@@ -8,7 +8,7 @@ The context object contains the currently selected language. All reads an writes
 
 ## Reading translated data
 
-The read data contains always the translations specified by the context's language. Although the DAL supports special handling for translations, they are a related entity and therefore can always be read raw as an association.
+Data that has been read always contains the translations specified by the context's language. Although the DAL supports special handling for translations, they are a related entity and therefore can always be read raw as an association.
 
 ## Writing multiple languages at once
 
@@ -19,7 +19,7 @@ You can either write the fields on the base definition directly or use the `tran
 If you are writing the fields directly, the language of the current context will be used:
 
 ```php
-// given $context will contain de-DE as language
+// given $context will contain en-GB as language
 
 $repository->create(
     [

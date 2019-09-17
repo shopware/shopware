@@ -10,7 +10,7 @@ Extensions are used to add relations to existing entities. They are not intended
 BoolField or JsonField. Please use [CustomFields](./045-custom-field.md) in these cases.
 ## Creating an extension
 
-Create a class which extends the `Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` interface, implement the required methods and register and tag it in the service container as `shopware.entity.extension`.
+Create a class which implements the `Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` interface, implement the required methods and register and tag it in the service container as `shopware.entity.extension`.
 
 ### Method: getDefinitionClass()
 
@@ -18,7 +18,7 @@ You should return the definition the extension will be applied on, preferably a 
 
 ### Method: extendFields()
 
-The first parameter `$fields` is a collection of fields defined in the definition. You can now manipulate the
+The first parameter `$collection` is a collection of fields defined in the definition. You can now manipulate the
 existing fields or add new by appending the collection.
 
 The example below will add a new `1:n` relation to a new promotion entity.

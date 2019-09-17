@@ -1,10 +1,10 @@
 [titleEn]: <>(Updating your plugin via migrations)
-[metaDescriptionEn]: <>(Whenever you decide to release a new version of your plugin, including new features, you might have to take care about new database tables or about updating existing ones. This can be done using the Migration system in your plugin.)
+[metaDescriptionEn]: <>(Whenever you decide to release a new version of your plugin, including new features, you might have to take care of new database tables or about updating existing ones. This can be done using the Migration system in your plugin.)
 
 ## Overview
 
 Whenever you decide to release a new version of your plugin, including new features, you might have to take
-care about new database tables or about updating existing ones.
+care of new database tables or about updating existing ones.
 This also includes checking, if an update was already applied, mostly done so by including a multitude of
 version checks into your plugin's `update` method.
 As you might notice, this will bloat the `update` method sooner or later, becoming more and more of a pain to

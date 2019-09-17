@@ -1,4 +1,0 @@
-enqueue:
-    default:
-        transport: "file://%kernel.project_dir%/var/test_queue"
-        client: ~

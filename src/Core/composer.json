@@ -39,7 +39,7 @@
         "doctrine/dbal": "2.9.2",
         "doctrine/inflector": "1.3.0",
         "dompdf/dompdf": "0.8.3",
-        "enqueue/fs": "0.9.12",
+        "enqueue/dbal": "0.9.12",
         "google/cloud-storage": "1.14.0",
         "guzzlehttp/guzzle": "6.3.3",
         "jdorn/sql-formatter": "1.2.17",

@@ -1,4 +1,5 @@
 enqueue:
     default:
-        transport: "file://%kernel.project_dir%/var/queue"
+        transport:
+            dsn: "%env(DATABASE_URL)%"
         client: ~

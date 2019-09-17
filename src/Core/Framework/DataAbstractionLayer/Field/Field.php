@@ -105,21 +105,21 @@ abstract class Field extends Struct
 
     public function getSerializer(): FieldSerializerInterface
     {
-        $this->initLayzy();
+        $this->initLazy();
 
         return $this->serializer;
     }
 
     public function getResolver(): ?FieldResolverInterface
     {
-        $this->initLayzy();
+        $this->initLazy();
 
         return $this->resolver;
     }
 
     public function getAccessorBuilder(): ?FieldAccessorBuilderInterface
     {
-        $this->initLayzy();
+        $this->initLazy();
 
         return $this->accessorBuilder;
     }
@@ -145,7 +145,7 @@ abstract class Field extends Struct
         return null;
     }
 
-    private function initLayzy(): void
+    private function initLazy(): void
     {
         if ($this->serializer !== null) {
             return;

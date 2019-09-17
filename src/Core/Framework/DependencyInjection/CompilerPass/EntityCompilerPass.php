@@ -35,7 +35,7 @@ class EntityCompilerPass implements CompilerPassInterface
             $service = $container->getDefinition($serviceId);
 
             if (!isset($tag[0]['entity'])) {
-                throw new \RuntimeException(sprintf('Malformed configuration found for "%s"', $serviceId));
+                throw new \RuntimeException(sprintf('Missing attribute "entity" on tag "shopware.entity.definition" for definition with id "%s"', $serviceId));
             }
 
             $service->addMethodCall('compile', [

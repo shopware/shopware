@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Enqueue\Dbal\DbalContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -12,30 +13,13 @@ trait QueueTestBehaviour
 {
     /**
      * @before
+     * @after
      */
     public function clearQueue(): void
     {
-        if (file_exists($this->getQueueFile())) {
-            file_put_contents($this->getQueueFile(), '');
-        }
-    }
-
-    /**
-     * @after
-     */
-    public function removeQueue(): void
-    {
-        if (file_exists($this->getQueueFile())) {
-            unlink($this->getQueueFile());
-        }
-    }
-
-    public function getQueueFile(): string
-    {
-        $path = $this->getContainer()->get('enqueue.client.default.config')->getTransportOption('dsn');
-        $path = str_replace('file://', '', $path);
-
-        return $path . '/messages';
+        /** @var DbalContext $context */
+        $context = $this->getContainer()->get('enqueue.transport.default.context');
+        $context->purgeQueue($context->createQueue('messages'));
     }
 
     public function getBus(): MessageBusInterface

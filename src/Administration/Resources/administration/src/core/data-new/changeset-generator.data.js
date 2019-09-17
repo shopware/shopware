@@ -24,6 +24,7 @@ export default class ChangesetGenerator {
      * @private
      * @param {Entity} entity
      * @param deletionQueue
+     * @param updateQueue
      * @returns {null}
      */
     recursion(entity, deletionQueue) {
@@ -78,7 +79,7 @@ export default class ChangesetGenerator {
 
             switch (field.relation) {
                 case 'one_to_many': {
-                    const associationChanges = this.handleOneToMany(draftValue, originValue, deletionQueue);
+                    const associationChanges = this.handleOneToMany(field, draftValue, originValue, deletionQueue);
                     if (associationChanges.length > 0) {
                         changes[fieldName] = associationChanges;
                     }
@@ -146,12 +147,13 @@ export default class ChangesetGenerator {
 
     /**
      * @private
+     * @param {Object} field
      * @param {EntityCollection} draft
      * @param {EntityCollection} origin
      * @param {Array} deletionQueue
      * @returns {Array}
      */
-    handleOneToMany(draft, origin, deletionQueue) {
+    handleOneToMany(field, draft, origin, deletionQueue) {
         const changes = [];
         const originIds = origin.getIds();
 
@@ -181,13 +183,19 @@ export default class ChangesetGenerator {
             }
         });
 
+        if (field.flags && field.flags.cascade_delete) {
+            return changes;
+        }
+
+        if (!field.referenceField) {
+            return changes;
+        }
+
         originIds.forEach((id) => {
             if (!draft.has(id)) {
-                // still existing?
-                deletionQueue.push({
-                    route: draft.source,
-                    key: id
-                });
+                const data = { id };
+                data[field.referenceField] = null;
+                changes.push(data);
             }
         });
 

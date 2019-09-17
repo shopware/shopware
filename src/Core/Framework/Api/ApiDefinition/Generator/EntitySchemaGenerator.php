@@ -155,15 +155,21 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             case $field instanceof OneToManyAssociationField:
             case $field instanceof ChildrenAssociationField:
             case $field instanceof TranslationsAssociationField:
-                if (!$field instanceof AssociationField) {
+                if (!$field instanceof OneToManyAssociationField) {
                     throw new \RuntimeException('Field should extend AssociationField');
                 }
+
+                $reference = $field->getReferenceDefinition();
+                $localField = $definition->getFields()->getByStorageName($field->getLocalField());
+                $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
 
                 return [
                     'type' => 'association',
                     'relation' => 'one_to_many',
-                    'entity' => $field->getReferenceDefinition()->getEntityName(),
+                    'entity' => $reference->getEntityName(),
                     'flags' => $flags,
+                    'localField' => $localField ? $localField->getPropertyName() : null,
+                    'referenceField' => $referenceField ? $referenceField->getPropertyName() : null,
                 ];
 
             case $field instanceof ParentAssociationField:
@@ -172,11 +178,17 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                     throw new \RuntimeException('Field should extend AssociationField');
                 }
 
+                $reference = $field->getReferenceDefinition();
+                $localField = $definition->getFields()->getByStorageName($field->getStorageName());
+                $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
+
                 return [
                     'type' => 'association',
                     'relation' => 'many_to_one',
-                    'entity' => $field->getReferenceDefinition()->getEntityName(),
+                    'entity' => $reference->getEntityName(),
                     'flags' => $flags,
+                    'localField' => $localField ? $localField->getPropertyName() : null,
+                    'referenceField' => $referenceField ? $referenceField->getPropertyName() : null,
                 ];
 
             case $field instanceof ManyToManyAssociationField:
@@ -188,11 +200,18 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 ];
 
             case $field instanceof OneToOneAssociationField:
+                $reference = $field->getReferenceDefinition();
+
+                $localField = $definition->getFields()->getByStorageName($field->getStorageName());
+                $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
+
                 return [
                     'type' => 'association',
                     'relation' => 'one_to_one',
-                    'entity' => $field->getReferenceDefinition()->getEntityName(),
+                    'entity' => $reference->getEntityName(),
                     'flags' => $flags,
+                    'localField' => $localField ? $localField->getPropertyName() : null,
+                    'referenceField' => $referenceField ? $referenceField->getPropertyName() : null,
                 ];
 
             // int fields

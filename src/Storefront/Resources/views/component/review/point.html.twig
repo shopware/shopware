@@ -1,9 +1,9 @@
 {% block component_review_point %}
     {% if size is not defined %}
         {% set size = 'xs' %}
-	{% endif %}
+    {% endif %}
 
-	<span class="product-review-point">
+    <span class="product-review-point">
         {% if type == 'half' %}
             {% sw_icon 'star-half' style { 'color': 'review', 'size': size } %}
         {% elseif type == 'blank' %}
@@ -11,5 +11,5 @@
         {% else %}
             {% sw_icon 'star' style { 'color': 'review', 'size': size} %}
         {% endif %}
-	</span>
+    </span>
 {% endblock %}

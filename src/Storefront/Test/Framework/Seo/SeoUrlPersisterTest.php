@@ -78,7 +78,7 @@ class SeoUrlPersisterTest extends TestCase
         $first = $canonicalUrls->first();
         static::assertSame('fancy-path-2', $first->getSeoPathInfo());
 
-        $obsoletedSeoUrls = $seoUrls->filterByProperty('isCanonical', false);
+        $obsoletedSeoUrls = $seoUrls->filterByProperty('isCanonical', null);
 
         static::assertCount(1, $obsoletedSeoUrls);
         /** @var SeoUrlEntity $first */
@@ -121,10 +121,59 @@ class SeoUrlPersisterTest extends TestCase
         $invalid = $result->filterByProperty('isValid', false)->first();
 
         static::assertNotNull($valid);
-        static::assertNotNull($invalid);
+        static::assertNull($invalid);
 
-        static::assertSame($fk1, $valid->getForeignKey());
-        static::assertSame($fk2, $invalid->getForeignKey());
+        static::assertSame($fk2, $valid->getForeignKey());
+    }
+
+    /**
+     * @depends testDuplicatesSameSalesChannel
+     */
+    public function testReturnToPreviousUrl(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $fk1 = Uuid::randomHex();
+        $initialSeoUrlUpdates = [
+            [
+                'salesChannelId' => $salesChannelId,
+                'foreignKey' => $fk1,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'fancy-path',
+            ],
+        ];
+        $fks = array_column($initialSeoUrlUpdates, 'foreignKey');
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $initialSeoUrlUpdates);
+
+        $intermediateSeoUrlUpdates = [
+            [
+                'salesChannelId' => $salesChannelId,
+                'foreignKey' => $fk1,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'intermediate',
+            ],
+        ];
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $intermediateSeoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $initialSeoUrlUpdates);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('foreignKey', [$fk1]));
+        /** @var SeoUrlCollection $result */
+        $result = $this->seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        /** @var SeoUrlCollection $valid */
+        $valid = $result->filterByProperty('isValid', true);
+        static::assertCount(2, $valid);
+
+        $canonicals = $result->filterByProperty('isCanonical', true);
+        static::assertCount(1, $canonicals);
+
+        /** @var SeoUrlEntity $canonical */
+        $canonical = $canonicals->first();
+
+        static::assertEquals($fk1, $canonical->getForeignKey());
+        static::assertTrue($canonical->getIsValid());
     }
 
     public function testSameSeoPathDifferentLanguage(): void

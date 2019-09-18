@@ -54,7 +54,7 @@ class SeoUrlPersister
         $languageId = $context->getLanguageId();
         $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
         $dateTime = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, false);
+        $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
         $updatedFks = [];
         $obsoleted = [];
@@ -110,7 +110,7 @@ class SeoUrlPersister
             $insert['seo_path_info'] = trim($seoUrl['seoPathInfo'], '/');
 
             $insert['route_name'] = $routeName;
-            $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : 0;
+            $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : null;
             $insert['is_modified'] = ($seoUrl['isModified'] ?? false) ? 1 : 0;
 
             $insert['is_valid'] = true;
@@ -119,10 +119,16 @@ class SeoUrlPersister
             $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
         }
 
-        $insertQuery->execute();
-        $this->invalidateEntityCache();
+        $this->connection->beginTransaction();
+        try {
+            $this->obsoleteIds($obsoleted, $dateTime);
+            $insertQuery->execute();
+            $this->connection->commit();
+        } catch (\Throwable $e) {
+            $this->connection->rollBack();
+        }
 
-        $this->obsoleteIds($obsoleted, $dateTime);
+        $this->invalidateEntityCache();
 
         $deletedIds = array_diff($foreignKeys, $updatedFks);
         $this->markAsDeleted($deletedIds, $dateTime);
@@ -192,7 +198,7 @@ class SeoUrlPersister
 
         $this->connection->createQueryBuilder()
             ->update('seo_url')
-            ->set('is_canonical', '0')
+            ->set('is_canonical', 'NULL')
             ->set('updated_at', ':dateTime')
             ->where('id IN (:ids)')
             ->setParameter('dateTime', $dateTime)
@@ -224,10 +230,40 @@ class SeoUrlPersister
 
         /*
          * If we find duplicates for a seo_path_info we need to mark all but one seo_url as invalid.
-         * The first created seo_url wins. The ordering is established by the auto_increment column.
+         * The newest seo_url wins for entries with the same foreign key.
+         * The ordering is established by the auto_increment column.
+         */
+        $dupSameFkIds = $this->connection->executeQuery(
+            'SELECT DISTINCT invalid.id 
+            FROM seo_url valid
+            INNER JOIN seo_url invalid
+                ON valid.seo_path_info = invalid.seo_path_info
+                AND valid.language_id = invalid.language_id
+                AND (valid.sales_channel_id = invalid.sales_channel_id
+                    OR valid.sales_channel_id IS NULL AND invalid.sales_channel_id IS NULL
+                ) AND valid.auto_increment > invalid.auto_increment # order
+                AND valid.foreign_key = invalid.foreign_key
+                AND invalid.foreign_key IN (:foreign_keys)
+            WHERE (valid.sales_channel_id IN (:sales_channel_ids) OR valid.sales_channel_id IS NULL)
+            AND valid.language_id = :language_id',
+            ['language_id' => $languageId, 'sales_channel_ids' => $salesChannelIds, 'foreign_keys' => $foreignKeys],
+            ['language_id' => ParameterType::STRING, 'sales_channel_ids' => Connection::PARAM_STR_ARRAY, 'foreign_keys' => Connection::PARAM_STR_ARRAY]
+        )->fetchAll(FetchMode::COLUMN);
+
+        if (!empty($dupSameFkIds)) {
+            $this->connection->executeQuery(
+                'UPDATE seo_url SET is_valid = 0 WHERE id IN (:ids)',
+                ['ids' => $dupSameFkIds],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+        }
+
+        /*
+         * We execute the previous query again to handle entries with the them same seo_url but different
+         * foreign keys. In this case the oldest seo url entry has to win as we want existing links to keep their target
          */
         $dupIds = $this->connection->executeQuery(
-            'SELECT DISTINCT invalid.id
+            'SELECT DISTINCT invalid.id 
             FROM seo_url valid
             INNER JOIN seo_url invalid
                 ON valid.seo_path_info = invalid.seo_path_info
@@ -236,6 +272,7 @@ class SeoUrlPersister
                     OR valid.sales_channel_id IS NULL AND invalid.sales_channel_id IS NULL
                 ) AND valid.auto_increment < invalid.auto_increment # order
                 AND invalid.foreign_key IN (:foreign_keys)
+                AND invalid.foreign_key != valid.foreign_key
             WHERE (valid.sales_channel_id IN (:sales_channel_ids) OR valid.sales_channel_id IS NULL)
             AND valid.language_id = :language_id',
             ['language_id' => $languageId, 'sales_channel_ids' => $salesChannelIds, 'foreign_keys' => $foreignKeys],
@@ -245,6 +282,7 @@ class SeoUrlPersister
         if (empty($dupIds)) {
             return;
         }
+
         $this->connection->executeQuery(
             'UPDATE seo_url SET is_valid = 0 WHERE id IN (:ids)',
             ['ids' => $dupIds],

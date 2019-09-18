@@ -78,7 +78,7 @@ class SeoUrlPersisterTest extends TestCase
         $first = $canonicalUrls->first();
         static::assertSame('fancy-path-2', $first->getSeoPathInfo());
 
-        $obsoletedSeoUrls = $seoUrls->filterByProperty('isCanonical', false);
+        $obsoletedSeoUrls = $seoUrls->filterByProperty('isCanonical', null);
 
         static::assertCount(1, $obsoletedSeoUrls);
         /** @var SeoUrlEntity $first */
@@ -121,10 +121,9 @@ class SeoUrlPersisterTest extends TestCase
         $invalid = $result->filterByProperty('isValid', false)->first();
 
         static::assertNotNull($valid);
-        static::assertNotNull($invalid);
+        static::assertNull($invalid);
 
-        static::assertSame($fk1, $valid->getForeignKey());
-        static::assertSame($fk2, $invalid->getForeignKey());
+        static::assertSame($fk2, $valid->getForeignKey());
     }
 
     /**

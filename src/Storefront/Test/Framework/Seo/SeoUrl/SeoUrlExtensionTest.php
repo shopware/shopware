@@ -157,7 +157,7 @@ class SeoUrlExtensionTest extends TestCase
         $context = $salesChannelContext->getContext();
 
         $cases = [
-            ['expected' => 'root', 'categoryId' => $rootId],
+            //            ['expected' => 'root', 'categoryId' => $rootId],
             ['expected' => 'root/a', 'categoryId' => $childAId],
             ['expected' => 'root/a/1', 'categoryId' => $childA1Id],
         ];
@@ -349,15 +349,17 @@ class SeoUrlExtensionTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->setLimit(10);
-        $criteria->addFilter(new EqualsFilter('product.seoUrls.isCanonical', false));
+        $criteria->addFilter(new EqualsFilter('product.seoUrls.isCanonical', null));
 
         $criteria->getAssociation('seoUrls')
             ->setLimit(10)
-            ->addFilter(new EqualsFilter('isCanonical', false));
+            ->addFilter(new EqualsFilter('isCanonical', null));
+
+        $products = $productRepo->search($criteria, Context::createDefaultContext());
+        static::assertNotEmpty($products);
 
         /** @var ProductEntity $product */
-        $product = $productRepo->search($criteria, Context::createDefaultContext())->first();
-
+        $product = $products->first();
         static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
     }
 
@@ -384,7 +386,7 @@ class SeoUrlExtensionTest extends TestCase
                         'salesChannelId' => Defaults::SALES_CHANNEL,
                         'pathInfo' => '/detail/' . $id,
                         'seoPathInfo' => 'awesome',
-                        'isCanonical' => true,
+                        'isCanonical' => null,
                     ],
                 ],
             ],

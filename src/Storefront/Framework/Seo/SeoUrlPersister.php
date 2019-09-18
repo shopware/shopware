@@ -54,7 +54,7 @@ class SeoUrlPersister
         $languageId = $context->getLanguageId();
         $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
         $dateTime = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, false);
+        $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
         $updatedFks = [];
         $obsoleted = [];
@@ -110,7 +110,7 @@ class SeoUrlPersister
             $insert['seo_path_info'] = trim($seoUrl['seoPathInfo'], '/');
 
             $insert['route_name'] = $routeName;
-            $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : 0;
+            $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : null;
             $insert['is_modified'] = ($seoUrl['isModified'] ?? false) ? 1 : 0;
 
             $insert['is_valid'] = true;
@@ -119,11 +119,16 @@ class SeoUrlPersister
             $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
         }
 
-        $insertQuery->execute();
+        $this->connection->beginTransaction();
+        try {
+            $this->obsoleteIds($obsoleted, $dateTime);
+            $insertQuery->execute();
+            $this->connection->commit();
+        } catch (\Throwable $e) {
+            $this->connection->rollBack();
+        }
 
         $this->invalidateEntityCache();
-
-        $this->obsoleteIds($obsoleted, $dateTime);
 
         $deletedIds = array_diff($foreignKeys, $updatedFks);
         $this->markAsDeleted($deletedIds, $dateTime);
@@ -193,7 +198,7 @@ class SeoUrlPersister
 
         $this->connection->createQueryBuilder()
             ->update('seo_url')
-            ->set('is_canonical', '0')
+            ->set('is_canonical', 'NULL')
             ->set('updated_at', ':dateTime')
             ->where('id IN (:ids)')
             ->setParameter('dateTime', $dateTime)

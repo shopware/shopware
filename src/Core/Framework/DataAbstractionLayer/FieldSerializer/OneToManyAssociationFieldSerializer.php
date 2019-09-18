@@ -56,13 +56,22 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $field->getLocalField());
         $reference = $field->getReferenceDefinition();
 
+        $fkField = $reference->getFields()->getByStorageName($field->getReferenceField());
+
+        // allows to reset the association for a none cascade delete
+        $fk = $fkField->getPropertyName();
+
         foreach ($data->getValue() as $keyValue => $subresources) {
+            $currentId = $id;
             if (!\is_array($subresources)) {
                 throw new ExpectedArrayException($parameters->getPath() . '/' . $data->getKey());
             }
 
-            $fkField = $reference->getFields()->getByStorageName($field->getReferenceField());
-            $subresources[$fkField->getPropertyName()] = $id;
+            if (array_key_exists($fk, $subresources) && $subresources[$fk] === null) {
+                $currentId = null;
+            }
+
+            $subresources[$fk] = $currentId;
 
             $this->writeExtractor->extract(
                 $subresources,

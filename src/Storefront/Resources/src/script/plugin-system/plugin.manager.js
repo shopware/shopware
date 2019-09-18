@@ -25,7 +25,7 @@ import Iterator from 'src/script/helper/iterator.helper';
  *
  * methods:
  *
- * // Registers a plugin to the plugin mananger.
+ * // Registers a plugin to the plugin manager.
  * PluginManager.register(pluginName: String, pluginClass: Plugin, selector: String | NodeList | HTMLElement, options?: Object): *;
  *
  * // Removes a plugin from the plugin manager.
@@ -64,7 +64,7 @@ class PluginManagerSingleton {
     }
 
     /**
-     * Registers a plugin to the plugin mananger.
+     * Registers a plugin to the plugin manager.
      *
      * @param {string} pluginName
      * @param {Plugin} pluginClass
@@ -334,7 +334,7 @@ export default class PluginManager {
     }
 
     /**
-     * Registers a plugin to the plugin mananger.
+     * Registers a plugin to the plugin manager.
      *
      * @param {string} pluginName
      * @param {Plugin} pluginClass

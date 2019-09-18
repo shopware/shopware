@@ -53,7 +53,7 @@ class ProductPage extends Page
         $this->product = $product;
     }
 
-    public function getCmsPage(): CmsPageEntity
+    public function getCmsPage(): ?CmsPageEntity
     {
         return $this->cmsPage;
     }

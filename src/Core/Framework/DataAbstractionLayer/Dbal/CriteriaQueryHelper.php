@@ -259,7 +259,7 @@ trait CriteriaQueryHelper
      */
     private function validateSortingDirection(string $direction): void
     {
-        if (!in_array(strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {
+        if (!in_array(mb_strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {
             throw new InvalidSortingDirectionException($direction);
         }
     }
@@ -379,8 +379,8 @@ trait CriteriaQueryHelper
         $fieldName = str_replace('extensions.', '', $fieldName);
         $prefix = $definition->getEntityName() . '.';
 
-        if (strpos($fieldName, $prefix) === 0) {
-            $fieldName = substr($fieldName, \strlen($prefix));
+        if (mb_strpos($fieldName, $prefix) === 0) {
+            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
         }
 
         $fields = $definition->getFields();

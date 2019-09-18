@@ -42,7 +42,7 @@ class ChangelogService
             return self::FALLBACK_LOCALE;
         }
 
-        return substr($fileName, strpos($fileName, '_') + 1, 5);
+        return mb_substr($fileName, mb_strpos($fileName, '_') + 1, 5);
     }
 
     /**

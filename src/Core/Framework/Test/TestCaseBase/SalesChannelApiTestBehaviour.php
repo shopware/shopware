@@ -133,7 +133,7 @@ trait SalesChannelApiTestBehaviour
 
         $this->salesChannelIds[] = $salesChannel['id'];
 
-        $header = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $header = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $salesChannelApiClient->setServerParameter($header, $salesChannelOverride['accessKey']);
         $salesChannelApiClient->setServerParameter('test-sales-channel-id', $salesChannel['id']);
     }

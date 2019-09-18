@@ -15,23 +15,23 @@ class Uuid
     public static function randomHex(): string
     {
         $hex = bin2hex(random_bytes(16));
-        $timeHi = self::applyVersion(substr($hex, 12, 4), 4);
-        $clockSeqHi = self::applyVariant(hexdec(substr($hex, 16, 2)));
+        $timeHi = self::applyVersion(mb_substr($hex, 12, 4), 4);
+        $clockSeqHi = self::applyVariant(hexdec(mb_substr($hex, 16, 2)));
 
         return sprintf(
             '%08s%04s%04s%02s%02s%012s',
             // time low
-            substr($hex, 0, 8),
+            mb_substr($hex, 0, 8),
             // time mid
-            substr($hex, 8, 4),
+            mb_substr($hex, 8, 4),
             // time high and version
             str_pad(dechex($timeHi), 4, '0', STR_PAD_LEFT),
             // clk_seq_hi_res
             str_pad(dechex($clockSeqHi), 2, '0', STR_PAD_LEFT),
             // clock_seq_low
-            substr($hex, 18, 2),
+            mb_substr($hex, 18, 2),
             // node
-            substr($hex, 20, 12)
+            mb_substr($hex, 20, 12)
         );
     }
 
@@ -46,8 +46,8 @@ class Uuid
      */
     public static function fromBytesToHex(string $bytes): string
     {
-        if (\strlen($bytes) !== 16) {
-            throw new InvalidUuidLengthException(\strlen($bytes), bin2hex($bytes));
+        if (\mb_strlen($bytes, '8bit') !== 16) {
+            throw new InvalidUuidLengthException(\mb_strlen($bytes, '8bit'), bin2hex($bytes));
         }
         $uuid = bin2hex($bytes);
 

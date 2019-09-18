@@ -507,7 +507,7 @@ class VersionManager
                 continue;
             }
 
-            if (strpos('version', $entityName) === 0) {
+            if (mb_strpos('version', $entityName) === 0) {
                 continue;
             }
 

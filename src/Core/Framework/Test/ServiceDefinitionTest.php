@@ -125,6 +125,6 @@ class ServiceDefinitionTest extends TestCase
     {
         list($before) = str_split($content, $position);
 
-        return strlen($before) - strlen(str_replace(PHP_EOL, '', $before)) + 1;
+        return mb_strlen($before) - mb_strlen(str_replace(PHP_EOL, '', $before)) + 1;
     }
 }

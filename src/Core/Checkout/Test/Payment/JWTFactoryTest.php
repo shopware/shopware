@@ -54,7 +54,7 @@ class JWTFactoryTest extends TestCase
     {
         $transaction = self::createTransaction();
         $token = $this->tokenFactory->generateToken($transaction);
-        $invalidToken = substr($token, 0, -3);
+        $invalidToken = mb_substr($token, 0, -3);
 
         $this->expectException(InvalidTokenException::class);
         $this->tokenFactory->parseToken($invalidToken);

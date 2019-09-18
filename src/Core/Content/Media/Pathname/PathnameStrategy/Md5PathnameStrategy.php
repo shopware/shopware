@@ -61,7 +61,7 @@ class Md5PathnameStrategy implements PathnameStrategyInterface
     private function hasBlacklistParts(string $path): bool
     {
         foreach ($this->blacklist as $key => $value) {
-            if (strpos($path, '/' . $key . '/') !== false) {
+            if (mb_strpos($path, '/' . $key . '/') !== false) {
                 return true;
             }
         }

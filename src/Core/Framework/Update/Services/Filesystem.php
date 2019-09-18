@@ -74,7 +74,7 @@ class Filesystem
     private function fixDirectoryPermission(\SplFileInfo $fileInfo): void
     {
         try {
-            $permission = substr(sprintf('%o', $fileInfo->getPerms()), -4);
+            $permission = mb_substr(sprintf('%o', $fileInfo->getPerms()), -4);
         } catch (\Exception $e) {
             // cannot get permissions...
             return;
@@ -92,7 +92,7 @@ class Filesystem
     private function fixFilePermission(\SplFileInfo $fileInfo): void
     {
         try {
-            $permission = substr(sprintf('%o', $fileInfo->getPerms()), -4);
+            $permission = mb_substr(sprintf('%o', $fileInfo->getPerms()), -4);
         } catch (\Exception $e) {
             // cannot get permissions...
             return;

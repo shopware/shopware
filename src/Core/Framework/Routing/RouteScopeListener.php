@@ -110,11 +110,11 @@ class RouteScopeListener implements EventSubscriberInterface
                 return true;
             }
 
-            if (substr($ignoredController, -1) !== '*') {
+            if (mb_substr($ignoredController, -1) !== '*') {
                 continue;
             }
 
-            if (strncmp($controllerClass, substr($ignoredController, 0, -1), strlen($ignoredController) - 1) === 0) {
+            if (strncmp($controllerClass, mb_substr($ignoredController, 0, -1), mb_strlen($ignoredController) - 1) === 0) {
                 return true;
             }
         }

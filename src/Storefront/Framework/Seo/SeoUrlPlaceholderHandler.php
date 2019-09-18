@@ -116,10 +116,10 @@ class SeoUrlPlaceholderHandler
 
     private function removePrefix(string $subject, string $prefix): string
     {
-        if (!$prefix || strpos($subject, $prefix) !== 0) {
+        if (!$prefix || mb_strpos($subject, $prefix) !== 0) {
             return $subject;
         }
 
-        return substr($subject, strlen($prefix));
+        return mb_substr($subject, mb_strlen($prefix));
     }
 }

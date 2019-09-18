@@ -233,7 +233,7 @@ class DefinitionValidator
                     continue;
                 }
 
-                $name = substr($foreignKey->getName(), strlen($foreignKey->getNamespaceName()) + 1);
+                $name = mb_substr($foreignKey->getName(), mb_strlen($foreignKey->getNamespaceName()) + 1);
 
                 if ($name !== $table->getName()) {
                     $fkViolations[] = sprintf(
@@ -264,7 +264,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if ($property->getDocComment() && strpos($property->getDocComment(), '@internal') !== false) {
+            if ($property->getDocComment() && mb_strpos($property->getDocComment(), '@internal') !== false) {
                 continue;
             }
 
@@ -420,9 +420,9 @@ class DefinitionValidator
         }
 
         foreach ($reflectionMethods as $method) {
-            if (strpos($method->getName(), 'get') !== 0
+            if (mb_strpos($method->getName(), 'get') !== 0
                 || $method->getDeclaringClass()->getName() !== $translationDefinition->getEntityClass()
-                || strpos($method->getName(), 'Id') === strlen($method->getName()) - 2
+                || mb_strpos($method->getName(), 'Id') === mb_strlen($method->getName()) - 2
             ) {
                 continue;
             }
@@ -742,7 +742,7 @@ class DefinitionValidator
         }
 
         $propName = $association->getPropertyName();
-        if (substr($propName, -1) === 's' || \in_array($propName, self::PLURAL_EXCEPTIONS, true)) {
+        if (mb_substr($propName, -1) === 's' || \in_array($propName, self::PLURAL_EXCEPTIONS, true)) {
             return [];
         }
 
@@ -752,7 +752,7 @@ class DefinitionValidator
         $ref = str_replace($def, '', $ref);
         $refPlural = Inflector::pluralize($ref);
 
-        if (stripos($propName, $refPlural) === \strlen($propName) - \strlen($refPlural)) {
+        if (mb_stripos($propName, $refPlural) === \mb_strlen($propName) - \mb_strlen($refPlural)) {
             return [];
         }
 
@@ -768,7 +768,7 @@ class DefinitionValidator
 
     private function mapRefNameContainedName(string $ref): string
     {
-        $normalized = strtolower(Inflector::tableize($ref));
+        $normalized = mb_strtolower(Inflector::tableize($ref));
         if (!isset(self::CUSTOM_SHORT_NAMES[$normalized])) {
             return $ref;
         }
@@ -783,7 +783,7 @@ class DefinitionValidator
         }
         $prop = $association->getPropertyName();
 
-        if (\in_array(strtolower($prop), self::INGNORED_IN_PREFIX_CHECK, true)) {
+        if (\in_array(mb_strtolower($prop), self::INGNORED_IN_PREFIX_CHECK, true)) {
             return [];
         }
 
@@ -807,8 +807,8 @@ class DefinitionValidator
         $refSalesChannelPartPlural = Inflector::pluralize($refSalesChannelPart);
 
         if (
-            stripos($prop, $ref) === false && stripos($prop, $refPlural) === false
-            && stripos($prop, $refSalesChannelPart) === false && stripos($prop, $refSalesChannelPartPlural) === false
+            mb_stripos($prop, $ref) === false && mb_stripos($prop, $refPlural) === false
+            && mb_stripos($prop, $refSalesChannelPart) === false && mb_stripos($prop, $refSalesChannelPartPlural) === false
         ) {
             $ret = [$definition->getClass() => [
                 sprintf(
@@ -862,28 +862,28 @@ class DefinitionValidator
                 $ref = $this->getShortClassName($refClass);
                 $def = $this->getShortClassName($definition);
 
-                if (stripos($ref, $def) === 0) {
+                if (mb_stripos($ref, $def) === 0) {
                     continue;
                 }
             }
 
             $entityNamePrefix = $definition->getEntityName() . '_';
-            if (strpos($field->getStorageName(), $entityNamePrefix) === 0) {
+            if (mb_strpos($field->getStorageName(), $entityNamePrefix) === 0) {
                 $violations[] = sprintf(
                     'Storage name `%s` is prefixed by entity name `%s`. Use storage name `%s` instead.',
                     $field->getStorageName(),
-                    substr($entityNamePrefix, 0, -1),
-                    substr($field->getStorageName(), \strlen($entityNamePrefix))
+                    mb_substr($entityNamePrefix, 0, -1),
+                    mb_substr($field->getStorageName(), \mb_strlen($entityNamePrefix))
                 );
             }
 
             $defPrefix = $this->getShortClassName($definition);
-            if (strpos($field->getPropertyName(), $defPrefix) === 0) {
+            if (mb_strpos($field->getPropertyName(), $defPrefix) === 0) {
                 $violations[] = sprintf(
                     'Property name `%s` is prefixed by struct name `%s`. Use property name `%s` instead',
                     $field->getPropertyName(),
                     $defPrefix,
-                    lcfirst(substr($field->getPropertyName(), \strlen($defPrefix)))
+                    lcfirst(mb_substr($field->getPropertyName(), \mb_strlen($defPrefix)))
                 );
             }
         }

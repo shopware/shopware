@@ -926,9 +926,9 @@ class EntityReader implements EntityReaderInterface
             $regex = sprintf('#^(%s\.)?(extensions\.)?#i', $definition->getEntityName());
             $fieldName = preg_replace($regex, '', $fieldName);
 
-            $dotPosition = strpos($fieldName, '.');
+            $dotPosition = mb_strpos($fieldName, '.');
             if ($dotPosition !== false) {
-                $fieldName = substr($fieldName, 0, $dotPosition);
+                $fieldName = mb_substr($fieldName, 0, $dotPosition);
             }
 
             $field = $definition->getFields()->get($fieldName);

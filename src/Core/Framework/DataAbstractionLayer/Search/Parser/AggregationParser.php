@@ -189,7 +189,7 @@ class AggregationParser
     {
         $prefix = $definition->getEntityName() . '.';
 
-        if (strpos($fieldName, $prefix) === false) {
+        if (mb_strpos($fieldName, $prefix) === false) {
             return $prefix . $fieldName;
         }
 

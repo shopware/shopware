@@ -99,7 +99,7 @@ class ThemeFileResolver
             }
 
             // Resolve @ dependencies
-            $name = substr($filepath, 1);
+            $name = mb_substr($filepath, 1);
             $configuration = $configurationCollection->getByTechnicalName($name);
 
             if (!$configuration) {
@@ -116,6 +116,6 @@ class ThemeFileResolver
 
     private function isInclude(string $file): bool
     {
-        return strpos($file, '@') === 0;
+        return mb_strpos($file, '@') === 0;
     }
 }

@@ -45,7 +45,7 @@ class TestValidityListener implements TestListener
         $contents = file_get_contents($refl->getFileName());
         $class = \get_class($test);
 
-        if (strpos($contents, 'beginTransaction()') && !\in_array($class, $this->whitelist['beginTransaction'], true)) {
+        if (mb_strpos($contents, 'beginTransaction()') && !\in_array($class, $this->whitelist['beginTransaction'], true)) {
             $this->wrongTestClasses['beginTransaction'][$refl->getFileName()] = $class;
         }
 
@@ -53,7 +53,7 @@ class TestValidityListener implements TestListener
             $this->wrongTestClasses['traits'][$refl->getFileName()] = $class;
         }
 
-        if (strpos($contents, 'DELETE FROM') && !\in_array($class, $this->whitelist['deletes'], true)) {
+        if (mb_strpos($contents, 'DELETE FROM') && !\in_array($class, $this->whitelist['deletes'], true)) {
             $this->wrongTestClasses['deletes'][$refl->getFileName()] = $class;
         }
     }

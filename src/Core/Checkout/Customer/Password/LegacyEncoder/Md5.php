@@ -11,7 +11,7 @@ class Md5 implements LegacyEncoderInterface
 
     public function isPasswordValid(string $password, string $hash): bool
     {
-        if (strpos($hash, ':') === false) {
+        if (mb_strpos($hash, ':') === false) {
             return hash_equals($hash, md5($password));
         }
         [$md5, $salt] = explode(':', $hash);

@@ -59,7 +59,7 @@ class CriteriaParser
         $root = $definition->getEntityName();
 
         $accessor = $fieldName;
-        if (strpos($fieldName, $root . '.') !== false) {
+        if (mb_strpos($fieldName, $root . '.') !== false) {
             $accessor = str_replace($root . '.', '', $fieldName);
         }
 
@@ -333,7 +333,7 @@ class CriteriaParser
 
     private function getNestedPath(EntityDefinition $definition, string $accessor): ?string
     {
-        if (strpos($accessor, $definition->getEntityName() . '.') === false) {
+        if (mb_strpos($accessor, $definition->getEntityName() . '.') === false) {
             $accessor = $definition->getEntityName() . '.' . $accessor;
         }
 

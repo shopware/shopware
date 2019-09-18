@@ -59,6 +59,7 @@ return Config::create()
         'array_indentation' => true,
         'compact_nullable_typehint' => true,
         'modernize_types_casting' => true,
+        'mb_str_functions' => true,
         Fixer\SingleSpaceAfterStatementFixer::name() => true,
         Fixer\NoUselessCommentFixer::name() => true,
         Fixer\PhpdocNoSuperfluousParamFixer::name() => true,

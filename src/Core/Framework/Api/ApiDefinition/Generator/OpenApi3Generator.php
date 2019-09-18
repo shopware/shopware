@@ -81,7 +81,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if (strpos($definition->getEntityName(), 'version') === 0) {
+            if (mb_strpos($definition->getEntityName(), 'version') === 0) {
                 continue;
             }
 

@@ -53,7 +53,7 @@ class StopWordFilter implements SearchFilterInterface
 
         foreach ($tokens as $word => $ranking) {
             $word = (string) $word;
-            if (\strlen($word) >= 3) {
+            if (\mb_strlen($word) >= 3) {
                 $filtered[$word] = $ranking;
             }
         }

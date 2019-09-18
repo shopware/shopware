@@ -137,7 +137,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
-            if (strpos($updatedMedia->getMimeType(), 'image') === 0) {
+            if (mb_strpos($updatedMedia->getMimeType(), 'image') === 0) {
                 $thumbnails = $updatedMedia->getThumbnails();
                 static::assertEquals(
                     2,

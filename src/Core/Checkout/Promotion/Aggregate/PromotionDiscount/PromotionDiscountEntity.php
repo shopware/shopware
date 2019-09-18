@@ -248,7 +248,7 @@ class PromotionDiscountEntity extends Entity
     {
         $prefix = PromotionDiscountEntity::SCOPE_SETGROUP . '-';
 
-        return strpos($this->scope, $prefix) === 0;
+        return mb_strpos($this->scope, $prefix) === 0;
     }
 
     /**

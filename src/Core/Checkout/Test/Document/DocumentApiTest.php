@@ -126,7 +126,7 @@ class DocumentApiTest extends TestCase
             $baseResource . '_action/document/' . $response['documentId'] . '/upload?fileName=' . $filename . '&extension=txt',
             [],
             [],
-            ['HTTP_CONTENT_TYPE' => $expectedContentType, 'HTTP_CONTENT_LENGTH' => strlen($expectedFileContent)],
+            ['HTTP_CONTENT_TYPE' => $expectedContentType, 'HTTP_CONTENT_LENGTH' => mb_strlen($expectedFileContent)],
             $expectedFileContent
         );
 

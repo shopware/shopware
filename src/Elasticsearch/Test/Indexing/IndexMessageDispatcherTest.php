@@ -55,7 +55,7 @@ class IndexMessageDispatcherTest extends TestCase
                     $serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
                     $serializedMessage = $serializer->serialize($msg, 'json');
 
-                    return strlen($serializedMessage) > strlen('{}');
+                    return mb_strlen($serializedMessage) > mb_strlen('{}');
                 }
             ))
             ->willReturnCallback(function ($msg) { return new Envelope($msg); });
@@ -83,7 +83,7 @@ class IndexMessageDispatcherTest extends TestCase
                     $serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
                     $serializedMessage = $serializer->serialize($msg, 'json');
 
-                    return strlen($serializedMessage) > strlen('{}');
+                    return mb_strlen($serializedMessage) > mb_strlen('{}');
                 }
             ))
             ->willReturnCallback(function ($msg) { return new Envelope($msg); });

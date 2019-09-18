@@ -103,10 +103,10 @@ class ScheduledTaskRunner extends Command
 
     private function convertToBytes(string $memoryLimit): int
     {
-        $memoryLimit = strtolower($memoryLimit);
-        $max = (int) strtolower(ltrim($memoryLimit, '+'));
+        $memoryLimit = mb_strtolower($memoryLimit);
+        $max = (int) mb_strtolower(ltrim($memoryLimit, '+'));
 
-        switch (substr($memoryLimit, -1)) {
+        switch (mb_substr($memoryLimit, -1)) {
             case 't': $max *= 1024;
             // no break
             case 'g': $max *= 1024;

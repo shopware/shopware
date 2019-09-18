@@ -107,7 +107,7 @@ class Download
                 return -1;
             }
 
-            return strlen($str);
+            return mb_strlen($str);
         });
 
         $result = curl_exec($ch);

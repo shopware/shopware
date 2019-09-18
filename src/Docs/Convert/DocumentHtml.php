@@ -38,7 +38,7 @@ class DocumentHtml
     {
         $this->media = [];
 
-        if (strpos($contents, self::RAW_TRIGGER) !== false) {
+        if (mb_strpos($contents, self::RAW_TRIGGER) !== false) {
             $parts = explode(self::RAW_TRIGGER, $contents);
             $html = end($parts);
         } else {
@@ -65,11 +65,11 @@ class DocumentHtml
         $linkHref = $linkParts[0];
         $linkAnchor = \count($linkParts) > 1 ? $linkParts[1] : '';
 
-        if (strpos($link, 'http://') === 0) {
+        if (mb_strpos($link, 'http://') === 0) {
             return $matches[0];
         }
 
-        if (strpos($link, 'https://') === 0) {
+        if (mb_strpos($link, 'https://') === 0) {
             return $matches[0];
         }
 
@@ -90,14 +90,14 @@ class DocumentHtml
 
     private function toAbsolutePath(string $link): string
     {
-        return \dirname($this->document->getFile()->getRealPath()) . substr($link, 1);
+        return \dirname($this->document->getFile()->getRealPath()) . mb_substr($link, 1);
     }
 
     private function resolveMedia(array $matches, string $link): string
     {
         $key = 'MEDIAITEM' . \count($this->media);
 
-        $image = \dirname($this->document->getFile()->getRealPath()) . substr($link, 1);
+        $image = \dirname($this->document->getFile()->getRealPath()) . mb_substr($link, 1);
 
         if (!file_exists($image)) {
             throw new \RuntimeException(sprintf('Unable to find and therefore link %s on %s', $image, $this->document->getFile()->getRelativePathname()));
@@ -110,7 +110,7 @@ class DocumentHtml
 
     private function fixLinkAnchors(string $anchor): string
     {
-        return '#' . strtolower(str_replace('.', '-', $anchor));
+        return '#' . mb_strtolower(str_replace('.', '-', $anchor));
     }
 
     private function resolveLinkUrl(array $matches, DocumentTree $tree, $linkHref, string $linkAnchor): string

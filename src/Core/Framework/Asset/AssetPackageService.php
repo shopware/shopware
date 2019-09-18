@@ -22,7 +22,7 @@ class AssetPackageService
     {
         $this->packages->addPackage(
             '@' . $bundleName,
-            new PathPackage('/bundles/' . strtolower($bundleName), new EmptyVersionStrategy())
+            new PathPackage('/bundles/' . mb_strtolower($bundleName), new EmptyVersionStrategy())
         );
     }
 }

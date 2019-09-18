@@ -47,7 +47,7 @@ class WriteException extends ShopwareHttpException
                 foreach ($innerException->getViolations() as $violation) {
                     $path = empty($innerException->getPath()) ? $violation->getPropertyPath() : $innerException->getPath();
 
-                    if (strpos($path, '/' . $writeIndex . '/') !== 0) {
+                    if (mb_strpos($path, '/' . $writeIndex . '/') !== 0) {
                         continue;
                     }
 
@@ -56,7 +56,7 @@ class WriteException extends ShopwareHttpException
                 }
             }
 
-            if (strpos($innerException->getPath(), '/' . $writeIndex . '/') !== 0) {
+            if (mb_strpos($innerException->getPath(), '/' . $writeIndex . '/') !== 0) {
                 continue;
             }
 

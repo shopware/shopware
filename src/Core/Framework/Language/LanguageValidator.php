@@ -74,7 +74,7 @@ class LanguageValidator implements EventSubscriberInterface
             }
 
             $pk = $command->getPrimaryKey();
-            $id = \strtolower(Uuid::fromBytesToHex($pk['id']));
+            $id = \mb_strtolower(Uuid::fromBytesToHex($pk['id']));
             if ($id !== Defaults::LANGUAGE_SYSTEM) {
                 continue;
             }

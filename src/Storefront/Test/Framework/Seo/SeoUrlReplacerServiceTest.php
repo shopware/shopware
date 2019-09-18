@@ -211,7 +211,7 @@ class SeoUrlReplacerServiceTest extends TestCase
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
         ];
         $server = [
-            'HTTP_' . strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID)) => $languageId,
+            'HTTP_' . mb_strtoupper(str_replace('-', '_', PlatformRequest::HEADER_LANGUAGE_ID)) => $languageId,
         ];
 
         return new Request([], [], $attributes, [], [], $server);

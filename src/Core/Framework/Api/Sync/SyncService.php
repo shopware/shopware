@@ -90,7 +90,7 @@ class SyncService implements SyncServiceInterface
         $result = null;
 
         try {
-            switch (strtolower($operation->getAction())) {
+            switch (mb_strtolower($operation->getAction())) {
                 case SyncOperation::ACTION_DELETE:
                     $result = $repository->delete([$record], $context);
                     break;

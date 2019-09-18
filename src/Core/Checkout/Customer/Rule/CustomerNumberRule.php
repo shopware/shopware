@@ -44,10 +44,10 @@ class CustomerNumberRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return \in_array(strtolower($customer->getCustomerNumber()), $this->numbers, true);
+                return \in_array(mb_strtolower($customer->getCustomerNumber()), $this->numbers, true);
 
             case self::OPERATOR_NEQ:
-                return !\in_array(strtolower($customer->getCustomerNumber()), $this->numbers, true);
+                return !\in_array(mb_strtolower($customer->getCustomerNumber()), $this->numbers, true);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, __CLASS__);

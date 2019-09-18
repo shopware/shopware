@@ -67,7 +67,7 @@ class TemplateFinder
     public function getTemplateName(string $template): string
     {
         //remove static template inheritance prefix
-        if (strpos($template, '@') !== 0) {
+        if (mb_strpos($template, '@') !== 0) {
             return $template;
         }
 

@@ -12,7 +12,7 @@ class XmlFileWriter extends FileWriter implements WriterInterface
 
         $item = new \SimpleXMLElement('<item/>');
         $this->addDataToNode($item, $data);
-        $xml = strstr($item->asXML(), '<item>');
+        $xml = mb_strstr($item->asXML(), '<item>');
         fwrite($this->buffer, $xml);
     }
 

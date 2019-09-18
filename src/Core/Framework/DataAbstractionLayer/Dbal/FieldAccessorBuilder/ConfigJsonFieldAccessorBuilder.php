@@ -20,7 +20,7 @@ class ConfigJsonFieldAccessorBuilder extends JsonFieldAccessorBuilder
             $accessor
         );
 
-        $accessor = $jsonField->getStorageName() . '.' . ConfigJsonField::STORAGE_KEY . $jsonPath;
+        $accessor = $jsonField->getPropertyName() . '.' . ConfigJsonField::STORAGE_KEY . $jsonPath;
 
         return parent::buildAccessor($root, $jsonField, $context, $accessor);
     }

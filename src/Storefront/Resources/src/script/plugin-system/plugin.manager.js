@@ -334,7 +334,7 @@ export default class PluginManager {
     }
 
     /**
-     * Registers a plugin to the plugin mananger.
+     * Registers a plugin to the plugin manager.
      *
      * @param {string} pluginName
      * @param {Plugin} pluginClass

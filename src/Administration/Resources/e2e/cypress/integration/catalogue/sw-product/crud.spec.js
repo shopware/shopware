@@ -30,11 +30,29 @@ describe('Product: Test crud operations', () => {
             method: 'post'
         }).as('calculatePrice');
 
+        // Add basic data to product
         cy.get('a[href="#/sw/product/create"]').click();
         cy.get('input[name=sw-field--product-name]').type('Product with file upload image');
         cy.get('.sw-select-product__select_manufacturer').typeSingleSelectAndCheck('shopware AG');
         cy.get('select[name=sw-field--product-taxId]').select('19%');
         cy.get('#sw-price-field-gross').type('10');
+
+        // Add image to product
+        cy.fixture('img/sw-login-background.png').then(fileContent => {
+            cy.get('#files').upload(
+                {
+                    fileContent,
+                    fileName: 'sw-login-background.png',
+                    mimeType: 'image/png'
+                }, {
+                    subjectType: 'input'
+                }
+            );
+        });
+        cy.get('.sw-product-image__image img')
+            .should('have.attr', 'src')
+            .and('match', /sw-login-background/);
+        cy.awaitAndCheckNotification('File has been saved.');
 
         // Check net price calculation
         cy.wait('@calculatePrice').then(() => {
@@ -42,15 +60,32 @@ describe('Product: Test crud operations', () => {
         });
 
         cy.get('input[name=sw-field--product-stock]').type('100');
-        cy.get(page.elements.productSaveAction).click();
 
-        // Verify new product
+        // Set product visible
+        cy.get('.sw-product-detail__select-visibility')
+            .scrollIntoView();
+        cy.get('.sw-product-detail__select-visibility').typeMultiSelectAndCheck('Storefront');
+        cy.get('.sw-product-detail__select-visibility .sw-select-selection-list__input')
+            .type('{esc}');
+
+        // Save product
+        cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('Product with file upload image');
+
+        // Verify in storefront
+        cy.visit('/');
+        cy.get('input[name=search]').type('Product with file upload image');
+        cy.get('.search-suggest-container').should('be.visible');
+        cy.get('.search-suggest-product-name')
+            .contains('Product with file upload image')
+            .click();
+        cy.get('.product-detail-name').contains('Product with file upload image');
+        cy.get('.product-detail-price').contains('10.00');
     });
 
     it('@p @catalogue: update and read product', () => {

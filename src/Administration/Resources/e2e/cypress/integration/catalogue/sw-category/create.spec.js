@@ -14,7 +14,7 @@ describe('Category: Create several categories', () => {
             });
     });
 
-    it.skip('@catalogue: create a category after root category', () => {
+    it('@catalogue: create a category after root category', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
@@ -47,7 +47,7 @@ describe('Category: Create several categories', () => {
         });
     });
 
-    it.skip('@catalogue: create a category before root category', () => {
+    it('@catalogue: create a category before root category', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later

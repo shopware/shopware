@@ -1,0 +1,18 @@
+.sw-cms-preview-youtube-video {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 15px;
+
+    &__img {
+        filter: blur(2px);
+    }
+
+    &__play-icon {
+        position: absolute;
+        left: calc(50% - (80px / 2));
+        top: calc(50% - (80px / 2));
+    }
+}

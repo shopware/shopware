@@ -50,7 +50,7 @@ It grants access to the criteria object before it has been used for a search, so
 ```php
 public function onProductCriteriaLoaded(ProductLoaderCriteriaEvent $event): void
 {
-    $event->getCriteria()->addAssociationPath('bundles.products.cover');
+    $event->getCriteria()->addAssociation('bundles.products.cover');
 }
 ```
 

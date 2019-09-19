@@ -47,7 +47,8 @@ describe('Customer: Test crud operations', () => {
         cy.get('select[name=sw-field--customer-salutationId]').select('Mr.');
         cy.get('input[name=sw-field--customer-firstName]').type(customer.firstName);
         cy.get('input[name=sw-field--customer-lastName]').type(customer.lastName);
-        cy.get(page.elements.customerMailInput).type('test@example.com');
+        cy.get(page.elements.customerMailInput).type('tester@example.com');
+        cy.get('#sw-field--customer-password').type('shopware');
         cy.get('.sw-field--customer-groupId .sw-field__select-load-placeholder')
             .should('not.exist');
         cy.get('select[name=sw-field--customer-groupId]').select('Standard customer group');
@@ -72,9 +73,22 @@ describe('Customer: Test crud operations', () => {
 
         cy.get(`${page.elements.customerMetaData}-customer-name`)
             .contains(`${customer.firstName} ${customer.lastName}`);
-        cy.get('.sw-customer-card-email-link').contains('test@example.com');
+        cy.get('.sw-customer-card-email-link').contains('tester@example.com');
         cy.get('.sw-customer-base__label-customer-number').contains('1');
         cy.get('.sw-address__location').contains(customer.addresses[0].zipcode);
+
+        // Verify customer in Storefront
+        cy.visit('/account/login');
+
+        cy.get('.login-card').should('be.visible');
+        cy.get('#loginMail').typeAndCheck('tester@example.com');
+        cy.get('#loginPassword').typeAndCheck('shopware');
+        cy.get('.login-submit [type="submit"]').click();
+
+        cy.get('.account-welcome h1').should((element) => {
+            expect(element).to.contain('Overview');
+        });
+        cy.contains('tester@example.com');
     });
 
     it('@package @customer: edit customers\' base data', () => {

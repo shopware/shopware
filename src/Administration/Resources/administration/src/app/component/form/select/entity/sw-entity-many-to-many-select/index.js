@@ -14,7 +14,7 @@ Component.register('sw-entity-many-to-many-select', {
         event: 'change'
     },
 
-    inject: ['repositoryFactory', 'context'],
+    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'context' },
 
     props: {
         labelProperty: {
@@ -58,6 +58,13 @@ Component.register('sw-entity-many-to-many-select', {
         entityCollection: {
             type: Array,
             required: true
+        },
+        context: {
+            type: Object,
+            required: false,
+            default() {
+                return this.adminContext;
+            }
         }
     },
 

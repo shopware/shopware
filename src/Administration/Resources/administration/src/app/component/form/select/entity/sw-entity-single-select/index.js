@@ -13,7 +13,7 @@ Component.register('sw-entity-single-select', {
         event: 'change'
     },
 
-    inject: ['repositoryFactory', 'context'],
+    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'context' },
 
     props: {
         value: {
@@ -48,6 +48,13 @@ Component.register('sw-entity-single-select', {
             required: false,
             default() {
                 return new Criteria(1, this.resultLimit);
+            }
+        },
+        context: {
+            type: Object,
+            required: false,
+            default() {
+                return this.adminContext;
             }
         }
     },

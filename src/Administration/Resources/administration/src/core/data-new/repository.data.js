@@ -331,6 +331,13 @@ export default class Repository {
             );
         }
 
+        if (context.inheritance) {
+            headers = Object.assign(
+                { 'sw-inheritance': context.inheritance },
+                headers
+            );
+        }
+
         return headers;
     }
 }

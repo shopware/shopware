@@ -128,12 +128,9 @@ export default class EntityStore {
             languageId = this.getLanguageStore().getCurrentId();
         }
 
-        const parameter = Object.assign(
-            { headers: EntityStore.getLanguageHeader(languageId) },
-            params
-        );
+        params.headers = Object.assign({}, EntityStore.getLanguageHeader(languageId), params.headers);
 
-        return this.apiService.getList(parameter).then((response) => {
+        return this.apiService.getList(params).then((response) => {
             const total = response.meta.total;
             const items = [];
             const aggregations = response.aggregations;

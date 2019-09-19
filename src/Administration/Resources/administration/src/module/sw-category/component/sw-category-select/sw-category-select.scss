@@ -24,4 +24,13 @@ $sw-category-select-input-background: $color-white;
         background: $sw-category-select-input-background;
         padding: 8px 16px;
     }
+
+    .sw-category-select__product-number {
+        color: $color-gray-400;
+        margin-left: 10px;
+    }
+
+    .sw-select-option__result-item-text {
+        display: inline-block;
+    }
 }

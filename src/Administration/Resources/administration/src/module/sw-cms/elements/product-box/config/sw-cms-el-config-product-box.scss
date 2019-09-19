@@ -1,6 +1,22 @@
+@import "~scss/variables";
+
 .sw-cms-el-config-product-box {
     .sw-select,
     .sw-single-select {
         margin-bottom: 22px;
+    }
+
+    .sw-select-result .sw-select-result__result-item-text {
+        display: block;
+
+        .sw-highlight-text {
+            display: inline;
+        }
+
+        .sw-cms-el-config-product-box__select-product-number {
+            display: inline;
+            color: $color-gray-400;
+            margin-left: 10px;
+        }
     }
 }

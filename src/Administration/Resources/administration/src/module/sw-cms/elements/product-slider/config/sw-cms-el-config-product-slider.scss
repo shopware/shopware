@@ -1,6 +1,5 @@
 @import "~scss/variables";
 
-
 .sw-cms-el-config-product-slider {
     .sw-cms-el-config-product-slider__tabs {
         .sw-cms-el-config-product-slider__tab-content {
@@ -13,6 +12,20 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 305px));
             gap: 0 30px;
+        }
+    }
+
+    .sw-select-result .sw-select-result__result-item-text {
+        display: block;
+
+        .sw-highlight-text {
+            display: inline;
+        }
+
+        .sw-cms-el-config-product-slider__select-product-number {
+            display: inline;
+            color: $color-gray-400;
+            margin-left: 10px;
         }
     }
 }

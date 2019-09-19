@@ -31,13 +31,6 @@ Mixin.register('placeholder', {
                 }
             }
 
-            const currentLanguageId = this.languageStore.getCurrentLanguage().id;
-            const systemLanguageId = this.languageStore.systemLanguageId;
-
-            if (currentLanguageId === systemLanguageId) {
-                return fallbackSnippet;
-            }
-
             // Return the field from translated if set
             if (entity.translated != null && entity.translated.hasOwnProperty(field)) {
                 if (entity.translated[field] !== null) {

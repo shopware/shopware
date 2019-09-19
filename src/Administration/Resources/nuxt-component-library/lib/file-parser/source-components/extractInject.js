@@ -5,6 +5,11 @@ module.exports = (moduleDefinition) => {
 
     const definedInjects = moduleDefinition.reduce((accumulator, item) => {
         if (item.key.name === 'inject') {
+            if (item.value.type === 'ObjectExpression') {
+                accumulator = item.value.properties;
+                return accumulator;
+            }
+
             accumulator = item.value.elements;
         }
 
@@ -14,4 +19,4 @@ module.exports = (moduleDefinition) => {
     return definedInjects.map((item) => {
         return item.value;
     });
-}
+};

@@ -34,13 +34,22 @@
       "isSidebar": "Layout Sektion - Sidebar",
       "isDefault": "Layout Sektion - Standard"
     },
+    "createWizard": {
+      "choosePageTypeTitle": "Was für eine Seite möchtest Du gestalten?",
+      "choosePageTypeHelpText": "Die verschiedenen Layout-Typen helfen Dir Dein Layout in der Administration schneller wieder zu finden. Du kannst den Layout-Typ jederzeit in den Layout-Einstellungen ändern, falls Du Dich umentscheidest.",
+      "chooseSectionTitle": "Mit welcher Sektion möchtest Du starten?",
+      "chooseSectionHelpText": "Sektionen teilen deine Arbeitsbühne in Bereiche, in denen du kreativ werden kannst. Du kannst Sektionen miteinander kombinieren und jederzeit wieder entfernen oder verschieben.",
+      "chooseNameTitle": "Wie soll Dein Layout heißen?",
+      "createLayout": "Layout erstellen",
+      "abortCreation": "Abbrechen"
+    },
     "detail": {
       "labelButtonSave": "Speichern",
       "headlineEmptyState": "Raum für Kreativität",
       "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt.",
       "sidebarTitlePageSettings": "Einstellungen",
       "sidebarHeaderPageSettings": "Basis-Informationen",
-      "labelPageName": "Name",
+      "labelPageName": "Layout Name",
       "labelPageType": "Layout Typ",
       "labelDemoEntity": "Vorschau-Datensatz",
       "placeholderDemoEntity": "Wähle einen Datensatz zur Vorschau ...",

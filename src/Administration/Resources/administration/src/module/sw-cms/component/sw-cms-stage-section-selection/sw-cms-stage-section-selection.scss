@@ -14,12 +14,12 @@
         justify-self: end;
     }
 
-    .sw-cms-stage-section-selection__full-width {
+    .sw-cms-stage-section-selection__default {
         justify-self: start;
     }
 
     .sw-cms-stage-section-selection__sidebar-preview,
-    .sw-cms-stage-section-selection__full-width-preview {
+    .sw-cms-stage-section-selection__default-preview {
         cursor: pointer;
         width: 200px;
         height: 112px;
@@ -35,7 +35,7 @@
     }
 
     .sw-cms-stage-section-selection__sidebar-preview-inner,
-    .sw-cms-stage-section-selection__full-width-preview-inner {
+    .sw-cms-stage-section-selection__default-preview-inner {
         height: 100%;
         width: 100%;
         border: 1px dashed $color-gray-300;

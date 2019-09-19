@@ -42,13 +42,22 @@
         "duplicate": "Duplicate"
       }
     },
+    "createWizard": {
+      "choosePageTypeTitle": "What kind of page would you like to create?",
+      "choosePageTypeHelpText": "These different layout types help you to find your layout faster in the administration. You can change the layout type at any time in the layout settings if you change your mind.",
+      "chooseSectionTitle": "Which section would you like to start with?",
+      "chooseSectionHelpText": "Sections divide your working platform into areas where you can get creative. You can combine sections and move or delete them at any time.",
+      "chooseNameTitle": "What should your layout be called?",
+      "createLayout": "Create layout",
+      "abortCreation": "Abort"
+    },
     "detail": {
       "labelButtonSave": "Save",
       "headlineEmptyState": "Space for creativity",
       "claimEmptyState": "Create new layouts by choosing a section. Start by choosing a section type, drag & drop blocks into any section and fill in your content.",
       "sidebarTitlePageSettings": "Settings",
       "sidebarHeaderPageSettings": "Basic information",
-      "labelPageName": "Name",
+      "labelPageName": "Layout name",
       "labelPageType": "Layout type",
       "labelDemoEntity": "Preview entity",
       "placeholderDemoEntity": "Select an entity to preview...",

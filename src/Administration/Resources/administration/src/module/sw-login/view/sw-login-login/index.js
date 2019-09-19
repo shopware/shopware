@@ -73,8 +73,7 @@ Component.register('sw-login-login', {
                 initializeUserNotifications();
             });
 
-            // check for plugin license violations
-            this.licenseViolationService.checkForLicenseViolations();
+            this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.showViolationsKey);
 
             return Promise.all([
                 animationPromise,

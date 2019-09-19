@@ -622,6 +622,18 @@
   "sw-inheritance-warning": {
     "infoTextInheritedField": "{moduleName} has inherited fields. Meaning that as long as the inherited state is active the content will be inherited. Inherited fields can be unlinked by clicking the link symbol. Clicking the symbol again will set the inherited state back."
   },
+  "sw-license-violation":{
+    "title": "Plugin warning(s)",
+    "reload": "Reload",
+    "alert-text": "We have detected a license violation for at least one of your plugins in this installation. To fix the license violation and avoid legal consequences, book the plugin subscription after or buy/rent the plugin (depending on the type of violation). You are not using the plugin anymore? Then delete it completely from the Plugin Manager. If none of these measure are taken, shopware AG reserves the right to charge for the license violation.",
+    "delete-plugin": "Delete plugin",
+    "checkbox-message": "I have taken this message to notice",
+    "close-modal": "Close notification",
+    "table": {
+      "plugin": "Plugin",
+      "warning": "Warning"
+    }
+  },
   "sw-sales-channel-switch": {
     "messageModalUnsavedChanges": "There are unsaved changes regarding the current sales channel. Do you want to save them now?",
     "placeholderSelect": "Search for...",

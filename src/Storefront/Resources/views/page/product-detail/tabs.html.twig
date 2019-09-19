@@ -29,7 +29,7 @@
                         {% block page_product_detail_tabs_navigation_review %}
                             {% if shopware.config.detail.showReviews %}
                                 <li class="nav-item">
-                                    <a class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1)  %}active{% endif %} product-detail-tab-navigation-link"
+                                    <a class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link"
                                        id="review-tab"
                                        data-toggle="tab"
                                        data-offcanvas-tabs="true"
@@ -55,7 +55,7 @@
                 {% block page_product_detail_tabs_content_container %}
                     <div class="tab-content">
                         {% block page_product_detail_tabs_content_description %}
-                            <div class="tab-pane fade show {% if (ratingSuccess != 1) and (ratingSuccess != -1)  %}active{% endif %}"
+                            <div class="tab-pane fade show {% if (ratingSuccess != 1) and (ratingSuccess != -1) %}active{% endif %}"
                                  id="description-tab-pane"
                                  role="tabpanel"
                                  aria-labelledby="description-tab">
@@ -65,10 +65,10 @@
 
                         {% block page_product_detail_tabs_content_review %}
                             {% if shopware.config.detail.showReviews %}
-                                <div class="tab-pane fade show {% if (ratingSuccess == 1) or (ratingSuccess == -1)  %}active{% endif %}"
+                                <div class="tab-pane fade show {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %}"
                                      id="review-tab-pane"
                                      role="tabpanel"
-                                     aria-labelledby="rewview-tab">
+                                     aria-labelledby="review-tab">
                                     {% sw_include '@Storefront/page/product-detail/review/review.html.twig' %}
                                 </div>
                             {% endif %}

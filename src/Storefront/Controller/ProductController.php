@@ -140,20 +140,29 @@ class ProductController extends StorefrontController
             ], ['productId' => $productId]);
         }
 
-        return $this->forward('Shopware\Storefront\Controller\ProductController::loadReviews', ['productId' => $productId, 'success' => 1]);
+        $forwardParams = [
+            'productId' => $productId,
+            'success' => 1,
+            'data' => $data,
+        ];
+
+        if ($data->has('id')) {
+            $forwardParams['success'] = 2;
+        }
+
+        return $this->forward('Shopware\Storefront\Controller\ProductController::loadReviews', $forwardParams);
     }
 
     /**
      * @Route("/product/{productId}/reviews", name="frontend.product.reviews", methods={"GET","POST"}, defaults={"XmlHttpRequest"=true})
      */
-    public function loadReviews(Request $request, SalesChannelContext $context): Response
+    public function loadReviews(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $page = $this->productPageLoader->load($request, $context);
 
         return $this->renderStorefront('page/product-detail/review/review.html.twig', [
             'page' => $page,
             'ratingSuccess' => $request->get('success'),
-            'data' => $request->get('data'),
         ]);
     }
 }

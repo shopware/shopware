@@ -135,7 +135,7 @@ class ProductRatingAverageIndexer implements IndexerInterface
         }
 
         // select productids of all reviews that have been updated
-        $sql = 'SELECT product_id FROM product_review WHERE product_review.id in (:ids) AND product_review.status=1';
+        $sql = 'SELECT product_id FROM product_review WHERE product_review.id in (:ids)';
 
         $results = $this->connection->executeQuery(
             $sql,
@@ -164,13 +164,13 @@ class ProductRatingAverageIndexer implements IndexerInterface
         }
 
         $sql = <<<SQL
-UPDATE product, product_review SET product.rating_average = (
+UPDATE product SET product.rating_average = (
     SELECT AVG(product_review.points)
     FROM product_review
-    WHERE product_review.product_id = IFNULL(product.parent_id, product.id) AND status = 1
+    WHERE product_review.product_id = IFNULL(product.parent_id, product.id) 
+    AND product_review.status = 1
 )
-WHERE product_review.product_id = IFNULL(product.parent_id, product.id) AND status = 1
-AND (product.id IN (:ids) OR product.parent_id IN (:ids))
+WHERE (product.id IN (:ids) OR product.parent_id IN (:ids))
 SQL;
 
         $productByteIds = Uuid::fromHexToBytesList($productIds);

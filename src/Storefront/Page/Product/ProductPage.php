@@ -29,19 +29,9 @@ class ProductPage extends Page
     protected $configuratorSettings;
 
     /**
-     * @var StorefrontSearchResult
+     * @var ReviewLoaderResult
      */
-    protected $reviews;
-
-    /**
-     * @var ProductReviewEntity|null
-     */
-    private $customerReview;
-
-    /**
-     * @var RatingMatrix
-     */
-    private $ratingMatrix;
+    private $reviewLoaderResult;
 
     public function getProduct(): SalesChannelProductEntity
     {
@@ -73,44 +63,33 @@ class ProductPage extends Page
         $this->configuratorSettings = $configuratorSettings;
     }
 
+    public function getReviewLoaderResult(): ReviewLoaderResult
+    {
+        return $this->reviewLoaderResult;
+    }
+
     public function setReviewLoaderResult(ReviewLoaderResult $result): void
     {
-        $this->setReviews($result->getReviews());
-        $this->setRatingMatrix($result->getMatrix());
-        $this->setCustomerReview($result->getCustomerReview());
+        $this->reviewLoaderResult = $result;
     }
 
     public function getReviews(): StorefrontSearchResult
     {
-        return $this->reviews;
+        return $this->reviewLoaderResult->getReviews();
     }
 
     public function getCustomerReview(): ?ProductReviewEntity
     {
-        return $this->customerReview;
+        return $this->reviewLoaderResult->getCustomerReview();
     }
 
     public function getRatingMatrix(): RatingMatrix
     {
-        return $this->ratingMatrix;
+        return $this->reviewLoaderResult->getMatrix();
     }
 
-    private function setReviews(StorefrontSearchResult $reviews): void
+    public function getTotalReviews(): int
     {
-        $this->reviews = $reviews;
-    }
-
-    private function setCustomerReview(?ProductReviewEntity $customerReview): ProductPage
-    {
-        $this->customerReview = $customerReview;
-
-        return $this;
-    }
-
-    private function setRatingMatrix(RatingMatrix $ratingMatrix): ProductPage
-    {
-        $this->ratingMatrix = $ratingMatrix;
-
-        return $this;
+        return $this->reviewLoaderResult->getTotalReviews();
     }
 }

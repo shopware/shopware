@@ -132,6 +132,27 @@
                                              :showSelection="false"
                                              :isLoading="loading.product"
                                              :showActions="true">
+                            {% block sw_product_detail_base_ratings_column_status %}
+                                <template slot="column-status" slot-scope="{ item }">
+                                    <sw-data-grid-column-boolean v-model="item.status" :isInlineEdit="false"/>
+                                </template>
+                            {% endblock %}
+                            {% block sw_product_detail_base_ratings_column_created_at %}
+                                <template slot="column-createdAt" slot-scope="{ item }">
+                                    {{ item.createdAt | date({hour: '2-digit', minute: '2-digit', second: '2-digit'}) }}
+                                </template>
+                            {% endblock %}
+                            {% block sw_product_detail_base_ratings_column_stars %}
+                                <template slot="column-points" slot-scope="{ item }">
+                                    <div class="sw-review-detail-base__stars">
+                                        <sw-icon v-for="i in item.points"
+                                                 :key="i"
+                                                 name="default-review-star-full"
+                                                 size="14">
+                                        </sw-icon>
+                                    </div>
+                                </template>
+                            {% endblock %}
                         </sw-one-to-many-grid>
                 </template>
             </sw-card>

@@ -107,10 +107,10 @@
       "cardTitleSeo": "SEO"
     },
     "reviewForm": {
-        "labelStatus": "Status",
+        "labelStatus": "Visible",
         "labelCreatedAt": "Created at",
         "labelPoints": "Stars",
-        "labelContent": "Review comment"
+        "labelContent": "Review"
     },
     "prices": {
       "cardTitlePriceRule": "New pricing rule",

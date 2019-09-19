@@ -1,4 +1,5 @@
 import template from './sw-review-list.html.twig';
+import './sw-review-list.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -22,7 +23,7 @@ Component.register('sw-review-list', {
         columns() {
             return [{
                 property: 'product',
-                dataIndex: 'product',
+                dataIndex: 'product.name',
                 label: this.$tc('sw-review.list.columnProduct'),
                 routerLink: 'sw.review.detail',
                 primary: true
@@ -30,8 +31,7 @@ Component.register('sw-review-list', {
             {
                 property: 'points',
                 dataIndex: 'points',
-                label: this.$tc('sw-review.list.columnPoints'),
-                align: 'center'
+                label: this.$tc('sw-review.list.columnPoints')
             },
             {
                 property: 'user',
@@ -81,6 +81,7 @@ Component.register('sw-review-list', {
             this.repository
                 .search(this.criteria, this.context)
                 .then((result) => {
+                    this.total = result.total;
                     this.items = result;
                     this.isLoading = false;
                 });

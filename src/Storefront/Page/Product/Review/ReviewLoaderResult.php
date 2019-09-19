@@ -23,11 +23,17 @@ class ReviewLoaderResult extends Struct
      */
     private $customerReview;
 
-    public function __construct(StorefrontSearchResult $storefrontSearchResult, RatingMatrix $matrix, ?ProductReviewEntity $customerReview)
+    /**
+     * @var int
+     */
+    private $totalReviews;
+
+    public function __construct(StorefrontSearchResult $storefrontSearchResult, RatingMatrix $matrix, ?ProductReviewEntity $customerReview, int $totalReviews)
     {
         $this->reviews = $storefrontSearchResult;
         $this->matrix = $matrix;
         $this->customerReview = $customerReview;
+        $this->totalReviews = $totalReviews;
     }
 
     public function getReviews(): StorefrontSearchResult
@@ -43,5 +49,10 @@ class ReviewLoaderResult extends Struct
     public function getCustomerReview(): ?ProductReviewEntity
     {
         return $this->customerReview;
+    }
+
+    public function getTotalReviews(): int
+    {
+        return $this->totalReviews;
     }
 }

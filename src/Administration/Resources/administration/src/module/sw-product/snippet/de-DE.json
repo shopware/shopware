@@ -107,8 +107,8 @@
       "cardTitleSeo": "SEO"
     },
     "reviewForm": {
-      "labelStatus": "Status",
-      "labelCreatedAt": "erstellt am",
+      "labelStatus": "Sichtbar",
+      "labelCreatedAt": "Erstellt am",
       "labelPoints": "Sterne",
       "labelContent": "Bewertungstext"
     },

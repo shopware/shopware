@@ -76,19 +76,10 @@ class Framework extends Bundle
     {
         parent::boot();
 
-        /** @var DefinitionInstanceRegistry $definitionRegistry */
-        $definitionRegistry = $this->container->get(DefinitionInstanceRegistry::class);
-
-        /** @var SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry */
-        $salesChannelDefinitionRegistry = $this->container->get(SalesChannelDefinitionInstanceRegistry::class);
-
-        /** @var ExtensionRegistry $extensionRegistry */
-        $extensionRegistry = $this->container->get(ExtensionRegistry::class);
-
         $this->registerEntityExtensions(
-            $definitionRegistry,
-            $salesChannelDefinitionRegistry,
-            $extensionRegistry
+            $this->container->get(DefinitionInstanceRegistry::class),
+            $this->container->get(SalesChannelDefinitionInstanceRegistry::class),
+            $this->container->get(ExtensionRegistry::class)
         );
     }
 

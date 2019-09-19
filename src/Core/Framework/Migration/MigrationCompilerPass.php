@@ -9,9 +9,7 @@ class MigrationCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        /** @var MigrationCollectionLoader $migrationCollector */
-        $migrationCollector = $container->get(MigrationCollection::class);
-
-        $container->setParameter('migration.active', $migrationCollector->getActiveMigrationTimestamps());
+        $migrationCollection = $container->get(MigrationCollection::class);
+        $container->setParameter('migration.active', $migrationCollection->getActiveMigrationTimestamps());
     }
 }

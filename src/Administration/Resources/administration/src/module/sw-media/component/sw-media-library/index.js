@@ -319,7 +319,7 @@ Component.register('sw-media-library', {
             newFolder.name = '';
             newFolder.parentId = this.folderId;
             if (this.folderId !== null) {
-                newFolder.configurationId = this.currentFolder.configuration.id;
+                newFolder.configurationId = this.currentFolder.configurationId;
                 newFolder.useParentConfiguration = true;
             } else {
                 const configuration = this.mediaFolderConfigurationStore.create();

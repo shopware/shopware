@@ -63,7 +63,7 @@
 
     .sw-cms-sidebar__block-category {
         padding: 10px 25px 25px 25px;
-        border-bottom: 1px solid $color-steam-cloud;
+        border-bottom: 1px solid $color-gray-300;
 
         .sw-field {
             margin: 0;
@@ -73,6 +73,22 @@
     .sw-cms-sidebar__block-selection {
         padding: 25px;
         overflow: auto;
+    }
+
+    .sw-cms-sidebar__navigator-section-spacer {
+        height: 1px;
+        background: $color-gray-300;
+        margin: 20px 0;
+    }
+
+    .sw-cms-sidebar__navigator-empty-element {
+        border: 1px dashed $color-gray-300;
+        background-color: #fff;
+        color: $color-gray-500;
+        padding: 8px 4px 8px 14px;
+        text-align: center;
+        //margin: 8px 0;
+        border-radius: 4px;
     }
 }
 
@@ -87,7 +103,7 @@
 
     &.is--dragging {
         box-shadow: none;
-        border: 1px dashed $color-steam-cloud;
+        border: 1px dashed $color-gray-300;
         background-color: $color-iron;
     }
 
@@ -111,50 +127,12 @@
     hr {
         max-width: 100px;
         margin: 0 auto 10px auto;
-        border: 2px solid $color-steam-cloud;
+        border: 2px solid $color-gray-300;
     }
 
     img {
         margin: 0;
         display: block;
         max-width: 100%;
-    }
-}
-
-.sw-cms-sidebar__navigator-element {
-    display: grid;
-    grid-template-columns: 1fr 28px 28px;
-    align-items: center;
-    align-content: center;
-    padding: 8px 4px 8px 14px;
-    margin: 8px 0;
-    border: 1px solid $color-steam-cloud;
-    background: $color-light-gray;
-    color: $color-gutenberg;
-    border-radius: 4px;
-    cursor: move;
-
-    &.is--drag-element {
-        border: 1px solid $color-shopware-blue;
-        box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
-
-        .navigator-element__action-duplicate,
-        .navigator-element__action-delete {
-            display: none;
-        }
-    }
-
-    &.is--dragging {
-        background: none;
-    }
-
-    .navigator-element__action-duplicate,
-    .navigator-element__action-delete {
-        line-height: 12px;
-        cursor: pointer;
-
-        &:hover {
-            color: $color-shopware-blue;
-        }
     }
 }

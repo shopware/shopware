@@ -19,7 +19,7 @@ class Migration1568120239CmsSection extends MigrationStep
               `id` BINARY(16) NOT NULL,
               `cms_page_id` BINARY(16) NOT NULL,
               `position` INT(11) NOT NULL,
-              `type` VARCHAR(255) NOT NULL DEFAULT = 'default',
+              `type` VARCHAR(255) NOT NULL DEFAULT 'default',
               `name`  VARCHAR(255) NULL,
               `locked` tinyint(1) NOT NULL DEFAULT '0',
               `sizing_mode` VARCHAR(255) NOT NULL DEFAULT 'boxed',

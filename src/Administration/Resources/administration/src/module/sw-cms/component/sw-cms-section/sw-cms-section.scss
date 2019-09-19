@@ -7,6 +7,7 @@
     padding: 20px;
     min-height: 480px;
     display: grid;
+    border-top: 1px solid $color-gray-300;
 
     &.has--shadow-top {
         box-shadow: 0 -5px 5px -5px #d1d9e0;
@@ -45,6 +46,7 @@
     .sw-cms-section__sidebar,
     .sw-cms-section__content {
         position: relative;
+        display: grid;
 
         &.is--empty {
             border: 2px dashed $color-gray-300;

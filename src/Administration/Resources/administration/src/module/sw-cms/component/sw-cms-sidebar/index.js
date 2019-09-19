@@ -1,8 +1,8 @@
 import template from './sw-cms-sidebar.html.twig';
 import './sw-cms-sidebar.scss';
 
-const { Component, Mixin } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+const {Component, Mixin} = Shopware;
+const {cloneDeep} = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
 
@@ -54,7 +54,7 @@ Component.register('sw-cms-sidebar', {
         return {
             demoEntityId: this.demoEntityIdProp,
             currentBlockCategory: 'text',
-            currentDeviceView: this.$store.state.currentCmsDeviceView
+            currentDeviceView: this.$store.state.currentCmsDeviceView,
         };
     },
 
@@ -132,12 +132,19 @@ Component.register('sw-cms-sidebar', {
             }
 
             const sectionHasBlock = this.page.sections[dropSectionIndex].blocks.has(dragData.block.id);
+
             if (dragSectionIndex !== dropSectionIndex && !sectionHasBlock) {
                 this.page.sections[dragSectionIndex].blocks.remove(dragData.block.id);
 
                 dragData.block.isDragging = true;
 
                 this.page.sections[dropSectionIndex].blocks.add(dragData.block);
+            }
+
+            console.log(dragData.block, dropData.block);
+            // ToDo: make this work over sections
+            if (dragData.block.sectionPosition !== dropData.block.sectionPosition) {
+                dragData.block.sectionPosition = dropData.block.sectionPosition;
             }
 
             this.page.sections[dropSectionIndex].blocks.moveItem(dragData.block.position, dropData.block.position);
@@ -253,6 +260,32 @@ Component.register('sw-cms-sidebar', {
 
         uploadTag(section) {
             return `cms-section-media-config-${section.id}`;
+        },
+
+        getMainContentBlocks(sectionBlocks) {
+            return sectionBlocks.filter((block) => block.sectionPosition === 'main');
+        },
+
+        getSidebarContentBlocks(sectionBlocks) {
+            return sectionBlocks.filter((block) => block.sectionPosition === 'sidebar');
+        },
+
+        getDragData(block, sectionIndex) {
+            return {
+                delay: 300,
+                dragGroup: 'cms-navigator',
+                data: { block, sectionIndex },
+                validDragCls: null,
+                onDragEnter: this.onBlockDragSort
+            };
+        },
+
+        getDropData(block, sectionIndex) {
+            return {
+                dragGroup: 'cms-navigator',
+                data: { block, sectionIndex },
+                onDrop: this.onBlockDragStop
+            };
         }
     }
 });

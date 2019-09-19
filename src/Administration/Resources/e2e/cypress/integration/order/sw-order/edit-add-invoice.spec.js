@@ -55,8 +55,10 @@ describe('Order: Test order state', () => {
         // Find documents
         cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
         cy.clickContextMenuItem(
-            '.sw-context-menu-item:nth-of-type(3)',
-            '.sw-order-document-grid-button'
+            '.sw-context-menu-item',
+            '.sw-order-document-grid-button',
+            null,
+            'Invoice'
         );
 
         // Generate invoice
@@ -68,11 +70,25 @@ describe('Order: Test order state', () => {
         // Verify invoice
         cy.wait('@createDocumentCall').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
+            expect(xhr.responseBody).to.have.property('documentId');
+            expect(xhr.responseBody).to.have.property('documentDeepLink');
+
+            const documentId = xhr.response.body.documentId;
+            const documentDeepLink = xhr.response.body.documentDeepLink;
+
+            return cy.request(`/api/v1/_action/document/${documentId}/${documentDeepLink}`);
+        }).then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+            expect(xhr.headers).to.have.property('content-type', 'application/pdf');
         });
+
         cy.wait('@findDocumentCall').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0')
             .contains('Invoice');
+
+        cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0 .sw-data-grid__cell--actions .sw-context-button').click();
+        cy.get('.sw-context-menu-item').contains('Download');
     });
 });

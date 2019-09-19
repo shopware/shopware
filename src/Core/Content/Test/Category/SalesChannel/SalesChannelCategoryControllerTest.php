@@ -256,7 +256,7 @@ class SalesChannelCategoryControllerTest extends TestCase
             'aggregations' => [
                 [
                     'name' => 'category-names',
-                    'type' => 'value_count',
+                    'type' => 'terms',
                     'field' => 'category.name',
                 ],
             ],
@@ -277,11 +277,11 @@ class SalesChannelCategoryControllerTest extends TestCase
         static::assertArrayHasKey('aggregations', $content);
         static::assertArrayHasKey('category-names', $content['aggregations']);
 
-        usort($content['aggregations']['category-names'], function ($a, $b) {
+        usort($content['aggregations']['category-names']['buckets'], function ($a, $b) {
             return $a['key'] <=> $b['key'];
         });
 
-        $values = $content['aggregations']['category-names'][0]['values'];
+        $values = $content['aggregations']['category-names']['buckets'];
 
         static::assertContains(['key' => 'A', 'count' => '2', 'extensions' => []], $values);
         static::assertContains(['key' => 'B', 'count' => '1', 'extensions' => []], $values);

@@ -10,8 +10,7 @@ use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -119,13 +118,10 @@ class ProductListingTest extends TestCase
             $this->testData->getId('product5-green'),
         ]);
 
-        /** @var AggregationResult $optionsAggregation */
-        $optionsAggregation = $listing->getAggregations()->get('options');
+        /** @var EntityResult $result */
+        $result = $listing->getAggregations()->get('options');
 
-        /** @var EntityResult $optionsResult */
-        $optionsResult = $optionsAggregation->getResult()[0];
-
-        $options = $optionsResult->getEntities();
+        $options = $result->getEntities();
 
         static::assertTrue($options->has($this->testData->getId('green')));
         static::assertTrue($options->has($this->testData->getId('red')));

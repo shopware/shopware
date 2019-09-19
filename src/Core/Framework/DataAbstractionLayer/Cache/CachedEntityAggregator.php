@@ -5,9 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -54,9 +54,13 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         $this->expirationTime = $expirationTime;
     }
 
-    public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregatorResult
+    public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
         if (!$this->enabled) {
+            return $this->decorated->aggregate($definition, $criteria, $context);
+        }
+
+        if (!$context->getUseCache()) {
             return $this->decorated->aggregate($definition, $criteria, $context);
         }
 
@@ -72,7 +76,7 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         $fallback = array_diff(array_values($names), array_values($result->getKeys()));
 
         if (empty($fallback)) {
-            return new AggregatorResult($result, $context, $criteria);
+            return $result;
         }
 
         //clone criteria to only load aggregations from storage which are not loaded from cache
@@ -89,29 +93,29 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         $this->cacheResult($definition, $context, $criteria, $persistent);
         $this->cache->commit();
 
-        foreach ($persistent->getAggregations() as $item) {
+        foreach ($persistent as $item) {
             $result->add($item);
         }
 
-        return new AggregatorResult($result, $context, $criteria);
+        return $result;
     }
 
-    private function cacheResult(EntityDefinition $definition, Context $context, Criteria $criteria, AggregatorResult $result): void
+    private function cacheResult(EntityDefinition $definition, Context $context, Criteria $criteria, AggregationResultCollection $aggregations): void
     {
-        /** @var AggregationResult $aggregationResult */
-        foreach ($result->getAggregations() as $aggregationResult) {
-            $key = $this->cacheKeyGenerator->getAggregationCacheKey(
-                $aggregationResult->getAggregation(),
-                $definition,
-                $criteria,
-                $context
-            );
+        foreach ($criteria->getAggregations() as $aggregation) {
+            $result = $this->getAggregationResult($aggregation, $aggregations);
 
-            $tags = $this->cacheKeyGenerator->getAggregationTags($definition, $criteria, $aggregationResult->getAggregation());
+            if (!$result) {
+                continue;
+            }
+
+            $key = $this->cacheKeyGenerator->getAggregationCacheKey($aggregation, $definition, $criteria, $context);
+
+            $tags = $this->cacheKeyGenerator->getAggregationTags($definition, $criteria, $aggregation);
 
             /** @var CacheItem $item */
             $item = $this->cache->getItem($key);
-            $item->set($aggregationResult);
+            $item->set($result);
             $item->tag($tags);
             $item->expiresAfter($this->expirationTime);
 
@@ -137,5 +141,14 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         }
 
         return new AggregationResultCollection(array_filter($filtered));
+    }
+
+    private function getAggregationResult(Aggregation $aggregation, AggregationResultCollection $aggregations): ?AggregationResult
+    {
+        if ($aggregation instanceof FilterAggregation) {
+            return $this->getAggregationResult($aggregation->getAggregation(), $aggregations);
+        }
+
+        return $aggregations->get($aggregation->getName());
     }
 }

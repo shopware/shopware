@@ -36,12 +36,11 @@ Component.register('sw-mail-template-list', {
             this.mailTemplates = null;
 
             const criteria = new Criteria(this.page, this.limit);
-            const mailTemplateSalesChannelCriteria = new Criteria();
 
-            mailTemplateSalesChannelCriteria.setLimit(10);
-            mailTemplateSalesChannelCriteria.addAssociation('salesChannel');
+            criteria.getAssociation('salesChannels')
+                .setLimit(10)
+                .addAssociation('salesChannel');
 
-            criteria.addAssociation('salesChannels', mailTemplateSalesChannelCriteria);
             criteria.addAssociation('mailTemplateType');
 
             this.mailTemplateRepository.search(criteria, this.context).then((items) => {

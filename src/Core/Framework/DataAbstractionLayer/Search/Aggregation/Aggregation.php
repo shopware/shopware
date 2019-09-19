@@ -3,18 +3,38 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Struct\Struct;
 
-interface Aggregation extends CriteriaPartInterface
+abstract class Aggregation extends Struct implements CriteriaPartInterface
 {
-    public function getField(): string;
-
-    public function getName(): string;
+    /**
+     * @var string
+     */
+    protected $field;
 
     /**
-     * @return string[]
+     * @var string
      */
-    public function getGroupByFields(): array;
+    protected $name;
 
-    public function getFilter(): ?MultiFilter;
+    public function __construct(string $name, string $field)
+    {
+        $this->field = $field;
+        $this->name = $name;
+    }
+
+    public function getField(): string
+    {
+        return $this->field;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getFields(): array
+    {
+        return [$this->field];
+    }
 }

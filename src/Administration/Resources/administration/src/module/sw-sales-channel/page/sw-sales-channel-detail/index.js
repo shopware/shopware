@@ -118,10 +118,8 @@ Component.register('sw-sales-channel-detail', {
             const criteria = new Criteria(1, 100);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'sales_channel'));
-            criteria.addAssociation(
-                'customFields',
-                (new Criteria(1, 100)).addSorting(Criteria.sort('config.customFieldPosition'))
-            );
+            criteria.getAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition'));
 
             this.customFieldRepository
                 .search(criteria, this.context)

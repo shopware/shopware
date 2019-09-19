@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 
@@ -93,11 +94,17 @@ class IndexingMessageHandler extends AbstractMessageHandler
         }
 
         // index found entities
-        $this->client->bulk([
+        $result = $this->client->bulk([
             'index' => $index,
             'type' => $definition->getEntityDefinition()->getEntityName(),
             'body' => $documents,
         ]);
+
+        if (isset($result['errors'])) {
+            $errors = $this->parseErrors($result);
+
+            throw new ElasticsearchIndexingException($errors);
+        }
     }
 
     private function createDocuments(AbstractElasticsearchDefinition $definition, iterable $entities): array
@@ -119,5 +126,26 @@ class IndexingMessageHandler extends AbstractMessageHandler
         }
 
         return $documents;
+    }
+
+    private function parseErrors(array $result): array
+    {
+        $errors = [];
+        foreach ($result['items'] as $item) {
+            $item = $item['index'];
+
+            if (in_array($item['status'], [200, 201], true)) {
+                continue;
+            }
+
+            $errors[] = [
+                'index' => $item['_index'],
+                'id' => $item['_id'],
+                'type' => $item['error']['type'],
+                'reason' => $item['error']['reason'],
+            ];
+        }
+
+        return $errors;
     }
 }

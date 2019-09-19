@@ -87,12 +87,9 @@ Component.register('sw-product-detail-variants', {
         loadOptions() {
             return new Promise((resolve) => {
                 const criteria = new Criteria();
-                const configuratorSettingsCriteria = new Criteria();
-                configuratorSettingsCriteria.setLimit(500);
-                configuratorSettingsCriteria.addAssociation('option');
 
-                criteria.addAssociation('configuratorSettings', configuratorSettingsCriteria);
-                criteria.addAssociation('prices', new Criteria(1, 500));
+                criteria.addAssociation('configuratorSettings.option');
+                criteria.addAssociation('prices');
 
                 this.productRepository.get(this.product.id, this.context, criteria).then((product) => {
                     this.productEntity = product;

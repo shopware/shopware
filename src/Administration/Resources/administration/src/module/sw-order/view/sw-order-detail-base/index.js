@@ -118,19 +118,18 @@ Component.register('sw-order-detail-base', {
         orderCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
-            criteria.addAssociationPaths([
-                'lineItems',
-                'currency',
-                'orderCustomer',
-                'language',
-                'salesChannel',
-                'addresses.country',
-                'deliveries.shippingMethod',
-                'deliveries.shippingOrderAddress',
-                'transactions.paymentMethod',
-                'documents.documentType',
-                'tags'
-            ]);
+            criteria
+                .addAssociation('lineItems')
+                .addAssociation('currency')
+                .addAssociation('orderCustomer')
+                .addAssociation('language')
+                .addAssociation('salesChannel')
+                .addAssociation('addresses.country')
+                .addAssociation('deliveries.shippingMethod')
+                .addAssociation('deliveries.shippingOrderAddress')
+                .addAssociation('transactions.paymentMethod')
+                .addAssociation('documents.documentType')
+                .addAssociation('tags');
 
             return criteria;
         }

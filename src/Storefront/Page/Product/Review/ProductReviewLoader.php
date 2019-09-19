@@ -4,8 +4,9 @@ namespace Shopware\Storefront\Page\Product\Review;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\CountAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -62,12 +63,11 @@ class ProductReviewLoader
 
         $this->eventDispatcher->dispatch(new ProductReviewsLoadedEvent($reviews, $context, $request));
 
-        /** @var AggregationResult|null $aggregation */
         $aggregation = $reviews->getAggregations()->get('ratingMatrix');
         $matrix = new RatingMatrix([]);
 
-        if ($aggregation instanceof AggregationResult) {
-            $matrix = new RatingMatrix($aggregation->getResult());
+        if ($aggregation instanceof TermsResult) {
+            $matrix = new RatingMatrix($aggregation->getBuckets());
         }
 
         $customerReview = $this->loadProductCustomerReview($request, $context);
@@ -120,7 +120,7 @@ class ProductReviewLoader
      * @throws MissingRequestParameterException
      * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
-    private function createReviewCriteria(Request $request, bool $loadAggregation = true): Criteria
+    private function createReviewCriteria(Request $request): Criteria
     {
         $productId = $request->get('productId');
         if (!$productId) {
@@ -158,11 +158,13 @@ class ProductReviewLoader
             $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $pointFilter));
         }
 
-        if ($loadAggregation) {
-            $aggregation = new CountAggregation('id', 'ratingMatrix', 'points');
-            $aggregation->addFilter(new EqualsFilter('status', 1));
-            $criteria->addAggregation($aggregation);
-        }
+        $criteria->addAggregation(
+            new FilterAggregation(
+                'status-filter',
+                new TermsAggregation('ratingMatrix', 'points'),
+                [new EqualsFilter('status', 1)]
+            )
+        );
 
         return $criteria;
     }

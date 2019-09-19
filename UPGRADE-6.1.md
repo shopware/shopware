@@ -50,6 +50,61 @@ Core
     1. simple iteration: `\Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer::partial`
     2. iteration with several ids: `\Shopware\Core\Content\Category\DataAbstractionLayer\Indexing\BreadcrumbIndexer::partial`
 
+* If you have implemented the `\Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface`, you need to return now a `\Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection`
+* We changed the constructor parameter order of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation`
+* Aggregations are now returned directly in a collection:
+    ```php
+    $criteria->addAggregation(
+        new SumAggregation('sum-price', 'product.price')
+    );
+    
+    $result = $this->repository->search($criteria, $context);
+
+    /** @var SumResult $sum */
+    $sum = $result->getAggregations()->get('sum-price');
+    
+    $sum->getSum();
+    ```
+* `ValueCountAggregation` and `ValueAggregation` removed, use `TermsAggregation` instead. 
+    ```php
+    $criteria->addAggregation(
+        new TermsAggregation('category-ids', 'product.categories.id')
+    );
+    
+    $result = $this->repository->aggregate($criteria, $context);
+    
+    /** @var TermsResult $categoryAgg */
+    $categoryAgg = $result->get('category-ids');
+    
+    foreach ($categoryAgg->getBuckets() as $bucket) {
+        $categoryId = $bucket->getKey();
+        $count = $bucket->getCount();
+    }
+    ```
+* We changed the type hint of `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent::getResult` to `AggregationResultCollection`
+* We removed the `Aggregation::groupByFields` and `Aggregation::filters` property, use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation` and `\Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation` instead
+    ```php
+    $criteria->addAggregation(
+        new FilterAggregation(
+            'filter',
+            new TermsAggregation('category-ids', 'product.categories.id'),
+            [new EqualsAnyFilter('product.active', true)]
+        )
+    );
+    ```
+
+* We removed the default api limit for association. Associations are no longer paginated by default. In order to load the association paginated, the limit and page parameter can be sent along:
+    ```json
+    {
+       "associations": {
+          "categories": {
+              "page": 2,
+              "limit": 5
+          }
+       }
+    }
+    ```
+
 Administration
 --------------
 
@@ -190,6 +245,27 @@ See `2019-09-02-cms-remove-store.md` for more information
         * `entity` contains components working with the api such as `sw-entity-multi-select` or `sw-entity-tag-select`
     * Components work with v-model and do not mutate the value property anymore
     * Components are based on the sw-field base components to provide a consistent styling, error handling etc for all form fields
+* We unified the implementation of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` and the Admin criteria `src/core/data-new/criteria.data.js`
+    * Removed `addAssociationPath`
+    * Changed signature of `addAssociation`
+        ```js
+        addAssociation(path);
+        ```
+    * `addAssociation` now only ensures that the association is loaded as well. No Criteria can be passed anymore. The function supports instead the specification of a nested path. The function always returns the criteria it is called on to allow chaining to continue. 
+         
+        ```js
+        const criteria = new Criteria();
+        criteria.addAssociation('product.categories.media')
+           .addAssociation('product.cover')
+           .addAssociation('product.media');
+        ```
+    * The `getAssociation` function now accepts the passing of a nested path. Furthermore, the function now ensures that a criteria is created for each path segment. Then it returns the criteria for the last path segment.
+        ```js
+        const criteria = new Criteria();
+        const mediaCriteria = criteria.getAssociation('product.categories.media');
+        mediaCriteria.addSorting(Criteria.sort('media.fileName', 'ASC'))
+        mediaCriteria.addFilter(Criteria.equals('fileName', 'testImage'));
+        ```
 
 Storefront
 ----------

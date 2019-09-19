@@ -255,11 +255,11 @@ Component.register('sw-cms-detail', {
         loadPage(pageId) {
             this.isLoading = true;
             const criteria = new Criteria(1, 1);
-            const blockCriteria = new Criteria(1, 500);
-            blockCriteria.addSorting(Criteria.sort('position', 'ASC', true));
-            blockCriteria.addAssociation('slots', new Criteria(1, 500));
-            blockCriteria.addAssociation('backgroundMedia', new Criteria(1, 1));
-            criteria.addAssociation('blocks', blockCriteria);
+
+            criteria.getAssociation('blocks')
+                .addSorting(Criteria.sort('position', 'ASC', true))
+                .addAssociation('slots')
+                .addAssociation('backgroundMedia');
 
             this.pageRepository.get(pageId, this.context, criteria).then((page) => {
                 this.page = { blocks: [] };

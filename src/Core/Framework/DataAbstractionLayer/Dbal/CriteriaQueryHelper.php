@@ -82,11 +82,11 @@ trait CriteriaQueryHelper
             $this->getDefinitionHelper()->resolveAntiJoinAccessors($fieldName, $definition, $table, $query, $context, $antiJoinConditions);
         }
 
-        $this->applyFilter($definition, $filter, $query, $context);
+        $this->addFilter($definition, $filter, $query, $context);
 
         $this->addQueries($definition, $criteria, $query, $context);
 
-        $this->addSortings($definition, $criteria, $query, $context);
+        $this->addSortings($definition, $criteria->getSorting(), $query, $context);
 
         return $query;
     }
@@ -110,6 +110,24 @@ trait CriteriaQueryHelper
         }
 
         $this->addIdConditionWithOr($criteria, $definition, $query);
+    }
+
+    protected function addFilter(EntityDefinition $definition, ?Filter $filter, QueryBuilder $query, Context $context): void
+    {
+        if (!$filter) {
+            return;
+        }
+
+        $parsed = $this->getParser()->parse($filter, $definition, $context);
+
+        if (empty($parsed->getWheres())) {
+            return;
+        }
+
+        $query->andWhere(implode(' AND ', $parsed->getWheres()));
+        foreach ($parsed->getParameters() as $key => $value) {
+            $query->setParameter($key, $value, $parsed->getType($key));
+        }
     }
 
     private function addIdConditionWithOr(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
@@ -145,24 +163,6 @@ trait CriteriaQueryHelper
         $wheres = implode(' OR ', $wheres);
 
         $query->andWhere($wheres);
-    }
-
-    private function applyFilter(EntityDefinition $definition, ?Filter $filter, QueryBuilder $query, Context $context): void
-    {
-        if (!$filter) {
-            return;
-        }
-
-        $parsed = $this->getParser()->parse($filter, $definition, $context);
-
-        if (empty($parsed->getWheres())) {
-            return;
-        }
-
-        $query->andWhere(implode(' AND ', $parsed->getWheres()));
-        foreach ($parsed->getParameters() as $key => $value) {
-            $query->setParameter($key, $value, $parsed->getType($key));
-        }
     }
 
     private function addQueries(EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
@@ -201,9 +201,9 @@ trait CriteriaQueryHelper
         }
     }
 
-    private function addSortings(EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
+    private function addSortings(EntityDefinition $definition, array $sortings, QueryBuilder $query, Context $context): void
     {
-        foreach ($criteria->getSorting() as $sorting) {
+        foreach ($sortings as $sorting) {
             $this->validateSortingDirection($sorting->getDirection());
 
             if ($sorting->getField() === '_score') {

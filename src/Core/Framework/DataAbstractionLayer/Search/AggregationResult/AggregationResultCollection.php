@@ -18,12 +18,17 @@ class AggregationResultCollection extends Collection
      */
     public function add($result): void
     {
-        $this->set($result->getAggregation()->getName(), $result);
+        $this->set($result->getName(), $result);
     }
 
     public function get($name): ?AggregationResult
     {
         return $this->elements[$name] ?? null;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->elements;
     }
 
     protected function getExpectedClass(): ?string

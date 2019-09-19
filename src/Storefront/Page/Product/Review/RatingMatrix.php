@@ -2,7 +2,8 @@
 
 namespace Shopware\Storefront\Page\Product\Review;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\CountResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\Struct\Struct;
 
 class RatingMatrix extends Struct
@@ -27,15 +28,15 @@ class RatingMatrix extends Struct
     /**
      * we expect an array of CountResult elements
      * we are doing all calculation in constructor
+     *
+     * @param Bucket[] $matrix
      */
     public function __construct(array $matrix)
     {
         for ($points = self::MAX_POINTS; $points > 0; --$points) {
-            /** @var CountResult $rating */
+            /** @var Bucket $rating */
             foreach ($matrix as $rating) {
-                $key = array_key_exists('product.reviews.points', $rating->getKey()) ? 'product.reviews.points' : 'points';
-
-                if ($points === (int) $rating->getKey()[$key]) {
+                if ($points === (int) $rating->getKey()) {
                     $this->totalPoints += ($points * $rating->getCount());
 
                     $this->totalReviewCount += $rating->getCount();

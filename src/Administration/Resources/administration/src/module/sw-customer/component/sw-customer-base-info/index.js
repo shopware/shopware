@@ -81,7 +81,7 @@ Component.register('sw-customer-base-info', {
             criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
             this.orderRepository.search(criteria, this.context).then((response) => {
                 this.orderCount = response.total;
-                this.orderAmount = response.aggregations.orderAmount[0].sum;
+                this.orderAmount = response.aggregations.orderAmount.sum;
             });
         },
 

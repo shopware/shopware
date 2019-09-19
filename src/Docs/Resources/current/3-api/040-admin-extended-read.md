@@ -44,28 +44,60 @@ Aggregations are a powerful tool which allows you to gather statistical data abo
 
 The following aggregations are currently supported:
 
-| Description                                           | API name     | Type   | Return values             |
-| ----------------------------------------------------- | ------------ | ------ | ------------------------- |
-| Average of all numeric values for the specified field | avg          | int    | avg                       |
-| An approximate count of distinct values               | cardinality  | int    | cardinality               |
-| Number of records for the specified field             | count        | int    | count                     |
-| Maximal value for the specified field                 | max          | number | max                       |
-| Minimal value for the specified field                 | min          | number | min                       |
-| Stats over all numeric values for the specified field | stats        | object | count, avg, sum, min, max |
-| Sum of all numeric values for the specified field     | sum          | number | sum                       |
-| Number of unique values for the specified field       | value\_count | int    | count                     |
+| Description                                           | API name     | Type     | Return values             |
+| ----------------------------------------------------- | ------------ | -------- | ------------------------- |
+| Average of all numeric values for the specified field | avg          | int      | avg                       |
+| An approximate count of distinct values               | cardinality  | int      | cardinality               |
+| Number of records for the specified field             | count        | int      | count                     |
+| Maximal value for the specified field                 | max          | number   | max                       |
+| Minimal value for the specified field                 | min          | number   | min                       |
+| Stats over all numeric values for the specified field | stats        | object   | count, avg, sum, min, max |
+| Sum of all numeric values for the specified field     | sum          | number   | sum                       |
+| Grouping for the specific field                       | histogram    | object[] | key, count                |
+| Date interval grouping for the specific field         | terms        | object[] | key, count                |
 
 **Example:**
 
 **POST /api/v1/search/category**
 
-
 ```javascript
     const data = {
-        aggregations: {
-            product_count: { count: { field: "category.products.id" } }
-        }
+        "limit": 1,
+        "aggregations": [
+            { "name": "product-count", "type": "count", "field": "product.id" },
+            { "name": "avg-price", "type": "avg", "field": "product.price" },
+            { "name": "max-price", "type": "max", "field": "product.price" },
+            { "name": "min-price", "type": "min", "field": "product.price" },
+            { "name": "stats-price", "type": "stats", "field": "product.price" },
+            { "name": "sum-price", "type": "sum", "field": "product.price" },
+            { 
+                "name": "filter", 
+                "type": "filter", 
+                "filter": [
+                    { "type": "equals", "field": "product.active", "value": true }
+                ], 
+                "aggregation": { "name": "filtered-avg-price", "type": "avg", "field": "product.price" } 
+            },
+            {
+                "name": "manufacturer-ids",
+                "type": "terms",
+                "field": "product.manufacturerId"
+            },
+            {
+                "name": "release-histogram",
+                "type": "histogram",
+                "field": "product.releaseDate",
+                "interval": "month"
+            },
+            {
+                "name": "manufacturers",
+                "type": "entity",
+                "definition": "product_manufacturer",
+                "field": "product.manufacturerId"
+            }
+        ]
     };
+
     const headers = { 
         "Content-Type": "application/json",
         "Authorization": "Bearer " + bearerToken
@@ -84,11 +116,99 @@ The following aggregations are currently supported:
 ```
 
 ```json
-    {
-        "aggregations": {
-            "product_count": { "count": { "field": "category.product.id" } }
-        }
+{
+    "aggregations": {
+        "product-count": {
+            "count": 60,
+            "extensions": []
+        },
+        "avg-price": {
+            "avg": 521.8666666666667,
+            "extensions": []
+        },
+        "max-price": {
+            "max": "996",
+            "extensions": []
+        },
+        "min-price": {
+            "min": "10",
+            "extensions": []
+        },
+        "stats-price": {
+            "min": "10",
+            "max": "996",
+            "avg": 521.8666666666667,
+            "sum": 31312,
+            "extensions": []
+        },
+        "sum-price": {
+            "sum": 31312,
+            "extensions": []
+        },
+        "filtered-avg-price": {
+            "avg": 521.8666666666667,
+            "extensions": []
+        },
+        "manufacturer-ids": {
+            "buckets": [
+                {
+                    "key": "a22b9ab55e9942e5ace8ad9577b4a3f2",
+                    "count": 2,
+                    "extensions": []
+                },
+                {
+                    "key": "eda7011de40f46e0a9513ceaf0fa4a31",
+                    "count": 1,
+                    "extensions": []
+                },
+                {
+                    "key": "cb84dcd7b23a4014a2cc1cf08a0d3e1f",
+                    "count": 3,
+                    "extensions": []
+                }
+                // ...
+            ],
+            "extensions": []
+        },
+        "release-histogram": {
+            "buckets": [
+                {
+                    "key": "2019-09-01 00:00:00",
+                    "count": 60,
+                    "extensions": []
+                }
+            ],
+            "extensions": []
+        },
+        "manufacturers": {
+            "entities": [
+                {
+                    "mediaId": null,
+                    "name": "Cronin, Heidenreich and White",
+                    "link": "http://okon.com/et-doloribus-quas-modi-similique.html",
+                    "description": null,
+                    "media": null,
+                    "translations": null,
+                    "products": null,
+                    "customFields": null,
+                    "_uniqueIdentifier": "a22b9ab55e9942e5ace8ad9577b4a3f2",
+                    "versionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
+                    "translated": {
+                        "name": "Cronin, Heidenreich and White",
+                        "description": null,
+                        "customFields": []
+                    },
+                    "createdAt": "2019-09-16T06:48:31+00:00",
+                    "updatedAt": null,
+                    "extensions": [],
+                    "id": "a22b9ab55e9942e5ace8ad9577b4a3f2"
+                }
+                // ...
+            ],
+            "extensions": []
+        }
     }
+}
 ```
 
 ## Simple schema

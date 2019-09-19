@@ -69,10 +69,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         ksort($definitions);
 
         foreach ($definitions as $definition) {
-            if (preg_match('/_translation$/', $definition->getEntityName())) {
-                continue;
-            }
-
             $entity = $definition->getEntityName();
 
             $schema[$entity] = $this->getEntitySchema($definition);

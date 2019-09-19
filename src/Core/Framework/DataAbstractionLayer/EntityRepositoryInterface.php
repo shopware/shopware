@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -13,7 +13,7 @@ interface EntityRepositoryInterface
 {
     public function getDefinition(): EntityDefinition;
 
-    public function aggregate(Criteria $criteria, Context $context): AggregatorResult;
+    public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection;
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult;
 

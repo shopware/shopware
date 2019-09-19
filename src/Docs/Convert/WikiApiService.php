@@ -400,6 +400,11 @@ class WikiApiService
             [
                 'json' => [
                     'product' => ['id' => 4, 'name' => 'PF', 'label' => 'Shopware 6'],
+                    'tags' => [
+                        0 => [
+                            'name' => 'ratingDisabled',
+                        ],
+                    ]
                 ],
                 'headers' => $this->getBasicHeaders(),
             ]

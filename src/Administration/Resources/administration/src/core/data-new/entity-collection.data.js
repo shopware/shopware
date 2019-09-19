@@ -100,9 +100,9 @@ export default class EntityCollection extends Array {
         };
 
         /**
-         * If the entity already exists in the collection, it will be replaced with the new one
+         * Adds a new item to the collection
          * @param {Entity} e
-         * @returns {boolean}
+         * @returns {number}
          */
         this.add = function addEntityToCollection(e) {
             this.push(e);
@@ -114,6 +114,11 @@ export default class EntityCollection extends Array {
          * @param {Number} insertIndex
          */
         this.addAt = function addEntityAtIndexOfCollection(e, insertIndex) {
+            if (typeof insertIndex === 'undefined') {
+                this.add(e);
+                return;
+            }
+
             this.splice(insertIndex, 0, e);
         };
 
@@ -123,12 +128,20 @@ export default class EntityCollection extends Array {
          * @param {Number} newIndex
          * @return {Object}
          */
-        this.moveItem = function moveEntityToNewIndexInCollection(oldIndex, newIndex) {
-            if (newIndex === oldIndex) {
+        this.moveItem = function moveEntityToNewIndexInCollection(oldIndex, newIndex = this.length) {
+            if (oldIndex < 0 || oldIndex >= this.length) {
                 return null;
             }
 
+            if (newIndex === oldIndex) {
+                return this.getAt(oldIndex);
+            }
+
             const movedItem = this.find((item, index) => index === oldIndex);
+            if (typeof movedItem === 'undefined') {
+                return null;
+            }
+
             const remainingItems = this.filter((item, index) => index !== oldIndex);
 
             const orderedItems = [
@@ -140,6 +153,25 @@ export default class EntityCollection extends Array {
             this.splice(0, this.length, ...orderedItems);
 
             return movedItem;
+        };
+
+        /**
+         * Filters an EntityCollection and preserves its type. Resets criteria and total since it would mismatch.
+         * @param {function} callback
+         * @param {Object} scope
+         * @return {Object}
+         */
+        this.filter = function filterEntityCollection(callback, scope) {
+            const filtered = Object.getPrototypeOf(this).filter.call(this, callback, scope);
+            return new EntityCollection(
+                this.source,
+                this.entity,
+                this.context,
+                this.criteria,
+                filtered,
+                this.total,
+                this.aggregations
+            );
         };
     }
 }

@@ -47,6 +47,7 @@ You can use them with every URL in your templates
     * Moved the `sw-cms` from `State.getStore()` to `Repository` and added clientsided data resolver
     * Added translations for the `sw-cms` module
     * Replaced vanilla-colorpicker dependency with custom-build vuejs colorpicker
+    * `EntityCollection.filter` returns a new `EntityCollection` object instead of a native array 
 * Core
     * Added DAL support for multi primary keys.
     * Added API endpoints for translation definitions

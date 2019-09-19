@@ -88,9 +88,9 @@
                                             <sw-order-saveable-field type="number"
                                             v-tooltip="{showDelay: 300, message: shippingCostsDetail}"
                                             :editable="isEditing"
-                                            :value="delivery.shippingCosts.unitPrice"
+                                            :value="delivery.shippingCosts.totalPrice"
                                             @value-change="onShippingChargeEdited">
-                                            {{ delivery.shippingCosts.unitPrice | currency(order.currency.translated.shortName) }}
+                                            {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
                                                 </sw-order-saveable-field>
                                                 </dd>
                                             {% endblock %}

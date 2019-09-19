@@ -104,62 +104,7 @@ Component.register('sw-cms-sidebar', {
 
     methods: {
         onPageTypeChange() {
-            if (this.page.type === 'product_list') {
-                const listingBlock = this.blockRepository.create();
-                const blockConfig = this.cmsBlocks['product-listing'];
-
-                listingBlock.type = 'product-listing';
-                listingBlock.position = 0;
-                // ToDo: can this be chosen?
-                listingBlock.sectionId = this.page.sections[0].id;
-
-                Object.assign(
-                    listingBlock,
-                    cloneDeep(this.blockConfigDefaults),
-                    cloneDeep(blockConfig.defaultConfig || {})
-                );
-
-                const listingEl = this.slotRepository.create();
-                listingEl.blockId = listingBlock.id;
-                listingEl.slot = 'content';
-                listingEl.type = 'product-listing';
-
-                listingBlock.slots.push(listingEl);
-                // ToDo: can this be chosen?
-                this.page.sections[0].blocks.splice(0, 0, listingBlock);
-            } else {
-                this.page.sections.forEach((section) => {
-                    section.blocks.forEach((block) => {
-                        if (block.type === 'product-listing') {
-                            section.blocks.remove(block.id);
-                        }
-                    });
-                });
-            }
-
-            this.checkSlotMappings();
-            this.$emit('page-update');
-        },
-
-        checkSlotMappings() {
-            this.page.sections.forEach((sections) => {
-                sections.blocks.forEach((block) => {
-                    block.slots.forEach((slot) => {
-                        if (slot.config) {
-                            Object.keys(slot.config).forEach((key) => {
-                                if (slot.config[key].source && slot.config[key].source === 'mapped') {
-                                    const mappingPath = slot.config[key].value.split('.');
-
-                                    if (mappingPath[0] !== this.demoEntity) {
-                                        slot.config[key].value = null;
-                                        slot.config[key].source = 'static';
-                                    }
-                                }
-                            });
-                        }
-                    });
-                });
-            });
+            this.$emit('page-type-change');
         },
 
         onDemoEntityChange(demoEntityId) {

@@ -6,11 +6,6 @@ const { Component, Application } = Shopware;
 Component.register('sw-cms-create-wizard', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'context'
-    ],
-
     props: {
         page: {
             type: Object,
@@ -23,11 +18,10 @@ Component.register('sw-cms-create-wizard', {
             step: 1,
             pageTypeNames: {
                 page: this.$tc('sw-cms.detail.labelPageTypeShopPage'),
-                landingpage: this.$tc('sw-cms.detail.labelPageTypeShopPage'),
-                product_list: this.$tc('sw-cms.detail.labelPageTypeLandingpage'),
+                landingpage: this.$tc('sw-cms.detail.labelPageTypeLandingpage'),
+                product_list: this.$tc('sw-cms.detail.labelPageTypeCategory'),
                 product_detail: this.$tc('sw-cms.detail.labelPageTypeProduct')
             },
-
             pageTypeIcons: {
                 page: 'default-object-lightbulb',
                 landingpage: 'default-web-dashboard',

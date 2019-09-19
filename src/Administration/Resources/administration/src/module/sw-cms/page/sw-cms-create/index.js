@@ -54,6 +54,10 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
         },
 
         onWizardComplete() {
+            if (this.page.type === 'product_list') {
+                this.onPageTypeChange();
+            }
+
             this.wizardComplete = true;
             this.onSave();
         }

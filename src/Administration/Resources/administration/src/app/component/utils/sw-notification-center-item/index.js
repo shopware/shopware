@@ -63,7 +63,9 @@ Component.register('sw-notification-center-item', {
         },
 
         handleAction(action) {
-            if (!action.route) {
+            // Allow external links for example to the shopware account or store
+            if (Shopware.Utils.string.isUrl(action.route)) {
+                window.open(action.route);
                 return;
             }
 

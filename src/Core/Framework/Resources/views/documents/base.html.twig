@@ -297,6 +297,17 @@
                                     </tr>
                                 {% endblock %}
 
+                                {% block document_sum_shipping_costs %}
+                                    <tr>
+                                        {% block document_sum_shipping_costs_label %}
+                                            <td class="align-right">{{ 'document.lineItems.shippingCosts'|trans }}</td>
+                                        {% endblock %}
+                                        {% block document_sum_shipping_costs_price %}
+                                            <td class="align-right">{{ order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}</td>
+                                        {% endblock %}
+                                    </tr>
+                                {% endblock %}
+
                                 {% block document_sum_taxes %}
                                     {% for calculatedTax in order.price.calculatedTaxes.sortByTax %}
                                         <tr>

@@ -111,7 +111,10 @@ Component.register('sw-promotion-discount-component', {
         },
 
         maxValueAdvancedPricesTooltip() {
-            if (this.discount.type === DiscountTypes.PERCENTAGE && this.discount.maxValue !== null && this.discount.promotionDiscountPrices.length > 0) {
+            if (this.discount.type === DiscountTypes.PERCENTAGE &&
+                this.discount.maxValue !== null &&
+                this.discount.promotionDiscountPrices.length > 0
+            ) {
                 return this.$tc('sw-promotion.detail.main.discounts.helpTextMaxValueAdvancedPrices');
             }
             return '';

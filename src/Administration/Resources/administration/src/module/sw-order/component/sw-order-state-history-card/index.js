@@ -232,7 +232,11 @@ Component.register('sw-order-state-history-card', {
                 return;
             }
 
-            this.stateMachineService.transitionState('order_transaction', this.order.transactions[0].id, actionName).then(() => {
+            this.stateMachineService.transitionState(
+                'order_transaction',
+                this.order.transactions[0].id,
+                actionName
+            ).then(() => {
                 this.$emit('order-state-change');
                 this.loadHistory();
             }).catch((error) => {

@@ -152,5 +152,17 @@
                                     :isLoading="isLoading">
             </sw-order-document-card>
         {% endblock %}
+
+        {% block sw_order_detail_base_custom_fields %}
+            <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                     v-if="customFieldSets.length > 0"
+                     :isLoading="isLoading">
+                <sw-custom-field-set-renderer
+                    :entity="order"
+                    :disabled="!isEditing"
+                    :sets="customFieldSets">
+                </sw-custom-field-set-renderer>
+            </sw-card>
+        {% endblock %}
     </div>
 {% endblock %}

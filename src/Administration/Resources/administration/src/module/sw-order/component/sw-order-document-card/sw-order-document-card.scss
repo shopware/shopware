@@ -1,11 +1,6 @@
 @import "~scss/variables";
 
 .sw-order-document-card {
-
-    .sw-card__content {
-        margin-bottom: 150px; //fix until context menu recognizes bottom of page
-    }
-
     &.sw-order-document-card--is-empty {
         .sw-card__content {
             min-height: 390px;
@@ -17,4 +12,3 @@
         position: absolute;
     }
 }
-

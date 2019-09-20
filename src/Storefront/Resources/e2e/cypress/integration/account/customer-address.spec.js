@@ -5,7 +5,7 @@ describe('Account: Login as customer', () => {
         return cy.createCustomerFixture()
     });
 
-    it.skip('Add new address and swap roles of these two addresses', () => {
+    it('Add new address and swap roles of these two addresses', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
@@ -34,39 +34,16 @@ describe('Account: Login as customer', () => {
 
         // Verify new address
         cy.get('.alert-success .alert-content').contains('Address has been saved.');
-        cy.get('.account-content .account-aside-item[href="/account"]').click();
-        cy.get(`${page.elements.lightButton}[title="Change shipping address"]`).click();
-        cy.get('.address-editor-modal .modal-dialog').should('be.visible');
-        cy.get('#addressEditorAccordion .address-editor-card p').contains('Sherman');
-        cy.get('#addressEditorAccordion .address-editor-card p').contains('42 Wallaby Way');
 
         // Set new address as shipping address
-        cy.get(`${page.elements.lightButton}[title="Set as default shipping "]`).click();
-        cy.get('.address-editor-modal .modal-dialog').should('not.exist');
-        // TODO: After saving the modal there is no success notification. This should be added!
-        cy.reload();
-
-        cy.get('.overview-shipping-address p').contains('Sherman');
-        cy.get(`${page.elements.lightButton}[title="Change shipping address"]`).click();
-        cy.get('.address-editor-modal .modal-dialog').should('be.visible');
-        cy.get('.address-editor-modal .icon-x').click();
+        cy.contains('Set as default shipping').click();
+        cy.get('.shipping-address p').contains('Sherman');
 
         // Swap shipping and billing address
-        cy.get(`${page.elements.lightButton}[title="Change billing address"]`).click();
-        cy.get('.address-editor-modal .modal-dialog').should('be.visible');
-        cy.get(`${page.elements.lightButton}[title="Set as default billing"]`).click();
-        cy.get('.address-editor-modal .modal-dialog').should('not.exist');
-        // TODO: After saving the modal there is no success notification. This should be added!
-        cy.reload();
+        cy.contains('Set as default billing').click();
+        cy.contains('Set as default shipping').click();
 
-        cy.get(`${page.elements.lightButton}[title="Change shipping address"]`).click();
-        cy.get('.address-editor-modal .modal-dialog').should('be.visible');
-        cy.get(`${page.elements.lightButton}[title="Set as default shipping "]`).click();
-        cy.get('.address-editor-modal .modal-dialog').should('not.exist');
-        // TODO: After saving the modal there is no success notification. This should be added!
-        cy.reload();
-
-        cy.get('.overview-billing-address p').contains('Sherman');
-        cy.get('.overview-shipping-address p').contains('Eroni');
+        cy.get('.billing-address p').contains('Sherman');
+        cy.get('.shipping-address p').contains('Eroni');
     });
 });

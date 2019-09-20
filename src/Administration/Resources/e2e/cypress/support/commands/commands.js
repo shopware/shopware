@@ -296,8 +296,9 @@ Cypress.Commands.add('awaitAndCheckNotification', (message, options = {
  * @param {String} menuButtonSelector - The message to look for
  * @param {String} menuOpenSelector - The message to look for
  * @param {Object} [scope=null] - Options concerning the notification
+ * @param {String} [menuButtonText=null] - Text of the menu button
  */
-Cypress.Commands.add('clickContextMenuItem', (menuButtonSelector, menuOpenSelector, scope = null) => {
+Cypress.Commands.add('clickContextMenuItem', (menuButtonSelector, menuOpenSelector, scope = null, menuButtonText = "") => {
     const contextMenuCssSelector = '.sw-context-menu';
     const activeContextButtonCssSelector = '.is--active';
 
@@ -313,7 +314,11 @@ Cypress.Commands.add('clickContextMenuItem', (menuButtonSelector, menuOpenSelect
     }
 
     cy.get(contextMenuCssSelector).should('be.visible');
-    cy.get(menuButtonSelector).click();
+    let element = cy.get(menuButtonSelector);
+    if(menuButtonText !== "") {
+        element = element.contains(menuButtonText);
+    }
+    element.click();
     cy.get(contextMenuCssSelector).should('not.exist');
 });
 

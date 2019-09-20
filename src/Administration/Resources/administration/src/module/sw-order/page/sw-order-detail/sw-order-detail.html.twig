@@ -64,8 +64,6 @@
 
                 {% block sw_order_detail_content_view %}
                     <router-view
-{#                                  TODO: check if customFieldSets are needed#}
-{#                            :customFieldSets="customFieldSets"#}
                             :orderId="orderId"
                             ref="baseComponent"
                             :isEditing="isEditing"

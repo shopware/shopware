@@ -43,7 +43,8 @@ Component.register('sw-order-detail-base', {
             isDisplayingLeavePageWarning: false,
             transactionOptions: [],
             orderOptions: [],
-            versionContext: null
+            versionContext: null,
+            customFieldSets: []
         };
     },
 
@@ -132,6 +133,21 @@ Component.register('sw-order-detail-base', {
                 .addAssociation('tags');
 
             return criteria;
+        },
+
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldSetCriteria() {
+            const customFieldsCriteria = new Criteria(1, 100);
+            customFieldsCriteria.addSorting(Criteria.sort('config.customFieldsPosition'));
+
+            const criteria = new Criteria(1, 100);
+            criteria.addAssociation('customFields', customFieldsCriteria);
+            criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
+
+            return criteria;
         }
     },
 
@@ -162,6 +178,10 @@ Component.register('sw-order-detail-base', {
             this.$root.$on('order-edit-start', this.onStartEditing);
             this.$root.$on('order-edit-save', this.onSaveEdits);
             this.$root.$on('order-edit-cancel', this.onCancelEditing);
+
+            this.customFieldSetRepository.search(this.customFieldSetCriteria, this.context).then((result) => {
+                this.customFieldSets = result;
+            });
         },
 
         destroyedComponent() {

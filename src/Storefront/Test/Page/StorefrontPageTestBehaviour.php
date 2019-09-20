@@ -22,15 +22,15 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\EventDispatcher\Event;
 
 trait StorefrontPageTestBehaviour
 {
     public static function assertPageEvent(
         string $expectedClass,
-        Event $event,
+        PageLoadedEvent $event,
         SalesChannelContext $salesChannelContext,
         Request $request,
         Struct $page
@@ -213,7 +213,7 @@ trait StorefrontPageTestBehaviour
 
     protected function catchEvent(string $eventName, &$eventResult): void
     {
-        $this->getContainer()->get('event_dispatcher')->addListener($eventName, function ($event) use (&$eventResult): void {
+        $this->getContainer()->get('event_dispatcher')->addListener($eventName, static function ($event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }
@@ -234,7 +234,7 @@ trait StorefrontPageTestBehaviour
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Musterstraße 1',
-                    'city' => 'Schoöppingen',
+                    'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
                     'country' => ['name' => 'Germany'],

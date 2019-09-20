@@ -51,7 +51,7 @@ class AclResourceDefinition extends EntityDefinition
             new CreatedAtField(),
             new UpdatedAtField(),
 
-            new ManyToOneAssociationField('aclRole', 'role_id', AclRoleDefinition::class),
+            new ManyToOneAssociationField('aclRole', 'acl_role_id', AclRoleDefinition::class),
         ]);
     }
 }

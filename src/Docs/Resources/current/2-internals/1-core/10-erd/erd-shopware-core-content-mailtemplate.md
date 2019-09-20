@@ -9,7 +9,7 @@ Mailing content, setup and rendering.
 
 ### Table `mail_template`
 
-A log of rendered and sent mails.
+Templates for specific mails.
 
 
 ### Table `mail_template_type`
@@ -19,7 +19,7 @@ Different mail template types.
 
 ### Table `mail_header_footer`
 
-A log of rendered and sent header or footer content.
+Templates for header or footer content of mails.
 
 
 [Back to modules](./../10-modules.md)

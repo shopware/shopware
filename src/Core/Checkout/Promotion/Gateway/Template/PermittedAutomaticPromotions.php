@@ -11,8 +11,6 @@ class PermittedAutomaticPromotions extends MultiFilter
      * Gets a criteria for all permitted promotions of the provided
      * sales channel context, that do get applied automatically without a code
      * if the preconditions and rules are valid.
-     *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
     public function __construct(string $salesChannelId)
     {

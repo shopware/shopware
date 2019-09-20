@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -127,6 +128,61 @@ class ProductSearchKeywordIndexer implements IndexerInterface
                 ProgressFinishedEvent::NAME
             );
         }
+    }
+
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('id'));
+
+        $languages = $this->languageRepository->search($criteria, Context::createDefaultContext());
+
+        $languages = array_values($languages->getEntities()->getElements());
+
+        $languageOffset = 0;
+        $productOffset = null;
+        if ($lastId !== null) {
+            $languageOffset = $lastId['languageOffset'];
+            $productOffset = $lastId['productOffset'];
+        }
+        if (!isset($languages[$languageOffset])) {
+            return null;
+        }
+
+        $language = $languages[$languageOffset];
+        $context = new Context(
+            new Context\SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM],
+            Defaults::LIVE_VERSION
+        );
+
+        $iterator = $this->iteratorFactory->createIterator($this->productRepository->getDefinition(), $productOffset);
+
+        $ids = $iterator->fetch();
+
+        if (empty($ids)) {
+            ++$languageOffset;
+
+            return [
+                'languageOffset' => $languageOffset,
+                'productOffset' => null,
+            ];
+        }
+
+        $this->connection->executeUpdate(
+            'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language',
+            ['ids' => Uuid::fromHexToBytesList($ids), 'language' => Uuid::fromHexToBytes($language->getId())],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $this->update($ids, $context);
+
+        return [
+            'languageOffset' => $languageOffset,
+            'productOffset' => $iterator->getOffset(),
+        ];
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void

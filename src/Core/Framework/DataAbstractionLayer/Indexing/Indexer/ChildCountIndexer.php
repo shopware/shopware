@@ -102,6 +102,51 @@ class ChildCountIndexer implements IndexerInterface
         }
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $context = Context::createDefaultContext();
+
+        $dataOffset = null;
+        $definitionOffset = 0;
+
+        if ($lastId) {
+            $dataOffset = $lastId['dataOffset'];
+            $definitionOffset = $lastId['definitionOffset'];
+        }
+
+        $definitions = array_values(array_filter(
+            $this->definitionRegistry->getDefinitions(),
+            function (EntityDefinition $definition) {
+                return $definition->isChildrenAware() && $definition->isChildCountAware();
+            }
+        ));
+
+        if (!isset($definitions[$definitionOffset])) {
+            return null;
+        }
+
+        $definition = $definitions[$definitionOffset];
+
+        $iterator = $this->iteratorFactory->createIterator($definition, $dataOffset);
+
+        $ids = $iterator->fetch();
+        if (empty($ids)) {
+            ++$definitionOffset;
+
+            return [
+                'dataOffset' => null,
+                'definitionOffset' => $definitionOffset,
+            ];
+        }
+
+        $this->updateChildCount($definition, $ids, $definition->isVersionAware(), $context);
+
+        return [
+            'dataOffset' => $iterator->getOffset(),
+            'definitionOffset' => $definitionOffset,
+        ];
+    }
+
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         /** @var EntityWrittenEvent $nested */

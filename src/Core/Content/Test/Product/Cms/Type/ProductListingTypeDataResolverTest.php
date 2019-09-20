@@ -62,7 +62,9 @@ class ProductListingTypeDataResolverTest extends TestCase
 
         $this->listingResolver->enrich($slot, $resolverContext, $result);
 
-        static::assertInstanceOf(ProductListingStruct::class, $slot->getData());
-        static::assertInstanceOf(EntitySearchResult::class, $slot->getData()->getListing());
+        /** @var ProductListingStruct|null $productListingStruct */
+        $productListingStruct = $slot->getData();
+        static::assertInstanceOf(ProductListingStruct::class, $productListingStruct);
+        static::assertInstanceOf(EntitySearchResult::class, $productListingStruct->getListing());
     }
 }

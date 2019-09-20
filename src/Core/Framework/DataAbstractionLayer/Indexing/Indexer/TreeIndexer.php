@@ -106,6 +106,51 @@ class TreeIndexer implements IndexerInterface
         }
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $dataOffset = null;
+        $definitionOffset = 0;
+        if ($lastId) {
+            $definitionOffset = $lastId['definitionOffset'];
+            $dataOffset = $lastId['dataOffset'];
+        }
+
+        $definitions = array_values(array_filter(
+            $this->definitionRegistry->getDefinitions(),
+            function (EntityDefinition $definition) {
+                return $definition->isTreeAware();
+            }
+        ));
+
+        if (!isset($definitions[$definitionOffset])) {
+            return null;
+        }
+
+        /** @var EntityDefinition $definition */
+        $definition = $definitions[$definitionOffset];
+
+        $context = Context::createDefaultContext();
+
+        $iterator = $this->iteratorFactory->createIterator($definition, $dataOffset);
+
+        $ids = $iterator->fetch();
+        if (empty($ids)) {
+            ++$definitionOffset;
+
+            return [
+                'definitionOffset' => $definitionOffset,
+                'dataOffset' => null,
+            ];
+        }
+
+        $this->updateIds($ids, $definition, $context);
+
+        return [
+            'definitionOffset' => $definitionOffset,
+            'dataOffset' => $iterator->getOffset(),
+        ];
+    }
+
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         /** @var EntityWrittenEvent $nested */

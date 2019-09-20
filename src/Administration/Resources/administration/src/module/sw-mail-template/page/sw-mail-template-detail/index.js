@@ -108,9 +108,7 @@ Component.register('sw-mail-template-detail', {
 
         loadEntityData() {
             const criteria = new Criteria();
-            const salesChannelCriteria = new Criteria();
-            salesChannelCriteria.addAssociation('salesChannel');
-            criteria.addAssociation('salesChannels', salesChannelCriteria);
+            criteria.addAssociation('salesChannels.salesChannel');
             criteria.addAssociation('mailTemplateType');
             this.mailTemplateRepository.get(this.mailTemplateId, this.context, criteria).then((item) => {
                 this.mailTemplate = item;

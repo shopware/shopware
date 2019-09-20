@@ -145,7 +145,7 @@ class ElasticsearchHelper
             return;
         }
 
-        $query = $this->parser->parse(
+        $query = $this->parser->parseFilter(
             new EqualsAnyFilter('id', array_values($ids)),
             $definition,
             $definition->getEntityName(),
@@ -162,7 +162,7 @@ class ElasticsearchHelper
             return;
         }
 
-        $query = $this->parser->parse(
+        $query = $this->parser->parseFilter(
             new MultiFilter(MultiFilter::CONNECTION_AND, $filters),
             $definition,
             $definition->getEntityName(),
@@ -179,7 +179,7 @@ class ElasticsearchHelper
             return;
         }
 
-        $query = $this->parser->parse(
+        $query = $this->parser->parseFilter(
             new MultiFilter(MultiFilter::CONNECTION_AND, $postFilters),
             $definition,
             $definition->getEntityName(),
@@ -225,7 +225,7 @@ class ElasticsearchHelper
         $bool = new BoolQuery();
 
         foreach ($queries as $query) {
-            $parsed = $this->parser->parse($query->getQuery(), $definition, $definition->getEntityName(), $context);
+            $parsed = $this->parser->parseFilter($query->getQuery(), $definition, $definition->getEntityName(), $context);
 
             if ($parsed instanceof MatchQuery) {
                 $score = (string) $query->getScore();

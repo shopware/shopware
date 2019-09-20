@@ -65,10 +65,10 @@ describe('Property: Test crud operations', () => {
         cy.get('.sw-property-option-list__add-button').click();
         cy.get('input[name=sw-field--currentOption-name]').type('Bleu');
         cy.get('input[name=sw-field--currentOption-position]').type('1');
-        cy.get(`${page.elements.modal} .sw-field--colorpicker .sw-colorpicker__trigger`).click();
-        cy.get(`${page.elements.modal} .sw-field--colorpicker .picker_editor input`).clear();
-        cy.get(`${page.elements.modal} .sw-field--colorpicker .picker_editor input`).type('#189eff');
-        cy.get(`${page.elements.modal} .sw-field--colorpicker .picker_editor input`).type('{enter}');
+        cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__previewWrapper`).click();
+        cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__input`).clear();
+        cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__input`).type('#189eff');
+        cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__input`).type('{enter}');
         cy.get(`.sw-modal__footer ${page.elements.primaryButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
         cy.get(page.elements.propertySaveAction).click();

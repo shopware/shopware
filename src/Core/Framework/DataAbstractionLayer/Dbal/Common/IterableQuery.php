@@ -11,4 +11,6 @@ interface IterableQuery
     public function fetchCount(): int;
 
     public function getQuery(): QueryBuilder;
+
+    public function getOffset(): array;
 }

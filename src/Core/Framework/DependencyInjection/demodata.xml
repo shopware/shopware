@@ -68,7 +68,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="tax.repository" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
-            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
         </service>
 

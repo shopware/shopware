@@ -36,7 +36,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
     public function testGetType(): void
     {
-        static::assertEquals('product-slider', $this->sliderResolver->getType());
+        static::assertSame('product-slider', $this->sliderResolver->getType());
     }
 
     public function testCollectWithEmptyConfig(): void
@@ -86,7 +86,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
         static::assertNotNull($collection);
         static::assertCount(1, $collection->all());
-        static::assertEquals(['a', 'b', 'c'], $collection->all()[ProductDefinition::class]['product-slider_id']->getIds());
+        static::assertSame(['a', 'b', 'c'], $collection->all()[ProductDefinition::class]['product-slider_id']->getIds());
     }
 
     public function testCollectWithMappedConfigButWithoutEntityResolverContext(): void

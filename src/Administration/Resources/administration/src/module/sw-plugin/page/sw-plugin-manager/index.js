@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-plugin-manager', {
     template,
 
-    inject: ['storeService', 'pluginService'],
+    inject: ['storeService', 'pluginService', 'licenseViolationService'],
 
     data() {
         return {
@@ -33,6 +33,8 @@ Component.register('sw-plugin-manager', {
         },
 
         createdComponent() {
+            this.licenseViolationService.checkForLicenseViolations(true);
+
             this.fetchAvailableUpdates();
             this.$root.$on('updates-refresh', (total) => {
                 if (total) {
@@ -52,15 +54,6 @@ Component.register('sw-plugin-manager', {
         fetchAvailableUpdates() {
             this.storeService.getUpdateList().then((updates) => {
                 this.availableUpdates = updates.total;
-            });
-        },
-
-        refreshPlugins() {
-            this.isLoading = true;
-            this.pluginService.refresh().then(() => {
-                this.reloadPluginListing();
-            }).finally(() => {
-                this.isLoading = false;
             });
         },
 

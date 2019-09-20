@@ -3,16 +3,19 @@
     "general": {
       "mainMenuItemList": "Bewertungen",
       "mainMenuItemGeneral": "Bewertungen",
-      "placeholderSearchBar": "Durchsuche alle Bewertungen"
+      "placeholderSearchBar": "Durchsuche alle Bewertungen",
+      "descriptionTextModule": "Verwaltung von Bewertungen."
     },
     "list": {
       "textReviewOverview": "Bewertungen",
       "columnProduct": "Produkt",
-      "columnPoints": "Punkte",
-      "columnUser": "Benutzer",
-      "columnStatus": "Status",
+      "columnPoints": "Sterne",
+      "columnUser": "Benutzername",
+      "columnStatus": "Sichtbar",
       "columnCreatedAt": "Erstellt am",
-      "columnComment": "Kommentiert"
+      "columnComment": "Kommentiert",
+      "placeholderSearchBar": "Durchsuche alle Bewertungen...",
+      "messageEmpty": "Noch keine Bewertungen"
     },
     "detail": {
       "textHeadline": "Bewertung",
@@ -20,7 +23,7 @@
       "buttonSave": "Speichern",
       "cardTitleRatingInfo": "Informationen",
       "labelTitle": "Titel",
-      "labelPoints": "Punkte",
+      "labelPoints": "Sterne",
       "labelUser": "Benutzername",
       "labelSalesChannel": "Verkaufskanal",
       "labelCreatedAt": "Erstelldatum",
@@ -29,7 +32,7 @@
       "labelLanguage": "Sprache",
       "labelPositive": "Positive Votes",
       "labelNegative": "Negative Votes",
-      "labelStatus": "Status",
+      "labelStatus": "Sichtbar",
       "labelContent": "Inhalt",
       "labelComment": "Kommentar",
       "titleCardComment": "Kommentar",

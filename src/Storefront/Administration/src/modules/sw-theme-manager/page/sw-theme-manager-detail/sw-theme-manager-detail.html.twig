@@ -201,12 +201,17 @@
                                                     </sw-media-upload>
                                                 </div>
                                                 <sw-field
-                                                    v-else
+                                                    v-else-if="mapSwFieldTypes(field.type)"
                                                     :type="mapSwFieldTypes(field.type)"
                                                     :label="!field.label ? '' : field.label"
                                                     :helpText="!field.helpText ? null : field.helpText"
                                                     v-model="themeConfig[fieldIndex].value">
                                                 </sw-field>
+                                                <sw-form-field-renderer
+                                                        v-else
+                                                        v-bind="getBind(field)"
+                                                        v-model="themeConfig[fieldIndex].value">
+                                                </sw-form-field-renderer>
                                             </div>
                                         </sw-container>
                                     {% endblock %}
@@ -361,7 +366,7 @@
                     {% endblock %}
                 </sw-modal>
             {% endblock %}
-            
+
             {% block sw_theme_manager_detail_rename_modal %}
                 <sw-modal v-if="showRenameModal"
                           class="sw_theme_manager__rename-modal"

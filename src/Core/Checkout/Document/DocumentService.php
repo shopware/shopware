@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 
 class DocumentService
 {
@@ -104,7 +105,8 @@ class DocumentService
         string $fileType,
         DocumentConfiguration $config,
         Context $context,
-        ?string $referencedDocumentId = null
+        ?string $referencedDocumentId = null,
+        bool $static = false
     ): DocumentIdStruct {
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
@@ -151,6 +153,7 @@ class DocumentService
                 'orderId' => $orderId,
                 'orderVersionId' => $orderVersionId,
                 'config' => $documentConfiguration->jsonSerialize(),
+                'static' => $static,
                 'deepLinkCode' => $deepLinkCode,
                 'referencedDocumentId' => $referencedDocumentId,
             ],
@@ -164,17 +167,19 @@ class DocumentService
     public function getDocument(DocumentEntity $document, Context $context): GeneratedDocument
     {
         $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
-        $fileGenerator = $this->fileGeneratorRegistry->getGenerator($document->getFileType());
 
         $generatedDocument = new GeneratedDocument();
-        $generatedDocument->setPageOrientation($config->getPageOrientation());
-        $generatedDocument->setPageSize($config->getPageSize());
-        $generatedDocument->setContentType($fileGenerator->getContentType());
-
         if (!$this->hasValidFile($document) && !$document->isStatic()) {
+            $generatedDocument->setPageOrientation($config->getPageOrientation());
+            $generatedDocument->setPageSize($config->getPageSize());
+
+            $fileGenerator = $this->fileGeneratorRegistry->getGenerator($document->getFileType());
+            $generatedDocument->setContentType($fileGenerator->getContentType());
             $this->generateDocument($document, $context, $generatedDocument, $config, $fileGenerator);
         } else {
             $generatedDocument->setFilename($document->getDocumentMediaFile()->getFileName());
+            $generatedDocument->setContentType($document->getDocumentMediaFile()->getMimeType());
+
             $fileBlob = '';
             $mediaService = $this->mediaService;
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaService, $document, &$fileBlob): void {
@@ -221,6 +226,53 @@ class DocumentService
         $generatedDocument->setContentType($fileGenerator->getContentType());
 
         return $generatedDocument;
+    }
+
+    public function uploadFileForDocument(string $documentId, Context $context, Request $uploadedFileRequest): DocumentIdStruct
+    {
+        /** @var DocumentEntity $document */
+        $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->first();
+
+        if ($document->getDocumentMediaFile() !== null) {
+            throw new DocumentGenerationException('Document already exists');
+        }
+
+        if ($document->isStatic() === false) {
+            throw new DocumentGenerationException('This document is dynamically generated and cannot be overwritten');
+        }
+
+        $mediaFile = $this->mediaService->fetchFile($uploadedFileRequest);
+
+        $fileName = $uploadedFileRequest->query->get('fileName');
+
+        $mediaService = $this->mediaService;
+        $mediaId = null;
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use (
+            $fileName,
+            $mediaService,
+            $mediaFile,
+            &$mediaId
+        ): void {
+            $mediaId = $mediaService->saveMediaFile(
+                $mediaFile,
+                $fileName,
+                $context,
+                'document'
+            );
+        });
+
+        $document->setDocumentMediaFileId($mediaId);
+        $this->documentRepository->update(
+            [
+                [
+                    'id' => $document->getId(),
+                    'documentMediaFileId' => $document->getDocumentMediaFileId(),
+                ],
+            ],
+            $context
+        );
+
+        return new DocumentIdStruct($documentId, $document->getDeepLinkCode());
     }
 
     private function hasValidFile(DocumentEntity $document): bool

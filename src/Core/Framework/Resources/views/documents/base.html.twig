@@ -130,7 +130,7 @@
                         {% endblock %}
                     </span>
                     {# todo support companys #}
-                    {{ customer.salutation.displayName }} {{ customer.firstName }} {{ customer.lastName }}<br>
+                    {{ customer.salutation.letterName }} {{ customer.firstName }} {{ customer.lastName }}<br>
                     {{ billingAddress.street }}<br>
                     {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
                     {{ billingAddress.country.name }}<br>
@@ -293,6 +293,17 @@
                                         {% endblock %}
                                         {% block document_sum_total_net_price %}
                                             <td class="align-right">{{ order.amountNet|currency(currencyIsoCode) }}</td>
+                                        {% endblock %}
+                                    </tr>
+                                {% endblock %}
+
+                                {% block document_sum_shipping_costs %}
+                                    <tr>
+                                        {% block document_sum_shipping_costs_label %}
+                                            <td class="align-right">{{ 'document.lineItems.shippingCosts'|trans }}</td>
+                                        {% endblock %}
+                                        {% block document_sum_shipping_costs_price %}
+                                            <td class="align-right">{{ order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}</td>
                                         {% endblock %}
                                     </tr>
                                 {% endblock %}

@@ -38,11 +38,33 @@ Component.register('sw-cms-slot', {
 
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
+        },
+
+        cmsSlotSettingsClasses() {
+            if (this.elementConfig.defaultConfig) {
+                return null;
+            }
+            return 'is--disabled';
+        },
+
+        tooltipDisabled() {
+            if (this.elementConfig.disabledConfigInfoTextKey) {
+                return {
+                    message: this.$tc(this.elementConfig.disabledConfigInfoTextKey)
+                };
+            }
+            return {
+                message: this.$tc('sw-cms.elements.configTabSettings'),
+                disabled: true
+            };
         }
     },
 
     methods: {
         onSettingsButtonClick() {
+            if (!this.elementConfig.defaultConfig) {
+                return;
+            }
             this.showElementSettings = true;
         },
 

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\RepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -17,12 +17,12 @@ class NaturalSortingTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $groupRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var EntityRepositoryInterface
      */
     private $optionRepository;
 
@@ -43,7 +43,7 @@ class NaturalSortingTest extends TestCase
         $data = [
             'id' => $groupId,
             'name' => 'Content',
-            'options' => array_map(function ($name) {
+            'options' => array_map(static function ($name) {
                 return ['name' => $name];
             }, $naturalOrder),
         ];
@@ -64,7 +64,7 @@ class NaturalSortingTest extends TestCase
         static::assertCount(\count($naturalOrder), $options);
 
         //extract names to compare them
-        $actual = $options->map(function (PropertyGroupOptionEntity $option) {
+        $actual = $options->map(static function (PropertyGroupOptionEntity $option) {
             return $option->getName();
         });
 
@@ -76,7 +76,7 @@ class NaturalSortingTest extends TestCase
         $criteria->addSorting(new FieldSorting('property_group_option.name', FieldSorting::ASCENDING, true));
 
         $options = $this->optionRepository->search($criteria, $context);
-        $actual = $options->map(function (PropertyGroupOptionEntity $option) {
+        $actual = $options->map(static function (PropertyGroupOptionEntity $option) {
             return $option->getName();
         });
 
@@ -87,28 +87,28 @@ class NaturalSortingTest extends TestCase
     {
         return [
             [
-                ['1,0 liter', '2,0 liter', '3,0 liter', '4,0 liter', '10,0 liter'], //nat sorting
+                ['1,0 liter', '2,0 liter', '3,0 liter', '4,0 liter', '10,0 liter'], //natural sorting
                 ['1,0 liter', '10,0 liter', '2,0 liter', '3,0 liter', '4,0 liter'], //none nat
             ],
             [
-                ['1,0', '2,0', '3,0', '4,0', '10,0'], //nat sorting
-                ['1,0', '10,0', '2,0', '3,0', '4,0'], //none naturla
+                ['1,0', '2,0', '3,0', '4,0', '10,0'], //natural sorting
+                ['1,0', '10,0', '2,0', '3,0', '4,0'], //none natural
             ],
             [
-                ['1', '2', '3', '4', '5', '6', '100', '1000', '2000', '3100'], //nat sorting
-                ['1', '100', '1000', '2', '2000', '3', '3100', '4', '5', '6'], //none naturla
+                ['1', '2', '3', '4', '5', '6', '100', '1000', '2000', '3100'], //natural sorting
+                ['1', '100', '1000', '2', '2000', '3', '3100', '4', '5', '6'], //none natural
             ],
             [
-                ['0.1', '0.2', '0.3', '1.0', '1.2', '1.4', '1.4', '1.6', '2.0', '2.0', '2.3'], //nat sorting
-                ['0.1', '0.2', '0.3', '1.0', '1.2', '1.4', '1.4', '1.6', '2.0', '2.0', '2.3'], //none naturla
+                ['0.1', '0.2', '0.3', '1.0', '1.2', '1.4', '1.4', '1.6', '2.0', '2.0', '2.3'], //natural sorting
+                ['0.1', '0.2', '0.3', '1.0', '1.2', '1.4', '1.4', '1.6', '2.0', '2.0', '2.3'], //none natural
             ],
             [
-                ['test1', 'test2', 'test3', 'test4', 'test10'], //nat sorting
-                ['test1', 'test10', 'test2', 'test3', 'test4'], //none naturla
+                ['test1', 'test2', 'test3', 'test4', 'test10'], //natural sorting
+                ['test1', 'test10', 'test2', 'test3', 'test4'], //none natural
             ],
             [
-                ['1', '10', '1.0', '1.1', '1.3', '1.5', '2.22222'], //nat sorting
-                ['1', '1.0', '1.1', '1.3', '1.5', '10', '2.22222'], //none naturla
+                ['1', '10', '1.0', '1.1', '1.3', '1.5', '2.22222'], //natural sorting
+                ['1', '1.0', '1.1', '1.3', '1.5', '10', '2.22222'], //none natural
             ],
         ];
     }

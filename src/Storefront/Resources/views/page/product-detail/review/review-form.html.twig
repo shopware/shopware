@@ -1,7 +1,9 @@
 {% block page_product_detail_review_form %}
+
     {% if data is not defined and page.customerReview is defined %}
         {% set data = page.customerReview %}
     {% endif %}
+
 
     <form class="review-form"
           action="{{ path('frontend.detail.review.save', { productId: productId }) }}"
@@ -9,7 +11,7 @@
           data-form-validation="true"
           data-form-ajax-submit="true"
           data-form-ajax-submit-options='{
-              "replaceSelectors": ".js-review-content"
+              "replaceSelectors": ".js-review-container"
           }'>
         {% block page_product_detail_review_form_forward %}
             <input type="hidden"
@@ -32,29 +34,31 @@
                         <label for="#review-form-rating">
                             {{ "detail.reviewFormRatingLabel"|trans }}{{ "general.required"|trans }}
                         </label>
-                        
+
                         <div id="review-form-rating"
                              class="product-detail-review-form-rating-input"
                              data-rating-system="true">
                             {% if data.get('points') is not empty %}
-                                {% set currentPoints = data.get('points') %}
+                                {% set currentPoints = data.get('points')|number_format %}
                             {% else %}
                                 {% set currentPoints = page.ratingMatrix.maxPoints %}
                             {% endif %}
-                            
-                            {% for matrix in page.ratingMatrix.matrix %}
-                               <label data-review-form-point="{{ loop.index }}"
-                                      class="product-detail-review-form-star{% if currentPoints >= matrix.points %} is-active{% endif %}">
-                                   <input class="product-detail-review-form-radio"
-                                          type="radio"
-                                          name="points"
-                                          value="{{ matrix.points }}"
-                                          {% if currentPoints == matrix.points %} checked="checked"{% endif %}>
-                                   
-                                   {% sw_include '@Storefront/component/review/point.html.twig' with {
-                                       type: 'blank'
-                                   } %}
-                               </label>
+
+                            {% set maxPoints = page.ratingMatrix.maxPoints %}
+
+                            {% for point in 1..maxPoints %}
+                                <label data-review-form-point="{{ point }}"
+                                       class="product-detail-review-form-star{% if currentPoints >= point %} is-active{% endif %}">
+                                    <input class="product-detail-review-form-radio"
+                                           type="radio"
+                                           name="points"
+                                           value="{{ point }}"
+                                        {% if currentPoints >= point %} checked="checked"{% endif %}>
+
+                                    {% sw_include '@Storefront/component/review/point.html.twig' with {
+                                        type: 'blank'
+                                    } %}
+                                </label>
                             {% endfor %}
                             {% for matrix in page.ratingMatrix.matrix %}
                                 <p class="h6 product-detail-review-form-rating-text {% if currentPoints != matrix.points %} d-none{% endif %}"
@@ -65,7 +69,7 @@
                         </div>
                     </div>
                 {% endblock %}
-                
+
                 {% block page_product_detail_review_form_title %}
                     <div class="form-group col-12 product-detail-review-form-title">
                         {% block page_product_detail_review_form_title_label %}
@@ -123,7 +127,7 @@
                 {% endblock %}
             </div>
         {% endblock %}
-    
+
         {% block page_product_detail_review_form_footer %}
             <div class="product-detail-review-form-footer">
                 {% block page_product_detail_review_form_required %}
@@ -131,7 +135,7 @@
                         {{ "general.requiredFields"|trans }}
                     </p>
                 {% endblock %}
-    
+
                 <div class="product-detail-review-form-actions">
                     {% block page_product_detail_review_form_cancel %}
                         <a href="#"
@@ -143,7 +147,7 @@
                             {{ "detail.reviewFormCancelText"|trans }}
                         </a>
                     {% endblock %}
-    
+
                     {% block page_product_detail_review_form_submit %}
                         <button type="submit"
                                 class="btn btn-primary btn-review-submit">

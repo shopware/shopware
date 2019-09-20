@@ -6,12 +6,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
+use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,20 +36,13 @@ class ProductListingTest extends TestCase
      */
     private $testData;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->listingGateway = $this->getContainer()->get(ProductListingGateway::class);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
-
-        $parent = $this->connection->fetchColumn(
+        $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
             ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]
         );
@@ -83,13 +75,13 @@ class ProductListingTest extends TestCase
         static::assertSame(10, $listing->getTotal());
         static::assertFalse($listing->has($this->testData->getId('product1')));
 
-        static::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($listing, [
             $this->testData->getId('product1-red-l-steel'),
             $this->testData->getId('product1-red-xl-steel'),
             $this->testData->getId('product1-red-l-iron'),
             $this->testData->getId('product1-red-xl-iron'),
         ]);
-        static::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($listing, [
             $this->testData->getId('product1-green-l-steel'),
             $this->testData->getId('product1-green-xl-steel'),
             $this->testData->getId('product1-green-l-iron'),
@@ -104,37 +96,33 @@ class ProductListingTest extends TestCase
         // product 3 has no variants
         static::assertTrue($listing->has($this->testData->getId('product3')));
 
-        static::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($listing, [
             $this->testData->getId('product4-red-l-iron'),
             $this->testData->getId('product4-red-xl-iron'),
         ]);
-        static::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($listing, [
             $this->testData->getId('product4-red-l-steel'),
             $this->testData->getId('product4-red-xl-steel'),
         ]);
-        static::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($listing, [
             $this->testData->getId('product4-green-l-iron'),
             $this->testData->getId('product4-green-xl-iron'),
         ]);
-        static::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($listing, [
             $this->testData->getId('product4-green-l-steel'),
             $this->testData->getId('product4-green-xl-steel'),
         ]);
 
-        static::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($listing, [
             $this->testData->getId('product5-red'),
             $this->testData->getId('product5-green'),
         ]);
 
-        /** @var AggregationResult $options */
-        $options = $listing->getAggregations()->get('options');
+        /** @var EntityResult $result */
+        $result = $listing->getAggregations()->get('options');
 
-        $options = $options->getResult()[0];
+        $options = $result->getEntities();
 
-        /** @var EntityResult $options */
-        $options = $options->getEntities();
-
-        /** @var PropertyGroupOptionCollection $options */
         static::assertTrue($options->has($this->testData->getId('green')));
         static::assertTrue($options->has($this->testData->getId('red')));
         static::assertTrue($options->has($this->testData->getId('xl')));
@@ -255,8 +243,7 @@ class ProductListingTest extends TestCase
         ];
 
         if (!empty($options)) {
-            $combinations = $this->combos($options);
-            foreach ($combinations as $index => $combination) {
+            foreach ($this->combos($options) as $index => $combination) {
                 $variantKey = $key . '-' . implode('-', $this->testData->getKeyList($combination));
 
                 $data[] = [
@@ -266,7 +253,7 @@ class ProductListingTest extends TestCase
                     'name' => $variantKey,
                     'active' => true,
                     'parentId' => $this->testData->getId($key),
-                    'options' => array_map(function ($id) {
+                    'options' => array_map(static function ($id) {
                         return ['id' => $id];
                     }, $combination),
                 ];
@@ -279,13 +266,13 @@ class ProductListingTest extends TestCase
         $repo->create($data, Context::createDefaultContext());
     }
 
-    private function combos($data, &$all = [], $group = [], $val = null, $i = 0)
+    private function combos($data, &$all = [], $group = [], $val = null, $i = 0): array
     {
         if (isset($val)) {
-            array_push($group, $val);
+            $group[] = $val;
         }
-        if ($i >= count($data)) {
-            array_push($all, $group);
+        if ($i >= \count($data)) {
+            $all[] = $group;
         } else {
             foreach ($data[$i] as $v) {
                 $this->combos($data, $all, $group, $v, $i + 1);
@@ -329,46 +316,5 @@ class ProductListingTest extends TestCase
         /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('property_group.repository');
         $repo->create($data, Context::createDefaultContext());
-    }
-}
-
-class ListingTestData
-{
-    /**
-     * @var array
-     */
-    protected $ids = [];
-
-    public function getId(string $key)
-    {
-        return $this->ids[$key];
-    }
-
-    public function createId(string $key): string
-    {
-        return $this->ids[$key] = Uuid::randomHex();
-    }
-
-    public function getKey(string $id)
-    {
-        $ids = array_flip($this->ids);
-
-        return $ids[$id];
-    }
-
-    public function getKeyList(array $ids)
-    {
-        $keys = [];
-        $flipped = array_flip($this->ids);
-        foreach ($ids as $id) {
-            $keys[] = $flipped[$id];
-        }
-
-        return $keys;
-    }
-
-    public function all(): array
-    {
-        return $this->ids;
     }
 }

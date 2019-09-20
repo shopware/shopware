@@ -1,10 +1,10 @@
-import { types } from '../../../../core/service/util.service';
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
 
-const { Component, State, Mixin } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+const { Component, Mixin } = Shopware;
+const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
 const { warn } = Shopware.Utils.debug;
+const types = Shopware.Utils.types;
 const Criteria = Shopware.Data.Criteria;
 
 Component.register('sw-cms-detail', {
@@ -33,6 +33,7 @@ Component.register('sw-cms-detail', {
     data() {
         return {
             pageId: null,
+            pageOrigin: null,
             page: {
                 blocks: []
             },
@@ -46,7 +47,8 @@ Component.register('sw-cms-detail', {
             currentBlockCategory: 'text',
             currentMappingEntity: null,
             currentMappingEntityRepo: null,
-            demoEntityId: null
+            demoEntityId: null,
+            currentLanguageId: this.context.languageId
         };
     },
 
@@ -71,10 +73,6 @@ Component.register('sw-cms-detail', {
 
         slotRepository() {
             return this.repositoryFactory.create('cms_slot');
-        },
-
-        languageStore() {
-            return State.getStore('language');
         },
 
         salesChannelRepository() {
@@ -162,6 +160,18 @@ Component.register('sw-cms-detail', {
                 message: `${systemKey} + S`,
                 appearance: 'light'
             };
+        },
+
+        isSystemDefaultLanguage() {
+            return this.currentLanguageId === this.context.systemLanguageId;
+        },
+
+        addBlockTitle() {
+            if (!this.isSystemDefaultLanguage) {
+                return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
+            }
+
+            return this.$tc('sw-cms.detail.sidebarTitleBlockOverview');
         }
     },
 
@@ -187,10 +197,6 @@ Component.register('sw-cms-detail', {
         createdComponent() {
             // ToDo: Make the navigation state accessible via global state
             this.$root.$children[0].$children[2].$children[0].isExpanded = false;
-
-            // ToDo: Remove, when language handling is added to CMS
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
-            this.context.languageId = this.languageStore.systemLanguageId;
 
             this.resetCmsPageState();
 
@@ -249,11 +255,11 @@ Component.register('sw-cms-detail', {
         loadPage(pageId) {
             this.isLoading = true;
             const criteria = new Criteria(1, 1);
-            const blockCriteria = new Criteria(1, 500);
-            blockCriteria.addSorting(Criteria.sort('position', 'ASC', true));
-            blockCriteria.addAssociation('slots', new Criteria(1, 500));
-            blockCriteria.addAssociation('backgroundMedia', new Criteria(1, 1));
-            criteria.addAssociation('blocks', blockCriteria);
+
+            criteria.getAssociation('blocks')
+                .addSorting(Criteria.sort('position', 'ASC', true))
+                .addAssociation('slots')
+                .addAssociation('backgroundMedia');
 
             this.pageRepository.get(pageId, this.context, criteria).then((page) => {
                 this.page = { blocks: [] };
@@ -268,6 +274,8 @@ Component.register('sw-cms-detail', {
                     }
 
                     this.updateDataMapping();
+                    this.pageOrigin = cloneDeep(this.page);
+
                     this.isLoading = false;
                 }).catch((exception) => {
                     this.isLoading = false;
@@ -347,12 +355,13 @@ Component.register('sw-cms-detail', {
 
             return this.salesChannelRepository.search(new Criteria(), this.context).then((response) => {
                 this.salesChannels = response;
+                this.currentLanguageId = this.context.languageId;
                 return this.loadPage(this.pageId);
             });
         },
 
         abortOnLanguageChange() {
-            return this.pageRepository.hasChanges(this.page);
+            return Object.keys(getObjectDiff(this.page, this.pageOrigin)).length > 0;
         },
 
         saveOnLanguageChange() {
@@ -547,7 +556,8 @@ Component.register('sw-cms-detail', {
 
         onSave() {
             this.isSaveSuccessful = false;
-            if (!this.page.name || !this.page.type) {
+
+            if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
                 this.$refs.pageConfigSidebar.openContent();
 
                 const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingFields');
@@ -566,7 +576,6 @@ Component.register('sw-cms-detail', {
                 block.backgroundMedia = null;
 
                 block.slots.forEach((slot) => {
-                    this.deleteEntityConfigKey(slot);
                     foundEmptyRequiredField.push(...this.checkRequiredSlotConfigField(slot));
                 });
             });
@@ -582,6 +591,8 @@ Component.register('sw-cms-detail', {
                 foundEmptyRequiredField = [];
                 return Promise.reject();
             }
+
+            this.deleteEntityAndRequiredConfigKey(this.page.blocks);
 
             this.isLoading = true;
 
@@ -626,23 +637,25 @@ Component.register('sw-cms-detail', {
             });
         },
 
-        deleteEntityConfigKey(slot) {
-            Object.values(slot.config).forEach((configField) => {
-                if (configField.entity) {
-                    delete configField.entity;
-                }
+        deleteEntityAndRequiredConfigKey(blocks) {
+            blocks.forEach((block) => {
+                block.slots.forEach((slot) => {
+                    Object.values(slot.config).forEach((configField) => {
+                        if (configField.entity) {
+                            delete configField.entity;
+                        }
+                        if (configField.required) {
+                            delete configField.required;
+                        }
+                    });
+                });
             });
         },
 
         checkRequiredSlotConfigField(slot) {
             return Object.values(slot.config).filter((configField) => {
-                const returnVal = !!configField.required &&
+                return !!configField.required &&
                     (configField.value === null || configField.value.length < 1);
-
-                if (configField.required) {
-                    delete configField.required;
-                }
-                return returnVal;
             });
         },
 

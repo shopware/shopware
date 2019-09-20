@@ -1,6 +1,6 @@
 {% block sw_text_editor_toolbar_button %}
     <div class="sw-text-editor-toolbar-button" :class="classes" @click="buttonHandler($event, buttonConfig)">
-    
+
         {% block sw_text_editor_toolbar_button_icon %}
             <template v-if="buttonConfig.icon">
                 <div class="sw-text-editor-toolbar-button__icon">
@@ -20,6 +20,7 @@
                           v-model="buttonConfig.value"
                           :disabled="disabled"
                           compact
+                          :alpha="false"
                           @input="handleButtonClick(buttonConfig)">
                 </sw-field>
             </div>

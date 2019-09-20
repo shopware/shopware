@@ -628,7 +628,7 @@ Just set null here, this is the initial state and will be updated once your `cre
 all updates to those component properties being used in the template will automatically update in the template as well.
 
 
-So you've taken care about loading the `bundles` property, which is used in your twig template, same as the `repository`. Only the `columns` are missing now, another
+So you've taken care of loading the `bundles` property, which is used in your twig template, same as the `repository`. Only the `columns` are missing now, another
 component property you need to set.
 
 Let's talk about the structure of a column at first:

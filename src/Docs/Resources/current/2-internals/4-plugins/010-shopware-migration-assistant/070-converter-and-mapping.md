@@ -20,7 +20,7 @@ This method will receive one data entry at a time. It will have to return it in 
 ```php
 <?php declare(strict_types=1);
 
-class ProductConverter extends Shopware55Converter
+class ProductConverter extends ShopwareConverter
 {
     /* ... */
 
@@ -41,18 +41,14 @@ class ProductConverter extends Shopware55Converter
 
         $fields = $this->checkForEmptyRequiredDataFields($data, $this->requiredDataFieldKeys);
         if (!empty($fields)) {
-            $this->loggingService->addWarning(
-                $this->runId,
-                Shopware55LogTypes::EMPTY_NECESSARY_DATA_FIELDS,
-                'Empty necessary data fields',
-                sprintf('Product-Entity could not be converted cause of empty necessary field(s): %s.', implode(', ', $fields)),
-                [
-                    'id' => $this->oldProductId,
-                    'entity' => 'Product',
-                    'fields' => $fields,
-                ],
-                \count($fields)
-            );
+            foreach ($fields as $field) {
+                $this->loggingService->addLogEntry(new EmptyNecessaryFieldRunLog(
+                    $this->runId,
+                    DefaultEntities::PRODUCT,
+                    $this->oldProductId,
+                    $field
+                ));
+            }
 
             return new ConvertStruct(null, $data);
         }
@@ -83,10 +79,6 @@ class ProductConverter extends Shopware55Converter
         unset($data['shops']);
 
         unset($data['detail']['id'], $data['detail']['articleID']);
-
-        if (!isset($converted['manufacturerId']) && !isset($converted['manufacturer'])) {
-            return new ConvertStruct(null, $data);
-        }
 
         if (empty($data['detail'])) {
             unset($data['detail']);

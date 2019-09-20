@@ -75,18 +75,14 @@ class CachedEntitySearcherTest extends TestCase
 
         $metaData = $cacheItem->getMetadata();
         static::assertArrayHasKey('tags', $metaData);
-        static::assertEquals($expectedTags, $metaData['tags']);
+        static::assertSame($expectedTags, $metaData['tags']);
     }
 
     /**
      * @dataProvider searchCases
-     *
-     * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testDisableCacheOption(Criteria $criteria, array $expectedTags): void
+    public function testDisableCacheOption(Criteria $criteria): void
     {
-        $expectedTags = array_combine($expectedTags, $expectedTags);
-
         $dbalSearcher = $this->createMock(EntitySearcher::class);
 
         $id1 = Uuid::randomHex();
@@ -120,7 +116,7 @@ class CachedEntitySearcherTest extends TestCase
         //cache is disabled. second call shouldn't hit the cache and the dbal reader should be called
         $cachedResult = $cachedSearcher->search($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
 
-        static::assertEquals($databaseResult, $cachedResult);
+        static::assertSame($databaseResult, $cachedResult);
 
         $cacheItem = $cache->getItem(
             $generator->getSearchCacheKey($this->getContainer()->get(TaxDefinition::class), $criteria, $context)
@@ -136,7 +132,7 @@ class CachedEntitySearcherTest extends TestCase
             [
                 (new Criteria())->addFilter(new EqualsFilter('tax.name', 'Test')),
 
-                ['tax.name', 'tax.id'], //expected tags
+                ['tax.id', 'tax.name'], //expected tags
             ],
             //test case that multiple filters considered
             [
@@ -144,21 +140,21 @@ class CachedEntitySearcherTest extends TestCase
                                 ->addFilter(new EqualsFilter('tax.id', 'Test'))
                                 ->addFilter(new EqualsFilter('tax.products.id', 'Test')),
 
-                ['tax.name', 'product.id', 'tax.id', 'product.tax_id'], //expected tags
+                ['tax.id', 'tax.name', 'product.tax_id', 'product.id'], //expected tags
             ],
-            //test case that sortings considered
+            //test case that sortings are considered
             [
                 (new Criteria())->addSorting(new FieldSorting('tax.name')),
 
-                ['tax.name', 'tax.id'], //expected tags
+                ['tax.id', 'tax.name'], //expected tags
             ],
 
-            //test case that multiple sortings considered
+            //test case that multiple sortings are considered
             [
                 (new Criteria())->addSorting(new FieldSorting('tax.name'))
                                 ->addSorting(new FieldSorting('tax.products.cover.id')),
 
-                ['tax.name', 'tax.id', 'product.tax_id', 'product.product_media_id', 'product_media.id'], //expected tags
+                ['tax.id', 'tax.name', 'product.tax_id', 'product.product_media_id', 'product_media.id'], //expected tags
             ],
 
             //test case that multiple post-filters considered
@@ -191,7 +187,7 @@ class CachedEntitySearcherTest extends TestCase
             'productNumber' => 'FOO1',
             'manufacturer' => [
                 'id' => Uuid::randomHex(),
-                'name' => 'asdf',
+                'name' => 'Test Product',
             ],
             'active' => true,
             'tax' => [
@@ -208,8 +204,8 @@ class CachedEntitySearcherTest extends TestCase
             ],
         ];
 
-        $contextService = $this->getContainer()->get(SalesChannelContextService::class);
-        $salesChannelContext = $contextService->get(Defaults::SALES_CHANNEL, Uuid::randomHex());
+        $salesChannelContext = $this->getContainer()->get(SalesChannelContextService::class)
+            ->get(Defaults::SALES_CHANNEL, Uuid::randomHex());
         $context = $salesChannelContext->getContext();
 
         $productRepo->create([$product], $context);

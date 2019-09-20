@@ -8,7 +8,7 @@
         <input-field type="bool">
             <name>allowBuyInListing</name>
             <label>show buy button in listing</label>
-            <label lang="de-DE">Kaufenbutton im Produktlisting anzeigen</label>
+            <label lang="de-DE">Kaufen-Button im Produktlisting anzeigen</label>
         </input-field>
 
         <input-field type="int">

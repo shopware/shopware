@@ -6,7 +6,8 @@
       "moduleTitle": "Shopping Experiences",
       "greeting": "Layouts",
       "createNewLayout": "Create new layout",
-      "notificationDeleteErrorMessage": "The layout you want to delete is still allocated to at least one category"
+      "deleteDisabledToolTip": "The layout you want to delete is still allocated to at least one category",
+      "disabledAddingBlocksToolTip": "You can only add Blocks in your default system language"
     },
     "sorting": {
       "labelSort": "Sort by:",
@@ -16,7 +17,7 @@
       "labelSortByUpdatedDsc": "Modification date, desc.",
       "labelSortByAllPages": "All types",
       "labelSortByShopPages": "Shop pages",
-      "labelSortByLandingPages": "Landingpages",
+      "labelSortByLandingPages": "Landing pages",
       "labelSortByProductPages": "Product pages",
       "labelSortByCategoryPages": "Category pages"
     },
@@ -29,7 +30,7 @@
     "detail": {
       "labelButtonSave": "Save",
       "headlineEmptyState": "Space for creativity",
-      "claimEmptyState": "Create new layouts using blocks. Simply drag & drop blocks onto any layout and fill in your content.",
+      "claimEmptyState": "Create new layouts by using blocks. Simply drag & drop blocks onto any layout and fill in your content.",
       "actionEmptyState": "Add a block",
       "sidebarTitlePageSettings": "Settings",
       "sidebarHeaderPageSettings": "Basic information",
@@ -37,7 +38,7 @@
       "labelPageType": "Layout type",
       "labelDemoEntity": "Preview entity",
       "placeholderDemoEntity": "Select an entity to preview...",
-      "labelPageTypeLandingpage": "Landingpage",
+      "labelPageTypeLandingpage": "Landing page",
       "labelPageTypeShopPage": "Shop page",
       "labelPageTypeCategory": "Listing page",
       "labelPageTypeProduct": "Product page",
@@ -78,9 +79,9 @@
       "labelMappingPreview": "Field mapped to:",
       "labelMappingEmptyPreview": "No preview available.",
       "notificationTitleMissingFields": "Error",
-      "notificationMessageMissingFields": "Configuration required. Please fill in all required configuration fields.",
+      "notificationMessageMissingFields": "Configuration required. Please fill in all required fields.",
       "notificationTitleMissingBlockFields": "Missing configuration",
-      "notificationMessageMissingBlockFields": "Configuration required. Please fill all elements with data.",
+      "notificationMessageMissingBlockFields": "Configuration required. Please fill in all required elements.",
       "notificationTitlePageError": "Layout could not be saved!",
       "notificationTitleMissingElements": "Error",
       "notificationMessageMissingElements": "Configuration required. Please fill in all required configuration elements.",
@@ -90,6 +91,7 @@
     "elements": {
       "captionMediaUpload": "Upload an image",
       "labelMedia": "Image",
+      "labelNavigation": "Navigation",
       "labelMediaDisplayMode": "Display mode",
       "labelMediaDisplayModeStandard": "Standard",
       "labelMediaDisplayModeCover": "Cover",
@@ -105,7 +107,9 @@
       "labelProductBadgeNew": "New",
       "labelProductPriceUnitContent": "Content:",
       "labelProductSelection": "Product",
+      "labelCategorySelection": "Category",
       "placeholderProductSelection": "Select a product...",
+      "placeholderCategorySelection": "Select a category...",
       "labelProductLayoutType": "Layout type",
       "labelProductLayoutTypeStandard": "Standard",
       "labelProductLayoutTypeImage": "Big image",
@@ -138,6 +142,7 @@
       "labelSettingsLinkTo": "Link to",
       "labelSettingsLinkNewTab": "Open link in new tab",
       "infoTextListingElement": "This element's product data is automatically loaded by the category associated with this layout. The content just shows a sample preview.",
+      "infoTextNavigationElement": "This element's navigation data is automatically loaded by the category associated with this layout. The content just shows a sample preview.",
       "labelImageGalleryZoom": "Zoom",
       "labelImageGalleryFullscreen": "Fullscreen gallery"
     },
@@ -146,14 +151,14 @@
         "actionCancel": "Cancel",
         "actionConfirm": "Save",
         "modalTitle": "Select layout",
-        "headline": "Landingpage / product listing"
+        "headline": "Landing page / product listing"
       },
       "cmsListItem": {
         "emptyText": "No layout assigned",
         "edit": "Edit",
         "delete": "Delete",
         "duplicate": "Duplicate",
-        "addPreviewImage": "Add preview",
+        "addPreviewImage": "Add preview image",
         "removePreviewImage": "Remove preview",
         "notificationDeleteErrorTitle": "Error",
         "notificationDeleteErrorMessage": "The layout you want to delete is still allocated to at least one category.",

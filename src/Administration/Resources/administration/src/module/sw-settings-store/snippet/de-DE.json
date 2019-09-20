@@ -5,14 +5,14 @@
       "textHeadline": "Shopware Account",
       "description": "Hier können Einstellungen am Shopware Account vorgenommen werden.",
       "buttonSave": "Speichern",
-      "titleSaveSuccess": "Speichern erfolgreich",
-      "messageSaveSuccess": "Die Daten Deines Shopware Accounts wurden erfolgreich gespeichert",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Daten Deines Shopware Accounts wurden erfolgreich gespeichert.",
       "titleSaveError": "Speichern fehlgeschlagen"
     },
     "detail": {
       "titleCard": "Einstellungen",
-      "labelHost": "Lizenzierungshost",
-      "placeholderHost": "Trage hier deinen Hostnamen an, der im Shopware Account hinterlegt ist"
+      "labelHost": "Lizenzdomain",
+      "placeholderHost": "Trage hier die Lizenzdomain (Shopdomain) ein, die in Deinem Shopware Account hinterlegt ist."
     }
   }
 }

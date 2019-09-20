@@ -158,7 +158,8 @@
       "labelPreview": "Vorschau",
       "labelHighlightedItemsHeader":"Name",
       "labelHighlightedItemsEntry":"Gesamt",
-      "labelNoItems":"Keine Gutschriften hinzugefügt"
+      "labelNoItems":"Keine Gutschriften hinzugefügt",
+      "fileInputLabel":"Eigenes Dokument hochladen"
     }
   }
 }

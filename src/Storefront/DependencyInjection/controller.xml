@@ -134,6 +134,7 @@
             <argument type="service" id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductReviewService"/>
+            <argument type="service" id="sales_channel.product.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

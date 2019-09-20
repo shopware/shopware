@@ -37,6 +37,13 @@ Component.register('sw-cms-el-config-product-slider', {
             criteria.addAssociation('cover');
 
             return criteria;
+        },
+
+        productMultiSelectContext() {
+            const context = Object.assign({}, this.context);
+            context.inheritance = true;
+
+            return context;
         }
     },
 
@@ -57,9 +64,10 @@ Component.register('sw-cms-el-config-product-slider', {
                 criteria.addAssociation('cover');
                 criteria.setIds(this.element.config.products.value);
 
-                this.productRepository.search(criteria, this.context).then(result => {
-                    this.productCollection = result;
-                });
+                this.productRepository.search(criteria, Object.assign({}, this.context, { inheritance: true }))
+                    .then(result => {
+                        this.productCollection = result;
+                    });
             }
         },
 

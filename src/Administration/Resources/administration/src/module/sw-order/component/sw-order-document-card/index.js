@@ -185,8 +185,8 @@ Component.register('sw-order-document-card', {
             this.getList();
         },
 
-        createDocument(orderId, documentTypeName, params, referencedDocumentId) {
-            return this.documentService.createDocument(orderId, documentTypeName, params, referencedDocumentId);
+        createDocument(orderId, documentTypeName, params, referencedDocumentId, file) {
+            return this.documentService.createDocument(orderId, documentTypeName, params, referencedDocumentId, {}, {}, file);
         },
 
         onCancelCreation() {
@@ -199,14 +199,15 @@ Component.register('sw-order-document-card', {
             this.showModal = true;
         },
 
-        onCreateDocument(params, additionalAction, referencedDocumentId = null) {
+        onCreateDocument(params, additionalAction, referencedDocumentId = null, file = null) {
             this.showModal = false;
             this.$nextTick().then(() => {
                 return this.createDocument(
                     this.order.id,
                     this.currentDocumentType.technicalName,
                     params,
-                    referencedDocumentId
+                    referencedDocumentId,
+                    file
                 );
             }).then((response) => {
                 this.getList();

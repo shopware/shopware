@@ -19,8 +19,8 @@
       "downloadButton":"Download",
       "recommendationsLabel": "Recommendations",
       "storeLink": "https://store.shopware.com/en",
-      "storeLabel": "Shopware Store",
-      "storeNotAvailable": "Could not connect to the Shopware Store",
+      "storeLabel": "Shopware store",
+      "storeNotAvailable": "Could not connect to the Shopware store",
       "loggedIn": "Logged in as"
     },
     "errors": {
@@ -30,11 +30,11 @@
       "titleUploadFailure": "Error",
       "messageUploadFailureNotAZipFile": "Uploaded file is not a ZIP file.",
       "messageUploadFailureUnzipFailed": "Unable to extract ZIP file.",
-      "messageUploadFailureNoPluginFoundInZipFile": "No plugin found in ZIP file",
+      "messageUploadFailureNoPluginFoundInZipFile": "No plugin found in ZIP file.",
       "titleLoginDataInvalid": "Error",
       "messageLoginDataInvalid": "Login data incomplete.",
       "titleStoreHostMissing": "Error",
-      "messageStoreLicenseDomainMissing": "Login failed. Did you specify a licensing host via your account's settings?"
+      "messageStoreLicenseDomainMissing": "Login failed. Did you provide the correct license domain from your Shopware Account in \"Settings/Shopware Account\"?"
     },
     "fileUpload":{
       "buttonFileUpload":"Upload plugin",
@@ -44,7 +44,7 @@
     },
     "store-login":{
       "headline":"Shopware Account",
-      "information":"The Shopware ID is your username for the login to the Shopware account and other shopware services.",
+      "information":"The Shopware ID is your personal username that lets you log in to your Shopware Account and other Shopware services.",
       "titleLoginSuccess":"Success",
       "titleLoginMessage":"Logged in.",
       "labelShopwareId":"Shopware ID",

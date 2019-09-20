@@ -148,7 +148,7 @@ $repository->upsert(
 The example above will create a new product with an auto-generated identifier. In addition, it
 creates a new manufacturer named `shopware AG` and a new tax with a rate of `19%`.
 
-You don't have to care about writing orders or foreign key constraints if your definition and
+You don't have to care of writing orders or foreign key constraints if your definition and
 the database is designed correctly.
 
 ### Link existing entities

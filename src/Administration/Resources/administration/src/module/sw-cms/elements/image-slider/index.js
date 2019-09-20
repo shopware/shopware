@@ -62,7 +62,7 @@ Application.getContainer('service').cmsService.registerCmsElement({
                 elem.data[configKey].push({
                     newTab: sliderItem.newTab,
                     url: sliderItem.url,
-                    entity: data[`entity-${entityKey}`].get(sliderItem.entityId)
+                    media: data[`entity-${entityKey}`].get(sliderItem.mediaId)
                 });
             });
         });

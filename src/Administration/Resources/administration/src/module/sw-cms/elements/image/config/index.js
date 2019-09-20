@@ -80,6 +80,11 @@ Component.register('sw-cms-el-config-image', {
             this.$emit('element-update', this.element);
         },
 
+        updateElementData(media = null) {
+            this.$set(this.element.data, 'mediaId', media === null ? null : media.id);
+            this.$set(this.element.data, 'media', media);
+        },
+
         onOpenMediaModal() {
             this.mediaModalIsOpen = true;
         },
@@ -88,11 +93,6 @@ Component.register('sw-cms-el-config-image', {
             this.element.config.minHeight.value = value === null ? '' : value;
 
             this.$emit('element-update', this.element);
-        },
-
-        updateElementData(media = null) {
-            this.$set(this.element.data, 'mediaId', media === null ? null : media.id);
-            this.$set(this.element.data, 'media', media);
         },
 
         onChangeDisplayMode(value) {

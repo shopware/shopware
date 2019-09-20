@@ -106,86 +106,40 @@ Component.register('sw-product-detail', {
             return null;
         },
 
-        defaultCriteria() {
-            return new Criteria(1, 500);
-        },
-
-        mediaCriteria() {
-            const criteria = new Criteria(1, 50);
-            criteria.addSorting(
-                Criteria.sort('position', 'ASC')
-            );
-            return criteria;
-        },
-
-        tagsCriteria() {
-            const criteria = new Criteria(1, 500);
-            criteria.addSorting(
-                Criteria.sort('name', 'ASC')
-            );
-            return criteria;
-        },
-
-        pricesCriteria() {
-            const criteria = new Criteria(1, 500);
-            criteria.addSorting(
-                Criteria.sort('quantityStart', 'ASC', true)
-            );
-            return criteria;
-        },
-
-        visibilitiesCriteria() {
-            const criteria = new Criteria(1, 500);
-            criteria.addAssociation('salesChannel', this.defaultCriteria);
-
-            return criteria;
-        },
-
-        propertyCriteria() {
-            const criteria = new Criteria(1, 500);
-            criteria.addSorting(
-                Criteria.sort('name', 'ASC')
-            );
-            return criteria;
-        },
-
-        configuratorSettingsCriteria() {
-            const criteria = new Criteria(1, 500);
-            criteria.addAssociation('option', this.defaultCriteria);
-
-            return criteria;
-        },
-
         productCriteria() {
             const criteria = new Criteria();
-            criteria.addAssociation('media', this.mediaCriteria);
-            criteria.addAssociation('properties', this.propertyCriteria);
-            criteria.addAssociation('visibilities', this.visibilitiesCriteria);
-            criteria.addAssociation('prices', this.pricesCriteria);
-            criteria.addAssociation('tags', this.tagsCriteria);
-            criteria.addAssociation('categories', this.defaultCriteria);
-            criteria.addAssociation('options', this.defaultCriteria);
-            criteria.addAssociation('configuratorSettings', this.configuratorSettingsCriteria);
-            criteria.addAssociation('unit', this.defaultCriteria);
-            criteria.addAssociation('productReviews', this.defaultCriteria);
-            return criteria;
-        },
 
-        customFieldCriteria() {
-            const criteria = new Criteria(1, 100);
-            criteria.addSorting(
-                Criteria.sort('config.customFieldPosition')
-            );
+            criteria.getAssociation('media')
+                .addSorting(Criteria.sort('position', 'ASC'));
+
+            criteria.getAssociation('properties')
+                .addSorting(Criteria.sort('name', 'ASC'));
+
+            criteria.getAssociation('prices')
+                .addSorting(Criteria.sort('quantityStart', 'ASC', true));
+
+            criteria.getAssociation('tags')
+                .addSorting(Criteria.sort('name', 'ASC'));
+
+            criteria
+                .addAssociation('categories')
+                .addAssociation('visibilities.salesChannel')
+                .addAssociation('options')
+                .addAssociation('configuratorSettings.option')
+                .addAssociation('unit')
+                .addAssociation('productReviews');
+
             return criteria;
         },
 
         customFieldSetCriteria() {
             const criteria = new Criteria(1, 100);
+
+            criteria.addFilter(Criteria.equals('relations.entityName', 'product'));
             criteria
-                .addFilter(
-                    Criteria.equals('relations.entityName', 'product')
-                )
-                .addAssociation('customFields', this.customFieldCriteria);
+                .getAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition'));
+
             return criteria;
         },
 
@@ -352,7 +306,7 @@ Component.register('sw-product-detail', {
         loadCurrencies() {
             this.$store.commit('swProductDetail/setLoading', ['currencies', true]);
 
-            return this.currencyRepository.search(this.defaultCriteria, this.context).then((res) => {
+            return this.currencyRepository.search(new Criteria(1, 500), this.context).then((res) => {
                 this.$store.commit('swProductDetail/setCurrencies', res);
             }).then(() => {
                 this.$store.commit('swProductDetail/setLoading', ['currencies', false]);
@@ -362,7 +316,7 @@ Component.register('sw-product-detail', {
         loadTaxes() {
             this.$store.commit('swProductDetail/setLoading', ['taxes', true]);
 
-            return this.taxRepository.search(this.defaultCriteria, this.context).then((res) => {
+            return this.taxRepository.search(new Criteria(1, 500), this.context).then((res) => {
                 this.$store.commit('swProductDetail/setTaxes', res);
             }).then(() => {
                 this.$store.commit('swProductDetail/setLoading', ['taxes', false]);

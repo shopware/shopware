@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Util\Random;
-use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductGenerator implements DemodataGeneratorInterface
 {
@@ -37,11 +37,6 @@ class ProductGenerator implements DemodataGeneratorInterface
     private $connection;
 
     /**
-     * @var NumberRangeValueGeneratorInterface
-     */
-    private $numberRangeValueGenerator;
-
-    /**
      * @var ProductDefinition
      */
     private $productDefinition;
@@ -50,13 +45,11 @@ class ProductGenerator implements DemodataGeneratorInterface
         EntityWriterInterface $writer,
         EntityRepositoryInterface $taxRepository,
         Connection $connection,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         ProductDefinition $productDefinition
     ) {
         $this->writer = $writer;
         $this->taxRepository = $taxRepository;
         $this->connection = $connection;
-        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
         $this->productDefinition = $productDefinition;
     }
 
@@ -148,7 +141,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $faker = $context->getFaker();
         $product = [
-            'productNumber' => $this->numberRangeValueGenerator->getValue('product', $context->getContext(), null),
+            'productNumber' => Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $reverseTaxrate, 'linked' => true]],
             'name' => $faker->productName,
             'description' => $faker->text(),

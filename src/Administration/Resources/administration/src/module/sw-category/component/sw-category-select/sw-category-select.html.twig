@@ -39,6 +39,7 @@
                                             <slot name="result_items" :item="item" :index="index">
                                                 <sw-select-option :noPreview="true" :index="index" :item="item" :selected="checkAssociation(item.id)">
                                                     {{ item.translated.name }}
+                                                    <span class="sw-category-select__product-number">{{ item.productNumber }}</span>
                                                 </sw-select-option>
                                             </slot>
                                         </template>

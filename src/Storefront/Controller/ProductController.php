@@ -3,10 +3,13 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Product\SalesChannel\ProductReviewService;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
@@ -46,18 +49,25 @@ class ProductController extends StorefrontController
      */
     private $productReviewService;
 
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
+    private $productRepository;
+
     public function __construct(
         ProductPageLoader $productPageLoader,
         ProductCombinationFinder $combinationFinder,
         MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
         ProductReviewLoader $productReviewLoader,
-        ProductReviewService $productReviewService
+        ProductReviewService $productReviewService,
+        SalesChannelRepositoryInterface $productRepository
     ) {
         $this->productPageLoader = $productPageLoader;
         $this->productReviewLoader = $productReviewLoader;
         $this->combinationFinder = $combinationFinder;
         $this->minimalQuickViewPageLoader = $minimalQuickViewPageLoader;
         $this->productReviewService = $productReviewService;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -87,7 +97,19 @@ class ProductController extends StorefrontController
             $context
         );
 
-        return $this->redirectToRoute('frontend.detail.page', ['productId' => $redirect->getVariantId()]);
+        $product = $this->productRepository->search(
+            new Criteria([$redirect->getVariantId()]),
+            $context
+        )->get($redirect->getVariantId());
+
+        if (!$product->hasExtension('canonicalUrl')) {
+            return $this->redirectToRoute('frontend.detail.page', ['productId' => $redirect->getVariantId()]);
+        }
+
+        /** @var SeoUrlEntity $canonical */
+        $canonical = $product->getExtension('canonicalUrl');
+
+        return $this->redirect($canonical->getUrl());
     }
 
     /**
@@ -118,20 +140,29 @@ class ProductController extends StorefrontController
             ], ['productId' => $productId]);
         }
 
-        return $this->forward('Shopware\Storefront\Controller\ProductController::loadReviews', ['productId' => $productId, 'success' => 1]);
+        $forwardParams = [
+            'productId' => $productId,
+            'success' => 1,
+            'data' => $data,
+        ];
+
+        if ($data->has('id')) {
+            $forwardParams['success'] = 2;
+        }
+
+        return $this->forward('Shopware\Storefront\Controller\ProductController::loadReviews', $forwardParams);
     }
 
     /**
      * @Route("/product/{productId}/reviews", name="frontend.product.reviews", methods={"GET","POST"}, defaults={"XmlHttpRequest"=true})
      */
-    public function loadReviews(Request $request, SalesChannelContext $context): Response
+    public function loadReviews(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $page = $this->productPageLoader->load($request, $context);
 
         return $this->renderStorefront('page/product-detail/review/review.html.twig', [
             'page' => $page,
             'ratingSuccess' => $request->get('success'),
-            'data' => $request->get('data'),
         ]);
     }
 }

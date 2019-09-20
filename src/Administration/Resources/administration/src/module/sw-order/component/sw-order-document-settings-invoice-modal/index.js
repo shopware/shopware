@@ -18,11 +18,11 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
                     false
                 ).then((response) => {
                     this.documentConfig.custom.invoiceNumber = response.number;
-                    this.$emit('document-create', this.documentConfig, additionalAction);
+                    this.callDocumentCreate(additionalAction);
                 });
             } else {
                 this.documentConfig.custom.invoiceNumber = this.documentConfig.documentNumber;
-                this.$emit('document-create', this.documentConfig, additionalAction);
+                this.callDocumentCreate(additionalAction);
             }
         },
 

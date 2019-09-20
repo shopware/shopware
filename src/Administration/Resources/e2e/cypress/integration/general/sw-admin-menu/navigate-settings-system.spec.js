@@ -91,6 +91,10 @@ describe('Administration: Check module navigation in settings', () => {
     it('@general: navigate to plugin module', () => {
         cy.server();
         cy.route({
+            url: '/api/v1/_action/plugin/refresh',
+            method: 'post'
+        }).as('refresh');
+        cy.route({
             url: '/api/v1/search/plugin',
             method: 'post'
         }).as('getData');
@@ -101,6 +105,9 @@ describe('Administration: Check module navigation in settings', () => {
         });
         cy.get('.sw-tabs-item[title="System"]').click();
         cy.get('a[href="#/sw/plugin/index"]').click();
+        cy.wait('@refresh').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });

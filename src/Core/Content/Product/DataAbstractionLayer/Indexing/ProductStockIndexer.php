@@ -108,6 +108,23 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
         );
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $context = Context::createDefaultContext();
+        $iterator = $this->iteratorFactory->createIterator($this->definition, $lastId);
+
+        $ids = $iterator->fetch();
+
+        if (empty($ids)) {
+            return null;
+        }
+
+        $this->updateAvailableStock($ids, $context);
+        $this->updateAvailableFlag($ids, $context);
+
+        return $iterator->getOffset();
+    }
+
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         $products = $event->getEventByDefinition(ProductDefinition::class);

@@ -21,6 +21,20 @@
             </sw-container>
         {% endblock %}
 
+        {% block sw_order_document_settings_modal_form_file_upload %}
+            <sw-checkbox-field
+                v-model="uploadDocument"
+                :label="$tc('sw-order.documentModal.fileInputLabel')">
+            </sw-checkbox-field>
+            <sw-file-input
+                v-if="uploadDocument"
+                class="sw-order-document-settings-modal__file-input"
+                v-model="selectedDocumentFile"
+                :allowedMimeTypes="features.fileTypes"
+                :maxFileSize="features.uploadFileSizeLimit">
+            </sw-file-input>
+        {% endblock %}
+
         {% block sw_order_document_settings_modal_form_additional_content %}{% endblock %}
 
         {% block sw_order_document_settings_modal_form_document_comment %}

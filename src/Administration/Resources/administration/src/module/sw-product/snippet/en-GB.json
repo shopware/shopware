@@ -7,7 +7,7 @@
       "columnSearchOnly": "Search results only",
       "columnLinkOnly": "Hidden",
       "linkAdvancedVisibility": "Advanced assignment options",
-      "labelVisibility": "Sales channel assignment",
+      "labelVisibility": "Sales Channel assignment",
       "closeModal": "Apply"
     },
     "general": {
@@ -41,7 +41,7 @@
       "labelReferenceUnit": "Reference unit",
       "labelPackUnit": "Packaging unit",
       "placeholderTaxRate": "Select tax rate...",
-      "placeholderPurchasePriceGross": "Purchase price (gross)",
+      "placeholderPurchasePriceGross": "Enter purchase price (gross)...",
       "placeholderUnit": "Select...",
       "placeholderPurchaseUnit": "Purchase unit...",
       "placeholderReferenceUnit": "Reference unit...",
@@ -65,10 +65,10 @@
       "labelActive": "Active",
       "labelShippingFree": "Free shipping",
       "labelMarkAsTopseller": "Product promotion",
-      "labelIsCloseout": "Is closeout",
+      "labelIsCloseout": "On clearance sale",
       "labelDeliveryTime": "Delivery time",
       "labelRestockTime": "Restock time in days",
-      "placeholderDeliveryTime": "Enter a delivery time ...",
+      "placeholderDeliveryTime": "Enter a delivery time...",
       "placeholderCreatedAt": "Enter creation date...",
       "placeholderReleaseDate": "Enter release date...",
       "placeholderWidth": "500...",
@@ -76,17 +76,17 @@
       "placeholderLength": "100...",
       "placeholderWeight": "0.4...",
       "placeholderStock": "Enter quantity in stock...",
-      "placeholderMinPurchase": "Enter minimum amount purchaseable...",
-      "placeholderMaxPurchase": "Enter maximum amount purchaseable...",
-      "placeholderPurchaseSteps": "Enter purchase steps",
-      "placeholderRestockTime": "Enter restock time in days",
+      "placeholderMinPurchase": "Min. amount purchaseable...",
+      "placeholderMaxPurchase": "Max. amount purchaseable...",
+      "placeholderPurchaseSteps": "Enter purchase steps...",
+      "placeholderRestockTime": "Enter restock time in days...",
       "placeholderEan": "Enter EAN number...",
-      "placeholderManufacturerNumber": "Enter original manufacturer product number...",
+      "placeholderManufacturerNumber": "Original manufacturer product number...",
       "labelAvailableStock": "Available stock",
       "labelPurchaseSteps": "Purchase steps"
     },
     "packagingForm": {
-      "placeholderUnit": "Select ...",
+      "placeholderUnit": "Select...",
       "labelUnit": "Scale unit",
       "referenceUnitHelpText": "Add the desired amount that is used to calculate the base price. E.g. when a bottle contains 0.7 litres and the base price should be calculated with whole liters, you add 1.",
       "packUnitHelpText": "Add the type of packaging. E.g. a bottle, bag or box.",
@@ -107,10 +107,10 @@
       "cardTitleSeo": "SEO"
     },
     "reviewForm": {
-        "labelStatus": "Status",
+        "labelStatus": "Visible",
         "labelCreatedAt": "Created at",
         "labelPoints": "Stars",
-        "labelContent": "Review comment"
+        "labelContent": "Review"
     },
     "prices": {
       "cardTitlePriceRule": "New pricing rule",
@@ -123,8 +123,8 @@
       "buttonAddAdditionalPriceRuleGroup": "Add pricing rule",
       "textCurrencyDefault": "(Default)",
       "textPriceRuleForCurrency": "Pricing rule applicable to currency",
-      "columnQuantityStart": "Quantity from ...",
-      "columnQuantityEnd": "... to ...",
+      "columnQuantityStart": "Quantity from...",
+      "columnQuantityEnd": "to...",
       "columnPrice": "Price (gross / net)",
       "contextMenuDuplicate": "Duplicate",
       "contextMenuDelete": "Delete",
@@ -165,8 +165,8 @@
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Product \"{name}\" has been saved.",
       "messageUploadSuccess": "{count} of {total} files saved.",
-      "titleSaveWarning": "No change",
-      "messageSaveWarning": "You have not made any changes."
+      "titleSaveWarning": "Info",
+      "messageSaveWarning": "No changes detected."
     },
 
     "mediaForm": {
@@ -175,18 +175,18 @@
       "errorMediaItemDuplicated": "Media item already assigned."
     },
     "advancedPrices": {
-      "deletionNotPossibleTitle": "Deletion is not possible",
-      "deletionNotPossibleMessage": "The last price of the default currency can't get deleted.",
+      "deletionNotPossibleTitle": "Error",
+      "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
       "newRuleWarning": "In order to create a new pricing rule, select a conditional rule first.",
-      "advancedPricesNotExisting": "There are no advanced prices for this product yet.",
-      "columnFrom": "Quantity from ...",
-      "columnTo": "... to ...",
-      "selectRule": "Select rule…"
+      "advancedPricesNotExisting": "No advanced prices available for this product yet.",
+      "columnFrom": "Quantity from...",
+      "columnTo": "to...",
+      "selectRule": "Select rule..."
     },
     "properties": {
       "cardTitleProperties": "Available properties",
       "emptyStateNoOptionsTitle": "No options available",
-      "emptyStateNoOptionsDescription": "Create properties with options first, then return for assignment.",
+      "emptyStateNoOptionsDescription": "Create properties and property options first, then return here to assign them.",
       "emptyStateNoSelectedOptionsTitle": "No options selected",
       "emptyStateNoSelectedOptionsDescription": "Please select options from the search above."
     },
@@ -226,7 +226,7 @@
       "generatedListMessageSaveSuccess": "Variant has been saved.",
       "generatedListMessageSaveError": "Variant could not be saved.",
       "generatedListTitleDeleteError": "Deleted",
-      "generatedListMessageDeleteSuccess": "The variant has been deleted.",
+      "generatedListMessageDeleteSuccess": "Variant has been deleted.",
       "overview": {
         "filterReset": "Reset",
         "filter": "Filter",

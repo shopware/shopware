@@ -50,10 +50,16 @@ class RequestCriteriaBuilder
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         if ($request->getMethod() === Request::METHOD_GET) {
-            return $this->fromArray($request->query->all(), $criteria, $definition, $context);
+            $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
+        } else {
+            $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
         }
 
-        return $this->fromArray($request->request->all(), $criteria, $definition, $context);
+        if (empty($criteria->getIds()) && $criteria->getLimit() === null) {
+            $criteria->setLimit(10);
+        }
+
+        return $criteria;
     }
 
     public function getMaxLimit(): int
@@ -69,8 +75,6 @@ class RequestCriteriaBuilder
     private function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         $searchException = new SearchRequestException();
-
-        $criteria->setLimit(10);
 
         if (isset($payload['ids'])) {
             $ids = array_filter(explode('|', $payload['ids']));

@@ -262,10 +262,13 @@ trait MediaFixtures
 
     private function getMediaFixture(string $fixtureName): MediaEntity
     {
-        return $this->createFixture(
+        /** @var MediaEntity $media */
+        $media = $this->createFixture(
             $fixtureName,
             $this->mediaFixtures,
-            EntityFixturesBase::getFixtureRepository('media')
+            self::getFixtureRepository('media')
         );
+
+        return $media;
     }
 }

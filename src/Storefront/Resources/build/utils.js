@@ -1,4 +1,5 @@
 const path = require('path');
+const url = require('url');
 
 module.exports = {
     getBuildPath,
@@ -40,7 +41,7 @@ function getProjectRootPath() {
  * @return {String}
  */
 function getPublicPath() {
-    return `${getAppUrl()}${(isHotModuleReplacementMode()) ? ':9999' : ''}/`;
+    return `${getHostname()}${(isHotModuleReplacementMode()) ? ':9999' : ''}/`;
 }
 
 /**
@@ -102,6 +103,19 @@ function isProductionEnvironment() {
  */
 function getAppUrl() {
     return process.env.APP_URL;
+}
+
+/**
+ * Returns the public application URL without port number
+ * @return {string}
+ */
+function getHostname() {
+    try {
+        const url = new URL(process.env.APP_URL);
+        return url.protocol + '//' + url.hostname;
+    } catch {
+        return undefined;
+    }
 }
 
 /**

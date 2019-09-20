@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -31,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleDefinition;
@@ -498,10 +500,10 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(2, $old->getAddresses());
         static::assertCount(2, $new->getAddresses());
 
-        $oldAddressIds = $old->getAddresses()->map(function (CustomerAddressEntity $address) {
+        $oldAddressIds = $old->getAddresses()->map(static function (CustomerAddressEntity $address) {
             return $address->getId();
         });
-        $newAddressIds = $new->getAddresses()->map(function (CustomerAddressEntity $address) {
+        $newAddressIds = $new->getAddresses()->map(static function (CustomerAddressEntity $address) {
             return $address->getId();
         });
 
@@ -512,7 +514,7 @@ class EntityRepositoryTest extends TestCase
 
     public function testCloneWithManyToMany(): void
     {
-        static::markTestSkipped('ManyToMany are currently intendently not cloned - to be discussed');
+        static::markTestSkipped('ManyToMany are currently intendedly not cloned - to be discussed');
         $recordA = Uuid::randomHex();
         $data = [
             'id' => $recordA,
@@ -675,7 +677,7 @@ class EntityRepositoryTest extends TestCase
             ['id' => Uuid::fromHexToBytes($id)]
         );
         static::assertCount(7, $conditions);
-        $withParent = array_filter($conditions, function ($condition) {
+        $withParent = array_filter($conditions, static function ($condition) {
             return $condition['parent_id'] !== null;
         });
         static::assertCount(6, $withParent);
@@ -760,6 +762,7 @@ class EntityRepositoryTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('media_folder.repository');
 
         $event = $repository->create([$data], $context)->getEventByDefinition(MediaFolderDefinition::class);
@@ -806,12 +809,5 @@ class EntityRepositoryTest extends TestCase
             $this->getContainer()->get(EntityAggregatorInterface::class),
             $this->getContainer()->get('event_dispatcher')
         );
-    }
-}
-
-class CallableClass
-{
-    public function __invoke(): void
-    {
     }
 }

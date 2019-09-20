@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedE
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\RepositorySearchDetector;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -73,7 +73,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
         $aggregations = null;
         if ($criteria->getAggregations()) {
-            $aggregations = $this->aggregate($criteria, $salesChannelContext)->getAggregations();
+            $aggregations = $this->aggregate($criteria, $salesChannelContext);
         }
 
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
@@ -129,7 +129,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, SalesChannelContext $salesChannelContext): AggregatorResult
+    public function aggregate(Criteria $criteria, SalesChannelContext $salesChannelContext): AggregationResultCollection
     {
         if ($this->definition instanceof SalesChannelDefinitionInterface) {
             $this->definition->processCriteria($criteria, $salesChannelContext);
@@ -137,7 +137,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
         $result = $this->aggregator->aggregate($this->definition, $criteria, $salesChannelContext->getContext());
 
-        $event = new EntityAggregationResultLoadedEvent($this->definition, $result);
+        $event = new EntityAggregationResultLoadedEvent($this->definition, $result, $salesChannelContext->getContext());
         $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;

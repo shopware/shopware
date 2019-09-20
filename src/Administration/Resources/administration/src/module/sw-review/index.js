@@ -9,7 +9,7 @@ const { Module } = Shopware;
 Module.register('sw-review', {
     type: 'core',
     name: 'Reviews',
-    description: 'Manages the customer reviews of oroducts',
+    description: 'sw-review.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',

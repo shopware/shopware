@@ -28,8 +28,8 @@ You can use them with every URL in your templates
 <img src="{{ "http://your.domain:8080/path to/file with whitspace-and(brackets).png" | sw_encode_url }}"
 
 {# encodes the url of your media entity #}
-<img src="{{ yourStorefrontMediaObject | sw_encode_media_url }} 
-``` 
+<img src="{{ yourStorefrontMediaObject | sw_encode_media_url }}
+```
 
 ### 6.0.0 EA2
 
@@ -37,16 +37,19 @@ You can use them with every URL in your templates
 
 * Administration
     * Moved the global state of the module `sw-cms` to VueX
-    * Renamed rename `sw-many-to-many` to `sw-entity-many-to-many`
+    * Renamed `sw-many-to-many-select` to `sw-entity-many-to-many-select`
     * Renamed `sw-tag-field-new` to `sw-entity-tag-select`
     * Added `sw-select-base`, `sw-select-result`, `sw-select-result-list` and `sw-select-selection-list` as base components for select fields
-    * Changed select components in path `administration/src/app/component/form/select` to operate with v-model 
+    * Changed select components in path `administration/src/app/component/form/select` to operate with v-model
     * Deprecated `sw-tag-field` use `sw-entity-tag-select` instead
     * Deprecated `sw-select` use `sw-multi-select` or `sw-single-select` instead
     * Deprecated `sw-select-option` use `sw-result-option` instead
     * Moved the `sw-cms` from `State.getStore()` to `Repository` and added clientsided data resolver
+    * Added translations for the `sw-cms` module
+    * Replaced vanilla-colorpicker dependency with custom-build vuejs colorpicker
+    * `EntityCollection.filter` returns a new `EntityCollection` object instead of a native array 
 * Core
-    * Added DAL support for multi primary keys. 
+    * Added DAL support for multi primary keys.
     * Added API endpoints for translation definitions
     * Added new event `\Shopware\Core\Content\Category\Event\NavigationLoadedEvent` which dispatched after a sales channel navigation loaded
     * Added restriction to storefront API to prevent filtering, sorting, aggregating and association loading of ReadProtected fields/entities
@@ -57,21 +60,31 @@ You can use them with every URL in your templates
     * Changed parameter of `\Shopware\Core\System\StateMachine\StateMachineRegistry::transition`. `\Shopware\Core\System\StateMachine\Transition` is now expected.
     * Changed behaviour of `\Shopware\Core\System\StateMachine\StateMachineRegistry::transition` to now expect the action name instead of the toStateName
     * Changed signature of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::addAssociation`
-      The second parameter `$criteria` has been removed. Use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::getAssociation` instead.  
+      The second parameter `$criteria` has been removed. Use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::getAssociation` instead.
     * Changed the name of `core.<locale>.json` to `messages.<locale>.json` and changed to new base file.
     * Changed name of property in CurrencyDefinition from `isDefault` to `isSystemDefault`
     * Added RouteScopes as required Annotation for all Routes
+    * Added new function `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface::partial` to index partially in time limited requests
     * Added `\Shopware\Core\Framework\Migration\InheritanceUpdaterTrait` to update entity schema for inherited associations
+    * Changed default enqueue transport from enqueue/fs to enqueue/dbal
+    * Made the service `\Shopware\Core\System\SystemConfig\SystemConfigService` public
+    * Removed `Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\ValueCount` use `Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms`instead
+    * Removed `Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Value` use `Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms`instead
+    * Refactored DAL aggregation system, see `UPGRADE-6.1.md` for more details 
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
     * Changed the name of `messages.<locale>.json` to `storefront.<locale>.json` and changed to **not** be a base file anymore.
     * Added `extractIdsToUpdate` to `Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface`
-    
+
 **Removals**
 
 * Administration
     * Removed `sw-tag-multi-select`
     * Removed `sw-multi-select-option` use `sw-result-option` instead
+    * Removed `sw-single-select-option` use `sw-result-option` instead
+    * Removed `Criteria.value` use `Criteria.terms` instead
+    * Removed `Criteria.valueCount` use `Criteria.terms` instead
+    * Removed `Criteria.addAssociationPath` use `Criteria.addAssociation` instead
 * Core
     * Removed `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService::getCountryList` function
     * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Search\PaginationCriteria`

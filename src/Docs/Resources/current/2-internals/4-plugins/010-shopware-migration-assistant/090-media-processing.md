@@ -13,7 +13,7 @@ To add a file to the table you can do something like this in your `Converter` cl
 ```php
 <?php declare(strict_types=1);
 
-class MediaConverter extends Shopware55Converter
+abstract class MediaConverter extends ShopwareConverter
 {
     /* ... */
 
@@ -43,8 +43,9 @@ class MediaConverter extends Shopware55Converter
         $this->mediaFileService->saveMediaFile(
             [
                 'runId' => $migrationContext->getRunUuid(),
-                'uri' => $data['uri'] ?? $data['path'], // uri or path to the file (because of the different implementations of the gateways)
-                'fileName' => $data['name'],
+                'entity' => MediaDataSet::getEntity(), // important to distinguish between private and public files
+                'uri' => $data['uri'] ?? $data['path'],
+                'fileName' => $data['name'], // uri or path to the file (because of the different implementations of the gateways)
                 'fileSize' => (int) $data['file_size'],
                 'mediaId' => $converted['id'], // uuid of the media object in Shopware 6
             ]
@@ -52,8 +53,8 @@ class MediaConverter extends Shopware55Converter
         unset($data['uri'], $data['file_size']);
 
         $this->getMediaTranslation($converted, $data);
-        $this->convertValue($converted, 'name', $data, 'name');
-        $this->convertValue($converted, 'description', $data, 'description');
+        $this->convertValue($converted, 'title', $data, 'name');
+        $this->convertValue($converted, 'alt', $data, 'description');
 
         $albumUuid = $this->mappingService->getUuid(
           $this->connectionId,
@@ -92,6 +93,7 @@ class MediaConverter extends Shopware55Converter
     /* ... */
 }
 ```
+`swag_migration_media_files` are processed by the right processor service. This service is different for documents and normal media, but it still is gateway dependent.
 For example the `HttpMediaDownloadService` works like this:
 ```php
 <?php declare(strict_types=1);
@@ -100,9 +102,16 @@ namespace SwagMigrationAssistant\Profile\Shopware55\Media;
 
 /* ... */
 
-class HttpMediaDownloadService extends AbstractMediaFileProcessor
+class HttpMediaDownloadService implements MediaFileProcessorInterface
 {
     /* ... */
+
+    public function supports(MigrationContextInterface $migrationContext): bool
+    {
+        return $migrationContext->getProfile() instanceof ShopwareProfileInterface
+            && $migrationContext->getGateway()->getName() === ShopwareApiGateway::GATEWAY_NAME
+            && $migrationContext->getDataSet()::getEntity() === MediaDataSet::getEntity();
+    }
 
     public function process(MigrationContextInterface $migrationContext, Context $context, array $workload, int $fileChunkByteSize): array
     {

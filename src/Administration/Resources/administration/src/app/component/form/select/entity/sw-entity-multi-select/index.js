@@ -1,7 +1,7 @@
 import template from './sw-entity-multi-select.html.twig';
 
 const { Component } = Shopware;
-const { debounce } = Shopware.Utils;
+const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 Component.register('sw-entity-multi-select', {
@@ -13,7 +13,7 @@ Component.register('sw-entity-multi-select', {
         event: 'change'
     },
 
-    inject: ['repositoryFactory', 'context'],
+    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'context' },
 
     props: {
         labelProperty: {
@@ -51,6 +51,13 @@ Component.register('sw-entity-multi-select', {
         entityCollection: {
             type: Array,
             required: true
+        },
+        context: {
+            type: Object,
+            required: false,
+            default() {
+                return this.adminContext;
+            }
         }
     },
 
@@ -275,6 +282,10 @@ Component.register('sw-entity-multi-select', {
             if (this.$refs.selectBase.expanded) {
                 this.loadData();
             }
+        },
+
+        getKey(object, keyPath, defaultValue) {
+            return get(object, keyPath, defaultValue);
         }
     }
 });

@@ -102,7 +102,7 @@ PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, docum
 PluginManager.register('RemoteClick', RemoteClickPlugin, '[data-remote-click]');
 PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-editor]');
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
-PluginManager.register('RatingSystemPlugin', RatingSystemPlugin, '[data-rating-system]');
+PluginManager.register('RatingSystem', RatingSystemPlugin, '[data-rating-system]');
 
 /*
 run plugins

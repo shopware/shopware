@@ -105,51 +105,52 @@
     {% endblock %}
 
     {% block base_body_script %}
-    {% block base_script_token %}
-        <script>
-            window.accessKey = '{{ context.salesChannel.accessKey }}';
-            window.contextToken = '{{ context.token }}';
-        </script>
-    {% endblock %}
+        {% block base_script_token %}
+            <script>
+                window.accessKey = '{{ context.salesChannel.accessKey }}';
+                window.contextToken = '{{ context.token }}';
+            </script>
+        {% endblock %}
 
-    {% block base_script_router %}
-        {# Register all routes that will be needed in JavaScript to the window.router object #}
-        <script>
-            window.activeNavigationId = '{{ page.header.navigation.active.id }}';
-            window.router = {
-                'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
-                'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
-                'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
-                'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',
-                'frontend.cms.page': '{{ path('frontend.cms.page') }}',
-                'frontend.cms.navigation.page': '{{ path('frontend.cms.navigation.page') }}',
-                'frontend.account.addressbook': '{{ path('frontend.account.addressbook') }}',
-            };
-        </script>
-    {% endblock %}
+        {% block base_script_router %}
+            {# Register all routes that will be needed in JavaScript to the window.router object #}
+            <script>
+                window.activeNavigationId = '{{ page.header.navigation.active.id }}';
+                window.router = {
+                    'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
+                    'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
+                    'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
+                    'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',
+                    'frontend.cms.page': '{{ path('frontend.cms.page') }}',
+                    'frontend.cms.navigation.page': '{{ path('frontend.cms.navigation.page') }}',
+                    'frontend.account.addressbook': '{{ path('frontend.account.addressbook') }}',
+                };
+            </script>
+        {% endblock %}
 
-    {% block base_script_breakpoints %}
-        {# Register the available viewport breakpoints the window.breakpoints object #}
-        <script>
-            window.breakpoints = {{ shopware.theme.breakpoint|json_encode()|raw }};
-        </script>
-    {% endblock %}
+        {% block base_script_breakpoints %}
+            {# Register the available viewport breakpoints the window.breakpoints object #}
+            <script>
+                window.breakpoints = {{ shopware.theme.breakpoint|json_encode()|raw }};
+            </script>
+        {% endblock %}
 
-    {% block base_script_hmr_mode %}
-        {% if isHMRMode %}
-            {% set baseUrl = app.request.getScheme() ~ '://' ~ app.request.getHost() %}
-            <script type="text/javascript" src="{{ baseUrl }}:9999/js/vendor-node.js"></script>
-            <script type="text/javascript" src="{{ baseUrl }}:9999/js/vendor-shared.js"></script>
-            <script type="text/javascript" src="{{ baseUrl }}:9999/js/runtime.js"></script>
-            <script type="text/javascript" src="{{ baseUrl }}:9999/js/app.js"></script>
-            {# The storefront entry is a combined entry point which contains all plugins & themes #}
-            <script type="text/javascript" src="{{ baseUrl }}:9999/js/storefront.js"></script>
-        {% else %}
-            {% for file in shopware.theme.assets.js %}
-                <script type="text/javascript" src="{{ asset(file) }}"></script>
-            {% endfor %}
-        {% endif %}
-    {% endblock %}
+        {% block base_script_hmr_mode %}
+            {% if isHMRMode %}
+                {% set baseUrl = app.request.getScheme() ~ '://' ~ app.request.getHost() %}
+                <script type="text/javascript" src="{{ baseUrl }}:9999/js/vendor-node.js"></script>
+                <script type="text/javascript" src="{{ baseUrl }}:9999/js/vendor-shared.js"></script>
+                <script type="text/javascript" src="{{ baseUrl }}:9999/js/runtime.js"></script>
+                <script type="text/javascript" src="{{ baseUrl }}:9999/js/app.js"></script>
+                {# The storefront entry is a combined entry point which contains all plugins & themes #}
+                <script type="text/javascript" src="{{ baseUrl }}:9999/js/storefront.js"></script>
+            {% else %}
+                {% for file in shopware.theme.assets.js %}
+                    <script type="text/javascript" src="{{ asset(file) }}"></script>
+                {% endfor %}
+            {% endif %}
+        {% endblock %}
+
     {% endblock %}
     </body>
 {% endblock %}

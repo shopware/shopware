@@ -65,11 +65,11 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
                     false
                 ).then((response) => {
                     this.documentConfig.custom.creditNoteNumber = response.number;
-                    this.$emit('document-create', this.documentConfig, additionalAction);
+                    this.callDocumentCreate(additionalAction);
                 });
             } else {
                 this.documentConfig.custom.creditNoteNumber = this.documentConfig.documentNumber;
-                this.$emit('document-create', this.documentConfig, additionalAction);
+                this.callDocumentCreate(additionalAction);
             }
         }
     }

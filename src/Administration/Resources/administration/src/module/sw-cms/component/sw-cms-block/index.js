@@ -16,10 +16,17 @@ Component.register('sw-cms-block', {
                 return {};
             }
         },
+
         active: {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        buttonsEnabled: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

@@ -132,7 +132,7 @@
                                                        data-form-validation-equal="newPassword"
                                                        {% endif %}
                                                        {% if shopware.config.core.loginRegistration.passwordMinLength != 0 %}
-													   data-form-validation-length="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
+                                                       data-form-validation-length="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
                                                        data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
                                                            '%minLength%': shopware.config.core.loginRegistration.passwordMinLength
                                                        }) }}"
@@ -229,7 +229,7 @@
                             {% endblock %}
                         </div>
                     {% endblock %}
-                    
+
                     {% block component_account_register_address %}
                         <div class="register-address">
                             {% block component_account_register_address_fields %}

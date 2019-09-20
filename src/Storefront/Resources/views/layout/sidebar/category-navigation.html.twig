@@ -1,0 +1,30 @@
+{% block component_category_navigation %}
+    {% if not level %}
+        {% set level = 0 %}
+    {% endif %}
+
+    <ul class="category-navigation level-{{ level }}">
+        {% for item in navigationTree %}
+            <li class="category-navigation-entry">
+                {% if (item.category.id in activeResult.id) or (item.category.id in activeResult.path) %}
+                    <a class="category-navigation-link {% if item.category.id is same as(activeResult.id) %}is-active{% endif %} {% if item.category.id in activeResult.path %}in-path{% endif %}" href="/navigation/{{ activeResult.id }}">{{ item.category.name }}</a>
+                        {% if item.category.id != activeResult.id %}
+                            {% block layout_navigation_categories_recoursion %}
+                                {% sw_include '@Storefront/layout/sidebar/category-navigation.html.twig' with {
+                                    navigationTree: item.children,
+                                    activeResult: activeResult,
+                                    level: level + 1
+                                } only %}
+                            {% endblock %}
+                        {% endif %}
+                {% else %}
+                    <a class="category-navigation-link {% if item.category.id is same as(activeResult.id) %}is-active{% endif %}"
+                       href="/navigation/{{ item.category.id }}">
+                        {{ item.category.name }}
+                    </a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+

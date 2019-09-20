@@ -89,4 +89,49 @@ class IndexerRegistry implements EventSubscriberInterface, IndexerRegistryInterf
         $preEvent = new IndexerRegistryEndEvent(new \DateTimeImmutable(), $event->getContext());
         $this->eventDispatcher->dispatch($preEvent);
     }
+
+    public function partial(?string $lastIndexer, ?array $lastId, \DateTimeInterface $timestamp): ?IndexerRegistryPartialResult
+    {
+        $indexers = $this->getIndexers();
+
+        foreach ($indexers as $index => $indexer) {
+            if (!$lastIndexer) {
+                return $this->doPartial($indexer, $lastId, $index, $timestamp);
+            }
+
+            if ($lastIndexer === get_class($indexer)) {
+                return $this->doPartial($indexer, $lastId, $index, $timestamp);
+            }
+        }
+
+        return null;
+    }
+
+    private function doPartial(IndexerInterface $indexer, ?array $lastId, $index, \DateTimeInterface $timestamp): ?IndexerRegistryPartialResult
+    {
+        $nextId = $indexer->partial($lastId, $timestamp);
+
+        $next = get_class($indexer);
+
+        if ($nextId !== null) {
+            return new IndexerRegistryPartialResult($next, $nextId);
+        }
+        ++$index;
+        $indexers = $this->getIndexers();
+
+        if (!isset($indexers[$index])) {
+            return null;
+        }
+
+        return new IndexerRegistryPartialResult(get_class($indexers[$index]), null);
+    }
+
+    private function getIndexers()
+    {
+        if (!is_array($this->indexer)) {
+            return array_values(iterator_to_array($this->indexer));
+        }
+
+        return array_values($this->indexer);
+    }
 }

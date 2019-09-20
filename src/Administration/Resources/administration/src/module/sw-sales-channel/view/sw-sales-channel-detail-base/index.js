@@ -76,7 +76,9 @@ Component.register('sw-sales-channel-detail-base', {
                 'shippingMethodId',
                 'countryId',
                 'currencyId',
-                'languageId'
+                'languageId',
+                'customerGroupId',
+                'navigationCategoryId'
             ])
     },
 
@@ -92,10 +94,9 @@ Component.register('sw-sales-channel-detail-base', {
             });
         },
 
-        onDefaultItemAdd(itemId, ref, property) {
-            const defaultSelection = this.$refs[ref].singleSelection;
-            if (!this.salesChannel[property].has(defaultSelection.id)) {
-                this.salesChannel[property].push(defaultSelection);
+        onDefaultItemAdd(item, ref, property) {
+            if (!this.salesChannel[property].has(item.id)) {
+                this.salesChannel[property].push(item);
             }
         },
 
@@ -104,6 +105,29 @@ Component.register('sw-sales-channel-detail-base', {
             if (defaultSelection !== null && item.id === defaultSelection.id) {
                 this.salesChannel[property] = null;
             }
+        },
+
+        onToggleActive() {
+            if (this.salesChannel.active !== true) {
+                return;
+            }
+            const criteria = new Criteria();
+            criteria.addAssociation('themes');
+            this.salesChannelRepository
+                .get(this.$route.params.id, this.context, criteria)
+                .then((entity) => {
+                    if (entity.extensions.themes !== undefined && entity.extensions.themes.length >= 1) {
+                        return;
+                    }
+
+                    this.salesChannel.active = false;
+                    this.createNotificationError({
+                        title: this.$tc('sw-sales-channel.detail.titleActivateError'),
+                        message: this.$tc('sw-sales-channel.detail.messageActivateWithoutThemeError', 0, {
+                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name')
+                        })
+                    });
+                });
         },
 
         onCloseDeleteModal() {

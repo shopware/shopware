@@ -21,13 +21,19 @@ Component.register('sw-order-document-settings-modal', {
     data() {
         return {
             showModal: false,
+            selectedDocumentFile: false,
+            uploadDocument: false,
             documentConfig: {
                 custom: {},
                 documentNumber: 0,
                 documentComment: '',
                 documentDate: ''
             },
-            documentNumberPreview: false
+            documentNumberPreview: false,
+            features: {
+                uploadFileSizeLimit: 52428800,
+                fileTypes: ['application/pdf']
+            }
         };
     },
 
@@ -56,7 +62,17 @@ Component.register('sw-order-document-settings-modal', {
         },
 
         onCreateDocument(additionalAction = false) {
-            this.$emit('document-create', this.documentConfig, additionalAction);
+            this.callDocumentCreate(additionalAction);
+        },
+
+        callDocumentCreate(additionalAction, referencedDocumentId = null) {
+            this.$emit(
+                'document-create',
+                this.documentConfig,
+                additionalAction,
+                referencedDocumentId,
+                (this.uploadDocument ? this.selectedDocumentFile : null)
+            );
         },
 
         onPreview() {

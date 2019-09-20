@@ -9,7 +9,6 @@
                         {% block sw_cms_detail_toolbar_language_switch %}
                             <sw-language-switch slot="language-switch"
                                                 @on-change="onChangeLanguage"
-                                                :disabled="true"
                                                 :saveChangesFunction="saveOnLanguageChange"
                                                 :abortChangeFunction="abortOnLanguageChange">
                             </sw-language-switch>
@@ -139,6 +138,7 @@
                                                         <sw-cms-block class="sw-cms-stage-block"
                                                                       :key="block.id"
                                                                       :block="block"
+                                                                      :buttonsEnabled="isSystemDefaultLanguage"
                                                                       :active="currentBlock !== null && currentBlock.id === block.id"
                                                                       @block-overlay-click="onBlockSelection(block)"
                                                                       @block-delete="onBlockDelete(block.id)"
@@ -188,13 +188,21 @@
                                                 {% endblock %}
 
                                                 {% block sw_cms_detail_sidebar_page_settings_form %}
-                                                    <div class="sw-cms-detail__settings" slot="content">
+                                                    <div class="sw-cms-detail__settings" slot="content" v-if="!isLoading">
                                                         {% block sw_cms_detail_sidebar_page_settings_name_field %}
-                                                            <sw-field type="text" :label="$tc('sw-cms.detail.labelPageName')" :placeholder="placeholder(page, 'name')" v-model="page.name"></sw-field>
+                                                            <sw-field type="text"
+                                                                      :label="$tc('sw-cms.detail.labelPageName')"
+                                                                      :placeholder="placeholder(page, 'name')"
+                                                                      v-model="page.name">
+                                                            </sw-field>
                                                         {% endblock %}
 
                                                         {% block sw_cms_detail_sidebar_page_settings_type_field %}
-                                                            <sw-select-field :label="$tc('sw-cms.detail.labelPageType')" v-model="page.type" @change="onPageTypeChange">
+                                                            <sw-select-field
+                                                                :label="$tc('sw-cms.detail.labelPageType')"
+                                                                :disabled="!isSystemDefaultLanguage"
+                                                                v-model="page.type"
+                                                                @change="onPageTypeChange">
                                                                 {% block sw_cms_detail_sidebar_page_settings_type_field_options %}
                                                                     <option value="page">
                                                                         {{ $tc('sw-cms.detail.labelPageTypeShopPage') }}
@@ -232,8 +240,8 @@
 
                                 {% block sw_cms_detail_sidebar_block_overview %}
                                     <sw-sidebar-item icon="default-basic-plus-circle"
-                                                     :title="$tc('sw-cms.detail.sidebarTitleBlockOverview')"
-                                                     :disabled="currentDeviceView === 'form'"
+                                                     :title="addBlockTitle"
+                                                     :disabled="currentDeviceView === 'form' || !isSystemDefaultLanguage"
                                                      ref="blockSelectionSidebar">
                                         {% block sw_cms_detail_sidebar_block_overview_content %}
                                             <div class="sw-cms-detail__block-overview">
@@ -245,6 +253,7 @@
                                                             <option value="image">{{ $tc('sw-cms.detail.labelBlockCategoryImage') }}</option>
                                                             <option value="text-image">{{ $tc('sw-cms.detail.labelBlockCategoryTextImage') }}</option>
                                                             <option value="commerce">{{ $tc('sw-cms.detail.labelBlockCategoryCommerce') }}</option>
+                                                            {% block sw_cms_detail_sidebar_block_overview_category_element_after %}{% endblock %}
                                                         </sw-select-field>
                                                     </div>
                                                 {% endblock %}
@@ -329,7 +338,7 @@
 
                                                         {% block sw_cms_detail_sidebar_navigator_element_duplicate %}
                                                             <div class="navigator-element__action-duplicate"
-                                                                 v-if="cmsBlocks[block.type].removable !== false"
+                                                                 v-if="(cmsBlocks[block.type].removable !== false) && isSystemDefaultLanguage"
                                                                  @click="onBlockDuplicate(block)">
                                                                 <sw-icon name="default-action-duplicate" size="16"></sw-icon>
                                                             </div>
@@ -337,7 +346,7 @@
 
                                                         {% block sw_cms_detail_sidebar_navigator_element_delete %}
                                                             <div class="navigator-element__action-delete"
-                                                                 v-if="cmsBlocks[block.type].removable !== false"
+                                                                 v-if="(cmsBlocks[block.type].removable !== false) && isSystemDefaultLanguage"
                                                                  @click="onBlockDelete(block.id)">
                                                                 <sw-icon name="default-action-trash" size="16"></sw-icon>
                                                             </div>

@@ -70,7 +70,7 @@ Component.register('sw-settings-language-detail', {
 
         usedLocaleCriteria() {
             return (new Criteria(1, 1)).addAggregation(
-                Criteria.valueCount('usedLocales', 'language.locale.code')
+                Criteria.terms('usedLocales', 'language.locale.code', null, null, null)
             );
         },
 
@@ -88,6 +88,12 @@ Component.register('sw-settings-language-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        parentLanguageCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.language.id)]));
+            return criteria;
         }
     },
 
@@ -117,7 +123,7 @@ Component.register('sw-settings-language-detail', {
                 this.usedLocaleCriteria,
                 this.context
             ).then(({ aggregations }) => {
-                this.usedLocales = aggregations.usedLocales[0].values;
+                this.usedLocales = aggregations.usedLocales.buckets;
             });
         },
 
@@ -138,10 +144,6 @@ Component.register('sw-settings-language-detail', {
             }
 
             this.showAlertForChangeParentLanguage = origin.parentId !== this.language.parentId;
-        },
-
-        showOption(item) {
-            return item.id !== this.language.id;
         },
 
         isLocaleAlreadyUsed(item) {

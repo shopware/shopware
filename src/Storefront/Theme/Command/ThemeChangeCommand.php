@@ -91,7 +91,6 @@ class ThemeChangeCommand extends Command
         if (!$input->getOption('all')) {
             $question = new ChoiceQuestion('Please select a sales channel:', $this->getSalesChannelChoices($salesChannels));
             $answer = $helper->ask($input, $output, $question);
-            $answer .= 'asdf';
             $parsedSalesChannel = $this->parseSalesChannelAnswer($answer, $salesChannels);
             if ($parsedSalesChannel === null) {
                 return 1;

@@ -45,7 +45,6 @@
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer" public="true">
             <tag name="shopware.dal_indexing.indexer" priority="-50000"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
-            <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

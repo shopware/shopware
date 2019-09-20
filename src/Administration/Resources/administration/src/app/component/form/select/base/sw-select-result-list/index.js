@@ -98,7 +98,7 @@ Component.register('sw-select-result-list', {
         },
 
         emitActiveItemIndex() {
-            this.$emit('changed-active-item', this.activeItemIndex);
+            this.$emit('active-item-change', this.activeItemIndex);
         },
 
         navigate({ key }) {
@@ -164,8 +164,10 @@ Component.register('sw-select-result-list', {
             });
         },
 
-        emitClicked(originalDomEvent) {
-            this.$emit('item-select', this.options[this.activeItemIndex], originalDomEvent);
+        emitClicked() {
+            // This emit is subscribed in the sw-result component. They can for example be disabled and need
+            // choose on their own if they are selected
+            this.$emit('item-select-by-keyboard', this.activeItemIndex);
         },
 
         onScroll(event) {

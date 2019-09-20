@@ -1,7 +1,7 @@
 import template from './sw-entity-many-to-many-select.html.twig';
 
 const { Component } = Shopware;
-const { debounce } = Shopware.Utils;
+const { debounce, get } = Shopware.Utils;
 const { deepCopyObject } = Shopware.Utils.object;
 const { Criteria, EntityCollection } = Shopware.Data;
 
@@ -14,7 +14,7 @@ Component.register('sw-entity-many-to-many-select', {
         event: 'change'
     },
 
-    inject: ['repositoryFactory', 'context'],
+    inject: { repositoryFactory: 'repositoryFactory', adminContext: 'context' },
 
     props: {
         labelProperty: {
@@ -58,6 +58,13 @@ Component.register('sw-entity-many-to-many-select', {
         entityCollection: {
             type: Array,
             required: true
+        },
+        context: {
+            type: Object,
+            required: false,
+            default() {
+                return this.adminContext;
+            }
         }
     },
 
@@ -371,6 +378,10 @@ Component.register('sw-entity-many-to-many-select', {
             if (this.$refs.selectBase.expanded) {
                 this.sendSearchRequest();
             }
+        },
+
+        getKey(object, keyPath, defaultValue) {
+            return get(object, keyPath, defaultValue);
         }
     }
 });

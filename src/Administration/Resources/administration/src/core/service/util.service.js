@@ -55,7 +55,8 @@ export const string = {
     capitalizeString: stringUtils.capitalizeString,
     camelCase: stringUtils.camelCase,
     md5: stringUtils.md5,
-    isEmptyOrSpaces: stringUtils.isEmptyOrSpaces
+    isEmptyOrSpaces: stringUtils.isEmptyOrSpaces,
+    isUrl: stringUtils.isUrl
 };
 
 export const types = {

@@ -6,7 +6,7 @@
 
     <services>
         <!-- Theme -->
-        <service id="Shopware\Storefront\Theme\StorefrontPluginRegistry">
+        <service id="Shopware\Storefront\Theme\StorefrontPluginRegistry" public="true">
             <argument type="service" id="kernel"/>
         </service>
 

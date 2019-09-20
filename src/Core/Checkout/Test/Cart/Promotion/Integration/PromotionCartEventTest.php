@@ -10,8 +10,8 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\CallableClass;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -60,7 +60,6 @@ class PromotionCartEventTest extends TestCase
      * only called once for every discount +1 for the actual product.
      * We also must not call a line item removed event.
      *
-     * @test
      * @group promotions
      */
     public function testAvoidInfiniteLoopEventsWithLotsOfPromotions(): void
@@ -75,7 +74,7 @@ class PromotionCartEventTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $addListener = $this->getMockBuilder(CallableClass::class)->setMethods(['__invoke'])->getMock();
-        $addListener->expects(static::exactly(1 + count($codes)))->method('__invoke');
+        $addListener->expects(static::exactly(1 + \count($codes)))->method('__invoke');
         $dispatcher->addListener(LineItemAddedEvent::class, $addListener);
 
         /** @var Cart $cart */
@@ -96,10 +95,9 @@ class PromotionCartEventTest extends TestCase
      * This test verifies that we only fire our remove item
      * once, even though we have lots of promotions in our cart.
      *
-     * @test
      * @group promotions
      */
-    public function testAvoidInifiniteLoopEventsWhenRemovingLotsOfPromotions(): void
+    public function testAvoidInfiniteLoopEventsWhenRemovingLotsOfPromotions(): void
     {
         $productId = Uuid::randomHex();
 

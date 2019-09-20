@@ -53,10 +53,10 @@ class MailActionController extends AbstractController
      *
      * @throws StringTemplateRenderingException
      */
-    public function validate(RequestDataBag $post): JsonResponse
+    public function validate(RequestDataBag $post, Context $context): JsonResponse
     {
-        $this->templateRenderer->render($post->get('contentHtml', ''), []);
-        $this->templateRenderer->render($post->get('contentPlain', ''), []);
+        $this->templateRenderer->render($post->get('contentHtml', ''), [], $context);
+        $this->templateRenderer->render($post->get('contentPlain', ''), [], $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

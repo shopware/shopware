@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Test\Page\Product\Review;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\CountResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Storefront\Page\Product\Review\MatrixElement;
 use Shopware\Storefront\Page\Product\Review\RatingMatrix;
 
@@ -102,8 +102,8 @@ class RatingMatrixTest extends TestCase
      */
     public function testMissingAggregations(): void
     {
-        $twoStars = new CountResult(['points' => 2.0], 3);
-        $threeStars = new CountResult(['points' => 4.0], 3);
+        $twoStars = new Bucket('2.0', 3, null);
+        $threeStars = new Bucket('4.0', 3, null);
 
         $matrix = new RatingMatrix([$twoStars, $threeStars]);
 
@@ -131,11 +131,11 @@ class RatingMatrixTest extends TestCase
      */
     private function getDatabaseMatrixAggregationArray(int $oneCount, int $twoCount, int $threeCount, int $fourCount, int $fiveCount): array
     {
-        $oneStar = new CountResult(['points' => 1.0], $oneCount);
-        $twoStars = new CountResult(['points' => 2.0], $twoCount);
-        $threeStars = new CountResult(['points' => 3.0], $threeCount);
-        $fourStars = new CountResult(['points' => 4.0], $fourCount);
-        $fiveStars = new CountResult(['points' => 5.0], $fiveCount);
+        $oneStar = new Bucket('1.0', $oneCount, null);
+        $twoStars = new Bucket('2.0', $twoCount, null);
+        $threeStars = new Bucket('3.0', $threeCount, null);
+        $fourStars = new Bucket('4.0', $fourCount, null);
+        $fiveStars = new Bucket('5.0', $fiveCount, null);
 
         return [$oneStar, $twoStars, $threeStars, $fourStars, $fiveStars];
     }

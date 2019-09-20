@@ -6,7 +6,8 @@
       "moduleTitle": "Erlebniswelten",
       "greeting": "Layouts",
       "createNewLayout": "Neues Layout anlegen",
-      "deleteDisablesToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen"
+      "deleteDisablesToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen",
+      "disabledAddingBlocksToolTip": "Blöcke können nur in der Systemstandardsprache hinzugefügt werden"
     },
     "sorting": {
       "labelSort": "Sortieren nach:",
@@ -37,7 +38,7 @@
       "labelPageType": "Layout Typ",
       "labelDemoEntity": "Vorschau-Datensatz",
       "placeholderDemoEntity": "Wähle einen Datensatz zur Vorschau ...",
-      "labelPageTypeLandingpage": "Erlebniswelt",
+      "labelPageTypeLandingpage": "Landeseite",
       "labelPageTypeShopPage": "Shopseite",
       "labelPageTypeCategory": "Kategorieseite",
       "labelPageTypeProduct": "Produktseite",
@@ -47,7 +48,7 @@
       "sidebarTitleNavigator": "Navigator",
       "labelBlockCategorySelection": "Block-Kategorie",
       "labelBlockCategoryText": "Text",
-      "labelBlockCategoryTextImage": "Texte & Bilder",
+      "labelBlockCategoryTextImage": "Text & Bild",
       "labelBlockCategoryImage": "Bilder",
       "labelBlockCategoryCommerce": "Commerce",
       "titleElementSettingsModal": "Element-Einstellungen",
@@ -68,7 +69,7 @@
       "labelBlockBackgroundMediaModeCover": "Füllen",
       "labelBlockBackgroundMediaModeAuto": "Auto",
       "labelBlockCssClassField": "CSS-Klassen",
-      "helpTextBlockCssClassField": "Du kannst eine, oder mehrere mit Leerzeichen getrennte, CSS-Klassen hinzufügen",
+      "helpTextBlockCssClassField": "Du kannst eine, oder mehrere, mit Leerzeichen getrennte, CSS-Klassen hinzufügen",
       "labelBlockTopMarginField": "Oberer Abstand",
       "labelBlockBottomMarginField": "Unterer Abstand",
       "labelBlockLeftMarginField": "Linker Abstand",
@@ -90,6 +91,7 @@
     "elements": {
       "captionMediaUpload": "Lade ein Bild hoch",
       "labelMedia": "Bild",
+      "labelNavigation": "Navigation",
       "labelMediaDisplayMode": "Anzeigemodus",
       "labelMediaDisplayModeStandard": "Standard",
       "labelMediaDisplayModeCover": "Füllen",
@@ -105,7 +107,9 @@
       "labelProductBadgeNew": "Neu",
       "labelProductPriceUnitContent": "Inhalt:",
       "labelProductSelection": "Produkt",
+      "labelCategorySelection": "Kategorie",
       "placeholderProductSelection": "Wähle ein Produkt ...",
+      "placeholderCategorySelection": "Wähle eine Kategorie ...",
       "labelProductLayoutType": "Layout Typ",
       "labelProductLayoutTypeStandard": "Standard",
       "labelProductLayoutTypeImage": "Großes Bild",
@@ -141,6 +145,7 @@
       "labelSettingsLinkTo": "Link zu",
       "labelSettingsLinkNewTab": "Link in neuem Tab öffnen",
       "infoTextListingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau.",
+      "infoTextNavigationElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau.",
       "labelImageGalleryZoom": "Zoom",
       "labelImageGalleryFullscreen": "Vollbild Galerie"
     },

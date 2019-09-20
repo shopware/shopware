@@ -8,7 +8,6 @@ use Elasticsearch\Client;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -20,8 +19,6 @@ use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
-use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class EntityIndexer implements IndexerInterface
 {
@@ -36,24 +33,9 @@ class EntityIndexer implements IndexerInterface
     private $client;
 
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $languageRepository;
-
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
 
     /**
      * @var Connection
@@ -77,7 +59,6 @@ class EntityIndexer implements IndexerInterface
 
     public function __construct(
         ElasticsearchRegistry $esRegistry,
-        Client $client,
         ElasticsearchHelper $helper,
         EntityRepositoryInterface $languageRepository,
         Connection $connection,
@@ -85,7 +66,6 @@ class EntityIndexer implements IndexerInterface
         IndexMessageDispatcher $indexMessageDispatcher
     ) {
         $this->registry = $esRegistry;
-        $this->client = $client;
         $this->languageRepository = $languageRepository;
         $this->connection = $connection;
         $this->helper = $helper;
@@ -126,6 +106,13 @@ class EntityIndexer implements IndexerInterface
                 ]);
             }
         }
+    }
+
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $this->index($timestamp);
+
+        return null;
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void

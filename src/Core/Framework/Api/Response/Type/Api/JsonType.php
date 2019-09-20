@@ -58,7 +58,7 @@ class JsonType extends JsonFactoryBase
 
         $aggregations = [];
         foreach ($searchResult->getAggregations() as $aggregation) {
-            $aggregations[$aggregation->getName()] = $aggregation->getResult();
+            $aggregations[$aggregation->getName()] = $aggregation;
         }
 
         $response['aggregations'] = $aggregations;

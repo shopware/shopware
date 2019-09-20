@@ -16,8 +16,8 @@
                             <div class="sw-cms-el-image-slider__navigation-buttons">
                                 <template v-if="sliderItems.length > 0">
                                     <div v-for="(sliderItem, index) in sliderItems"
-                                         :class="activeButtonClass(sliderItem.entity.url)"
-                                         @click="setSliderItem(sliderItem.entity, index)"
+                                         :class="activeButtonClass(sliderItem.media.url)"
+                                         @click="setSliderItem(sliderItem.media, index)"
                                          class="sw-cms-el-image-slider__navigation-button">
                                     </div>
                                 </template>

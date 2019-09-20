@@ -41,6 +41,10 @@ $sw-select-result-disabled-color-text: darken($color-steam-cloud, 15%);
             color: $sw-select-result-disabled-color-text;
             cursor: default;
         }
+
+        .sw-highlight-text__highlight {
+            color: $sw-select-result-disabled-color-text;
+        }
     }
 
     &:last-child {

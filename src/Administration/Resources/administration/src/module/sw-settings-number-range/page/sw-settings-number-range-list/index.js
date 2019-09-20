@@ -66,11 +66,9 @@ Component.register('sw-settings-number-range-list', {
 
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
-            criteria.addAssociationPaths([
-                'type',
-                'numberRangeSalesChannels',
-                'numberRangeSalesChannels.salesChannel'
-            ]);
+            criteria.addAssociation('type');
+            criteria.addAssociation('numberRangeSalesChannels');
+            criteria.addAssociation('numberRangeSalesChannels.salesChannel');
 
             this.numberRangeRepository.search(criteria, this.context).then((items) => {
                 this.total = items.total;

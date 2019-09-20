@@ -102,7 +102,7 @@ describe('core/service/jsonapi-parser.service.js', () => {
             .then((response) => {
                 const data = response.data;
 
-                expect(data.aggregations).toBeInstanceOf(Array);
+                expect(data.aggregations).toBeInstanceOf(Object);
                 expect(data.data).toBeInstanceOf(Array);
                 expect(data.included).toBeInstanceOf(Array);
 

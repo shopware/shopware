@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Rule;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\RuleValidator;
@@ -36,7 +37,7 @@ class RuleValidatorTest extends TestCase
     private $context;
 
     /**
-     * @var RuleConditionRegistry
+     * @var RuleConditionRegistry|MockObject
      */
     private $conditionRegistry;
 

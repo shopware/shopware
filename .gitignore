@@ -75,6 +75,7 @@ src/Docs/Command/wiki.secret
 /src/Docs/**/dist
 /src/Docs/Resources/current/1-getting-started/40-recent-updates/*
 !/src/Docs/Resources/current/1-getting-started/40-recent-updates/.gitkeep
+phpstan.neon
 
 # tests / ci
 /build/

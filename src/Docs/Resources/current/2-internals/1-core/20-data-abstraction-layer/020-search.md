@@ -214,64 +214,156 @@ Aggregations are a powerful tool which allows you to gather statistical data abo
 | Class name | API name | Type | Return values | Description |
 |-----|---|---|---|---|
 | AvgAggregation | avg | singe-value | avg | Average of all numeric values for the specified field |
-| ValueAggregation | cardinality | single-value | cardinality | Approximate count of distinct values |
 | CountAggregation | count | single-value | count | Number of records for the specified field |
 | MaxAggregation | max | single-value | max | Maximum value for the specified field |
 | MinAggregation | min | single-value | min | Minimal value for the specified field |
 | StatsAggregation | stats | multi-value | count, avg, sum, min, max | Stats overall numeric values for the specified field |
 | SumAggregation | sum | single-value | sum | Sum of all numeric values for the specified field |
-| ValueCountAggregation | value_count | single-value | count | Number of unique values for the specified field |
+| FilterAggregation | filter | none-value |  | Allows to filter the aggregation result |
+| EntityAggregation | entity | multi-value | entities | Groups the result for each value of the provided field and fetches the entities for this field |
+| TermsAggregation | terms | multi-value | buckets,count | Groups the result for each value of the provided field and fetches the count of affected documents |
+| DateHistogramAggregation | histogram | multi-value | buckets,count | Groups the result for each value of the provided field and fetches the count of affected documents. Although allows to provide date interval (day, month, ...) |
 
-### Using aggregations with the repository
-
-Aggregations can be fetched with a search request. You have to add a new aggregation to your search criteria object.
-
+### AvgAggregation
 ```php
-$criteria = new Criteria();
 $criteria->addAggregation(
-    new CountAggregation('category.products.id', 'product_count')
+    new AvgAggregation('avg-price', 'product.price')
 );
 
-$result = $this->categoryRepository->search($criteria, $context);
+$result = $this->repository->aggregate($criteria, $context);
 
-$aggregations = $result->getAggregations();
+/** @var AvgResult $avg */
+$avg = $result->get('avg-price');
+
+$avg->getAvg();
 ```
 
-The examples above aggregates the count of products in a category.
-
-- The first parameter `$field` of an aggregation specifies which field the aggregation will be applied.
-- The second parameter `$name` is the name in the search result. The name should be unique as it might get overwritten from another aggregation.
-
-The aggregations in the search result are indexed by the name you gave them. To query the data, get the object using the name. The result contains an array with the keys matching the aggregation's return types listed above.
-
+### CountAggregation
 ```php
-$productCount = $aggregations->get('product_count')->getResult();
-// ['count' => '123']
+$criteria->addAggregation(
+    new CountAggregation('count-manufacturer', 'product.manufacturerId')
+);
+$result = $this->repository->aggregate($criteria, $context);
+
+/** @var CountResult $count */
+$count = $result->get('count-manufacturer');
+
+$count->getCount();
 ```
 
-### API Usage
+### MaxAggregation
+```php
+$criteria->addAggregation(
+    new MaxAggregation('max-price', 'product.price')
+);
 
-```json
-POST /api/v1/search/category
+$result = $this->repository->aggregate($criteria, $context);
 
-{
-    "aggregations": {
-        "product_count": { "count": { "field": "category.product.id" } }
-    }
+/** @var MaxResult $max */
+$max = $result->get('max-price');
+
+$max->getMax();
+```
+
+### MinAggregation
+```php
+$criteria->addAggregation(
+    new MinAggregation('min-price', 'product.price')
+);
+
+$result = $this->repository->aggregate($criteria, $context);
+
+/** @var MinResult $min */
+$min = $result->get('min-price');
+
+$min->getMin();
+```
+
+
+### StatsAggregation
+```php
+$criteria->addAggregation(
+    new StatsAggregation('stats-price', 'product.price')
+);
+
+$result = $this->repository->aggregate($criteria, $context);
+
+/** @var StatsResult $stats */
+$stats = $result->get('stats-price');
+
+$stats->getMin();
+$stats->getMax();
+$stats->getAvg();
+$stats->getSum();
+```
+
+### SumAggregation
+```php
+$criteria->addAggregation(
+    new SumAggregation('sum-price', 'product.price')
+);
+
+$result = $this->repository->aggregate($criteria, $context);
+
+/** @var SumResult $sum */
+$sum = $result->get('sum-price');
+
+$sum->getSum();
+```
+
+
+### FilterAggregation
+```php
+$criteria->addAggregation(
+    new FilterAggregation(
+        'filter',
+        new AvgAggregation('avg-price', 'product.price'),
+        [new EqualsAnyFilter('product.active', true)]
+    )
+);
+
+$result = $this->repository->aggregate($criteria, $context);
+
+$price = $result->get('avg-price');
+
+$price->getAvg();
+```
+
+
+### TermsAggregation
+```php
+$criteria->addAggregation(
+    new TermsAggregation('category-ids', 'product.categories.id')
+);
+
+$result = $this->repository->aggregate($criteria, $context);
+
+/** @var TermsResult $categoryAgg */
+$categoryAgg = $result->get('category-ids');
+
+foreach ($categoryAgg->getBuckets() as $bucket) {
+    $categoryId = $bucket->getKey();
+    $count = $bucket->getCount();
 }
 ```
 
-The response will now contain an aggregations property:
+### DateHistogramAggregation
+```php
+$criteria->addAggregation(
+    new DateHistogramAggregation('release-histogram', 'product.releaseDate', 'month')
+);
 
-```json
-{
-    "aggregations": {
-        "product_count": {
-            "count": "1163"
-        }
-    }
+$result = $this->repository->aggregate($criteria, $context);
+
+/** @var DateHistogramResult $histogram */
+$histogram = $result->get('release-histogram');
+
+foreach ($histogram->getBuckets() as $bucket) {
+    $releaseDate = $bucket->getKey();
+    $count = $bucket->getCount();
 }
 ```
+
 
 ## Total Count Mode
 

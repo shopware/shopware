@@ -37,7 +37,15 @@
                                         :placeholder="$tc('sw-cms.elements.placeholderProductSliderSelection')"
                                         v-model="productCollection"
                                         @change="onProductsChange"
+                                        :context="productMultiSelectContext"
                                         :criteria="productMediaFilter">
+                                    <template #result-label-property="{ item, index, labelProperty, searchTerm, getKey }">
+                                        <sw-highlight-text
+                                                :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                :searchTerm="searchTerm">
+                                        </sw-highlight-text>
+                                        <span class="sw-cms-el-config-product-slider__select-product-number">{{ item.productNumber }}</span>
+                                    </template>
                                 </sw-entity-multi-select>
                             {% endblock %}
                         </sw-container>

@@ -6,8 +6,16 @@
                :label="$tc('sw-cms.elements.labelProductSelection')"
                :placeholder="$tc('sw-cms.elements.placeholderProductSelection')"
                entity="product"
-               @input="onProductChange"
+               :context="productSelectContext"
+               @change="onProductChange"
                v-model="element.config.product.value">
+                <template #result-label-property="{ item, index, labelProperty, searchTerm, getKey }">
+                    <sw-highlight-text
+                            :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                            :searchTerm="searchTerm">
+                    </sw-highlight-text>
+                    <span class="sw-cms-el-config-product-box__select-product-number">{{ item.productNumber }}</span>
+                </template>
             </sw-entity-single-select>
         {% endblock %}
 

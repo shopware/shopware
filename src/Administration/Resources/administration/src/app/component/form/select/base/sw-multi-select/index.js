@@ -1,7 +1,7 @@
 import template from './sw-multi-select.html.twig';
 
 const { Component } = Shopware;
-const { debounce } = Shopware.Utils;
+const { debounce, get } = Shopware.Utils;
 
 /**
  * @public
@@ -70,17 +70,18 @@ Component.register('sw-multi-select', {
             required: false,
             default: true
         },
-        // Used to implement a custom search function. Parameters passed: { options, labelProperty, valueProperty }
+        // Used to implement a custom search function.
+        // Parameters passed: { options, labelProperty, valueProperty, searchTerm }
         searchFunction: {
             type: Function,
             required: false,
-            default({ options, labelProperty }) {
+            default({ options, labelProperty, searchTerm }) {
                 return options.filter(option => {
-                    const label = option[labelProperty];
+                    const label = this.getKey(option, labelProperty);
                     if (!label) {
                         return false;
                     }
-                    return label.toLowerCase().includes(this.searchTerm.toLowerCase());
+                    return label.toLowerCase().includes(searchTerm.toLowerCase());
                 });
             }
         }
@@ -100,7 +101,7 @@ Component.register('sw-multi-select', {
             }
 
             return this.options.filter((item) => {
-                return this.currentValue.includes(item[this.valueProperty]);
+                return this.currentValue.includes(this.getKey(item, this.valueProperty));
             }).slice(0, this.limit);
         },
 
@@ -134,7 +135,12 @@ Component.register('sw-multi-select', {
         visibleResults() {
             if (this.searchTerm) {
                 return this.searchFunction(
-                    { options: this.options, labelProperty: this.labelProperty, valueProperty: this.valueProperty }
+                    {
+                        options: this.options,
+                        labelProperty: this.labelProperty,
+                        valueProperty: this.valueProperty,
+                        searchTerm: this.searchTerm
+                    }
                 );
             }
 
@@ -144,11 +150,11 @@ Component.register('sw-multi-select', {
 
     methods: {
         isSelected(item) {
-            return this.currentValue.includes(item[this.valueProperty]);
+            return this.currentValue.includes(this.getKey(item, this.valueProperty));
         },
 
         addItem(item) {
-            const identifier = item[this.valueProperty];
+            const identifier = this.getKey(item, this.valueProperty);
 
             if (this.isSelected(item)) {
                 this.remove(item);
@@ -167,7 +173,7 @@ Component.register('sw-multi-select', {
             this.$emit('item-remove', item);
 
             this.currentValue = this.currentValue.filter((value) => {
-                return value !== item[this.valueProperty];
+                return value !== this.getKey(item, this.valueProperty);
             });
         },
 
@@ -195,7 +201,7 @@ Component.register('sw-multi-select', {
             this.searchTerm = term;
             this.$emit('search-term-change', this.searchTerm);
             this.resetActiveItem();
-        }, 400),
+        }, 100),
 
         resetActiveItem() {
             this.$refs.swSelectResultList.setActiveItemIndex(0);
@@ -208,6 +214,10 @@ Component.register('sw-multi-select', {
         onSelectCollapsed() {
             this.searchTerm = '';
             this.$refs.selectionList.blur();
+        },
+
+        getKey(object, keyPath, defaultValue) {
+            return get(object, keyPath, defaultValue);
         }
     }
 });

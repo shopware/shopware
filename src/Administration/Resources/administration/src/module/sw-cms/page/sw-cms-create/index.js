@@ -1,9 +1,9 @@
-import Criteria from 'src/core/data-new/criteria.data';
 import EntityProxy from 'src/core/data/EntityProxy';
 import template from './sw-cms-create.html.twig';
 
 const { Component, Mixin, State } = Shopware;
 const utils = Shopware.Utils;
+const Criteria = Shopware.Data.Criteria;
 
 Component.extend('sw-cms-create', 'sw-cms-detail', {
     template,
@@ -35,8 +35,9 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
             // ToDo: Make the navigation state accessible via global state
             this.$root.$children[0].$children[2].$children[0].isExpanded = false;
 
-            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            if (!this.isSystemDefaultLanguage) {
+                this.languageStore.setCurrentId(this.context.systemLanguageId);
+                this.currentLanguageId = this.context.systemLanguageId;
             }
 
             const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';

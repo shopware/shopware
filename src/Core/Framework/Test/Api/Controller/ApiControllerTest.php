@@ -1296,11 +1296,10 @@ EOF;
 
         static::assertArrayHasKey('product_count', $aggregations, print_r($aggregations, true));
         $productCount = $aggregations['product_count'];
-        static::assertEquals(2, $productCount[0]['count']);
+        static::assertEquals(2, $productCount['count']);
 
         static::assertArrayHasKey('product_stats', $aggregations);
-        $productStats = $aggregations['product_stats'][0];
-        static::assertEquals(2, $productStats['count']);
+        $productStats = $aggregations['product_stats'];
         static::assertEquals(75, $productStats['avg']);
         static::assertEquals(150, $productStats['sum']);
         static::assertEquals(50, $productStats['min']);

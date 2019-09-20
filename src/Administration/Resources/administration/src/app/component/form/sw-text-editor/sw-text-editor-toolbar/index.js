@@ -259,6 +259,10 @@ Component.register('sw-text-editor-toolbar', {
                 return;
             }
 
+            if (button.type === 'foreColor') {
+                this.keepSelection(true);
+            }
+
             if (!button.children) {
                 this.closeExpandedMenu();
             }

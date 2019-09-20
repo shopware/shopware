@@ -2,12 +2,18 @@
 
 namespace Shopware\Elasticsearch\Test;
 
+use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
@@ -18,7 +24,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait ElasticsearchTestTestBehaviour
 {
-    use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use FilesystemBehaviour;
+    use CacheTestBehaviour;
+    use BasicTestDataBehaviour;
+    use SessionTestBehaviour;
+
     use QueueTestBehaviour;
 
     /**
@@ -42,6 +54,17 @@ trait ElasticsearchTestTestBehaviour
     }
 
     /**
+     * @beforeClass
+     */
+    public static function start(): void
+    {
+        $self = new self();
+        $self->getContainer()
+            ->get(Connection::class)
+            ->beginTransaction();
+    }
+
+    /**
      * @afterClass
      */
     public static function cleanupElasticsearchIndices(): void
@@ -49,6 +72,10 @@ trait ElasticsearchTestTestBehaviour
         $self = new self();
         $self->getDiContainer()->get(Client::class)
             ->indices()->delete(['index' => '_all']);
+
+        $self->getContainer()
+            ->get(Connection::class)
+            ->rollBack();
     }
 
     public function indexElasticSearch(): void

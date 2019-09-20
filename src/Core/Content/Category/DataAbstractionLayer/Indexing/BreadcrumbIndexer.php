@@ -119,6 +119,53 @@ class BreadcrumbIndexer implements IndexerInterface
         }
     }
 
+    public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
+    {
+        $languages = $this->languageRepository->search(new Criteria(), Context::createDefaultContext());
+        $languages = array_values($languages->getElements());
+
+        $languageOffset = 0;
+        $dataOffset = null;
+        if ($lastId) {
+            $dataOffset = $lastId['dataOffset'];
+            $languageOffset = $lastId['languageOffset'];
+        }
+
+        if (!isset($languages[$languageOffset])) {
+            return null;
+        }
+
+        /** @var LanguageEntity $language */
+        $language = $languages[$languageOffset];
+
+        $context = new Context(
+            new Context\SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM],
+            Defaults::LIVE_VERSION
+        );
+
+        $iterator = $this->iteratorFactory->createIterator($this->categoryRepository->getDefinition(), $dataOffset);
+
+        $ids = $iterator->fetch();
+        if (empty($ids)) {
+            ++$languageOffset;
+
+            return [
+                'dataOffset' => $iterator->getOffset(),
+                'languageOffset' => $languageOffset,
+            ];
+        }
+
+        $this->update($ids, $context);
+
+        return [
+            'dataOffset' => $iterator->getOffset(),
+            'languageOffset' => $languageOffset,
+        ];
+    }
+
     public function refresh(EntityWrittenContainerEvent $event): void
     {
         $categories = $event->getEventByDefinition(CategoryDefinition::class);

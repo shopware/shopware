@@ -71,6 +71,12 @@ Component.register('sw-notifications', {
         },
 
         handleAction(action, notification) {
+            // Allow external links for example to the shopware account or store
+            if (Shopware.Utils.string.isUrl(action.route)) {
+                window.open(action.route);
+                return;
+            }
+
             if (action.route) {
                 this.$router.push(action.route);
             }

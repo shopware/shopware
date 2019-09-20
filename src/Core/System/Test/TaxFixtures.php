@@ -55,10 +55,13 @@ trait TaxFixtures
 
     private function getTaxFixture(string $fixtureName): TaxEntity
     {
-        return $this->createFixture(
+        /** @var TaxEntity $taxEntity */
+        $taxEntity = $this->createFixture(
             $fixtureName,
             $this->taxFixtures,
-            EntityFixturesBase::getFixtureRepository('tax')
+            self::getFixtureRepository('tax')
         );
+
+        return $taxEntity;
     }
 }

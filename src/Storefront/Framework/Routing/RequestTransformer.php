@@ -12,6 +12,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Seo\SeoResolver;
 use Symfony\Component\HttpFoundation\Request;
+use TrueBV\Punycode;
 
 class RequestTransformer implements RequestTransformerInterface
 {
@@ -41,10 +42,16 @@ class RequestTransformer implements RequestTransformerInterface
         '/admin/',
     ];
 
+    /**
+     * @var Punycode
+     */
+    private $punycode;
+
     public function __construct(RequestTransformerInterface $decorated, Connection $connection)
     {
         $this->connection = $connection;
         $this->decorated = $decorated;
+        $this->punycode = new Punycode();
     }
 
     public function transform(Request $request): Request
@@ -62,7 +69,7 @@ class RequestTransformer implements RequestTransformerInterface
             throw new SalesChannelMappingException($request->getUri());
         }
 
-        $absoluteBaseUrl = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
+        $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();
         $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
 
         $resolved = $this->resolveSeoUrl($request, $baseUrl, $salesChannel['languageId'], $salesChannel['salesChannelId']);
@@ -121,7 +128,7 @@ class RequestTransformer implements RequestTransformerInterface
         $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME, $salesChannel['parentThemeName']);
 
         if (isset($resolved['canonicalPathInfo'])) {
-            $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK, $request->getSchemeAndHttpHost() . $baseUrl . $resolved['canonicalPathInfo']);
+            $clone->attributes->set(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK, $this->getSchemeAndHttpHost($request) . $baseUrl . $resolved['canonicalPathInfo']);
         }
 
         $clone->headers->add($request->headers->all());
@@ -177,7 +184,7 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         // domain urls and request uri should be in same format, all with trailing slash
-        $requestUrl = rtrim($request->getSchemeAndHttpHost() . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
+        $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
 
         // direct hit
         if (array_key_exists($requestUrl, $domains)) {
@@ -238,5 +245,10 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         return ['pathInfo' => '/' . trim($seoPathInfo, '/')];
+    }
+
+    private function getSchemeAndHttpHost(Request $request): string
+    {
+        return $request->getScheme() . '://' . $this->punycode->decode($request->getHttpHost());
     }
 }

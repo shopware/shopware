@@ -37,7 +37,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 
         $sliderItems = $sliderItemsConfig->getValue();
 
-        $mediaIds = array_column($sliderItems, 'entityId');
+        $mediaIds = array_column($sliderItems, 'mediaId');
 
         $criteria = new Criteria($mediaIds);
 
@@ -79,7 +79,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         }
 
         /** @var MediaEntity|null $media */
-        $media = $searchResult->get($config['entityId']);
+        $media = $searchResult->get($config['mediaId']);
         if (!$media) {
             return;
         }

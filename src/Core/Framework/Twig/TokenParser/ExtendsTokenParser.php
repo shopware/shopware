@@ -35,11 +35,11 @@ final class ExtendsTokenParser extends AbstractTokenParser
 
         $source = $stream->getSourceContext()->getName();
 
+        $template = $stream->next()->getValue();
+
         $source = explode('/', $source);
         $source = array_shift($source);
         $source = ltrim($source, '@');
-
-        $template = $this->finder->getTemplateName($stream->next()->getValue());
 
         //resolves parent template
         //set pointer to next value (contains the template file name)

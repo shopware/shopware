@@ -12,8 +12,6 @@ class PermittedIndividualCodePromotions extends MultiFilter
      * Gets a criteria for all permitted promotions of the provided
      * sales channel context, that do require an individual code
      * and have not yet been used in an order.
-     *
-     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
     public function __construct(array $codes, string $salesChannelId)
     {

@@ -12,12 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\EntityAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\StatsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\EntityResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\StatsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -48,13 +47,13 @@ class CachedEntityAggregatorTest extends TestCase
 
         $criteria = new Criteria([$id1, $id2]);
 
-        $propertiesAggregation = new EntityAggregation('product.properties.id', PropertyGroupOptionDefinition::class, 'properties');
+        $propertiesAggregation = new EntityAggregation('properties', 'product.properties.id', PropertyGroupOptionDefinition::class);
         $criteria->addAggregation($propertiesAggregation);
 
-        $manufacturerAggregation = new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer');
+        $manufacturerAggregation = new EntityAggregation('manufacturer', 'product.manufacturer.id', ProductManufacturerDefinition::class);
         $criteria->addAggregation($manufacturerAggregation);
 
-        $priceAggregation = new StatsAggregation('product.listingPrices', 'price', false);
+        $priceAggregation = new StatsAggregation('price', 'product.listingPrices');
         $criteria->addAggregation($priceAggregation);
 
         $context = Context::createDefaultContext();
@@ -69,26 +68,12 @@ class CachedEntityAggregatorTest extends TestCase
         $dbalReader->expects(static::once())
             ->method('aggregate')
             ->willReturn(
-                new AggregatorResult(
-                    new AggregationResultCollection(
-                        [
-                            new AggregationResult(
-                                $propertiesAggregation,
-                                [
-                                    new EntityResult(null, new EntityCollection([$configGroupEntity])),
-                                ]
-                            ),
-                            new AggregationResult(
-                                $manufacturerAggregation,
-                                [
-                                    new EntityResult(null, new EntityCollection([$manufacturerEntity])),
-                                ]
-                            ),
-                            new AggregationResult($priceAggregation, []),
-                        ]
-                    ),
-                    $context,
-                    $criteria
+                new AggregationResultCollection(
+                    [
+                        new EntityResult('properties', new EntityCollection([$configGroupEntity])),
+                        new EntityResult('manufacturer', new EntityCollection([$manufacturerEntity])),
+                        new StatsResult('price', 0, 0, 0.0, 0.0),
+                    ]
                 )
             );
 
@@ -114,19 +99,17 @@ class CachedEntityAggregatorTest extends TestCase
 
         $criteria = new Criteria([$id1, $id2]);
         $criteria->addAggregation(
-            new EntityAggregation('product.properties.id', PropertyGroupOptionDefinition::class, 'properties')
+            new EntityAggregation('properties', 'product.properties.id', PropertyGroupOptionDefinition::class)
         );
         $criteria->addAggregation(
-            new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer')
+            new EntityAggregation('manufacturer', 'product.manufacturer.id', ProductManufacturerDefinition::class)
         );
         $criteria->addAggregation(
-            new StatsAggregation('product.listingPrices', 'price', false)
+            new StatsAggregation('price', 'product.listingPrices')
         );
 
         $criteria2 = clone $criteria;
-        $criteria2->addAggregation(
-            new StatsAggregation('product.tax', 'tax', false)
-        );
+        $criteria2->addAggregation(new StatsAggregation('tax', 'product.tax'));
 
         $context = Context::createDefaultContext();
 
@@ -141,52 +124,16 @@ class CachedEntityAggregatorTest extends TestCase
                     $manufacturerEntity = new ProductManufacturerEntity();
                     $manufacturerEntity->setUniqueIdentifier('test');
                     if (!$criteria->getAggregation('tax')) {
-                        return new AggregatorResult(
-                            new AggregationResultCollection(
-                                [
-                                    new AggregationResult(
-                                        new EntityAggregation(
-                                            'product.properties.id',
-                                            PropertyGroupOptionDefinition::class,
-                                            'properties'
-                                        ),
-                                        [
-                                            new EntityResult(null, new EntityCollection([$configGroupEntity])),
-                                        ]
-                                    ),
-                                    new AggregationResult(
-                                        new EntityAggregation(
-                                            'product.manufacturer.id',
-                                            ProductManufacturerDefinition::class,
-                                            'manufacturer'
-                                        ),
-                                        [
-                                            new EntityResult(null, new EntityCollection([$manufacturerEntity])),
-                                        ]
-                                    ),
-                                    new AggregationResult(
-                                        new StatsAggregation('product.listingPrices', 'price', false),
-                                        []
-                                    ),
-                                ]
-                            ),
-                            $context,
-                            $criteria
+                        return new AggregationResultCollection(
+                            [
+                                new EntityResult('properties', new EntityCollection([$configGroupEntity])),
+                                new EntityResult('manufacturer', new EntityCollection([$manufacturerEntity])),
+                                new StatsResult('price', 0, 0, 0.0, 0.0),
+                            ]
                         );
                     }
 
-                    return new AggregatorResult(
-                        new AggregationResultCollection(
-                            [
-                                new AggregationResult(
-                                    new StatsAggregation('product.tax', 'tax', false),
-                                    []
-                                ),
-                            ]
-                        ),
-                        $context,
-                        $criteria
-                    );
+                    return new AggregationResultCollection([new StatsResult('tax', 0, 0, 0.0, 0.0)]);
                 }
             );
 
@@ -205,7 +152,7 @@ class CachedEntityAggregatorTest extends TestCase
         //third call should hit the cache items and read one missing from dbal
         $cachedEntities = $cachedReader->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria2, $context);
 
-        static::assertNotEquals($databaseEntities->getAggregations(), $cachedEntities->getAggregations());
+        static::assertNotEquals($databaseEntities, $cachedEntities);
     }
 
     public function testDisableCacheOption(): void
@@ -217,13 +164,13 @@ class CachedEntityAggregatorTest extends TestCase
 
         $criteria = new Criteria([$id1, $id2]);
 
-        $propertiesAggregation = new EntityAggregation('product.properties.id', PropertyGroupOptionDefinition::class, 'properties');
+        $propertiesAggregation = new EntityAggregation('properties', 'product.properties.id', PropertyGroupOptionDefinition::class);
         $criteria->addAggregation($propertiesAggregation);
 
-        $manufacturerAggregation = new EntityAggregation('product.manufacturer.id', ProductManufacturerDefinition::class, 'manufacturer');
+        $manufacturerAggregation = new EntityAggregation('manufacturer', 'product.manufacturer.id', ProductManufacturerDefinition::class);
         $criteria->addAggregation($manufacturerAggregation);
 
-        $priceAggregation = new StatsAggregation('product.listingPrices', 'price', false);
+        $priceAggregation = new StatsAggregation('product.listingPrices', 'price');
         $criteria->addAggregation($priceAggregation);
 
         $context = Context::createDefaultContext();
@@ -238,26 +185,11 @@ class CachedEntityAggregatorTest extends TestCase
         $dbalReader->expects(static::atLeast(2))
             ->method('aggregate')
             ->willReturn(
-                new AggregatorResult(
-                    new AggregationResultCollection(
-                        [
-                            new AggregationResult(
-                                $propertiesAggregation,
-                                [
-                                    new EntityResult(null, new EntityCollection([$configGroupEntity])),
-                                ]
-                            ),
-                            new AggregationResult(
-                                $manufacturerAggregation,
-                                [
-                                    new EntityResult(null, new EntityCollection([$manufacturerEntity])),
-                                ]
-                            ),
-                            new AggregationResult($priceAggregation, []),
-                        ]
-                    ),
-                    $context,
-                    $criteria
+                new AggregationResultCollection(
+                    [
+                        new EntityResult('properties', new EntityCollection([$configGroupEntity])),
+                        new EntityResult('manufacturer', new EntityCollection([$manufacturerEntity])),
+                    ]
                 )
             );
 

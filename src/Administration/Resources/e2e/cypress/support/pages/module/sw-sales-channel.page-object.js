@@ -35,17 +35,9 @@ export default class SalesChannelPageObject extends GeneralPageObject {
         cy.get('.sw-sales-channel-detail__select-languages').typeMultiSelectAndCheck('English');
         cy.get('.sw-sales-channel-detail__assign-languages').typeSingleSelectAndCheck('English');
 
-        cy.get('.sw-sales-channel-detail__select-customer-group').typeSingleSelectAndCheck(
-            'Standard customer group', {
-                searchable: true
-            }
-        );
+        cy.get('.sw-sales-channel-detail__select-customer-group').typeSingleSelectAndCheck('Standard customer group');
 
-        cy.get('.sw-sales-channel-detail__select-navigation-category-id').typeSingleSelectAndCheck(
-            'Catalogue #1', {
-                searchable: true
-            }
-        );
+        cy.get('.sw-sales-channel-detail__select-navigation-category-id').typeSingleSelectAndCheck('Catalogue #1');
     }
 
     openSalesChannel(salesChannelName, position = 0) {

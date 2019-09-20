@@ -13,17 +13,30 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
+use Shopware\Core\Framework\Store\Struct\StoreActionStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseSubscriptionStruct;
 use Shopware\Core\Framework\Store\Struct\StoreLicenseTypeStruct;
+use Shopware\Core\Framework\Store\Struct\StoreLicenseViolationStruct;
+use Shopware\Core\Framework\Store\Struct\StoreLicenseViolationTypeStruct;
 use Shopware\Core\Framework\Store\Struct\StoreUpdateStruct;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 final class StoreClient
 {
+    public const PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY = 'licenseViolation';
     private const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
 
     private const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
+
+    private const SBP_API_URL_PING = '/ping';
+    private const SBP_API_URL_LOGIN = '/swplatform/login';
+    private const SBP_API_URL_PLUGIN_LICENSES = '/swplatform/pluginlicenses';
+    private const SBP_API_URL_PLUGIN_UPDATES = '/swplatform/pluginupdates';
+    private const SBP_API_URL_PLUGIN_VIOLATIONS = '/swplatform/environmentinformation';
+    private const SBP_API_URL_PLUGIN_COMPATIBILITY = '/swplatform/autoupdate';
+    private const SBP_API_URL_PLUGIN_DOWNLOAD_INFO = '/swplatform/pluginfiles/{pluginName}';
+    private const SBP_API_URL_UPDATE_PERMISSIONS = '/swplatform/autoupdate/permission';
 
     /**
      * @var Client
@@ -59,7 +72,7 @@ final class StoreClient
 
     public function ping(): void
     {
-        $this->client->get('/ping');
+        $this->client->get(self::SBP_API_URL_PING);
     }
 
     public function loginWithShopwareId(string $shopwareId, string $password, string $language, Context $context): AccessTokenStruct
@@ -69,7 +82,7 @@ final class StoreClient
         }
 
         $response = $this->client->post(
-            '/swplatform/login',
+            self::SBP_API_URL_LOGIN,
             [
                 'body' => \json_encode([
                     'shopwareId' => $shopwareId,
@@ -97,19 +110,11 @@ final class StoreClient
      */
     public function getLicenseList(string $storeToken, string $language, Context $context): array
     {
-        $shopSecret = $this->getShopSecret();
-
-        $headers = $this->client->getConfig('headers');
-        $headers[self::SHOPWARE_PLATFORM_TOKEN_HEADER] = $storeToken;
-        if ($shopSecret) {
-            $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
-        }
-
         $response = $this->client->get(
-            '/swplatform/pluginlicenses',
+            self::SBP_API_URL_PLUGIN_LICENSES,
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language),
-                'headers' => $headers,
+                'headers' => $this->getHeaders($storeToken),
             ]
         );
 
@@ -172,27 +177,15 @@ final class StoreClient
             ];
         }
 
-        $shopSecret = $this->getShopSecret();
-
-        $headers = $this->client->getConfig('headers');
-        if ($storeToken) {
-            $headers[self::SHOPWARE_PLATFORM_TOKEN_HEADER] = $storeToken;
-        }
-        if ($shopSecret) {
-            $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
-        }
-
         $query = $this->storeService->getDefaultQueryParameters($language, false);
         $query['hostName'] = $hostName;
 
         $response = $this->client->post(
-            '/swplatform/pluginupdates',
+            self::SBP_API_URL_PLUGIN_UPDATES,
             [
                 'query' => $query,
-                'body' => json_encode([
-                    'plugins' => $pluginArray,
-                ]),
-                'headers' => $headers,
+                'body' => json_encode(['plugins' => $pluginArray]),
+                'headers' => $this->getHeaders($storeToken),
             ]
         );
 
@@ -208,28 +201,68 @@ final class StoreClient
         return $updateList;
     }
 
+    public function checkForViolations(
+        ?string $storeToken,
+        PluginCollection $plugins,
+        string $language,
+        string $hostName,
+        Context $context
+    ): void {
+        $violations = $this->getLicenseViolations($storeToken, $plugins, $language, $hostName, $context);
+        $indexed = [];
+        /** @var StoreLicenseViolationStruct $violation */
+        foreach ($violations as $violation) {
+            $indexed[$violation->getName()] = $violation;
+        }
+
+        foreach ($plugins as $plugin) {
+            if (isset($indexed[$plugin->getName()])) {
+                $plugin->addExtension(self::PLUGIN_LICENSE_VIOLATION_EXTENSION_KEY, $indexed[$plugin->getName()]);
+            }
+        }
+    }
+
+    public function getLicenseViolations(
+        ?string $storeToken,
+        PluginCollection $plugins,
+        string $language,
+        string $hostName,
+        Context $context
+    ): array {
+        $pluginData = [];
+
+        /** @var PluginEntity $plugin */
+        foreach ($plugins as $plugin) {
+            $pluginData[] = [
+                'name' => $plugin->getName(),
+                'version' => $plugin->getVersion(),
+            ];
+        }
+
+        $query = $this->storeService->getDefaultQueryParameters($language, false);
+        $query['hostName'] = $hostName;
+
+        $response = $this->client->post(
+            self::SBP_API_URL_PLUGIN_VIOLATIONS,
+            [
+                'query' => $query,
+                'body' => json_encode(['plugins' => $pluginData]),
+                'headers' => $this->getHeaders($storeToken),
+            ]
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        return $this->getViolations($data['notices']);
+    }
+
     public function getDownloadDataForPlugin(string $pluginName, string $storeToken, string $language, bool $checkLicenseDomain = true): PluginDownloadDataStruct
     {
-        $shopSecret = $this->getShopSecret();
-
-        $headers = [];
-
-        if (!empty($storeToken)) {
-            $headers[self::SHOPWARE_PLATFORM_TOKEN_HEADER] = $storeToken;
-        }
-
-        if ($shopSecret) {
-            $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
-        }
-
         $response = $this->client->get(
-            '/swplatform/pluginfiles/' . $pluginName,
+            str_replace('{pluginName}', $pluginName, self::SBP_API_URL_PLUGIN_DOWNLOAD_INFO),
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language, $checkLicenseDomain),
-                'headers' => array_merge(
-                    $this->client->getConfig('headers'),
-                    $headers
-                ),
+                'headers' => $this->getHeaders($storeToken),
             ]
         );
 
@@ -252,40 +285,74 @@ final class StoreClient
             ];
         }
 
-        $shopSecret = $this->getShopSecret();
-
-        $headers = [];
-        if ($shopSecret) {
-            $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
-        }
-
-        $response = $this->client->post('/swplatform/autoupdate', [
-            'query' => $this->storeService->getDefaultQueryParameters($language, false),
-            'headers' => array_merge(
-                $this->client->getConfig('headers'),
-                $headers
-            ),
-            'json' => [
-                'futureShopwareVersion' => $futureVersion,
-                'plugins' => $pluginArray,
-            ],
-        ]);
+        $response = $this->client->post(
+            self::SBP_API_URL_PLUGIN_COMPATIBILITY, [
+                'query' => $this->storeService->getDefaultQueryParameters($language, false),
+                'headers' => $this->getHeaders(),
+                'json' => [
+                    'futureShopwareVersion' => $futureVersion,
+                    'plugins' => $pluginArray,
+                ],
+            ]);
 
         return json_decode((string) $response->getBody(), true);
     }
 
     public function isShopUpgradeable(): bool
     {
-        $response = $this->client->get('/swplatform/autoupdate/permission', [
+        $response = $this->client->get(self::SBP_API_URL_UPDATE_PERMISSIONS, [
             'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
-            'headers' => $this->client->getConfig('headers'),
+            'headers' => $this->getHeaders(),
         ]);
 
         return json_decode((string) $response->getBody(), true)['updateAllowed'];
     }
 
-    private function getShopSecret(): ?string
+    /**
+     * @return StoreLicenseViolationStruct[]
+     */
+    private function getViolations(array $violationsData): array
     {
-        return $this->configService->get('core.store.shopSecret');
+        $violations = [];
+        foreach ($violationsData as $violationData) {
+            $violationData['actions'] = $this->getActions($violationData['actions'] ?? []);
+            $violationData['type'] = (new StoreLicenseViolationTypeStruct())->assign($violationData['type']);
+            $expired = new StoreLicenseViolationStruct();
+            $expired->assign($violationData);
+            $violations[] = $expired;
+        }
+
+        return $violations;
+    }
+
+    /**
+     * @return StoreActionStruct[]
+     */
+    private function getActions(array $actionsData): array
+    {
+        $actions = [];
+        foreach ($actionsData as $actionData) {
+            $action = new StoreActionStruct();
+            $action->assign($actionData);
+            $actions[] = $action;
+        }
+
+        return $actions;
+    }
+
+    private function getHeaders(?string $storeToken = null): array
+    {
+        $headers = $this->client->getConfig('headers');
+
+        if ($storeToken) {
+            $headers[self::SHOPWARE_PLATFORM_TOKEN_HEADER] = $storeToken;
+        }
+
+        $shopSecret = $this->configService->get('core.store.shopSecret');
+        if ($shopSecret) {
+            $headers[self::SHOPWARE_SHOP_SECRET_HEADER] = $shopSecret;
+        }
+
+        return $headers;
     }
 }

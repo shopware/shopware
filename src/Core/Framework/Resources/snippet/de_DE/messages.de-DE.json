@@ -1,27 +1,27 @@
 {
     "document": {
-        "invoiceNumber": "Rechnung Nr. %invoiceNumber%",
-        "invoiceHeadline": "Rechnung Nr. %invoiceNumber%",
-        "stornoNumber": "Storno Nr. %stornoNumber%",
-        "stornoHeadline": "Storno Nr. %stornoNumber% für Rechnung Nr. %invoiceNumber%",
-        "deliveryNoteNumber": "Lieferschein Nr. %deliveryNoteNumber%",
-        "deliveryNoteHeadline": "Lieferschein Nr. %deliveryNoteNumber% für Bestellung Nr. %orderNumber%",
-        "creditNoteNumber": "Gutschein Nr. %creditNoteNumber%",
-        "creditNoteHeadline": "Gutschein Nr. %creditNoteNumber% für Rechnung Nr. %invoiceNumber%",
-        "customerNumber": "Kunden-Nr.: %customerNumber%",
-        "date": "Datum: %date%",
-        "orderDate": "Bestelldatum: %orderDate%",
-        "deliveryDate": "Liefertermin: %deliveryDate%",
+        "invoiceNumber": "Rechnungs-Nr. %invoiceNumber%",
+        "invoiceHeadline": "Rechnungs-Nr. %invoiceNumber%",
+        "stornoNumber": "Storno-Nr. %stornoNumber%",
+        "stornoHeadline": "Storno-Nr. %stornoNumber% für Rechnung Nr. %invoiceNumber%",
+        "deliveryNoteNumber": "Lieferschein-Nr. %deliveryNoteNumber%",
+        "deliveryNoteHeadline": "Lieferschein-Nr. %deliveryNoteNumber% für Bestellung Nr. %orderNumber%",
+        "creditNoteNumber": "Gutschein-Nr. %creditNoteNumber%",
+        "creditNoteHeadline": "Gutschein-Nr. %creditNoteNumber% für Rechnung Nr. %invoiceNumber%",
+        "customerNumber": "Kunden-Nr. %customerNumber%",
+        "date": "Datum %date%",
+        "orderDate": "Bestelldatum %orderDate%",
+        "deliveryDate": "Liefertermin %deliveryDate%",
         "page": "Seite %pageNumber%",
-        "orderNumber": "Bestell-Nr.: %orderNumber%",
-        "taxNumber": "Steuer-Nr.: %taxNumber%",
-        "vatId": "USt-IdNr.: %vatId%",
+        "orderNumber": "Bestell-Nr. %orderNumber%",
+        "taxNumber": "Steuer-Nr. %taxNumber%",
+        "vatId": "USt-IdNr. %vatId%",
         "taxOffice": "Finanzamt %taxOffice%",
         "bankAccount": "Bankverbindung",
-        "bankIban": "IBAN: %bankIban%",
-        "bankBic": "BIC: %bankBic%",
+        "bankIban": "IBAN %bankIban%",
+        "bankBic": "BIC %bankBic%",
         "placeOfJurisdiction": "Gerichtsstand ist %placeOfJurisdiction%",
-        "placeOfFulfillment": "Erfüllungsort: %placeOfFulfillment%",
+        "placeOfFulfillment": "Erfüllungsort ist %placeOfFulfillment%",
         "ceo": "Geschäftsführer",
         "lineItems": {
             "header": {
@@ -30,17 +30,18 @@
                 "quantity": "Anz.",
                 "tax": "MwSt.",
                 "unitPrice": "Stückpreis",
-                "articleNumber": "Art Nr.",
+                "articleNumber": "Art. Nr.",
                 "total": "Gesamt"
             },
             "tax": "zzgl. %taxRate%% MwSt.:",
             "total": "Gesamtsumme:",
-            "totalNet": "Gesamtsumme Netto:"
+            "totalNet": "Gesamtsumme Netto:",
+            "shippingCosts": "Versandkosten:"
         },
         "paymentShippingInfo": {
-            "paymentMethod": "Gewählte Zahlungsart: %paymentMethod%",
-            "shippingMethod": "Gewählte Versandart: %shippingMethod%",
-            "additionalInfo": "Die Ware bleibt bis zur vollständigen Bezahlung unser Eigentum."
+            "paymentMethod": "Gewählte Zahlungsart %paymentMethod%",
+            "shippingMethod": "Gewählte Versandart %shippingMethod%",
+            "additionalInfo": "Die Ware bleibt, bis zur vollständigen Bezahlung, unser Eigentum."
         }
     }
 }

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -78,7 +78,7 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $aggregations = null;
         if ($criteria->getAggregations()) {
-            $aggregations = $this->aggregate($criteria, $context)->getAggregations();
+            $aggregations = $this->aggregate($criteria, $context);
         }
 
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
@@ -119,11 +119,11 @@ class EntityRepository implements EntityRepositoryInterface
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, Context $context): AggregatorResult
+    public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
     {
         $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
-        $event = new EntityAggregationResultLoadedEvent($this->definition, $result);
+        $event = new EntityAggregationResultLoadedEvent($this->definition, $result, $context);
         $this->eventDispatcher->dispatch($event, $event->getName());
 
         return $result;

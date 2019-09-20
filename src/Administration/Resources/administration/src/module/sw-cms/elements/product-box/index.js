@@ -53,5 +53,39 @@ Application.getContainer('service').cmsService.registerCmsElement({
                 }
             }
         }
+    },
+    collect: function collect(elem) {
+        const context = Object.assign(
+            {},
+            Shopware.Application.getContainer('service').context,
+            { inheritance: true }
+        );
+
+        const criteriaList = {};
+
+        Object.keys(elem.config).forEach((configKey) => {
+            if (elem.config[configKey].source === 'mapped') {
+                return;
+            }
+
+            const entity = elem.config[configKey].entity;
+
+            if (entity && elem.config[configKey].value) {
+                const entityKey = entity.name;
+                const entityData = {
+                    value: [elem.config[configKey].value],
+                    key: configKey,
+                    searchCriteria: entity.criteria ? entity.criteria : new Criteria(),
+                    ...entity
+                };
+
+                entityData.searchCriteria.setIds(entityData.value);
+                entityData.context = context;
+
+                criteriaList[`entity-${entityKey}`] = entityData;
+            }
+        });
+
+        return criteriaList;
     }
 });

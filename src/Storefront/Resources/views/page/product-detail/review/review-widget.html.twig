@@ -2,10 +2,10 @@
 	<div class="sticky-top product-detail-review-widget">
 		{% block page_product_detail_review_info_container %}
 			{% block page_product_detail_review_info %}
-				<div class="product-detail-review-info">
+				<div class="product-detail-review-info js-review-info">
 					{% block page_product_detail_review_title %}
 						<p class="product-detail-review-title h5">
-                            {{ "detail.reviewTitle"|trans({'%count%': page.reviews.total }) }}
+                            {{ "detail.reviewTitle"|trans({'%count%': page.reviews.total, '%total%':page.totalReviews }) }}
 						</p>
 					{% endblock %}
 
@@ -39,12 +39,13 @@
 
 			{% block page_product_detail_review_filter %}
                 {% if productReviewCount > 0 %}
-					<form class="review-filter-form js-review-filter"
+                    <div class="js-review-filter">
+                        <form class="review-filter-form"
 						  action="{{ path('frontend.product.reviews', { productId: productId }) }}"
 						  method="post"
 						  data-form-ajax-submit="true"
 						  data-form-ajax-submit-options='{
-							  "replaceSelectors": ".js-review-content",
+							  "replaceSelectors": ".js-review-container",
 							  "submitOnChange": true
 						  }'>
 
@@ -114,6 +115,7 @@
 							{% endblock %}
 						{% endfor %}
 					</form>
+                    </div>
 
                     {% block page_product_detail_review_filter_divider %}
 						<hr/>

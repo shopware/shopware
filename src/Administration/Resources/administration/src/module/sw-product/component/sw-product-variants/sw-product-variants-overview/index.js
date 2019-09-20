@@ -119,21 +119,17 @@ Component.register('sw-product-variants-overview', {
 
                 // Get criteria for search and for option sorting
                 const searchCriteria = new Criteria();
-                const optionCriteria = new Criteria();
-
-                // Option sorting
-                optionCriteria
-                    .setLimit(500)
-                    .addSorting(Criteria.sort('groupId'))
-                    .addSorting(Criteria.sort('id'));
 
                 // Criteria for Search
                 searchCriteria.setTotalCountMode(1);
                 searchCriteria
                     .setPage(this.page)
                     .setLimit(this.limit)
-                    .addFilter(Criteria.equals('product.parentId', this.product.id))
-                    .addAssociation('options', optionCriteria);
+                    .addFilter(Criteria.equals('product.parentId', this.product.id));
+
+                searchCriteria.getAssociation('options')
+                    .addSorting(Criteria.sort('groupId'))
+                    .addSorting(Criteria.sort('id'));
 
                 // Add search term
                 this.buildSearchQuery(searchCriteria);

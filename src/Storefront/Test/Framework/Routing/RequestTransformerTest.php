@@ -202,6 +202,16 @@ class RequestTransformerTest extends TestCase
                     new ExpectedRequest('http://inactive.test/foobar', null, null, null, null, null, null, null, null, SalesChannelMappingException::class),
                 ],
             ],
+            'punycode' => [
+                [
+                    $this->getGermanSalesChannel($germanId, $gerDomainId, 'http://würmer.test'),
+                ],
+                [
+                    new ExpectedRequest('http://xn--wrmer-kva.test', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://xn--wrmer-kva.test/', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                    new ExpectedRequest('http://xn--wrmer-kva.test/foobar', '', $gerDomainId, $germanId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, $this->deLanguageId, $snippetSetDE),
+                ],
+            ],
         ];
     }
 

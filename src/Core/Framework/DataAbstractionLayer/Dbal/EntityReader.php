@@ -502,13 +502,12 @@ class EntityReader implements EntityReaderInterface
 
         $ids = [];
         foreach ($mapping as $associationIds) {
-            $associationIds = array_filter(explode(',', (string) $associationIds));
             foreach ($associationIds as $associationId) {
                 $ids[] = $associationId;
             }
         }
 
-        $fieldCriteria->setIds($ids);
+        $fieldCriteria->setIds(array_filter($ids));
         $fieldCriteria->resetSorting();
         $fieldCriteria->resetFilters();
         $fieldCriteria->resetPostFilters();
@@ -528,7 +527,7 @@ class EntityReader implements EntityReaderInterface
         /** @var Entity $entity */
         foreach ($collection as $entity) {
             //extract mapping ids for the current entity
-            $mappingIds = array_filter(explode(',', (string) $mapping[$entity->getUniqueIdentifier()]));
+            $mappingIds = $mapping[$entity->getUniqueIdentifier()];
 
             $structData = $data->getList($mappingIds);
 
@@ -546,7 +545,7 @@ class EntityReader implements EntityReaderInterface
             $parentId = $entity->get('parentId');
 
             //extract mapping ids for the current entity
-            $mappingIds = array_filter(explode(',', (string) $mapping[$parentId]));
+            $mappingIds = $mapping[$parentId];
 
             $structData = $data->getList($mappingIds);
 
@@ -784,7 +783,7 @@ class EntityReader implements EntityReaderInterface
         $wrapper->select(
             [
                 'LOWER(HEX(' . $root . '.id)) as id',
-                'GROUP_CONCAT(LOWER(HEX(child.id))) as ids',
+                'LOWER(HEX(child.id)) as child_id',
             ]
         );
 
@@ -797,9 +796,6 @@ class EntityReader implements EntityReaderInterface
             'child',
             'child.' . $foreignKey . ' = ' . $root . '.id AND id_count >= :offset AND id_count <= :limit'
         );
-
-        //add group by to concat all association ids for each root
-        $wrapper->addGroupBy($root . '.id');
 
         //filter result to loaded root entities
         $wrapper->andWhere($root . '.id IN (:rootIds)');
@@ -828,7 +824,22 @@ class EntityReader implements EntityReaderInterface
 
         $rows = $wrapper->execute()->fetchAll();
 
-        return FetchModeHelper::keyPair($rows);
+        $grouped = [];
+        foreach ($rows as $row) {
+            $id = $row['id'];
+
+            if (!isset($grouped[$id])) {
+                $grouped[$id] = [];
+            }
+
+            if (empty($row['child_id'])) {
+                continue;
+            }
+
+            $grouped[$id][] = $row['child_id'];
+        }
+
+        return $grouped;
     }
 
     private function buildManyToManyLimitQuery(ManyToManyAssociationField $association): QueryBuilder

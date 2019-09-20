@@ -53,7 +53,7 @@ class DocumentDefinition extends EntityDefinition
             new FkField('document_media_file_id', 'documentMediaFileId', MediaDefinition::class),
             (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->addFlags(new Required()),
 
-            (new JsonField('config', 'config'))->addFlags(new Required()),
+            (new JsonField('config', 'config', [], []))->addFlags(new Required()),
             new BoolField('sent', 'sent'),
             new BoolField('static', 'static'),
             (new StringField('deep_link_code', 'deepLinkCode'))->addFlags(new Required()),

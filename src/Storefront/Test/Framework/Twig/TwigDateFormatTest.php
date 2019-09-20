@@ -45,7 +45,6 @@ class TwigDateFormatTest extends TestCase
     private function renderTestTemplate(\DateTimeInterface $dateTime)
     {
         $twig = $this->getContainer()->get('twig');
-        $twig->
 
         $originalLoader = $twig->getLoader();
         $twig->setLoader(new ArrayLoader([

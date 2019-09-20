@@ -45,7 +45,26 @@ class DocumentGeneratorController extends AbstractController
             $fileType,
             $config,
             $context,
-            $referencedDocumentId
+            $referencedDocumentId,
+            $request->request->get('static', false)
+        );
+
+        return new JsonResponse(
+            [
+                'documentId' => $documentIdStruct->getId(),
+                'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
+            ]);
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/document/{documentId}/upload", name="api.action.document.upload", methods={"POST"})
+     */
+    public function uploadToDocument(Request $request, string $documentId, Context $context): JsonResponse
+    {
+        $documentIdStruct = $this->documentService->uploadFileForDocument(
+            $documentId,
+            $context,
+            $request
         );
 
         return new JsonResponse(

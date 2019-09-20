@@ -71,21 +71,11 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
                     false
                 ).then((response) => {
                     this.documentConfig.custom.stornoNumber = response.number;
-                    this.$emit(
-                        'document-create',
-                        this.documentConfig,
-                        additionalAction,
-                        selectedInvoice.id
-                    );
+                    this.callDocumentCreate(additionalAction, selectedInvoice.id);
                 });
             } else {
                 this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
-                this.$emit(
-                    'document-create',
-                    this.documentConfig,
-                    additionalAction,
-                    selectedInvoice.id
-                );
+                this.callDocumentCreate(additionalAction, selectedInvoice.id);
             }
         },
 

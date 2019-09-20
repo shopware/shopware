@@ -48,10 +48,7 @@ class ContactPageLoader
 
         $page->setSalutations($salutations);
 
-        $this->eventDispatcher->dispatch(
-            new ContactPageLoadedEvent($page, $context, $request),
-            ContactPageLoadedEvent::NAME
-        );
+        $this->eventDispatcher->dispatch(new ContactPageLoadedEvent($page, $context, $request));
 
         return $page;
     }

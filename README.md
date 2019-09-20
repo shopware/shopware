@@ -244,6 +244,9 @@ When submitting your code to Shopware you automatically need to sign our CLA (Co
 This CLA ensures that Shopware will stay an open and living product.
 In short, you give the explicit right to use your code in Shopware to shopware AG.
 
+## Reporting security issues
+Please have a look at our [security policy](SECURITY.md).
+
 ## License
 
 Shopware 6 is completely free and released under the [MIT License](LICENSE).

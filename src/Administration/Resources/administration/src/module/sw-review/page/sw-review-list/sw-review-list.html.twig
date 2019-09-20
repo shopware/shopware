@@ -5,6 +5,7 @@
             <template slot="search-bar">
                 <sw-search-bar initialSearchType="product_review"
                                :initialSearch="term"
+                               :placeholder="$tc('sw-review.list.placeholderSearchBar')"
                                @search="onSearch">
                 </sw-search-bar>
             </template>
@@ -45,13 +46,15 @@
                         {% endblock %}
                         {% block sw_review_list_content_list_created_at %}
                             <template slot="column-createdAt" slot-scope="{ item }">
-                                {{ item.createdAt | date }}
+                                {{ item.createdAt | date({hour: '2-digit', minute: '2-digit', second: '2-digit'}) }}
                             </template>
                         {% endblock %}
                         {% block sw_review_list_content_list_user %}
                             <template slot="column-user" slot-scope="{ item }">
                                 <template v-if="item.customerId">
+                                    <router-link :to="{ name: 'sw.customer.detail', params: { id: item.customerId } }">
                                         {{ item.customer.firstName }} {{ item.customer.lastName }}
+                                    </router-link>
                                 </template>
                                 <template v-else>
                                     {{ item.externalUser }}
@@ -69,11 +72,14 @@
                         {% endblock %}
                         {% block sw_review_list_content_list_points %}
                             <template slot="column-points" slot-scope="{ item }">
+                                <div class="sw-review-list__stars">
                                     <sw-icon v-for="i in item.points"
                                              :key="i"
-                                             name="default-basic-shape-star"
+                                             name="default-review-star-full"
                                              size="14">
                                     </sw-icon>
+
+                                </div>
                             </template>
                         {% endblock %}
                         {% block sw_review_list_content_list_comment %}
@@ -83,6 +89,11 @@
                             </template>
                         {% endblock %}
                     </sw-entity-listing>
+                {% endblock %}
+
+                {% block sw_review_list_empty_state %}
+                    <sw-empty-state v-if="!isLoading && !total"
+                                    :title="$tc('sw-review.list.messageEmpty')"></sw-empty-state>
                 {% endblock %}
             </template>
         {% endblock %}

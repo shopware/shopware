@@ -11,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\Random;
@@ -23,6 +24,7 @@ use Symfony\Component\Serializer\Serializer;
 class SalesChannelCustomerControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
+    use MailTemplateTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -341,40 +343,7 @@ class SalesChannelCustomerControllerTest extends TestCase
 
     public function testRegister(): void
     {
-        $personal = [
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'password' => '12345678',
-            'email' => Uuid::randomHex() . '@example.com',
-            'title' => 'Phd',
-            'active' => true,
-            'birthdayYear' => 2000,
-            'birthdayMonth' => 1,
-            'birthdayDay' => 22,
-            'billingAddress' => [
-                'countryId' => $this->getValidCountryId(),
-                'street' => 'Examplestreet 11',
-                'zipcode' => '48441',
-                'city' => 'Cologne',
-                'phoneNumber' => '0123456789',
-                'vatId' => 'DE999999999',
-                'additionalAddressLine1' => 'Additional address line 1',
-                'additionalAddressLine2' => 'Additional address line 2',
-            ],
-            'shippingAddress' => [
-                'countryId' => $this->getValidCountryId(),
-                'salutationId' => $this->getValidSalutationId(),
-                'firstName' => 'Test 2',
-                'lastName' => 'Example 2',
-                'street' => 'Examplestreet 111',
-                'zipcode' => '12341',
-                'city' => 'Berlin',
-                'phoneNumber' => '987654321',
-                'additionalAddressLine1' => 'Additional address line 01',
-                'additionalAddressLine2' => 'Additional address line 02',
-            ],
-        ];
+        $personal = $this->getCustomerRegisterData();
 
         $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/customer', $personal);
 
@@ -743,5 +712,45 @@ class SalesChannelCustomerControllerTest extends TestCase
 
         $order = $order['data'];
         static::assertNotEmpty($order);
+    }
+
+    private function getCustomerRegisterData(): array
+    {
+        $personal = [
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'password' => '12345678',
+            'email' => Uuid::randomHex() . '@example.com',
+            'title' => 'Phd',
+            'active' => true,
+            'birthdayYear' => 2000,
+            'birthdayMonth' => 1,
+            'birthdayDay' => 22,
+            'billingAddress' => [
+                'countryId' => $this->getValidCountryId(),
+                'street' => 'Examplestreet 11',
+                'zipcode' => '48441',
+                'city' => 'Cologne',
+                'phoneNumber' => '0123456789',
+                'vatId' => 'DE999999999',
+                'additionalAddressLine1' => 'Additional address line 1',
+                'additionalAddressLine2' => 'Additional address line 2',
+            ],
+            'shippingAddress' => [
+                'countryId' => $this->getValidCountryId(),
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Test 2',
+                'lastName' => 'Example 2',
+                'street' => 'Examplestreet 111',
+                'zipcode' => '12341',
+                'city' => 'Berlin',
+                'phoneNumber' => '987654321',
+                'additionalAddressLine1' => 'Additional address line 01',
+                'additionalAddressLine2' => 'Additional address line 02',
+            ],
+        ];
+
+        return $personal;
     }
 }

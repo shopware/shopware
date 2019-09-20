@@ -12,6 +12,11 @@ class LastIdQuery implements IterableQuery
      */
     private $query;
 
+    /**
+     * @var string|null
+     */
+    private $lastId;
+
     public function __construct(QueryBuilder $query)
     {
         $this->query = $query;
@@ -23,7 +28,9 @@ class LastIdQuery implements IterableQuery
         $data = FetchModeHelper::keyPair($data);
 
         $keys = array_keys($data);
-        $this->query->setParameter('lastId', array_pop($keys));
+        $this->lastId = array_pop($keys);
+
+        $this->query->setParameter('lastId', $this->lastId);
 
         return $data;
     }
@@ -45,5 +52,10 @@ class LastIdQuery implements IterableQuery
     public function getQuery(): QueryBuilder
     {
         return $this->query;
+    }
+
+    public function getOffset(): array
+    {
+        return ['offset' => $this->lastId];
     }
 }

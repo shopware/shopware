@@ -148,10 +148,10 @@ class BundleConfigDumper implements EventSubscriberInterface
         if ($this->kernel->getContainer()->has('Shopware\Storefront\Theme\StorefrontPluginRegistry')) {
             $registry = $this->kernel->getContainer()->get('Shopware\Storefront\Theme\StorefrontPluginRegistry');
 
-            $config = $registry->getByName($bundle->getName());
+            $config = $registry->getConfigurations()->getByTechnicalName($bundle->getName());
 
             if ($config) {
-                return $config->getStyleFiles();
+                return $config->getStyleFiles()->getFilepaths();
             }
         }
 

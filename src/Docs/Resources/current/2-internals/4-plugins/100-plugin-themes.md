@@ -215,6 +215,7 @@ The following parameters can be defined for a config field item:
 | editable     | If set to false, the config option will not be displayed (e.g. in the administration |
 | block        | Name of a block to organize the config options                                       |
 | section      | Name of a section to organize the config options                                     |
+| custom       | The defined data will not be processed but is available via API                      |
 
 
 If your plugin is installed and active, Shopware will automatically collect all your 

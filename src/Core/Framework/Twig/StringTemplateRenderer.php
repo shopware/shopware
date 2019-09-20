@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Twig;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Twig\Exception\StringTemplateRenderingException;
 use Twig\Environment;
 use Twig\Error\Error;
@@ -32,10 +33,12 @@ class StringTemplateRenderer
     /**
      * @throws StringTemplateRenderingException
      */
-    public function render(string $templateSource, array $data): string
+    public function render(string $templateSource, array $data, Context $context): string
     {
         $name = md5($templateSource);
         $this->twig->setLoader(new ArrayLoader([$name => $templateSource]));
+
+        $this->twig->addGlobal('context', $context);
 
         try {
             return $this->twig->render($name, $data);

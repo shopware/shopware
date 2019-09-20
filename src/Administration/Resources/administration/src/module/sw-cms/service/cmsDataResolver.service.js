@@ -75,7 +75,7 @@ function initSlotConfig(slot) {
     const slotConfig = cmsElements[slot.type];
     const defaultConfig = slotConfig.defaultConfig || {};
 
-    slot.config = merge(cloneDeep(defaultConfig), slot.config || {});
+    slot.config = merge(cloneDeep(defaultConfig), slot.translated.config || {});
 }
 
 function initSlotDefaultData(slot) {
@@ -191,8 +191,10 @@ function fetchByCriteria(searches) {
                 return;
             }
 
+            const context = entity.context || contextService;
+
             fetchPromises.push(
-                repo.search(criteria, contextService).then((response) => {
+                repo.search(criteria, context).then((response) => {
                     results[slotId][searchKey] = response;
                 })
             );

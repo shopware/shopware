@@ -135,7 +135,7 @@
                     <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
                         <sw-entity-single-select :value="currentValue"
-                                                 @input="updateCurrentValue"
+                                                 @change="updateCurrentValue"
                                                  entity="unit"
                                                  :disabled="isInherited"
                                                  class="sw-select-product__select_unit"

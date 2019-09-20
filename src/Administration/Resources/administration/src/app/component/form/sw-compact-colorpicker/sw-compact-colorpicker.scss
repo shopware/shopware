@@ -1,4 +1,5 @@
 @import "~scss/variables";
+@import "~scss/mixins";
 
 .sw-field.sw-field--compact-colorpicker {
     margin-bottom: 0;
@@ -24,38 +25,6 @@
                 left: 15px;
             }
         }
-
-        .picker_done {
-            display: initial;
-            order: 3;
-
-            button {
-                color: $color-white;
-                background: $color-shopware-blue;
-                border: 1px solid $color-steam-cloud;
-                border-radius: $border-radius-default;
-                padding: 2px 24px;
-                font-size: 14px;
-                line-height: 26px;
-                outline: none;
-                font-weight: 600;
-                font-family: $font-family-default;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                vertical-align: middle;
-                text-decoration: none;
-                cursor: pointer;
-                user-select: none;
-                margin: 0;
-                position: relative;
-
-                &:hover {
-                    color: darken($color-white, 5%);
-                    background: darken($color-shopware-blue, 5%);
-                    border-color: darken($color-steam-cloud, 5%);
-                }
-            }
-        }
     }
 
     .sw-colorpicker__previewWrapper {
@@ -70,4 +39,9 @@
         height: 14px;
         width: 14px;
     }
+}
+
+.sw-colorpicker__set-color-button {
+    width: 100%;
+    margin-top: 10px;
 }

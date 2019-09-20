@@ -54,6 +54,7 @@ Component.register('sw-manufacturer-list', {
             params.sortBy = params.sortBy || 'name';
             params.sortDirection = params.sortDirection || 'ASC';
 
+            criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(params.sortBy, params.sortDirection));
 
             return criteria;

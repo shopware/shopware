@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductReviewsLoadedEvent extends NestedEvent
 {
-    public const NAME = 'product.reviews.loaded.event';
-
     /**
      * @var StorefrontSearchResult
      */
@@ -20,38 +18,33 @@ class ProductReviewsLoadedEvent extends NestedEvent
     /**
      * @var SalesChannelContext
      */
-    protected $context;
+    protected $salesChannelContext;
 
     /**
      * @var Request
      */
     protected $request;
 
-    public function __construct(StorefrontSearchResult $searchResult, SalesChannelContext $context, Request $request)
+    public function __construct(StorefrontSearchResult $searchResult, SalesChannelContext $salesChannelContext, Request $request)
     {
         $this->searchResult = $searchResult;
-        $this->context = $context;
+        $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;
-    }
-
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
-    public function getContext(): Context
-    {
-        return $this->context->getContext();
-    }
-
-    public function getSalesChannelContext(): SalesChannelContext
-    {
-        return $this->context;
     }
 
     public function getSearchResult(): StorefrontSearchResult
     {
         return $this->searchResult;
+    }
+
+    public function getSalesChannelContext(): SalesChannelContext
+    {
+        return $this->salesChannelContext;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->salesChannelContext->getContext();
     }
 
     public function getRequest(): Request

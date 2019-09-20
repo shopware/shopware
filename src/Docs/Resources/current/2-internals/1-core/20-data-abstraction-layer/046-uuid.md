@@ -6,13 +6,13 @@ The data abstraction layer uses, contrary to many legacy data access implementat
 4885d161e1144fcdaf78d039b8b73f80
 ```
 
-A random string containing the *numbers `0` til `9` and the characters `a` til `f`with a length of `32`.
+A random string containing the numbers `0` to `9` and the characters `a` to `f` with a length of `32`.
 
-This decision was not lightheartedly taken but was a logical conclusion following the API-First design goal. Shopware 6 and by token its storage engine do **not dictate** the primary key value of an entity but only employ requirements on the format. The classic approach to just use `AUTO_INCREMENT` columns is not sustainable for distributed, highly available and concurrent systems, because primary key creation is entirely wrapped inside the storage engine. UUIDs on the other hand are only created as a fallback on the server and can be supplied by any client. There is only a shared methodology to create new primary keys, but no central registry.
+This decision was not taken lightheartedly but was a logical conclusion following the API-First design goal. Shopware 6 and by token its storage engine do **not dictate** the primary key value of an entity but only employ requirements on the format. The classic approach to just use `AUTO_INCREMENT` columns is not sustainable for distributed, highly available and concurrent systems, because primary key creation is entirely wrapped inside the storage engine. UUIDs on the other hand are only created as a fallback on the server and can be supplied by any client. There is only a shared methodology to create new primary keys, but no central registry.
 
 ## Usage
 
-UUIDs in Shopware 6 have two distinct representations: a hexadecimal representation as seen in the example above and a non printable and not readable binary representation used by the storage engine. The validation, conversion and creation can be done through a single static interface found in `\Shopware\Core\Framework\Uuid\Uuid`. The following example will echo **`Equal`**:
+UUIDs in Shopware 6 have two distinct representations: a hexadecimal representation as seen in the example above and a non printable and not human readable binary representation used by the storage engine. The validation, conversion and creation can be done through a single static interface found in `\Shopware\Core\Framework\Uuid\Uuid`. The following example will echo **`Equal`**:
 
 ```php
 <?php
@@ -28,7 +28,7 @@ if($newHex === $hex) {
 }
 ```
 
-Using UUIDs starts at the Schema level. Primary as well as foreign key columns are of the type `BINARY(16)` and use the field type `\Shopware\Core\Framework\DataAbstractionLayer\Field\IdField` or  `\Shopware\Core\Framework\DataAbstractionLayer\Field\FkField` respectively in the entity definition. How to set up entities is explained in much greater details in the [following articles](./__categoryInfo.md) or the [howto section](./../../../4-how-to/__categoryInfo.md).
+Using UUIDs starts at the schema level. Primary as well as foreign key columns are of the type `BINARY(16)` and use the field type `\Shopware\Core\Framework\DataAbstractionLayer\Field\IdField` or  `\Shopware\Core\Framework\DataAbstractionLayer\Field\FkField` respectively in the entity definition. How to set up entities is explained in much greater details in the [following articles](./__categoryInfo.md) or the [howto section](./../../../4-how-to/__categoryInfo.md).
 
 ## Debugging
 

@@ -4,14 +4,14 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregatorResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 
 class EntityAggregationResultLoadedEvent extends NestedEvent implements GenericEvent
 {
     /**
-     * @var AggregatorResult
+     * @var AggregationResultCollection
      */
     protected $result;
 
@@ -25,11 +25,17 @@ class EntityAggregationResultLoadedEvent extends NestedEvent implements GenericE
      */
     protected $name;
 
-    public function __construct(EntityDefinition $definition, AggregatorResult $result)
+    /**
+     * @var Context
+     */
+    protected $context;
+
+    public function __construct(EntityDefinition $definition, AggregationResultCollection $result, Context $context)
     {
         $this->result = $result;
         $this->definition = $definition;
         $this->name = $this->definition->getEntityName() . '.aggregation.result.loaded';
+        $this->context = $context;
     }
 
     public function getName(): string
@@ -39,10 +45,10 @@ class EntityAggregationResultLoadedEvent extends NestedEvent implements GenericE
 
     public function getContext(): Context
     {
-        return $this->result->getContext();
+        return $this->context;
     }
 
-    public function getResult(): AggregatorResult
+    public function getResult(): AggregationResultCollection
     {
         return $this->result;
     }

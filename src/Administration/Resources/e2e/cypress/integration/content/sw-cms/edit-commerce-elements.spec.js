@@ -57,7 +57,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
 
         cy.get('.sw-cms-list-item--0').click();
 
-        // Add simple image block
+        // Add product box block
         cy.contains('Add a block').click();
         cy.get('#sw-field--currentBlockCategory').select('Commerce');
         cy.get('.sw-cms-preview-product-three-column').should('be.visible');
@@ -69,31 +69,20 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         // Configure first product
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').first().click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
-        cy.get('.sw-cms-el-config-product-box .sw-single-select').first()
-            .typeSingleSelectAndCheck('First product', {
-                isMulti: false,
-                searchTerm: 'First product'
-            });
+        cy.get('.sw-cms-el-config-product-box .sw-entity-single-select').typeSingleSelectAndCheck('First product');
         cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
         cy.get('.sw-cms-el-product-box__name').first().contains('First product');
 
         // Configure second product
         cy.get('.sw-cms-slot:nth-of-type(2) .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
-        cy.get('.sw-cms-el-config-product-box .sw-single-select').first()
-            .typeSingleSelectAndCheck('Second product', {
-                isMulti: false,
-                searchTerm: 'Second product'
-            });
+        cy.get('.sw-cms-el-config-product-box .sw-entity-single-select').typeSingleSelectAndCheck('Second product');
         cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
 
         // Configure third product
         cy.get('.sw-cms-slot:nth-of-type(3) .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
-        cy.get('.sw-cms-el-config-product-box .sw-single-select').first().typeSingleSelectAndCheck('Third product', {
-            isMulti: false,
-            searchTerm: 'Third product'
-        });
+        cy.get('.sw-cms-el-config-product-box .sw-entity-single-select').typeSingleSelectAndCheck('Third product');
         cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
         cy.get('.sw-cms-slot:nth-of-type(3) .sw-cms-el-product-box__name').contains('Third product');
 

@@ -1,15 +1,15 @@
 {% block component_review_point %}
     {% if size is not defined %}
         {% set size = 'xs' %}
-	{% endif %}
+    {% endif %}
 
-	<span class="product-review-point">
+    <span class="product-review-point">
         {% if type == 'half' %}
-            {% sw_icon 'star-half' style { 'color': 'review', 'size': size } %}
+            {% sw_icon 'star-half' style { 'color': 'review', 'size': size, 'pack': 'solid' } %}
         {% elseif type == 'blank' %}
-            {% sw_icon 'star' style { 'color': 'light', 'size': size} %}
+            {% sw_icon 'star' style { 'color': 'light', 'size': size, 'pack': 'solid' } %}
         {% else %}
-            {% sw_icon 'star' style { 'color': 'review', 'size': size} %}
+            {% sw_icon 'star' style { 'color': 'review', 'size': size, 'pack': 'solid' } %}
         {% endif %}
-	</span>
+    </span>
 {% endblock %}

@@ -3,16 +3,16 @@
     "general": {
       "mainMenuItemGeneral": "Shopware Account",
       "textHeadline": "Shopware Account",
-      "description": "Change Shopware Account settings here.",
+      "description": "Change your Shopware Account settings here.",
       "buttonSave": "Save",
-      "titleSaveSuccess": "Save successful",
-      "messageSaveSuccess": "Your Shopware Account information has been successfully saved",
-      "titleSaveError": "Save failed"
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Your Shopware Account information have been saved.",
+      "titleSaveError": "Error"
     },
     "detail": {
       "titleCard": "Settings",
-      "labelHost": "Licensing host",
-      "placeholderHost": "Enter here your hostname, which is stored in your Shopware Account"
+      "labelHost": "License domain",
+      "placeholderHost": "Enter the license domain (shop domain), specified in your Shopware Account."
     }
   }
 }

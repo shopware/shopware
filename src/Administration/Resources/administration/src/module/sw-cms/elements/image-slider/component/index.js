@@ -91,8 +91,8 @@ Component.register('sw-cms-el-image-slider', {
         'element.data.sliderItems': {
             handler() {
                 if (this.sliderItems.length > 0) {
-                    this.imgSrc = this.sliderItems[0].entity.url;
-                    this.$emit('active-image-change', this.sliderItems[0].entity);
+                    this.imgSrc = this.sliderItems[0].media.url;
+                    this.$emit('active-image-change', this.sliderItems[0].media);
                 } else {
                     this.imgSrc = `${this.contextAssetPath}${this.imgPath}`;
                 }
@@ -116,8 +116,8 @@ Component.register('sw-cms-el-image-slider', {
             this.initElementData('image-slider');
 
             if (this.element.data && this.element.data.sliderItems && this.element.data.sliderItems.length > 0) {
-                this.imgSrc = this.sliderItems[0].entity.url;
-                this.$emit('active-image-change', this.sliderItems[this.sliderPos].entity);
+                this.imgSrc = this.sliderItems[0].media.url;
+                this.$emit('active-image-change', this.sliderItems[this.sliderPos].media);
             } else {
                 this.imgSrc = `${this.contextAssetPath}${this.imgPath}`;
             }
@@ -149,8 +149,8 @@ Component.register('sw-cms-el-image-slider', {
                 this.sliderPos = 0;
             }
 
-            this.imgSrc = this.sliderItems[this.sliderPos].entity.url;
-            this.$emit('active-image-change', this.sliderItems[this.sliderPos].entity, this.sliderPos);
+            this.imgSrc = this.sliderItems[this.sliderPos].media.url;
+            this.$emit('active-image-change', this.sliderItems[this.sliderPos].media, this.sliderPos);
         }
     }
 });

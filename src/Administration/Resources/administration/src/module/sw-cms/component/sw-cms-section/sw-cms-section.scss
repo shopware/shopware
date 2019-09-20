@@ -1,11 +1,24 @@
 @import "~scss/variables";
 
+.sw-cms-stage.is--tablet-landscape {
+    .sw-cms-section.is--sidebar {
+        grid-template-columns: 236px 720px;
+    }
+}
+
+.sw-cms-stage.is--mobile {
+    .sw-cms-section.is--sidebar {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
 .sw-cms-section {
     position: relative;
     background-repeat: no-repeat;
     background-position: center center;
     padding: 20px;
-    min-height: 480px;
+    min-height: 400px;
     display: grid;
     border-top: 1px solid $color-gray-300;
 
@@ -18,9 +31,13 @@
     }
 
     &.is--sidebar {
-        grid-template-columns: 280px 748px;
+        grid-template-columns: 1fr 4fr;
         grid-gap: 28px;
         justify-content: center;
+    }
+
+    &.is--sidebar.is--boxed {
+        grid-template-columns: 280px 748px;
     }
 
     &:hover {
@@ -46,13 +63,16 @@
     .sw-cms-section__sidebar,
     .sw-cms-section__content {
         position: relative;
-        display: grid;
 
         &.is--empty {
             border: 2px dashed $color-gray-300;
             border-radius: 10px;
             max-height: 980px;
+            min-height: 300px;
             width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .sw-cms-section__empty-stage {
@@ -60,6 +80,7 @@
             text-align: center;
             cursor: pointer;
             height: 100%;
+            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;

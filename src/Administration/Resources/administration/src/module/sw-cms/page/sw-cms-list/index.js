@@ -111,9 +111,9 @@ Component.register('sw-cms-list', {
         getList() {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
-            criteria.addAssociation('previewMedia');
-            criteria.addAssociation('categories');
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+            criteria.addAssociation('previewMedia')
+                .addAssociation('categories')
+                .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             if (this.term !== null) {
                 criteria.setTerm(this.term);

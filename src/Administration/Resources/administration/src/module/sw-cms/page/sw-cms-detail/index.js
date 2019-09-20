@@ -236,18 +236,17 @@ Component.register('sw-cms-detail', {
 
         loadPage(pageId) {
             this.isLoading = true;
+
             const criteria = new Criteria(1, 1);
-            const sectionCriteria = new Criteria(1, 500);
-            sectionCriteria.addSorting(Criteria.sort('position', 'ASC', true));
-            sectionCriteria.addAssociation('backgroundMedia', new Criteria(1, 1));
+            const sortCriteria = Criteria.sort('position', 'ASC', true);
 
-            const blockCirteria = new Criteria(1, 500);
-            blockCirteria.addAssociation('slots');
-            blockCirteria.addAssociation('backgroundMedia', new Criteria(1, 1));
-            blockCirteria.addSorting(Criteria.sort('position', 'ASC', true));
-
-            sectionCriteria.addAssociation('blocks', blockCirteria);
-            criteria.addAssociation('sections', sectionCriteria);
+            criteria.getAssociation('sections')
+                .addSorting(sortCriteria)
+                .addAssociation('backgroundMedia')
+                .getAssociation('blocks')
+                .addSorting(sortCriteria)
+                .addAssociation('backgroundMedia')
+                .addAssociation('slots');
 
             this.pageRepository.get(pageId, this.context, criteria).then((page) => {
                 this.page = { sections: [] };

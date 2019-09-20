@@ -24,12 +24,32 @@ describe('Product: Test variants', () => {
     it('@package @catalogue: add variant to product', () => {
         const page = new ProductPageObject();
 
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v1/product/*',
+            method: 'patch'
+        }).as('saveData');
+
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+
+        // Set product visible
+        cy.get('.sw-product-detail__select-visibility')
+            .scrollIntoView();
+        cy.get('.sw-product-detail__select-visibility').typeMultiSelectAndCheck('Storefront');
+        cy.get('.sw-product-detail__select-visibility .sw-select-selection-list__input')
+            .type('{esc}');
+
+        // Save product
+        cy.get(page.elements.productSaveAction).click();
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
@@ -48,5 +68,20 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__body').contains('.1');
         cy.get('.sw-data-grid__body').contains('.2');
         cy.get('.sw-data-grid__body').contains('.3');
+
+        // Verify in storefront
+        cy.visit('/');
+        cy.get('input[name=search]').type('Product name');
+        cy.get('.search-suggest-container').should('be.visible');
+        cy.get('.search-suggest-product-name')
+            .contains('Product name')
+            .click();
+        cy.get('.product-detail-name').contains('Product name');
+        cy.get('.product-detail-configurator-option-label[title="Red"]')
+            .should('be.visible');
+        cy.get('.product-detail-configurator-option-label[title="Yellow"]')
+            .should('be.visible');
+        cy.get('.product-detail-configurator-option-label[title="Green"]')
+            .should('be.visible')
     });
 });

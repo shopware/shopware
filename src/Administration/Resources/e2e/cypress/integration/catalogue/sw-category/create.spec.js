@@ -89,6 +89,14 @@ describe('Category: Create several categories', () => {
             url: '/api/v1/category?_response=true',
             method: 'post'
         }).as('saveData');
+        cy.route({
+            url: 'api/v1/search/category',
+            method: 'post'
+        }).as('loadCategory');
+        cy.route({
+            url: 'api/v1/category/**',
+            method: 'patch'
+        }).as('editCategory');
 
         // Add category before root one
         cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
@@ -100,7 +108,7 @@ describe('Category: Create several categories', () => {
         cy.get(`${page.elements.categoryTreeItem}__content input`).type('Categorian');
         cy.get(`${page.elements.categoryTreeItem}__content input`).type('{enter}');
 
-        // Verify category
+        // Save and verify category
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -112,5 +120,22 @@ describe('Category: Create several categories', () => {
             }
         });
         cy.get(`${page.elements.categoryTreeItem}:nth-child(1)`).contains('Categorian');
+        cy.contains('Categorian').click();
+
+        // Assign category and set it active
+        cy.wait('@loadCategory').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-category-detail-base').should('be.visible');
+        cy.get('#categoryActive').click();
+        cy.get('.sw-category-detail__save-action').click();
+        cy.wait('@editCategory').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // Verify category in Storefront
+        cy.visit('/');
+        cy.contains('Categorian').click();
+        cy.get('.main-navigation-link.active').should('be.visible');
     });
 });

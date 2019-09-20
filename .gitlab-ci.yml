@@ -281,13 +281,13 @@ Administration (General):
 
 Administration (Catalogues):
     <<: *e2e_definition
-    script: *administration_definition
+    script: *mixed_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/catalogue/**/*
 
 Administration (Customer):
     <<: *e2e_definition
-    script: *administration_definition
+    script: *mixed_definition
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/customer/**/*
 

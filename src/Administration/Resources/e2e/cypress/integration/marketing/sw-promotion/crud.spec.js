@@ -2,7 +2,7 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
-describe('Product: Test crud operations', () => {
+describe('Promotion: Test crud operations', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -56,6 +56,7 @@ describe('Product: Test crud operations', () => {
         // Add discount
         cy.get('a[title="Discounts"]').click();
         cy.contains('.sw-button--ghost', 'Add discount').click();
+        cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-promotion-discount-component').should('be.visible');
         cy.get('.sw-promotion-discount-component__discount-value input')
             .clear()

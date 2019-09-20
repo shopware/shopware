@@ -29,4 +29,38 @@
             line-height: 17px;
         }
     }
+
+    .sw-plugin-table-entry__license-container {
+        align-self: start;
+        margin-left: 14px;
+
+        a.sw-plugin-table-entry__license-update {
+            display: flex;
+            color: $color-shopware-brand-500;
+            font-size: 12px;
+            line-height: 12px;
+            text-decoration: none;
+            border-right: 1px solid $color-shopware-brand-500;
+            margin-right: 4px;
+            padding-right: 4px;
+
+            &:last-child {
+                border-right: none;
+                padding-right: 0;
+                margin-right: 0;
+            }
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
+    }
+
+    .sw-plugin-table-entry__license-action-wrapper {
+        display: flex;
+    }
+
+    .sw-plugin-table-entry__license-type .sw-label {
+        margin-bottom: 0;
+    }
 }

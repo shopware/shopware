@@ -1,3 +1,4 @@
+import { mapState } from 'vuex';
 import template from './sw-plugin-list.html.twig';
 import './sw-plugin-list.scss';
 
@@ -19,7 +20,7 @@ Component.register('sw-plugin-list', {
         }
     },
 
-    inject: ['pluginService', 'systemConfigApiService', 'context', 'cacheApiService'],
+    inject: ['pluginService', 'systemConfigApiService', 'context', 'cacheApiService', 'licenseViolationService'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -43,6 +44,12 @@ Component.register('sw-plugin-list', {
     },
 
     computed: {
+        ...mapState('licenseViolation', [
+            'violations',
+            'warnings',
+            'other'
+        ]),
+
         pluginsStore() {
             return State.getStore('plugin');
         },
@@ -79,6 +86,9 @@ Component.register('sw-plugin-list', {
             this.$root.$on('force-refresh', () => {
                 this.getList();
             });
+
+            // force reload of license violations
+            this.licenseViolationService.removeTimeFromLocalStorage(this.licenseViolationService.key.lastLicenseFetchedKey);
         },
 
         changeActiveState(plugin, event) {
@@ -237,6 +247,23 @@ Component.register('sw-plugin-list', {
                         configAvailable: false
                     };
                 });
+            });
+        },
+
+        getLicenseInformationForPlugin(plugin) {
+            const matches = [
+                ...this.violations.filter((violation) => violation.name === plugin.name),
+                ...this.warnings.filter((warning) => warning.name === plugin.name),
+                ...this.other.filter((warning) => warning.name === plugin.name)
+            ];
+
+            return matches.map((match) => {
+                return {
+                    level: match.type.level,
+                    label: match.type.label,
+                    text: match.text,
+                    actions: match.actions
+                };
             });
         }
     }

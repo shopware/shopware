@@ -264,6 +264,8 @@ Component.register('sw-admin-menu', {
             this.$store.commit('adminUser/removeCurrentUser');
             this.$store.commit('adminUser/removeCurrentProfile');
             this.$store.commit('notification/setNotifications', {});
+            this.$store.commit('notification/clearGrowlNotificationsForCurrentUser');
+            this.$store.commit('notification/clearNotificationsForCurrentUser');
             this.$router.push({
                 name: 'sw.login.index'
             });

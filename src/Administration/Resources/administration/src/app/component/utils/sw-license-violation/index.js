@@ -1,3 +1,4 @@
+import { mapState } from 'vuex';
 import template from './sw-license-violation.html.twig';
 import './sw-license-violation.scss';
 
@@ -20,14 +21,22 @@ Shopware.Component.register('sw-license-violation', {
     data() {
         return {
             licenseSubscription: null,
-            violations: [],
+            showViolation: false,
             readNotice: false,
             loading: []
         };
     },
 
     computed: {
+        ...mapState('licenseViolation', [
+            'violations',
+            'warnings'
+        ]),
         visible() {
+            if (!this.showViolation) {
+                return false;
+            }
+
             return this.violations.length > 0;
         },
 
@@ -71,11 +80,17 @@ Shopware.Component.register('sw-license-violation', {
                 return Promise.resolve();
             }
 
+            this.showViolation = this.licenseViolationService.isTimeExpired(
+                this.licenseViolationService.key.showViolationsKey
+            );
+
             this.addLoading('getPluginViolation');
 
             return this.licenseViolationService.checkForLicenseViolations()
-                .then(({ violations }) => {
-                    this.violations = violations;
+                .then(({ violations, warnings, other }) => {
+                    this.$store.commit('licenseViolation/setViolations', violations);
+                    this.$store.commit('licenseViolation/setWarnings', warnings);
+                    this.$store.commit('licenseViolation/setOther', other);
                 })
                 .finally(() => {
                     this.finishLoading('getPluginViolation');
@@ -83,9 +98,7 @@ Shopware.Component.register('sw-license-violation', {
         },
 
         reloadViolations() {
-            localStorage.removeItem(this.licenseViolationService.key.showViolationsKey);
-            localStorage.removeItem(this.licenseViolationService.key.lastLicenseFetchedKey);
-            localStorage.removeItem(this.licenseViolationService.key.responseCacheKey);
+            this.licenseViolationService.resetLicenseViolations();
 
             return this.getPluginViolation();
         },
@@ -93,8 +106,10 @@ Shopware.Component.register('sw-license-violation', {
         deactivateTempoarary() {
             this.licenseViolationService.saveTimeToLocalStorage(this.licenseViolationService.key.showViolationsKey);
 
-            this.violations = [];
             this.readNotice = false;
+            this.showViolation = this.licenseViolationService.isTimeExpired(
+                this.licenseViolationService.key.showViolationsKey
+            );
         },
 
         fetchPlugins() {
@@ -113,37 +128,23 @@ Shopware.Component.register('sw-license-violation', {
                 });
         },
 
-        async deletePlugin(violation) {
+        deletePlugin(violation) {
             this.addLoading('deletePlugin');
 
-            try {
-                const matchingPlugin = this.plugins.find((plugin) => plugin.name === violation.name);
-                const isActive = matchingPlugin.active;
-                const isInstalled = matchingPlugin.installedAt !== null;
+            const matchingPlugin = this.plugins.find((plugin) => plugin.name === violation.name);
 
-                if (isActive) {
-                    await this.pluginService.deactivate(matchingPlugin.name);
-                    await this.cacheApiService.clear();
-                }
+            return this.licenseViolationService.forceDeletePlugin(this.pluginService, matchingPlugin)
+                .then(() => {
+                    this.createNotificationSuccess({
+                        title: this.$tc('sw-plugin.list.titleDeleteSuccess'),
+                        message: this.$tc('sw-plugin.list.messageDeleteSuccess')
+                    });
 
-                if (isInstalled) {
-                    await this.pluginService.uninstall(matchingPlugin.name);
-                    await this.cacheApiService.clear();
-                }
-
-                await this.pluginService.delete(matchingPlugin.name);
-                await this.cacheApiService.clear();
-
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.list.titleDeleteSuccess'),
-                    message: this.$tc('sw-plugin.list.messageDeleteSuccess')
+                    return this.reloadViolations();
+                })
+                .finally(() => {
+                    this.finishLoading('deletePlugin');
                 });
-            } catch (error) {
-                throw new Error(error);
-            }
-
-            await this.reloadViolations();
-            this.finishLoading('deletePlugin');
         },
 
         getPluginForViolation(violation) {

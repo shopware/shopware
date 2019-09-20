@@ -22,8 +22,9 @@ $sw-label-pill-border-radius: 50px;
 
     .sw-label__caption {
         @include truncate();
+
         display: inline-block;
-        width: 100%
+        width: 100%;
     }
 
     &.sw-label--dismissable:hover {
@@ -32,7 +33,6 @@ $sw-label-pill-border-radius: 50px;
         .sw-label__caption {
             width: calc(100% - 15px);
         }
-
 
         .sw-label__dismiss {
             display: inline-block;
@@ -47,7 +47,7 @@ $sw-label-pill-border-radius: 50px;
 
     &.sw-label--size-small {
         height: 16px;
-        padding: 0 12px;
+        padding: 0 8px;
     }
 
     .sw-label__dismiss {
@@ -95,7 +95,6 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--success,
     &.sw-label--warning,
     &.sw-label--neutral {
-
         &.sw-label--small {
             font-weight: 600;
             line-height: 14px;

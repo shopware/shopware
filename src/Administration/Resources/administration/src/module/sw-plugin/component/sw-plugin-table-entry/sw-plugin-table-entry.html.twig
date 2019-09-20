@@ -4,10 +4,34 @@
             <img v-if="icon" :src="'data:image/png;base64, ' + icon"/>
             <img v-if="iconPath" :src="iconPath"/>
         {% endblock %}
+
         {% block sw_plugin_table_entry_icon_container %}
             <div class="sw-plugin-table-entry__text-container">
                 <p class="sw-plugin-table-entry__title">{{ title }}</p>
                 <p class="sw-plugin-table-entry__subtitle">{{ subtitle }}</p>
+            </div>
+        {% endblock %}
+
+        {% block sw_plugin_table_entry_license %}
+            <div class="sw-plugin-table-entry__license-container" v-for="info in licenseInformation">
+                <div class="sw-plugin-table-entry__license-type">
+                    <sw-label size="small"
+                              v-if="info.label"
+                              :ghost="true"
+                              v-tooltip="{ message: info.text }"
+                              :variant="labelVariant(info)">
+                        {{ info.label.toUpperCase() }}
+                    </sw-label>
+                </div>
+
+                <div class="sw-plugin-table-entry__license-action-wrapper">
+                    <a v-for="action in info.actions"
+                       class="sw-plugin-table-entry__license-update"
+                       target="_blank"
+                       :href="action.externalLink">
+                        {{ action.label }}
+                    </a>
+                </div>
             </div>
         {% endblock %}
     </div>

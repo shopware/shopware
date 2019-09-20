@@ -81,6 +81,10 @@ Component.register('sw-notifications', {
                 this.$router.push(action.route);
             }
 
+            if (action.method && typeof action.method === 'function') {
+                action.method.call();
+            }
+
             this.onClose(notification);
         }
     }

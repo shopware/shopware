@@ -13,6 +13,9 @@ export default function createLicenseViolationsService(storeService) {
         checkForLicenseViolations,
         saveTimeToLocalStorage,
         removeTimeFromLocalStorage,
+        resetLicenseViolations,
+        forceDeletePlugin,
+        isTimeExpired,
         key: {
             lastLicenseWarningsKey,
             lastLicenseFetchedKey,
@@ -62,24 +65,22 @@ export default function createLicenseViolationsService(storeService) {
 
     function handleResponse(response) {
         const resolveData = {
-            violations: [],
-            warnings: []
+            violations: response.filter((violation) => violation.type.level === 'violation'),
+            warnings: response.filter((violation) => violation.type.level === 'warning'),
+            other: response.filter((violation) => violation.type.level !== 'violation' && violation.type.level !== 'warning')
         };
 
-        const warnings = response.filter((violation) => violation.type.level === 'warning');
-        const violations = response.filter((violation) => violation.type.level === 'violation');
-
-        if (isTimeExpired(showViolationsKey) && violations.length > 0) {
-            resolveData.violations = violations;
-        }
-
         if (isTimeExpired(lastLicenseWarningsKey)) {
-            resolveData.warnings = warnings;
-            showWarnings(warnings);
+            const pluginsToIgnore = getIgnoredPlugins();
+            const filteredWarnings = filterWarnings(resolveData.warnings, pluginsToIgnore);
+            showWarnings(filteredWarnings);
+
+            saveTimeToLocalStorage(lastLicenseWarningsKey);
         }
 
-        saveTimeToLocalStorage(lastLicenseWarningsKey);
-        saveTimeToLocalStorage(lastLicenseFetchedKey);
+        if (isTimeExpired(lastLicenseFetchedKey)) {
+            saveTimeToLocalStorage(lastLicenseFetchedKey);
+        }
 
         return Promise.resolve(resolveData);
     }
@@ -131,23 +132,91 @@ export default function createLicenseViolationsService(storeService) {
         });
     }
 
+    function resetLicenseViolations() {
+        localStorage.removeItem(showViolationsKey);
+        localStorage.removeItem(lastLicenseFetchedKey);
+        localStorage.removeItem(responseCacheKey);
+    }
+
+    async function forceDeletePlugin(pluginService, plugin) {
+        try {
+            const isActive = plugin.active;
+            const isInstalled = plugin.installedAt !== null;
+
+            if (isActive) {
+                await pluginService.deactivate(plugin.name);
+            }
+
+            if (isInstalled) {
+                await pluginService.uninstall(plugin.name);
+            }
+
+            await pluginService.delete(plugin.name);
+
+            return true;
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
     function spawnNotification(warning) {
+        const notificationActions = warning.actions.map((action) => {
+            return {
+                label: action.label,
+                route: action.externalLink
+            };
+        });
+
+        const ignorePluginAction = {
+            label: getApplicationRootReference().$tc('sw-license-violation.ignore-plugin'),
+            method: () => ignorePlugin(warning.name, getIgnoredPlugins())
+        };
+
         getApplicationRootReference().$store.dispatch('notification/createGrowlNotification', {
             title: warning.name,
             message: warning.text,
             autoClose: false,
             variant: 'warning',
-            actions: warning.actions.map((action) => {
-                return {
-                    label: action.label,
-                    route: action.externalLink
-                };
-            })
+            actions: [
+                ...notificationActions,
+                ignorePluginAction
+            ]
         });
+    }
+
+    function ignorePlugin(pluginName, pluginsToIgnore) {
+        if (!pluginName) {
+            return;
+        }
+
+        pluginsToIgnore.push(pluginName);
+
+        localStorage.setItem('ignorePluginWarning', JSON.stringify(pluginsToIgnore));
+    }
+
+    function getIgnoredPlugins() {
+        const ignorePluginWarning = localStorage.getItem('ignorePluginWarning');
+
+        if (!ignorePluginWarning) {
+            return [];
+        }
+
+        return JSON.parse(ignorePluginWarning);
     }
 
     function showWarnings(warnings) {
         warnings.forEach((warning) => spawnNotification(warning));
+    }
+
+    function filterWarnings(warnings, pluginsToIgnore) {
+        return warnings.reduce((acc, warning) => {
+            if (pluginsToIgnore.includes(warning.name)) {
+                return acc;
+            }
+
+            acc.push(warning);
+            return acc;
+        }, []);
     }
 
     function removeTimeFromLocalStorage(key) {

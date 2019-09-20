@@ -164,6 +164,10 @@ export default {
             localStorage.removeItem(storageKey);
         },
 
+        clearGrowlNotificationsForCurrentUser(state) {
+            state.growlNotifications = {};
+        },
+
         setNotifications(state, notifications) {
             Object.keys(notifications).forEach((id) => {
                 Application.view.setReactive(state.notifications, notifications[id].uuid, notifications[id]);

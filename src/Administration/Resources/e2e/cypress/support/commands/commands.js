@@ -95,7 +95,7 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
 }, (subject, value, options = {}) => {
     const resultPrefix = '.sw-select';
     const inputCssSelector = '.sw-select-selection-list__input';
-    const searchTerm = options.searchTerm || value;
+    const searchTerm = options.searchTerm;
     const position = options.position || 0;
 
     // Request we want to wait for later
@@ -121,6 +121,8 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
                 cy.get(`${resultPrefix}-option--${position}`).contains(value);
             });
         });
+    } else {
+        cy.wrap(subject).click();
     }
     // select the first result (or at another position)
     cy.get(`${resultPrefix}-option--${position}`)

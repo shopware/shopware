@@ -50,7 +50,7 @@ class ConfigJsonFieldSerializerTest extends TestCase
         $this->field->addFlags(new Required());
 
         $definition = $this->registerDefinition(JsonDefinition::class);
-        $this->existence = new EntityExistence($definition, [], false, false, false, []);
+        $this->existence = new EntityExistence($definition->getEntityName(), [], false, false, false, []);
 
         $this->parameters = new WriteParameterBag(
             $definition,

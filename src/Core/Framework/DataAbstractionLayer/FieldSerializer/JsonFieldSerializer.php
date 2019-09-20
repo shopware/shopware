@@ -22,18 +22,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class JsonFieldSerializer extends AbstractFieldSerializer
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    protected $fieldHandlerRegistry;
-
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         ValidatorInterface $validator
     ) {
-        parent::__construct($validator);
-
-        $this->fieldHandlerRegistry = $definitionRegistry;
+        parent::__construct($validator, $definitionRegistry);
     }
 
     /**
@@ -94,7 +87,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
                 ? self::encodeJson($raw[$key])
                 : $raw[$key];
 
-            $embedded->compile($this->fieldHandlerRegistry);
+            $embedded->compile($this->definitionRegistry);
             $decodedValue = $embedded->getSerializer()->decode($embedded, $value);
             if ($decodedValue instanceof \DateTimeInterface) {
                 $format = $embedded instanceof DateField ? Defaults::STORAGE_DATE_FORMAT : DATE_ATOM;
@@ -175,7 +168,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             }
 
             try {
-                $nestedField->compile($this->fieldHandlerRegistry);
+                $nestedField->compile($this->definitionRegistry);
                 $encoded = $nestedField->getSerializer()->encode($nestedField, $existence, $kvPair, $nestedParams);
 
                 foreach ($encoded as $fieldKey => $fieldValue) {

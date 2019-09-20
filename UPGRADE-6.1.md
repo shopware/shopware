@@ -105,6 +105,10 @@ Core
     }
     ```
 
+* If you have implemented a custom `Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSerializer`, you must now provide a `DefinitionInstanceRegistry` when calling the super constructor
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\EntityWrittenContainerEvent::getEventByDefinition`. Use `getEventByEntityName` instead, which takes the entity name instead of the entity classname but proved the same functionality.
+* Removed `getDefinition` and the corresponding `definition` member from `\Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResults` and `...\Event\EntityWrittenEvent`. Classes which used this function can access the name of the written entity via the new method `getEntityName` and retrieve the definition using the `DefinitionInstanceRegistry`
+
 Administration
 --------------
 

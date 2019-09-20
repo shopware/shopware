@@ -16,18 +16,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ListFieldSerializer extends AbstractFieldSerializer
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    protected $compositeHandler;
-
     public function __construct(
         ValidatorInterface $validator,
-        DefinitionInstanceRegistry $compositeHandler
+        DefinitionInstanceRegistry $definitionRegistry
     ) {
-        parent::__construct($validator);
-
-        $this->compositeHandler = $compositeHandler;
+        parent::__construct($validator, $definitionRegistry);
     }
 
     /**
@@ -83,7 +76,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
 
         /** @var Field $listField */
         $listField = new $fieldType('key', 'key');
-        $listField->compile($this->compositeHandler);
+        $listField->compile($this->definitionRegistry);
 
         $nestedParameters = $parameters->cloneForSubresource(
             $parameters->getDefinition(),

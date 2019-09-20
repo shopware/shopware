@@ -26,7 +26,7 @@ class CustomFieldRepositoryTest extends TestCase
         ];
         $result = $repo->create([$attribute], Context::createDefaultContext());
 
-        $events = $result->getEventByDefinition(CustomFieldDefinition::class);
+        $events = $result->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
         static::assertNotNull($events);
 
         $payloads = $events->getPayloads();
@@ -91,7 +91,7 @@ class CustomFieldRepositoryTest extends TestCase
         $repo->create($attributes, Context::createDefaultContext());
 
         $result = $repo->delete([['id' => $sizeId]], Context::createDefaultContext());
-        $event = $result->getEventByDefinition(CustomFieldDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
 
         static::assertCount(1, $event->getIds());
         static::assertEquals($sizeId, $event->getIds()[0]);
@@ -123,7 +123,7 @@ class CustomFieldRepositoryTest extends TestCase
         ];
         $result = $repo->update([$update], Context::createDefaultContext());
 
-        $event = $result->getEventByDefinition(CustomFieldDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
         static::assertCount(1, $event->getPayloads());
     }
 
@@ -148,11 +148,11 @@ class CustomFieldRepositoryTest extends TestCase
             ],
         ];
         $result = $repo->upsert($attributes, Context::createDefaultContext());
-        $event = $result->getEventByDefinition(CustomFieldDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
         static::assertCount(2, $event->getPayloads());
 
         $result = $repo->upsert($attributes, Context::createDefaultContext());
-        $event = $result->getEventByDefinition(CustomFieldDefinition::class);
+        $event = $result->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
         static::assertCount(2, $event->getPayloads());
     }
 }

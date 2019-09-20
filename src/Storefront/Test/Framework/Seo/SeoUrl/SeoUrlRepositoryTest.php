@@ -40,7 +40,7 @@ class SeoUrlRepositoryTest extends TestCase
         $events = $repo->create([$url], $context);
         static::assertCount(1, $events->getEvents());
 
-        $event = $events->getEventByDefinition(SeoUrlDefinition::class);
+        $event = $events->getEventByEntityName(SeoUrlDefinition::ENTITY_NAME);
         static::assertNotNull($event);
         static::assertCount(1, $event->getPayloads());
     }
@@ -72,7 +72,7 @@ class SeoUrlRepositoryTest extends TestCase
             'seoPathInfo' => '/even/prettier/path',
         ];
         $events = $repo->update([$update], $context);
-        $event = $events->getEventByDefinition(SeoUrlDefinition::class);
+        $event = $events->getEventByEntityName(SeoUrlDefinition::ENTITY_NAME);
         static::assertNotNull($event);
         static::assertCount(1, $event->getPayloads());
 
@@ -105,7 +105,7 @@ class SeoUrlRepositoryTest extends TestCase
         $repo->create([$url], $context);
 
         $result = $repo->delete([['id' => $id]], $context);
-        $event = $result->getEventByDefinition(SeoUrlDefinition::class);
+        $event = $result->getEventByEntityName(SeoUrlDefinition::ENTITY_NAME);
         static::assertEquals([$id], $event->getIds());
 
         /** @var SeoUrlEntity|null $first */

@@ -127,7 +127,7 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $products = $event->getEventByDefinition(ProductDefinition::class);
+        $products = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
 
         $ids = [];
         if ($products) {

@@ -61,7 +61,7 @@ class EntityRepositoryTest extends TestCase
             $context
         );
 
-        static::assertInstanceOf(EntityWrittenEvent::class, $event->getEventByDefinition(LocaleDefinition::class));
+        static::assertInstanceOf(EntityWrittenEvent::class, $event->getEventByEntityName(LocaleDefinition::ENTITY_NAME));
     }
 
     public function testWrittenEventsFired(): void
@@ -354,7 +354,7 @@ class EntityRepositoryTest extends TestCase
         $result = $repository->clone($id, $context, $newId);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $written = $result->getEventByDefinition(CategoryDefinition::class);
+        $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
         static::assertCount(3, $written->getIds());
         static::assertContains($newId, $written->getIds());
 
@@ -397,10 +397,10 @@ class EntityRepositoryTest extends TestCase
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $written = $result->getEventByDefinition(CategoryDefinition::class);
+        $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
 
         static::assertCount(3, $written->getIds());
-        $newId = $result->getEventByDefinition(CategoryDefinition::class)->getIds();
+        $newId = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME)->getIds();
         $newId = array_shift($newId);
         static::assertNotEquals($id, $newId);
 
@@ -477,7 +477,7 @@ class EntityRepositoryTest extends TestCase
         $result = $repository->clone($recordA, $context, $newId);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $written = $result->getEventByDefinition(CustomerAddressDefinition::class);
+        $written = $result->getEventByEntityName(CustomerAddressDefinition::ENTITY_NAME);
         static::assertCount(2, $written->getIds());
 
         $criteria = new Criteria([$recordA, $newId]);
@@ -548,13 +548,13 @@ class EntityRepositoryTest extends TestCase
         $result = $repository->create([$data], $context);
         $newId = Uuid::randomHex();
 
-        $written = $result->getEventByDefinition(ShippingMethodDefinition::class);
+        $written = $result->getEventByEntityName(ShippingMethodDefinition::ENTITY_NAME);
         static::assertCount(1, $written->getIds());
 
         $result = $repository->clone($recordA, $context, $newId);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $written = $result->getEventByDefinition(ShippingMethodDefinition::class);
+        $written = $result->getEventByEntityName(ShippingMethodDefinition::ENTITY_NAME);
         static::assertCount(1, $written->getIds());
 
         $criteria = new Criteria([$recordA, $newId]);
@@ -765,7 +765,7 @@ class EntityRepositoryTest extends TestCase
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('media_folder.repository');
 
-        $event = $repository->create([$data], $context)->getEventByDefinition(MediaFolderDefinition::class);
+        $event = $repository->create([$data], $context)->getEventByEntityName(MediaFolderDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(12, $event->getIds());
 

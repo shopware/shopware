@@ -68,18 +68,20 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
         );
     }
 
-    public function extractIdsToUpdate(EntityWrittenContainerEvent $event): array
+    public function extractIdsToUpdate(EntityWrittenContainerEvent $event): SeoUrlExtractIdResult
     {
         $ids = [];
 
         // check if a category was written. If this is the case, its Seo Url must be updated.
-        $categoryEvent = $event->getEventByDefinition(CategoryDefinition::class);
+        $categoryEvent = $event->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
         if ($categoryEvent) {
             $ids = $categoryEvent->getIds();
         }
 
+        /** @var bool $mustReindex */
+        $mustReindex = false;
         // check if a sales channel navigationCategory was updated...
-        $salesChannelEvent = $event->getEventByDefinition(SalesChannelDefinition::class);
+        $salesChannelEvent = $event->getEventByEntityName(SalesChannelDefinition::ENTITY_NAME);
         if ($salesChannelEvent) {
             $salesChannelPayloads = $salesChannelEvent->getPayloads();
             $affectedIds = [[]];
@@ -100,9 +102,9 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
                 }
             }
 
-            $ids = array_merge($ids, ...$affectedIds);
+            $mustReindex = count(array_merge([], ...$affectedIds)) > 0;
         }
 
-        return array_unique($ids);
+        return new SeoUrlExtractIdResult($ids, $mustReindex);
     }
 }

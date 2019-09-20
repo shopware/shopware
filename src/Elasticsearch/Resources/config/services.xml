@@ -50,6 +50,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 
@@ -40,13 +41,14 @@ class EntityWrittenContainerEvent extends NestedEvent
         return $this->events;
     }
 
-    public function getEventByDefinition(string $definition): ?EntityWrittenEvent
+    public function getEventByEntityName(string $entityName): ?EntityWrittenEvent
     {
         foreach ($this->events as $event) {
             if (!$event instanceof EntityWrittenEvent) {
                 continue;
             }
-            if ($event->getDefinition()->getClass() === $definition) {
+
+            if ($event->getEntityName() === $entityName) {
                 return $event;
             }
         }
@@ -58,17 +60,18 @@ class EntityWrittenContainerEvent extends NestedEvent
     {
         $events = new NestedEventCollection();
 
+        /** @var EntityWriteResult[] $entityWrittenResults */
         foreach ($identifiers as $entityWrittenResults) {
             if (count($entityWrittenResults) === 0) {
                 continue;
             }
 
             //@todo@jp fix data format
-            $definition = $entityWrittenResults[0]->getDefinition();
+            $entityName = $entityWrittenResults[0]->getEntityName();
 
             $events->add(
                 new EntityWrittenEvent(
-                    $definition,
+                    $entityName,
                     $entityWrittenResults,
                     $context,
                     $errors
@@ -83,17 +86,18 @@ class EntityWrittenContainerEvent extends NestedEvent
     {
         $events = new NestedEventCollection();
 
+        /** @var EntityWriteResult[] $data */
         foreach ($identifiers as $data) {
             if (count($data) === 0) {
                 continue;
             }
 
             //@todo@jp fix data format
-            $definition = $data[0]->getDefinition();
+            $entityName = $data[0]->getEntityName();
 
             $events->add(
                 new EntityDeletedEvent(
-                    $definition,
+                    $entityName,
                     $data,
                     $context,
                     $errors
@@ -107,12 +111,5 @@ class EntityWrittenContainerEvent extends NestedEvent
     public function getErrors(): array
     {
         return $this->errors;
-    }
-
-    public function getWrittenDefinitions(): array
-    {
-        return $this->events->map(function (EntityWrittenEvent $event) {
-            return $event->getDefinition();
-        });
     }
 }

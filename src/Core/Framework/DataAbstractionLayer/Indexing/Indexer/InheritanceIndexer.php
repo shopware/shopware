@@ -137,7 +137,7 @@ class InheritanceIndexer implements IndexerInterface
     {
         /** @var EntityWrittenEvent $nested */
         foreach ($event->getEvents() as $nested) {
-            $definition = $nested->getDefinition();
+            $definition = $this->registry->getByEntityName($nested->getEntityName());
 
             if ($definition->isInheritanceAware()) {
                 $this->update($definition, $nested->getIds(), $nested->getContext());

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
@@ -23,6 +24,7 @@ class SeoUrlExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
+    use QueueTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -153,6 +155,7 @@ class SeoUrlExtensionTest extends TestCase
                 ],
             ],
         ]], Context::createDefaultContext());
+        $this->runWorker();
 
         $context = $salesChannelContext->getContext();
 
@@ -204,6 +207,7 @@ class SeoUrlExtensionTest extends TestCase
         ]], Context::createDefaultContext());
 
         $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $childAId);
+        $this->runWorker();
 
         $context = $salesChannelContext->getContext();
 
@@ -274,8 +278,19 @@ class SeoUrlExtensionTest extends TestCase
 
         $context = $salesChannelContext->getContext();
 
+        // We are updating the sales channel entry point without running a worker task. We expect the root category url
+        // to change, while all other urls will be recreated in an asynch worker task.
         $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $rootId);
+        $casesBeforeUpdate = [
+            ['expected' => '', 'categoryId' => $rootId],
+            ['expected' => 'root/b', 'categoryId' => $childBId],
+            ['expected' => 'root/b/2/y', 'categoryId' => $childB1ZId],
+        ];
+        $this->runChecks($casesBeforeUpdate, $categoryRepository, $context, $salesChannelId);
+
+        $this->runWorker();
         $casesRoot = [
+            ['expected' => '', 'categoryId' => $rootId],
             ['expected' => 'b', 'categoryId' => $childBId],
             ['expected' => 'b/2/y', 'categoryId' => $childB1ZId],
             ['expected' => 'a', 'categoryId' => $childAId],
@@ -284,6 +299,7 @@ class SeoUrlExtensionTest extends TestCase
         $this->runChecks($casesRoot, $categoryRepository, $context, $salesChannelId);
 
         $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $childAId);
+        $this->runWorker();
         $casesA = [
             ['expected' => '1', 'categoryId' => $childA1Id],
             ['expected' => '1/z', 'categoryId' => $childA1ZId],
@@ -291,6 +307,7 @@ class SeoUrlExtensionTest extends TestCase
         $this->runChecks($casesA, $categoryRepository, $context, $salesChannelId);
 
         $this->updateSalesChannelNavigationEntryPoint($salesChannelId, $rootId);
+        $this->runWorker();
         $this->runChecks($casesRoot, $categoryRepository, $context, $salesChannelId);
     }
 

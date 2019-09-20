@@ -1243,7 +1243,7 @@ class ProductRepositoryTest extends TestCase
             ['productNumber' => Uuid::randomHex(), 'name' => 'test', 'stock' => 10, 'tax' => $tax, 'price' => $price, 'manufacturer' => ['name' => 'test']],
         ];
 
-        $taxes = $this->repository->create($data, Context::createDefaultContext())->getEventByDefinition(TaxDefinition::class);
+        $taxes = $this->repository->create($data, Context::createDefaultContext())->getEventByEntityName(TaxDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $taxes);
         static::assertCount(1, array_unique($taxes->getIds()));
     }

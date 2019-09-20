@@ -97,10 +97,10 @@ class TranslationTest extends TestCase
 
         $result = $this->currencyRepository->create([$data], $this->context);
 
-        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
         static::assertCount(1, $currencies->getIds());
 
-        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
@@ -132,10 +132,10 @@ class TranslationTest extends TestCase
 
         $result = $this->currencyRepository->create([$data], $this->context);
 
-        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
         static::assertCount(1, $currencies->getIds());
 
-        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
@@ -168,10 +168,10 @@ class TranslationTest extends TestCase
 
         $result = $this->currencyRepository->create([$data], $this->context);
 
-        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
         static::assertCount(1, $currencies->getIds());
 
-        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
@@ -205,10 +205,10 @@ class TranslationTest extends TestCase
 
         $result = $this->currencyRepository->create([$data], $this->context);
 
-        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
         static::assertCount(1, $currencies->getIds());
 
-        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
@@ -266,10 +266,10 @@ class TranslationTest extends TestCase
 
         $result = $this->currencyRepository->create([$data], $this->context);
 
-        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
         static::assertCount(1, $currencies->getIds());
 
-        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
         static::assertCount(2, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains($germanLanguageId, $languageIds);
@@ -315,10 +315,10 @@ class TranslationTest extends TestCase
 
         $result = $this->currencyRepository->create([$data], $this->context);
 
-        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
         static::assertCount(1, $currencies->getIds());
 
-        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
@@ -363,10 +363,10 @@ class TranslationTest extends TestCase
 
         $result = $this->currencyRepository->create([$data], $this->context);
 
-        $currencies = $result->getEventByDefinition(CurrencyDefinition::class);
+        $currencies = $result->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
         static::assertCount(1, $currencies->getIds());
 
-        $translations = $result->getEventByDefinition(CurrencyTranslationDefinition::class);
+        $translations = $result->getEventByEntityName(CurrencyTranslationDefinition::ENTITY_NAME);
         static::assertCount(2, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains($germanLanguageId, $languageIds);
@@ -421,7 +421,7 @@ class TranslationTest extends TestCase
             $this->context
         );
 
-        $languages = $result->getEventByDefinition(LanguageDefinition::class);
+        $languages = $result->getEventByEntityName(LanguageDefinition::ENTITY_NAME);
         static::assertCount(1, array_unique($languages->getIds()));
         static::assertContains($germanLanguageId, $languages->getIds());
 
@@ -478,15 +478,15 @@ class TranslationTest extends TestCase
 
         $result = $this->productRepository->create($data, $this->context);
 
-        $products = $result->getEventByDefinition(ProductDefinition::class);
+        $products = $result->getEventByEntityName(ProductDefinition::ENTITY_NAME);
         static::assertCount(1, $products->getIds());
 
-        $translations = $result->getEventByDefinition(ProductManufacturerTranslationDefinition::class);
+        $translations = $result->getEventByEntityName(ProductManufacturerTranslationDefinition::ENTITY_NAME);
         static::assertCount(1, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
-        $translations = $result->getEventByDefinition(ProductTranslationDefinition::class);
+        $translations = $result->getEventByEntityName(ProductTranslationDefinition::ENTITY_NAME);
         static::assertCount(2, $translations->getIds());
         $languageIds = array_column($translations->getPayloads(), 'languageId');
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
@@ -594,18 +594,18 @@ class TranslationTest extends TestCase
         $productRepo = $this->getContainer()->get('product.repository');
         $affected = $productRepo->upsert($data, Context::createDefaultContext());
 
-        static::assertNotNull($affected->getEventByDefinition(LanguageDefinition::class));
+        static::assertNotNull($affected->getEventByEntityName(LanguageDefinition::ENTITY_NAME));
 
-        static::assertNotNull($affected->getEventByDefinition(ProductDefinition::class));
-        static::assertNotNull($affected->getEventByDefinition(ProductTranslationDefinition::class));
+        static::assertNotNull($affected->getEventByEntityName(ProductDefinition::ENTITY_NAME));
+        static::assertNotNull($affected->getEventByEntityName(ProductTranslationDefinition::ENTITY_NAME));
 
-        static::assertNotNull($affected->getEventByDefinition(TaxDefinition::class));
+        static::assertNotNull($affected->getEventByEntityName(TaxDefinition::ENTITY_NAME));
 
-        static::assertNotNull($affected->getEventByDefinition(ProductManufacturerDefinition::class));
-        static::assertNotNull($affected->getEventByDefinition(ProductManufacturerTranslationDefinition::class));
+        static::assertNotNull($affected->getEventByEntityName(ProductManufacturerDefinition::ENTITY_NAME));
+        static::assertNotNull($affected->getEventByEntityName(ProductManufacturerTranslationDefinition::ENTITY_NAME));
 
-        static::assertNotNull($affected->getEventByDefinition(ProductMediaDefinition::class));
-        static::assertNotNull($affected->getEventByDefinition(MediaDefinition::class));
+        static::assertNotNull($affected->getEventByEntityName(ProductMediaDefinition::ENTITY_NAME));
+        static::assertNotNull($affected->getEventByEntityName(MediaDefinition::ENTITY_NAME));
     }
 
     public function testMissingTranslationLanguageViolation(): void
@@ -672,7 +672,7 @@ class TranslationTest extends TestCase
 
         $result = $pageRepository->create([$page], $this->context);
 
-        $events = $result->getEventByDefinition(CmsSlotDefinition::class);
+        $events = $result->getEventByEntityName(CmsSlotDefinition::ENTITY_NAME);
         $ids = $events->getIds();
 
         static::assertCount(3, $ids);
@@ -734,7 +734,7 @@ class TranslationTest extends TestCase
 
         $result = $pageRepository->create([$page], $this->context);
 
-        $events = $result->getEventByDefinition(CmsSlotDefinition::class);
+        $events = $result->getEventByEntityName(CmsSlotDefinition::ENTITY_NAME);
         $ids = $events->getIds();
 
         static::assertCount(3, $ids);

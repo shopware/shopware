@@ -16,6 +16,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="messenger.bus.shopware"/>
 
             <tag name="shopware.dal_indexing.indexer" priority="250"/>
         </service>

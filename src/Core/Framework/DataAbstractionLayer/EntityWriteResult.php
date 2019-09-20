@@ -25,19 +25,20 @@ class EntityWriteResult
     private $existence;
 
     /**
-     * @var EntityDefinition
+     * @var string
      */
-    private $definition;
+    private $entityName;
 
     /**
      * @param array|string $primaryKey
      */
-    public function __construct($primaryKey, array $payload, EntityDefinition $definition, ?EntityExistence $existence)
+    public function __construct($primaryKey, array $payload, string $entityName, ?EntityExistence $existence)
     {
         $this->primaryKey = $primaryKey;
         $this->payload = $payload;
         $this->existence = $existence;
-        $this->definition = $definition;
+
+        $this->entityName = $entityName;
     }
 
     /**
@@ -58,8 +59,8 @@ class EntityWriteResult
         return $this->existence;
     }
 
-    public function getDefinition(): EntityDefinition
+    public function getEntityName(): string
     {
-        return $this->definition;
+        return $this->entityName;
     }
 }

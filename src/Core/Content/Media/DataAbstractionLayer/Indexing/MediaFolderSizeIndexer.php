@@ -69,7 +69,7 @@ class MediaFolderSizeIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $writtenEvent = $sizesEvent = $event->getEventByDefinition(MediaFolderConfigurationMediaThumbnailSizeDefinition::class);
+        $writtenEvent = $sizesEvent = $event->getEventByEntityName(MediaFolderConfigurationMediaThumbnailSizeDefinition::class);
 
         if ($writtenEvent) {
             $configIds = array_column($sizesEvent->getIds(), 'media_folder_configuration_id');

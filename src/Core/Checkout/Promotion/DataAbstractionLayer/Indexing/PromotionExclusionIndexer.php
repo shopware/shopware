@@ -108,7 +108,7 @@ class PromotionExclusionIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $nested = $event->getEventByDefinition(PromotionDefinition::class);
+        $nested = $event->getEventByEntityName(PromotionDefinition::ENTITY_NAME);
 
         if ($nested === null) {
             return;

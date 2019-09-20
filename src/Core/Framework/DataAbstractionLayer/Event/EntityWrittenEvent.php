@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\GenericEvent;
@@ -12,11 +11,6 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 
 class EntityWrittenEvent extends NestedEvent implements GenericEvent
 {
-    /**
-     * @var EntityDefinition
-     */
-    protected $definition;
-
     /**
      * @var array
      */
@@ -57,8 +51,13 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
      */
     protected $name;
 
+    /**
+     * @var string
+     */
+    protected $entityName;
+
     public function __construct(
-        EntityDefinition $definition,
+        string $entityName,
         array $writeResults,
         Context $context,
         array $errors = []
@@ -66,20 +65,16 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
         $this->events = new NestedEventCollection();
         $this->context = $context;
         $this->errors = $errors;
-        $this->definition = $definition;
+
         $this->writeResults = $writeResults;
 
-        $this->name = $definition->getEntityName() . '.written';
+        $this->entityName = $entityName;
+        $this->name = $this->entityName . '.written';
     }
 
     public function getName(): string
     {
         return $this->name;
-    }
-
-    public function getDefinition(): EntityDefinition
-    {
-        return $this->definition;
     }
 
     public function getContext(): Context
@@ -102,6 +97,11 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
         }
 
         return $this->ids;
+    }
+
+    public function getEntityName(): string
+    {
+        return $this->entityName;
     }
 
     public function hasErrors(): bool

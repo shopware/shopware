@@ -197,7 +197,7 @@ class GenerateThumbnailsCommand extends Command
         $criteria->setLimit($this->batchSize);
         $criteria->addFilter(new EqualsFilter('media.mediaFolder.configuration.createThumbnails', true));
         $criteria->addAssociation('thumbnails');
-        $criteria->addAssociation('mediaFolder.configuration');
+        $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
 
         if ($this->folderFilter) {
             $criteria->addFilter($this->folderFilter);

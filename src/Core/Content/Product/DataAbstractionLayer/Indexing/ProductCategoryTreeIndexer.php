@@ -98,12 +98,12 @@ class ProductCategoryTreeIndexer implements IndexerInterface
     {
         $ids = [];
 
-        $nested = $event->getEventByDefinition(ProductDefinition::class);
+        $nested = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
         if ($nested) {
             $ids = $nested->getIds();
         }
 
-        $nested = $event->getEventByDefinition(ProductCategoryDefinition::class);
+        $nested = $event->getEventByEntityName(ProductCategoryDefinition::ENTITY_NAME);
         if ($nested) {
             foreach ($nested->getIds() as $id) {
                 $ids[] = $id['productId'];

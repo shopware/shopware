@@ -168,7 +168,7 @@ class BreadcrumbIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $categories = $event->getEventByDefinition(CategoryDefinition::class);
+        $categories = $event->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
 
         if (!$categories || $categories instanceof EntityDeletedEvent) {
             return;
@@ -178,7 +178,7 @@ class BreadcrumbIndexer implements IndexerInterface
 
         $languageIds = [$event->getContext()->getLanguageId()];
 
-        $translations = $event->getEventByDefinition(CategoryTranslationDefinition::class);
+        $translations = $event->getEventByEntityName(CategoryTranslationDefinition::ENTITY_NAME);
 
         if ($translations) {
             $languageIds = array_merge($languageIds, array_column($translations->getIds(), 'languageId'));

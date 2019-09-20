@@ -35,7 +35,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         $events = $repo->create([$template], $context);
         static::assertCount(1, $events->getEvents());
 
-        $event = $events->getEventByDefinition(SeoUrlTemplateDefinition::class);
+        $event = $events->getEventByEntityName(SeoUrlTemplateDefinition::ENTITY_NAME);
         static::assertNotNull($event);
         static::assertCount(1, $event->getPayloads());
     }
@@ -61,7 +61,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
             'routeName' => 'foo_bar',
         ];
         $events = $repo->update([$update], $context);
-        $event = $events->getEventByDefinition(SeoUrlTemplateDefinition::class);
+        $event = $events->getEventByEntityName(SeoUrlTemplateDefinition::ENTITY_NAME);
         static::assertNotNull($event);
         static::assertCount(1, $event->getPayloads());
 
@@ -88,7 +88,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         $repo->create([$template], $context);
 
         $result = $repo->delete([['id' => $id]], $context);
-        $event = $result->getEventByDefinition(SeoUrlTemplateDefinition::class);
+        $event = $result->getEventByEntityName(SeoUrlTemplateDefinition::ENTITY_NAME);
         static::assertEquals([$id], $event->getIds());
 
         /** @var SeoUrlTemplateEntity|null $first */

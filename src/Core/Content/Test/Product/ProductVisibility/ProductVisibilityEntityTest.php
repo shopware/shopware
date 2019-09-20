@@ -72,7 +72,7 @@ class ProductVisibilityEntityTest extends TestCase
 
         $container = $this->productRepository->create([$product], $context);
 
-        $event = $container->getEventByDefinition(ProductVisibilityDefinition::class);
+        $event = $container->getEventByEntityName(ProductVisibilityDefinition::ENTITY_NAME);
 
         //visibility created?
         static::assertInstanceOf(EntityWrittenEvent::class, $event);
@@ -124,7 +124,7 @@ class ProductVisibilityEntityTest extends TestCase
 
         $container = $this->visibilityRepository->delete(array_values($ids), $context);
 
-        $event = $container->getEventByDefinition(ProductVisibilityDefinition::class);
+        $event = $container->getEventByEntityName(ProductVisibilityDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(2, $event->getWriteResults());
     }

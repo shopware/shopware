@@ -65,6 +65,34 @@
             <tag name="shopware.entity.definition" entity="_test_lock_translation" />
         </service>
 
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition">
+            <tag name="shopware.entity.definition" entity="attribute_test" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition">
+            <tag name="shopware.entity.definition" entity="attribute_test_translation" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedDefinition">
+            <tag name="shopware.entity.definition" entity="_test_nullable" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedRelationDefinition">
+            <tag name="shopware.entity.definition" entity="_test_relation" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\WriteProtectedReferenceDefinition">
+            <tag name="shopware.entity.definition" entity="_test_nullable_reference" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition">
+            <tag name="shopware.entity.definition" entity="extended_product" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\DateTimeDefinition">
+            <tag name="shopware.entity.definition" entity="date_time_test" />
+        </service>
+
         <service id="messenger.test_receiver_locator" alias="messenger.receiver_locator" public="true"/>
         <service id="messenger.bus.test_shopware" alias="messenger.bus.shopware" public="true"/>
 

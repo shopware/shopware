@@ -8,6 +8,7 @@ use Elasticsearch\Client;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Context\SystemSource;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -57,13 +58,19 @@ class EntityIndexer implements IndexerInterface
      */
     private $indexMessageDispatcher;
 
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionRegistry;
+
     public function __construct(
         ElasticsearchRegistry $esRegistry,
         ElasticsearchHelper $helper,
         EntityRepositoryInterface $languageRepository,
         Connection $connection,
         IndexCreator $indexCreator,
-        IndexMessageDispatcher $indexMessageDispatcher
+        IndexMessageDispatcher $indexMessageDispatcher,
+        DefinitionInstanceRegistry $definitionRegistry
     ) {
         $this->registry = $esRegistry;
         $this->languageRepository = $languageRepository;
@@ -71,6 +78,7 @@ class EntityIndexer implements IndexerInterface
         $this->helper = $helper;
         $this->indexCreator = $indexCreator;
         $this->indexMessageDispatcher = $indexMessageDispatcher;
+        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function index(\DateTimeInterface $timestamp): void
@@ -125,7 +133,7 @@ class EntityIndexer implements IndexerInterface
 
         /** @var EntityWrittenEvent $written */
         foreach ($event->getEvents() as $written) {
-            $definition = $written->getDefinition();
+            $definition = $this->definitionRegistry->getByEntityName($written->getEntityName());
 
             if (!$this->helper->isSupported($definition)) {
                 continue;

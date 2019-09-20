@@ -69,7 +69,7 @@ class CategoryRepositoryTest extends TestCase
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $event = $result->getEventByDefinition(CategoryDefinition::class);
+        $event = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
 
         static::assertInstanceOf(EntityDeletedEvent::class, $event);
 
@@ -118,7 +118,7 @@ class CategoryRepositoryTest extends TestCase
         );
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
-        $event = $result->getEventByDefinition(CategoryDefinition::class);
+        $event = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
 
         static::assertInstanceOf(EntityDeletedEvent::class, $event);
         static::assertEquals([$childId], $event->getIds());
@@ -171,7 +171,7 @@ class CategoryRepositoryTest extends TestCase
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
-        $event = $result->getEventByDefinition(CategoryDefinition::class);
+        $event = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityDeletedEvent::class, $event);
 
         static::assertContains($parentId, $event->getIds());

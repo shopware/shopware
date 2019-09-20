@@ -131,14 +131,14 @@ class ProductListingPriceIndexer implements IndexerInterface
     {
         $productIds = [];
 
-        $products = $event->getEventByDefinition(ProductDefinition::class);
+        $products = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
         if ($products) {
             foreach ($products->getIds() as $id) {
                 $productIds[] = $id;
             }
         }
 
-        $prices = $event->getEventByDefinition(ProductPriceDefinition::class);
+        $prices = $event->getEventByEntityName(ProductPriceDefinition::ENTITY_NAME);
         if ($prices) {
             $priceIds = $this->fetchProductPriceIds($prices->getIds());
 

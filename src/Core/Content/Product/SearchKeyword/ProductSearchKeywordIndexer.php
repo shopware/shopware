@@ -187,7 +187,7 @@ class ProductSearchKeywordIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        $products = $event->getEventByDefinition(ProductDefinition::class);
+        $products = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
 
         if (!$products) {
             return;

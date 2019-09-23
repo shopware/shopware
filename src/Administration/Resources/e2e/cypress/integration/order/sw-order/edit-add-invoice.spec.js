@@ -54,6 +54,8 @@ describe('Order: Test order state', () => {
 
         // Find documents
         cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
+        cy.get('.sw-order-detail-base__document-grid').should('be.visible');
+        cy.get(page.elements.loader).should('not.exist');
         cy.clickContextMenuItem(
             '.sw-context-menu-item',
             '.sw-order-document-grid-button',
@@ -85,6 +87,8 @@ describe('Order: Test order state', () => {
         cy.wait('@findDocumentCall').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
+        cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
+        cy.get('.sw-order-detail-base__document-grid').should('be.visible');
         cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0')
             .contains('Invoice');
 

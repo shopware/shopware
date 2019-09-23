@@ -36,6 +36,7 @@ class TestIndexer implements IndexerInterface
 
     public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
     {
+        return null;
     }
 
     public function refresh(EntityWrittenContainerEvent $event): void

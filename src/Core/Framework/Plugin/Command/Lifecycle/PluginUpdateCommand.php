@@ -44,5 +44,7 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
         }
 
         $this->handleClearCacheOption($input, $io, 'updating');
+
+        return null;
     }
 }

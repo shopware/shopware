@@ -113,6 +113,8 @@ class DemodataCommand extends Command
             ['Entity', 'Items', 'Time'],
             $demoContext->getTimings()
         );
+
+        return null;
     }
 
     private function getCustomFieldOptions(InputInterface $input): array

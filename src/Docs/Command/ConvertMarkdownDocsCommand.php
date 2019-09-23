@@ -78,6 +78,8 @@ class ConvertMarkdownDocsCommand extends Command
 
         $syncService = new WikiApiService($token, $server, $rootCategory);
         $syncService->syncFilesWithServer($tree);
+
+        return null;
     }
 
     protected function readAllFiles(array $files): array

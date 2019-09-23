@@ -496,6 +496,7 @@ class DefinitionValidator
 
         $associationViolations = [];
 
+        /** @var OneToOneAssociationField|null $reverseSide */
         $reverseSide = $reference->getFields()->filter(
             function (Field $field) use ($association, $definition) {
                 if (!$field instanceof OneToOneAssociationField) {
@@ -507,8 +508,7 @@ class DefinitionValidator
             }
         )->first();
 
-        /** @var OneToOneAssociationField $reverseSide */
-        if (!$reverseSide) {
+        if ($reverseSide === null) {
             $associationViolations[$definition->getClass()][] = sprintf(
                 'Missing reverse one to one association for %s <-> %s (%s)',
                 $definition->getClass(),
@@ -536,6 +536,7 @@ class DefinitionValidator
 
         $associationViolations = [];
 
+        /** @var OneToManyAssociationField|null $reverseSide */
         $reverseSide = $reference->getFields()->filter(
             function (Field $field) use ($association, $definition) {
                 if (!$field instanceof OneToManyAssociationField) {
@@ -547,8 +548,7 @@ class DefinitionValidator
             }
         )->first();
 
-        /** @var OneToManyAssociationField $reverseSide */
-        if (!$reverseSide) {
+        if ($reverseSide === null) {
             $associationViolations[$definition->getClass()][] = sprintf(
                 'Missing reverse one to many association for %s <-> %s (%s)',
                 $definition->getClass(),

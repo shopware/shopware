@@ -10,6 +10,23 @@ parameters:
         container_xml_path: '%rootDir%/../../../../../../..%ShopwareHashedCacheDir%/srcShopware_Development_KernelDevDebugContainer.xml'
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
+#   Bleeding edge features. Currently optional in latest PHPStan version
+    featureToggles:
+        deadCatchesRule: true
+#        Does not recognize annotions with traits correctly
+#        invalidVarTag: true
+        missingReturnRule: true
+        noopRule: true
+#        has problems with instanceof comparisons in switch statements
+#        subtractableTypes: true
+        tooWideTypehints: true
+        unreachableStatement: true
+        yieldRules: true
+        validateParameters: true
+        allowVarTagAboveStatements: true
+#        Not sure if we could simply use "self" instead of "static". Used mainly in our collections
+#        newStatic: true
+
     excludes_analyse:
         - %currentWorkingDirectory%/vendor/shopware/platform/src/Core/Flag/feature_*.php
         - %currentWorkingDirectory%/src/Core/Flag/feature_*.php

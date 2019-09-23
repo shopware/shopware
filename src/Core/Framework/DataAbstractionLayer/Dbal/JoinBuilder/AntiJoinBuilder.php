@@ -144,7 +144,7 @@ class AntiJoinBuilder implements JoinBuilderInterface
         // TODO: add inheritance support
     }
 
-    private function getSource(EntityDefinition $definition, $field, string $on, Context $context): string
+    private function getSource(EntityDefinition $definition, AssociationField $field, string $on, Context $context): string
     {
         if ($field instanceof ManyToManyAssociationField) {
             if ($field->is(Inherited::class) && $context->considerInheritance()) {
@@ -182,6 +182,8 @@ class AntiJoinBuilder implements JoinBuilderInterface
 
             return $inherited;
         }
+
+        throw new \RuntimeException(sprintf('Unexpected field in %s::%s given', __CLASS__, __METHOD__));
     }
 
     private function innerJoin(string $joinAlias, string $root, ManyToManyAssociationField $association, EntityDefinition $referenceDefinition, QueryBuilder $builder, Context $context): void

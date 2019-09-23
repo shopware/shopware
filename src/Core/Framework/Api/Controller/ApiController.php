@@ -890,10 +890,7 @@ class ApiController extends AbstractController
         return isset($scopes[$scopeIdentifier]);
     }
 
-    /**
-     * @return EntityDefinition|string
-     */
-    private function getEntityDefinition(string $entityName)
+    private function getEntityDefinition(string $entityName): EntityDefinition
     {
         try {
             $entityDefinition = $this->definitionRegistry->getByEntityName($entityName);

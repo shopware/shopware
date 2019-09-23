@@ -97,6 +97,8 @@ class ConfigReader extends XmlReader
 
             return $name->nodeValue;
         }
+
+        return null;
     }
 
     private function elementToArray(\DOMElement $element): array

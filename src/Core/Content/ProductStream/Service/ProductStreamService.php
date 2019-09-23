@@ -15,13 +15,19 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductStreamService implements ProductStreamServiceInterface
 {
-    /** @var SalesChannelRepositoryInterface */
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
     private $productRepository;
 
-    /** @var ProductStreamFilterServiceInterface */
+    /**
+     * @var ProductStreamFilterServiceInterface
+     */
     private $productStreamFilterService;
 
-    /** @var EntityRepositoryInterface */
+    /**
+     * @var EntityRepositoryInterface
+     */
     private $productStreamRepository;
 
     public function __construct(
@@ -137,6 +143,8 @@ class ProductStreamService implements ProductStreamServiceInterface
                 return $filterEntity;
             }
         }
+
+        throw new \RuntimeException('Root filter not found');
     }
 
     private function ensureQueries(

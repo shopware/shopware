@@ -54,6 +54,8 @@ final class ExtendsTokenParser extends AbstractTokenParser
             new Token(Token::STRING_TYPE, $parent, 2),
             new Token(Token::BLOCK_END_TYPE, '', 2),
         ]);
+
+        return new Node();
     }
 
     public function getTag(): string

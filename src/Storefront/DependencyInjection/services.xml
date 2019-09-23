@@ -71,17 +71,6 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextValueResolver">
-            <tag name="controller.argument_value_resolver" priority="1000"/>
-            <argument type="service" id="request_stack"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Cart\CartValueResolver">
-            <tag name="controller.argument_value_resolver" priority="1001"/>
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-        </service>
-
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>

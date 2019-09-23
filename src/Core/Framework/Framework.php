@@ -91,7 +91,7 @@ class Framework extends Bundle
         $container->setParameter('migration.directories', $directories);
     }
 
-    protected function registerFilesystem(ContainerBuilder $container, string $key): void
+    protected function registerFilesystem(ContainerBuilder $container, string $key, ?string $baseKey = null): void
     {
         // empty body intended to prevent circular filesystem references
     }

@@ -115,17 +115,18 @@ abstract class Bundle extends SymfonyBundle
         return 'Resources/config/services.xml';
     }
 
-    protected function registerFilesystem(ContainerBuilder $container, string $key): void
+    protected function registerFilesystem(ContainerBuilder $container, string $key, ?string $baseKey = null): void
     {
         $containerPrefix = $this->getContainerPrefix();
-        $parameterKey = sprintf('shopware.filesystem.%s', $key);
+        $parameterKey = sprintf('shopware.filesystem.%s', $baseKey ?? $key);
         $serviceId = sprintf('%s.filesystem.%s', $containerPrefix, $key);
+        $suffix = empty($baseKey) ? '' : '-' . $key;
 
         $filesystem = new Definition(
             PrefixFilesystem::class,
             [
                 new Reference($parameterKey),
-                'plugins/' . $containerPrefix,
+                'plugins/' . $containerPrefix . $suffix,
             ]
         );
 

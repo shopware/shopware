@@ -21,7 +21,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
+        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
         $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
@@ -39,7 +39,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
+        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
         $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
@@ -57,7 +57,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
+        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
         $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
@@ -75,7 +75,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
+        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
         $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);
@@ -93,7 +93,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
+        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
         $twig->addExtension(new InheritanceExtension($templateFinder));
         $twig->getExtension(InheritanceExtension::class)->getFinder();
         $template = $twig->loadTemplate('frontend/notemplatefound.html.twig');
@@ -107,7 +107,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
+        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
         $twig->addExtension(new InheritanceExtension($templateFinder));
 
         $template = $twig->loadTemplate('frontend/dynamic_include.html.twig');
@@ -122,7 +122,7 @@ class TwigSwIncludeTest extends TestCase
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
-        $templateFinder = new TemplateFinder($loader, $this->getContainer()->get('kernel'));
+        $templateFinder = new TemplateFinder($twig, $loader, $this->getContainer()->get('kernel'));
         $bundlePlugin1 = new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1');
         $bundlePlugin2 = new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2');
         $templateFinder->addBundle($bundlePlugin1);

@@ -41,6 +41,7 @@ class PromotionDeliveryProcessor implements CartProcessorInterface
         // new list of created promotion discount line items
         $this->calculator->calculate(
             new LineItemCollection($discountLineItems),
+            $original,
             $toCalculate,
             $context
         );

@@ -33,6 +33,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class PromotionDeliveryCalculator
 {
+    use PromotionCartInformationTrait;
+
     /**
      * @var QuantityPriceCalculator
      */
@@ -68,7 +70,7 @@ class PromotionDeliveryCalculator
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      * @throws \Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException
      */
-    public function calculate(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context): void
+    public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $toCalculate, SalesChannelContext $context): void
     {
         $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->sum()->getTotalPrice();
 
@@ -90,6 +92,7 @@ class PromotionDeliveryCalculator
             }
 
             if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
+                $this->addDeleteNoticeToCart($original, $toCalculate, $discountItem);
                 continue;
             }
 
@@ -99,6 +102,9 @@ class PromotionDeliveryCalculator
             if ($deliveryItemAdded) {
                 // ensure that a lineItem will be added to cart if a discount has been added
                 $this->addFakeLineitem($toCalculate, $discountItem, $context);
+                $this->addAddedNoticeToCart($original, $toCalculate, $discountItem);
+            } else {
+                $this->addDeleteNoticeToCart($original, $toCalculate, $discountItem);
             }
         }
     }

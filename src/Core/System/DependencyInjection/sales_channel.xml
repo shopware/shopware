@@ -109,5 +109,10 @@
             <argument type="collection"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextValueResolver">
+            <tag name="controller.argument_value_resolver" priority="1000"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
     </services>
 </container>

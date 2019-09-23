@@ -15,6 +15,11 @@
             <tag name="shopware.cart.processor"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\CartValueResolver">
+            <tag name="controller.argument_value_resolver" priority="1001"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+        </service>
 
         <!-- price calculation -->
         <service id="Shopware\Core\Checkout\Cart\Price\AmountCalculator">

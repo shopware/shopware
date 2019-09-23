@@ -103,10 +103,10 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 $data = $productContext->getContext();
                 $data['product'] = $product;
 
-                if($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
+                if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
                     continue; // Skip main product if variants are included
                 }
-                if(!$productExport->isIncludeVariants() && $product->getParentId()) {
+                if (!$productExport->isIncludeVariants() && $product->getParentId()) {
                     continue; // Skip variants unless they are included
                 }
 

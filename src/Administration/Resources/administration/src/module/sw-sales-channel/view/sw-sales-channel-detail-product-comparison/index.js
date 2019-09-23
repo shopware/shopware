@@ -1,5 +1,4 @@
 import template from './sw-sales-channel-detail-product-comparison.html.twig';
-import './sw-sales-channel-detail-product-comparison.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -47,14 +46,17 @@ Component.register('sw-sales-channel-detail-product-comparison', {
             isLoadingPreview: false,
             isPreviewSuccessful: false,
             isLoadingValidate: false,
-            isValidateSuccessful: false,
-            editorConfig: {
-                enableBasicAutocompletion: true
-            }
+            isValidateSuccessful: false
         };
     },
 
     computed: {
+        editorConfig() {
+            return {
+                enableBasicAutocompletion: true
+            };
+        },
+
         productExportRepository() {
             return this.repositoryFactory.create('product_export');
         },
@@ -108,15 +110,16 @@ Component.register('sw-sales-channel-detail-product-comparison', {
             this.productExportService
                 .validateProductExportTemplate(this.productExport)
                 .then((data) => {
+                    this.isLoadingValidate = false;
+
                     if (data.errors) {
                         this.previewContent = data.content;
                         this.previewErrors = data.errors;
-                    } else {
-                        this.createNotificationSuccess(notificationValidateSuccess);
-                        this.isValidateSuccessful = true;
+                        return;
                     }
 
-                    this.isLoadingValidate = false;
+                    this.createNotificationSuccess(notificationValidateSuccess);
+                    this.isValidateSuccessful = true;
                 }).catch((exception) => {
                     this.createNotificationError({
                         title: this.$tc('sw-sales-channel.detail.productComparison.notificationTitleValidateError'),
@@ -135,14 +138,15 @@ Component.register('sw-sales-channel-detail-product-comparison', {
             this.productExportService
                 .previewProductExport(this.productExport)
                 .then((data) => {
+                    this.isLoadingPreview = false;
                     this.previewContent = data.content;
+
                     if (data.errors) {
                         this.previewErrors = data.errors;
-                    } else {
-                        this.isPreviewSuccessful = true;
+                        return;
                     }
 
-                    this.isLoadingPreview = false;
+                    this.isPreviewSuccessful = true;
                 }).catch((exception) => {
                     this.createNotificationError({
                         title: this.$tc('sw-sales-channel.detail.productComparison.notificationTitlePreviewError'),

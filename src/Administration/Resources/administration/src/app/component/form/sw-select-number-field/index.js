@@ -23,23 +23,6 @@ Component.extend('sw-select-number-field', 'sw-select-field', {
             type: Number,
             required: false,
             default: null
-        },
-
-        placeholder: {
-            type: String,
-            required: false,
-            default: null
-        },
-
-        options: {
-            type: Array,
-            required: false
-        },
-
-        aside: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
 

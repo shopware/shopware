@@ -201,13 +201,12 @@ Component.register('sw-sales-channel-detail', {
         generateAccessUrl() {
             if (!this.productExport.salesChannelDomain) {
                 this.productComparisonAccessUrl = '';
-            } else {
-                this.productComparisonAccessUrl = `${this.productExport.salesChannelDomain.url.replace(/\/+$/g, '')
-                }/export/${
-                    this.productExport.accessKey
-                }/${
-                    this.productExport.fileName}`;
+                return;
             }
+
+            const salesChannelDomainUrl = this.productExport.salesChannelDomain.url.replace(/\/+$/g, '');
+            this.productComparisonAccessUrl =
+                `${salesChannelDomainUrl}/export/${this.productExport.accessKey}/${this.productExport.fileName}`;
         },
 
         saveFinish() {

@@ -513,13 +513,13 @@
 
                     {% block sw_sales_channel_detail_base_product_comparison_access_key %}
                         {% block sw_sales_channel_detail_base_product_comparison_input_access_key %}
-                        <sw-field
-                                :label="$tc('sw-sales-channel.detail.productComparison.accessKey')"
-                                :disabled="true"
-                                v-model="productExport.accessKey"
-                                v-if="isProductComparison"
-                                :copyable="true">
-                        </sw-field>
+                            <sw-field
+                                    :label="$tc('sw-sales-channel.detail.productComparison.accessKey')"
+                                    :disabled="true"
+                                    v-model="productExport.accessKey"
+                                    v-if="isProductComparison"
+                                    :copyable="true">
+                            </sw-field>
                         {% endblock %}
 
                         {% block sw_sales_channel_detail_base_product_comparison_input_access_url %}
@@ -533,16 +533,16 @@
                         {% endblock %}
 
                         {% block sw_sales_channel_detail_base_product_comparison_input_generate_key %}
-                        <div class="sw-sales-channel-detail__action-button">
-                            <sw-button
-                                    @click="onGenerateProductExportKey"
-                                    variant="ghost"
-                                    size="small"
-                                    class="sw-sales-channel-detail-base__button-generate-keys"
-                                    v-if="isProductComparison">
-                                {{ $tc('sw-sales-channel.detail.productComparison.buttonCreateNewAccessKey') }}
-                            </sw-button>
-                        </div>
+                            <div class="sw-sales-channel-detail__action-button">
+                                <sw-button
+                                        @click="onGenerateProductExportKey"
+                                        variant="ghost"
+                                        size="small"
+                                        class="sw-sales-channel-detail-base__button-generate-keys"
+                                        v-if="isProductComparison">
+                                    {{ $tc('sw-sales-channel.detail.productComparison.buttonCreateNewAccessKey') }}
+                                </sw-button>
+                            </div>
                         {% endblock %}
                     {% endblock %}
                 {% endblock %}

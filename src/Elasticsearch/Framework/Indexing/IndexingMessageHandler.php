@@ -100,7 +100,7 @@ class IndexingMessageHandler extends AbstractMessageHandler
             'body' => $documents,
         ]);
 
-        if (isset($result['errors'])) {
+        if (isset($result['errors']) && $result['errors']) {
             $errors = $this->parseErrors($result);
 
             throw new ElasticsearchIndexingException($errors);

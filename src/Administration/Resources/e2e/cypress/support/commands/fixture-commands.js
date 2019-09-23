@@ -2,6 +2,7 @@ import ProductFixture from '../service/administration/fixture/product.fixture';
 import CustomerFixture from '../service/administration/fixture/customer.fixture';
 import ShippingFixture from '../service/administration/fixture/shipping.fixture';
 import OrderFixture from '../service/saleschannel/fixture/order.fixture';
+import AdminSalesChannelFixture from '../service/administration/fixture/sales-channel.fixture';
 import Fixture from '../service/administration/fixture.service';
 
 /**
@@ -39,6 +40,37 @@ Cypress.Commands.add('createProductFixture', (userData = {}) => {
     }).then((data) => {
         return fixture.setProductFixture(data);
     });
+});
+
+/**
+ * Create product fixture using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name createSalesChannelFixture
+ * @function
+ * @param {String} endpoint - API endpoint for the request
+ * @param {Object} [options={}] - Options concerning creation
+ */
+Cypress.Commands.add('createSalesChannelFixture', (userData = {}) => {
+    const fixture = new AdminSalesChannelFixture();
+
+    return cy.fixture('product').then((result) => {
+        return Cypress._.merge(result, userData);
+    }).then((data) => {
+        console.log('data :', data);
+        return fixture.setSalesChannelFixture(data);
+    });
+});
+
+/**
+ * Create sales channel domain using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name setSalesChannelDomain
+ * @function
+ * @param {String} [salesChannelName=Storefront] - Options concerning creation
+ */
+Cypress.Commands.add('setSalesChannelDomain', (salesChannelName = 'Storefront') => {
+    const fixture = new AdminSalesChannelFixture();
+    return fixture.setSalesChannelDomain(salesChannelName)
 });
 
 /**

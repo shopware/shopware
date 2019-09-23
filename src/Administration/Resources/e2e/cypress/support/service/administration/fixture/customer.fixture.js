@@ -38,37 +38,41 @@ export default class CustomerFixtureService extends AdminFixtureService {
             findSalesChannelId(),
             findGroupId(),
             findSalutationId()
-        ]).then(([country, paymentMethod, salesChannel, customerGroup, salutation]) => {
-            countryId = country.id;
-            salutationId = salutation.id;
+        ])
+            .then(([country, paymentMethod, salesChannel, customerGroup, salutation]) => {
+                countryId = country.id;
+                salutationId = salutation.id;
 
-            finalCustomerRawData = this.mergeFixtureWithData(customerJson, {
-                salutationId: salutation.id,
-                defaultPaymentMethodId: paymentMethod.id,
-                salesChannelId: salesChannel.id,
-                groupId: customerGroup.id,
-                defaultBillingAddressId: addressId,
-                defaultShippingAddressId: addressId
+                finalCustomerRawData = this.mergeFixtureWithData(customerJson, {
+                    salutationId: salutation.id,
+                    defaultPaymentMethodId: paymentMethod.id,
+                    salesChannelId: salesChannel.id,
+                    groupId: customerGroup.id,
+                    defaultBillingAddressId: addressId,
+                    defaultShippingAddressId: addressId
+                });
+            })
+            .then(() => {
+                finalAddressRawData = this.mergeFixtureWithData({
+                    addresses: [{
+                        customerId: customerId,
+                        salutationId: salutationId,
+                        id: addressId,
+                        countryId: countryId
+                    }, {
+                        customerId: customerId,
+                        salutationId: salutationId,
+                        id: this.createUuid(),
+                        countryId: countryId
+                    }]
+                }, customerAddressJson);
+            })
+            .then(() => {
+                return this.mergeFixtureWithData(finalCustomerRawData, finalAddressRawData);
+            })
+            .then((finalCustomerData) => {
+                return this.apiClient.post('/v1/customer?_response=true', finalCustomerData);
             });
-        }).then(() => {
-            finalAddressRawData = this.mergeFixtureWithData({
-                addresses: [{
-                    customerId: customerId,
-                    salutationId: salutationId,
-                    id: addressId,
-                    countryId: countryId
-                }, {
-                    customerId: customerId,
-                    salutationId: salutationId,
-                    id: this.createUuid(),
-                    countryId: countryId
-                }]
-            }, customerAddressJson);
-        }).then(() => {
-            return this.mergeFixtureWithData(finalCustomerRawData, finalAddressRawData);
-        }).then((finalCustomerData) => {
-            return this.apiClient.post('/v1/customer?_response=true', finalCustomerData);
-        });
     }
 }
 

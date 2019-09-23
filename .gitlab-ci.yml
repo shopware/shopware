@@ -303,6 +303,12 @@ Administration (Content):
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/content/**/*
 
+Administration (Marketing):
+    <<: *e2e_definition
+    script: *mixed_definition
+    variables:
+        TEST_DIRECTORY: e2e-Administration/cypress/integration/marketing/**/*
+
 Administration (Rules):
     <<: *e2e_definition
     script: *administration_definition

@@ -95,7 +95,7 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
 }, (subject, value, options = {}) => {
     const resultPrefix = '.sw-select';
     const inputCssSelector = '.sw-select-selection-list__input';
-    const searchTerm = options.searchTerm || value;
+    const searchTerm = options.searchTerm;
     const position = options.position || 0;
 
     // Request we want to wait for later
@@ -118,13 +118,16 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
 
             cy.wait('@filteredResultCall').then(() => {
                 cy.get('.sw-loader__element').should('not.exist');
+                cy.get(`${resultPrefix}-option--${position}`).should('be.visible');
                 cy.get(`${resultPrefix}-option--${position}`).contains(value);
             });
         });
+        cy.get(`${resultPrefix}-option--${position}`)
+            .click({force: true});
+    } else {
+        cy.wrap(subject).click();
+        cy.contains('.sw-select-result', value).click();
     }
-    // select the first result (or at another position)
-    cy.get(`${resultPrefix}-option--${position}`)
-        .click({force: true});
 
     // in multi selects we can check if the value is the selected item
     cy.get(`${subject.selector} .sw-select-selection-list__item-holder--0`).contains(value);

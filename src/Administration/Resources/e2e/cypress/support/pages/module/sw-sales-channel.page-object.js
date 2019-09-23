@@ -20,19 +20,29 @@ export default class SalesChannelPageObject extends GeneralPageObject {
     fillInBasicSalesChannelData(salesChannelName) {
         cy.get(this.elements.salesChannelNameInput).type(salesChannelName);
 
-        cy.get('.sw-sales-channel-detail__select-payment-method').typeMultiSelectAndCheck('Invoice');
+        cy.get('.sw-sales-channel-detail__select-payment-method').typeMultiSelectAndCheck('Invoice', {
+            searchTerm: 'Invoice'
+        });
         cy.get('.sw-sales-channel-detail__assign-payment-method').typeSingleSelectAndCheck('Invoice');
 
-        cy.get('.sw-sales-channel-detail__select-shipping-method').typeMultiSelectAndCheck('Standard');
+        cy.get('.sw-sales-channel-detail__select-shipping-method').typeMultiSelectAndCheck('Standard', {
+            searchTerm: 'Standard'
+        });
         cy.get('.sw-sales-channel-detail__assign-shipping-method').typeSingleSelectAndCheck('Standard');
 
-        cy.get('.sw-sales-channel-detail__select-countries').typeMultiSelectAndCheck('Germany');
+        cy.get('.sw-sales-channel-detail__select-countries').typeMultiSelectAndCheck('Germany', {
+            searchTerm: 'Germany'
+        });
         cy.get('.sw-sales-channel-detail__assign-countries').typeSingleSelectAndCheck('Germany');
 
-        cy.get('.sw-sales-channel-detail__select-currencies').typeMultiSelectAndCheck('Euro');
+        cy.get('.sw-sales-channel-detail__select-currencies').typeMultiSelectAndCheck('Euro', {
+            searchTerm: 'Euro'
+        });
         cy.get('.sw-sales-channel-detail__assign-currencies').typeSingleSelectAndCheck('Euro');
 
-        cy.get('.sw-sales-channel-detail__select-languages').typeMultiSelectAndCheck('English');
+        cy.get('.sw-sales-channel-detail__select-languages').typeMultiSelectAndCheck('English', {
+            searchTerm: 'English'
+        });
         cy.get('.sw-sales-channel-detail__assign-languages').typeSingleSelectAndCheck('English');
 
         cy.get('.sw-sales-channel-detail__select-customer-group').typeSingleSelectAndCheck('Standard customer group');

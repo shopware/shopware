@@ -144,14 +144,14 @@
                                         {% else %}
                                             {% block element_image_gallery_inner_single %}
                                                 <div class="gallery-slider-single-image is-{{ displayMode }} js-magnifier-container"{% if minHeight and  displayMode == "cover" %} style="min-height: {{ minHeight }}"{% endif %}>
-                                                    {% if mediaItems %}
+                                                    {% if mediaItems.length > 0 %}
                                                         {% set attributes = {
                                                             'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
-                                                            'alt': (mediaItems|first.media.translated.alt ?: ''),
-                                                            'title': (mediaItems|first.media.translated.title ?: ''),
-                                                            'data-full-image': mediaItems|first.media.url,
-                                                            'data-width': mediaItems|first.media.metaData.width,
-                                                            'data-height': mediaItems|first.media.metaData.height
+                                                            'alt': (mediaItems|first.translated.alt ?: ''),
+                                                            'title': (mediaItems|first.translated.title ?: ''),
+                                                            'data-full-image': mediaItems|first.url,
+                                                            'data-width': mediaItems|first.metaData.width,
+                                                            'data-height': mediaItems|first.metaData.height
                                                         } %}
 
                                                         {% if displayMode == 'cover' or displayMode == 'contain' %}
@@ -163,7 +163,8 @@
                                                         {% endif %}
 
                                                         {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
-                                                            media: mediaItems|first.media
+                                                            media: mediaItems|first,
+
                                                         } %}
                                                     {% else %}
                                                         {% sw_icon 'placeholder' style {

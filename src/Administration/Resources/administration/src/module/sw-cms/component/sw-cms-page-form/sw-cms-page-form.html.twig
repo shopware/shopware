@@ -2,20 +2,27 @@
     <div class="sw-cms-page-form">
 
         {% block sw_cms_page_form_content %}
-            <template v-for="block in page.blocks">
+            <template v-for="section in page.sections">
 
-                {% block sw_cms_page_form_card %}
-                    <sw-card class="sw-cms-page-form__block-card" :title="getBlockTitle(block)" :key="block.id">
+                {% block sw_cms_page_form_section %}
+                    <div :key="section.id" class="sw-cms-page-form__section">
+                        <template v-for="block in section.blocks">
 
-                        {% block sw_cms_page_form_card_content %}
-                            <div class="sw-cms-page-form__element-config" v-for="element in block.slots">
+                        {% block sw_cms_page_form_card %}
+                            <sw-card class="sw-cms-page-form__block-card" :title="getBlockTitle(block)" :key="block.id">
 
-                                {% block sw_cms_page_form_element_config %}
-                                    <component :is="cmsElements[element.type].configComponent" :element="element"></component>
+                                {% block sw_cms_page_form_card_content %}
+                                    <div class="sw-cms-page-form__element-config" v-for="element in block.slots">
+
+                                        {% block sw_cms_page_form_element_config %}
+                                            <component :is="cmsElements[element.type].configComponent" :element="element"></component>
+                                        {% endblock %}
+                                    </div>
                                 {% endblock %}
-                            </div>
+                            </sw-card>
                         {% endblock %}
-                    </sw-card>
+                        </template>
+                    </div>
                 {% endblock %}
             </template>
         {% endblock %}

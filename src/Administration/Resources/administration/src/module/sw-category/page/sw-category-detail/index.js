@@ -187,10 +187,15 @@ Component.register('sw-category-detail', {
                 criteria: CriteriaFactory.equals('cms_page.id', cmsPageId),
                 associations: {
                     previewMedia: {},
-                    blocks: {
+                    sections: {
                         sort: 'position',
                         associations: {
-                            slots: {}
+                            blocks: {
+                                sort: 'position',
+                                associations: {
+                                    slots: {}
+                                }
+                            }
                         }
                     }
                 }
@@ -201,11 +206,13 @@ Component.register('sw-category-detail', {
                 cmsPage.setData(response.items[0], false, true, false);
 
                 if (this.category.slotConfig !== null) {
-                    cmsPage.getAssociation('blocks').forEach((block) => {
-                        block.getAssociation('slots').forEach((slot) => {
-                            if (this.category.slotConfig[slot.id]) {
-                                merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
-                            }
+                    cmsPage.getAssociation('sections').forEach((section) => {
+                        section.getAssociation('blocks').forEach((block) => {
+                            block.getAssociation('slots').forEach((slot) => {
+                                if (this.category.slotConfig[slot.id]) {
+                                    merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
+                                }
+                            });
                         });
                     });
                 }

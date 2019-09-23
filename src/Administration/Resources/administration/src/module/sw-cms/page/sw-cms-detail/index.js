@@ -334,9 +334,8 @@ Component.register('sw-cms-detail', {
             this.$store.commit('cmsPageState/setCurrentCmsDeviceView', view);
 
             if (view === 'form') {
-                this.currentBlock = null;
-                this.$refs.blockConfigSidebar.closeContent();
-                this.$refs.blockSelectionSidebar.closeContent();
+                this.setCurrentBlock(null, null);
+                this.$refs.cmsSideBar.closeContent();
             }
         },
 

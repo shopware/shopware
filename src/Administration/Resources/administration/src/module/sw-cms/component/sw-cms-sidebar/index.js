@@ -1,8 +1,8 @@
 import template from './sw-cms-sidebar.html.twig';
 import './sw-cms-sidebar.scss';
 
-const {Component, Mixin} = Shopware;
-const {cloneDeep} = Shopware.Utils.object;
+const { Component, Mixin } = Shopware;
+const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
 
@@ -54,7 +54,7 @@ Component.register('sw-cms-sidebar', {
         return {
             demoEntityId: this.demoEntityIdProp,
             currentBlockCategory: 'text',
-            currentDeviceView: this.$store.state.currentCmsDeviceView,
+            currentDeviceView: this.$store.state.currentCmsDeviceView
         };
     },
 
@@ -113,6 +113,12 @@ Component.register('sw-cms-sidebar', {
 
         onCloseBlockConfig() {
             this.$emit('current-block-change', null, null);
+        },
+
+        closeContent() {
+            Object.values(this.$refs).forEach((item) => {
+                item.closeContent();
+            });
         },
 
         blockIsRemovable(block) {

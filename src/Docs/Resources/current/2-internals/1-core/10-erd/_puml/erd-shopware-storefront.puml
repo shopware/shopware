@@ -34,6 +34,7 @@ Table(ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url\n(Seo urls)
    isModified bool
    isDeleted bool
    isValid bool
+   url string
    autoIncrement int
    customFields customFields
    not_null(createdAt) createdAt
@@ -50,14 +51,60 @@ Table(ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
-ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+Table(ShopwareStorefrontThemeThemeDefinition, "theme\n(__EMPTY__)") {
+   primary_key(id) id
+   technicalName string
+   not_null(name) string
+   not_null(author) string
+   description translated
+   labels translated
+   helpTexts translated
+   customFields translated
+   previewMediaId foreignKey
+   parentThemeId foreignKey
+   baseConfig json
+   configValues json
+   not_null(active) bool
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   translated json
+}
+TranslationTable(ShopwareStorefrontThemeAggregateThemeTranslationDefinition, "theme_translation\n((Translations))") {
+   description string
+   labels json
+   helpTexts json
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   primary_key(themeId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition, "theme_sales_channel\n(M:N Mapping)") {
+   primary_key(salesChannelId) foreignKey
+   not_null(themeId) foreignKey
+}
+Table(ShopwareStorefrontThemeAggregateThemeMediaDefinition, "theme_media\n(M:N Mapping)") {
+   primary_key(themeId) foreignKey
+   primary_key(mediaId) foreignKey
 }
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
 }
 
 ' relationshipd
 
-ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareStorefrontThemeAggregateThemeTranslationDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareStorefrontThemeAggregateThemeMediaDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareStorefrontThemeThemeDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareStorefrontThemeThemeDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareStorefrontThemeAggregateThemeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareStorefrontThemeAggregateThemeMediaDefinition --> ShopwareCoreContentMediaMediaDefinition
 @enduml

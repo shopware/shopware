@@ -51,7 +51,7 @@ Table(ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDe
    primary_key(id) id
    not_null(originalName) string
    not_null(path) string
-   not_null(expireDate) date
+   not_null(expireDate) dateTime
    size int
    not_null(createdAt) createdAt
    not_null(accessToken) string

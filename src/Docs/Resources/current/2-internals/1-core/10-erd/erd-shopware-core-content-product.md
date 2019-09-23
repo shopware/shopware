@@ -32,6 +32,11 @@ SQL based product search table, containing the keywords.
 SQL based product search table containing the dictionary.
 
 
+### Table `product_review`
+
+__EMPTY__
+
+
 ### Table `product_manufacturer`
 
 The product manufacturer list.

@@ -38,9 +38,9 @@ Table(ShopwareCoreContentMailTemplateMailTemplateDefinition, "mail_template\n(Ma
 TranslationTable(ShopwareCoreContentMailTemplateAggregateMailTemplateTranslationMailTemplateTranslationDefinition, "mail_template_translation\n((Translations))") {
    senderName string
    description longText
-   subject string
-   contentHtml longTextWithHtml
-   contentPlain longText
+   not_null(subject) string
+   not_null(contentHtml) longTextWithHtml
+   not_null(contentPlain) longText
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    primary_key(mailTemplateId) foreignKey

@@ -22,21 +22,18 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkScheduledTaskScheduledTaskDefinition, "scheduled_task\n(Cron job)") {
+Table(ShopwareCoreFrameworkLoggingLogEntryDefinition, "log_entry\n(__EMPTY__)") {
    primary_key(id) id
-   not_null(name) string
-   not_null(scheduledTaskClass) string
-   not_null(runInterval) int
-   not_null(status) string
-   lastExecutionTime dateTime
-   not_null(nextExecutionTime) dateTime
+   message string
+   level int
+   channel string
+   context json
+   extra json
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
-}
-ForeignTable(ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition, "dead_message") {
 }
 
 ' relationshipd
 
-ShopwareCoreFrameworkScheduledTaskScheduledTaskDefinition --> ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition
+
 @enduml

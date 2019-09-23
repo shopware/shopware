@@ -32,6 +32,7 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    not_null(lastName) string
    not_null(email) string
    active bool
+   admin bool
    customFields customFields
    storeToken string
    not_null(createdAt) createdAt
@@ -43,7 +44,7 @@ Table(ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition, "user
    not_null(accessKey) string
    not_null(secretAccessKey) password
    writeAccess bool
-   lastUsageAt date
+   lastUsageAt dateTime
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -63,6 +64,8 @@ ForeignTable(ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMa
 }
 ForeignTable(ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition, "import_export_log") {
 }
+ForeignTable(ShopwareCoreFrameworkAclRoleAclUserRoleDefinition, "acl_user_role") {
+}
 
 ' relationshipd
 
@@ -71,5 +74,6 @@ ShopwareCoreSystemUserUserDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
+ShopwareCoreSystemUserUserDefinition --> ShopwareCoreFrameworkAclRoleAclUserRoleDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition
 @enduml

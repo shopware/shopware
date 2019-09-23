@@ -30,7 +30,7 @@ Table(ShopwareCoreCheckoutDocumentDocumentDefinition, "document\n(Document)") {
    not_null(orderId) foreignKey
    documentMediaFileId foreignKey
    not_null(orderVersionId) referenceVersion
-   config json
+   not_null(config) json
    sent bool
    static bool
    not_null(deepLinkCode) string

@@ -17,4 +17,9 @@ Search engine optimized urls manually created from user input to optimize for di
 A template to generate seo urls from.
 
 
+### Table `theme`
+
+__EMPTY__
+
+
 [Back to modules](./../10-modules.md)

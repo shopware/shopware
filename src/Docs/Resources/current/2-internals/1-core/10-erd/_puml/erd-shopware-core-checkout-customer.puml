@@ -42,11 +42,11 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    title string
    active bool
    guest bool
-   firstLogin date
-   lastLogin date
+   firstLogin dateTime
+   lastLogin dateTime
    newsletter bool
    birthday date
-   lastOrderDate date
+   lastOrderDate dateTime
    orderCount int
    customFields customFields
    legacyPassword string
@@ -109,6 +109,8 @@ ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinit
 }
 ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition, "promotion_persona_customer") {
 }
+ForeignTable(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "product_review") {
+}
 ForeignTable(ShopwareCoreSystemCountryCountryDefinition, "country") {
 }
 ForeignTable(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "country_state") {
@@ -127,6 +129,7 @@ ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreSystemSalutationS
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition
+ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemCountryCountryDefinition

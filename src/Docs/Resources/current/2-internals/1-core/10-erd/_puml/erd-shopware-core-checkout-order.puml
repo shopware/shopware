@@ -30,8 +30,10 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    not_null(billingAddressId) foreignKey
    not_null(billingAddressVersionId) referenceVersion
    not_null(currencyId) foreignKey
+   not_null(languageId) foreignKey
    not_null(salesChannelId) foreignKey
-   not_null(orderDate) date
+   not_null(orderDateTime) dateTime
+   orderDate date
    price cartPrice
    amountTotal float
    amountNet float
@@ -41,7 +43,7 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    shippingTotal float
    not_null(currencyFactor) float
    deepLinkCode string
-   not_null(stateId) foreignKey
+   not_null(stateId) stateMachineState
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -80,6 +82,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition, "o
    not_null(salutationId) foreignKey
    not_null(firstName) string
    not_null(lastName) string
+   company string
    title string
    customerNumber string
    customFields customFields
@@ -96,8 +99,8 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition, "o
    not_null(shippingMethodId) foreignKey
    not_null(stateId) foreignKey
    trackingCode string
-   not_null(shippingDateEarliest) date
-   not_null(shippingDateLatest) date
+   not_null(shippingDateEarliest) dateTime
+   not_null(shippingDateLatest) dateTime
    shippingCosts calculatedPrice
    customFields customFields
    not_null(createdAt) createdAt
@@ -156,7 +159,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefiniti
    not_null(orderVersionId) referenceVersion
    not_null(paymentMethodId) foreignKey
    not_null(amount) calculatedPrice
-   not_null(stateId) foreignKey
+   not_null(stateId) stateMachineState
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -164,6 +167,8 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefiniti
 ForeignTable(ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition, "state_machine_state") {
 }
 ForeignTable(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency") {
+}
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -191,6 +196,7 @@ ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method
 ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition
 ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
 ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
+ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
 ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition --> ShopwareCoreCheckoutOrderOrderDefinition

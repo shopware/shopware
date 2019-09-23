@@ -27,14 +27,18 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    primary_key(versionId) version
    parentId parentFk
    not_null(parentVersionId) referenceVersion
+   childCount childCount
    blacklistIds blacklistRule
    whitelistIds whitelistRule
    autoIncrement int
    active bool
    not_null(stock) int
+   availableStock int
+   available bool
    variantRestrictions json
+   displayGroup string
    configuratorGroupConfig json
-   not_null(manufacturerId) foreignKey
+   manufacturerId foreignKey
    not_null(productManufacturerVersionId) referenceVersion
    unitId foreignKey
    not_null(taxId) foreignKey
@@ -57,14 +61,14 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    width float
    height float
    length float
-   releaseDate date
+   releaseDate dateTime
    categoryTree list
    propertyIds manyToManyId
    optionIds manyToManyId
    tagIds manyToManyId
    listingPrices priceRulesJson
-   minDeliveryTime int
-   maxDeliveryTime int
+   ratingAverage float
+   deliveryTimeId foreignKey
    restockTime int
    additionalText translated
    name translated
@@ -76,7 +80,6 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    canonicalUrl CanonicalUrlAssociation
-   url string
    translated json
 }
 Table(ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition, "product_category\n(M:N Mapping)") {
@@ -108,7 +111,6 @@ Table(ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition, "pr
    primary_key(versionId) version
    not_null(productId) foreignKey
    not_null(productVersionId) referenceVersion
-   not_null(currencyId) foreignKey
    not_null(ruleId) foreignKey
    not_null(price) price
    not_null(quantityStart) int
@@ -138,6 +140,23 @@ Table(ShopwareCoreContentProductAggregateProductKeywordDictionaryProductKeywordD
    not_null(languageId) foreignKey
    not_null(keyword) string
    reversed string
+}
+Table(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "product_review\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(productId) foreignKey
+   not_null(customerId) foreignKey
+   not_null(salesChannelId) foreignKey
+   not_null(languageId) foreignKey
+   externalUser string
+   externalEmail string
+   not_null(title) string
+   not_null(content) longTextWithHtml
+   points float
+   status bool
+   comment longText
+   not_null(updatedAt) updatedAt
+   not_null(createdAt) createdAt
+   not_null(productVersionId) referenceVersion
 }
 Table(ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition, "product_manufacturer\n(Manufacturer)") {
    primary_key(id) id
@@ -206,6 +225,8 @@ Table(ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefin
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
+ForeignTable(ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition, "delivery_time") {
+}
 ForeignTable(ShopwareCoreSystemTaxTaxDefinition, "tax") {
 }
 ForeignTable(ShopwareCoreSystemUnitUnitDefinition, "unit") {
@@ -220,11 +241,11 @@ ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
 }
 ForeignTable(ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition, "property_group_option") {
 }
-ForeignTable(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency") {
-}
 ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
 }
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -232,6 +253,7 @@ ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channe
 ' relationshipd
 
 ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition
 ShopwareCoreContentProductProductDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductProductDefinition --> ShopwareCoreSystemTaxTaxDefinition
 ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition --> ShopwareCoreContentProductProductDefinition
@@ -246,16 +268,19 @@ ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfigurator
 ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductSearchKeywordProductSearchKeywordDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductProductDefinition --> ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition
 ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreSystemTagTagDefinition
 ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition --> ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition
-ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition --> ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition
 ShopwareCoreContentProductAggregateProductSearchKeywordProductSearchKeywordDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentProductAggregateProductKeywordDictionaryProductKeywordDictionaryDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentProductAggregateProductManufacturerTranslationProductManufacturerTranslationDefinition --> ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition
 ShopwareCoreContentProductAggregateProductManufacturerTranslationProductManufacturerTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition

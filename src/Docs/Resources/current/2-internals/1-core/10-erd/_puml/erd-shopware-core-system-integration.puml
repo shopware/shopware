@@ -28,7 +28,7 @@ Table(ShopwareCoreSystemIntegrationIntegrationDefinition, "integration\n(O-Auth 
    not_null(accessKey) string
    not_null(secretAccessKey) password
    writeAccess bool
-   lastUsageAt date
+   lastUsageAt dateTime
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt

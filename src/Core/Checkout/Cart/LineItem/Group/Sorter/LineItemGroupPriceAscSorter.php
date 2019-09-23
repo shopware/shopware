@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group\Sorter;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 
 class LineItemGroupPriceAscSorter implements LineItemGroupSorterInterface
 {
@@ -13,11 +13,11 @@ class LineItemGroupPriceAscSorter implements LineItemGroupSorterInterface
         return 'PRICE_ASC';
     }
 
-    public function sort(LineItemCollection $items): LineItemCollection
+    public function sort(LineItemFlatCollection $items): LineItemFlatCollection
     {
-        $listArray = $items->getElements();
+        $sorted = $items->getElements();
 
-        usort($listArray, function (LineItem $a, LineItem $b) {
+        usort($sorted, function (LineItem $a, LineItem $b) {
             if ($a->getPrice() === null) {
                 return false;
             }
@@ -29,6 +29,6 @@ class LineItemGroupPriceAscSorter implements LineItemGroupSorterInterface
             return $a->getPrice()->getUnitPrice() > $b->getPrice()->getUnitPrice();
         });
 
-        return new LineItemCollection($listArray);
+        return new LineItemFlatCollection($sorted);
     }
 }

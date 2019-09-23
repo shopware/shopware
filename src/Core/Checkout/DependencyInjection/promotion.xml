@@ -110,10 +110,10 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator">
@@ -166,6 +166,9 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover">
             <argument type="service" id="promotion_individual_code.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder">
         </service>
 
     </services>

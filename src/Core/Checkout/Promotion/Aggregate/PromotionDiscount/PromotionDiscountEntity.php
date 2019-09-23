@@ -26,6 +26,18 @@ class PromotionDiscountEntity extends Entity
     public const SCOPE_DELIVERY = 'delivery';
 
     /**
+     * This scope defines promotion discounts on
+     * the whole set of groups
+     */
+    public const SCOPE_SET = 'set';
+
+    /**
+     * This scope defines promotion discounts on
+     * a specific set group.
+     */
+    public const SCOPE_SETGROUP = 'setgroup';
+
+    /**
      * This type defines a percentage
      * price definition of the discount.
      */
@@ -39,7 +51,13 @@ class PromotionDiscountEntity extends Entity
     public const TYPE_ABSOLUTE = 'absolute';
 
     /**
-     * This type defines an fixed price
+     * This type defines an fixed unit price
+     * definition of the discount.
+     */
+    public const TYPE_FIXED_UNIT = 'fixed_unit';
+
+    /**
+     * This type defines a fixed price
      * definition of the discount.
      */
     public const TYPE_FIXED = 'fixed';
@@ -204,5 +222,32 @@ class PromotionDiscountEntity extends Entity
     public function setMaxValue(?float $maxValue): void
     {
         $this->maxValue = $maxValue;
+    }
+
+    /**
+     * Gets if the scope is set to a custom setgroup.
+     * The scope contains the groupId, so a prefix
+     * match must occur.
+     */
+    public function isScopeSetGroup(): bool
+    {
+        $prefix = PromotionDiscountEntity::SCOPE_SETGROUP . '-';
+
+        return strpos($this->scope, $prefix) === 0;
+    }
+
+    /**
+     * Gets the assigned groupId if
+     * the discount scope has been set to setgroup.
+     */
+    public function getSetGroupId(): string
+    {
+        if (!$this->isScopeSetGroup()) {
+            return '';
+        }
+
+        $prefix = PromotionDiscountEntity::SCOPE_SETGROUP . '-';
+
+        return str_replace($prefix, '', $this->scope);
     }
 }

@@ -167,9 +167,12 @@
           "labelType": "Art",
           "valueScopeCart": "Warenkorb",
           "valueScopeDelivery": "Versandkosten",
+          "valueScopeSet": "Gesamtes Set",
+          "valueScopeSetGroup": "Set Gruppe",
           "valueTypeAbsolute": "Absolut",
           "valueTypePercentage": "Prozentual",
           "valueTypeFixed": "Festpreis",
+          "valueTypeFixedUnit": "Fester Stückpreis",
           "buttonAddDiscount": "Rabatt hinzufügen",
           "buttonDeleteDiscount": "Rabatt entfernen",
           "delete": {

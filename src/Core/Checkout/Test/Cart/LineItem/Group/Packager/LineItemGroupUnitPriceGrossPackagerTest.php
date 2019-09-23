@@ -3,9 +3,10 @@
 namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Packager;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceGrossPackager;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -57,7 +58,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      */
     public function testPackageDoneWhenSumReached(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
         $items->add($this->createProductItem(49, 19));
         $items->add($this->createProductItem(49, 19));
         $items->add($this->createProductItem(49, 19));
@@ -66,11 +67,11 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
         $items->add($this->createProductItem(49, 19));
         $items->add($this->createProductItem(49, 19));
 
-        /** @var LineItemCollection $packageItems */
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(100, $items, $this->context);
 
         // verify we have 2 items, then we have reached 100.0
-        static::assertCount(2, $packageItems);
+        static::assertCount(2, $packageItems->getItems());
     }
 
     /**
@@ -82,17 +83,17 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      */
     public function testResultEmptyIfNotEnoughItems(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
         $items->add($this->createProductItem(20.0, 19));
         $items->add($this->createProductItem(20.0, 19));
         $items->add($this->createProductItem(20.0, 19));
         $items->add($this->createProductItem(20.0, 19));
 
-        /** @var LineItemCollection $packageItems */
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(100, $items, $this->context);
 
         // verify we have no results because min sum is not reached
-        static::assertCount(0, $packageItems);
+        static::assertCount(0, $packageItems->getItems());
     }
 
     /**
@@ -104,12 +105,12 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      */
     public function testNoItemsReturnsEmptyList(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
 
-        /** @var LineItemCollection $packageItems */
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(100, $items, $this->context);
 
-        static::assertCount(0, $packageItems);
+        static::assertCount(0, $packageItems->getItems());
     }
 
     /**
@@ -121,12 +122,12 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      */
     public function testNegativeCountReturnsEmptyList(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
 
-        /** @var LineItemCollection $packageItems */
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(-100, $items, $this->context);
 
-        static::assertCount(0, $packageItems);
+        static::assertCount(0, $packageItems->getItems());
     }
 
     /**
@@ -138,12 +139,12 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      */
     public function testZeroCountReturnsEmptyList(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
 
-        /** @var LineItemCollection $packageItems */
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(0, $items, $this->context);
 
-        static::assertCount(0, $packageItems);
+        static::assertCount(0, $packageItems->getItems());
     }
 
     /**
@@ -155,7 +156,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
      */
     public function testPriceNullIsIgnored(): void
     {
-        $items = new LineItemCollection();
+        $items = new LineItemFlatCollection();
 
         $productNoPrice = $this->createProductItem(20.0, 19);
         $productNoPrice->setPrice(null);
@@ -163,9 +164,9 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
         $items->add($productNoPrice);
         $items->add($this->createProductItem(20.0, 19));
 
-        /** @var LineItemCollection $packageItems */
+        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(5, $items, $this->context);
 
-        static::assertCount(1, $packageItems);
+        static::assertCount(1, $packageItems->getItems());
     }
 }

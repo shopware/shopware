@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes;
 
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class FakeLineItemGroupTakeAllPackager implements LineItemGroupPackagerInterface
@@ -39,10 +41,17 @@ class FakeLineItemGroupTakeAllPackager implements LineItemGroupPackagerInterface
         return $this->key;
     }
 
-    public function buildGroupPackage(float $value, LineItemCollection $sortedItems, SalesChannelContext $context): LineItemCollection
+    public function buildGroupPackage(float $value, LineItemFlatCollection $sortedItems, SalesChannelContext $context): LineItemGroup
     {
         $this->sequenceCount = $this->sequenceSupervisor->getNextCount();
 
-        return $sortedItems;
+        $group = new LineItemGroup();
+
+        /** @var LineItem $item */
+        foreach ($sortedItems as $item) {
+            $group->addItem($item->getId(), $item->getQuantity());
+        }
+
+        return $group;
     }
 }

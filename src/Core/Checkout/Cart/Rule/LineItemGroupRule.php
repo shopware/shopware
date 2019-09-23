@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
@@ -12,6 +13,11 @@ use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemGroupRule extends FilterRule
 {
+    /**
+     * @var string
+     */
+    protected $groupId;
+
     /**
      * @var string
      */
@@ -46,6 +52,7 @@ class LineItemGroupRule extends FilterRule
         }
 
         $groupDefinition = new LineItemGroupDefinition(
+            $this->groupId,
             $this->packagerKey,
             $this->value,
             $this->sorterKey,
@@ -55,19 +62,20 @@ class LineItemGroupRule extends FilterRule
         /** @var LineItemGroupBuilder $builder */
         $builder = $scope->getCart()->getData()->get(LineItemGroupBuilder::class);
 
-        /** @var array $results */
-        $results = $builder->findPackages(
-            $groupDefinition,
+        /** @var LineItemGroupBuilderResult $results */
+        $results = $builder->findGroupPackages(
+            [$groupDefinition],
             $scope->getCart(),
             $scope->getSalesChannelContext()
         );
 
-        return count($results) > 0;
+        return $results->hasFoundItems();
     }
 
     public function getConstraints(): array
     {
         return [
+            'groupId' => [new NotBlank(), new Type('string')],
             'packagerKey' => [new NotBlank(), new Type('string')],
             'value' => [new NotBlank(), new Type('numeric')],
             'sorterKey' => [new NotBlank(), new Type('string')],

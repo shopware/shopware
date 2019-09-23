@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupRuleMatcherInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Rule\Rule;
@@ -18,18 +18,18 @@ class AnyRuleMatcher implements LineItemGroupRuleMatcherInterface
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function getMatchingItems(LineItemGroupDefinition $groupDefinition, LineItemCollection $items, SalesChannelContext $context): LineItemCollection
+    public function getMatchingItems(LineItemGroupDefinition $groupDefinition, LineItemFlatCollection $items, SalesChannelContext $context): LineItemFlatCollection
     {
-        $matchingItems = new LineItemCollection();
+        $matchingItems = [];
 
         /** @var LineItem $item */
         foreach ($items as $item) {
             if ($this->isAnyRuleMatching($groupDefinition, $item, $context)) {
-                $matchingItems->add($item);
+                $matchingItems[] = $item;
             }
         }
 
-        return $matchingItems;
+        return new LineItemFlatCollection($matchingItems);
     }
 
     /**

@@ -164,7 +164,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($lineItem->getPayloadValue('discountType') !== PromotionDiscountEntity::TYPE_FIXED) {
+        if ($lineItem->getPayloadValue('discountType') !== PromotionDiscountEntity::TYPE_FIXED_UNIT) {
             return;
         }
 

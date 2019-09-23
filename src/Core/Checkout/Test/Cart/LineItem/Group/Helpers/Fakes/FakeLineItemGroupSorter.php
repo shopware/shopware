@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 
 class FakeLineItemGroupSorter implements LineItemGroupSorterInterface
 {
@@ -38,7 +38,7 @@ class FakeLineItemGroupSorter implements LineItemGroupSorterInterface
         return $this->key;
     }
 
-    public function sort(LineItemCollection $items): LineItemCollection
+    public function sort(LineItemFlatCollection $items): LineItemFlatCollection
     {
         $this->sequenceCount = $this->sequenceSupervisor->getNextCount();
 

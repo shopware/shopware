@@ -1,5 +1,4 @@
 import { mapApiErrors } from 'src/app/service/map-errors.service';
-import { PromotionPermissions } from 'src/module/sw-promotion/helper/promotion.helper';
 import template from './sw-promotion-basic-form.html.twig';
 import './sw-promotion-basic-form.scss';
 
@@ -36,12 +35,9 @@ Component.register('sw-promotion-basic-form', {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.promotion.id)]));
             return criteria;
-        },
-
-        isEditingDisabled() {
-            return !PromotionPermissions.isEditingAllowed(this.promotion);
         }
     },
+
     watch: {
         promotion() {
             if (this.promotion) {

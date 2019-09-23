@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\RuleMatcher;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -78,10 +78,12 @@ class AnyRuleMatcherTest extends TestCase
         );
 
         $matcher = new AnyRuleMatcher();
-        $matchedItems = $matcher->getMatchingItems($group, new LineItemCollection([$productLower50, $product50]), $this->context);
+
+        /** @var LineItemFlatCollection $matchedItems */
+        $matchedItems = $matcher->getMatchingItems($group, new LineItemFlatCollection([$productLower50, $product50]), $this->context);
 
         static::assertCount(1, $matchedItems);
-        static::assertSame($product50, $matchedItems->getFlat()[0]);
+        static::assertSame($product50, $matchedItems->getElements()[0]);
     }
 
     /**
@@ -146,9 +148,11 @@ class AnyRuleMatcherTest extends TestCase
         );
 
         $matcher = new AnyRuleMatcher();
+
+        /** @var LineItemFlatCollection $matchedItems */
         $matchedItems = $matcher->getMatchingItems(
             $group,
-            new LineItemCollection(
+            new LineItemFlatCollection(
                 [
                     $productHighQuantityHighPrice,
                     $productHighQuantityLowPrice,
@@ -160,8 +164,8 @@ class AnyRuleMatcherTest extends TestCase
         );
 
         static::assertCount(3, $matchedItems);
-        static::assertSame($productHighQuantityHighPrice, $matchedItems->getFlat()[0]);
-        static::assertSame($productHighQuantityLowPrice, $matchedItems->getFlat()[1]);
-        static::assertSame($productLowQuantityHighPrice, $matchedItems->getFlat()[2]);
+        static::assertSame($productHighQuantityHighPrice, $matchedItems->getElements()[0]);
+        static::assertSame($productHighQuantityLowPrice, $matchedItems->getElements()[1]);
+        static::assertSame($productLowQuantityHighPrice, $matchedItems->getElements()[2]);
     }
 }

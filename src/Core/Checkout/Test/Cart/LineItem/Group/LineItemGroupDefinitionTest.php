@@ -15,13 +15,31 @@ class LineItemGroupDefinitionTest extends TestCase
     /**
      * This test verifies that our property is correctly
      * assigned and returned in its getter.
+     * We have to use an id property to be able to differ
+     * between groups that might have the same configuration.
+     * The id can be any random string, or the id from
+     * an entity object, if built from that one.
+     *
+     * @test
+     * @group lineitemgroup
+     */
+    public function testPackagerKeyId(): void
+    {
+        $group = new LineItemGroupDefinition('ID-1', 'COUNT', 2, 'PRICE_ASC', new RuleCollection());
+
+        static::assertEquals('ID-1', $group->getId());
+    }
+
+    /**
+     * This test verifies that our property is correctly
+     * assigned and returned in its getter.
      *
      * @test
      * @group lineitemgroup
      */
     public function testPackagerKeyProperty(): void
     {
-        $group = new LineItemGroupDefinition('COUNT', 2, 'PRICE_ASC', new RuleCollection());
+        $group = new LineItemGroupDefinition('ID-1', 'COUNT', 2, 'PRICE_ASC', new RuleCollection());
 
         static::assertEquals('COUNT', $group->getPackagerKey());
     }
@@ -35,7 +53,7 @@ class LineItemGroupDefinitionTest extends TestCase
      */
     public function testValueProperty(): void
     {
-        $group = new LineItemGroupDefinition('COUNT', 2, 'PRICE_ASC', new RuleCollection());
+        $group = new LineItemGroupDefinition('ID-1', 'COUNT', 2, 'PRICE_ASC', new RuleCollection());
 
         static::assertEquals(2, $group->getValue());
     }
@@ -49,7 +67,7 @@ class LineItemGroupDefinitionTest extends TestCase
      */
     public function tesSorterKeyProperty(): void
     {
-        $group = new LineItemGroupDefinition('COUNT', 2, 'PRICE_ASC', new RuleCollection());
+        $group = new LineItemGroupDefinition('ID-1', 'COUNT', 2, 'PRICE_ASC', new RuleCollection());
 
         static::assertEquals('PRICE_ASC', $group->getSorterKey());
     }
@@ -69,7 +87,7 @@ class LineItemGroupDefinitionTest extends TestCase
 
         $ruleCollection = new RuleCollection([$ruleEntity]);
 
-        $group = new LineItemGroupDefinition('COUNT', 2, 'PRICE_ASC', $ruleCollection);
+        $group = new LineItemGroupDefinition('ID-1', 'COUNT', 2, 'PRICE_ASC', $ruleCollection);
 
         static::assertSame($ruleCollection, $group->getRules());
     }

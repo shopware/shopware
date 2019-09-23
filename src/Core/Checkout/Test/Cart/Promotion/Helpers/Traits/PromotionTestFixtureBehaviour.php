@@ -14,6 +14,30 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 trait PromotionTestFixtureBehaviour
 {
     /**
+     * @param $value
+     */
+    public function createSetGroupFixture(string $packagerKey, $value, string $sorterKey, string $promotionId, ContainerInterface $container): string
+    {
+        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $repository = $container->get('promotion_setgroup.repository');
+
+        $groupId = Uuid::randomHex();
+
+        $data = [
+            'id' => $groupId,
+            'promotionId' => $promotionId,
+            'packagerKey' => $packagerKey,
+            'sorterKey' => $sorterKey,
+            'value' => $value,
+        ];
+
+        $repository->create([$data], $context->getContext());
+
+        return $groupId;
+    }
+
+    /**
      * Creates a new product in the database.
      */
     private function createTestFixtureProduct(string $productId, float $grossPrice, float $taxRate, ContainerInterface $container): void
@@ -215,7 +239,7 @@ trait PromotionTestFixtureBehaviour
      * function creates a promotion and a discount for it.
      * function returns the id of the new discount
      */
-    private function createTestFixtureFixedDiscountPromotion(
+    private function createTestFixtureFixedUnitDiscountPromotion(
         string $promotionId,
         float $fixedPrice,
         string $scope,
@@ -235,13 +259,42 @@ trait PromotionTestFixtureBehaviour
 
         $discountId = $this->createTestFixtureDiscount(
             $promotionId,
-            PromotionDiscountEntity::TYPE_FIXED,
+            PromotionDiscountEntity::TYPE_FIXED_UNIT,
             $scope,
             $fixedPrice,
             null,
             $this->getContainer(),
             $context,
             $considerAdvancedRules
+        );
+
+        return $discountId;
+    }
+
+    /**
+     * function creates a promotion and a discount for it.
+     * function returns the id of the new discount
+     */
+    private function createTestFixtureFixedDiscountPromotion(string $promotionId, float $fixedPrice, string $scope, ?string $code, ContainerInterface $container, SalesChannelContext $context): string
+    {
+        /** @var EntityRepositoryInterface $promotionRepository */
+        $promotionRepository = $container->get('promotion.repository');
+
+        $this->createPromotion(
+            $promotionId,
+            $code,
+            $promotionRepository,
+            $context);
+
+        $discountId = $this->createTestFixtureDiscount(
+            $promotionId,
+            PromotionDiscountEntity::TYPE_FIXED,
+            $scope,
+            $fixedPrice,
+            null,
+            $this->getContainer(),
+            $context,
+            false
         );
 
         return $discountId;

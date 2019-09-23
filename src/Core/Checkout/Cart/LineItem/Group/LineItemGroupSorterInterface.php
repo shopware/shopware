@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 
 interface LineItemGroupSorterInterface
 {
@@ -16,5 +16,5 @@ interface LineItemGroupSorterInterface
      * Gets a sorted list of line items by using
      * the sorting of this implementation.
      */
-    public function sort(LineItemCollection $items): LineItemCollection;
+    public function sort(LineItemFlatCollection $items): LineItemFlatCollection;
 }

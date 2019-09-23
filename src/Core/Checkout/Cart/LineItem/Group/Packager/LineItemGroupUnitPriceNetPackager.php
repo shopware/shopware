@@ -2,9 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group\Packager;
 
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemGroupUnitPriceNetPackager implements LineItemGroupPackagerInterface
@@ -22,9 +23,9 @@ class LineItemGroupUnitPriceNetPackager implements LineItemGroupPackagerInterfac
      * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
      * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
-    public function buildGroupPackage(float $minPackageValue, LineItemCollection $sortedItems, SalesChannelContext $context): LineItemCollection
+    public function buildGroupPackage(float $minPackageValue, LineItemFlatCollection $sortedItems, SalesChannelContext $context): LineItemGroup
     {
-        $matchedItems = new LineItemCollection();
+        $result = new LineItemGroup();
 
         $currentPackageSum = 0.0;
 
@@ -39,7 +40,9 @@ class LineItemGroupUnitPriceNetPackager implements LineItemGroupPackagerInterfac
                 break;
             }
 
-            $matchedItems->add($lineItem);
+            // add the item to our result
+            // with the current quantity
+            $result->addItem($lineItem->getId(), $lineItem->getQuantity());
 
             /** @var float $grossPrice */
             $grossPrice = $lineItem->getPrice()->getUnitPrice();
@@ -53,9 +56,9 @@ class LineItemGroupUnitPriceNetPackager implements LineItemGroupPackagerInterfac
         // if we have less results than our max value
         // return an empty list, because that is not a valid group
         if ($currentPackageSum < $minPackageValue) {
-            return new LineItemCollection();
+            return new LineItemGroup();
         }
 
-        return $matchedItems;
+        return $result;
     }
 }

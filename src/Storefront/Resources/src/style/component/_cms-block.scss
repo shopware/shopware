@@ -14,12 +14,6 @@ specific styling for elements dependent on their parent block
     }
 }
 
-.cms-block-container {
-    &.boxed {
-        @extend .container;
-    }
-}
-
 .cms-block-center-text {
     .cms-element-text {
         padding: 30px;

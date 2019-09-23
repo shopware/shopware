@@ -25,10 +25,14 @@ class SalesChannelCmsPageRepository
     {
         $criteria = new Criteria($ids);
 
-        $criteria->getAssociation('blocks')
-            ->addAssociation('slots')
+        $criteria
+            ->getAssociation('sections')
             ->addAssociation('backgroundMedia')
-            ->addSorting(new FieldSorting('position', 'ASC'));
+            ->addSorting(new FieldSorting('position', 'ASC'))
+            ->getAssociation('blocks')
+            ->addAssociation('backgroundMedia')
+            ->addSorting(new FieldSorting('position', 'ASC'))
+            ->addAssociation('slots');
 
         /** @var CmsPageCollection $pages */
         $pages = $this->cmsPageRepository->search($criteria, $context->getContext())->getEntities();
@@ -42,10 +46,13 @@ class SalesChannelCmsPageRepository
         $criteria->addFilter(new EqualsFilter('cms_page.type', $type));
 
         $criteria
-            ->getAssociation('blocks')
-            ->addAssociation('slots')
+            ->getAssociation('sections')
             ->addAssociation('backgroundMedia')
-            ->addSorting(new FieldSorting('position', 'ASC'));
+            ->addSorting(new FieldSorting('position', 'ASC'))
+            ->getAssociation('blocks')
+            ->addAssociation('backgroundMedia')
+            ->addSorting(new FieldSorting('position', 'ASC'))
+            ->addAssociation('slots');
 
         /** @var CmsPageCollection $pages */
         $pages = $this->cmsPageRepository->search($criteria, $context->getContext())->getEntities();

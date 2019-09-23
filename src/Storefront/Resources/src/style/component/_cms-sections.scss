@@ -1,0 +1,27 @@
+/*
+CMS sections
+==============================================
+General styling for cms sections
+*/
+
+.cms-section {
+    overflow: hidden;
+
+    &.boxed {
+        @extend .container;
+    }
+
+    &.bg-image {
+        background-repeat: no-repeat;
+        background-position: 50%;
+    }
+
+    .cms-section-sidebar {
+        display: flex;
+    }
+}
+
+//@include media-breakpoint-down(sm) {
+//
+//
+//}

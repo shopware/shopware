@@ -1,32 +1,26 @@
-{% block page_content_blocks_inner %}
-    <div class="cms-blocks">
-        {% for block in cmsPage.blocks %}
-            {% block page_content_block %}
-                {% set top = block.marginTop ? block.marginTop : 0 %}
-                {% set right = block.marginRight ? block.marginRight : 0 %}
-                {% set bottom = block.marginBottom ? block.marginBottom : 0 %}
-                {% set left = block.marginLeft ? block.marginLeft : 0 %}
+{% block page_content_sections_inner %}
+    <div class="cms-sections">
+        {% for section in cmsPage.sections %}
+            {% set layout = section.sizingMode ? section.sizingMode|replace({"_": "-"}) : "container" %}
+            {% set sectionBgColor = section.backgroundColor %}
+            {% set sectionBgImg = section.backgroundMedia|sw_encode_media_url %}
+            {% set sectionBgImgMode = section.backgroundMediaMode %}
 
-                {% if top or right or bottom or left %}
-                    {% set padding = top ~ " " ~ right ~ " " ~ bottom ~ " " ~ left %}
-                {% endif %}
+            {% set sectionClasses = [layout, section.cssClass, 'pos-' ~ section.position, 'cms-section-' ~ section.type] %}
 
-                {% set layout = block.sizingMode ? block.sizingMode|replace({"_": "-"}) : "container" %}
-                {% set bgColor = block.backgroundColor %}
-                {% set bgImg = block.backgroundMedia|sw_encode_media_url  %}
+            {% if sectionBgImg %}
+                {% set sectionClasses = ['bg-image']|merge(sectionClasses) %}
+            {% endif %}
 
-                <div class="cms-block cms-block-{{ block.type }} pos-{{ block.position }}{% if block.cssClass %} {{ block.cssClass }}{% endif %}{% if bgImg %} bg-image{% endif %}{% if bgColor %} bg-color{% endif %}"
-                     style="{% if bgColor %} background-color: {{ bgColor }};{% endif %}{% if bgImg %}background-image: url({{ bgImg }}); background-size: {{ block.backgroundMediaMode }};{% endif %}">
-                    {% block page_content_block_container %}
-                        <div class="cms-block-container {{ layout }}"
-                             style="{% if padding %}padding: {{ padding }};{% endif %}">
-                            {% block page_content_block_row %}
-                                <div class="row cms-row">
-                                    {% sw_include "@Storefront/block/cms-block-" ~ block.type ~ ".html.twig" ignore missing %}
-                                </div>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
+            {% if sectionBgColor %}
+                {% set sectionClasses = ['bg-color']|merge(sectionClasses) %}
+            {% endif %}
+
+            {% block page_content_section %}
+                <div class="cms-section {{ sectionClasses|join(' ') }}"
+                     style="{% if sectionBgColor %}background-color: {{ sectionBgColor }};{% endif %}{% if sectionBgImg %}background-image: url({{ sectionBgImg }});background-size: {{ section.backgroundMediaMode }};{% endif %}">
+
+                    {% sw_include "@Storefront/section/cms-section-" ~ section.type ~ ".html.twig" %}
                 </div>
             {% endblock %}
         {% endfor %}

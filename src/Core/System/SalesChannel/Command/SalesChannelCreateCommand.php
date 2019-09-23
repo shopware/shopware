@@ -52,13 +52,19 @@ class SalesChannelCreateCommand extends Command
      */
     private $definitionRegistry;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $categoryRepository;
+
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $shippingMethodRepository,
         EntityRepositoryInterface $countryRepository,
-        EntityRepositoryInterface $snippetSetRepository
+        EntityRepositoryInterface $snippetSetRepository,
+        EntityRepositoryInterface $categoryRepository
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->salesChannelRepository = $salesChannelRepository;
@@ -66,6 +72,7 @@ class SalesChannelCreateCommand extends Command
         $this->shippingMethodRepository = $shippingMethodRepository;
         $this->countryRepository = $countryRepository;
         $this->snippetSetRepository = $snippetSetRepository;
+        $this->categoryRepository = $categoryRepository;
 
         parent::__construct();
     }
@@ -83,6 +90,7 @@ class SalesChannelCreateCommand extends Command
             ->addOption('countryId', null, InputOption::VALUE_REQUIRED, 'Default country')
             ->addOption('typeId', null, InputOption::VALUE_OPTIONAL, 'Sales channel type id')
             ->addOption('customerGroupId', null, InputOption::VALUE_REQUIRED, 'Default customer group', Defaults::FALLBACK_CUSTOMER_GROUP)
+            ->addOption('navigationCategoryId', null, InputOption::VALUE_REQUIRED, 'Default Navigation Category', $this->getRootCategoryId())
         ;
     }
 
@@ -117,6 +125,7 @@ class SalesChannelCreateCommand extends Command
             'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'customerGroupId' => $input->getOption('customerGroupId'),
+            'navigationCategoryId' => $input->getOption('navigationCategoryId'),
 
             // available mappings
             'currencies' => $this->getAllIdsOf('currency', $context),
@@ -227,5 +236,17 @@ class SalesChannelCreateCommand extends Command
             },
             $repository->searchIds(new Criteria(), $context)->getIds()
         );
+    }
+
+    private function getRootCategoryId(): string
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(new EqualsFilter('category.parentId', null));
+        $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
+
+        $categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+
+        return array_shift($categories);
     }
 }

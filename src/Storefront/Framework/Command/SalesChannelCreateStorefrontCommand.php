@@ -36,7 +36,8 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
             $paymentMethodRepository,
             $shippingMethodRepository,
             $countryRepository,
-            $snippetSetRepository
+            $snippetSetRepository,
+            $categoryRepository
         );
         $this->categoryRepository = $categoryRepository;
     }

@@ -257,7 +257,11 @@ export default class IndividualCodeGenerator extends EventEmitter {
                 // calculate the diff count which is really
                 // the generated count that is successfully saved in the database.
                 if (response.data.length > 0) {
-                    recGeneratedCount += response.data[0].ids.length;
+                    response.data.forEach((data) => {
+                        if (data.success) {
+                            recGeneratedCount += 1;
+                        }
+                    });
                 }
 
                 // fire our progress event

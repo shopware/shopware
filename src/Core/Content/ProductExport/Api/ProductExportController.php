@@ -101,8 +101,7 @@ class ProductExportController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/product-export/preview", name="api.action.product_export.preview",
-     *                                                           methods={"POST"})
+     * @Route("/api/v{version}/_action/product-export/preview", name="api.action.product_export.preview", methods={"POST"})
      *
      * @throws RenderHeaderException
      * @throws RenderProductException

@@ -37,9 +37,7 @@ class IncrementSqlStorage implements IncrementStorageInterface
             ]
         );
 
-        $stmt = $this->connection->executeQuery(
-            'SELECT @nr' . $varname . ''
-        );
+        $stmt = $this->connection->executeQuery('SELECT @nr' . $varname);
 
         $lastNumber = $stmt->fetchColumn();
 

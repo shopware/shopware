@@ -68,7 +68,7 @@ class DocsParsedownExtra extends \ParsedownExtra
     {
         $includeParts = explode('#', $parts[1]);
 
-        $includeFile = \dirname($this->sourceFile->getRealPath()) . '' . substr($includeParts[0], 1);
+        $includeFile = \dirname($this->sourceFile->getRealPath()) . substr($includeParts[0], 1);
         $namespace = $includeParts[1];
 
         if (!file_exists($includeFile)) {

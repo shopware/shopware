@@ -16,6 +16,11 @@ export default function createLicenseViolationsService(storeService) {
         resetLicenseViolations,
         forceDeletePlugin,
         isTimeExpired,
+        filterWarnings,
+        ignorePlugin,
+        getIgnoredPlugins,
+        getViolationsFromCache,
+        saveViolationsToCache,
         key: {
             lastLicenseWarningsKey,
             lastLicenseFetchedKey,
@@ -32,6 +37,8 @@ export default function createLicenseViolationsService(storeService) {
             'local',
             'invalid',
             'development',
+            'vm',
+            'next',
             'example'
         ];
 
@@ -39,7 +46,8 @@ export default function createLicenseViolationsService(storeService) {
         if (whitelistDomains.includes(topLevelDomain)) {
             return Promise.resolve({
                 warnings: [],
-                violations: []
+                violations: [],
+                other: []
             });
         }
 

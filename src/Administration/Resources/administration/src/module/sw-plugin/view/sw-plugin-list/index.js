@@ -20,7 +20,13 @@ Component.register('sw-plugin-list', {
         }
     },
 
-    inject: ['pluginService', 'systemConfigApiService', 'context', 'cacheApiService', 'licenseViolationService'],
+    inject: [
+        'pluginService',
+        'systemConfigApiService',
+        'context',
+        'cacheApiService',
+        'licenseViolationService'
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -254,7 +260,7 @@ Component.register('sw-plugin-list', {
             const matches = [
                 ...this.violations.filter((violation) => violation.name === plugin.name),
                 ...this.warnings.filter((warning) => warning.name === plugin.name),
-                ...this.other.filter((warning) => warning.name === plugin.name)
+                ...this.other.filter((other) => other.name === plugin.name)
             ];
 
             return matches.map((match) => {

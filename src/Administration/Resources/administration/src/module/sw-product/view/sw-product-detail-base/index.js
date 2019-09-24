@@ -72,15 +72,17 @@ Component.register('sw-product-detail-base', {
                 review.additional = true;
             });
             return this.product.productReviews;
+        },
+
+        productMediaRepository() {
+            return this.repositoryFactory.create(this.product.media.entity);
         }
     },
 
     methods: {
         mediaRemoveInheritanceFunction(newValue) {
-            const productMediaRepository = this.repositoryFactory.create(this.product.media.entity);
-
             newValue.forEach(({ id, mediaId, position }) => {
-                const media = productMediaRepository.create(this.context);
+                const media = this.productMediaRepository.create(this.context);
                 Object.assign(media, { mediaId, position, productId: this.product.id });
                 if (this.parentProduct.coverId === id) {
                     this.product.coverId = media.id;

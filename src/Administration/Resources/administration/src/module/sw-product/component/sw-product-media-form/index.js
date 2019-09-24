@@ -228,10 +228,8 @@ Component.register('sw-product-media-form', {
         },
 
         removeFile(productMedia) {
-            const media = this.product.media.find((mediaItem) => mediaItem.mediaId === productMedia.id);
-
             // remove cover id if mediaId matches
-            if (this.product.coverId === media.id) {
+            if (this.product.coverId === productMedia.id) {
                 this.product.coverId = null;
             }
 

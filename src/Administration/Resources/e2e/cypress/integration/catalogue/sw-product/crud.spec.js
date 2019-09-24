@@ -116,7 +116,6 @@ describe('Product: Test crud operations', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('What remains of Edith Finch');
-
     });
 
     it('@p @catalogue: delete product', () => {

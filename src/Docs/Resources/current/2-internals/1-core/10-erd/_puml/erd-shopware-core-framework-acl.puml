@@ -22,33 +22,31 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition, "dead_message\n(Failing messages)") {
-   primary_key(id) id
-   not_null(originalMessageClass) longText
-   not_null(serializedOriginalMessage) blob
-   not_null(handlerClass) longText
-   not_null(encrypted) bool
-   not_null(errorCount) int
-   not_null(nextExecutionTime) dateTime
-   not_null(exception) longText
-   not_null(exceptionMessage) longText
-   not_null(exceptionFile) longText
-   not_null(exceptionLine) int
-   scheduledTaskId foreignKey
+Table(ShopwareCoreFrameworkAclResourceAclResourceDefinition, "acl_resource\n(__EMPTY__)") {
+   primary_key(resource) string
+   primary_key(privilege) string
+   primary_key(aclRoleId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
-Table(ShopwareCoreFrameworkMessageQueueMessageQueueStatsDefinition, "message_queue_stats\n(Stats)") {
+Table(ShopwareCoreFrameworkAclRoleAclRoleDefinition, "acl_role\n(__EMPTY__)") {
    primary_key(id) id
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
    not_null(name) string
-   not_null(size) int
+}
+Table(ShopwareCoreFrameworkAclRoleAclUserRoleDefinition, "acl_user_role\n(M:N Mapping)") {
+   primary_key(userId) foreignKey
+   primary_key(aclRoleId) foreignKey
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
-ForeignTable(ShopwareCoreFrameworkScheduledTaskScheduledTaskDefinition, "scheduled_task") {
+ForeignTable(ShopwareCoreSystemUserUserDefinition, "user") {
 }
 
 ' relationshipd
 
-ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition --> ShopwareCoreFrameworkScheduledTaskScheduledTaskDefinition
+ShopwareCoreFrameworkAclRoleAclRoleDefinition --> ShopwareCoreFrameworkAclResourceAclResourceDefinition
+ShopwareCoreFrameworkAclRoleAclUserRoleDefinition --> ShopwareCoreFrameworkAclRoleAclRoleDefinition
+ShopwareCoreFrameworkAclRoleAclUserRoleDefinition --> ShopwareCoreSystemUserUserDefinition
 @enduml

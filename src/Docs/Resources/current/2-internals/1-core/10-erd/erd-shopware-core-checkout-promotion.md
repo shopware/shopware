@@ -17,9 +17,24 @@ A promotion that is applied during the checkout process.
 SalesChannel relation.
 
 
+### Table `promotion_individual_code`
+
+__EMPTY__
+
+
 ### Table `promotion_discount`
 
 A single discount definition of a promotion with a list of satisfiable rules.
+
+
+### Table `promotion_setgroup`
+
+__EMPTY__
+
+
+### Table `promotion_discount_prices`
+
+__EMPTY__
 
 
 [Back to modules](./../10-modules.md)

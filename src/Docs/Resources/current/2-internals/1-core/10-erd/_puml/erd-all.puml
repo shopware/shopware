@@ -22,6 +22,35 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
+Table(ShopwareCoreFrameworkLoggingLogEntryDefinition, "log_entry\n(__EMPTY__)") {
+   primary_key(id) id
+   message string
+   level int
+   channel string
+   context json
+   extra json
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreFrameworkAclResourceAclResourceDefinition, "acl_resource\n(__EMPTY__)") {
+   primary_key(resource) string
+   primary_key(privilege) string
+   primary_key(aclRoleId) foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreFrameworkAclRoleAclRoleDefinition, "acl_role\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   not_null(name) string
+}
+Table(ShopwareCoreFrameworkAclRoleAclUserRoleDefinition, "acl_user_role\n(M:N Mapping)") {
+   primary_key(userId) foreignKey
+   primary_key(aclRoleId) foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
 Table(ShopwareCoreFrameworkCustomFieldCustomFieldDefinition, "custom_field\n(CustomField configuration)") {
    primary_key(id) id
    not_null(name) string
@@ -62,7 +91,7 @@ Table(ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition, "dead_m
    not_null(handlerClass) longText
    not_null(encrypted) bool
    not_null(errorCount) int
-   not_null(nextExecutionTime) date
+   not_null(nextExecutionTime) dateTime
    not_null(exception) longText
    not_null(exceptionMessage) longText
    not_null(exceptionFile) longText
@@ -92,8 +121,8 @@ Table(ShopwareCoreFrameworkPluginPluginDefinition, "plugin\n(Plugin)") {
    license string
    not_null(version) string
    upgradeVersion string
-   installedAt date
-   upgradedAt date
+   installedAt dateTime
+   upgradedAt dateTime
    iconRaw blob
    icon string
    label translated
@@ -124,8 +153,8 @@ Table(ShopwareCoreFrameworkScheduledTaskScheduledTaskDefinition, "scheduled_task
    not_null(scheduledTaskClass) string
    not_null(runInterval) int
    not_null(status) string
-   lastExecutionTime date
-   not_null(nextExecutionTime) date
+   lastExecutionTime dateTime
+   not_null(nextExecutionTime) dateTime
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
@@ -236,6 +265,7 @@ Table(ShopwareCoreSystemCountryCountryDefinition, "country\n(Country)") {
    position int
    taxFree bool
    active bool
+   shippingAvailable bool
    iso3 string
    displayStateInRegistration bool
    forceStateInRegistration bool
@@ -281,7 +311,7 @@ Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
    name translated
    not_null(decimalPrecision) int
    position int
-   isDefault bool
+   isSystemDefault bool
    customFields translated
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -387,6 +417,7 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    not_null(lastName) string
    not_null(email) string
    active bool
+   admin bool
    customFields customFields
    storeToken string
    not_null(createdAt) createdAt
@@ -398,7 +429,7 @@ Table(ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition, "user
    not_null(accessKey) string
    not_null(secretAccessKey) password
    writeAccess bool
-   lastUsageAt date
+   lastUsageAt dateTime
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -416,7 +447,7 @@ Table(ShopwareCoreSystemIntegrationIntegrationDefinition, "integration\n(O-Auth 
    not_null(accessKey) string
    not_null(secretAccessKey) password
    writeAccess bool
-   lastUsageAt date
+   lastUsageAt dateTime
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -574,7 +605,6 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    canonicalUrl CanonicalUrlAssociation
-   url string
    translated json
 }
 TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition, "category_translation\n((Translations))") {
@@ -601,7 +631,7 @@ Table(ShopwareCoreContentMediaMediaDefinition, "media\n(Media / Files)") {
    mediaFolderId foreignKey
    mimeType string
    fileExtension string
-   uploadedAt date
+   uploadedAt dateTime
    fileName longText
    fileSize int
    mediaTypeRaw blob
@@ -610,10 +640,10 @@ Table(ShopwareCoreContentMediaMediaDefinition, "media\n(Media / Files)") {
    alt translated
    title translated
    url string
-   customFields translated
-   thumbnailsRo blob
    hasFile bool
    private bool
+   customFields translated
+   thumbnailsRo blob
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -671,6 +701,7 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfig
    keepAspectRatio bool
    thumbnailQuality int
    private bool
+   noAssociation bool
    mediaThumbnailSizesRo blob
    customFields customFields
    not_null(createdAt) createdAt
@@ -689,14 +720,18 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    primary_key(versionId) version
    parentId parentFk
    not_null(parentVersionId) referenceVersion
+   childCount childCount
    blacklistIds blacklistRule
    whitelistIds whitelistRule
    autoIncrement int
    active bool
    not_null(stock) int
+   availableStock int
+   available bool
    variantRestrictions json
+   displayGroup string
    configuratorGroupConfig json
-   not_null(manufacturerId) foreignKey
+   manufacturerId foreignKey
    not_null(productManufacturerVersionId) referenceVersion
    unitId foreignKey
    not_null(taxId) foreignKey
@@ -719,14 +754,14 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    width float
    height float
    length float
-   releaseDate date
+   releaseDate dateTime
    categoryTree list
    propertyIds manyToManyId
    optionIds manyToManyId
    tagIds manyToManyId
    listingPrices priceRulesJson
-   minDeliveryTime int
-   maxDeliveryTime int
+   ratingAverage float
+   deliveryTimeId foreignKey
    restockTime int
    additionalText translated
    name translated
@@ -738,7 +773,6 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    canonicalUrl CanonicalUrlAssociation
-   url string
    translated json
 }
 Table(ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition, "product_category\n(M:N Mapping)") {
@@ -770,7 +804,6 @@ Table(ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition, "pr
    primary_key(versionId) version
    not_null(productId) foreignKey
    not_null(productVersionId) referenceVersion
-   not_null(currencyId) foreignKey
    not_null(ruleId) foreignKey
    not_null(price) price
    not_null(quantityStart) int
@@ -800,6 +833,23 @@ Table(ShopwareCoreContentProductAggregateProductKeywordDictionaryProductKeywordD
    not_null(languageId) foreignKey
    not_null(keyword) string
    reversed string
+}
+Table(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "product_review\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(productId) foreignKey
+   not_null(customerId) foreignKey
+   not_null(salesChannelId) foreignKey
+   not_null(languageId) foreignKey
+   externalUser string
+   externalEmail string
+   not_null(title) string
+   not_null(content) longTextWithHtml
+   points float
+   status bool
+   comment longText
+   not_null(updatedAt) updatedAt
+   not_null(createdAt) createdAt
+   not_null(productVersionId) referenceVersion
 }
 Table(ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition, "product_manufacturer\n(Manufacturer)") {
    primary_key(id) id
@@ -888,10 +938,10 @@ Table(ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipie
    zipCode string
    city string
    street string
-   status string
-   hash string
+   not_null(status) string
+   not_null(hash) string
    customFields customFields
-   confirmedAt date
+   confirmedAt dateTime
    salutationId foreignKey
    not_null(languageId) foreignKey
    not_null(salesChannelId) foreignKey
@@ -1080,9 +1130,9 @@ Table(ShopwareCoreContentMailTemplateMailTemplateDefinition, "mail_template\n(Ma
 TranslationTable(ShopwareCoreContentMailTemplateAggregateMailTemplateTranslationMailTemplateTranslationDefinition, "mail_template_translation\n((Translations))") {
    senderName string
    description longText
-   subject string
-   contentHtml longTextWithHtml
-   contentPlain longText
+   not_null(subject) string
+   not_null(contentHtml) longTextWithHtml
+   not_null(contentPlain) longText
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    primary_key(mailTemplateId) foreignKey
@@ -1182,7 +1232,7 @@ Table(ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDe
    primary_key(id) id
    not_null(originalName) string
    not_null(path) string
-   not_null(expireDate) date
+   not_null(expireDate) dateTime
    size int
    not_null(createdAt) createdAt
    not_null(accessToken) string
@@ -1208,11 +1258,11 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    title string
    active bool
    guest bool
-   firstLogin date
-   lastLogin date
+   firstLogin dateTime
+   lastLogin dateTime
    newsletter bool
    birthday date
-   lastOrderDate date
+   lastOrderDate dateTime
    orderCount int
    customFields customFields
    legacyPassword string
@@ -1271,7 +1321,7 @@ Table(ShopwareCoreCheckoutDocumentDocumentDefinition, "document\n(Document)") {
    not_null(orderId) foreignKey
    documentMediaFileId foreignKey
    not_null(orderVersionId) referenceVersion
-   config json
+   not_null(config) json
    sent bool
    static bool
    not_null(deepLinkCode) string
@@ -1325,8 +1375,10 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    not_null(billingAddressId) foreignKey
    not_null(billingAddressVersionId) referenceVersion
    not_null(currencyId) foreignKey
+   not_null(languageId) foreignKey
    not_null(salesChannelId) foreignKey
-   not_null(orderDate) date
+   not_null(orderDateTime) dateTime
+   orderDate date
    price cartPrice
    amountTotal float
    amountNet float
@@ -1336,7 +1388,7 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    shippingTotal float
    not_null(currencyFactor) float
    deepLinkCode string
-   not_null(stateId) foreignKey
+   not_null(stateId) stateMachineState
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -1375,6 +1427,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition, "o
    not_null(salutationId) foreignKey
    not_null(firstName) string
    not_null(lastName) string
+   company string
    title string
    customerNumber string
    customFields customFields
@@ -1391,8 +1444,8 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition, "o
    not_null(shippingMethodId) foreignKey
    not_null(stateId) foreignKey
    trackingCode string
-   not_null(shippingDateEarliest) date
-   not_null(shippingDateLatest) date
+   not_null(shippingDateEarliest) dateTime
+   not_null(shippingDateLatest) dateTime
    shippingCosts calculatedPrice
    customFields customFields
    not_null(createdAt) createdAt
@@ -1451,7 +1504,7 @@ Table(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefiniti
    not_null(orderVersionId) referenceVersion
    not_null(paymentMethodId) foreignKey
    not_null(amount) calculatedPrice
-   not_null(stateId) foreignKey
+   not_null(stateId) stateMachineState
    customFields customFields
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
@@ -1485,15 +1538,20 @@ Table(ShopwareCoreCheckoutPromotionPromotionDefinition, "promotion\n(Discounts w
    primary_key(id) id
    name translated
    not_null(active) bool
-   validFrom date
-   validUntil date
+   validFrom dateTime
+   validUntil dateTime
    not_null(maxRedemptionsGlobal) int
    not_null(maxRedemptionsPerCustomer) int
    not_null(exclusive) bool
-   not_null(useCodes) bool
    code string
+   not_null(useCodes) bool
+   not_null(useIndividualCodes) bool
+   individualCodePattern string
+   not_null(useSetGroups) bool
+   customerRestriction bool
    orderCount int
    ordersPerCustomerCount json
+   exclusionIds list
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -1506,6 +1564,14 @@ Table(ShopwareCoreCheckoutPromotionAggregatePromotionSalesChannelPromotionSalesC
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionIndividualCodePromotionIndividualCodeDefinition, "promotion_individual_code\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(promotionId) foreignKey
+   not_null(code) string
+   payload json
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
 Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDefinition, "promotion_discount\n(Discounts)") {
    primary_key(id) id
    not_null(promotionId) foreignKey
@@ -1513,8 +1579,26 @@ Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDe
    not_null(type) string
    not_null(value) float
    not_null(considerAdvancedRules) bool
+   maxValue float
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition, "promotion_discount_rule\n(M:N Mapping)") {
+   primary_key(discountId) foreignKey
+   primary_key(ruleId) foreignKey
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupPromotionSetGroupDefinition, "promotion_setgroup\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(promotionId) foreignKey
+   not_null(packagerKey) string
+   not_null(sorterKey) string
+   not_null(value) float
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupRulePromotionSetGroupRuleDefinition, "promotion_setgroup_rule\n(M:N Mapping)") {
+   primary_key(setgroupId) foreignKey
+   primary_key(ruleId) foreignKey
 }
 Table(ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition, "promotion_order_rule\n(M:N Mapping)") {
    primary_key(promotionId) foreignKey
@@ -1532,16 +1616,20 @@ Table(ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDe
    primary_key(promotionId) foreignKey
    primary_key(ruleId) foreignKey
 }
-Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition, "promotion_discount_rule\n(M:N Mapping)") {
-   primary_key(discountId) foreignKey
-   primary_key(ruleId) foreignKey
-}
 TranslationTable(ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition, "promotion_translation\n((Translations))") {
    not_null(name) string
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    primary_key(promotionId) foreignKey
    primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition, "promotion_discount_prices\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(discountId) foreignKey
+   not_null(currencyId) foreignKey
+   not_null(price) float
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
 }
 Table(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method\n(Shipping method)") {
    primary_key(id) id
@@ -1595,6 +1683,7 @@ Table(ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url\n(Seo urls)
    isModified bool
    isDeleted bool
    isValid bool
+   url string
    autoIncrement int
    customFields customFields
    not_null(createdAt) createdAt
@@ -1611,9 +1700,48 @@ Table(ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
+Table(ShopwareStorefrontThemeThemeDefinition, "theme\n(__EMPTY__)") {
+   primary_key(id) id
+   technicalName string
+   not_null(name) string
+   not_null(author) string
+   description translated
+   labels translated
+   helpTexts translated
+   customFields translated
+   previewMediaId foreignKey
+   parentThemeId foreignKey
+   baseConfig json
+   configValues json
+   not_null(active) bool
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   translated json
+}
+TranslationTable(ShopwareStorefrontThemeAggregateThemeTranslationDefinition, "theme_translation\n((Translations))") {
+   description string
+   labels json
+   helpTexts json
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   primary_key(themeId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition, "theme_sales_channel\n(M:N Mapping)") {
+   primary_key(salesChannelId) foreignKey
+   not_null(themeId) foreignKey
+}
+Table(ShopwareStorefrontThemeAggregateThemeMediaDefinition, "theme_media\n(M:N Mapping)") {
+   primary_key(themeId) foreignKey
+   primary_key(mediaId) foreignKey
+}
 
 ' relationshipd
 
+ShopwareCoreFrameworkAclRoleAclRoleDefinition --> ShopwareCoreFrameworkAclResourceAclResourceDefinition
+ShopwareCoreFrameworkAclRoleAclUserRoleDefinition --> ShopwareCoreFrameworkAclRoleAclRoleDefinition
+ShopwareCoreSystemUserUserDefinition --> ShopwareCoreFrameworkAclRoleAclUserRoleDefinition
 ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition --> ShopwareCoreFrameworkCustomFieldCustomFieldDefinition
 ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetRelationCustomFieldSetRelationDefinition --> ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
 ShopwareCoreFrameworkScheduledTaskScheduledTaskDefinition --> ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition
@@ -1627,6 +1755,7 @@ ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreFrameworkLa
 ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
@@ -1659,14 +1788,16 @@ ShopwareCoreContentProductAggregateProductKeywordDictionaryProductKeywordDiction
 ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateTypeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreSystemNumberRangeAggregateNumberRangeTranslationNumberRangeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
-ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeSalesChannelTypeDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareStorefrontThemeAggregateThemeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelTranslationSalesChannelTranslationDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCurrencyDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelLanguageSalesChannelLanguageDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelPaymentMethodSalesChannelPaymentMethodDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelShippingMethodSalesChannelShippingMethodDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeSalesChannelTypeDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
@@ -1684,8 +1815,10 @@ ShopwareCoreContentMailTemplateAggregateMailTemplateSalesChannelMailTemplateSale
 ShopwareCoreSystemNumberRangeAggregateNumberRangeSalesChannelNumberRangeSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionSalesChannelPromotionSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareStorefrontFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCurrencyDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition
@@ -1702,8 +1835,8 @@ ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --
 ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
 ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
-ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreSystemLocaleAggregateLocaleTranslationLocaleTranslationDefinition --> ShopwareCoreSystemLocaleLocaleDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreSystemLocaleLocaleDefinition
 ShopwareCoreFrameworkSnippetSnippetDefinition --> ShopwareCoreFrameworkSnippetAggregateSnippetSetSnippetSetDefinition
@@ -1752,13 +1885,13 @@ ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinit
 ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition
+ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition --> ShopwareCoreContentMediaMediaDefinition
-ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreContentMediaMediaDefinition
-ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentMediaMediaDefinition
-ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreContentMediaMediaDefinition
@@ -1768,12 +1901,15 @@ ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition --> Shopw
 ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreCheckoutDocumentDocumentDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareStorefrontThemeThemeDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareStorefrontThemeAggregateThemeMediaDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition
 ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfigurationDefinition --> ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition
 ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition --> ShopwareCoreContentMediaAggregateMediaThumbnailSizeMediaThumbnailSizeDefinition
 ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition --> ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfigurationDefinition
 ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductProductDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition --> ShopwareCoreContentProductProductDefinition
@@ -1786,10 +1922,12 @@ ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfigurator
 ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductSearchKeywordProductSearchKeywordDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductProductDefinition --> ShopwareStorefrontFrameworkSeoSeoUrlSeoUrlDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition
+ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition
 ShopwareCoreContentProductAggregateProductManufacturerTranslationProductManufacturerTranslationDefinition --> ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition
@@ -1803,6 +1941,7 @@ ShopwareCoreCheckoutPromotionAggregatePromotionPersonaRulePromotionPersonaRuleDe
 ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupRulePromotionSetGroupRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition --> ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition
 ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
 ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
@@ -1849,15 +1988,23 @@ ShopwareCoreCheckoutOrderAggregateOrderDeliveryPositionOrderDeliveryPositionDefi
 ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition --> ShopwareCoreCheckoutOrderAggregateOrderDeliveryPositionOrderDeliveryPositionDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition
 ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupPromotionSetGroupDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionSalesChannelPromotionSalesChannelDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionIndividualCodePromotionIndividualCodeDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionPersonaRulePromotionPersonaRuleDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupRulePromotionSetGroupRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupPromotionSetGroupDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
+ShopwareStorefrontThemeAggregateThemeTranslationDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareStorefrontThemeAggregateThemeMediaDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareStorefrontThemeThemeDefinition --> ShopwareStorefrontThemeThemeDefinition
 @enduml

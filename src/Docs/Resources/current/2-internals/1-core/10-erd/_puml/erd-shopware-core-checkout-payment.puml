@@ -47,6 +47,10 @@ TranslationTable(ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPay
    primary_key(paymentMethodId) foreignKey
    primary_key(languageId) foreignKey
 }
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
+}
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
 ForeignTable(ShopwareCoreFrameworkPluginPluginDefinition, "plugin") {
@@ -57,22 +61,18 @@ ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionD
 }
 ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelPaymentMethodSalesChannelPaymentMethodDefinition, "sales_channel_payment_method") {
 }
-ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
-}
-ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
-}
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
+ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
+ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreFrameworkPluginPluginDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition
-ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelPaymentMethodSalesChannelPaymentMethodDefinition
-ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreContentRuleRuleDefinition
-ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

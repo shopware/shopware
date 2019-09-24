@@ -48,7 +48,6 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    canonicalUrl CanonicalUrlAssociation
-   url string
    translated json
 }
 TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition, "category_translation\n((Translations))") {

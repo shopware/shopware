@@ -583,4 +583,49 @@ EOD
 The import/export funtionality of Shopware 6 centrally 
 EOD
     ,
+    Shopware\Core\Framework\Logging\LogEntryDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Framework\Acl\Resource\AclResourceDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Framework\Acl\Role\AclRoleDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Framework\Acl\Role\AclUserRoleDefinition::class => '',
+    Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroupRule\PromotionSetGroupRuleDefinition::class => '',
+    Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Storefront\Theme\ThemeDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition::class => '',
+    Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition::class => '',
+    Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition::class => '',
+    'Shopware\\Core\\Framework\\Logging' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Shopware\\Core\\Framework\\Acl' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
 ];

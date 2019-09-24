@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -38,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -62,7 +64,8 @@ class ErdTypeMap
         ChildCountField::class => 'childCount',
         ChildrenAssociationField::class => 'childrenAssociation',
         CreatedAtField::class => 'createdAt',
-        DateTimeField::class => 'date',
+        DateTimeField::class => 'dateTime',
+        DateField::class => 'date',
         EmailField::class => 'email',
         FkField::class => 'foreignKey',
         FloatField::class => 'float',
@@ -99,6 +102,7 @@ class ErdTypeMap
         ManyToManyIdField::class => 'manyToManyId',
         LockedField::class => 'writeLockIndicator',
         SlotConfigField::class => 'configurationValue',
+        StateMachineStateField::class => 'stateMachineState',
     ];
 
     public function map(Field $field): string

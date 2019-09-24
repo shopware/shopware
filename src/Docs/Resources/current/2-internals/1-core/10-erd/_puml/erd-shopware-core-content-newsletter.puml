@@ -31,10 +31,10 @@ Table(ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipie
    zipCode string
    city string
    street string
-   status string
-   hash string
+   not_null(status) string
+   not_null(hash) string
    customFields customFields
-   confirmedAt date
+   confirmedAt dateTime
    salutationId foreignKey
    not_null(languageId) foreignKey
    not_null(salesChannelId) foreignKey

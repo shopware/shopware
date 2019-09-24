@@ -28,7 +28,7 @@ Table(ShopwareCoreContentMediaMediaDefinition, "media\n(Media / Files)") {
    mediaFolderId foreignKey
    mimeType string
    fileExtension string
-   uploadedAt date
+   uploadedAt dateTime
    fileName longText
    fileSize int
    mediaTypeRaw blob
@@ -37,10 +37,10 @@ Table(ShopwareCoreContentMediaMediaDefinition, "media\n(Media / Files)") {
    alt translated
    title translated
    url string
-   customFields translated
-   thumbnailsRo blob
    hasFile bool
    private bool
+   customFields translated
+   thumbnailsRo blob
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -98,6 +98,7 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfig
    keepAspectRatio bool
    thumbnailQuality int
    private bool
+   noAssociation bool
    mediaThumbnailSizesRo blob
    customFields customFields
    not_null(createdAt) createdAt
@@ -139,6 +140,10 @@ ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
 }
 ForeignTable(ShopwareCoreCheckoutDocumentDocumentDefinition, "document") {
 }
+ForeignTable(ShopwareStorefrontThemeThemeDefinition, "theme") {
+}
+ForeignTable(ShopwareStorefrontThemeAggregateThemeMediaDefinition, "theme_media") {
+}
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
@@ -146,15 +151,15 @@ ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 
 ' relationshipd
 
+ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition
-ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreContentMediaMediaDefinition
-ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition
-ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
@@ -164,6 +169,8 @@ ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutOrderAggregateOr
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareCoreContentMediaMediaDefinition --> ShopwareStorefrontThemeAggregateThemeMediaDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefinition
 ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition

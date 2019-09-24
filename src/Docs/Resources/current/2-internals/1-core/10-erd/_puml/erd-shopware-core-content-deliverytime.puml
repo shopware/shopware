@@ -43,12 +43,15 @@ TranslationTable(ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslation
 }
 ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method") {
 }
+ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
+}
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
 ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
+ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition --> ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition
 ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
 @enduml

@@ -36,8 +36,8 @@ Table(ShopwareCoreFrameworkPluginPluginDefinition, "plugin\n(Plugin)") {
    license string
    not_null(version) string
    upgradeVersion string
-   installedAt date
-   upgradedAt date
+   installedAt dateTime
+   upgradedAt dateTime
    iconRaw blob
    icon string
    label translated

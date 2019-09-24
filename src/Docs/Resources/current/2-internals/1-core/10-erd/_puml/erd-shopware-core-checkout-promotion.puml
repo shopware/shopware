@@ -26,15 +26,20 @@ Table(ShopwareCoreCheckoutPromotionPromotionDefinition, "promotion\n(Discounts w
    primary_key(id) id
    name translated
    not_null(active) bool
-   validFrom date
-   validUntil date
+   validFrom dateTime
+   validUntil dateTime
    not_null(maxRedemptionsGlobal) int
    not_null(maxRedemptionsPerCustomer) int
    not_null(exclusive) bool
-   not_null(useCodes) bool
    code string
+   not_null(useCodes) bool
+   not_null(useIndividualCodes) bool
+   individualCodePattern string
+   not_null(useSetGroups) bool
+   customerRestriction bool
    orderCount int
    ordersPerCustomerCount json
+   exclusionIds list
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    translated json
@@ -47,6 +52,14 @@ Table(ShopwareCoreCheckoutPromotionAggregatePromotionSalesChannelPromotionSalesC
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
 }
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionIndividualCodePromotionIndividualCodeDefinition, "promotion_individual_code\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(promotionId) foreignKey
+   not_null(code) string
+   payload json
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
 Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDefinition, "promotion_discount\n(Discounts)") {
    primary_key(id) id
    not_null(promotionId) foreignKey
@@ -54,8 +67,26 @@ Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDe
    not_null(type) string
    not_null(value) float
    not_null(considerAdvancedRules) bool
+   maxValue float
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition, "promotion_discount_rule\n(M:N Mapping)") {
+   primary_key(discountId) foreignKey
+   primary_key(ruleId) foreignKey
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupPromotionSetGroupDefinition, "promotion_setgroup\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(promotionId) foreignKey
+   not_null(packagerKey) string
+   not_null(sorterKey) string
+   not_null(value) float
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupRulePromotionSetGroupRuleDefinition, "promotion_setgroup_rule\n(M:N Mapping)") {
+   primary_key(setgroupId) foreignKey
+   primary_key(ruleId) foreignKey
 }
 Table(ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition, "promotion_order_rule\n(M:N Mapping)") {
    primary_key(promotionId) foreignKey
@@ -73,16 +104,20 @@ Table(ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDe
    primary_key(promotionId) foreignKey
    primary_key(ruleId) foreignKey
 }
-Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition, "promotion_discount_rule\n(M:N Mapping)") {
-   primary_key(discountId) foreignKey
-   primary_key(ruleId) foreignKey
-}
 TranslationTable(ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition, "promotion_translation\n((Translations))") {
    not_null(name) string
    not_null(createdAt) createdAt
    not_null(updatedAt) updatedAt
    primary_key(promotionId) foreignKey
    primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition, "promotion_discount_prices\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(discountId) foreignKey
+   not_null(currencyId) foreignKey
+   not_null(price) float
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -92,11 +127,15 @@ ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
 }
 ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 }
+ForeignTable(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency") {
+}
 
 ' relationshipd
 
+ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupPromotionSetGroupDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionSalesChannelPromotionSalesChannelDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionIndividualCodePromotionIndividualCodeDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionPersonaRulePromotionPersonaRuleDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
@@ -104,10 +143,14 @@ ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefiniti
 ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition --> ShopwareCoreCheckoutPromotionPromotionDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionSalesChannelPromotionSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupRulePromotionSetGroupRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupPromotionSetGroupDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupRulePromotionSetGroupRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionPersonaRulePromotionPersonaRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
-ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionTranslationPromotionTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 @enduml

@@ -504,7 +504,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 $nested = $this->hydrateResult($aggregation->getAggregation(), $definition, $group['buckets'], $context);
             }
 
-            $buckets[] = new Bucket($value, $count, $nested);
+            $buckets[] = new Bucket((string) $value, $count, $nested);
         }
 
         return new TermsResult($aggregation->getName(), array_values($buckets));

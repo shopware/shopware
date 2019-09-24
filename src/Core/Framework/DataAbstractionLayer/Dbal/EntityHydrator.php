@@ -147,7 +147,7 @@ class EntityHydrator
     /**
      * @param string[] $jsonStrings
      */
-    private function mergeJson(array $jsonStrings): ?string
+    private function mergeJson(array $jsonStrings): string
     {
         $merged = [];
         foreach ($jsonStrings as $string) {
@@ -199,7 +199,6 @@ class EntityHydrator
 
     private function hydrateManyToOne(array $row, string $root, Context $context, AssociationField $field): ?Entity
     {
-        /** @var OneToOneAssociationField $field */
         if (!$field instanceof OneToOneAssociationField && !$field instanceof ManyToOneAssociationField) {
             return null;
         }

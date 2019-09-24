@@ -61,5 +61,7 @@ class PluginDeactivateCommand extends AbstractPluginLifecycleCommand
         }
 
         $this->handleClearCacheOption($input, $io, 'deactivating');
+
+        return null;
     }
 }

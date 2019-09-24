@@ -19,23 +19,19 @@ class DefaultTypeDetector implements TypeDetectorInterface
 
         $mime = explode('/', $mediaFile->getMimeType());
 
-        if (count($mime) < 1) {
+        if (\count($mime) < 1) {
             return new BinaryType();
         }
 
         switch ($mime[0]) {
             case 'image':
                 return new ImageType();
-                break;
             case 'video':
                 return new VideoType();
-                break;
             case 'audio':
                 return new AudioType();
-                break;
             default:
                 return new BinaryType();
-                break;
         }
     }
 }

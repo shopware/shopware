@@ -61,5 +61,7 @@ class DeleteNotUsedMediaCommand extends Command
 
         $this->deleteMediaService->deleteNotUsedMedia($context);
         $io->success(sprintf('Successfully deleted %d media files.', $count));
+
+        return null;
     }
 }

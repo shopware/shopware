@@ -59,5 +59,7 @@ class PluginActivateCommand extends AbstractPluginLifecycleCommand
         }
 
         $this->handleClearCacheOption($input, $io, 'activating');
+
+        return null;
     }
 }

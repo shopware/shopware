@@ -66,5 +66,7 @@ class PluginRefreshCommand extends Command
         /** @var Application $application */
         $application = $this->getApplication();
         $application->doRun($listInput, $output);
+
+        return null;
     }
 }

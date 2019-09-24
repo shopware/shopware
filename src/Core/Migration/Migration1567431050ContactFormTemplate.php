@@ -78,7 +78,7 @@ class Migration1567431050ContactFormTemplate extends MigrationStep
         // implement update destructive
     }
 
-    private function getContactMailEventConfig(Connection $connection): ?string
+    private function getContactMailEventConfig(Connection $connection): string
     {
         $sql = <<<SQL
 SELECT `event_action`.`config` 
@@ -86,8 +86,7 @@ FROM `event_action`
 WHERE `event_action`.`event_name` = :event_name AND `event_action`.`action_name` = :action_name
 SQL;
 
-        /** @var string|false $contactEventConfig */
-        $contactEventConfig = $connection->executeQuery(
+        $contactEventConfig = (string) $connection->executeQuery(
             $sql,
             [
                 'event_name' => ContactFormEvent::EVENT_NAME,

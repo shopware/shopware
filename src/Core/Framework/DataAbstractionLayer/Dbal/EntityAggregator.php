@@ -106,11 +106,6 @@ class EntityAggregator implements EntityAggregatorInterface
         $aggregations = new AggregationResultCollection();
         foreach ($criteria->getAggregations() as $aggregation) {
             $result = $this->fetchAggregation($aggregation, $definition, $criteria, $context);
-
-            if (!$result) {
-                continue;
-            }
-
             $aggregations->add($result);
         }
 
@@ -161,7 +156,7 @@ class EntityAggregator implements EntityAggregatorInterface
         return $this->scoreBuilder;
     }
 
-    private function fetchAggregation(Aggregation $aggregation, EntityDefinition $definition, Criteria $criteria, Context $context): ?AggregationResult
+    private function fetchAggregation(Aggregation $aggregation, EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResult
     {
         $clone = clone $criteria;
         $clone->resetAggregations();

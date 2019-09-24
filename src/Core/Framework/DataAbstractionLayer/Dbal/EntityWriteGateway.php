@@ -92,7 +92,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     continue;
                 }
 
-                /** @var InsertCommand $command */
                 if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
                     $queue = new MultiInsertQueryQueue($this->connection, 1, false, true);
                     $queue->addInsert($definition->getEntityName(), $command->getPayload());

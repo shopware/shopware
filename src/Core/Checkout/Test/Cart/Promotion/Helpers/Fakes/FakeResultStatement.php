@@ -17,25 +17,19 @@ class FakeResultStatement extends TraversableDummy implements ResultStatement
         $this->dbResult = $dbResult;
     }
 
-    /**
-     * @return bool
-     */
-    public function closeCursor()
+    public function closeCursor(): bool
     {
+        return true;
     }
 
-    /**
-     * @return int
-     */
-    public function columnCount()
+    public function columnCount(): int
     {
+        return 0;
     }
 
-    /**
-     * @return bool
-     */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null): bool
     {
+        return true;
     }
 
     public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
@@ -48,10 +42,8 @@ class FakeResultStatement extends TraversableDummy implements ResultStatement
         return $this->dbResult;
     }
 
-    /**
-     * @return mixed|false
-     */
     public function fetchColumn($columnIndex = 0)
     {
+        return '';
     }
 }

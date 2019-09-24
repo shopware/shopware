@@ -98,10 +98,9 @@ class ContextController extends StorefrontController
         $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()));
         $criteria->setLimit(1);
 
+        /** @var SalesChannelDomainEntity|null $domain */
         $domain = $this->domainRepository->search($criteria, $context->getContext())->first();
-
-        /** @var SalesChannelDomainEntity $domain */
-        if (!$domain) {
+        if ($domain === null) {
             throw new LanguageNotFoundException($languageId);
         }
 
@@ -118,7 +117,7 @@ class ContextController extends StorefrontController
 
         $params = $request->request->get('redirectParameters', json_encode([]));
 
-        if (is_string($params)) {
+        if (\is_string($params)) {
             $params = json_decode($params, true);
         }
 
@@ -151,10 +150,11 @@ class ContextController extends StorefrontController
             $domain->getUrl()
         );
 
-        $this->router->getContext()->setHttpPort(80);
-        $this->router->getContext()->setMethod('GET');
-        $this->router->getContext()->setHost($url);
-        $this->router->getContext()->setBaseUrl('');
+        $routerContext = $this->router->getContext();
+        $routerContext->setHttpPort(80);
+        $routerContext->setMethod('GET');
+        $routerContext->setHost($url);
+        $routerContext->setBaseUrl('');
 
         $this->requestStack->getMasterRequest()
             ->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, '');

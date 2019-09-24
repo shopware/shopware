@@ -335,19 +335,6 @@ class PromotionExclusionIndexer implements IndexerInterface
         }
 
         return $results;
-
-        $query = $this->connection->createQueryBuilder();
-        $query->select([
-            'HEX(id)',
-        ]);
-        $query->from($this->promotionDefinition::ENTITY_NAME);
-        $query->andWhere('id IN (:ids)');
-
-        $query->setParameter('ids', $bytes, Connection::PARAM_STR_ARRAY);
-
-        $rows = $query->execute()->fetchAll();
-
-        return $rows;
     }
 
     /**

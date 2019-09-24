@@ -159,6 +159,8 @@ class SalesChannelCreateCommand extends Command
         ]);
 
         $table->render();
+
+        return null;
     }
 
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array

@@ -95,10 +95,6 @@ class CriteriaParser
 
         $esAggregation = $this->createAggregation($aggregation, $fieldName, $definition, $context);
 
-        if (!$esAggregation) {
-            return null;
-        }
-
         if (!$path) {
             return $esAggregation;
         }
@@ -211,7 +207,7 @@ class CriteriaParser
         return $composite;
     }
 
-    private function createAggregation(Aggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): ?AbstractAggregation
+    private function createAggregation(Aggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): AbstractAggregation
     {
         switch (true) {
             case $aggregation instanceof StatsAggregation:

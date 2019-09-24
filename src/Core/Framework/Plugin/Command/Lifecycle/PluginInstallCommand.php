@@ -83,5 +83,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         if ($activatePlugins) {
             $this->handleClearCacheOption($input, $io, 'activating');
         }
+
+        return null;
     }
 }

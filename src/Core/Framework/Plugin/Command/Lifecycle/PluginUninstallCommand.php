@@ -57,5 +57,7 @@ class PluginUninstallCommand extends AbstractPluginLifecycleCommand
         }
 
         $this->handleClearCacheOption($input, $io, 'uninstalling');
+
+        return null;
     }
 }

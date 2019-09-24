@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 
@@ -35,8 +36,13 @@ class DiscountCalculatorDefinition
     /**
      * @param LineItemQuantity[] $itemDefinitions
      */
-    public function __construct(string $label, PriceDefinitionInterface $priceDefinition, array $payload, ?string $code, array $itemDefinitions)
-    {
+    public function __construct(
+        string $label,
+        PriceDefinitionInterface $priceDefinition,
+        array $payload,
+        ?string $code,
+        array $itemDefinitions
+    ) {
         $this->label = $label;
         $this->priceDefinition = $priceDefinition;
         $this->payload = $payload;
@@ -66,7 +72,6 @@ class DiscountCalculatorDefinition
 
     public function hasItem(string $id): bool
     {
-        /** @var LineItemQuantity $item */
         foreach ($this->itemDefinitions as $item) {
             if ($item->getLineItemId() === $id) {
                 return true;
@@ -78,13 +83,12 @@ class DiscountCalculatorDefinition
 
     public function getItem(string $id): LineItemQuantity
     {
-        /** @var LineItemQuantity $item */
         foreach ($this->itemDefinitions as $item) {
             if ($item->getLineItemId() === $id) {
                 return $item;
             }
         }
 
-        // todo mache tuen du exception
+        throw new LineItemNotFoundException($id);
     }
 }

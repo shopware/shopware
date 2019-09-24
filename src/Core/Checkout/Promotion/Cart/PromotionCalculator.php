@@ -24,9 +24,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator\DiscountFixedUnitP
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator\DiscountPercentageCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorDefinition;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackagerInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupScopeDiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetScopeDiscountPackager;
@@ -65,8 +63,13 @@ class PromotionCalculator
      */
     private $discountCompositionBuilder;
 
-    public function __construct(AmountCalculator $amountCalculator, AbsolutePriceCalculator $absolutePriceCalculator, QuantityPriceCalculator $quantityPriceCalculator, LineItemGroupBuilder $groupBuilder, DiscountCompositionBuilder $compositionBuilder)
-    {
+    public function __construct(
+        AmountCalculator $amountCalculator,
+        AbsolutePriceCalculator $absolutePriceCalculator,
+        QuantityPriceCalculator $quantityPriceCalculator,
+        LineItemGroupBuilder $groupBuilder,
+        DiscountCompositionBuilder $compositionBuilder
+    ) {
         $this->amountCalculator = $amountCalculator;
         $this->absolutePriceCalculator = $absolutePriceCalculator;
         $this->groupBuilder = $groupBuilder;
@@ -151,18 +154,11 @@ class PromotionCalculator
     private function calculateDiscount(LineItem $discountItem, Cart $calculatedCart, SalesChannelContext $context): DiscountCalculatorResult
     {
         // get the cart total price => discount may never be higher than this value
-        /** @var float $maxDiscountValue */
         $maxDiscountValue = $calculatedCart->getPrice()->getTotalPrice();
-
-        /** @var string $scope */
         $scope = $discountItem->getPayloadValue('discountScope');
-
-        /** @var string $type */
         $type = $discountItem->getPayloadValue('discountType');
 
-        /** @var DiscountPackagerInterface $packager */
         $packager = null;
-
         switch ($scope) {
             case PromotionDiscountEntity::SCOPE_CART:
                 $packager = new CartScopeDiscountPackager();
@@ -178,7 +174,6 @@ class PromotionCalculator
 
             default:
                 throw new InvalidScopeDefinitionException($scope);
-                break;
         }
 
         /** @var LineItemQuantity[] $itemsToReduce */
@@ -186,7 +181,7 @@ class PromotionCalculator
 
         // check if no matching items exist,
         // then this would mean -> no discount
-        if (count($itemsToReduce) <= 0) {
+        if (\count($itemsToReduce) <= 0) {
             return new DiscountCalculatorResult(
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
                 []
@@ -201,9 +196,7 @@ class PromotionCalculator
             $itemsToReduce
         );
 
-        /** @var DiscountCalculatorInterface $calculator */
         $calculator = null;
-
         switch ($type) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
                 $calculator = new DiscountAbsoluteCalculator($this->absolutePriceCalculator);
@@ -223,7 +216,6 @@ class PromotionCalculator
 
             default:
                 throw new DiscountCalculatorNotFoundException($type);
-                break;
         }
 
         $eligibleItems = $this->getEligibleItems($discountDefinition, $calculatedCart->getLineItems());

@@ -381,13 +381,7 @@ Component.register('sw-product-detail', {
         onSaveFinished(response) {
             switch (response) {
                 case 'empty': {
-                    const titleSaveWarning = this.$tc('sw-product.detail.titleSaveWarning');
-                    const messageSaveWarning = this.$tc('sw-product.detail.messageSaveWarning');
-
-                    this.createNotificationWarning({
-                        title: titleSaveWarning,
-                        message: messageSaveWarning
-                    });
+                    this.isSaveSuccessful = true;
                     this.$store.commit('resetApiErrors');
                     break;
                 }

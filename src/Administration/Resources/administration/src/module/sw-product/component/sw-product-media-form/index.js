@@ -155,6 +155,8 @@ Component.register('sw-product-media-form', {
         },
 
         buildProductMedia(mediaId) {
+            this.isLoading = true;
+
             const productMedia = this.productMediaStore.create();
             productMedia.mediaId = mediaId;
 
@@ -164,6 +166,7 @@ Component.register('sw-product-media-form', {
             } else {
                 productMedia.position = this.productMedia.length + 1;
             }
+            this.isLoading = false;
 
             return productMedia;
         },
@@ -207,7 +210,7 @@ Component.register('sw-product-media-form', {
         },
 
         removeCover() {
-            this.productFromStore.coverId = null;
+            this.product.coverId = null;
 
             // if another media exists
             if (this.productFromStore.media.length > 0) {
@@ -225,17 +228,15 @@ Component.register('sw-product-media-form', {
         },
 
         removeFile(productMedia) {
-            console.log('productMedia :', productMedia);
-            // this.product.media.remove(productMedia.id);
             const media = this.product.media.find((mediaItem) => mediaItem.mediaId === productMedia.id);
 
             // remove cover id if mediaId matches
-            if (this.product.coverId === productMedia.id) {
+            if (this.product.coverId === media.id) {
                 this.product.coverId = null;
             }
 
             this.product.media.remove(productMedia.id);
-            this.productMediaRepository.delete(productMedia.id, this.product.media.context)
+            this.productMediaRepository.delete(productMedia.id, this.product.media.context);
         },
 
         markMediaAsCover(productMedia) {
@@ -258,10 +259,10 @@ Component.register('sw-product-media-form', {
             }
             this.product.media.moveItem(dragData.position, dropData.position);
 
-            this.updateBlockPositions();
+            this.updateMediaItemPositions();
         },
 
-        updateBlockPositions() {
+        updateMediaItemPositions() {
             this.productMedia.forEach((medium, index) => {
                 medium.position = index;
             });

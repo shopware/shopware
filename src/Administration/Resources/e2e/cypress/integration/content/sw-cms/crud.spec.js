@@ -43,6 +43,8 @@ describe('CMS: Test crud operations of layouts', () => {
             expect(xhr).to.have.property('status', 204);
         });
         cy.get('.sw-cms-detail__back-btn').click();
+        cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laid');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Laid out');
     });
 

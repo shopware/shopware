@@ -95,7 +95,7 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
 }, (subject, value, options = {}) => {
     const resultPrefix = '.sw-select';
     const inputCssSelector = '.sw-select-selection-list__input';
-    const searchTerm = options.searchTerm;
+    const searchTerm = options.searchTerm || value;
     const position = options.position || 0;
 
     // Request we want to wait for later
@@ -108,7 +108,7 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
     cy.wrap(subject).should('be.visible');
 
     // type in the search term if available
-    if (searchTerm) {
+    if (options.searchTerm) {
         cy.get(`${subject.selector} ${inputCssSelector}`).type(searchTerm);
         cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', searchTerm);
 
@@ -118,14 +118,17 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
 
             cy.wait('@filteredResultCall').then(() => {
                 cy.get('.sw-loader__element').should('not.exist');
-                cy.get(`${resultPrefix}-option--${position}`).should('be.visible');
-                cy.get(`${resultPrefix}-option--${position}`).contains(value);
             });
         });
+        cy.get(`${resultPrefix}-option--${position}`).should('be.visible');
+        cy.get(`${resultPrefix}-option--${position}`).contains(value);
+
+        // select the first result (or at another position)
         cy.get(`${resultPrefix}-option--${position}`)
             .click({force: true});
     } else {
         cy.wrap(subject).click();
+        cy.get('.sw-select-result').should('be.visible');
         cy.contains('.sw-select-result', value).click();
     }
 
@@ -265,9 +268,21 @@ Cypress.Commands.add('typeLegacySelectAndCheck', {
 Cypress.Commands.add('typeAndCheckSearchField', {
     prevSubject: 'element'
 }, (subject, value) => {
+
+    // Request we want to wait for later
+    cy.server();
+    cy.route({
+        url: '/api/v1/search/**',
+        method: 'post'
+    }).as('searchResultCall');
+
     cy.wrap(subject).type(value).should('have.value', value);
 
-    cy.url().should('include', encodeURI(value));
+    cy.wait('@searchResultCall').then((xhr) => {
+        expect(xhr).to.have.property('status', 200);
+
+        cy.url().should('include', encodeURI(value));
+    });
 });
 
 /**

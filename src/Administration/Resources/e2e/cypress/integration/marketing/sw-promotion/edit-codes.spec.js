@@ -50,14 +50,14 @@ describe('Promotion: Test promotion with codes', () => {
         cy.get('#sw-field--promotion-code').type('funicular');
 
         // Add discount
+        cy.get(page.elements.loader).should('not.exist');
         cy.get('a[title="Discounts"]').click();
+        cy.get('.sw-button--ghost').should('be.visible');
         cy.contains('.sw-button--ghost', 'Add discount').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get('.sw-promotion-discount-component').should('be.visible');
-        cy.get('.sw-promotion-discount-component__discount-value input')
-            .clear()
-            .type('54');
-        cy.get('#sw-field--discount-type').select('Fixed unit price');
+        cy.wait('@filteredResultCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
@@ -77,7 +77,7 @@ describe('Promotion: Test promotion with codes', () => {
         cy.get('.cart-item-promotion .cart-item-label').contains('Thunder Tuesday');
     });
 
-    it('@p @marketing: use invalid code', () => {
+    it('@marketing: use invalid code', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -102,14 +102,14 @@ describe('Promotion: Test promotion with codes', () => {
         cy.get('#sw-field--promotion-code').type('funicular');
 
         // Add discount
+        cy.get(page.elements.loader).should('not.exist');
         cy.get('a[title="Discounts"]').click();
+        cy.get('.sw-button--ghost').should('be.visible');
         cy.contains('.sw-button--ghost', 'Add discount').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get('.sw-promotion-discount-component').should('be.visible');
-        cy.get('.sw-promotion-discount-component__discount-value input')
-            .clear()
-            .type('54');
-        cy.get('#sw-field--discount-type').select('Fixed unit price');
+        cy.wait('@filteredResultCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();

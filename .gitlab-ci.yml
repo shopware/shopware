@@ -69,10 +69,13 @@ PHP analyze:
         - ./psh.phar init
         - php dev-ops/analyze/generate-composer.php
         - php dev-ops/analyze/vendor/bin/php-cs-fixer fix --config=vendor/shopware/platform/.php_cs.dist --dry-run --format=junit | tee php-cs-fixer.xml
-        - ./psh.phar static-analyze
+        - php dev-ops/analyze/phpstan-config-generator.php
+        - php dev-ops/analyze/vendor/bin/phpstan analyze --configuration vendor/shopware/platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
+        - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false
     artifacts:
         reports:
-            junit: php-cs-fixer.xml
+            junit: development/php-cs-fixer.xml
+            codequality: development/phpstan-report.json
 
 # stage: unit
 .phpunit_base:

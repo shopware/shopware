@@ -48,7 +48,7 @@ parameters:
         - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface::(variableNode|scalarNode|end|integerNode|booleanNode)\(\)\.#'
         # Must not call parent, because of own handling on adding new elements
         - '#Shopware\\Core\\Framework\\DataAbstractionLayer\\CompiledFieldCollection::__construct\(\) does not call parent constructor from Shopware\\Core\\Framework\\Struct\\Collection.#'
-        # PhpStan does not recognize the Fake plugins correctly. They are called via magic methods
+        # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
         # For BC with Symfony 4
         - '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required\.#'

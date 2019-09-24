@@ -39,6 +39,7 @@ describe('Payment: Test crud operations', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
+
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Bar bei Abholung');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Bar bei Abholung');

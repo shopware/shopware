@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -147,6 +148,19 @@ abstract class AbstractPluginLifecycleCommand extends Command
     ): ?PluginCollection {
         $plugins = array_unique($arguments);
         $filter = [];
+
+        // try exact match first
+        if (count($plugins) === 1) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('name', $plugins[0]));
+
+            /** @var PluginCollection $matches */
+            $matches = $this->pluginRepo->search($criteria, $context)->getEntities();
+            if ($matches->count() === 1) {
+                return $matches;
+            }
+        }
+
         foreach ($plugins as $plugin) {
             $filter[] = new ContainsFilter('name', $plugin);
         }

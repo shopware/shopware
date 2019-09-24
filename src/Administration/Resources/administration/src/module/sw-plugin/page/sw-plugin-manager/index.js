@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-plugin-manager', {
     template,
 
-    inject: ['storeService', 'pluginService', 'licenseViolationService'],
+    inject: ['storeService', 'pluginService'],
 
     data() {
         return {
@@ -33,9 +33,8 @@ Component.register('sw-plugin-manager', {
         },
 
         createdComponent() {
-            this.licenseViolationService.checkForLicenseViolations(true);
-
             this.fetchAvailableUpdates();
+
             this.$root.$on('updates-refresh', (total) => {
                 if (total) {
                     this.availableUpdates = total;

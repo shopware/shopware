@@ -1,0 +1,65 @@
+<sw-modal :title="$tc('sw-license-violation.title')"
+          :closable="false"
+          variant="large"
+          class="sw-license-violation"
+          :isLoading="isLoading"
+          v-if="visible">
+
+    <sw-alert variant="error" class="sw-license-violation__alert">
+        {{ $tc('sw-license-violation.alert-text') }}
+
+        <a href="#" @click.prevent="reloadViolations">{{ $tc('sw-license-violation.reload') }}</a>
+    </sw-alert>
+
+    <table class="sw-license-violation__table">
+        <tr>
+            <th width="200px">{{ $tc('sw-license-violation.table.plugin') }}</th>
+            <th>{{ $tc('sw-license-violation.table.warning') }}</th>
+            <th width="350px"></th>
+        </tr>
+
+        <tr v-for="violation in violations">
+
+            <td class="sw-license-violation__table-name" v-if="getPluginForViolation(violation)">
+                <img v-if="getPluginForViolation(violation).icon"
+                     :src="'data:image/png;base64, ' + getPluginForViolation(violation).icon">
+                <p>
+                    <strong>{{ getPluginForViolation(violation).translated.label || getPluginForViolation(violation).label }}</strong>
+                </p>
+            </td>
+
+            <td>{{ violation.text }}</td>
+
+            <td class="sw-license-violation__table-actions">
+                <div v-for="action in violation.actions" :key="action.externalLink">
+                    <a class="sw-license-violation__table-action-remove"
+                       href="#"
+                       @click.prevent="deletePlugin(violation)">
+                        {{ $tc('sw-license-violation.delete-plugin') }}
+                    </a>
+
+                    <sw-button :link="action.externalLink"
+                               variant="ghost"
+                               size="small">{{ action.label }}
+                    </sw-button>
+                </div>
+            </td>
+
+        </tr>
+    </table>
+
+    <template slot="modal-footer">
+        <sw-field type="checkbox"
+                  v-model="readNotice"
+                  :label="$tc('sw-license-violation.checkbox-message')">
+        </sw-field>
+
+        <sw-button variant="primary"
+                   :disabled="!readNotice"
+                   size="small"
+                   @click="deactivateTempoarary">
+            {{ $tc('sw-license-violation.close-modal') }}
+        </sw-button>
+    </template>
+
+</sw-modal>

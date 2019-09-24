@@ -622,6 +622,18 @@
   "sw-inheritance-warning": {
     "infoTextInheritedField": "{moduleName} hat vererbte Felder. Das bedeutet, dass solange der vererbte Zustand aktiv ist, der Inhalt vererbt wird. Vererbte Felder können durch Anklicken des Link-Symbols aufgelöst werden. Ein erneuter Klick auf das Symbol setzt den vererbten Zustand wieder zurück."
   },
+  "sw-license-violation":{
+    "title": "Plugin Warnungen",
+    "reload": "Neu laden",
+    "alert-text": "Für mindestens eines Deiner installierten Plugins in dieser Installation liegt eine Lizenzverletzung vor. Buche die Plugin-Subscription nach oder Kaufe/Miete das Plugin (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden. Nutzt Du das Plugin nicht mehr? Dann lösche es vollständig aus dem Plugin-Manager. Falls keiner dieser Schritte vorgenommen wird, behält die Shopware AG sich vor, die Lizenzverletzung zu berechnen.",
+    "delete-plugin": "Plugin entfernen",
+    "checkbox-message": "Ich habe die Warnung gelesen und zur Kenntnis genommen",
+    "close-modal": "Warnung schließen",
+    "table": {
+      "plugin": "Plugin",
+      "warning": "Warnung"
+    }
+  },
   "sw-sales-channel-switch": {
     "messageModalUnsavedChanges": "Du hast noch ungespeicherte Änderungen in diesem Verkaufskanal. Möchtest Du diese jetzt speichern?",
     "placeholderSelect": "Suchen ...",

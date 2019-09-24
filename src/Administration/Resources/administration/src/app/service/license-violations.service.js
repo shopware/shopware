@@ -3,37 +3,104 @@ const { Application } = Shopware;
 export default function createLicenseViolationsService(storeService) {
     /** {VueInstance|null} applicationRoot  */
     let applicationRoot = null;
-    const violationTypes = {
-        warning: 'warning',
-        violation: 'error'
-    };
+
+    const lastLicenseWarningsKey = 'lastLicenseWarningsShowed';
+    const lastLicenseFetchedKey = 'lastLicenseViolationsFetched';
+    const responseCacheKey = 'licenseViolationCache';
+    const showViolationsKey = 'licenseViolationShowViolations';
 
     return {
-        checkForLicenseViolations
+        checkForLicenseViolations,
+        saveTimeToLocalStorage,
+        removeTimeFromLocalStorage,
+        key: {
+            lastLicenseWarningsKey,
+            lastLicenseFetchedKey,
+            responseCacheKey,
+            showViolationsKey
+        }
     };
 
-    function checkForLicenseViolations(force = false) {
-        if (!shouldCheckValidation() && !force) {
-            return;
+    function checkForLicenseViolations() {
+        const topLevelDomain = window.location.hostname.split('.').pop();
+        const whitelistDomains = [
+            'localhost',
+            'test',
+            'local',
+            'invalid',
+            'development',
+            'example'
+        ];
+
+        // if the user is on a whitelisted domain
+        if (whitelistDomains.includes(topLevelDomain)) {
+            return Promise.resolve({
+                warnings: [],
+                violations: []
+            });
         }
 
-        fetchLicenseViolations()
+        // if last request is not older than 24 hours
+        if (!isTimeExpired(lastLicenseFetchedKey)) {
+            const cachedViolations = getViolationsFromCache();
+
+            // handle response with cached violations
+            return handleResponse(cachedViolations);
+        }
+
+        return fetchLicenseViolations()
             .then((response) => {
                 if (!response) {
-                    return false;
+                    return Promise.reject();
                 }
 
-                setValidationTimer();
+                saveViolationsToCache(response);
 
-                return response.map((violation) => {
-                    return spawnNotification(violation);
-                });
+                return handleResponse(response);
             });
     }
 
-    function shouldCheckValidation() {
+    function handleResponse(response) {
+        const resolveData = {
+            violations: [],
+            warnings: []
+        };
+
+        const warnings = response.filter((violation) => violation.type.level === 'warning');
+        const violations = response.filter((violation) => violation.type.level === 'violation');
+
+        if (isTimeExpired(showViolationsKey) && violations.length > 0) {
+            resolveData.violations = violations;
+        }
+
+        if (isTimeExpired(lastLicenseWarningsKey)) {
+            resolveData.warnings = warnings;
+            showWarnings(warnings);
+        }
+
+        saveTimeToLocalStorage(lastLicenseWarningsKey);
+        saveTimeToLocalStorage(lastLicenseFetchedKey);
+
+        return Promise.resolve(resolveData);
+    }
+
+    function saveViolationsToCache(response) {
+        if (typeof response !== 'object') {
+            return;
+        }
+
+        const stringResponse = JSON.stringify(response);
+        localStorage.setItem(responseCacheKey, stringResponse);
+    }
+
+    function getViolationsFromCache() {
+        const stringValue = localStorage.getItem(responseCacheKey);
+        return JSON.parse(stringValue);
+    }
+
+    function isTimeExpired(key) {
         const actualDate = new Date();
-        const lastCheck = localStorage.getItem('licenseViolations');
+        const lastCheck = localStorage.getItem(key);
 
         if (!lastCheck) {
             return true;
@@ -44,10 +111,10 @@ export default function createLicenseViolationsService(storeService) {
         return timeDifference > 1000 * 60 * 60 * 24;
     }
 
-    function setValidationTimer() {
+    function saveTimeToLocalStorage(key) {
         const actualDate = new Date();
 
-        localStorage.setItem('licenseViolations', String(actualDate.getTime()));
+        localStorage.setItem(key, String(actualDate.getTime()));
     }
 
     function getApplicationRootReference() {
@@ -64,26 +131,26 @@ export default function createLicenseViolationsService(storeService) {
         });
     }
 
-    function spawnNotification(violation) {
-        const violationType = violation.type.level;
-
-        if (!violationTypes.hasOwnProperty(violationType)) {
-            return false;
-        }
-
+    function spawnNotification(warning) {
         getApplicationRootReference().$store.dispatch('notification/createGrowlNotification', {
-            title: violation.name,
-            message: violation.text,
+            title: warning.name,
+            message: warning.text,
             autoClose: false,
-            variant: violationTypes[violationType],
-            actions: violation.actions.map((action) => {
+            variant: 'warning',
+            actions: warning.actions.map((action) => {
                 return {
                     label: action.label,
                     route: action.externalLink
                 };
             })
         });
+    }
 
-        return true;
+    function showWarnings(warnings) {
+        warnings.forEach((warning) => spawnNotification(warning));
+    }
+
+    function removeTimeFromLocalStorage(key) {
+        localStorage.removeItem(key);
     }
 }

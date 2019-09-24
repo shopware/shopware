@@ -61,6 +61,12 @@ Component.register('sw-modal', {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        closable: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

@@ -15,6 +15,7 @@
     {% block sw_button_link %}
         <a v-else-if="link"
            :href="link"
+           target="_blank"
            class="sw-button"
            :class="buttonClasses">
             {% block sw_button_link_content %}

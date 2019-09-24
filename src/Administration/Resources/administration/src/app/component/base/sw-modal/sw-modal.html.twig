@@ -21,7 +21,8 @@
                                         {% endblock %}
 
                                         {% block sw_modal_close_button %}
-                                            <button class="sw-modal__close"
+                                            <button v-if="closable"
+                                                    class="sw-modal__close"
                                                     :title="$tc('global.sw-modal.labelClose')"
                                                     :aria-label="$tc('global.sw-modal.labelClose')"
                                                     @click.prevent="closeModal">

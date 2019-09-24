@@ -41,7 +41,6 @@ Component.register('sw-cms-detail', {
             isLoading: false,
             isSaveSuccessful: false,
             currentSalesChannelKey: null,
-            currentDeviceView: 'desktop',
             currentBlock: null,
             currentBlockSectionId: null,
             currentBlockCategory: 'text',
@@ -164,6 +163,25 @@ Component.register('sw-cms-detail', {
 
         pageHasSections() {
             return this.page.sections.length > 0;
+        },
+
+        loadPageCriteria() {
+            const criteria = new Criteria(1, 1);
+            const sortCriteria = Criteria.sort('position', 'ASC', true);
+
+            criteria.getAssociation('sections')
+                .addSorting(sortCriteria)
+                .addAssociation('backgroundMedia')
+                .getAssociation('blocks')
+                .addSorting(sortCriteria)
+                .addAssociation('backgroundMedia')
+                .addAssociation('slots');
+
+            return criteria;
+        },
+
+        currentDeviceView() {
+            return this.cmsPageState.currentCmsDeviceView;
         }
     },
 
@@ -237,18 +255,7 @@ Component.register('sw-cms-detail', {
         loadPage(pageId) {
             this.isLoading = true;
 
-            const criteria = new Criteria(1, 1);
-            const sortCriteria = Criteria.sort('position', 'ASC', true);
-
-            criteria.getAssociation('sections')
-                .addSorting(sortCriteria)
-                .addAssociation('backgroundMedia')
-                .getAssociation('blocks')
-                .addSorting(sortCriteria)
-                .addAssociation('backgroundMedia')
-                .addAssociation('slots');
-
-            this.pageRepository.get(pageId, this.context, criteria).then((page) => {
+            this.pageRepository.get(pageId, this.context, this.loadPageCriteria).then((page) => {
                 this.page = { sections: [] };
                 this.page = page;
 
@@ -329,8 +336,6 @@ Component.register('sw-cms-detail', {
         },
 
         onDeviceViewChange(view) {
-            this.currentDeviceView = view;
-
             this.$store.commit('cmsPageState/setCurrentCmsDeviceView', view);
 
             if (view === 'form') {
@@ -395,6 +400,7 @@ Component.register('sw-cms-detail', {
 
             const section = this.sectionRepository.create(this.context);
             section.type = type;
+            section.sizingMode = 'boxed';
             section.position = index;
             section.pageId = this.page.id;
             section.blocks = [];
@@ -499,7 +505,6 @@ Component.register('sw-cms-detail', {
                         duration: 10000
                     });
 
-                    this.currentDeviceView = 'form';
                     this.currentBlock = null;
                     this.pageConfigOpen();
                 }

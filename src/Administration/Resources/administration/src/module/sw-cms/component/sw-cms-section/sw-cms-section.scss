@@ -54,10 +54,14 @@
         }
     }
 
-    &.is--boxed .sw-cms-section__content {
-        max-width: 1080px;
-        margin-left: auto;
-        margin-right: auto;
+    &.is--boxed {
+        justify-items: center;
+        padding: 0;
+
+        .sw-cms-section__content {
+            max-width: 1080px;
+            width: 100%;
+        }
     }
 
     .sw-cms-section__sidebar,

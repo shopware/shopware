@@ -52,7 +52,7 @@
 
                         {% block sw_cms_section_add_sidebar_block %}
                             <sw-cms-stage-add-block :key="index + 1"
-                                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(index + 1, 'sidebar') }"
+                                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1, 'sidebar') }"
                                                     @stage-add-block="onAddSectionBlock">
                             </sw-cms-stage-add-block>
                         {% endblock %}
@@ -112,7 +112,7 @@
 
                         {% block sw_cms_section_add_content_block %}
                             <sw-cms-stage-add-block :key="index + 1"
-                                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(index + 1) }"
+                                                    v-droppable="{ dragGroup: 'cms-stage', data: getDropData(block.position + 1) }"
                                                     @stage-add-block="onAddSectionBlock">
                             </sw-cms-stage-add-block>
                         {% endblock %}

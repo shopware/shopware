@@ -63,7 +63,11 @@
                 {% endblock %}
 
                 {% block sw_cms_sidebar_page_section_settings_content %}
-                    <sw-sidebar-collapse :expandOnLoading="false" v-for="section in pageSections" :key="section.id">
+                    <sw-sidebar-collapse
+                        :expandOnLoading="false"
+                        v-for="section in pageSections"
+                        :key="section.id"
+                        ref="sectionConfigSidebar">
                         {% block sw_cms_sidebar_page_section_settings_header %}
                             <span slot="header">
                                 <template v-if="section.type === 'sidebar'">
@@ -83,15 +87,15 @@
                                     <ul class="sw-cms-sidebar-section-settings__quickactions-list">
 
                                         {% block sw_cms_sidebar_quickaction_duplicate %}
-                                            <li @click="onSectionDuplicate(section)">
+                                            <li class="sw-cms-sidebar-section-settings__quickaction" @click="onSectionDuplicate(section)">
                                                 <sw-icon name="default-action-duplicate" size="16"></sw-icon>
                                                 {{ $tc('sw-cms.sidebar.contentMenu.duplicate') }}
                                             </li>
                                         {% endblock %}
 
                                         {% block sw_cms_sidebar_quickaction_delete %}
-                                            <li @click="onSectionDelete(section.id)">
-                                                <sw-icon name="default-action-trash" class="is--danger" size="16"></sw-icon>
+                                            <li class="sw-cms-sidebar-section-settings__quickaction is--danger" @click="onSectionDelete(section.id)">
+                                                <sw-icon name="default-action-trash" size="16"></sw-icon>
                                                 {{ $tc('sw-cms.general.buttonDelete') }}
                                             </li>
                                         {% endblock %}
@@ -128,7 +132,7 @@
                                             <sw-upload-store-listener
                                                 :uploadTag="uploadTag(section)"
                                                 autoUpload
-                                                @media-upload-finish="successfulUpload(section)">
+                                                @media-upload-finish="successfulUpload($event, section)">
                                             </sw-upload-store-listener>
 
                                             {% block sw_cms_sidebar_section_config_background_image_position_field %}
@@ -164,8 +168,7 @@
                                                  v-model="currentBlockCategory">
                                     <option value="text">{{ $tc('sw-cms.detail.labelBlockCategoryText') }}</option>
                                     <option value="image">{{ $tc('sw-cms.detail.labelBlockCategoryImage') }}</option>
-                                    <option value="text-image">{{ $tc('sw-cms.detail.labelBlockCategoryTextImage') }}
-                                    </option>
+                                    <option value="text-image">{{ $tc('sw-cms.detail.labelBlockCategoryTextImage') }}</option>
                                     <option value="commerce">{{ $tc('sw-cms.detail.labelBlockCategoryCommerce') }}</option>
                                 </sw-select-field>
                             </div>
@@ -236,7 +239,7 @@
         {% block sw_cms_sidebar_navigator %}
             <sw-sidebar-item icon="default-os-layers"
                              :title="$tc('sw-cms.detail.sidebarTitleNavigator')"
-                             :disabled="!page.sections.length === 0"
+                             :disabled="!page.sections.length === 0 || currentDeviceView === 'form'"
                              ref="blockNavigator">
                 {% block sw_cms_sidebar_navigator_content %}
                     <div class="sw-cms-sidebar__navigator">
@@ -276,7 +279,7 @@
                                                 {% endblock %}
 
                                                 {% block sw_cms_sidebar_navigator_section_menu_settings %}
-                                                    <sw-context-menu-item @click="openSectionSettings(section)">
+                                                    <sw-context-menu-item @click="openSectionSettings(sectionIndex)">
                                                         {{ $tc('sw-cms.sidebar.contentMenu.settings') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}

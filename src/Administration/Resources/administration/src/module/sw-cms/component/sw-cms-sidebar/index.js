@@ -53,8 +53,7 @@ Component.register('sw-cms-sidebar', {
     data() {
         return {
             demoEntityId: this.demoEntityIdProp,
-            currentBlockCategory: 'text',
-            currentDeviceView: this.$store.state.currentCmsDeviceView
+            currentBlockCategory: 'text'
         };
     },
 
@@ -89,6 +88,10 @@ Component.register('sw-cms-sidebar', {
 
         pageSections() {
             return this.page.sections;
+        },
+
+        currentDeviceView() {
+            return this.$store.state.cmsPageState.currentCmsDeviceView;
         }
     },
 
@@ -118,6 +121,13 @@ Component.register('sw-cms-sidebar', {
         closeContent() {
             Object.values(this.$refs).forEach((item) => {
                 item.closeContent();
+            });
+        },
+
+        openSectionSettings(sectionIndex) {
+            this.$refs.pageConfigSidebar.openContent();
+            this.$nextTick(() => {
+                this.$refs.sectionConfigSidebar[sectionIndex].collapseItem();
             });
         },
 

@@ -7,9 +7,9 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    position: relative;
-    z-index: 200;
-    // ToDo: doo without spaces, absolute?
+    position: absolute;
+    z-index: 250;
+    transform: translateY(-50%);
 
     &:hover {
         .sw-cms-stage-add-block__handle,

@@ -65,6 +65,29 @@ describe('Media: Test crud operations of folders', () => {
         cy.get('.sw-media-base-item__name[title="An Edith gets a new name"]').should('be.visible');
     });
 
+    it('@package @content: create a subfolder and check configuration', () => {
+        const page = new MediaPageObject();
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v1/media-folder?_response=true',
+            method: 'post'
+        }).as('saveData');
+
+        // navigate to subfolder
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-media-folder-item')
+            .contains('.sw-media-base-item__name', 'A thing to fold about')
+            .click();
+        cy.get(page.elements.loader).should('not.exist');
+        page.createFolder('new child');
+
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+    });
+
     it('@package @content: delete folder', () => {
         const page = new MediaPageObject();
 

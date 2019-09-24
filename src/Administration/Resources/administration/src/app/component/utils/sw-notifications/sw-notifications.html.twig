@@ -20,7 +20,7 @@
                                 @close="onClose(notification)">
 
                                 {% block sw_notifications_item_content %}
-                                    <div slot="default" v-html="$sanitize(notification.message, { ALLOWED_TAGS: [] })"></div>
+                                    <div slot="default" v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u'], ALLOWED_ATTR: ['href', 'target'] })"></div>
                                 {% endblock %}
 
                                 {% block sw_notifications_item_actions_slot %}

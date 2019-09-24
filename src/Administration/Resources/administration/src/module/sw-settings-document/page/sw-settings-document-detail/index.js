@@ -353,7 +353,7 @@ Component.register('sw-settings-document-detail', {
         },
 
         loadEntityData() {
-            this.salesChannelStore.getList().then((response) => {
+            this.salesChannelStore.getList({}).then((response) => {
                 this.salesChannels = response;
             });
             this.documentBaseConfigStore.getByIdAsync(this.documentConfigId).then((response) => {

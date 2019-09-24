@@ -54,14 +54,14 @@ Basic example for `theme.json`:
   },
   "style": [
     "@Storefront",
-    "Resources/style/base.scss"
+    "Resources/storefront/style/base.scss"
   ],
   "script": [
     "@Storefront",
-    "Resources/dist/js/plugin-name.js"
+    "Resources/storefront/dist/script/all.js"
   ],
   "asset": [
-    "dist/assets"
+    "Resources/storefront/asset"
   ]
 }
 ```
@@ -132,11 +132,11 @@ Example `theme.json`
   },
   "style": [
     "@Storefront",
-    "Resources/style/base.scss"
+    "Resources/storefront/style/base.scss"
   ],
   "script": [
     "@Storefront",
-    "Resources/dist/js/plugin-name.js"
+    "Resources/storefront/dist/script/all.js"
   ]
 }
 ```

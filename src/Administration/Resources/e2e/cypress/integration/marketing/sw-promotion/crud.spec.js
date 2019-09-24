@@ -56,6 +56,7 @@ describe('Promotion: Test crud operations', () => {
         // Add discount
         cy.get(page.elements.loader).should('not.exist');
         cy.get('a[title="Discounts"]').click();
+        cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-button--ghost').should('be.visible');
         cy.contains('.sw-button--ghost', 'Add discount').click();
         cy.get(page.elements.loader).should('not.exist');
@@ -64,6 +65,7 @@ describe('Promotion: Test crud operations', () => {
         });
 
         cy.get('.sw-promotion-discount-component').should('be.visible');
+        cy.get('.sw-promotion-discount-component__discount-value').should('be.visible');
         cy.get('.sw-promotion-discount-component__discount-value input')
             .clear()
             .type('54');

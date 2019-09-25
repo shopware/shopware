@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\Pricing\ListingPrice;
 use Shopware\Core\Framework\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\Pricing\Price;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductListingPriceIndexer implements IndexerInterface
@@ -50,7 +50,7 @@ class ProductListingPriceIndexer implements IndexerInterface
     private $cacheKeyGenerator;
 
     /**
-     * @var TagAwareAdapterInterface
+     * @var CacheClearer
      */
     private $cache;
 
@@ -75,7 +75,7 @@ class ProductListingPriceIndexer implements IndexerInterface
         IteratorFactory $iteratorFactory,
         ProductDefinition $productDefinition,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapterInterface $cache,
+        CacheClearer $cache,
         PriceRounding $priceRounding
     ) {
         $this->eventDispatcher = $eventDispatcher;

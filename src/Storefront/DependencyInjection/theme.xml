@@ -36,7 +36,7 @@
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeCompiler"/>
-            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <!-- Entity definitions -->

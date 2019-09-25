@@ -6,13 +6,13 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class SeoUrlPersister
 {
@@ -32,7 +32,7 @@ class SeoUrlPersister
     private $cacheKeyGenerator;
 
     /**
-     * @var TagAwareAdapterInterface
+     * @var CacheClearer
      */
     private $cache;
 
@@ -40,7 +40,7 @@ class SeoUrlPersister
         Connection $connection,
         EntityRepositoryInterface $seoUrlRepository,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapterInterface $cache
+        CacheClearer $cache
     ) {
         $this->connection = $connection;
         $this->seoUrlRepository = $seoUrlRepository;

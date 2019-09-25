@@ -4,6 +4,11 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
+    <parameters>
+        <parameter key="shopware.http.cache.enabled">%env(SHOPWARE_HTTP_CACHE_ENABLED)%</parameter>
+        <parameter key="shopware.http.cache.default_ttl">%env(SHOPWARE_HTTP_DEFAULT_TTL)%</parameter>
+    </parameters>
+
     <services>
         <defaults autowire="true"/>
 
@@ -265,6 +270,68 @@
 
         <service id="Shopware\Storefront\Resources\snippet\en_GB\SnippetFile_en_GB" public="true">
             <tag name="shopware.snippet.file" priority="100"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheStore" public="true">
+            <argument type="service" id="cache.http"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStateValidator" />
+            <argument type="service" id="event_dispatcher" />
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheStateValidator"/>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheResponseSubscriber">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" />
+            <argument>%shopware.http.cache.default_ttl%</argument>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmerSender">
+            <argument type="service" id="sales_channel_domain.repository" />
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmerRegistry" />
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmerRegistry">
+            <argument type="tagged" tag="http_cache.route_warmer"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\IteratorMessageHandler">
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmerRegistry"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\Product\ProductRouteWarmer">
+            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <tag name="messenger.message_handler"/>
+            <tag name="http_cache.route_warmer" />
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\Navigation\NavigationRouteWarmer">
+            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
+            <tag name="messenger.message_handler"/>
+            <tag name="http_cache.route_warmer"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Command\HttpCacheWarmupCommand">
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmerSender"/>
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

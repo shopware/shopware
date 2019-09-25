@@ -10,7 +10,7 @@ class AccountOverviewPage extends Page
     /**
      * @var OrderEntity|null
      */
-    private $newestOrder;
+    protected $newestOrder;
 
     public function setNewestOrder(OrderEntity $order): void
     {

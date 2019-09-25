@@ -27,6 +27,11 @@ class DefinitionInstanceRegistry
     private $definitions;
 
     /**
+     * @var array
+     */
+    private $entityClassMapping;
+
+    /**
      * @param array $definitionMap array of $entityName => $definitionServiceId,
      *                             eg. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
      * @param array $repositoryMap array of $entityName => $repositoryServiceId, eg. 'product' => 'product.repository'
@@ -98,5 +103,41 @@ class DefinitionInstanceRegistry
         $fieldAccessorBuilder = $this->container->get($accessorBuilderClass);
 
         return $fieldAccessorBuilder;
+    }
+
+    public function getByEntityClass(Entity $entity): ?EntityDefinition
+    {
+        $map = $this->loadClassMapping();
+
+        $source = get_class($entity);
+
+        return $map[$source] ?? null;
+    }
+
+    private function loadClassMapping(): array
+    {
+        if ($this->entityClassMapping !== null) {
+            return $this->entityClassMapping;
+        }
+
+        $this->entityClassMapping = [];
+
+        foreach ($this->definitions as $element) {
+            $definition = $this->container->get($element);
+
+            if (!$definition) {
+                continue;
+            }
+
+            try {
+                $class = $definition->getEntityClass();
+
+                $this->entityClassMapping[$class] = $definition;
+            } catch (\Throwable $e) {
+                continue;
+            }
+        }
+
+        return $this->entityClassMapping;
     }
 }

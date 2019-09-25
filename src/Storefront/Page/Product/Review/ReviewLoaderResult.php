@@ -11,22 +11,22 @@ class ReviewLoaderResult extends Struct
     /**
      * @var StorefrontSearchResult
      */
-    private $reviews;
+    protected $reviews;
 
     /**
      * @var RatingMatrix
      */
-    private $matrix;
+    protected $matrix;
 
     /**
      * @var ProductReviewEntity|null
      */
-    private $customerReview;
+    protected $customerReview;
 
     /**
      * @var int
      */
-    private $totalReviews;
+    protected $totalReviews;
 
     public function __construct(StorefrontSearchResult $storefrontSearchResult, RatingMatrix $matrix, ?ProductReviewEntity $customerReview, int $totalReviews)
     {

@@ -18,17 +18,17 @@ class CheckoutCartPage extends Page
     /**
      * @var CountryCollection
      */
-    private $countries;
+    protected $countries;
 
     /**
      * @var PaymentMethodCollection
      */
-    private $paymentMethods;
+    protected $paymentMethods;
 
     /**
      * @var ShippingMethodCollection
      */
-    private $shippingMethods;
+    protected $shippingMethods;
 
     public function getCart(): Cart
     {

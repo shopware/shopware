@@ -16,6 +16,13 @@ framework:
     cache:
         prefix_seed: shopware
         app: cache.adapter.filesystem
+        pools:
+            cache.object:
+                adapter: cache.adapter.filesystem
+                tags: true
+            cache.http:
+                adapter: cache.adapter.filesystem
+                tags: true
     messenger:
         transports:
             default:

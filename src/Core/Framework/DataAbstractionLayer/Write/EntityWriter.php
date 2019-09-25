@@ -194,14 +194,7 @@ class EntityWriter implements EntityWriterInterface
                 continue;
             }
 
-            $commandQueue->add(
-                $definition,
-                new DeleteCommand(
-                    $definition,
-                    $mappedBytes,
-                    $existence
-                )
-            );
+            $commandQueue->add($definition, new DeleteCommand($definition, $mappedBytes, $existence));
         }
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());

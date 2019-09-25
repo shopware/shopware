@@ -53,7 +53,7 @@ class CachedEntitySearcherTest extends TestCase
                 )
             );
 
-        $cache = $this->getContainer()->get('shopware.cache');
+        $cache = $this->getContainer()->get('cache.object');
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
 
@@ -104,7 +104,7 @@ class CachedEntitySearcherTest extends TestCase
                 )
             );
 
-        $cache = $this->getContainer()->get('shopware.cache');
+        $cache = $this->getContainer()->get('cache.object');
 
         $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
 

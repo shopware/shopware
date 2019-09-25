@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -21,7 +22,6 @@ use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Language\LanguageEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class BreadcrumbIndexer implements IndexerInterface
@@ -52,7 +52,7 @@ class BreadcrumbIndexer implements IndexerInterface
     private $iteratorFactory;
 
     /**
-     * @var TagAwareAdapterInterface
+     * @var CacheClearer
      */
     private $cache;
 
@@ -67,7 +67,7 @@ class BreadcrumbIndexer implements IndexerInterface
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
         IteratorFactory $iteratorFactory,
-        TagAwareAdapterInterface $cache,
+        CacheClearer $cache,
         EntityCacheKeyGenerator $cacheKeyGenerator
     ) {
         $this->languageRepository = $languageRepository;

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Util\EventIdExtractor;
+use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\Serializer;
 
@@ -40,7 +40,7 @@ class ProductStreamIndexer implements IndexerInterface
     private $cacheKeyGenerator;
 
     /**
-     * @var TagAwareAdapter
+     * @var CacheClearer
      */
     private $cache;
 
@@ -76,7 +76,7 @@ class ProductStreamIndexer implements IndexerInterface
         Connection $connection,
         Serializer $serializer,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapter $cache,
+        CacheClearer $cache,
         IteratorFactory $iteratorFactory,
         ProductDefinition $productDefinition
     ) {
@@ -141,10 +141,6 @@ class ProductStreamIndexer implements IndexerInterface
     {
         if (empty($ids)) {
             return;
-        }
-
-        if ($this->cache->hasItem('product_streams_key')) {
-            $this->cache->deleteItem('product_streams_key');
         }
 
         $bytes = array_values(array_map(function ($id) { return Uuid::fromHexToBytes($id); }, $ids));

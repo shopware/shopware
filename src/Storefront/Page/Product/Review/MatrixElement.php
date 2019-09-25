@@ -7,17 +7,17 @@ class MatrixElement
     /**
      * @var int
      */
-    private $points;
+    protected $points;
 
     /**
      * @var int
      */
-    private $count;
+    protected $count;
 
     /**
      * @var float
      */
-    private $percent;
+    protected $percent;
 
     public function __construct(int $points, int $count, float $percent = 0.0)
     {

@@ -43,6 +43,7 @@ class CachedLanguageLoader implements LanguageLoaderInterface, EventSubscriberIn
         $languages = $this->loader->loadLanguages();
 
         $cacheItem->set($languages);
+        $this->cache->save($cacheItem);
 
         return $languages;
     }

@@ -24,7 +24,7 @@
 
         <service id="Shopware\Core\Framework\Language\CachedLanguageLoader" decorates="Shopware\Core\Framework\Language\LanguageLoader">
             <argument type="service" id="Shopware\Core\Framework\Language\CachedLanguageLoader.inner"/>
-            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="cache.object"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

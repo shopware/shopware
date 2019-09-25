@@ -15,7 +15,7 @@
 
         <service id="Shopware\Core\Framework\Update\Services\ApiClient">
             <argument>%kernel.shopware_version%</argument>
-            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
             <argument>%shopware.auto_update.enabled%</argument>

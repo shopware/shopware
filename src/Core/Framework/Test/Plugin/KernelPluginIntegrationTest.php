@@ -37,7 +37,8 @@ class KernelPluginIntegrationTest extends TestCase
     {
         if ($this->kernel) {
             $this->kernel->getContainer()
-                ->get('shopware.cache')
+                ->get('test.service_container')
+                ->get('cache.object')
                 ->clear();
         }
     }

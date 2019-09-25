@@ -1056,7 +1056,11 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
-        $raw = $this->connection->fetchAll('SELECT * FROM product');
+        $raw = $this->connection->fetchAll(
+            'SELECT * FROM product WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList([$id, $child])],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
         static::assertCount(2, $raw);
 
         $name = $this->connection->fetchColumn('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);

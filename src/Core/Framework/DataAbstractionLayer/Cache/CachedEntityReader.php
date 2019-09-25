@@ -205,7 +205,9 @@ class CachedEntityReader implements EntityReaderInterface
         $item = $this->cache->getItem($key);
 
         $item->set($id);
-        $item->tag($key);
+        $entityTag = $definition->getEntityName() . '.id';
+        $item->tag([$key, $entityTag]);
+
         $item->expiresAfter($this->expirationTime);
 
         //deferred saves are persisted with the cache->commit()

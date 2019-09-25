@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\Util\EventIdExtractor;
+use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -24,7 +25,6 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\ContainerInterface;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -51,7 +51,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
     private $ruleConditionRegistry;
 
     /**
-     * @var TagAwareAdapter
+     * @var CacheClearer
      */
     private $cache;
 
@@ -76,7 +76,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
         EventIdExtractor $eventIdExtractor,
         RuleConditionRegistry $ruleConditionRegistry,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapter $cache,
+        CacheClearer $cache,
         IteratorFactory $iteratorFactory,
         RuleDefinition $ruleDefinition
     ) {
@@ -200,7 +200,7 @@ class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 
         $this->cache->invalidateTags($tags);
 
-        $this->cache->delete(CartRuleLoader::CHECKOUT_RULE_LOADER_CACHE_KEY);
+        $this->cache->deleteItems([CartRuleLoader::CHECKOUT_RULE_LOADER_CACHE_KEY]);
 
         return $updated;
     }

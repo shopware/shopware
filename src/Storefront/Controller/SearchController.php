@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +34,8 @@ class SearchController extends StorefrontController
     }
 
     /**
-     * @Route("/search", name="frontend.search.page", options={"seo"=false}, methods={"GET"})
+     * @HttpCache()
+     * @Route("/search", name="frontend.search.page", methods={"GET"})
      */
     public function search(SalesChannelContext $context, Request $request): Response
     {
@@ -47,6 +49,7 @@ class SearchController extends StorefrontController
     }
 
     /**
+     * @HttpCache()
      * @Route("/suggest", name="frontend.search.suggest", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function suggest(SalesChannelContext $context, Request $request): Response

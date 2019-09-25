@@ -13,17 +13,17 @@ class RatingMatrix extends Struct
     /**
      * @var MatrixElement[]
      */
-    private $matrix = [];
+    protected $matrix = [];
 
     /**
      * @var int
      */
-    private $totalReviewCount = 0;
+    protected $totalReviewCount = 0;
 
     /**
      * @var int
      */
-    private $totalPoints = 0;
+    protected $totalPoints = 0;
 
     /**
      * we expect an array of CountResult elements

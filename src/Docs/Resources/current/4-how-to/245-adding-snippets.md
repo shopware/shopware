@@ -111,6 +111,20 @@ Shopware.Module.register('custom-module', {
 });
 ```
 
+In case of just adding snippets without registering a module you can also feed the snippet objects directly to the locale service:
+
+```
+import deDE from './snippet/de-DE.json';
+import enGB from './snippet/en-GB.json';
+
+Shopware.Application.addInitializerDecorator('locale', locale => {
+    locale.extend('de-DE', deDE);
+    locale.extend('en-GB', enGB);
+
+    return locale;
+});
+```
+
 ## Extending Storefront snippets
 
 #### SnippetFile

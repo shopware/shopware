@@ -17,3 +17,9 @@
         display: none;
     }
 }
+
+@media screen and (max-width: 575px) {
+    .product-detail-tab-preview {
+        flex-basis: 100%;
+    }
+}

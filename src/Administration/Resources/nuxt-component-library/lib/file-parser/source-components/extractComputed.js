@@ -12,6 +12,10 @@ module.exports = (moduleDefinition) => {
     }, []);
 
     return definedComputed.map((item) => {
+        if (!item.key) {
+            return;
+        }
+
         return item.key.name;
     });
 };

@@ -2,6 +2,9 @@ import { mapState } from 'vuex';
 import template from './sw-license-violation.html.twig';
 import './sw-license-violation.scss';
 
+/**
+ * @private
+ */
 Shopware.Component.register('sw-license-violation', {
     template,
 
@@ -32,6 +35,7 @@ Shopware.Component.register('sw-license-violation', {
             'violations',
             'warnings'
         ]),
+
         visible() {
             if (!this.showViolation) {
                 return false;

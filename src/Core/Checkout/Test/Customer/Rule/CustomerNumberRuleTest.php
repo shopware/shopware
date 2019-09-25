@@ -43,11 +43,9 @@ class CustomerNumberRuleTest extends TestCase
 
     public function testValidateWithMissingNumbers(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CustomerNumberRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                 ],
@@ -57,25 +55,28 @@ class CustomerNumberRuleTest extends TestCase
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/numbers', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertCount(2, $exception->getViolations());
+                static::assertSame('/0/value/numbers', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
+
+                static::assertSame('/0/value/operator', $exception->getViolations()->get(1)->getPropertyPath());
+                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(1)->getCode());
+                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
             }
         }
     }
 
     public function testValidateWithEmptyCustomerGroupIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CustomerNumberRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'numbers' => [],
+                        'operator' => CustomerNumberRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -85,7 +86,7 @@ class CustomerNumberRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/numbers', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/numbers', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -94,15 +95,14 @@ class CustomerNumberRuleTest extends TestCase
 
     public function testValidateWithInvalidCustomerGroupIdsType(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CustomerNumberRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'numbers' => '1234',
+                        'operator' => CustomerNumberRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -112,7 +112,7 @@ class CustomerNumberRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/numbers', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/numbers', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type array.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -134,6 +134,7 @@ class CustomerNumberRuleTest extends TestCase
                 'ruleId' => $ruleId,
                 'value' => [
                     'numbers' => ['12345', '23', '42'],
+                    'operator' => CustomerNumberRule::OPERATOR_EQ,
                 ],
             ],
         ], $this->context);

@@ -43,11 +43,9 @@ class BillingCountryRuleTest extends TestCase
 
     public function testValidationWithMissingCountryIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new BillingCountryRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                 ],
@@ -57,25 +55,28 @@ class BillingCountryRuleTest extends TestCase
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/countryIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertCount(2, $exception->getViolations());
+                static::assertSame('/0/value/countryIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
+
+                static::assertSame('/0/value/operator', $exception->getViolations()->get(1)->getPropertyPath());
+                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(1)->getCode());
+                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
             }
         }
     }
 
     public function testValidationWithEmptyCountryIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new BillingCountryRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'countryIds' => [],
+                        'operator' => BillingCountryRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -85,7 +86,7 @@ class BillingCountryRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/countryIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/countryIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -94,15 +95,14 @@ class BillingCountryRuleTest extends TestCase
 
     public function testValidationWithStringCountryIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new BillingCountryRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'countryIds' => 'COUNTRY-ID-1',
+                        'operator' => BillingCountryRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -112,7 +112,7 @@ class BillingCountryRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/countryIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/countryIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type array.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -120,15 +120,14 @@ class BillingCountryRuleTest extends TestCase
 
     public function testValidationWithArrayOfInvalidCountryIdTypes(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new BillingCountryRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'countryIds' => ['COUNTRY-ID-1', true, 3, Uuid::randomHex()],
+                        'operator' => BillingCountryRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -138,7 +137,7 @@ class BillingCountryRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(3, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/countryIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/countryIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('The value "COUNTRY-ID-1" is not a valid uuid.', $exception->getViolations()->get(0)->getMessage());
                 static::assertSame('The value "1" is not a valid uuid.', $exception->getViolations()->get(1)->getMessage());
                 static::assertSame('The value "3" is not a valid uuid.', $exception->getViolations()->get(2)->getMessage());
@@ -162,6 +161,7 @@ class BillingCountryRuleTest extends TestCase
                 'ruleId' => $ruleId,
                 'value' => [
                     'countryIds' => [Uuid::randomHex(), Uuid::randomHex()],
+                    'operator' => BillingCountryRule::OPERATOR_EQ,
                 ],
             ],
         ], $this->context);

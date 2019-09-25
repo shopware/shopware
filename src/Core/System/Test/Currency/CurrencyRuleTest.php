@@ -43,13 +43,14 @@ class CurrencyRuleTest extends TestCase
 
     public function testValidateWithMissingCurrencyIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CurrencyRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
+                    'value' => [
+                        'operator' => CurrencyRule::OPERATOR_EQ,
+                    ],
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
@@ -58,7 +59,7 @@ class CurrencyRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -67,15 +68,14 @@ class CurrencyRuleTest extends TestCase
 
     public function testValidateWithEmptyCurrencyIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CurrencyRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'currencyIds' => [],
+                        'operator' => CurrencyRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -85,7 +85,7 @@ class CurrencyRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -94,15 +94,14 @@ class CurrencyRuleTest extends TestCase
 
     public function testValidateWithStringCurrencyIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CurrencyRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'currencyIds' => '0915d54fbf80423c917c61ad5a391b48',
+                        'operator' => CurrencyRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -112,7 +111,7 @@ class CurrencyRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type array.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -120,15 +119,14 @@ class CurrencyRuleTest extends TestCase
 
     public function testValidateWithInvalidArrayCurrencyIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CurrencyRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'currencyIds' => [true, 3, null, '0915d54fbf80423c917c61ad5a391b48'],
+                        'operator' => CurrencyRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -138,7 +136,7 @@ class CurrencyRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(3, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('The value "1" is not a valid uuid.', $exception->getViolations()->get(0)->getMessage());
                 static::assertSame('The value "3" is not a valid uuid.', $exception->getViolations()->get(1)->getMessage());
                 static::assertSame('The value "" is not a valid uuid.', $exception->getViolations()->get(2)->getMessage());
@@ -148,15 +146,14 @@ class CurrencyRuleTest extends TestCase
 
     public function testValidateWithInvalidCurrencyIdsUuid(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CurrencyRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'currencyIds' => ['Invalid', '1234abcd'],
+                        'operator' => CurrencyRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -166,7 +163,7 @@ class CurrencyRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(2, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/currencyIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('The value "Invalid" is not a valid uuid.', $exception->getViolations()->get(0)->getMessage());
                 static::assertSame('The value "1234abcd" is not a valid uuid.', $exception->getViolations()->get(1)->getMessage());
             }
@@ -189,6 +186,7 @@ class CurrencyRuleTest extends TestCase
                 'ruleId' => $ruleId,
                 'value' => [
                     'currencyIds' => [Uuid::randomHex(), Uuid::randomHex()],
+                    'operator' => CurrencyRule::OPERATOR_EQ,
                 ],
             ],
         ], $this->context);

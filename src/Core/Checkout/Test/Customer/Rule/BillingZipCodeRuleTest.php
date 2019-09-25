@@ -57,25 +57,28 @@ class BillingZipCodeRuleTest extends TestCase
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/zipCodes', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertCount(2, $exception->getViolations());
+                static::assertSame('/0/value/zipCodes', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
+
+                static::assertSame('/0/value/operator', $exception->getViolations()->get(1)->getPropertyPath());
+                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(1)->getCode());
+                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
             }
         }
     }
 
     public function testValidateWithEmptyZipCodes(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new BillingZipCodeRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'zipCodes' => [],
+                        'operator' => BillingZipCodeRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -85,7 +88,7 @@ class BillingZipCodeRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/zipCodes', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/zipCodes', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -94,15 +97,14 @@ class BillingZipCodeRuleTest extends TestCase
 
     public function testValidateWithStringZipCodes(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new BillingZipCodeRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'zipCodes' => '12345',
+                        'operator' => BillingZipCodeRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -112,7 +114,7 @@ class BillingZipCodeRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/zipCodes', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/zipCodes', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type array.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -120,15 +122,14 @@ class BillingZipCodeRuleTest extends TestCase
 
     public function testValidateWithInvalidArrayZipCodes(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new BillingZipCodeRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'zipCodes' => [false, 3, null, '12345'],
+                        'operator' => BillingZipCodeRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -138,7 +139,7 @@ class BillingZipCodeRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(3, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/zipCodes', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/zipCodes', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value "" should be of type string.', $exception->getViolations()->get(0)->getMessage());
                 static::assertSame('This value "3" should be of type string.', $exception->getViolations()->get(1)->getMessage());
                 static::assertSame('This value "" should be of type string.', $exception->getViolations()->get(2)->getMessage());
@@ -162,6 +163,7 @@ class BillingZipCodeRuleTest extends TestCase
                 'ruleId' => $ruleId,
                 'value' => [
                     'zipCodes' => ['12345', '54321'],
+                    'operator' => BillingZipCodeRule::OPERATOR_EQ,
                 ],
             ],
         ], $this->context);

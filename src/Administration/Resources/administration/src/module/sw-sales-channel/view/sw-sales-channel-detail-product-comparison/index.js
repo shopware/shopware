@@ -158,21 +158,14 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                 });
         },
 
+
         completerFunction(mapping) {
             return (function completerWrapper(entityMappingService) {
                 function completerFunction(prefix) {
-                    const properties = [];
-                    Object.keys(
-                        entityMappingService.getEntityMapping(
-                            prefix,
-                            mapping
-                        )
-                    ).forEach((val) => {
-                        properties.push({
-                            value: val
-                        });
+                    const entityMapping = entityMappingService.getEntityMapping(prefix, mapping);
+                    return Object.keys(entityMapping).map(val => {
+                        return { value: val };
                     });
-                    return properties;
                 }
 
                 return completerFunction;

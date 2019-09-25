@@ -45,7 +45,15 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             return;
         }
 
-        $term = trim((string) $request->query->get('search'));
+        $search = $request->query->get('search');
+
+        if (is_array($search)) {
+            $term = implode(' ', $search);
+        } else {
+            $term = (string) $search;
+        }
+
+        $term = trim($term);
 
         if (empty($term)) {
             throw new MissingRequestParameterException('search');
@@ -54,7 +62,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
         // reset queries and set term to criteria.
         $criteria->resetQueries();
 
-        // elasticsearch will interpret this on deman
+        // elasticsearch will interpret this on demand
         $criteria->setTerm($term);
     }
 }

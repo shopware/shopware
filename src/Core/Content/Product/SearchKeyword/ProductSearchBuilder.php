@@ -25,8 +25,15 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
 
     public function build(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        $term = trim((string) $request->query->get('search'));
+        $search = $request->query->get('search');
 
+        if (is_array($search)) {
+            $term = implode(' ', $search);
+        } else {
+            $term = (string) $search;
+        }
+
+        $term = trim($term);
         if (empty($term)) {
             throw new MissingRequestParameterException('search');
         }

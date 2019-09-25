@@ -16,7 +16,9 @@
                                    autocomplete="off"
                                    autocapitalize="off"
                                    placeholder="{{ "header.searchPlaceholder"|trans }}"
-                                   maxlength="30">
+                                   maxlength="30"
+                                   value="{{ page.searchTerm }}"
+                            >
                         {% endblock %}
 
                         {% block layout_header_search_button %}

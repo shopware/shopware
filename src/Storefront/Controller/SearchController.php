@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
@@ -36,7 +37,11 @@ class SearchController extends StorefrontController
      */
     public function search(SalesChannelContext $context, Request $request): Response
     {
-        $page = $this->searchPageLoader->load($request, $context);
+        try {
+            $page = $this->searchPageLoader->load($request, $context);
+        } catch (MissingRequestParameterException $missingRequestParameterException) {
+            return $this->forwardToRoute('frontend.home.page');
+        }
 
         return $this->renderStorefront('@Storefront/page/search/index.html.twig', ['page' => $page]);
     }

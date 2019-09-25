@@ -53,7 +53,8 @@ Component.register('sw-cms-sidebar', {
     data() {
         return {
             demoEntityId: this.demoEntityIdProp,
-            currentBlockCategory: 'text'
+            currentBlockCategory: 'text',
+            currentDragSectionIndex: null
         };
     },
 
@@ -147,29 +148,80 @@ Component.register('sw-cms-sidebar', {
                 return;
             }
 
-            const sectionHasBlock = this.page.sections[dropSectionIndex].blocks.has(dragData.block.id);
+            if (dragData.block.sectionPosition !== dropData.block.sectionPosition) {
+                dragData.block.isDragging = true;
+                dragData.block.sectionPosition = dropData.block.sectionPosition;
+            }
 
-            if (dragSectionIndex !== dropSectionIndex && !sectionHasBlock) {
-                this.page.sections[dragSectionIndex].blocks.remove(dragData.block.id);
+            if (this.currentDragSectionIndex === null) {
+                this.currentDragSectionIndex = dragSectionIndex;
+            }
 
+            const dropSectionHasBlock = this.page.sections[dropSectionIndex].blocks.has(dragData.block.id);
+            if (this.currentDragSectionIndex !== dropSectionIndex && !dropSectionHasBlock) {
                 dragData.block.isDragging = true;
 
+
+                let removeIndex = dragSectionIndex;
+                if (this.currentDragSectionIndex !== dragSectionIndex &&
+                    Math.abs(this.currentDragSectionIndex - dropSectionIndex) === 1) {
+                    removeIndex = this.currentDragSectionIndex;
+                }
+
+                if (this.currentDragSectionIndex - dropSectionIndex < 0) {
+                    this.currentDragSectionIndex += 1;
+                }
+
+                if (this.currentDragSectionIndex - dropSectionIndex > 0) {
+                    this.currentDragSectionIndex -= 1;
+                }
+
+                this.page.sections[removeIndex].blocks.remove(dragData.block.id);
                 this.page.sections[dropSectionIndex].blocks.add(dragData.block);
             }
 
-            console.log(dragData.block, dropData.block);
-            // ToDo: make this work over sections
-            if (dragData.block.sectionPosition !== dropData.block.sectionPosition) {
-                dragData.block.sectionPosition = dropData.block.sectionPosition;
-            }
 
             this.page.sections[dropSectionIndex].blocks.moveItem(dragData.block.position, dropData.block.position);
 
             this.$emit('block-navigator-sort');
         },
 
+        getDragData(block, sectionIndex) {
+            return {
+                delay: 300,
+                dragGroup: 'cms-navigator',
+                data: { block, sectionIndex },
+                validDragCls: null,
+                onDragEnter: this.onBlockDragSort,
+                onDrop: this.onBlockDragStop
+            };
+        },
+
+        getDropData(block, sectionIndex) {
+            return {
+                dragGroup: 'cms-navigator',
+                data: { block, sectionIndex },
+                onDrop: this.onBlockDropAbort
+            };
+        },
+
         onBlockDragStop(dragData) {
+            this.currentDragSectionIndex = null;
             dragData.block.isDragging = false;
+        },
+
+        onBlockDropAbort(dragData, dropData) {
+            const dragSectionIndex = dragData.sectionIndex;
+            const dropSectionIndex = dropData.sectionIndex;
+            if (dragSectionIndex < 0 || dropSectionIndex < 0) {
+                return;
+            }
+
+            const dragSectionHasBlock = this.page.sections[dragSectionIndex].blocks.has(dragData.block.id);
+            const dropSectionHasBlock = this.page.sections[dropSectionIndex].blocks.has(dragData.block.id);
+            if (!dragSectionHasBlock && !dropSectionHasBlock) {
+                this.page.sections[dragSectionIndex].blocks.add(dragData.block);
+            }
         },
 
         onBlockStageDrop(dragData, dropData) {
@@ -284,24 +336,6 @@ Component.register('sw-cms-sidebar', {
 
         getSidebarContentBlocks(sectionBlocks) {
             return sectionBlocks.filter((block) => block.sectionPosition === 'sidebar');
-        },
-
-        getDragData(block, sectionIndex) {
-            return {
-                delay: 300,
-                dragGroup: 'cms-navigator',
-                data: { block, sectionIndex },
-                validDragCls: null,
-                onDragEnter: this.onBlockDragSort
-            };
-        },
-
-        getDropData(block, sectionIndex) {
-            return {
-                dragGroup: 'cms-navigator',
-                data: { block, sectionIndex },
-                onDrop: this.onBlockDragStop
-            };
         }
     }
 });

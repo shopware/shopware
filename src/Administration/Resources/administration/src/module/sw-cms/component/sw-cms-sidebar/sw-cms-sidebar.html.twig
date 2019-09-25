@@ -323,8 +323,9 @@
                                     <template v-else>
                                         {% block sw_cms_sidebar_navigator_main_empty %}
                                             <div class="sw-cms-sidebar__navigator-empty-element"
+                                                 :key="section.id + '_main'"
                                                  v-droppable="getDropData({ position: 0, sectionPosition: 'main' }, sectionIndex)">
-                                                {{ $tc('sw-cms.detail.addBlocks') }}
+                                            {{ $tc('sw-cms.detail.addBlocks') }}
                                                 main
                                             </div>
                                         {% endblock %}
@@ -356,6 +357,7 @@
                                         <template v-else>
                                             {% block sw_cms_sidebar_navigator_sidebar_empty %}
                                                 <div class="sw-cms-sidebar__navigator-empty-element"
+                                                     :key="section.id + '_sidebar'"
                                                      v-droppable="getDropData({ position: 0, sectionPosition: 'sidebar' }, sectionIndex)">
                                                     {{ $tc('sw-cms.detail.addBlocks') }}
                                                     sidebar

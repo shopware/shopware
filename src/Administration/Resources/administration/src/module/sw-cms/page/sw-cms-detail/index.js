@@ -403,7 +403,6 @@ Component.register('sw-cms-detail', {
             section.sizingMode = 'boxed';
             section.position = index;
             section.pageId = this.page.id;
-            section.blocks = [];
 
             this.page.sections.splice(index, 0, section);
             this.updateSectionAndBlockPositions();

@@ -74,7 +74,7 @@ trait PluginIntegrationTestBehaviour
             'baseClass' => 'SwagTest\\SwagTest',
             'version' => '1.0.1',
             'active' => false,
-            'path' => 'platform/src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTest',
+            'path' => __DIR__ . '/_fixture/plugins/SwagTest',
             'autoload' => ['psr-4' => ['SwagTest\\' => 'src/']],
             'createdAt' => new \DateTimeImmutable('2019-01-01'),
             'managedByComposer' => false,

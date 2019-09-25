@@ -49,7 +49,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testNonExistingPluginIsSkipped(): void
     {
         $active = $this->getActivePlugin();
-        $active->setPath('platform/src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTestNonExisting');
+        $active->setPath(TEST_PROJECT_DIR . '/platform/src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTestNonExisting');
 
         $plugins = [$active->jsonSerialize()];
         $loader = new StaticKernelPluginLoader($this->classLoader, null, $plugins);
@@ -275,6 +275,45 @@ class StaticKernelPluginLoaderTest extends TestCase
     }
 
     public function testPsr0IsAddedToClassMap(): void
+    {
+        $classLoader = $this->createMock(ClassLoader::class);
+
+        $plugin = $this->getInstalledInactivePlugin();
+        $plugin->setPath(TEST_PROJECT_DIR . '/custom/plugins/TestPlugin');
+        $plugin->setAutoload([
+            'psr-0' => [
+                'Test_' => 'src',
+            ],
+        ]);
+
+        $classLoader->expects(static::once())->method('add')->with('Test_', [
+            TEST_PROJECT_DIR . '/custom/plugins/TestPlugin/src',
+        ], false);
+
+        $loader = new StaticKernelPluginLoader($classLoader, null, [$plugin->jsonSerialize()]);
+        $loader->initializePlugins(TEST_PROJECT_DIR);
+    }
+
+    public function testExpectExceptionExternalPath(): void
+    {
+        $classLoader = $this->createMock(ClassLoader::class);
+
+        $plugin = $this->getInstalledInactivePlugin();
+        $plugin->setPath('/custom/plugins/TestPlugin');
+        $plugin->setAutoload([
+            'psr-0' => [
+                'Test_' => 'src',
+            ],
+        ]);
+
+        $this->expectException(KernelPluginLoaderException::class);
+        $this->expectExceptionMessage('Failed to load plugin SwagTest. Reason: Plugin dir /custom/plugins/TestPlugin needs to be a sub-directory of the project dir ' . TEST_PROJECT_DIR);
+
+        $loader = new StaticKernelPluginLoader($classLoader, null, [$plugin->jsonSerialize()]);
+        $loader->initializePlugins(TEST_PROJECT_DIR);
+    }
+
+    public function testPsr0WithRelativePathIsAddedToClassMap(): void
     {
         $classLoader = $this->createMock(ClassLoader::class);
 

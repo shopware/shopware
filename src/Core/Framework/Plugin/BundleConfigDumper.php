@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Kernel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Finder\Finder;
@@ -38,8 +37,7 @@ class BundleConfigDumper implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PluginPostActivateEvent::class => 'postActivate',
-            PluginPostUninstallEvent::class => 'dump',
+            PluginPostActivateEvent::class => 'dump',
             PluginPostDeactivateEvent::class => 'dump',
         ];
     }
@@ -47,27 +45,6 @@ class BundleConfigDumper implements EventSubscriberInterface
     public function dump(): void
     {
         $config = $this->getConfig();
-
-        file_put_contents(
-            $this->kernel->getCacheDir() . '/../../plugins.json',
-            json_encode($config, JSON_PRETTY_PRINT)
-        );
-    }
-
-    public function postActivate(PluginPostActivateEvent $event): void
-    {
-        $className = $event->getPlugin()->getBaseClass();
-
-        /** @var Plugin $plugin */
-        $plugin = new $className(true, $this->kernel->getProjectDir() . '/' . $event->getPlugin()->getPath());
-
-        if (!$plugin instanceof Plugin) {
-            throw new \RuntimeException(
-                sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class)
-            );
-        }
-
-        $config = $this->getConfig($plugin);
 
         file_put_contents(
             $this->kernel->getCacheDir() . '/../../plugins.json',

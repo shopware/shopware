@@ -114,14 +114,6 @@ Component.register('sw-sales-channel-detail', {
     methods: {
         createdComponent() {
             this.loadEntityData();
-            this.registerListener();
-        },
-
-        registerListener() {
-            this.$root.$on('sales-channel-product-comparison-access-key-changed', this.generateAccessUrl);
-            this.$root.$on('sales-channel-product-comparison-domain-changed', this.generateAccessUrl);
-            this.$root.$on('sales-channel-product-comparison-invalid-file-name', () => { this.invalidFileName = true; });
-            this.$root.$on('sales-channel-product-comparison-valid-file-name', () => { this.invalidFileName = false; });
         },
 
         loadEntityData() {
@@ -211,6 +203,10 @@ Component.register('sw-sales-channel-detail', {
 
         saveFinish() {
             this.isSaveSuccessful = false;
+        },
+
+        setInvalidFileName($invalidFileName) {
+            this.invalidFileName = $invalidFileName;
         },
 
         onSave() {

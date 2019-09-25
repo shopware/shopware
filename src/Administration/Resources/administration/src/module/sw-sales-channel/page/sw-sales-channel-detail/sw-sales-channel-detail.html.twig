@@ -72,7 +72,11 @@
                                  :customFieldSets="customFieldSets"
                                  :isLoading="isLoading"
                                  :productComparisonAccessUrl="productComparisonAccessUrl"
-                                 :key="$route.params.id">
+                                 :key="$route.params.id"
+                                 @access-key-changed="generateAccessUrl"
+                                 @domain-changed="generateAccessUrl"
+                                 @invalid-file-name="setInvalidFileName(true)"
+                                 @valid-file-name="setInvalidFileName(false)">
                     </router-view>
                 {% endblock %}
             </sw-card-view>

@@ -221,11 +221,11 @@ Component.register('sw-sales-channel-detail-base', {
 
         invalidFileNameError() {
             if (this.invalidFileName && !this.isFileNameChecking) {
-                this.$root.$emit('sales-channel-product-comparison-invalid-file-name');
+                this.$emit('invalid-file-name');
                 return new ShopwareError({ code: 'DUPLICATED_PRODUCT_EXPORT_FILE_NAME' });
             }
 
-            this.$root.$emit('sales-channel-product-comparison-valid-file-name');
+            this.$emit('valid-file-name');
             return null;
         },
 
@@ -256,7 +256,7 @@ Component.register('sw-sales-channel-detail-base', {
         onGenerateProductExportKey(displaySaveNotification = true) {
             this.productExportService.generateKey().then((response) => {
                 this.productExport.accessKey = response.accessKey;
-                this.$root.$emit('sales-channel-product-comparison-access-key-changed');
+                this.$emit('access-key-changed');
 
                 if (displaySaveNotification) {
                     this.createNotificationInfo({
@@ -380,7 +380,7 @@ Component.register('sw-sales-channel-detail-base', {
                 .get(storefrontSalesChannelDomainId, this.context)
                 .then((entity) => {
                     this.productExport.salesChannelDomain = entity;
-                    this.$root.$emit('sales-channel-product-comparison-domain-changed');
+                    this.$emit('domain-changed');
                 });
         },
 

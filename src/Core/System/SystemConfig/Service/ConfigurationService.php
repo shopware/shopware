@@ -7,23 +7,25 @@ use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\BundleNotFoundException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 class ConfigurationService
 {
     /**
-     * @var KernelInterface
+     * @var array
      */
-    private $kernel;
+    private $bundles;
 
     /**
      * @var ConfigReader
      */
     private $configReader;
 
-    public function __construct(KernelInterface $kernel, ConfigReader $configReader)
+    /**
+     * @param BundleInterface[] $bundles
+     */
+    public function __construct(iterable $bundles, ConfigReader $configReader)
     {
-        $this->kernel = $kernel;
+        $this->bundles = $bundles;
         $this->configReader = $configReader;
     }
 
@@ -85,7 +87,7 @@ class ConfigurationService
     private function getBundle(string $bundleName): ?BundleInterface
     {
         $class = array_slice(explode('\\', $bundleName), -1)[0];
-        foreach ($this->kernel->getBundles() as $bundle) {
+        foreach ($this->bundles as $bundle) {
             if ($bundle->getName() === $class) {
                 return $bundle;
             }

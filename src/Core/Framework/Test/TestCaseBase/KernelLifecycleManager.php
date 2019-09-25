@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Composer\Autoload\ClassLoader;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\ResettableContainerInterface;
@@ -23,11 +24,16 @@ class KernelLifecycleManager
     /**
      * @var ClassLoader
      */
-    protected static $loader;
+    protected static $classLoader;
 
-    public static function prepare(ClassLoader $loader): void
+    public static function prepare(ClassLoader $classLoader): void
     {
-        self::$loader = $loader;
+        self::$classLoader = $classLoader;
+    }
+
+    public static function getClassLoader(): ClassLoader
+    {
+        return self::$classLoader;
     }
 
     /**
@@ -95,18 +101,20 @@ class KernelLifecycleManager
             $debug = true;
         }
 
-        if (self::$loader === null) {
+        if (self::$classLoader === null) {
             throw new \InvalidArgumentException('No class loader set. Please call KernelLifecycleManager::prepare');
         }
 
-        return new static::$class($env, $debug, self::$loader);
+        $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, static::$class::getConnection());
+
+        return new static::$class($env, $debug, $pluginLoader);
     }
 
     /**
      * @throws \RuntimeException
      * @throws \LogicException
      */
-    private static function getKernelClass(): string
+    public static function getKernelClass(): string
     {
         if (!isset($_SERVER['KERNEL_CLASS']) && !isset($_ENV['KERNEL_CLASS'])) {
             throw new \LogicException(

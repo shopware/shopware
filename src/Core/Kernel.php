@@ -2,15 +2,13 @@
 
 namespace Shopware\Core;
 
-use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -37,14 +35,9 @@ class Kernel extends HttpKernel
     protected static $connection;
 
     /**
-     * @var KernelPluginCollection
+     * @var KernelPluginLoader|null
      */
-    protected static $plugins;
-
-    /**
-     * @var ClassLoader
-     */
-    protected $classLoader;
+    protected $pluginLoader;
 
     /**
      * @var string
@@ -57,18 +50,22 @@ class Kernel extends HttpKernel
     protected $shopwareVersionRevision;
 
     /**
+     * @var bool
+     */
+    private $rebooting = false;
+
+    /**
      * {@inheritdoc}
      */
-    public function __construct(string $environment, bool $debug, ClassLoader $classLoader, ?string $version = self::SHOPWARE_FALLBACK_VERSION)
+    public function __construct(string $environment, bool $debug, KernelPluginLoader $pluginLoader, ?string $version = self::SHOPWARE_FALLBACK_VERSION)
     {
         date_default_timezone_set('UTC');
 
         parent::__construct($environment, $debug);
-
-        self::$plugins = new KernelPluginCollection();
         self::$connection = null;
 
-        $this->classLoader = $classLoader;
+        $this->pluginLoader = $pluginLoader;
+
         $this->parseShopwareVersion($version);
     }
 
@@ -84,13 +81,10 @@ class Kernel extends HttpKernel
             }
         }
 
-        foreach (self::$plugins->getActives() as $plugin) {
-            yield $plugin;
-            yield from $plugin->getExtraBundles($this->classLoader);
-        }
+        yield from $this->pluginLoader->getBundles();
     }
 
-    public function boot($withPlugins = true): void
+    public function boot(): void
     {
         if ($this->booted === true) {
             if ($this->debug) {
@@ -110,9 +104,7 @@ class Kernel extends HttpKernel
             $_SERVER['SHELL_VERBOSITY'] = 3;
         }
 
-        if ($withPlugins) {
-            $this->initializePlugins();
-        }
+        $this->pluginLoader->initializePlugins($this->getProjectDir());
 
         // init bundles
         $this->initializeBundles();
@@ -131,11 +123,6 @@ class Kernel extends HttpKernel
         $this->booted = true;
     }
 
-    public static function getPlugins(): KernelPluginCollection
-    {
-        return self::$plugins;
-    }
-
     public static function getConnection(): Connection
     {
         if (!self::$connection) {
@@ -152,7 +139,7 @@ class Kernel extends HttpKernel
 
     public function getCacheDir(): string
     {
-        $pluginHash = md5(implode('', array_keys(self::getPlugins()->getActives())));
+        $pluginHash = md5(implode('', array_keys($this->pluginLoader->getPluginInstances()->getActives())));
 
         return sprintf(
             '%s/var/cache/%s_k%s_p%s',
@@ -163,9 +150,9 @@ class Kernel extends HttpKernel
         );
     }
 
-    public function getPluginDir(): string
+    public function getPluginLoader(): KernelPluginLoader
     {
-        return $this->getProjectDir() . '/custom/plugins';
+        return $this->pluginLoader;
     }
 
     public function shutdown(): void
@@ -174,10 +161,26 @@ class Kernel extends HttpKernel
             return;
         }
 
-        self::$plugins = new KernelPluginCollection();
-        self::$connection = null;
+        // keep connection when rebooting
+        if (!$this->rebooting) {
+            self::$connection = null;
+        }
 
         parent::shutdown();
+    }
+
+    public function reboot($warmupDir, ?KernelPluginLoader $pluginLoader = null): void
+    {
+        $this->rebooting = true;
+
+        try {
+            if ($pluginLoader) {
+                $this->pluginLoader = $pluginLoader;
+            }
+            parent::reboot($warmupDir);
+        } finally {
+            $this->rebooting = false;
+        }
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
@@ -214,35 +217,26 @@ class Kernel extends HttpKernel
 
         $activePluginMeta = [];
 
-        foreach (self::getPlugins()->getActives() as $namespace => $plugin) {
-            $pluginName = $plugin->getName();
-            $activePluginMeta[$pluginName] = [
-                'name' => $pluginName,
+        foreach ($this->pluginLoader->getPluginInstances()->getActives() as $namespace => $plugin) {
+            $class = get_class($plugin);
+            $activePluginMeta[$class] = [
+                'name' => $plugin->getName(),
                 'path' => $plugin->getPath(),
+                'class' => $class,
             ];
         }
+
+        $pluginDir = $this->pluginLoader->getPluginDir($this->getProjectDir());
 
         return array_merge(
             $parameters,
             [
                 'kernel.shopware_version' => $this->shopwareVersion,
                 'kernel.shopware_version_revision' => $this->shopwareVersionRevision,
-                'kernel.plugin_dir' => $this->getPluginDir(),
+                'kernel.plugin_dir' => $pluginDir,
                 'kernel.active_plugins' => $activePluginMeta,
             ]
         );
-    }
-
-    protected function initializePlugins(): void
-    {
-        $sql = <<<SQL
-SELECT `base_class`, IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active, `path`, `autoload`, `managed_by_composer` FROM `plugin`
-SQL;
-
-        $plugins = self::getConnection()->executeQuery($sql)->fetchAll();
-
-        $this->registerPluginNamespaces($plugins);
-        $this->instantiatePlugins($plugins);
     }
 
     private function addApiRoutes(RouteCollectionBuilder $routes): void
@@ -286,84 +280,6 @@ SQL;
         }
 
         $connection->executeQuery(implode(';', $connectionVariables));
-    }
-
-    private function registerPluginNamespaces(array $plugins): void
-    {
-        foreach ($plugins as $plugin) {
-            // plugins managed by composer are already in the classMap
-            if ($plugin['managed_by_composer']) {
-                continue;
-            }
-
-            if (empty($plugin['autoload'])) {
-                throw new \RuntimeException(sprintf('Unable to register plugin "%s" in autoload.', $plugin['base_class']));
-            }
-
-            $autoload = json_decode($plugin['autoload'], true);
-
-            $psr4 = $autoload['psr-4'] ?? [];
-            $psr0 = $autoload['psr-0'] ?? [];
-
-            if (empty($psr4) && empty($psr0)) {
-                throw new \RuntimeException(sprintf('Unable to register plugin "%s" in autoload.', $plugin['base_class']));
-            }
-
-            foreach ($psr4 as $namespace => $path) {
-                if (is_string($path)) {
-                    $path = [$path];
-                }
-                $path = $this->mapPsrPaths($path, $plugin['path']);
-                $this->classLoader->addPsr4($namespace, $path);
-            }
-
-            foreach ($psr0 as $namespace => $path) {
-                if (is_string($path)) {
-                    $path = [$path];
-                }
-                $path = $this->mapPsrPaths($path, $plugin['path']);
-
-                $this->classLoader->add($namespace, $path);
-            }
-        }
-    }
-
-    private function mapPsrPaths(array $psr, string $pluginPath): array
-    {
-        $mappedPaths = [];
-
-        foreach ($psr as $path) {
-            $mappedPaths[] = $this->getProjectDir() . '/' . $pluginPath . '/' . $path;
-        }
-
-        return $mappedPaths;
-    }
-
-    private function instantiatePlugins(array $plugins): void
-    {
-        foreach ($plugins as $pluginData) {
-            $className = $pluginData['base_class'];
-
-            $pluginClassFilePath = $this->classLoader->findFile($className);
-            if ($pluginClassFilePath === false) {
-                continue;
-            }
-
-            if (!file_exists($pluginClassFilePath)) {
-                continue;
-            }
-
-            /** @var Plugin $plugin */
-            $plugin = new $className((bool) $pluginData['active'], $this->getProjectDir() . '/' . $pluginData['path']);
-
-            if (!$plugin instanceof Plugin) {
-                throw new \RuntimeException(
-                    sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class)
-                );
-            }
-
-            self::$plugins->add($plugin);
-        }
     }
 
     private function addFallbackRoute(RouteCollectionBuilder $routes): void

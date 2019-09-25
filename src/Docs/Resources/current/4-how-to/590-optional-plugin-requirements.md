@@ -69,8 +69,8 @@ class MyPlugin extends Plugin
     {
         parent::build($container);
 
-        $otherPlugin = Kernel::getPlugins()->get(\OtherPlugin\OtherPlugin::class);
-        if ($otherPlugin === null || $otherPlugin->isActive() === false) {
+        $activePlugins = $container->getParameter('kernel.active_plugins');
+        if (!isset($activePlugins[\OtherPlugin\OtherPlugin::class])) {
             return;
         }
 
@@ -81,8 +81,8 @@ class MyPlugin extends Plugin
 }
 ```
 
-Use the Shopware kernel for trying to get the instance of the other plugin.
-If the plugin is not found in the system or the plugin is not active, do nothing. 
+Use the `kernel.active_plugins` parameter to get information of the active plugins.
+If the plugin is not found in the system or not active, do nothing.
 
 If the plugin is present in the system and also active, we could use the XmlFileLoader to load our `other_plugin_extension.xml`,
 which contains the declaration of the service which is extending from the other plugin.

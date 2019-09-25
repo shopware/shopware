@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Test\ScheduledTask\Subscriber;
 
+use Google\Auth\Cache\MemoryCacheItemPool;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
-use Shopware\Core\Framework\ScheduledTask\MessageQueue\RegisterScheduledTaskMessage;
+use Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\ScheduledTask\Subscriber\PluginLifecycleSubscriber;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Worker\StopWhenRestartSignalIsReceived;
 
 class PluginLifecycleSubscriberTest extends TestCase
 {
@@ -18,19 +18,20 @@ class PluginLifecycleSubscriberTest extends TestCase
 
         static::assertCount(2, $events);
         static::assertArrayHasKey(PluginPostActivateEvent::class, $events);
-        static::assertEquals('registerScheduledTasked', $events[PluginPostActivateEvent::class]);
+        static::assertEquals('afterPluginStateChange', $events[PluginPostActivateEvent::class]);
         static::assertArrayHasKey(PluginPostDeactivateEvent::class, $events);
-        static::assertEquals('registerScheduledTasked', $events[PluginPostDeactivateEvent::class]);
+        static::assertEquals('afterPluginStateChange', $events[PluginPostDeactivateEvent::class]);
     }
 
     public function testRegisterScheduledTasks(): void
     {
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $messageBus->expects(static::once())
-            ->method('dispatch')->with(static::isInstanceOf(RegisterScheduledTaskMessage::class))
-            ->willReturn(new Envelope(new RegisterScheduledTaskMessage()));
+        $taskRegistry = $this->createMock(TaskRegistry::class);
+        $taskRegistry->expects(static::once())->method('registerTasks');
 
-        $subscriber = new PluginLifecycleSubscriber($messageBus);
-        $subscriber->registerScheduledTasked();
+        $signalCachePool = new MemoryCacheItemPool();
+        $subscriber = new PluginLifecycleSubscriber($taskRegistry, $signalCachePool);
+        $subscriber->afterPluginStateChange();
+
+        static::assertTrue($signalCachePool->hasItem(StopWhenRestartSignalIsReceived::RESTART_REQUESTED_TIMESTAMP_KEY));
     }
 }

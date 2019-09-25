@@ -9,10 +9,13 @@
             <tag name="shopware.entity.definition" entity="system_config"/>
         </service>
 
-        <service id="Shopware\Core\System\SystemConfig\Service\ConfigurationService">
-            <argument type="service" id="kernel"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
+        <service id="kernel.bundles" class="Iterator">
+            <factory service="kernel" method="getBundles"/>
+        </service>
 
+        <service id="Shopware\Core\System\SystemConfig\Service\ConfigurationService">
+            <argument type="service" id="kernel.bundles" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
@@ -21,7 +24,6 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
-
 
         <service id="Shopware\Core\System\SystemConfig\SystemConfigService" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>

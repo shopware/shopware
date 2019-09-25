@@ -20,7 +20,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\ScheduledTask\Subscriber\PluginLifecycleSubscriber">
-            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Registry\TaskRegistry"/>
+            <argument type="service" id="cache.messenger.restart_workers_signal" />
+
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -36,6 +38,7 @@
 
         <service id="Shopware\Core\Framework\ScheduledTask\Command\ScheduledTaskRunner">
             <argument type="service" id="Shopware\Core\Framework\ScheduledTask\Scheduler\TaskScheduler"/>
+            <argument type="service" id="cache.messenger.restart_workers_signal" />
             <tag name="console.command"/>
         </service>
 

@@ -5,6 +5,14 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader" public="true">
+            <factory service="kernel" method="getPluginLoader" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\KernelPluginCollection" public="true">
+            <factory service="Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader" method="getPluginInstances"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Plugin\Command\BundleDumpCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\BundleConfigDumper"/>
             <tag name="console.command"/>
@@ -22,10 +30,6 @@
 
         <service id="Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition">
             <tag name="shopware.entity.definition" entity="plugin_translation"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Plugin\KernelPluginCollection">
-            <factory service="kernel" method="getPlugins"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginService">
@@ -50,6 +54,7 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Composer\CommandExecutor"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator"/>
+            <argument type="service" id="cache.messenger.restart_workers_signal" />
             <argument>%kernel.shopware_version%</argument>
         </service>
 

@@ -104,6 +104,39 @@ Core
        }
     }
     ```
+* We've changed the kernel plugin loading. Replace the `ClassLoader` with an instance of `\Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader`.
+
+    Before:
+    ```php
+    $kernel = new \Shopware\Core\Kernel($env, $debug, $classLoader, $version);
+    ```
+
+    After:
+    ```php
+    $connection = \Shopware\Core\Kernel::getConnection();
+    $pluginLoader = new \Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader($classLoader, null, $connection);
+    $kernel = new \Shopware\Core\Kernel($env, $debug, $pluginLoader, $version);
+
+    // or without plugins
+    $pluginLoader = new \Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader($classLoader, null, []);
+    $kernel = new \Shopware\Core\Kernel($env, $debug, $pluginLoader, $version);
+
+    // or with a static plugin list
+    $plugins = [
+        [
+            'baseClass' => 'SwagTest\\SwagTest',
+            'active' => true,
+            'path' => 'platform/src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTest',
+            'autoload' => ['psr-4' => ['SwagTest\\' => 'src/']],
+            'managedByComposer' => false,
+        ]
+    ];
+    $pluginLoader = new \Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader($classLoader, null, $plugins);
+    $kernel = new \Shopware\Core\Kernel($env, $debug, $pluginLoader, $version);
+    ```
+
+* the parameter for the `\Shopware\Core\Kernel::boot` method was removed. Instead, use the `StaticKernelPluginLoader` with an empty list.
+
 
 * If you have implemented a custom `Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSerializer`, you must now provide a `DefinitionInstanceRegistry` when calling the super constructor
 * Removed `Shopware\Core\Framework\DataAbstractionLayer\EntityWrittenContainerEvent::getEventByDefinition`. Use `getEventByEntityName` instead, which takes the entity name instead of the entity classname but proved the same functionality.

@@ -277,7 +277,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
     private function createConfigFromClassName(string $pluginPath, string $className): StorefrontPluginConfiguration
     {
         /** @var Plugin $plugin */
-        $plugin = new $className(true, $this->projectDirectory . '/' . $pluginPath);
+        $plugin = new $className(true, $pluginPath, $this->projectDirectory);
 
         if (!$plugin instanceof Plugin) {
             throw new \RuntimeException(

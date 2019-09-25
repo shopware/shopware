@@ -22,10 +22,15 @@ abstract class Plugin extends Bundle
      */
     private $basePath;
 
-    final public function __construct(bool $active, string $basePath)
+    final public function __construct(bool $active, string $basePath, ?string $projectDir = null)
     {
         $this->active = $active;
         $this->basePath = $basePath;
+
+        if ($projectDir && strpos($this->basePath, '/') !== 0) {
+            $this->basePath = $projectDir . '/' . $this->basePath;
+        }
+
         $this->path = $this->computePluginClassPath();
     }
 

@@ -159,6 +159,8 @@ abstract class KernelPluginLoader extends Bundle
     private function registerPluginNamespaces(string $projectDir): void
     {
         foreach ($this->pluginInfos as $plugin) {
+            $pluginName = $plugin['name'] ?? $plugin['baseClass'];
+
             // plugins managed by composer are already in the classMap
             if ($plugin['managedByComposer']) {
                 continue;
@@ -169,7 +171,7 @@ abstract class KernelPluginLoader extends Bundle
                     'Unable to register plugin "%s" in autoload. Required property `autoload` missing.',
                     $plugin['baseClass']
                 );
-                throw new KernelPluginLoaderException($plugin['name'], $reason);
+                throw new KernelPluginLoaderException($pluginName, $reason);
             }
 
             $psr4 = $plugin['autoload']['psr-4'] ?? [];
@@ -180,14 +182,14 @@ abstract class KernelPluginLoader extends Bundle
                     'Unable to register plugin "%s" in autoload. Required property `psr-4` or `psr-0` missing in property autoload.',
                     $plugin['baseClass']
                 );
-                throw new KernelPluginLoaderException($plugin['name'], $reason);
+                throw new KernelPluginLoaderException($pluginName, $reason);
             }
 
             foreach ($psr4 as $namespace => $paths) {
                 if (is_string($paths)) {
                     $paths = [$paths];
                 }
-                $mappedPaths = $this->mapPsrPaths($paths, $projectDir, $plugin['path']);
+                $mappedPaths = $this->mapPsrPaths($pluginName, $paths, $projectDir, $plugin['path']);
                 $this->classLoader->addPsr4($namespace, $mappedPaths);
             }
 
@@ -195,22 +197,41 @@ abstract class KernelPluginLoader extends Bundle
                 if (is_string($paths)) {
                     $paths = [$paths];
                 }
-                $mappedPaths = $this->mapPsrPaths($paths, $projectDir, $plugin['path']);
+                $mappedPaths = $this->mapPsrPaths($pluginName, $paths, $projectDir, $plugin['path']);
 
                 $this->classLoader->add($namespace, $mappedPaths);
             }
         }
     }
 
-    private function mapPsrPaths(array $psr, string $projectDir, string $pluginPath): array
+    private function mapPsrPaths(string $plugin, array $psr, string $projectDir, string $pluginRootPath): array
     {
         $mappedPaths = [];
 
+        $absolutePluginRootPath = $this->getAbsolutePluginRootPath($projectDir, $pluginRootPath);
+
+        if (strpos($absolutePluginRootPath, $projectDir) !== 0) {
+            throw new KernelPluginLoaderException(
+                $plugin,
+                sprintf('Plugin dir %s needs to be a sub-directory of the project dir %s', $pluginRootPath, $projectDir)
+            );
+        }
+
         foreach ($psr as $path) {
-            $mappedPaths[] = $projectDir . '/' . $pluginPath . '/' . $path;
+            $mappedPaths[] = $absolutePluginRootPath . '/' . $path;
         }
 
         return $mappedPaths;
+    }
+
+    private function getAbsolutePluginRootPath(string $projectDir, string $pluginRootPath): string
+    {
+        // is relative path
+        if (strpos($pluginRootPath, '/') !== 0) {
+            $pluginRootPath = $projectDir . '/' . $pluginRootPath;
+        }
+
+        return $pluginRootPath;
     }
 
     /**
@@ -227,7 +248,7 @@ abstract class KernelPluginLoader extends Bundle
             }
 
             /** @var Plugin $plugin */
-            $plugin = new $className((bool) $pluginData['active'], $projectDir . '/' . $pluginData['path']);
+            $plugin = new $className((bool) $pluginData['active'], $pluginData['path'], $projectDir);
 
             if (!$plugin instanceof Plugin) {
                 $reason = sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class);

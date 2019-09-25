@@ -44,7 +44,8 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-cms-detail').should('be.visible');
 
         // Fill in basic data
-        cy.get('#sw-field--page-name').type('Laid out');
+        cy.get('#sw-field--page-name').clear();
+        cy.get('#sw-field--page-name').typeAndCheck('Laidout');
         cy.get('#sw-field--page-type').select('Landing page');
 
         // Add simple text block
@@ -81,7 +82,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-text-editor__content-editor').clear().type('Deutscher Content');
 
         cy.get('.sw-sidebar__navigation li').first().click();
-        cy.get('#sw-field--page-name').clear().type('Deutscher Titel');
+        cy.get('#sw-field--page-name').clear().typeAndCheck('Deutscher Titel');
 
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@updateData').then((xhr) => {

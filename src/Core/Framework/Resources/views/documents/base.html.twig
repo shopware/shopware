@@ -140,14 +140,11 @@
             <div class="sender-address-container">
                 {% block document_sender_address %}
                     <table>
-                        {# todo save address with sales channel? #}
-                        <tr><td class="bold">shopware AG</td></tr>
-                        <tr><td>48624 Schöppingen</td></tr>
-                        <tr><td>Ebbinghoff 10</td></tr>
-                        <tr><td>Fon: 01234 / 56789</td></tr>
-                        <tr><td>Fax: 01234 / 56789</td></tr>
-                        <tr><td>info@shopware.com</td></tr>
-                        <tr><td>www.shopware.com</td></tr>
+                        <tr>
+                            <td>
+                                {{ config.companyAddress|replace({' - ': '</td></tr><tr><td>'})|raw }}
+                            </td>
+                        </tr>
                     </table>
                 {% endblock %}
                 {% block document_side_info %}

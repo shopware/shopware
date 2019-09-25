@@ -60,7 +60,7 @@ class WikiApiService
             $articleInfoDe,
             [
                 'seoUrl' => $documentMetadata->getUrlDe(),
-                'searchableInAllLanguages' => true,
+                'searchableInAllLanguages' => false,
             ]
         );
 
@@ -265,7 +265,7 @@ class WikiApiService
             'title' => $documentMetadata->getTitleDe(),
             'navigationTitle' => $documentMetadata->getTitleDe(),
             'content' => '<p>Die Entwicklerdokumentation ist nur auf Englisch verfügbar.</p>',
-            'searchableInAllLanguages' => true,
+            'searchableInAllLanguages' => false,
             'seoUrl' => $documentMetadata->getUrlDe(),
             'metaDescription' => $documentMetadata->getMetaDescriptionDe(),
         ];
@@ -379,7 +379,7 @@ class WikiApiService
                             'metaTitle' => '',
                             'metaDescription' => '',
                             'media' => null,
-                            'searchableInAllLanguages' => false,
+                            'searchableInAllLanguages' => true,
                         ],
                     ],
                 ],

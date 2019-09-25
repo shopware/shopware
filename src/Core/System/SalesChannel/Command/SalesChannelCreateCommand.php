@@ -90,7 +90,7 @@ class SalesChannelCreateCommand extends Command
             ->addOption('countryId', null, InputOption::VALUE_REQUIRED, 'Default country')
             ->addOption('typeId', null, InputOption::VALUE_OPTIONAL, 'Sales channel type id')
             ->addOption('customerGroupId', null, InputOption::VALUE_REQUIRED, 'Default customer group', Defaults::FALLBACK_CUSTOMER_GROUP)
-            ->addOption('navigationCategoryId', null, InputOption::VALUE_REQUIRED, 'Default Navigation Category', $this->getRootCategoryId())
+            ->addOption('navigationCategoryId', null, InputOption::VALUE_REQUIRED, 'Default Navigation Category')
         ;
     }
 
@@ -174,7 +174,9 @@ class SalesChannelCreateCommand extends Command
 
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array
     {
-        return [];
+        return [
+            'navigationCategoryId' => $this->getRootCategoryId(),
+        ];
     }
 
     protected function getTypeId(): string

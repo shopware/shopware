@@ -26,7 +26,8 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-cms-detail').should('be.visible');
 
         // Fill in basic data
-        cy.get('#sw-field--page-name').type('Laid out');
+        cy.get('#sw-field--page-name').clear();
+        cy.get('#sw-field--page-name').typeAndCheck('Laidout');
         cy.get('#sw-field--page-type').select('Landing page');
 
         // Add simple text block
@@ -43,9 +44,9 @@ describe('CMS: Test crud operations of layouts', () => {
             expect(xhr).to.have.property('status', 204);
         });
         cy.get('.sw-cms-detail__back-btn').click();
-        cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laid');
+        cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laidout');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Laid out');
+        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Laidout');
     });
 
     it('@package @content: update and read layout', () => {

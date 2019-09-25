@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
@@ -76,7 +75,7 @@ class WriteCommandExtractor
         // without child association
         $data = $this->map($mainFields, $rawData, $existence, $parameters);
 
-        $this->updateCommandQueue($definition, $parameters->getCommandQueue(), $existence, $pkData, $data);
+        $this->updateCommandQueue($definition, $parameters, $existence, $pkData, $data);
 
         // call map with child associations only
         $children = array_filter($fields, function (Field $field) {
@@ -101,7 +100,8 @@ class WriteCommandExtractor
                 $storageName,
                 $pks,
                 $attributes,
-                $existence
+                $existence,
+                $parameters->getPath()
             );
             $parameters->getCommandQueue()->add($jsonUpdateCommand->getDefinition(), $jsonUpdateCommand);
         }
@@ -169,16 +169,36 @@ class WriteCommandExtractor
         return $rawData;
     }
 
-    private function updateCommandQueue(EntityDefinition $definition, WriteCommandQueue $queue, EntityExistence $existence, array $pkData, array $data): void
+    private function updateCommandQueue(EntityDefinition $definition, WriteParameterBag $parameterBag, EntityExistence $existence, array $pkData, array $data): void
     {
+        $queue = $parameterBag->getCommandQueue();
+
         /* @var EntityDefinition $definition */
         if ($existence->exists()) {
-            $queue->add($definition, new UpdateCommand($definition, $pkData, $data, $existence));
+            $queue->add(
+                $definition,
+                new UpdateCommand(
+                    $definition,
+                    $pkData,
+                    $data,
+                    $existence,
+                    $parameterBag->getPath()
+                )
+            );
 
             return;
         }
 
-        $queue->add($definition, new InsertCommand($definition, array_merge($pkData, $data), $pkData, $existence));
+        $queue->add(
+            $definition,
+            new InsertCommand(
+                $definition,
+                array_merge($pkData, $data),
+                $pkData,
+                $existence,
+                $parameterBag->getPath()
+            )
+        );
     }
 
     /**

@@ -16,4 +16,8 @@ interface WriteCommandInterface
     public function getEntityExistence(): EntityExistence;
 
     public function getPrivilege(): string;
+
+    public function getPayload(): array;
+
+    public function getPath(): string;
 }

@@ -58,7 +58,7 @@ class BillingCountryRule extends Rule
     {
         return [
             'countryIds' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
         ];
     }
 

@@ -487,7 +487,8 @@ class VersionManager
                 false,
                 false,
                 []
-            )
+            ),
+            ''
         );
 
         $commands = [$insert];
@@ -541,7 +542,8 @@ class VersionManager
                         false,
                         false,
                         []
-                    )
+                    ),
+                    ''
                 );
             }
         }

@@ -76,6 +76,7 @@ class LineItemTotalPriceRule extends Rule
         return [
             'amount' => [new NotBlank(), new Type('numeric')],
             'operator' => [
+                new NotBlank(),
                 new Choice(
                     [
                         self::OPERATOR_EQ,

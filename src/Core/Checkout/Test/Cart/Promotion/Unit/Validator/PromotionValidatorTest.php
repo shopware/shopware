@@ -59,7 +59,8 @@ class PromotionValidatorTest extends TestCase
                 'code' => ' ',
             ],
             ['id' => 'D1'],
-            $this->createMock(EntityExistence::class)
+            $this->createMock(EntityExistence::class),
+            '/0'
         );
 
         $fakeConnection = new FakeConnection($this->getPromotionDbRows());
@@ -96,7 +97,8 @@ class PromotionValidatorTest extends TestCase
                 'valid_until' => '2019-02-25 11:59:59',
             ],
             ['id' => 'D1'],
-            $this->createMock(EntityExistence::class)
+            $this->createMock(EntityExistence::class),
+            '/0'
         );
 
         $fakeConnection = new FakeConnection($this->getPromotionDbRows());
@@ -131,7 +133,8 @@ class PromotionValidatorTest extends TestCase
                 'code' => ' ',
             ],
             ['id' => 'D1'],
-            $this->createMock(EntityExistence::class)
+            $this->createMock(EntityExistence::class),
+            '/0'
         );
 
         $fakeConnection = new FakeConnection($this->getPromotionDbRows());
@@ -172,7 +175,8 @@ class PromotionValidatorTest extends TestCase
                 'value' => $value,
             ],
             ['id' => 'D1'],
-            $this->createMock(EntityExistence::class)
+            $this->createMock(EntityExistence::class),
+            '/0'
         );
 
         $fakeConnection = new FakeConnection($this->getPromotionDbRows());
@@ -216,7 +220,8 @@ class PromotionValidatorTest extends TestCase
                 'value' => $value,
             ],
             ['id' => 'D1'],
-            $this->createMock(EntityExistence::class)
+            $this->createMock(EntityExistence::class),
+            '/0'
         );
 
         $fakeConnection = new FakeConnection($this->getPromotionDbRows());

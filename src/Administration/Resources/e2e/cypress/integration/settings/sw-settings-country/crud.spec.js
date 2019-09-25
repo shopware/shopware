@@ -29,7 +29,7 @@ describe('Country: Test crud operations', () => {
         cy.get('a[href="#/sw/settings/country/create"]').click();
 
         // Create country
-        cy.get('input[name=sw-field--country-name]').type('01.Niemandsland');
+        cy.get('input[name=sw-field--country-name]').typeAndCheck('01.Niemandsland');
         cy.get(page.elements.countrySaveAction).click();
 
         // Verify creation
@@ -57,8 +57,7 @@ describe('Country: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get('input[name=sw-field--country-name]').clear();
-        cy.get('input[name=sw-field--country-name]').type('1.Niemandsland x2');
+        cy.get('input[name=sw-field--country-name]').clearTypeAndCheck('1.Niemandsland x2');
         cy.get(page.elements.countrySaveAction).click();
 
         // Verify creation

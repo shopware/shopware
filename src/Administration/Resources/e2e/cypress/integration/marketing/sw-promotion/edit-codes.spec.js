@@ -41,6 +41,7 @@ describe('Promotion: Test promotion with codes', () => {
 
         // Active code in promotion
         cy.contains(`${page.elements.dataGridRow}--0 a`, 'Thunder Tuesday').click();
+        cy.get('#sw-field--promotion-active').should('be.visible');
         cy.get('#sw-field--promotion-active').click();
         cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
@@ -99,6 +100,7 @@ describe('Promotion: Test promotion with codes', () => {
 
         // Active code in promotion
         cy.contains(`${page.elements.dataGridRow}--0 a`, 'Thunder Tuesday').click();
+        cy.get('#sw-field--promotion-active').should('be.visible');
         cy.get('#sw-field--promotion-active').click();
         cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')

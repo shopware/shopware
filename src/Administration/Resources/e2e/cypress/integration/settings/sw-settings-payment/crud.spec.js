@@ -28,7 +28,7 @@ describe('Payment: Test crud operations', () => {
 
         // Create customer-group
         cy.get('a[href="#/sw/settings/payment/create"]').click();
-        cy.get('#sw-field--paymentMethod-name').type('Bar bei Abholung');
+        cy.get('#sw-field--paymentMethod-name').typeAndCheck('Bar bei Abholung');
         cy.get('#sw-field--paymentMethod-position').type('10');
         cy.get('#sw-field--paymentMethod-active').click();
         cy.get(page.elements.paymentSaveAction).click();
@@ -63,8 +63,7 @@ describe('Payment: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get('#sw-field--paymentMethod-name').clear();
-        cy.get('#sw-field--paymentMethod-name').type('In Schokoladentafeln');
+        cy.get('#sw-field--paymentMethod-name').clearTypeAndCheck('In Schokoladentafeln');
         cy.get(page.elements.paymentSaveAction).click();
 
         // Verify and check usage of payment method

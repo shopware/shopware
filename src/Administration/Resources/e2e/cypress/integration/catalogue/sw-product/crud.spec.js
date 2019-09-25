@@ -32,7 +32,8 @@ describe('Product: Test crud operations', () => {
 
         // Add basic data to product
         cy.get('a[href="#/sw/product/create"]').click();
-        cy.get('input[name=sw-field--product-name]').type('Product with file upload image');
+
+        cy.get('input[name=sw-field--product-name]').typeAndCheck('Product with file upload image');
         cy.get('.sw-select-product__select_manufacturer').typeSingleSelectAndCheck('shopware AG');
         cy.get('select[name=sw-field--product-taxId]').select('19%');
         cy.get('#sw-price-field-gross').type('10');
@@ -105,7 +106,7 @@ describe('Product: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get('input[name=sw-field--product-name]').clear().type('What remains of Edith Finch');
+        cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('What remains of Edith Finch');
         cy.get('input[name=sw-field--product-active]').click();
         cy.get(page.elements.productSaveAction).click();
 

@@ -43,7 +43,7 @@ describe('Promotion: Test crud operations', () => {
 
         // Create promotion
         cy.get('.sw-promotion-detail').should('be.visible');
-        cy.get('#sw-field--promotion-name').type('Funicular prices');
+        cy.get('#sw-field--promotion-name').typeAndCheck('Funicular prices');
         cy.get('#sw-field--promotion-active').click();
         cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')

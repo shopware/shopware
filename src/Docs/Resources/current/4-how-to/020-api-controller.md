@@ -58,12 +58,16 @@ Here's an example of what the controller could then look like:
 
 namespace Swag\ApiController\Controller;
 
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * @RouteScope(scopes={"api"})
+ */
 class MyController extends AbstractController
 {
     /**
@@ -80,6 +84,11 @@ There are several things to note about the `@Route` annotation:
 - In order for your controller to be an API controller, your route needs to start with `/api/`
 - The respective method only supports `GET` requests, hence the `methods={"GET"}` part of the annotation
 - Make sure to use your vendor prefix (`swag` in this example), so route collisions with other plugins won't be an issue
+
+You also have to add the `@RouteScope` annotation to declare your controller as a api route. The annotation above the class
+applies the scope to all methods of the controller, but if you only want to use different scopes in one class, you have to use
+the annotation for all methods. Click [here](../../platform-updates/2019-08-20-breaking-change-route-scopes-added.md) for
+more information to the scope annotation.
 
 ## Source
 

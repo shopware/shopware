@@ -124,6 +124,15 @@ Access the application container:
 > ./psh.phar docker:ssh
 ```
 
+Before you run install, check the following steps:
+1. Make sure all required PHP extentions are installed
+2. Make sure to adjust .psh.yaml.dist according to your database.
+3. Node.js must be installed before you run the installer and at the moment the latest npm 6.* versopm is not compatible. If you have the latest versions, make sure to downgrade to LTS Node.js 10 and npm 5, otherwise you will experience a "module missing" error.
+
+```bash
+> ./psh.phar install 
+```
+
 Execute the installer:
 
 ```bash

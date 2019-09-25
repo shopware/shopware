@@ -38,6 +38,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class PromotionCalculator
 {
+    use PromotionCartInformationTrait;
+
     /**
      * @var AmountCalculator
      */
@@ -110,6 +112,7 @@ class PromotionCalculator
             // we have to verify if the line item is still valid
             // depending on the added requirements and conditions.
             if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
+                $this->addDeleteNoticeToCart($original, $calculated, $discountItem);
                 continue;
             }
 
@@ -135,6 +138,8 @@ class PromotionCalculator
 
             // add our discount item to the cart
             $calculated->addLineItems(new LineItemCollection([$discountItem]));
+
+            $this->addAddedNoticeToCart($original, $calculated, $discountItem);
 
             // recalculate for every new discount to get the correct
             // prices for any upcoming iterations

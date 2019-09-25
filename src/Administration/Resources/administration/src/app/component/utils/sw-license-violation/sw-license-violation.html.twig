@@ -20,12 +20,20 @@
 
         <tr v-for="violation in violations">
 
-            <td class="sw-license-violation__table-name" v-if="getPluginForViolation(violation)">
-                <img v-if="getPluginForViolation(violation).icon"
+            <td class="sw-license-violation__table-name">
+                <template v-if="getPluginForViolation(violation)">
+                    <img v-if="getPluginForViolation(violation).icon"
                      :src="'data:image/png;base64, ' + getPluginForViolation(violation).icon">
-                <p>
-                    <strong>{{ getPluginForViolation(violation).translated.label || getPluginForViolation(violation).label }}</strong>
-                </p>
+                    <p>
+                        <strong>{{ getPluginForViolation(violation).translated.label || getPluginForViolation(violation).label }}</strong>
+                    </p>
+                </template>
+
+                <template v-else>
+                    <p>
+                        <strong>{{ violation.name }}</strong>
+                    </p>
+                </template>
             </td>
 
             <td>{{ violation.text }}</td>

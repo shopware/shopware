@@ -25,6 +25,26 @@ Component.register('sw-plugin-table-entry', {
         subtitle: {
             type: String,
             required: true
+        },
+
+        licenseInformation: {
+            type: Array,
+            required: false,
+            default: []
+        }
+    },
+
+    methods: {
+        labelVariant(licenseInfo) {
+            if (licenseInfo.level === 'violation') {
+                return 'danger';
+            }
+
+            if (licenseInfo.level === 'warning') {
+                return 'warning';
+            }
+
+            return 'info';
         }
     }
 });

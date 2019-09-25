@@ -61,7 +61,9 @@
                                                         :label="$tc('sw-plugin.list.columnPluginName')"
                                                         dataIndex="label">
                                             {% block sw_plugin_list_grid_columns_label_label %}
-                                                <sw-plugin-table-entry :icon="item.icon" :title="item.translated.label"
+                                                <sw-plugin-table-entry :icon="item.icon"
+                                                                       :licenseInformation="getLicenseInformationForPlugin(item)"
+                                                                       :title="item.translated.label"
                                                                        :subtitle="item.author || ''">
                                                 </sw-plugin-table-entry>
                                             {% endblock %}

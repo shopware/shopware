@@ -246,8 +246,8 @@ images{#- -#}',
 {% endif %}",{#- -#}
 "4.95",{# change your default delivery costs #}{#- -#}
 ,{#- -#}
-"{% if product.purchaseUnit %}{{ product.purchaseUnit }}{{ product.unit.shortCode }}{% endif %}",{#- -#}
-"{% if product.referenceUnit %}{{ product.referenceUnit }}{{ product.unit.shortCode }}{% endif %}",{#- -#}
+"{% if product.purchaseUnit %}{{ product.purchaseUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
+"{% if product.referenceUnit %}{{ product.referenceUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
 "{{ productUrl(product) }}",{#- -#}
 {% if product.media|length > 1 %}"{% for mediaAssociation in product.media|slice(0, 5) %}{{ mediaAssociation.media.url }}{% if not loop.last %};{% endif %}{% endfor %}"{% endif %}{#- -#}',
                 'created_at' => date(Defaults::STORAGE_DATE_TIME_FORMAT),

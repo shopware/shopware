@@ -73,7 +73,9 @@
       "textHeadlineEdit": "E-Mail-Vorlage bearbeiten",
       "titleResult": "E-Mail-Vorlagen",
       "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Die E-Mail-Vorlage \"{subject}\" wurde erfolgreich gespeichert."
+      "titleSaveError": "Fehler",
+      "messageSaveSuccess": "Die E-Mail-Vorlage \"{subject}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Die E-Mail-Vorlage \"{subject}\" konnte nicht gespeichert werden."
     }
   },
   "sw-mail-header-footer": {
@@ -127,7 +129,9 @@
       "textHeadline": "Neuer E-Mail-Header/Footer",
       "titleResult": "E-Mail-Header/Footer",
       "titleSaveSuccess": "Erfolgreich",
-      "messageSaveSuccess": "Der E-Mail-Header/Footer \"{name}\" wurde erfolgreich gespeichert."
+      "titleSaveError": "Fehler",
+      "messageSaveSuccess": "Der E-Mail-Header/Footer \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Der E-Mail-Header/Footer \"{name}\" konnte nicht gespeichert werden."
     }
   }
 }

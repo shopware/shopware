@@ -157,7 +157,7 @@ Component.register('sw-sales-channel-detail', {
             criteria.addAssociation('languages');
             criteria.addAssociation('domains');
             criteria.addAssociation('productExports');
-            criteria.addAssociationPath('productExports.salesChannelDomain.salesChannel');
+            criteria.addAssociation('productExports.salesChannelDomain.salesChannel');
 
             return criteria;
         },

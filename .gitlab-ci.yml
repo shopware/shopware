@@ -10,8 +10,8 @@ stages:
     - Static analyzes
     - unit
     - E2E
-    - Security
     - Build
+    - Security
     - Deploy
 
 include:
@@ -324,6 +324,27 @@ Administration (Settings):
     variables:
         TEST_DIRECTORY: e2e-Administration/cypress/integration/settings/**/*
 
+# Stage: build
+
+Component Library:
+    stage: Build
+    image: node:10.8
+    before_script: []
+    dependencies: []
+    variables:
+        PROJECT_ROOT: $CI_PROJECT_DIR
+    environment:
+        name: Component Library
+        url: https://component-library.shopware.com
+    script:
+        - npm install --prefix src/Administration/Resources/
+        - npm run --prefix src/Administration/Resources lerna -- bootstrap
+        - npm install --prefix src/Administration/Resources/nuxt-component-library/
+        - npm run --prefix src/Administration/Resources/nuxt-component-library/ generate
+    artifacts:
+        paths:
+            - build/artifacts/component-library/
+
 # Stage: security
 
 RIPS security:
@@ -337,29 +358,6 @@ RIPS security:
         - wget https://github.com/rips/rips-cli/releases/download/3.2.0/rips-cli.phar -O /usr/bin/rips-cli
         - chmod 755 /usr/bin/rips-cli
         - rips-cli rips:scan:start -p . -t critical:0 -a ${RIPS_APP_ID} --progress
-
-# Stage: build
-
-Component Library:
-    stage: Build
-    image: node:10.8
-    before_script: []
-    dependencies: []
-    variables:
-        PROJECT_ROOT: $CI_PROJECT_DIR
-    only:
-        - master
-    environment:
-        name: Component Library
-        url: https://component-library.shopware.com
-    script:
-        - npm install --prefix src/Administration/Resources/
-        - npm run --prefix src/Administration/Resources lerna -- bootstrap
-        - npm install --prefix src/Administration/Resources/nuxt-component-library/
-        - npm run --prefix src/Administration/Resources/nuxt-component-library/ generate
-    artifacts:
-        paths:
-            - build/artifacts/component-library/
 
 # Stage: deploy
 

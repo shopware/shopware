@@ -359,17 +359,7 @@ Component.register('sw-product-variants-overview', {
 
         onInlineEditSave(variation) {
             // check for changes
-            const hasChanges = this.productRepository.hasChanges(variation);
-
-            if (!hasChanges) {
-                const titleSaveWarning = this.$tc('sw-product.detail.titleSaveWarning');
-                const messageSaveWarning = this.$tc('sw-product.detail.messageSaveWarning');
-
-                this.createNotificationWarning({
-                    title: titleSaveWarning,
-                    message: messageSaveWarning
-                });
-
+            if (!this.productRepository.hasChanges(variation)) {
                 return;
             }
 

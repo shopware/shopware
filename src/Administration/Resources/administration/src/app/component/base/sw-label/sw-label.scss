@@ -134,4 +134,8 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--neutral {
         @include sw-label-variant($color-gray-50, $color-darkgray-200, $color-gray-300);
     }
+
+    &.sw-label--primary {
+        @include sw-label-variant($color-shopware-brand-500, $color-shopware-brand-50, $color-shopware-brand-500);
+    }
 }

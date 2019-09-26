@@ -43,12 +43,18 @@
                                     "navPosition": "bottom",
                                     "speed": 500,
                                     "controls": {% if navigationArrows %}true{% else %}false{% endif %},
-                                    "autoHeight": {% if displayMode == "standard" %}true{% else %}false{% endif %}
+                                    "autoHeight": {% if displayMode == "standard" %}true{% else %}false{% endif %},
+                                    {% if startIndexThumbnails %}
+                                    "startIndex": {{ startIndexThumbnails }}
+                                    {% endif %}
                                 },
                                 "thumbnailSlider": {
                                     {% if galleryPosition == "underneath" %}
                                     "autoWidth": true,
                                     "controls": false,
+                                    {% endif %}
+                                    {% if startIndexThumbnails %}
+                                    "startIndex": {{ startIndexThumbnails }},
                                     {% endif %}
                                     "responsive": {
                                         "xs": {

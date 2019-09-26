@@ -259,7 +259,9 @@ Component.register('sw-media-preview', {
             }
 
             if (typeof this.source === 'string') {
-                this.trueSource = this.mediaStore.getById(this.source);
+                this.mediaStore.getByIdAsync(this.source).then((media) => {
+                    this.trueSource = media;
+                });
                 return;
             }
 

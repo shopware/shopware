@@ -13,6 +13,7 @@ use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -51,6 +52,8 @@ class ProductLoader
             ->addAssociation('manufacturer.media')
             ->addAssociation('cover')
             ->addAssociation('properties.group');
+
+        $criteria->getAssociation('media')->addSorting(new FieldSorting('position'));
 
         $this->eventDispatcher->dispatch(
             new ProductLoaderCriteriaEvent($criteria, $salesChannelContext)

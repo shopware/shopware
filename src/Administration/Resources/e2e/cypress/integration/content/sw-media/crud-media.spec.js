@@ -50,8 +50,9 @@ describe('Media: Test crud operations', () => {
         page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
             .should('be.visible');
-
-        cy.get(page.elements.previewItem).first().click();
+        cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
+            .first()
+            .click();
 
         // Edit meta data
         cy.get('input[placeholder="Title"]').scrollIntoView().type('Cypress example title');

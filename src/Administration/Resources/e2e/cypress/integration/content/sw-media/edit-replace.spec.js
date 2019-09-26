@@ -39,7 +39,7 @@ describe('Media: Replace media', () => {
         });
 
         // Select uploaded image in media grid
-        cy.get(page.elements.previewItem).first().click();
+        cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').click();
 
         // Start replace action and wait for modal
         cy.get('.sw-media-sidebar__quickaction.quickaction--replace').click();
@@ -69,7 +69,7 @@ describe('Media: Replace media', () => {
         cy.get('.sw-media-modal-replace').should('not.exist');
 
         // Select replaced image in media grid
-        cy.get(page.elements.previewItem).first().click();
+        cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').click();
 
         // Verify file name is still the same
         cy.get('.sw-media-sidebar__headline').contains('sw-login-background.png');
@@ -97,7 +97,7 @@ describe('Media: Replace media', () => {
         });
 
         // Select uploaded image in media grid
-        cy.get(page.elements.previewItem).first().click();
+        cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').click();
 
         // Start replace action and wait for modal
         cy.get('.sw-media-sidebar__quickaction.quickaction--replace').click();
@@ -130,7 +130,7 @@ describe('Media: Replace media', () => {
         cy.get('.sw-media-modal-replace').should('not.exist');
 
         // Select replaced image in media grid
-        cy.get(page.elements.previewItem).first().click();
+        cy.get('.sw-media-base-item__name[title="sw-login-background.jpg"]').click();
 
         // Verify file name is still the same but with different extension
         cy.get('.sw-media-sidebar__headline').contains('sw-login-background.jpg');

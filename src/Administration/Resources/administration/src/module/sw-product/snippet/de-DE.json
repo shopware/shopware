@@ -171,7 +171,8 @@
     "mediaForm": {
       "errorHeadline": "Fehler",
       "errorNoImage": "\"{file}\" ist kein Bild.",
-      "errorMediaItemDuplicated": "Medium bereits verwendet."
+      "errorMediaItemDuplicated": "Medium bereits verwendet.",
+      "coverSubline": "Vorschaubild"
     },
     "advancedPrices": {
       "deletionNotPossibleTitle": "Fehler",

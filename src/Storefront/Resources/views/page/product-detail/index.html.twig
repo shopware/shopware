@@ -20,10 +20,6 @@
 
                         {% set mediaItems = page.product.media.media %}
 
-                        {% if page.product.cover %}
-                            {{ mediaItems.insert(0, page.product.cover.media) }}
-                        {% endif %}
-
                         {% block page_product_detail_main %}
                             <div class="row product-detail-main">
                                 {% block page_product_detail_media %}
@@ -38,7 +34,9 @@
                                                 'navigationArrows': 'inside',
                                                 'navigationDots': 'inside',
                                                 'galleryPosition': 'left',
-                                                'isProduct': true
+                                                'isProduct': true,
+                                                'startIndexThumbnails': page.product.cover.position + 1,
+                                                'startIndexSlider': page.product.cover.position + 1
                                             } %}
                                         {% endif %}
                                     </div>

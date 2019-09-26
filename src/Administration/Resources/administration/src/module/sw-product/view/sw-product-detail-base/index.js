@@ -5,6 +5,7 @@ const { Component } = Shopware;
 
 Component.register('sw-product-detail-base', {
     template,
+    inject: ['repositoryFactory', 'context'],
 
     props: {
         productId: {
@@ -71,22 +72,26 @@ Component.register('sw-product-detail-base', {
                 review.additional = true;
             });
             return this.product.productReviews;
+        },
+
+        productMediaRepository() {
+            return this.repositoryFactory.create(this.product.media.entity);
         }
     },
 
     methods: {
         mediaRemoveInheritanceFunction(newValue) {
-            // remove all items
-            this.mediaRestoreInheritanceFunction();
+            newValue.forEach(({ id, mediaId, position }) => {
+                const media = this.productMediaRepository.create(this.context);
+                Object.assign(media, { mediaId, position, productId: this.product.id });
+                if (this.parentProduct.coverId === id) {
+                    this.product.coverId = media.id;
+                }
+
+                this.product.media.push(media);
+            });
 
             this.$refs.productMediaInheritance.forceInheritanceRemove = true;
-
-            // add each item from the parentValue to the original value
-            this.$nextTick(() => {
-                newValue.forEach((item) => {
-                    this.$root.$emit('media-added', item.mediaId);
-                });
-            });
 
             return this.product.media;
         },
@@ -95,10 +100,7 @@ Component.register('sw-product-detail-base', {
             this.$refs.productMediaInheritance.forceInheritanceRemove = false;
             this.product.coverId = null;
 
-            const productMediaIds = this.product.media.map(media => media.id);
-
-            // remove all items from value
-            productMediaIds.forEach((mediaId) => {
+            this.product.media.getIds().forEach((mediaId) => {
                 this.product.media.remove(mediaId);
             });
 

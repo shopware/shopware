@@ -172,7 +172,8 @@
     "mediaForm": {
       "errorHeadline": "Error",
       "errorNoImage": "\"{file}\" is not an image.",
-      "errorMediaItemDuplicated": "Media item already assigned."
+      "errorMediaItemDuplicated": "Media item already assigned.",
+      "coverSubline": "Cover"
     },
     "advancedPrices": {
       "deletionNotPossibleTitle": "Error",

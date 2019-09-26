@@ -55,7 +55,7 @@ class ShippingCountryRule extends Rule
     {
         return [
             'countryIds' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new Choice([self::OPERATOR_NEQ, self::OPERATOR_EQ])],
+            'operator' => [new NotBlank(), new Choice([self::OPERATOR_NEQ, self::OPERATOR_EQ])],
         ];
     }
 

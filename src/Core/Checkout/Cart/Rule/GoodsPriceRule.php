@@ -82,6 +82,7 @@ class GoodsPriceRule extends FilterRule
         return [
             'amount' => [new NotBlank(), new Type('numeric')],
             'operator' => [
+                new NotBlank(),
                 new Choice(
                     [
                         self::OPERATOR_NEQ,

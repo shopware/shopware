@@ -28,12 +28,23 @@ class UpdateCommand implements WriteCommandInterface
      */
     private $existence;
 
-    public function __construct(EntityDefinition $definition, array $pkData, array $payload, EntityExistence $existence)
-    {
+    /**
+     * @var string
+     */
+    private $path;
+
+    public function __construct(
+        EntityDefinition $definition,
+        array $pkData,
+        array $payload,
+        EntityExistence $existence,
+        string $path
+    ) {
         $this->primaryKey = $pkData;
         $this->payload = $payload;
         $this->definition = $definition;
         $this->existence = $existence;
+        $this->path = $path;
     }
 
     public function isValid(): bool
@@ -64,5 +75,10 @@ class UpdateCommand implements WriteCommandInterface
     public function getPrivilege(): string
     {
         return AclResourceDefinition::PRIVILEGE_UPDATE;
+    }
+
+    public function getPath(): string
+    {
+        return $this->path;
     }
 }

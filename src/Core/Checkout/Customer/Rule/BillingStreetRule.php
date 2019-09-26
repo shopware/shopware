@@ -58,7 +58,7 @@ class BillingStreetRule extends Rule
     {
         return [
             'streetName' => [new NotBlank(), new Type('string')],
-            'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
         ];
     }
 

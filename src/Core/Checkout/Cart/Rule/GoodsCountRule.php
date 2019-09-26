@@ -79,6 +79,7 @@ class GoodsCountRule extends FilterRule
         return [
             'count' => [new NotBlank(), new Type('int')],
             'operator' => [
+                new NotBlank(),
                 new Choice(
                     [
                         self::OPERATOR_NEQ,

@@ -28,9 +28,11 @@
         <service id="Shopware\Core\Content\Rule\Util\EventIdExtractor"/>
 
         <service id="Shopware\Core\Content\Rule\RuleValidator">
-            <tag name="kernel.event_subscriber"/>
             <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>
+            <argument type="service" id="rule_condition.repository" />
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadSubscriber">

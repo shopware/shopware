@@ -52,11 +52,9 @@ class LineItemsInCartCountRuleTest extends TestCase
 
     public function testValidateWithMissingValues(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new LineItemsInCartCountRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                 ],
@@ -66,25 +64,28 @@ class LineItemsInCartCountRuleTest extends TestCase
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/count', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertCount(2, $exception->getViolations());
+                static::assertSame('/0/value/count', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
+
+                static::assertSame('/0/value/operator', $exception->getViolations()->get(1)->getPropertyPath());
+                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(1)->getCode());
+                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
             }
         }
     }
 
     public function testValidateWithEmptyValues(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new LineItemsInCartCountRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'count' => null,
+                        'operator' => LineItemsInCartCountRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -94,7 +95,7 @@ class LineItemsInCartCountRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/count', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/count', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -103,15 +104,14 @@ class LineItemsInCartCountRuleTest extends TestCase
 
     public function testValidateWithStringValue(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new LineItemsInCartCountRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'count' => '4',
+                        'operator' => LineItemsInCartCountRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -121,7 +121,7 @@ class LineItemsInCartCountRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/count', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/count', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type int.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -129,11 +129,9 @@ class LineItemsInCartCountRuleTest extends TestCase
 
     public function testValidateWithInvalidValue(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new LineItemsInCartCountRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
@@ -148,9 +146,11 @@ class LineItemsInCartCountRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(2, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/count', $exception->getViolations()->get(0)->getPropertyPath());
+
+                static::assertSame('/0/value/count', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type int.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('/conditions/' . $conditionId . '/operator', $exception->getViolations()->get(1)->getPropertyPath());
+
+                static::assertSame('/0/value/operator', $exception->getViolations()->get(1)->getPropertyPath());
                 static::assertSame('The value you selected is not a valid choice.', $exception->getViolations()->get(1)->getMessage());
             }
         }

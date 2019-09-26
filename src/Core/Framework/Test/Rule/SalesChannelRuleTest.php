@@ -44,11 +44,9 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithMissingSalesChannelIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                 ],
@@ -59,7 +57,7 @@ class SalesChannelRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/salesChannelIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/salesChannelIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -68,11 +66,9 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithEmptySalesChannelIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
@@ -86,7 +82,7 @@ class SalesChannelRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/salesChannelIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/salesChannelIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -95,11 +91,9 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithStringSalesChannelIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
@@ -113,7 +107,7 @@ class SalesChannelRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/salesChannelIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/salesChannelIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type array.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -121,11 +115,9 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithInvalidArraySalesChannelIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
@@ -139,7 +131,7 @@ class SalesChannelRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(3, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/salesChannelIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/salesChannelIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('The value "1" is not a valid uuid.', $exception->getViolations()->get(0)->getMessage());
                 static::assertSame('The value "3" is not a valid uuid.', $exception->getViolations()->get(1)->getMessage());
                 static::assertSame('The value "" is not a valid uuid.', $exception->getViolations()->get(2)->getMessage());
@@ -149,11 +141,9 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithInvalidSalesChannelIdsUuid(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new SalesChannelRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
@@ -167,7 +157,7 @@ class SalesChannelRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(2, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/salesChannelIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/salesChannelIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('The value "Invalid" is not a valid uuid.', $exception->getViolations()->get(0)->getMessage());
                 static::assertSame('The value "1234abcd" is not a valid uuid.', $exception->getViolations()->get(1)->getMessage());
             }
@@ -216,12 +206,10 @@ class SalesChannelRuleTest extends TestCase
 
     public function testValidateWithInvalidOperators(): void
     {
-        $conditionId = Uuid::randomHex();
         foreach ([Rule::OPERATOR_LTE, Rule::OPERATOR_GTE, 'Invalid', true, 1.1] as $operator) {
             try {
                 $this->conditionRepository->create([
                     [
-                        'id' => $conditionId,
                         'type' => (new SalesChannelRule())->getName(),
                         'ruleId' => Uuid::randomHex(),
                         'value' => [
@@ -236,7 +224,7 @@ class SalesChannelRuleTest extends TestCase
                 /** @var WriteConstraintViolationException $exception */
                 foreach ($stackException->getExceptions() as $exception) {
                     static::assertCount(1, $exception->getViolations());
-                    static::assertSame('/conditions/' . $conditionId . '/operator', $exception->getViolations()->get(0)->getPropertyPath());
+                    static::assertSame('/0/value/operator', $exception->getViolations()->get(0)->getPropertyPath());
                     static::assertSame('The value you selected is not a valid choice.', $exception->getViolations()->get(0)->getMessage());
                 }
             }

@@ -43,11 +43,9 @@ class AndRuleTest extends TestCase
 
     public function testValidateWithInvalidRulesType(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new AndRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
@@ -61,7 +59,7 @@ class AndRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/rules', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/rules', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value "Rule" should be of type Shopware\Core\Framework\Rule\Rule.', $exception->getViolations()->get(0)->getMessage());
             }
         }

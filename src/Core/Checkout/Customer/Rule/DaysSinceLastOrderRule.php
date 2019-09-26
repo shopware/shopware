@@ -109,6 +109,7 @@ class DaysSinceLastOrderRule extends Rule
         return [
             'daysPassed' => [new NotBlank(), new Type('int')],
             'operator' => [
+                new NotBlank(),
                 new Choice(
                     [
                         self::OPERATOR_EQ,

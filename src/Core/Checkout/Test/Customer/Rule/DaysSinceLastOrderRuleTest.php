@@ -50,11 +50,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
     public function testValidateWithMissingValues(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new DaysSinceLastOrderRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                 ],
@@ -64,10 +62,14 @@ class DaysSinceLastOrderRuleTest extends TestCase
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertCount(2, $exception->getViolations());
+                static::assertSame('/0/value/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
+
+                static::assertSame('/0/value/operator', $exception->getViolations()->get(1)->getPropertyPath());
+                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(1)->getCode());
+                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
             }
         }
     }
@@ -83,6 +85,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'daysPassed' => null,
+                        'operator' => DaysSinceLastOrderRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -92,7 +95,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -101,15 +104,14 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
     public function testValidateWithStringValue(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new DaysSinceLastOrderRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'daysPassed' => '10',
+                        'operator' => DaysSinceLastOrderRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -119,7 +121,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type int.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -127,15 +129,14 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
     public function testValidateWithInvalidValue(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new DaysSinceLastOrderRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'daysPassed' => false,
+                        'operator' => DaysSinceLastOrderRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -145,7 +146,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(2, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should be of type int.', $exception->getViolations()->get(1)->getMessage());
             }
@@ -168,6 +169,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
                 'ruleId' => $ruleId,
                 'value' => [
                     'daysPassed' => 10,
+                    'operator' => DaysSinceLastOrderRule::OPERATOR_EQ,
                 ],
             ],
         ], $this->context);

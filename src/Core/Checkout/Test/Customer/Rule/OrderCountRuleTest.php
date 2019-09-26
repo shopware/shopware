@@ -50,13 +50,14 @@ class OrderCountRuleTest extends TestCase
 
     public function testValidateWithMissingValues(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new OrderCountRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
+                    'value' => [
+                        'operator' => OrderCountRule::OPERATOR_EQ,
+                    ],
                 ],
             ], $this->context);
             static::fail('Exception was not thrown');
@@ -65,7 +66,7 @@ class OrderCountRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/count', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/count', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -74,14 +75,13 @@ class OrderCountRuleTest extends TestCase
 
     public function testValidateWithEmptyValues(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new OrderCountRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
+                        'operator' => OrderCountRule::OPERATOR_EQ,
                         'count' => null,
                     ],
                 ],
@@ -92,7 +92,7 @@ class OrderCountRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/count', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/count', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -101,14 +101,13 @@ class OrderCountRuleTest extends TestCase
 
     public function testValidateWithStringValue(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new OrderCountRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
+                        'operator' => OrderCountRule::OPERATOR_EQ,
                         'count' => '4',
                     ],
                 ],
@@ -119,7 +118,7 @@ class OrderCountRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/count', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/count', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type int.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -127,14 +126,13 @@ class OrderCountRuleTest extends TestCase
 
     public function testValidateWithInvalidValue(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new OrderCountRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
+                        'operator' => OrderCountRule::OPERATOR_EQ,
                         'count' => true,
                     ],
                 ],
@@ -145,7 +143,7 @@ class OrderCountRuleTest extends TestCase
             /** @var ConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/count', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/count', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type int.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -166,6 +164,7 @@ class OrderCountRuleTest extends TestCase
                 'type' => (new OrderCountRule())->getName(),
                 'ruleId' => $ruleId,
                 'value' => [
+                    'operator' => OrderCountRule::OPERATOR_EQ,
                     'count' => 6,
                 ],
             ],

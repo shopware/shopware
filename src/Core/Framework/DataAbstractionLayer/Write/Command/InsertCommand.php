@@ -28,12 +28,23 @@ class InsertCommand implements WriteCommandInterface
      */
     private $existence;
 
-    public function __construct(EntityDefinition $definition, array $payload, array $primaryKey, EntityExistence $existence)
-    {
+    /**
+     * @var string
+     */
+    private $path;
+
+    public function __construct(
+        EntityDefinition $definition,
+        array $payload,
+        array $primaryKey,
+        EntityExistence $existence,
+        string $path
+    ) {
         $this->payload = $payload;
         $this->definition = $definition;
         $this->primaryKey = $primaryKey;
         $this->existence = $existence;
+        $this->path = $path;
     }
 
     public function isValid(): bool
@@ -64,5 +75,10 @@ class InsertCommand implements WriteCommandInterface
     public function getPrivilege(): string
     {
         return AclResourceDefinition::PRIVILEGE_CREATE;
+    }
+
+    public function getPath(): string
+    {
+        return $this->path;
     }
 }

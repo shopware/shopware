@@ -65,6 +65,7 @@ class ContextRepositoryTest extends TestCase
                                             $currencyId,
                                             $currencyId2,
                                         ],
+                                        'operator' => CurrencyRule::OPERATOR_EQ,
                                     ],
                                 ],
                             ],

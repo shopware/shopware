@@ -58,7 +58,7 @@ class CustomerNumberRule extends Rule
     {
         return [
             'numbers' => [new NotBlank(), new ArrayOfType('string')],
-            'operator' => [new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
         ];
     }
 

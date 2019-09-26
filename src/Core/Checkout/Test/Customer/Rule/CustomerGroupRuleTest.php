@@ -43,11 +43,9 @@ class CustomerGroupRuleTest extends TestCase
 
     public function testValidateWithMissingCustomerGroupIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CustomerGroupRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                 ],
@@ -57,25 +55,28 @@ class CustomerGroupRuleTest extends TestCase
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertCount(2, $exception->getViolations());
+                static::assertSame('/0/value/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
+
+                static::assertSame('/0/value/operator', $exception->getViolations()->get(1)->getPropertyPath());
+                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(1)->getCode());
+                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
             }
         }
     }
 
     public function testValidateWithEmptyCustomerGroupIds(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CustomerGroupRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'customerGroupIds' => [],
+                        'operator' => CustomerGroupRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -85,7 +86,7 @@ class CustomerGroupRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -94,15 +95,14 @@ class CustomerGroupRuleTest extends TestCase
 
     public function testValidateWithInvalidCustomerGroupIdsType(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CustomerGroupRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'customerGroupIds' => 'GROUP-ID',
+                        'operator' => CustomerGroupRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -112,7 +112,7 @@ class CustomerGroupRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('This value should be of type array.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -120,15 +120,14 @@ class CustomerGroupRuleTest extends TestCase
 
     public function testValidateWithInvalidCustomerGroupIdsUuid(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CustomerGroupRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
                         'customerGroupIds' => ['GROUP-ID'],
+                        'operator' => CustomerGroupRule::OPERATOR_EQ,
                     ],
                 ],
             ], $this->context);
@@ -138,7 +137,7 @@ class CustomerGroupRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/customerGroupIds', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame('The value "GROUP-ID" is not a valid uuid.', $exception->getViolations()->get(0)->getMessage());
             }
         }
@@ -160,6 +159,7 @@ class CustomerGroupRuleTest extends TestCase
                 'ruleId' => $ruleId,
                 'value' => [
                     'customerGroupIds' => [Uuid::randomHex(), Uuid::randomHex()],
+                    'operator' => CustomerGroupRule::OPERATOR_EQ,
                 ],
             ],
         ], $this->context);

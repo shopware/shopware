@@ -45,11 +45,9 @@ class CartAmountRuleTest extends TestCase
 
     public function testValidateWithMissingParameters(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CartAmountRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                 ],
@@ -59,44 +57,23 @@ class CartAmountRuleTest extends TestCase
             static::assertGreaterThan(0, count($stackException->getExceptions()));
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/amount', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertCount(2, $exception->getViolations());
+                static::assertSame('/0/value/amount', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
+
+                static::assertSame('/0/value/operator', $exception->getViolations()->get(1)->getPropertyPath());
+                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(1)->getCode());
+                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
             }
         }
     }
 
-    public function testValidateWithoutOptionalOperator(): void
-    {
-        $ruleId = Uuid::randomHex();
-        $this->ruleRepository->create(
-            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
-            Context::createDefaultContext()
-        );
-
-        $id = Uuid::randomHex();
-        $this->conditionRepository->create([
-            [
-                'id' => $id,
-                'type' => (new CartAmountRule())->getName(),
-                'ruleId' => $ruleId,
-                'value' => [
-                    'amount' => 1.1,
-                ],
-            ],
-        ], $this->context);
-
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
-    }
-
     public function testValidateWithMissingAmount(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CartAmountRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
@@ -110,7 +87,7 @@ class CartAmountRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/amount', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/amount', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
             }
@@ -227,11 +204,9 @@ class CartAmountRuleTest extends TestCase
 
     public function testValidateWithInvalidOperator(): void
     {
-        $conditionId = Uuid::randomHex();
         try {
             $this->conditionRepository->create([
                 [
-                    'id' => $conditionId,
                     'type' => (new CartAmountRule())->getName(),
                     'ruleId' => Uuid::randomHex(),
                     'value' => [
@@ -246,7 +221,7 @@ class CartAmountRuleTest extends TestCase
             /** @var WriteConstraintViolationException $exception */
             foreach ($stackException->getExceptions() as $exception) {
                 static::assertCount(1, $exception->getViolations());
-                static::assertSame('/conditions/' . $conditionId . '/operator', $exception->getViolations()->get(0)->getPropertyPath());
+                static::assertSame('/0/value/operator', $exception->getViolations()->get(0)->getPropertyPath());
                 static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exception->getViolations()->get(0)->getCode());
                 static::assertSame('The value you selected is not a valid choice.', $exception->getViolations()->get(0)->getMessage());
             }

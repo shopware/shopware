@@ -54,4 +54,14 @@ class DeleteCommand implements WriteCommandInterface
     {
         return AclResourceDefinition::PRIVILEGE_DELETE;
     }
+
+    public function getPayload(): array
+    {
+        return [];
+    }
+
+    public function getPath(): string
+    {
+        return '';
+    }
 }

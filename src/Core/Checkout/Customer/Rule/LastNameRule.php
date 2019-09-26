@@ -56,7 +56,7 @@ class LastNameRule extends Rule
     {
         return [
             'lastName' => [new NotBlank(), new Type('string')],
-            'operator' => [new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ])],
+            'operator' => [new NotBlank(), new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ])],
         ];
     }
 

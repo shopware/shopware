@@ -30,6 +30,8 @@ You can use them with every URL in your templates
 {# encodes the url of your media entity #}
 <img src="{{ yourStorefrontMediaObject | sw_encode_media_url }}
 ```
+* We added the `$path` property to the `WriteCommandInterface`. With this you can track your commands initial position in the request.
+This can be useful when validate your commands in `PreWriteValidateEvent`s when the commandqueue is already in write order.
 
 ### 6.0.0 EA2
 

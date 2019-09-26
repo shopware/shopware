@@ -167,9 +167,9 @@ class Migration1567154268ProductExportBasicData extends MigrationStep
 "{% if price.referencePrice is not null %}
 {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
 {% endif %}",{#- -#}
-"{{ product.productNumber }}", {#- -#}
+"{{ product.manufacturerNumber }}", {#- -#}
 "{{ product.ean }}",{#- -#}
-"{{ 4.90|currency }}",{#- Change to your delivery costs -#}
+"{{ 4.95|currency }}",{#- Change to your delivery costs -#}
 "{{ productUrl(product) }}",{#- -#}
 "{% if product.availableStock >= product.minPurchase and product.deliveryTime %}
 {{ "detail.deliveryTimeAvailable"|trans({\'%name%\': product.deliveryTime.translation(\'name\')}) }}{#- -#}
@@ -179,7 +179,7 @@ class Migration1567154268ProductExportBasicData extends MigrationStep
 {{ "detail.soldOut"|trans }}{#- -#}
 {% endif %}",{#- -#}
 "{{ product.productNumber }}",{#- -#}
-"{{ product.media|first.media.url }}",{#- -#}
+"{{ product.cover.media.url }}",{#- -#}
 "{{ product.translated.description|raw|length > 300 ? product.translated.description|raw|slice(0,300) ~ \'...\' : product.translated.description|raw }}",{#- -#}
 "0.00",{#- Change or add your payment methods -#}
 "0.00",{#- Change or add your payment methods -#}
@@ -236,7 +236,7 @@ images{#- -#}',
 {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
 {% endif %}",{#- -#}
 "{{ productUrl(product) }}",{#- -#}
-"{{ product.media|first.media.url }}",{#- -#}
+"{{ product.cover.media.url }}",{#- -#}
 "{% if product.availableStock >= product.minPurchase and product.deliveryTime %}
 {{ "detail.deliveryTimeAvailable"|trans({\'%name%\': product.deliveryTime.translation(\'name\')}) }}{#- -#}
 {% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}
@@ -286,7 +286,7 @@ images{#- -#}',
 	<g:google_product_category>950{# change your Google Shopping category #}</g:google_product_category>
 	<g:product_type>{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw|escape }}</g:product_type>
 	<link>{{ productUrl(product) }}</link>
-	<g:image_link>{{ product.media|first.media.url }}</g:image_link>
+	<g:image_link>{{ product.cover.media.url }}</g:image_link>
 	<g:condition>neu</g:condition>
 	<g:availability>{% if product.availableStock >= product.minPurchase and product.deliveryTime %}bestellbar{% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}vorbestellt{% else %}nicht auf lager{% endif %}</g:availability>
 	<g:price>{{ product.calculatedPrice.unitPrice|currency }}</g:price>

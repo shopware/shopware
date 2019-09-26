@@ -8,7 +8,6 @@
     }
 
     &.has--navigation {
-
         &.has--border {
             margin: 20px;
         }
@@ -43,7 +42,7 @@
         .sw-cms-el-product-slider__product-holder {
             width: 100%;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
             gap: 0 32px;
         }
     }

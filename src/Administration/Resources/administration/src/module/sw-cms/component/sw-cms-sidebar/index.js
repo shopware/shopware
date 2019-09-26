@@ -287,6 +287,7 @@ Component.register('sw-cms-sidebar', {
 
         onSectionDelete(sectionId) {
             this.page.sections.remove(sectionId);
+            this.$emit('page-update');
         },
 
         onBlockDelete(blockId, section) {

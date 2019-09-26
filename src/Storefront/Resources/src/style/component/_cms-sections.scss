@@ -21,7 +21,14 @@ General styling for cms sections
     }
 }
 
-//@include media-breakpoint-down(sm) {
-//
-//
-//}
+@include media-breakpoint-down(sm) {
+    .cms-section-sidebar-mobile-wrap {
+        flex-direction: column;
+    }
+
+    .cms-section-sidebar-mobile-offcanvas {
+        .cms-section-sidebar-sidebar-content {
+            display: none;
+        }
+    }
+}

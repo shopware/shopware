@@ -50,6 +50,7 @@ class CmsSectionDefinition extends EntityDefinition
 
             new StringField('name', 'name'),
             new StringField('sizing_mode', 'sizingMode'),
+            new StringField('mobile_behavior', 'mobileBehavior'),
             new StringField('background_color', 'backgroundColor'),
             new FkField('background_media_id', 'backgroundMediaId', MediaDefinition::class),
             new StringField('background_media_mode', 'backgroundMediaMode'),

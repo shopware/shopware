@@ -50,6 +50,11 @@ class CmsSectionEntity extends Entity
     /**
      * @var string|null
      */
+    protected $mobileBehavior;
+
+    /**
+     * @var string|null
+     */
     protected $backgroundColor;
 
     /**
@@ -160,6 +165,16 @@ class CmsSectionEntity extends Entity
     public function setSizingMode(string $sizingMode): void
     {
         $this->sizingMode = $sizingMode;
+    }
+
+    public function getMobileBehavior(): ?string
+    {
+        return $this->mobileBehavior;
+    }
+
+    public function setMobileBehavior(?string $mobileBehavior): void
+    {
+        $this->mobileBehavior = $mobileBehavior;
     }
 
     public function getBackgroundColor(): ?string

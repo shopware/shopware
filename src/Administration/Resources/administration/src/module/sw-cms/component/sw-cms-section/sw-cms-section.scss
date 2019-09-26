@@ -31,13 +31,13 @@
     }
 
     &.is--sidebar {
-        grid-template-columns: 1fr 4fr;
+        grid-template-columns: 2fr 4fr;
         grid-gap: 28px;
         justify-content: center;
     }
 
     &.is--sidebar.is--boxed {
-        grid-template-columns: 280px 748px;
+        grid-template-columns: 340px 1fr;
         justify-items: initial;
     }
 
@@ -63,6 +63,10 @@
             max-width: 1080px;
             width: 100%;
         }
+    }
+
+    .sw-cms-section__sidebar.is--offcanvas {
+        display: none;
     }
 
     .sw-cms-section__sidebar,

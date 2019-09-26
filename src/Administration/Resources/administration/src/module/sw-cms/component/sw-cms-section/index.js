@@ -91,16 +91,16 @@ Component.register('sw-cms-section', {
             };
         },
 
-        overlayClasses() {
+        sectionSidebarClasses() {
             return {
-                'is--active': this.active
+                'is--empty': this.sideBarEmpty,
+                'is--offcanvas': this.sectionMobileAndOffcanvas
             };
         },
 
-        toolbarClasses() {
-            return {
-                'is--active': this.active
-            };
+        sectionMobileAndOffcanvas() {
+            const view = this.$store.state.cmsPageState.currentCmsDeviceView;
+            return view === 'mobile' && this.section.mobileBehavior === 'offcanvas';
         },
 
         isSideBarType() {
@@ -141,14 +141,6 @@ Component.register('sw-cms-section', {
 
         onSectionOverlayClick() {
             this.$emit('section-overlay-click');
-        },
-
-        onSectionDelete() {
-            this.$emit('section-delete');
-        },
-
-        onSectionDuplicate(section) {
-            this.$emit('section-duplicate', section);
         },
 
         onAddSectionBlock() {

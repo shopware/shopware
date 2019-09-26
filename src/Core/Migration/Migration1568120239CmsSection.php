@@ -23,6 +23,7 @@ class Migration1568120239CmsSection extends MigrationStep
               `name`  VARCHAR(255) NULL,
               `locked` tinyint(1) NOT NULL DEFAULT '0',
               `sizing_mode` VARCHAR(255) NOT NULL DEFAULT 'boxed',
+              `mobile_behavior` VARCHAR(255) NOT NULL DEFAULT 'wrap',
               `background_color` VARCHAR(255) NULL,
               `background_media_id` BINARY(16) NULL,
               `background_media_mode` VARCHAR(255) NULL,

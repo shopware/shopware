@@ -34,6 +34,17 @@
       "isSidebar": "Layout Sektion - Sidebar",
       "isDefault": "Layout Sektion - Standard"
     },
+    "sidebar": {
+      "contentMenu": {
+        "moveUp": "Nach oben verschieben",
+        "moveDown": "Nach unten verschieben",
+        "settings": "Einstellungen",
+        "duplicate": "Duplizieren"
+      },
+      "labelSidebarMobile": "Mobiles Sidebar Verhalten",
+      "labelSidebarMobileOptionOffcanvas": "Off-canvas",
+      "labelSidebarMobileOptionWrap": "Umbrechen"
+    },
     "createWizard": {
       "choosePageTypeTitle": "Was für eine Seite möchtest Du gestalten?",
       "choosePageTypeHelpText": "Die verschiedenen Layout-Typen helfen Dir Dein Layout in der Administration schneller wieder zu finden. Du kannst den Layout-Typ jederzeit in den Layout-Einstellungen ändern, falls Du Dich umentscheidest.",

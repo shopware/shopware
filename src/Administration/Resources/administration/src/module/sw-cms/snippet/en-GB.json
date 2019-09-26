@@ -40,7 +40,10 @@
         "moveDown": "Move down",
         "settings": "Settings",
         "duplicate": "Duplicate"
-      }
+      },
+      "labelSidebarMobile": "Mobile sidebar behavior",
+      "labelSidebarMobileOptionOffcanvas": "Off-canvas",
+      "labelSidebarMobileOptionWrap": "Wrap"
     },
     "createWizard": {
       "choosePageTypeTitle": "What kind of page would you like to create?",

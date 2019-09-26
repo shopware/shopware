@@ -112,6 +112,15 @@
                                             </sw-select-field>
                                         {% endblock %}
 
+                                        {% block sw_cms_sidebar_section_config_sidebar_mobile %}
+                                            <sw-select-field v-if="section.type === 'sidebar'"
+                                                             :label="$tc('sw-cms.sidebar.labelSidebarMobile')"
+                                                             v-model="section.mobileBehavior">
+                                                <option value="offcanvas">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionOffcanvas') }}</option>
+                                                <option value="wrap">{{ $tc('sw-cms.sidebar.labelSidebarMobileOptionWrap') }}</option>
+                                            </sw-select-field>
+                                        {% endblock %}
+
                                         {% block sw_cms_sidebar_section_config_background_color_field %}
                                             <sw-colorpicker v-model="section.backgroundColor"
                                                             :label="$tc('sw-cms.detail.labelBackgroundColorLabel')"

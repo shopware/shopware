@@ -1,7 +1,7 @@
 {% block sw_cms_section %}
     <div class="sw-cms-section" :class="[sectionClasses, customSectionClass, sectionTypeClass]" :style="sectionStyles">
         {% block sw_cms_section_sidebar %}
-            <div v-if="isSideBarType" class="sw-cms-section__sidebar" :class="{ 'is--empty': sideBarEmpty }">
+            <div v-if="isSideBarType" class="sw-cms-section__sidebar" :class="sectionSidebarClasses">
 
                 <template v-if="sideBarEmpty">
                     {% block sw_cms_section_sidebar_block_empty %}

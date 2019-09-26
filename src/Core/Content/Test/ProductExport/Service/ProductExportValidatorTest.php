@@ -51,7 +51,7 @@ class ProductExportValidatorTest extends TestCase
         /** @var ProductExportEntity $productExport */
         $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->first();
 
-        $exportResult = $this->service->generate($productExport, new ExportBehavior(), $this->salesChannelContext);
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
 
         static::assertFalse($exportResult->hasErrors());
     }
@@ -63,7 +63,7 @@ class ProductExportValidatorTest extends TestCase
         $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->first();
         $productExport->setFooterTemplate('');
 
-        $exportResult = $this->service->generate($productExport, new ExportBehavior(), $this->salesChannelContext);
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
 
         static::assertTrue($exportResult->hasErrors());
     }

@@ -17,11 +17,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Translation\Translator;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -33,32 +30,22 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProductExportController extends AbstractController
 {
-    /** @var SalesChannelContextFactory */
-    private $salesChannelContextFactory;
-
     /** @var EntityRepositoryInterface */
     private $salesChannelDomainRepository;
 
     /** @var ProductExportGeneratorInterface */
     private $productExportGenerator;
 
-    /** @var Translator */
-    private $translator;
-
     /** @var EventDispatcherInterface */
     private $eventDispatcher;
 
     public function __construct(
-        SalesChannelContextFactory $salesChannelContextFactory,
         EntityRepositoryInterface $salesChannelDomainRepository,
         ProductExportGeneratorInterface $productExportGenerator,
-        Translator $translator,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->salesChannelContextFactory = $salesChannelContextFactory;
         $this->salesChannelDomainRepository = $salesChannelDomainRepository;
         $this->productExportGenerator = $productExportGenerator;
-        $this->translator = $translator;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -176,22 +163,12 @@ class ProductExportController extends AbstractController
             throw $salesChannelDomainNotFoundException;
         }
 
-        $salesChannelContext = $this->salesChannelContextFactory->create(
-            Uuid::randomHex(),
-            $salesChannelDomain->getSalesChannelId()
-        );
         $productExportEntity = $this->createEntity($dataBag);
         $productExportEntity->setSalesChannelDomain($salesChannelDomain);
+        $productExportEntity->setStorefrontSalesChannelId($salesChannelDomain->getSalesChannelId());
 
         $exportBehavior = new ExportBehavior(true, true, true);
 
-        $this->translator->injectSettings(
-            $salesChannelDomain->getSalesChannelId(),
-            $salesChannelDomain->getLanguageId(),
-            $salesChannelDomain->getLanguage()->getLocaleId(),
-            $context
-        );
-
-        return $this->productExportGenerator->generate($productExportEntity, $exportBehavior, $salesChannelContext);
+        return $this->productExportGenerator->generate($productExportEntity, $exportBehavior);
     }
 }

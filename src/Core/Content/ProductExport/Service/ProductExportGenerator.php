@@ -14,8 +14,10 @@ use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Translation\Translator;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductExportGenerator implements ProductExportGeneratorInterface
@@ -38,12 +40,20 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     /** @var ProductExportValidatorInterface */
     private $productExportValidator;
 
+    /** @var SalesChannelContextFactory */
+    private $salesChannelContextFactory;
+
+    /** @var Translator */
+    private $translator;
+
     public function __construct(
         ProductStreamBuilderInterface $productStreamBuilder,
         SalesChannelRepositoryInterface $productRepository,
         ProductExportRendererInterface $productExportRender,
         EventDispatcherInterface $eventDispatcher,
         ProductExportValidatorInterface $productExportValidator,
+        SalesChannelContextFactory $salesChannelContextFactory,
+        Translator $translator,
         int $readBufferSize
     ) {
         $this->productStreamBuilder = $productStreamBuilder;
@@ -51,11 +61,25 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $this->productExportRender = $productExportRender;
         $this->eventDispatcher = $eventDispatcher;
         $this->productExportValidator = $productExportValidator;
+        $this->salesChannelContextFactory = $salesChannelContextFactory;
+        $this->translator = $translator;
         $this->readBufferSize = $readBufferSize;
     }
 
-    public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior, SalesChannelContext $context): ProductExportResult
+    public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ProductExportResult
     {
+        $context = $this->salesChannelContextFactory->create(
+            Uuid::randomHex(),
+            $productExport->getStorefrontSalesChannelId()
+        );
+
+        $this->translator->injectSettings(
+            $productExport->getStorefrontSalesChannelId(),
+            $productExport->getSalesChannelDomain()->getLanguageId(),
+            $productExport->getSalesChannelDomain()->getLanguage()->getLocaleId(),
+            $context->getContext()
+        );
+
         $filters = $this->productStreamBuilder->buildFilters(
             $productExport->getProductStreamId(),
             $context->getContext()
@@ -87,6 +111,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
             $this->eventDispatcher->dispatch($loggingEvent);
 
+            $this->translator->resetInjection();
             throw $exception;
         }
 
@@ -126,6 +151,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $encodingEvent = $this->eventDispatcher->dispatch(
             new ProductExportChangeEncodingEvent($productExport, $content, mb_convert_encoding($content, $productExport->getEncoding()))
         );
+
+        $this->translator->resetInjection();
 
         return new ProductExportResult($encodingEvent->getEncodedContent(), $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent()));
     }

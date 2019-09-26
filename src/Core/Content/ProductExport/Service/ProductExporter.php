@@ -107,7 +107,7 @@ class ProductExporter implements ProductExporterInterface
             return;
         }
 
-        $result = $this->productExportGenerator->generate($productExport, $behavior, $context);
+        $result = $this->productExportGenerator->generate($productExport, $behavior);
 
         if ($result->hasErrors()) {
             $exportInvalidException = new ExportInvalidException($productExport, $result->getErrors());

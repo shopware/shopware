@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -87,6 +88,8 @@ class ProductExporterTest extends TestCase
             $this->getContainer()->get(ProductExportRenderer::class),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(ProductExportValidator::class),
+            $this->getContainer()->get(SalesChannelContextFactory::class),
+            $this->getContainer()->get(Translator::class),
             1
         );
 

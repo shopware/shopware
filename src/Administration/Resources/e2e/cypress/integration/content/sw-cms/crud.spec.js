@@ -27,7 +27,6 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Fill in basic data
         cy.get('.sw-cms-detail__settings').should('be.visible');
-        cy.get('#sw-field--page-name').should('be.visible');
         cy.get('#sw-field--page-name').typeAndCheck('Laidout');
         cy.get('#sw-field--page-type').select('Landing page');
 

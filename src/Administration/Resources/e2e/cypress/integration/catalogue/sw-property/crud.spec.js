@@ -31,7 +31,7 @@ describe('Property: Test crud operations', () => {
         // Add property group
         cy.get('a[href="#/sw/property/create"]').click();
 
-        cy.get('input[name=sw-field--group-name]').type('1 Coleur');
+        cy.get('input[name=sw-field--group-name]').typeAndCheck('1 Coleur');
         cy.get(page.elements.propertySaveAction).click();
 
         // Verify property in listing
@@ -63,7 +63,7 @@ describe('Property: Test crud operations', () => {
 
         cy.get('.sw-property-option-list').scrollIntoView();
         cy.get('.sw-property-option-list__add-button').click();
-        cy.get('input[name=sw-field--currentOption-name]').type('Bleu');
+        cy.get('input[name=sw-field--currentOption-name]').typeAndCheck('Bleu');
         cy.get('input[name=sw-field--currentOption-position]').type('1');
         cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__previewWrapper`).click();
         cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__input`).clear();

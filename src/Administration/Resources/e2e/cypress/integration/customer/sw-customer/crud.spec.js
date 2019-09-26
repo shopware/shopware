@@ -44,6 +44,7 @@ describe('Customer: Test crud operations', () => {
 
         // Fill in basic data
         cy.get('a[href="#/sw/customer/create"]').click();
+        cy.get('select[name=sw-field--customer-salutationId]').should('be.visible');
         cy.get('select[name=sw-field--customer-salutationId]').select('Mr.');
         cy.get('input[name=sw-field--customer-firstName]').type(customer.firstName);
         cy.get('input[name=sw-field--customer-lastName]').type(customer.lastName);

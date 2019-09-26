@@ -18,7 +18,7 @@ export default class SalesChannelPageObject extends GeneralPageObject {
     }
 
     fillInBasicSalesChannelData(salesChannelName) {
-        cy.get(this.elements.salesChannelNameInput).type(salesChannelName);
+        cy.get(this.elements.salesChannelNameInput).typeAndCheck(salesChannelName);
 
         cy.get('.sw-sales-channel-detail__select-payment-method').typeMultiSelectAndCheck('Invoice', {
             searchTerm: 'Invoice'

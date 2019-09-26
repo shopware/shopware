@@ -29,7 +29,8 @@ describe('Tax: Test crud operations', () => {
         // Create tax
         cy.get('.sw-settings-tax-list-grid').should('be.visible');
         cy.get('a[href="#/sw/settings/tax/create"]').click();
-        cy.get('input[name=sw-field--tax-name]').type('Very high tax');
+
+        cy.get('input[name=sw-field--tax-name]').typeAndCheck('Very high tax');
         cy.get('input[name=sw-field--tax-taxRate]').type('99');
 
         cy.get(page.elements.taxSaveAction).click();
@@ -60,10 +61,8 @@ describe('Tax: Test crud operations', () => {
             '.sw-tax-list__edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--2`
-        );
-
-        cy.get('input[name=sw-field--tax-name]').clear();
-        cy.get('input[name=sw-field--tax-name]').type('Still high tax');
+        )
+        cy.get('input[name=sw-field--tax-name]').clearTypeAndCheck('Still high tax');
         cy.get(page.elements.taxSaveAction).click();
 
         // Verify tax

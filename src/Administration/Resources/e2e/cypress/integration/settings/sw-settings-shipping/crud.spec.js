@@ -57,9 +57,8 @@ describe('Shipping: Test crud operations', () => {
             '.sw-settings-shipping-list__edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
-        );
-        cy.get('input[name=sw-field--shippingMethod-name]').clear();
-        cy.get('input[name=sw-field--shippingMethod-name]').type('Wasserpost');
+        );;
+        cy.get('input[name=sw-field--shippingMethod-name]').clearTypeAndCheck('Wasserpost');
         page.createShippingMethodPriceRule();
 
         cy.get(page.elements.shippingSaveAction).click();

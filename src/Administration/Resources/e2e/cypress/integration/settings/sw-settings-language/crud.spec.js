@@ -35,7 +35,7 @@ describe('Language: Test crud operations', () => {
         cy.get('a[href="#/sw/settings/language/create"]').click();
 
         // Create language
-        cy.get('input[name=sw-field--language-name]').type('Japanese');
+        cy.get('input[name=sw-field--language-name]').typeAndCheck('Japanese');
         cy.get('.sw-settings-language-detail__select-iso-code').typeSingleSelectAndCheck('ja-JP');
         cy.get('.sw-settings-language-detail__select-locale').typeSingleSelectAndCheck('Japanese, Japan');
         cy.get(page.elements.languageSaveAction).click();
@@ -82,8 +82,7 @@ describe('Language: Test crud operations', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--2`
         );
-        cy.get('input[name=sw-field--language-name]').clear();
-        cy.get('input[name=sw-field--language-name]').type('Kyoto Japanese');
+        cy.get('input[name=sw-field--language-name]').clearTypeAndCheck('Kyoto Japanese');
         cy.get(page.elements.languageSaveAction).click();
 
         // Verify and check usage of customer-group

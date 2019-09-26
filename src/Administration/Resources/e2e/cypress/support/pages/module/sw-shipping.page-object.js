@@ -14,7 +14,7 @@ export default class ShippingMethodPageObject extends GeneralPageObject {
     }
 
     createShippingMethod(name) {
-        cy.get('input[name=sw-field--shippingMethod-name]').type(name);
+        cy.get('input[name=sw-field--shippingMethod-name]').typeAndCheck(name);
         cy.get('.sw-settings-shipping-detail__delivery-time').typeLegacySelectAndCheck(
             '1-3 days', {
                 searchTerm: '1-3 days'

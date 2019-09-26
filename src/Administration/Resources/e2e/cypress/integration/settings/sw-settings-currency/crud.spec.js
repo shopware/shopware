@@ -29,7 +29,7 @@ describe('Currency: Test crud operations', () => {
         cy.get('a[href="#/sw/settings/currency/create"]').click();
 
         // Create currency
-        cy.get('input[name=sw-field--currency-name]').type('Dukaten');
+        cy.get('input[name=sw-field--currency-name]').typeAndCheck('Dukaten');
         cy.get('input[name=sw-field--currency-isoCode]').type('D');
         cy.get('input[name=sw-field--currency-shortName]').type('D');
         cy.get('input[name=sw-field--currency-symbol]').type('D¥');
@@ -64,7 +64,7 @@ describe('Currency: Test crud operations', () => {
         );
 
         cy.get('input[name=sw-field--currency-name]').clear();
-        cy.get('input[name=sw-field--currency-name]').type('Kreuzer');
+        cy.get('input[name=sw-field--currency-name]').clearTypeAndCheck('Kreuzer');
         cy.get(page.elements.currencySaveAction).click();
 
         // Verify creation

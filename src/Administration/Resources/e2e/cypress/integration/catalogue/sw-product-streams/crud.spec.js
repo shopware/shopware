@@ -29,7 +29,7 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.get('.sw-product-stream-list__create-action').click();
 
         // Create new product stream with basic condition
-        cy.get('input[name=sw-field--productStream-name]').type('01st1st Productstream');
+        cy.get('input[name=sw-field--productStream-name]').typeAndCheck('01st1st Productstream');
         cy.get('textarea[name=sw-field--productStream-description]').type('My first product stream');
         cy.get(page.elements.streamSaveAction).click();
 
@@ -61,8 +61,7 @@ describe('Dynamic product group: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get(page.elements.loader).should('not.exist');
-        cy.get('input[name=sw-field--productStream-name]').clear();
-        cy.get('input[name=sw-field--productStream-name]').type('Streamline');
+        cy.get('input[name=sw-field--productStream-name]').clearTypeAndCheck('Streamline');
         cy.get(page.elements.streamSaveAction).click();
 
         // Verify property in listing

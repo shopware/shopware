@@ -79,6 +79,22 @@ Cypress.Commands.add('login', (userType) => {
 Cypress.Commands.add('typeAndCheck', {
     prevSubject: 'element'
 }, (subject, value) => {
+    cy.wrap(subject).should('be.visible');
+    cy.wrap(subject).type(value).should('have.value', value);
+});
+
+/**
+ * Types in an input element and checks if the content was correctly typed
+ * @memberOf Cypress.Chainable#
+ * @name clearTypeAndCheck
+ * @function
+ * @param {String} value - The value to type
+ */
+Cypress.Commands.add('clearTypeAndCheck', {
+    prevSubject: 'element'
+}, (subject, value) => {
+    cy.wrap(subject).should('be.visible');
+    cy.wrap(subject).clear();
     cy.wrap(subject).type(value).should('have.value', value);
 });
 

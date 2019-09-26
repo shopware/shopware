@@ -30,8 +30,8 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(page.elements.primaryButton).contains('Add manufacturer').click();
         cy.url().should('contain', '#/sw/manufacturer/create');
 
-        cy.get('input[name=name]').clear().type('MAN-U-FACTURE');
-        cy.get('input[name=link]').clear().type('https://google.com/doodles');
+        cy.get('input[name=name]').clearTypeAndCheck('MAN-U-FACTURE');
+        cy.get('input[name=link]').clearTypeAndCheck('https://google.com/doodles');
         cy.get(page.elements.manufacturerSave).click();
 
         // Verify updated manufacturer
@@ -54,6 +54,7 @@ describe('Manufacturer: Test crud operations', () => {
 
         // Edit base data
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
+        cy.get('input[name=name]').clearTypeAndCheck('be.visible');
         cy.get('input[name=name]').clear().type('What does it means?(TM)');
         cy.get('input[name=link]').clear().type('https://google.com/doodles');
         cy.get(page.elements.manufacturerSave).click();

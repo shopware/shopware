@@ -29,7 +29,7 @@ describe('Customer group: Test crud operations', () => {
         cy.get('.sw-settings-customer-group-list').should('be.visible');
         cy.get('a[href="#/sw/settings/customer/group/create"]').click();
 
-        cy.get('#sw-field--customerGroup-name').type('E2E Merchant');
+        cy.get('#sw-field--customerGroup-name').typeAndCheck('E2E Merchant');
         cy.get('input#sw-field--castedValue-1').click();
 
         cy.get(page.elements.customerGroupSaveAction).should('be.enabled');
@@ -77,8 +77,7 @@ describe('Customer group: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get('#sw-field--customerGroup-name').clear();
-        cy.get('#sw-field--customerGroup-name').type('E2E Merchant');
+        cy.get('#sw-field--customerGroup-name').clearTypeAndCheck('E2E Merchant');
         cy.get(page.elements.customerGroupSaveAction).should('be.enabled');
         cy.get(page.elements.customerGroupSaveAction).click();
 

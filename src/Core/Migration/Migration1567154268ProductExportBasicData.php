@@ -221,13 +221,13 @@ images{#- -#}',
 
                 'body_template' => '"{{ product.productNumber }}",{#- -#}
 "{{ product.manufacturer.translated.name }}",{#- -#}
-"{{ product.manufacturer.id }}",{#- -#}
+"{{ product.manufacturerNumber }}",{#- -#}
 "{{ product.ean }}",{#- -#}
 "{{ product.translated.name|length > 80 ? product.translated.name|slice(0, 80) ~ \'...\' : product.translated.name }}",{#- -#}
 "{{ product.translated.description|raw|length > 900 ? product.translated.description|raw|slice(0,900) ~ \'...\' : product.translated.description|raw }}{#- -#}
 ",{#- -#}
 "{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw }}",{#- -#}
-"{{ product.calculatedPrice.unitPrice|currency }}",{#- -#}
+"{{ product.calculatedPrice.unitPrice }}",{#- -#}
 {% set price = product.calculatedPrice %}
 {% if product.calculatedPrices|length == 1 %}
     {% set price = product.calculatedPrices.first %}
@@ -244,7 +244,7 @@ images{#- -#}',
 {% else %}
 {{ "detail.soldOut"|trans }}{#- -#}
 {% endif %}",{#- -#}
-"{{ 4.95|currency }}",{# change your default delivery costs #}{#- -#}
+"4.95",{# change your default delivery costs #}{#- -#}
 ,{#- -#}
 "{% if product.purchaseUnit %}{{ product.purchaseUnit }}{{ product.unit.shortCode }}{% endif %}",{#- -#}
 "{% if product.referenceUnit %}{{ product.referenceUnit }}{{ product.unit.shortCode }}{% endif %}",{#- -#}

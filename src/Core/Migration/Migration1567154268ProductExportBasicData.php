@@ -159,11 +159,8 @@ class Migration1567154268ProductExportBasicData extends MigrationStep
                 'body_template' => '"{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw }}",{#- -#}
 "{{ product.manufacturer.translated.name }}",{#- -#}
 "{{ product.translated.name }}",{#- -#}
-"{{ product.calculatedPrice.unitPrice|currency }}",{#- -#}
-{% set price = product.calculatedPrice %}
-{% if product.calculatedPrices|length == 1 %}
-    {% set price = product.calculatedPrices.first %}
-{% endif %}
+"{{ product.calculatedListingPrice.from.unitPrice|currency }}",{#- -#}
+{% set price = product.calculatedListingPrice.from %}
 "{% if price.referencePrice is not null %}
 {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
 {% endif %}",{#- -#}
@@ -227,11 +224,8 @@ images{#- -#}',
 "{{ product.translated.description|raw|length > 900 ? product.translated.description|raw|slice(0,900) ~ \'...\' : product.translated.description|raw }}{#- -#}
 ",{#- -#}
 "{{ product.categories.first.getBreadCrumb|slice(1)|join(\' > \')|raw }}",{#- -#}
-"{{ product.calculatedPrice.unitPrice }}",{#- -#}
-{% set price = product.calculatedPrice %}
-{% if product.calculatedPrices|length == 1 %}
-    {% set price = product.calculatedPrices.first %}
-{% endif %}
+"{{ product.calculatedListingPrice.from.unitPrice }}",{#- -#}
+{% set price = product.calculatedListingPrice.from %}
 "{% if price.referencePrice is not null %}
 {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
 {% endif %}",{#- -#}
@@ -289,7 +283,7 @@ images{#- -#}',
 	<g:image_link>{{ product.cover.media.url }}</g:image_link>
 	<g:condition>neu</g:condition>
 	<g:availability>{% if product.availableStock >= product.minPurchase and product.deliveryTime %}bestellbar{% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}vorbestellt{% else %}nicht auf lager{% endif %}</g:availability>
-	<g:price>{{ product.calculatedPrice.unitPrice|currency }}</g:price>
+	<g:price>{{ product.calculatedListingPrice.from.unitPrice|currency }}</g:price>
 	<g:brand>{{ product.manufacturer.translated.name|escape }}</g:brand>
 	<g:gtin>{{ product.manufacturerNumber }}</g:gtin>
 	<g:mpn>{{ product.manufacturerNumber }}</g:mpn>

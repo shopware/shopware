@@ -31,7 +31,7 @@
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportRenderer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportValidator"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\Framework\Translation\Translator"/>
             <argument type="string">%product_export.read_buffer_size%</argument>
         </service>

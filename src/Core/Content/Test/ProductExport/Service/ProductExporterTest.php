@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductExporterTest extends TestCase
@@ -88,7 +89,7 @@ class ProductExporterTest extends TestCase
             $this->getContainer()->get(ProductExportRenderer::class),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(ProductExportValidator::class),
-            $this->getContainer()->get(SalesChannelContextFactory::class),
+            $this->getContainer()->get(SalesChannelContextService::class),
             $this->getContainer()->get(Translator::class),
             1
         );

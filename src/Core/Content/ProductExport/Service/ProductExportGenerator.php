@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelReposit
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Translation\Translator;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -40,8 +40,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     /** @var ProductExportValidatorInterface */
     private $productExportValidator;
 
-    /** @var SalesChannelContextFactory */
-    private $salesChannelContextFactory;
+    /** @var SalesChannelContextServiceInterface */
+    private $salesChannelContextService;
 
     /** @var Translator */
     private $translator;
@@ -52,7 +52,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         ProductExportRendererInterface $productExportRender,
         EventDispatcherInterface $eventDispatcher,
         ProductExportValidatorInterface $productExportValidator,
-        SalesChannelContextFactory $salesChannelContextFactory,
+        SalesChannelContextServiceInterface $salesChannelContextService,
         Translator $translator,
         int $readBufferSize
     ) {
@@ -61,16 +61,17 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $this->productExportRender = $productExportRender;
         $this->eventDispatcher = $eventDispatcher;
         $this->productExportValidator = $productExportValidator;
-        $this->salesChannelContextFactory = $salesChannelContextFactory;
+        $this->salesChannelContextService = $salesChannelContextService;
         $this->translator = $translator;
         $this->readBufferSize = $readBufferSize;
     }
 
     public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ProductExportResult
     {
-        $context = $this->salesChannelContextFactory->create(
+        $context = $this->salesChannelContextService->get(
+            $productExport->getStorefrontSalesChannelId(),
             Uuid::randomHex(),
-            $productExport->getStorefrontSalesChannelId()
+            $productExport->getSalesChannelDomain()->getLanguageId()
         );
 
         $this->translator->injectSettings(

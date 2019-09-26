@@ -146,8 +146,11 @@ class ProductExportController extends AbstractController
     {
         $salesChannelDomainId = $dataBag->get('sales_channel_domain_id');
 
+        $criteria = (new Criteria([$salesChannelDomainId]))
+            ->addAssociation('language.locale')
+            ->addAssociation('salesChannel');
         $salesChannelDomain = $this->salesChannelDomainRepository->search(
-            (new Criteria([$salesChannelDomainId]))->addAssociation('language.locale'),
+            $criteria,
             $context
         )->get($salesChannelDomainId);
 

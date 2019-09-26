@@ -65,9 +65,12 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $criteria
             ->addFilter(...$filters)
             ->setLimit($this->readBufferSize)
+            ->addAssociation('categories')
+            ->addAssociation('cover')
             ->addAssociation('manufacturer')
             ->addAssociation('media')
-            ->addAssociation('categories');
+            ->addAssociation('prices')
+            ->addAssociation('properties.group');
 
         $iterator = new SalesChannelRepositoryIterator($this->productRepository, $context, $criteria);
 

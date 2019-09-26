@@ -87,7 +87,7 @@ There are several things to note about the `@Route` annotation:
 
 You also have to add the `@RouteScope` annotation to declare your controller as a api route. The annotation above the class
 applies the scope to all methods of the controller, but if you only want to use different scopes in one class, you have to use
-the annotation for all methods. Click [here](../../platform-updates/2019-08-20-breaking-change-route-scopes-added.md) for
+the annotation for all methods. Click [here](./../../platform-updates/2019-08-20-breaking-change-route-scopes-added.md) for
 more information to the scope annotation.
 
 ## Source

@@ -18,17 +18,17 @@ class Tokenizer implements TokenizerInterface
         foreach ($tags as $tag) {
             $tag = \trim($tag);
 
-            if (\strlen($tag) < 3) {
+            if (empty($tag) || \strlen($tag) < 3) {
                 continue;
             }
 
-            $filtered[$tag] = 1;
+            $filtered[] = $tag;
         }
 
         if (empty($filtered)) {
             return array_filter($tags);
         }
 
-        return array_filter(array_keys($filtered));
+        return array_unique($filtered);
     }
 }

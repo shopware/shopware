@@ -686,6 +686,43 @@ EOF;
         static::assertNull($response->headers->get('Location'));
     }
 
+    public function testSearchTerm(): void
+    {
+        $id = Uuid::randomHex();
+
+        $product = [
+            'id' => $id,
+            'productNumber' => 'SW-API-14999',
+            'stock' => 1,
+            'name' => 'asdf',
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'manufacturer' => ['name' => 'Shopware AG'],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+        ];
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $product);
+
+        $data = [
+            'page' => 1,
+            'limit' => 5,
+            'sort' => [
+                [
+                    'field' => 'productNumber',
+                    'order' => 'desc',
+                ],
+            ],
+            'term' => 'SW-API-14999',
+        ];
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', $data);
+        $response = $this->getBrowser()->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        static::assertArrayHasKey('meta', $content, print_r($content, true));
+        static::assertEquals(1, $content['meta']['total']);
+        static::assertEquals($id, $content['data'][0]['id']);
+    }
+
     public function testSearch(): void
     {
         $id = Uuid::randomHex();

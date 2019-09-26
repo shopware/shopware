@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -682,6 +683,9 @@ class SalesChannelCustomerControllerTest extends TestCase
         $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
+        $browser = $this->getSalesChannelBrowser();
+        $salesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
         $this->productRepository->create([
             [
                 'id' => $productId,
@@ -691,24 +695,29 @@ class SalesChannelCustomerControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $context);
 
         // create new cart
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/checkout/cart');
-        $response = $this->getSalesChannelBrowser()->getResponse();
+
+        $browser->request('POST', '/sales-channel-api/v1/checkout/cart');
+        $response = $browser->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
         // add product
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/checkout/cart/product/' . $productId);
-        static::assertSame(200, $this->getSalesChannelBrowser()->getResponse()->getStatusCode(), $this->getSalesChannelBrowser()->getResponse()->getContent());
+        $browser->request('POST', '/sales-channel-api/v1/checkout/cart/product/' . $productId);
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
         // finish checkout
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/checkout/order');
-        static::assertSame(200, $this->getSalesChannelBrowser()->getResponse()->getStatusCode(), $this->getSalesChannelBrowser()->getResponse()->getContent());
+        $browser->request('POST', '/sales-channel-api/v1/checkout/order');
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
+        $order = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];

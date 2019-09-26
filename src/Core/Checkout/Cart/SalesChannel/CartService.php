@@ -84,9 +84,10 @@ class CartService
         $this->orderCustomerRepository = $orderCustomerRepository;
     }
 
-    public function setCart(Cart $cart): void
+    public function setCart(Cart $cart, SalesChannelContext $context): void
     {
         $this->cart[$cart->getToken()] = $cart;
+        $this->persister->save($cart, $context);
     }
 
     public function createNew(string $token, string $name = self::SALES_CHANNEL): Cart

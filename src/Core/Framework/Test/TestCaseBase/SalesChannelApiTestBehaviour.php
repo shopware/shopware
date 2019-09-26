@@ -135,6 +135,7 @@ trait SalesChannelApiTestBehaviour
 
         $header = 'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $salesChannelApiClient->setServerParameter($header, $salesChannelOverride['accessKey']);
+        $salesChannelApiClient->setServerParameter('test-sales-channel-id', $salesChannel['id']);
     }
 
     private function createSalesChannel(array $salesChannelOverride = []): array

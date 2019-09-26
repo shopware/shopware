@@ -4,11 +4,18 @@ namespace Shopware\Core\Framework\Twig;
 
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Kernel;
+use Twig\Cache\FilesystemCache;
+use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
 
 class TemplateFinder
 {
+    /**
+     * @var Environment
+     */
+    protected $twig;
+
     /**
      * @var FilesystemLoader
      */
@@ -24,10 +31,17 @@ class TemplateFinder
      */
     private $bundles;
 
-    public function __construct(FilesystemLoader $loader, Kernel $kernel)
+    /**
+     * @var string
+     */
+    private $cacheDir;
+
+    public function __construct(Environment $twig, FilesystemLoader $loader, Kernel $kernel)
     {
+        $this->twig = $twig;
         $this->loader = $loader;
         $this->kernel = $kernel;
+        $this->cacheDir = $kernel->getCacheDir();
         $this->addBundles($kernel);
     }
 
@@ -81,6 +95,8 @@ class TemplateFinder
         $originalTemplate = $source ? null : $template;
 
         $queue = $this->filterBundles($this->bundles);
+
+        $this->defineCache($queue);
 
         if ($source) {
             $index = array_search($source, $queue, true);
@@ -143,6 +159,18 @@ class TemplateFinder
             if ($bundle instanceof Bundle) {
                 $this->addBundle($bundle);
             }
+        }
+    }
+
+    protected function defineCache(array $queue): void
+    {
+        if ($this->twig->getCache(false) instanceof FilesystemCache) {
+            $configHash = implode(':', $queue);
+
+            $fileSystemCache = new ConfigurableFilesystemCache($this->cacheDir);
+            $fileSystemCache->setConfigHash($configHash);
+            // Set individual twig cache for different configurations
+            $this->twig->setCache($fileSystemCache);
         }
     }
 }

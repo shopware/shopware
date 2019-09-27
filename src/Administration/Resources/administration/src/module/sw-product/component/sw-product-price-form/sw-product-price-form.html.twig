@@ -1,7 +1,7 @@
 {% block sw_product_price_form %}
     <div class="sw-product-price-form">
 
-        <sw-container columns="1fr 2fr" gap="0px 30px">
+        <sw-container columns="1fr 2fr" gap="0px 30px" class="sw-product-price-form__prices">
             {% block sw_product_price_form_tax_field %}
                 <sw-inherit-wrapper v-model="product.taxId"
                                     :inheritedValue="parentProduct.taxId"
@@ -34,7 +34,7 @@
             {% block sw_product_price_form_price_field %}
                 <sw-inherit-wrapper v-if="!isLoading"
                                     v-model="product.price"
-                                    label=" "
+                                    label="Prices"
                                     :hasParent="!!parentProduct.id"
                                     :inheritedValue="parentProduct.price"
                                     :customRemoveInheritanceFunction="removePriceInheritation">

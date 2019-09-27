@@ -107,6 +107,21 @@ class PromotionDiscountEntity extends Entity
      */
     protected $promotionDiscountPrices;
 
+    /**
+     * @var string
+     */
+    protected $sorterKey;
+
+    /**
+     * @var string
+     */
+    protected $applierKey;
+
+    /**
+     * @var string
+     */
+    protected $usageKey;
+
     public function getPromotionId(): string
     {
         return $this->promotionId;
@@ -249,5 +264,47 @@ class PromotionDiscountEntity extends Entity
         $prefix = PromotionDiscountEntity::SCOPE_SETGROUP . '-';
 
         return str_replace($prefix, '', $this->scope);
+    }
+
+    public function getSorterKey(): string
+    {
+        if ($this->sorterKey === null) {
+            return '';
+        }
+
+        return $this->sorterKey;
+    }
+
+    public function setSorterKey(string $sorterKey): void
+    {
+        $this->sorterKey = $sorterKey;
+    }
+
+    public function getApplierKey(): string
+    {
+        if ($this->applierKey === null) {
+            return '';
+        }
+
+        return $this->applierKey;
+    }
+
+    public function setApplierKey(string $applierKey): void
+    {
+        $this->applierKey = $applierKey;
+    }
+
+    public function getUsageKey(): string
+    {
+        if ($this->usageKey === null) {
+            return '';
+        }
+
+        return $this->usageKey;
+    }
+
+    public function setUsageKey(string $usageKey): void
+    {
+        $this->usageKey = $usageKey;
     }
 }

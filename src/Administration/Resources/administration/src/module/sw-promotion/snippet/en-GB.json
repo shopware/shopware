@@ -22,6 +22,20 @@
         "PRICE_DESC": "Price descending"
       }
     },
+    "filter": {
+      "sorter": {
+        "PRICE_ASC": "Price ascending",
+        "PRICE_DESC": "Price descending"
+      },
+      "applier": {
+        "ALL": "All results",
+        "SELECT": "Every {count}. result"
+      },
+      "counter": {
+        "ALL": "Unlimited",
+        "SELECT": "{count} x"
+      }
+    },
     "general": {
       "mainMenuItemGeneral": "Promotions",
       "mainMenuItemList": "Overview",
@@ -181,6 +195,9 @@
             "buttonCancel": "Cancel",
             "buttonDelete": "Delete discount"
           },
+          "labelSorting": "Sort by",
+          "labelApplyCount": "Apply on",
+          "labelMaxCount": "Maximum usage",
           "linkAdvancedPrices": "Open advanced price view",
           "pricesModal": {
             "advancedPricesHeader": "Advanced prices",

@@ -3,7 +3,7 @@ import template from './sw-promotion-discount-component.html.twig';
 import './sw-promotion-discount-component.scss';
 import DiscountHandler from './handler';
 
-const { Component, Mixin } = Shopware;
+const { Application, Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 
@@ -36,8 +36,12 @@ Component.register('sw-promotion-discount-component', {
             currencySymbol: null,
             allowProductRules: false,
             cartScope: this.discount.scope === DiscountScopes.CART,
+            shippingScope: this.discount.scope === DiscountScopes.DELIVERY,
             considerAdvancedRules: this.discount.considerAdvancedRules,
-            availableSetGroups: []
+            availableSetGroups: [],
+            syncService: null,
+            httpClient: null,
+            sorterKeys: []
         };
     },
     created() {
@@ -58,13 +62,13 @@ Component.register('sw-promotion-discount-component', {
         },
 
         ruleFilter() {
-            return Criteria.multi('AND', [
-                Criteria.equalsAny('conditions.type', [
-                    'cartLineItemOfType', 'cartLineItem', 'cartLineItemTotalPrice', 'cartLineItemUnitPrice',
-                    'cartLineItemWithQuantity', 'cartLineItemTag'
-                ]),
+            const criteria = new Criteria();
+
+            criteria.addFilter(
                 Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
-            ]);
+            );
+
+            return criteria;
         },
 
         currencyPriceColumns() {
@@ -84,6 +88,7 @@ Component.register('sw-promotion-discount-component', {
                 { key: DiscountScopes.DELIVERY, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeDelivery') },
                 { key: DiscountScopes.SET, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeSet') }
             ];
+
 
             let index = 1;
             this.availableSetGroups.forEach(() => {
@@ -169,10 +174,70 @@ Component.register('sw-promotion-discount-component', {
 
         displayAdvancedRuleOption() {
             return (this.discount.scope !== DiscountScopes.DELIVERY);
+        },
+
+        graduationSorters() {
+            const result = [];
+
+            this.sorterKeys.forEach((keyValue) => {
+                result.push(
+                    {
+                        key: keyValue,
+                        name: this.$tc(`sw-promotion.filter.sorter.${keyValue}`)
+                    }
+                );
+            });
+
+            return result;
+        },
+
+        graduationAppliers() {
+            const appliers = [
+                {
+                    key: 'ALL',
+                    name: this.$tc('sw-promotion.filter.applier.ALL')
+                }
+            ];
+
+            let i;
+            for (i = 2; i < 10; i += 1) {
+                appliers.push(
+                    {
+                        key: i,
+                        name: this.$tc('sw-promotion.filter.applier.SELECT', 0, { count: i })
+                    }
+                );
+            }
+
+            return appliers;
+        },
+
+        graduationCounts() {
+            const counts = [
+                {
+                    key: 'ALL',
+                    name: this.$tc('sw-promotion.filter.counter.ALL')
+                }
+            ];
+
+            let i;
+            for (i = 1; i < 10; i += 1) {
+                counts.push(
+                    {
+                        key: i,
+                        name: this.$tc('sw-promotion.filter.counter.SELECT', 0, { count: i })
+                    }
+                );
+            }
+
+            return counts;
         }
     },
     methods: {
         createdComponent() {
+            this.syncService = Application.getContainer('service').syncService;
+            this.httpClient = this.syncService.httpClient;
+
             this.currencyRepository.search(new Criteria(), this.context).then((response) => {
                 this.currencies = response;
                 this.defaultCurrency = this.currencies.find(currency => currency.isSystemDefault);
@@ -187,6 +252,10 @@ Component.register('sw-promotion-discount-component', {
 
             this.loadSetGroups().then(() => {
                 this.discount.scope = previousScope;
+            });
+
+            this.loadSorters().then((keys) => {
+                this.sorterKeys = keys;
             });
         },
 
@@ -302,6 +371,7 @@ Component.register('sw-promotion-discount-component', {
 
         onDiscountScopeChanged(value) {
             this.cartScope = (value === DiscountScopes.CART);
+            this.shippingScope = (value === DiscountScopes.DELIVERY);
 
             if (value === DiscountScopes.DELIVERY) {
                 this.discount.considerAdvancedRules = false;
@@ -321,6 +391,17 @@ Component.register('sw-promotion-discount-component', {
             });
 
             return true;
+        },
+
+        async loadSorters() {
+            return this.httpClient.get(
+                '/_action/promotion/setgroup/sorter',
+                {
+                    headers: this.syncService.getBasicHeaders()
+                }
+            ).then((response) => {
+                return response.data;
+            });
         }
 
     }

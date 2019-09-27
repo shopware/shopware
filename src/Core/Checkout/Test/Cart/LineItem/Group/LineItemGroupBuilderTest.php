@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceDescSorter;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
@@ -108,7 +109,7 @@ class LineItemGroupBuilderTest extends TestCase
                 ]
             ),
             $this->fakeTakeAllRuleMatcher,
-            $quantityPriceCalculator
+            new LineItemQuantitySplitter($quantityPriceCalculator)
         );
 
         $this->unitTestBuilder = new LineItemGroupBuilder(
@@ -124,7 +125,7 @@ class LineItemGroupBuilderTest extends TestCase
                 ]
             ),
             new AnyRuleMatcher(),
-            $quantityPriceCalculator
+            new LineItemQuantitySplitter($quantityPriceCalculator)
         );
     }
 

@@ -114,6 +114,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageFilter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator">
@@ -144,6 +146,26 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+
+        <!-- FILTER SERVICES -->
+        <!-- ==================================================================================================================== -->
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageFilter">
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry">
+            <argument type="tagged" tag="promotion.filter.sorter"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceAsc">
+            <tag name="promotion.filter.sorter"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceDesc">
+            <tag name="promotion.filter.sorter"/>
+        </service>
+
 
         <!-- ADDITIONAL SERVICES -->
         <!-- ==================================================================================================================== -->

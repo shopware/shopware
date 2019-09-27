@@ -6,10 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
-use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemGroupBuilder
@@ -25,15 +22,15 @@ class LineItemGroupBuilder
     private $ruleMatcher;
 
     /**
-     * @var QuantityPriceCalculator
+     * @var LineItemQuantitySplitter
      */
-    private $quantityPriceCalculator;
+    private $quantitySplitter;
 
-    public function __construct(LineItemGroupServiceRegistry $registry, LineItemGroupRuleMatcherInterface $ruleMatcher, QuantityPriceCalculator $quantityPriceCalculator)
+    public function __construct(LineItemGroupServiceRegistry $registry, LineItemGroupRuleMatcherInterface $ruleMatcher, LineItemQuantitySplitter $lineItemQuantitySplitter)
     {
         $this->registry = $registry;
         $this->ruleMatcher = $ruleMatcher;
-        $this->quantityPriceCalculator = $quantityPriceCalculator;
+        $this->quantitySplitter = $lineItemQuantitySplitter;
     }
 
     /**
@@ -172,34 +169,8 @@ class LineItemGroupBuilder
         /** @var LineItem $item */
         foreach ($cartItems as $item) {
             for ($i = 1; $i <= $item->getQuantity(); ++$i) {
-                // clone the original line item
-                $tmpItem = LineItem::createFromLineItem($item);
-
-                // use calculated unit price
-                /** @var float $unitPrice */
-                $unitPrice = $tmpItem->getPrice()->getUnitPrice();
-
-                /** @var TaxRuleCollection $taxRules */
-                $taxRules = $tmpItem->getPrice()->getTaxRules();
-
-                // change the quantity to 1 single item
-                $tmpItem->setQuantity(1);
-
-                /** @var QuantityPriceDefinition $quantityDefinition */
-                $quantityDefinition = new QuantityPriceDefinition(
-                    $unitPrice,
-                    $taxRules,
-                    $context->getContext()->getCurrencyPrecision(),
-                    $tmpItem->getQuantity(),
-                    true
-                );
-
-                /** @var CalculatedPrice $price */
-                $price = $this->quantityPriceCalculator->calculate(
-                    $quantityDefinition,
-                    $context
-                );
-                $tmpItem->setPrice($price);
+                /** @var LineItem $tmpItem */
+                $tmpItem = $this->quantitySplitter->split($item, 1, $context);
 
                 $items[] = $tmpItem;
             }

@@ -81,6 +81,11 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'discountScope' => 'cart',
             'setGroups' => [],
             'groupId' => '',
+            'filter' => [
+                'sorterKey' => null,
+                'applierKey' => null,
+                'usageKey' => null,
+            ],
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -122,6 +127,11 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'discountScope' => 'cart',
             'setGroups' => [],
             'groupId' => '',
+            'filter' => [
+                'sorterKey' => null,
+                'applierKey' => null,
+                'usageKey' => null,
+            ],
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -216,6 +226,11 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 ],
             ],
             'groupId' => '',
+            'filter' => [
+                'sorterKey' => null,
+                'applierKey' => null,
+                'usageKey' => null,
+            ],
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -318,6 +333,64 @@ class PromotionItemBuilderPayloadTest extends TestCase
         static::assertEquals($discount->getId(), $item->getPayloadValue('discountId'), 'Wrong value in payload key discountId');
         static::assertEquals($discount->getType(), $item->getPayloadValue('discountType'), 'Wrong value in payload key discountType');
         static::assertEquals($discount->getScope(), $item->getPayloadValue('discountScope'), 'Wrong value in payload key scope');
+    }
+
+    /**
+     * This test verifies that the correct filter
+     * values are being added to the payload if set
+     *
+     * @test
+     * @group promotions
+     */
+    public function testPayloadAdvancedFilterValues(): void
+    {
+        $builder = new PromotionItemBuilder();
+
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setScope(PromotionDiscountEntity::SCOPE_DELIVERY);
+        $discount->setConsiderAdvancedRules(true);
+        $discount->setSorterKey('PRICE_ASC');
+        $discount->setApplierKey('ALL');
+        $discount->setUsageKey('UNLIMITED');
+        $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $discount->setValue(50);
+
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY);
+
+        static::assertEquals('PRICE_ASC', $item->getPayload()['filter']['sorterKey'], 'Wrong value in payload filter.sorterKey');
+        static::assertEquals('ALL', $item->getPayload()['filter']['applierKey'], 'Wrong value in payload filter.applierKey');
+        static::assertEquals('UNLIMITED', $item->getPayload()['filter']['usageKey'], 'Wrong value in payload filter.usageKey');
+    }
+
+    /**
+     * This test verifies that the filter valures are all
+     * null if the advanced rules option is disabled.
+     * We enter valid values, but turn that feature off and
+     * test if the values are null.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testPayloadAdvancedFilterValuesNullIfDisabled(): void
+    {
+        $builder = new PromotionItemBuilder();
+
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setScope(PromotionDiscountEntity::SCOPE_DELIVERY);
+        $discount->setConsiderAdvancedRules(false);
+        $discount->setSorterKey('PRICE_ASC');
+        $discount->setApplierKey('ALL');
+        $discount->setUsageKey('UNLIMITED');
+        $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $discount->setValue(50);
+
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY);
+
+        static::assertNull($item->getPayload()['filter']['sorterKey'], 'Wrong value in payload filter.sorterKey');
+        static::assertNull($item->getPayload()['filter']['applierKey'], 'Wrong value in payload filter.applierKey');
+        static::assertNull($item->getPayload()['filter']['usageKey'], 'Wrong value in payload filter.usageKey');
     }
 
     /**

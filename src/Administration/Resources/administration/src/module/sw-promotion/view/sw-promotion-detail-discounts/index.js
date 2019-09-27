@@ -87,6 +87,9 @@ Component.register('sw-promotion-detail-discounts', {
             newDiscount.type = DiscountTypes.PERCENTAGE;
             newDiscount.value = 0.01;
             newDiscount.considerAdvancedRules = false;
+            newDiscount.sorterKey = 'PRICE_ASC';
+            newDiscount.applierKey = 'ALL';
+            newDiscount.usageKey = 'ALL';
 
             this.discounts.push(newDiscount);
         },

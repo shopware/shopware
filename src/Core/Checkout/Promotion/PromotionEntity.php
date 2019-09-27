@@ -558,7 +558,7 @@ class PromotionEntity extends Entity
 
         // verify if we are in SetGroup mode and build
         // a custom setgroup rule for all groups
-        if ($this->isUseSetGroups() !== null && $this->isUseSetGroups() && $this->getSetgroups() !== null) {
+        if ($this->isUseSetGroups() !== null && $this->isUseSetGroups() && $this->getSetgroups() !== null && $this->getSetgroups()->count() > 0) {
             $groupsRootRule = new OrRule();
 
             /** @var PromotionSetGroupEntity $group */

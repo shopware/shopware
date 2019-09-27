@@ -81,7 +81,7 @@
                             <sw-number-field :size="compact ? 'small' : 'default'" v-model="item.price"></sw-number-field>
                         </template>
                         <template v-else>
-                            {{ item.price | currency(item.currency.shortName) }}
+                            {{ item.price | currency(priceGroup.currency.shortName) }}
                         </template>
                     </template>
                 {% endblock %}

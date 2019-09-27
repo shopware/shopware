@@ -31,7 +31,7 @@
 
                         {% block sw_customer_detail_order_card_grid_columns_amount %}
                             <template #column-amountTotal="{ item }">
-                                {{ item.amountTotal | currency }}
+                                {{ item.amountTotal | currency(item.currency.shortName) }}
                             </template>
                         {% endblock %}
 

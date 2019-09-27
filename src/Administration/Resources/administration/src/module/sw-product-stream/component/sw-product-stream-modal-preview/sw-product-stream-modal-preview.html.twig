@@ -82,7 +82,7 @@
                                             dataIndex="price"
                                             align="right"
                                             sortable>
-                                {{ getPriceOfDefaultCurrency(item.price).gross | currency }}
+                                {{ getPriceOfDefaultCurrency(item.price).gross | currency('EUR') }}
                             </sw-grid-column>
                         {% endblock %}
 

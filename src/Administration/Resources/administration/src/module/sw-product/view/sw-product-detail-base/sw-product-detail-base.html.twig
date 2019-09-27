@@ -124,14 +124,17 @@
         {% block sw_product_detail_base_ratings_card %}
             <sw-card :title="$tc('sw-product.detailBase.cardTitleReviews')"
                      v-if="reviewItemData"
+                     class="sw-product-detail-base__review-card"
                      :isLoading="product.isLoading">
                 <template slot="grid">
-                    <sw-data-grid ref="gridReview"
-                                  :dataSource="reviewItemData"
-                                  :columns="reviewColumns"
-                                  :showSelection="false"
-                                  :isLoading="loading.product"
-                                  :showActions="true">
+                    <sw-data-grid
+                        v-if="total < 0"
+                        ref="gridReview"
+                        :dataSource="reviewItemData"
+                        :columns="reviewColumns"
+                        :showSelection="false"
+                        :isLoading="loading.product"
+                        :showActions="true">
                             {% block sw_product_detail_base_ratings_column_status %}
                                 <template slot="column-status" slot-scope="{ item }">
                                     <sw-data-grid-column-boolean v-model="item.status" :isInlineEdit="false"/>
@@ -218,8 +221,12 @@
                     {% endblock %}
                 </sw-modal>
                 {% endblock %}
+                <sw-empty-state v-if="!total"
+                                :title="$tc('sw-product.reviewForm.messageEmptyTitle')"
+                                icon="default-documentation-file"
+                                :subline="$tc('sw-product.reviewForm.messageEmptySubline')">
+                </sw-empty-state>
             </sw-card>
         {% endblock %}
     </div>
-
 {% endblock %}

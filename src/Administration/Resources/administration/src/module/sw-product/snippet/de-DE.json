@@ -118,7 +118,9 @@
         "confirmText": "Möchten Sie diese Bewertung wirklich löschen?",
         "buttonCancel": "Abbrechen",
         "buttonDelete": "Löschen"
-      }
+      },
+      "messageEmptyTitle": "Noch keine Bewertungen",
+      "messageEmptySubline": "Verwaltung von Bewertungen"
     },
     "prices": {
       "cardTitlePriceRule": "Neue Preisregel",

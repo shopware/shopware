@@ -34,7 +34,7 @@
             {% block sw_product_price_form_price_field %}
                 <sw-inherit-wrapper v-if="!isLoading"
                                     v-model="product.price"
-                                    label="Prices"
+                                    :label="$tc('sw-product.detailBase.cardTitlePrices')"
                                     :hasParent="!!parentProduct.id"
                                     :inheritedValue="parentProduct.price"
                                     :customRemoveInheritanceFunction="removePriceInheritation">

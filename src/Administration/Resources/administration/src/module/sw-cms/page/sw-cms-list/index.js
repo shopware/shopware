@@ -112,6 +112,7 @@ Component.register('sw-cms-list', {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia')
+                .addAssociation('sections')
                 .addAssociation('categories')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 

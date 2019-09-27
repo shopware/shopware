@@ -35,6 +35,13 @@ Component.register('sw-cms-list-item', {
                 };
             }
 
+            if (this.defaultItemLayoutAssetBackground) {
+                return {
+                    'background-image': this.defaultItemLayoutAssetBackground,
+                    'background-size': 'cover'
+                };
+            }
+
             return null;
         },
 
@@ -43,6 +50,18 @@ Component.register('sw-cms-list-item', {
             const context = initContainer.contextService;
 
             return `url(${context.assetsPath}/administration/static/img/cms/default_preview_${this.page.type}.jpg)`;
+        },
+
+        defaultItemLayoutAssetBackground() {
+            const initContainer = Application.getContainer('init');
+            const context = initContainer.contextService;
+            const path = 'administration/static/img/cms';
+
+            if (this.page.sections.length < 1) {
+                return null;
+            }
+
+            return `url(${context.assetsPath}/${path}/preview_${this.page.type}_${this.page.sections[0].type}.png)`;
         },
 
         componentClasses() {

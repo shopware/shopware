@@ -49,19 +49,19 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
 
         $lineItemCollection = new LineItemCollection();
         $lineItemCollection->add((new LineItem('dummyWithShippingCost', 'product', null, 3))->setDeliveryInformation(
-                new DeliveryInformation(
-                    9999,
-                    50.0,
-                    false,
-                    null,
-                    (new DeliveryTime())->assign([
-                        'min' => 1,
-                        'max' => 3,
-                        'unit' => 'weeks',
-                        'name' => '1-3 weeks',
-                    ])
-                )
-            ));
+            new DeliveryInformation(
+                9999,
+                50.0,
+                false,
+                null,
+                (new DeliveryTime())->assign([
+                    'min' => 1,
+                    'max' => 3,
+                    'unit' => 'weeks',
+                    'name' => '1-3 weeks',
+                ])
+            )
+        ));
         $lineItemCollection->add(
             (new LineItem('dummyNoShippingCost', 'product', null, 3))->setDeliveryInformation(
                 new DeliveryInformation(

@@ -40,19 +40,19 @@ class SeoUrlTemplateLoader
     public function getTemplateGroups(string $routeName, array $salesChannelEntities): array
     {
         $groups = FetchModeHelper::group(
-            $this->connection->executeQuery('
-                SELECT
-                  LOWER(HEX(domains.language_id)) as languageId,
-                  LOWER(HEX(sales_channel.id)) as salesChannelId,
-                  sales_channel.short_name shortName,
-                  templates.template
-                FROM sales_channel_domain as domains
-                INNER JOIN sales_channel
-                  ON domains.sales_channel_id = sales_channel.id
-                LEFT JOIN seo_url_template templates
-                  ON templates.sales_channel_id = sales_channel.id
-                  AND templates.route_name = :routeName
-                WHERE sales_channel.active',
+            $this->connection->executeQuery(
+                'SELECT
+                   LOWER(HEX(domains.language_id)) as languageId,
+                   LOWER(HEX(sales_channel.id)) as salesChannelId,
+                   sales_channel.short_name shortName,
+                   templates.template
+                 FROM sales_channel_domain as domains
+                 INNER JOIN sales_channel
+                   ON domains.sales_channel_id = sales_channel.id
+                 LEFT JOIN seo_url_template templates
+                   ON templates.sales_channel_id = sales_channel.id
+                   AND templates.route_name = :routeName
+                 WHERE sales_channel.active',
                 ['routeName' => $routeName]
             )->fetchAll()
         );

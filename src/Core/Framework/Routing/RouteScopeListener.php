@@ -114,8 +114,7 @@ class RouteScopeListener implements EventSubscriberInterface
                 continue;
             }
 
-            if (strncmp($controllerClass, substr($ignoredController, 0, -1),
-                    strlen($ignoredController) - 1) === 0) {
+            if (strncmp($controllerClass, substr($ignoredController, 0, -1), strlen($ignoredController) - 1) === 0) {
                 return true;
             }
         }

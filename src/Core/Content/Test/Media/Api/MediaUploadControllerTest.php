@@ -203,15 +203,15 @@ class MediaUploadControllerTest extends TestCase
 
         try {
             $this->getBrowser()->request(
-                 'POST',
+                'POST',
                 $url . '?extension=png',
-                 [],
-                 [],
-                 [
-                     'HTTP_CONTENT-TYPE' => 'application/json',
-                 ],
-                 json_encode(['url' => $baseUrl . '/shopware-logo.png'])
-             );
+                [],
+                [],
+                [
+                    'HTTP_CONTENT-TYPE' => 'application/json',
+                ],
+                json_encode(['url' => $baseUrl . '/shopware-logo.png'])
+            );
             $response = $this->getBrowser()->getResponse();
         } finally {
             unlink($target);

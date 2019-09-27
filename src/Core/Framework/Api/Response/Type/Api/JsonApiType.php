@@ -47,7 +47,10 @@ class JsonApiType extends JsonFactoryBase
         ];
 
         $response = $this->serializer->encode(
-            $definition, $entity, $this->getApiBaseUrl($request), $rootNode
+            $definition,
+            $entity,
+            $this->getApiBaseUrl($request),
+            $rootNode
         );
 
         return new JsonApiResponse($response, JsonApiResponse::HTTP_OK, $headers, true);
@@ -77,7 +80,10 @@ class JsonApiType extends JsonFactoryBase
         $rootNode['aggregations'] = $aggregations;
 
         $response = $this->serializer->encode(
-            $definition, $searchResult, $this->getApiBaseUrl($request), $rootNode
+            $definition,
+            $searchResult,
+            $this->getApiBaseUrl($request),
+            $rootNode
         );
 
         return new JsonApiResponse($response, JsonApiResponse::HTTP_OK, [], true);

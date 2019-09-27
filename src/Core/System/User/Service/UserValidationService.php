@@ -35,11 +35,9 @@ class UserValidationService
                 'AND',
                 [
                     new EqualsFilter('email', $userEmail),
-                    new NotFilter('AND',
-                        [
-                            new EqualsFilter('id', $userId),
-                        ]
-                    ),
+                    new NotFilter('AND', [
+                        new EqualsFilter('id', $userId),
+                    ]),
                 ]
             )
         );
@@ -59,11 +57,9 @@ class UserValidationService
                 'AND',
                 [
                     new EqualsFilter('username', $userUsername),
-                    new NotFilter('AND',
-                        [
-                            new EqualsFilter('id', $userId),
-                        ]
-                    ),
+                    new NotFilter('AND', [
+                        new EqualsFilter('id', $userId),
+                    ]),
                 ]
             )
         );

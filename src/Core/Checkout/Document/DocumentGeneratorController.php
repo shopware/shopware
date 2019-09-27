@@ -53,7 +53,8 @@ class DocumentGeneratorController extends AbstractController
             [
                 'documentId' => $documentIdStruct->getId(),
                 'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
-            ]);
+            ]
+        );
     }
 
     /**
@@ -71,6 +72,7 @@ class DocumentGeneratorController extends AbstractController
             [
                 'documentId' => $documentIdStruct->getId(),
                 'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
-            ]);
+            ]
+        );
     }
 }

@@ -64,12 +64,14 @@ class DeleteNotUsedMediaService
             foreach ($defaultFolders as $defaultFolder) {
                 if ($defaultFolder->getFolder()->getConfiguration()->isNoAssociation()) {
                     $criteria->addFilter(
-                        new MultiFilter('OR', [
-                            new NotFilter('AND', [
-                                new EqualsFilter('mediaFolderId', $defaultFolder->getFolder()->getId()),
-                            ]),
-                            new EqualsFilter('mediaFolderId', null),
-                        ]
+                        new MultiFilter(
+                            'OR',
+                            [
+                                new NotFilter('AND', [
+                                    new EqualsFilter('mediaFolderId', $defaultFolder->getFolder()->getId()),
+                                ]),
+                                new EqualsFilter('mediaFolderId', null),
+                            ]
                         )
                     );
                     continue;

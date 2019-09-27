@@ -119,7 +119,8 @@ class OrderConverter
             }
             throw new DeliveryWithoutAddressException();
         }
-        $data = CartTransformer::transform($cart,
+        $data = CartTransformer::transform(
+            $cart,
             $context,
             $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context->getContext())->getId()
         );
@@ -159,9 +160,11 @@ class OrderConverter
         }
 
         if ($conversionContext->shouldIncludeTransactions()) {
-            $data['transactions'] = TransactionTransformer::transformCollection($cart->getTransactions(),
+            $data['transactions'] = TransactionTransformer::transformCollection(
+                $cart->getTransactions(),
                 $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context->getContext())->getId(),
-                $context->getContext());
+                $context->getContext()
+            );
         }
 
         $data['lineItems'] = array_values($convertedLineItems);
@@ -176,7 +179,9 @@ class OrderConverter
             $data['orderNumber'] = $orderNumberStruct->getId();
         } else {
             $data['orderNumber'] = $this->numberRangeValueGenerator->getValue(
-                $this->orderDefinition->getEntityName(), $context->getContext(), $context->getSalesChannel()->getId()
+                $this->orderDefinition->getEntityName(),
+                $context->getContext(),
+                $context->getSalesChannel()->getId()
             );
         }
 

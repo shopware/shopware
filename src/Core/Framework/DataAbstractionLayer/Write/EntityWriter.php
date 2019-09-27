@@ -175,7 +175,8 @@ class EntityWriter implements EntityWriterInterface
                         $key,
                         $payload,
                         $affectedDefinition->getEntityName(),
-                        null);
+                        null
+                    );
                 }, $cascade);
             }
         }

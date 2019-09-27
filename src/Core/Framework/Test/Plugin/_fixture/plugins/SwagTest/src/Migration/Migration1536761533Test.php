@@ -20,11 +20,11 @@ class Migration1536761533Test extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $result = $connection->executeQuery('
-            SELECT id, configuration_value 
-            FROM system_config 
-            WHERE sales_channel_id IS NULL 
-              AND configuration_key = ?',
+        $result = $connection->executeQuery(
+            'SELECT id, configuration_value 
+             FROM system_config 
+             WHERE sales_channel_id IS NULL 
+               AND configuration_key = ?',
             [self::TEST_SYSTEM_CONFIG_KEY]
         );
         $row = $result->fetch(FetchMode::ASSOCIATIVE);
@@ -32,9 +32,9 @@ class Migration1536761533Test extends MigrationStep
         $id = $row['id'] ?? Uuid::randomBytes();
         $value = $row['configuration_value'] ?? 0;
 
-        $connection->executeUpdate('
-            REPLACE INTO system_config (id, configuration_key, configuration_value, created_at)
-            VALUES (?, ?, ?, date(now()))',
+        $connection->executeUpdate(
+            'REPLACE INTO system_config (id, configuration_key, configuration_value, created_at)
+             VALUES (?, ?, ?, date(now()))',
             [$id, self::TEST_SYSTEM_CONFIG_KEY, $value + 1]
         );
     }

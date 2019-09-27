@@ -105,7 +105,7 @@ class TaskRegistry
                 ->filter(function (ScheduledTaskEntity $registeredTask) use ($task) {
                     return $registeredTask->getScheduledTaskClass() === get_class($task);
                 })
-            ) > 0;
+        ) > 0;
     }
 
     private function taskClassStillAvailable(ScheduledTaskEntity $registeredTask): bool

@@ -97,7 +97,8 @@ class ProductStreamIndexerTest extends TestCase
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
-            ], $this->context
+            ],
+            $this->context
         );
 
         $id = Uuid::randomHex();
@@ -161,7 +162,8 @@ class ProductStreamIndexerTest extends TestCase
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
-            ], $this->context
+            ],
+            $this->context
         );
         $id = Uuid::randomHex();
 
@@ -242,7 +244,8 @@ class ProductStreamIndexerTest extends TestCase
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
-            ], $this->context
+            ],
+            $this->context
         );
         $id = Uuid::randomHex();
 
@@ -304,7 +307,8 @@ class ProductStreamIndexerTest extends TestCase
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
-            ], $this->context
+            ],
+            $this->context
         );
 
         $id = Uuid::randomHex();
@@ -365,7 +369,8 @@ class ProductStreamIndexerTest extends TestCase
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
-            ], $this->context
+            ],
+            $this->context
         );
         $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::randomHex();
@@ -427,7 +432,8 @@ class ProductStreamIndexerTest extends TestCase
                     'manufacturer' => ['name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
-            ], $this->context
+            ],
+            $this->context
         );
         $languageId = Defaults::LANGUAGE_SYSTEM;
         $id = Uuid::randomHex();

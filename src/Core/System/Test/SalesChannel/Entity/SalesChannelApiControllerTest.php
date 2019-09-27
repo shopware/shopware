@@ -46,7 +46,8 @@ class SalesChannelApiControllerTest extends TestCase
         $id = $this->createTestData();
 
         $this->browser->request(
-            'GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?filter[visibilities.id]=' . Uuid::randomHex()
+            'GET',
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?filter[visibilities.id]=' . Uuid::randomHex()
         );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -59,7 +60,8 @@ class SalesChannelApiControllerTest extends TestCase
         $id = $this->createTestData();
 
         $this->browser->request(
-            'GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?post-filter[visibilities.id]=' . Uuid::randomHex()
+            'GET',
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?post-filter[visibilities.id]=' . Uuid::randomHex()
         );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -72,7 +74,8 @@ class SalesChannelApiControllerTest extends TestCase
         $id = $this->createTestData();
 
         $this->browser->request(
-            'GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?associations[visibilities][]=' . Uuid::randomHex()
+            'GET',
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?associations[visibilities][]=' . Uuid::randomHex()
         );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -85,7 +88,8 @@ class SalesChannelApiControllerTest extends TestCase
         $id = $this->createTestData();
 
         $this->browser->request(
-            'GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?sort=visibilities.id'
+            'GET',
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?sort=visibilities.id'
         );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -99,7 +103,8 @@ class SalesChannelApiControllerTest extends TestCase
         $id = $this->createTestData();
 
         $this->browser->request(
-            'GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id
+            'GET',
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id
             . '?aggregations[0][name]=test&aggregations[0][field]=visibilities.id&aggregations[0][type]=count'
         );
 
@@ -114,7 +119,8 @@ class SalesChannelApiControllerTest extends TestCase
         $id = $this->createTestData();
 
         $this->browser->request(
-            'GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id
+            'GET',
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id
             . '?associations[categories][]&associations[categories][filter][navigationSalesChannels.id]=' . $id
         );
 

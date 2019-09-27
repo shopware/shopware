@@ -68,7 +68,8 @@ class StateMachineGraphvizDumper
 
     private function startDot(array $options): string
     {
-        return sprintf("digraph workflow {\n  %s\n  node [%s];\n  edge [%s];\n\n",
+        return sprintf(
+            "digraph workflow {\n  %s\n  node [%s];\n  edge [%s];\n\n",
             $this->addOptions($options['graph']),
             $this->addOptions($options['node']),
             $this->addOptions($options['edge'])

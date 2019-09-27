@@ -48,7 +48,8 @@ class FeatureFlagCreateCommand extends Command
             ->getEnvironmentName($name);
 
         $io->table(
-            ['Type', 'Value'], [
+            ['Type', 'Value'],
+            [
                 ['PHP-Flag', realpath($phpFlag)],
                 ['JS-Flag', realpath($jsFlag)],
                 ['Constant', $envName],

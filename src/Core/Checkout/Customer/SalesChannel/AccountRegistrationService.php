@@ -228,7 +228,8 @@ class AccountRegistrationService
     {
         $customer = [
             'customerNumber' => $this->numberRangeValueGenerator->getValue(
-                $this->customerRepository->getDefinition()->getEntityName(), $context->getContext(),
+                $this->customerRepository->getDefinition()->getEntityName(),
+                $context->getContext(),
                 $context->getSalesChannel()->getId()
             ),
             'salesChannelId' => $context->getSalesChannel()->getId(),

@@ -85,7 +85,8 @@ class SeoUrlExtensionTest extends TestCase
                     'isValid' => true,
                 ],
             ],
-            $salesChannelContext->getContext());
+            $salesChannelContext->getContext()
+        );
 
         $id = $this->createTestProduct();
 
@@ -107,12 +108,14 @@ class SeoUrlExtensionTest extends TestCase
         /** @var EntityRepositoryInterface $manufacturerRepository */
         $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
         $manufacturerRepository->update(
-        [
             [
-                'id' => $product->getManufacturerId(),
-                'name' => 'wuseldusel',
+                [
+                    'id' => $product->getManufacturerId(),
+                    'name' => 'wuseldusel',
+                ],
             ],
-        ], $salesChannelContext->getContext());
+            $salesChannelContext->getContext()
+        );
 
         $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
 
@@ -173,8 +176,10 @@ class SeoUrlExtensionTest extends TestCase
         skipTestNext741($this);
 
         $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId,
-            'test');
+        $salesChannelContext = $this->createStorefrontSalesChannelContext(
+            $salesChannelId,
+            'test'
+        );
 
         $categoryRepository = $this->getContainer()->get('category.repository');
 
@@ -224,8 +229,10 @@ class SeoUrlExtensionTest extends TestCase
         skipTestNext741($this);
 
         $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId,
-            'test');
+        $salesChannelContext = $this->createStorefrontSalesChannelContext(
+            $salesChannelId,
+            'test'
+        );
 
         $categoryRepository = $this->getContainer()->get('category.repository');
 

@@ -30,6 +30,7 @@ return Config::create()
         'no_useless_return' => true,
         'ordered_class_elements' => true,
         'ordered_imports' => true,
+        'method_argument_space' => ['on_multiline' => 'ensure_fully_multiline'],
         'phpdoc_order' => true,
         'phpdoc_summary' => false,
         // Removes @param and @return tags that don't provide any useful information.

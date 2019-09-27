@@ -30,7 +30,8 @@ trait ShippingMethodPricesTestBehaviour
             $this->oldValues[$row['id']] = $row['price'];
         }
 
-        $conn->executeQuery('UPDATE shipping_method_price SET price=:price WHERE id in(:ids)',
+        $conn->executeQuery(
+            'UPDATE shipping_method_price SET price=:price WHERE id in(:ids)',
             ['price' => $price, 'ids' => array_keys($this->oldValues)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
@@ -44,7 +45,8 @@ trait ShippingMethodPricesTestBehaviour
     private function restorePrices(Connection $conn): void
     {
         foreach ($this->oldValues as $k => $v) {
-            $conn->executeQuery('UPDATE shipping_method_price SET price=:price WHERE id=:id',
+            $conn->executeQuery(
+                'UPDATE shipping_method_price SET price=:price WHERE id=:id',
                 ['price' => $v, 'id' => $k]
             );
         }

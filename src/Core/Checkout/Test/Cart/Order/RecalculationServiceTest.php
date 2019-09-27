@@ -745,8 +745,8 @@ class RecalculationServiceTest extends TestCase
         string $lastName,
         string $street,
         string $city,
-        string $zipcode): string
-    {
+        string $zipcode
+    ): string {
         $addressId = Uuid::randomHex();
 
         $customer = [
@@ -917,8 +917,8 @@ class RecalculationServiceTest extends TestCase
         float $productTaxRate,
         string $orderId,
         string $versionId,
-        float $oldTotal): string
-    {
+        float $oldTotal
+    ): string {
         $productId = $this->createProduct($productName, $productPrice, $productTaxRate);
 
         // add product to order

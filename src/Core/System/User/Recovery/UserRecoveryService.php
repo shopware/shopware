@@ -129,7 +129,7 @@ class UserRecoveryService
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-           new EqualsFilter('email', $userEmail)
+            new EqualsFilter('email', $userEmail)
         );
 
         return $this->userRepo->search($criteria, $context)->first();

@@ -164,27 +164,28 @@ class ThumbnailServiceTest extends TestCase
         $mediaId = Uuid::randomHex();
         $mediaExtension = 'png';
 
-        $this->mediaRepository->create([
+        $this->mediaRepository->create(
             [
-                'id' => $mediaId,
-                'name' => 'media without thumbnails',
-                'fileExtension' => $mediaExtension,
-                'mimeType' => 'image/png',
-                'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
-                'thumbnails' => [
-                    [
-                        'width' => 100,
-                        'height' => 100,
-                        'highDpi' => false,
-                    ],
-                    [
-                        'width' => 300,
-                        'height' => 300,
-                        'highDpi' => true,
+                [
+                    'id' => $mediaId,
+                    'name' => 'media without thumbnails',
+                    'fileExtension' => $mediaExtension,
+                    'mimeType' => 'image/png',
+                    'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+                    'thumbnails' => [
+                        [
+                            'width' => 100,
+                            'height' => 100,
+                            'highDpi' => false,
+                        ],
+                        [
+                            'width' => 300,
+                            'height' => 300,
+                            'highDpi' => true,
+                        ],
                     ],
                 ],
             ],
-        ],
             $this->context
         );
 

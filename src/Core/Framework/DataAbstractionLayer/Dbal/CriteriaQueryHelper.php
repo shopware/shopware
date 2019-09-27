@@ -48,8 +48,10 @@ trait CriteriaQueryHelper
             $criteria->addQuery(...$queries);
         }
 
-        $filter = $this->antiJoinTransform($definition,
-            new MultiFilter('AND',
+        $filter = $this->antiJoinTransform(
+            $definition,
+            new MultiFilter(
+                'AND',
                 array_merge(
                     $criteria->getFilters(),
                     $criteria->getPostFilters()

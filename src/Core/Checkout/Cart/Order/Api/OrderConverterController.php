@@ -44,8 +44,8 @@ class OrderConverterController extends AbstractController
     public function __construct(
         OrderConverter $orderConverter,
         CartPersisterInterface $cartPersister,
-        EntityRepositoryInterface $orderRepository)
-    {
+        EntityRepositoryInterface $orderRepository
+    ) {
         $this->orderConverter = $orderConverter;
         $this->cartPersister = $cartPersister;
         $this->orderRepository = $orderRepository;

@@ -58,11 +58,11 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
             }
         }
 
-        $mediaIds = $connection->executeQuery('
-            SELECT `media`.`id` FROM `media`
-                LEFT JOIN `media_folder` ON `media`.`media_folder_id` = `media_folder`.`id`
-                LEFT JOIN `media_default_folder` ON `media_folder`.`default_folder_id` = `media_default_folder`.`id`
-                WHERE `media_default_folder`.`entity` = \'theme\';'
+        $mediaIds = $connection->executeQuery(
+            'SELECT `media`.`id` FROM `media`
+               LEFT JOIN `media_folder` ON `media`.`media_folder_id` = `media_folder`.`id`
+               LEFT JOIN `media_default_folder` ON `media_folder`.`default_folder_id` = `media_default_folder`.`id`
+               WHERE `media_default_folder`.`entity` = \'theme\';'
         )->fetchAll(FetchMode::COLUMN);
 
         if (!$mediaIds || count($mediaIds) === 0) {
@@ -79,6 +79,5 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

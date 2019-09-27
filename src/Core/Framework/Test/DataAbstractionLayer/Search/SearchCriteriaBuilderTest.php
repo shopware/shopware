@@ -83,7 +83,9 @@ class SearchCriteriaBuilderTest extends TestCase
         $this->createManufacturer(['link' => 'b', 'description' => $filterId]);
         $this->createManufacturer(['link' => 'c', 'description' => $filterId]);
 
-        $this->getBrowser()->request('GET', $this->url . '/product-manufacturer',
+        $this->getBrowser()->request(
+            'GET',
+            $this->url . '/product-manufacturer',
             [
                 'sort' => 'product_manufacturer.link',
                 'filter' => ['description' => $filterId],
@@ -104,7 +106,9 @@ class SearchCriteriaBuilderTest extends TestCase
         $this->createManufacturer(['link' => 'b', 'description' => $filterId]);
         $this->createManufacturer(['link' => 'c', 'description' => $filterId]);
 
-        $this->getBrowser()->request('GET', $this->url . '/product-manufacturer',
+        $this->getBrowser()->request(
+            'GET',
+            $this->url . '/product-manufacturer',
             [
                 'sort' => '-product_manufacturer.link',
                 'filter' => ['description' => $filterId],
@@ -128,7 +132,9 @@ class SearchCriteriaBuilderTest extends TestCase
         /*
          * Sort by stock ASC, minStock ASC
          */
-        $this->getBrowser()->request('GET', $this->url . '/product-manufacturer',
+        $this->getBrowser()->request(
+            'GET',
+            $this->url . '/product-manufacturer',
             [
                 'sort' => 'product_manufacturer.link,product_manufacturer.description',
                 'filter' => [['field' => 'description', 'type' => 'contains', 'value' => $filterid]],
@@ -145,7 +151,9 @@ class SearchCriteriaBuilderTest extends TestCase
         /*
          * Sort by stock ASC, minStock DESC
          */
-        $this->getBrowser()->request('GET', $this->url . '/product-manufacturer',
+        $this->getBrowser()->request(
+            'GET',
+            $this->url . '/product-manufacturer',
             [
                 'sort' => 'product_manufacturer.link,-product_manufacturer.description',
                 'filter' => [['field' => 'description', 'type' => 'contains', 'value' => $filterid]],
@@ -162,7 +170,9 @@ class SearchCriteriaBuilderTest extends TestCase
         /*
          * Sort by stock DESC, minStock ASC
          */
-        $this->getBrowser()->request('GET', $this->url . '/product-manufacturer',
+        $this->getBrowser()->request(
+            'GET',
+            $this->url . '/product-manufacturer',
             [
                 'sort' => '-product_manufacturer.link,product_manufacturer.description',
                 'filter' => [['field' => 'description', 'type' => 'contains', 'value' => $filterid]],
@@ -179,7 +189,9 @@ class SearchCriteriaBuilderTest extends TestCase
         /*
          * Sort by stock DESC, minStock DESC
          */
-        $this->getBrowser()->request('GET', $this->url . '/product-manufacturer',
+        $this->getBrowser()->request(
+            'GET',
+            $this->url . '/product-manufacturer',
             [
                 'sort' => '-product_manufacturer.link,-product_manufacturer.description',
                 'filter' => [['field' => 'description', 'type' => 'contains', 'value' => $filterid]],

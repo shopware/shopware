@@ -177,13 +177,16 @@ class ShippingCountryRuleTest extends TestCase
                         'operator' => Rule::OPERATOR_NEQ,
                     ],
                 ],
-            ], $this->context
+            ],
+            $this->context
         );
 
         static::assertCount(
-            2, $this->conditionRepository->search(
-            new Criteria([$conditionIdEq, $conditionIdNEq]), $this->context
-        )
+            2,
+            $this->conditionRepository->search(
+                new Criteria([$conditionIdEq, $conditionIdNEq]),
+                $this->context
+            )
         );
     }
 

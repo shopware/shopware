@@ -78,7 +78,10 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     protected function parsePattern($pattern): ?array
     {
         return preg_split(
-            '/([}{])/', $pattern, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
+            '/([}{])/',
+            $pattern,
+            -1,
+            PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
         ) ?? null;
     }
 
@@ -90,13 +93,15 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
                 MultiFilter::CONNECTION_OR,
                 [
                     new MultiFilter(
-                        MultiFilter::CONNECTION_AND, [
+                        MultiFilter::CONNECTION_AND,
+                        [
                             new EqualsFilter('number_range.numberRangeSalesChannels.salesChannelId', $salesChannelId),
                             new EqualsFilter('number_range.type.technicalName', $definition),
                         ]
                     ),
                     new MultiFilter(
-                        MultiFilter::CONNECTION_AND, [
+                        MultiFilter::CONNECTION_AND,
+                        [
                             new EqualsFilter('number_range.type.global', 1),
                             new EqualsFilter('number_range.type.technicalName', $definition),
                         ]
@@ -107,7 +112,9 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         $criteria->setLimit(1);
 
         $configurationCollection = $this->entityReader->read(
-            $this->numberRangeDefinition, $criteria, $context
+            $this->numberRangeDefinition,
+            $criteria,
+            $context
         );
 
         if ($configurationCollection->count() === 1) {
@@ -117,7 +124,8 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
             $criteria = new Criteria();
             $criteria->addFilter(
                 new MultiFilter(
-                    MultiFilter::CONNECTION_AND, [
+                    MultiFilter::CONNECTION_AND,
+                    [
                         new EqualsFilter('number_range.global', 1),
                         new EqualsFilter('number_range.type.technicalName', $definition),
                     ]
@@ -126,7 +134,9 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
             $criteria->setLimit(1);
 
             $configurationCollection = $this->entityReader->read(
-                $this->numberRangeDefinition, $criteria, $context
+                $this->numberRangeDefinition,
+                $criteria,
+                $context
             );
 
             if ($configurationCollection->count() === 1) {

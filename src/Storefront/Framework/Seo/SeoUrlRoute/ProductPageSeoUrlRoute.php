@@ -99,7 +99,8 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
             $categoryIds = $context->disableCache(function (Context $context) use ($manufacturerIds) {
                 return $this->productRepository->searchIds(
                     (new Criteria())->addFilter(new EqualsAnyFilter('manufacturerId', $manufacturerIds)),
-                    $context)->getIds();
+                    $context
+                )->getIds();
             });
             // ... and fetch the affected products
             $ids = array_merge($ids, $categoryIds);

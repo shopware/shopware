@@ -374,7 +374,8 @@ EOF;
 
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
         $user = TestUser::createNewTestUser(
-            $connection, [
+            $connection,
+            [
                 'product' => ['create', 'detail'],
                 'tax' => ['create', 'detail'],
                 'product_manufacturer' => ['create', 'detail'],
@@ -456,7 +457,8 @@ EOF;
         $browser = $this->getBrowser();
 
         TestUser::createNewTestUser(
-            $browser->getContainer()->get(Connection::class), [
+            $browser->getContainer()->get(Connection::class),
+            [
                 'tax' => ['detail', 'create'],
             ]
         )->authorizeBrowser($browser);
@@ -519,7 +521,8 @@ EOF;
         $browser = $this->getBrowser();
 
         TestUser::createNewTestUser(
-            $browser->getContainer()->get(Connection::class), [
+            $browser->getContainer()->get(Connection::class),
+            [
                 'country_state' => ['detail', 'create'],
                 'country' => ['create', 'detail'],
             ]
@@ -643,7 +646,8 @@ EOF;
         $this->assertEntityExists($browser, 'category', $category);
 
         TestUser::createNewTestUser(
-            $browser->getContainer()->get(Connection::class), [
+            $browser->getContainer()->get(Connection::class),
+            [
                 'product' => ['detail'],
                 'category' => ['detail'],
             ]
@@ -825,7 +829,8 @@ EOF;
         $browser = $this->getBrowser();
 
         TestUser::createNewTestUser(
-            $browser->getContainer()->get(Connection::class), [
+            $browser->getContainer()->get(Connection::class),
+            [
                 'product' => ['create'],
                 'tax' => ['create'],
                 'product_manufacturer' => ['create'],
@@ -950,7 +955,8 @@ EOF;
         static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/country/' . $id, $response->headers->get('Location'));
 
         TestUser::createNewTestUser(
-            $browser->getContainer()->get(Connection::class), [
+            $browser->getContainer()->get(Connection::class),
+            [
                 'country_state' => ['list'],
             ]
         )->authorizeBrowser($browser);
@@ -1000,7 +1006,8 @@ EOF;
         static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/country/' . $id, $response->headers->get('Location'));
 
         TestUser::createNewTestUser(
-            $browser->getContainer()->get(Connection::class), [
+            $browser->getContainer()->get(Connection::class),
+            [
                 'country' => ['list'],
             ]
         )->authorizeBrowser($browser);
@@ -1180,7 +1187,8 @@ EOF;
         $browser = $this->getBrowser();
 
         TestUser::createNewTestUser(
-            $browser->getContainer()->get(Connection::class), [
+            $browser->getContainer()->get(Connection::class),
+            [
                 'categories' => ['list'],
             ]
         )->authorizeBrowser($browser);
@@ -1226,7 +1234,8 @@ EOF;
         $browser = $this->getBrowser();
 
         TestUser::createNewTestUser(
-            $browser->getContainer()->get(Connection::class), [
+            $browser->getContainer()->get(Connection::class),
+            [
                 'product' => ['list'],
             ]
         )->authorizeBrowser($browser);
@@ -1678,7 +1687,8 @@ EOF;
 
         $connection = $browser->getContainer()->get(Connection::class);
         TestUser::createNewTestUser(
-            $connection, [
+            $connection,
+            [
                 'tax' => ['detail'],
             ]
         )->authorizeBrowser($browser);
@@ -1708,7 +1718,8 @@ EOF;
         ];
         $browser = $this->getBrowser();
         TestUser::createNewTestUser(
-            $browser->getContainer()->get(Connection::class), [
+            $browser->getContainer()->get(Connection::class),
+            [
                 'tax' => ['detail', 'create'],
             ]
         )->authorizeBrowser($browser);

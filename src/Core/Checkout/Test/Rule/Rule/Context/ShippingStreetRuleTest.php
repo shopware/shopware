@@ -27,7 +27,8 @@ class ShippingStreetRuleTest extends TestCase
             ->willReturn(
                 ShippingLocation::createFromAddress(
                     $this->createAddress('example street')
-                ));
+                )
+            );
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -47,7 +48,8 @@ class ShippingStreetRuleTest extends TestCase
             ->willReturn(
                 ShippingLocation::createFromAddress(
                     $this->createAddress('example street')
-                ));
+                )
+            );
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -67,7 +69,8 @@ class ShippingStreetRuleTest extends TestCase
             ->willReturn(
                 ShippingLocation::createFromAddress(
                     $this->createAddress('test street')
-                ));
+                )
+            );
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -87,7 +90,8 @@ class ShippingStreetRuleTest extends TestCase
             ->willReturn(
                 ShippingLocation::createFromCountry(
                     new CountryEntity()
-                ));
+                )
+            );
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))

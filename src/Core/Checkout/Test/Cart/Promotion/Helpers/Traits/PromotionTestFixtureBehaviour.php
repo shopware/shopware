@@ -153,8 +153,8 @@ trait PromotionTestFixtureBehaviour
         ?float $maxValue,
         ContainerInterface $container,
         SalesChannelContext $context,
-        bool $considerAdvancedRules = false): string
-    {
+        bool $considerAdvancedRules = false
+    ): string {
         $discountRepository = $container->get('promotion_discount.repository');
 
         $discountId = Uuid::randomHex();
@@ -210,8 +210,8 @@ trait PromotionTestFixtureBehaviour
         float $value,
         ContainerInterface $container,
         SalesChannelContext $context,
-        ?string $code): string
-    {
+        ?string $code
+    ): string {
         /** @var EntityRepositoryInterface $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
 
@@ -255,7 +255,8 @@ trait PromotionTestFixtureBehaviour
             $promotionId,
             $code,
             $promotionRepository,
-            $context);
+            $context
+        );
 
         $discountId = $this->createTestFixtureDiscount(
             $promotionId,
@@ -284,7 +285,8 @@ trait PromotionTestFixtureBehaviour
             $promotionId,
             $code,
             $promotionRepository,
-            $context);
+            $context
+        );
 
         $discountId = $this->createTestFixtureDiscount(
             $promotionId,

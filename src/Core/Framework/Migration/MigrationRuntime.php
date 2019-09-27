@@ -131,8 +131,8 @@ class MigrationRuntime
 
     private function setExecutedDestructive(MigrationStep $migrationStep): void
     {
-        $this->connection->executeUpdate('
-            UPDATE `migration`
+        $this->connection->executeUpdate(
+            'UPDATE `migration`
                SET `message` = NULL,
                    `update_destructive` = NOW(6)
              WHERE `class` = :class',
@@ -142,8 +142,8 @@ class MigrationRuntime
 
     private function setExecuted(MigrationStep $migrationStep): void
     {
-        $this->connection->executeUpdate('
-            UPDATE `migration`
+        $this->connection->executeUpdate(
+            'UPDATE `migration`
                SET `message` = NULL,
                    `update` = NOW(6)
              WHERE `class` = :class',

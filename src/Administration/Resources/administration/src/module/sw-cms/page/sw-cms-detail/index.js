@@ -195,7 +195,6 @@ Component.register('sw-cms-detail', {
 
     methods: {
         createdComponent() {
-            // ToDo: Make the navigation state accessible via global state
             this.$root.$children[0].$children[2].$children[0].isExpanded = false;
 
             this.resetCmsPageState();
@@ -273,7 +272,6 @@ Component.register('sw-cms-detail', {
 
                     this.isLoading = false;
                 }).catch((exception) => {
-                    console.log('cmsDataResolverService', exception);
                     this.isLoading = false;
                     this.createNotificationError({
                         title: exception.message,
@@ -283,7 +281,6 @@ Component.register('sw-cms-detail', {
                     warn(this._name, exception.message, exception.response);
                 });
             }).catch((exception) => {
-                console.log('loadPage', exception);
                 this.isLoading = false;
                 this.createNotificationError({
                     title: exception.message,
@@ -340,7 +337,6 @@ Component.register('sw-cms-detail', {
 
             if (view === 'form') {
                 this.setCurrentBlock(null, null);
-                this.$refs.cmsSideBar.closeContent();
             }
         },
 
@@ -413,7 +409,7 @@ Component.register('sw-cms-detail', {
         },
 
         pageConfigOpen(mode = null) {
-            const sideBarRefs = this.$refs.cmsSideBar.$refs;
+            const sideBarRefs = this.$refs.cmsSidebar.$refs;
 
             if (mode === 'blocks') {
                 sideBarRefs.blockSelectionSidebar.openContent();
@@ -618,7 +614,7 @@ Component.register('sw-cms-detail', {
 
                 listingBlock.type = 'product-listing';
                 listingBlock.position = 0;
-                // ToDo: can this be chosen?
+                // ToDo: Fix with NEXT-5073
                 listingBlock.sectionId = this.page.sections[0].id;
                 listingBlock.setionPosition = 'main';
 
@@ -635,7 +631,7 @@ Component.register('sw-cms-detail', {
                 listingEl.config = {};
 
                 listingBlock.slots.push(listingEl);
-                // ToDo: can this be chosen?
+                // ToDo: Fix with NEXT-5073
                 this.page.sections[0].blocks.splice(0, 0, listingBlock);
             } else {
                 this.page.sections.forEach((section) => {

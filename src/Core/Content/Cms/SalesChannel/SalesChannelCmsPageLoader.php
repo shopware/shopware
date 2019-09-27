@@ -46,11 +46,12 @@ class SalesChannelCmsPageLoader
         // ensure sections, blocks and slots are loaded, slots and blocks can be restricted by caller
         $criteria->getAssociation('sections')
             ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
+            ->addAssociation('backgroundMedia');
+
+        $criteria->getAssociation('sections.blocks')
             ->addAssociation('backgroundMedia')
-            ->getAssociation('blocks')
-            ->addAssociation('backgroundMedia')
-            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
-            ->getAssociation('slots');
+            ->addAssociation('slots')
+            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
 
         // step 1, load cms pages with blocks and slots
         $pages = $this->cmsPageRepository->search($criteria, $context->getContext());

@@ -1,11 +1,5 @@
 @import "~scss/variables";
 
-.sw-cms-stage.is--tablet-landscape {
-    .sw-cms-section.is--sidebar {
-        grid-template-columns: 236px 720px;
-    }
-}
-
 .sw-cms-stage.is--mobile {
     .sw-cms-section.is--sidebar {
         display: flex;
@@ -23,11 +17,11 @@
     border-top: 1px solid $color-gray-300;
 
     &.has--shadow-top {
-        box-shadow: 0 -5px 5px -5px #d1d9e0;
+        box-shadow: 0 -5px 5px -5px $color-gray-300;
     }
 
     &.has--shadow-bottom {
-        box-shadow: 0 5px 5px -5px #d1d9e0;
+        box-shadow: 0 5px 5px -5px $color-gray-300;
     }
 
     &.is--sidebar {

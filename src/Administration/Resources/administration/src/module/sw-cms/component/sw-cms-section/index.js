@@ -111,16 +111,22 @@ Component.register('sw-cms-section', {
             return this.sideBarBlocks.length === 0;
         },
 
+        blockCount() {
+            return this.section.blocks.length;
+        },
+
         mainContentEmpty() {
             return this.mainContentBlocks.length === 0;
         },
 
         sideBarBlocks() {
-            return this.section.blocks.filter((block => block.sectionPosition === 'sidebar'));
+            const sideBarBlocks = this.section.blocks.filter((block => block.sectionPosition === 'sidebar'));
+            return sideBarBlocks.sort((a, b) => a.position - b.position);
         },
 
         mainContentBlocks() {
-            return this.section.blocks.filter((block => block.sectionPosition !== 'sidebar'));
+            const mainContentBlocks = this.section.blocks.filter((block => block.sectionPosition !== 'sidebar'));
+            return mainContentBlocks.sort((a, b) => a.position - b.position);
         }
     },
 
@@ -164,6 +170,7 @@ Component.register('sw-cms-section', {
             }
 
             this.updateBlockPositions();
+            this.$emit('page-update');
         },
 
         updateBlockPositions() {

@@ -638,32 +638,38 @@ class TranslationTest extends TestCase
 
         $page = [
             'type' => 'landing_page',
-            'blocks' => [
+            'sections' => [
                 [
-                    'type' => 'foo',
-                    'position' => 1,
-                    'slots' => [
+                    'type' => 'default',
+                    'position' => 0,
+                    'blocks' => [
                         [
-                            'id' => Uuid::randomHex(),
                             'type' => 'foo',
-                            'slot' => 'bar',
-                            'config' => [],
-                        ],
-                        [
-                            'id' => Uuid::randomHex(),
-                            'type' => 'foo',
-                            'slot' => 'bar',
-                            'config' => [
-                                'var1' => [
-                                    'source' => FieldConfig::SOURCE_MAPPED,
-                                    'value' => 'foo',
+                            'position' => 1,
+                            'slots' => [
+                                [
+                                    'id' => Uuid::randomHex(),
+                                    'type' => 'foo',
+                                    'slot' => 'bar',
+                                    'config' => [],
+                                ],
+                                [
+                                    'id' => Uuid::randomHex(),
+                                    'type' => 'foo',
+                                    'slot' => 'bar',
+                                    'config' => [
+                                        'var1' => [
+                                            'source' => FieldConfig::SOURCE_MAPPED,
+                                            'value' => 'foo',
+                                        ],
+                                    ],
+                                ],
+                                [
+                                    'id' => Uuid::randomHex(),
+                                    'type' => 'foo',
+                                    'slot' => 'bar',
                                 ],
                             ],
-                        ],
-                        [
-                            'id' => Uuid::randomHex(),
-                            'type' => 'foo',
-                            'slot' => 'bar',
                         ],
                     ],
                 ],
@@ -680,15 +686,15 @@ class TranslationTest extends TestCase
         $searchResult = $slotRepository->search(new Criteria($ids), $this->context);
 
         /** @var CmsSlotEntity $slot */
-        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][0]['id']);
+        $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][0]['id']);
         static::assertEquals([], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
-        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][1]['id']);
+        $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][1]['id']);
         static::assertEquals(['var1' => ['source' => FieldConfig::SOURCE_MAPPED, 'value' => 'foo']], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
-        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
+        $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][2]['id']);
         static::assertNull($slot->getConfig());
     }
 
@@ -699,33 +705,39 @@ class TranslationTest extends TestCase
 
         $page = [
             'type' => 'landing_page',
-            'blocks' => [
+            'sections' => [
                 [
-                    'type' => 'foo',
-                    'position' => 1,
-                    'slots' => [
+                    'type' => 'default',
+                    'position' => 0,
+                    'blocks' => [
                         [
-                            'id' => Uuid::randomHex(),
                             'type' => 'foo',
-                            'slot' => 'bar',
-                            'translations' => [
-                                Defaults::LANGUAGE_SYSTEM => ['config' => []],
-                                $this->deLanguageId => ['config' => []],
+                            'position' => 1,
+                            'slots' => [
+                                [
+                                    'id' => Uuid::randomHex(),
+                                    'type' => 'foo',
+                                    'slot' => 'bar',
+                                    'translations' => [
+                                        Defaults::LANGUAGE_SYSTEM => ['config' => []],
+                                        $this->deLanguageId => ['config' => []],
+                                    ],
+                                ],
+                                [
+                                    'id' => Uuid::randomHex(),
+                                    'type' => 'foo',
+                                    'slot' => 'bar',
+                                    'translations' => [
+                                        Defaults::LANGUAGE_SYSTEM => ['config' => ['var1' => ['source' => FieldConfig::SOURCE_MAPPED, 'value' => 'en']]],
+                                        $this->deLanguageId => ['config' => ['var1' => ['source' => FieldConfig::SOURCE_MAPPED, 'value' => 'de']]],
+                                    ],
+                                ],
+                                [
+                                    'id' => Uuid::randomHex(),
+                                    'type' => 'foo',
+                                    'slot' => 'bar',
+                                ],
                             ],
-                        ],
-                        [
-                            'id' => Uuid::randomHex(),
-                            'type' => 'foo',
-                            'slot' => 'bar',
-                            'translations' => [
-                                Defaults::LANGUAGE_SYSTEM => ['config' => ['var1' => ['source' => FieldConfig::SOURCE_MAPPED, 'value' => 'en']]],
-                                $this->deLanguageId => ['config' => ['var1' => ['source' => FieldConfig::SOURCE_MAPPED, 'value' => 'de']]],
-                            ],
-                        ],
-                        [
-                            'id' => Uuid::randomHex(),
-                            'type' => 'foo',
-                            'slot' => 'bar',
                         ],
                     ],
                 ],
@@ -744,15 +756,15 @@ class TranslationTest extends TestCase
         $searchResult = $slotRepository->search(new Criteria($ids), $this->context);
 
         /** @var CmsSlotEntity $slot */
-        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][0]['id']);
+        $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][0]['id']);
         static::assertEquals([], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
-        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][1]['id']);
+        $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][1]['id']);
         static::assertEquals(['var1' => ['source' => FieldConfig::SOURCE_MAPPED, 'value' => 'en']], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
-        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
+        $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][2]['id']);
         static::assertNull($slot->getConfig());
 
         // validate german translations
@@ -761,15 +773,15 @@ class TranslationTest extends TestCase
         $searchResult = $slotRepository->search(new Criteria($ids), $germanContext);
 
         /** @var CmsSlotEntity $slot */
-        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][0]['id']);
+        $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][0]['id']);
         static::assertEquals([], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
-        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][1]['id']);
+        $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][1]['id']);
         static::assertEquals(['var1' => ['source' => FieldConfig::SOURCE_MAPPED, 'value' => 'de']], $slot->getConfig());
 
         /** @var CmsSlotEntity $slot */
-        $slot = $searchResult->getEntities()->get($page['blocks'][0]['slots'][2]['id']);
+        $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][2]['id']);
         static::assertNull($slot->getConfig());
     }
 }

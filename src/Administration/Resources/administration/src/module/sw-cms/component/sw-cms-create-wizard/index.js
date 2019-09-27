@@ -52,15 +52,7 @@ Component.register('sw-cms-create-wizard', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-
-        },
-
         getPageTypeName() {
             return this.pageTypeNames[this.page.type];
         },

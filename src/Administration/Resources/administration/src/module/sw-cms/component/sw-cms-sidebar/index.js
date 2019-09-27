@@ -121,7 +121,9 @@ Component.register('sw-cms-sidebar', {
 
         closeContent() {
             Object.values(this.$refs).forEach((item) => {
-                item.closeContent();
+                if (typeof item.closeContent === 'function') {
+                    item.closeContent();
+                }
             });
         },
 
@@ -136,6 +138,7 @@ Component.register('sw-cms-sidebar', {
             return (this.cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
         },
 
+        // ToDo: comment me, slice me up if possible
         onBlockDragSort(dragData, dropData, validDrop) {
             if (validDrop !== true) {
                 return;

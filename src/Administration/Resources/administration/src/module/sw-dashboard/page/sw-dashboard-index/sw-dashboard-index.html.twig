@@ -95,7 +95,8 @@
                                         {% block sw_dashboard_index_content_intro_stats_today_stats_single_sum %}
                                             <div class="sw-dashboard-index__intro-stats-today-single-stat">
                                                 <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
-                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency('default', 0) }}</span>
+                                                {# price aggregations do not support currencies yet, see NEXT-5069 #}
+                                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency('EUR', 0) }}</span>
                                             </div>
                                         {% endblock %}
                                     </div>
@@ -135,7 +136,7 @@
 
                                 {% block sw_dashboard_index_content_grid_short_name %}
                                     <template slot="column-amountTotal" slot-scope="{ item }">
-                                        {{ item.amountTotal | currency(item.currency.translated.shortName) }}
+                                        {{ item.amountTotal | currency(item.currency.shortName) }}
                                     </template>
                                 {% endblock %}
 

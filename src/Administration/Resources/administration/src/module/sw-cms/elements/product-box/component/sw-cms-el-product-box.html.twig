@@ -55,7 +55,7 @@
 
                                         <span class="sw-cms-el-product-box__price-unit-reference"
                                               v-if="product.purchaseUnit && product.referenceUnit && product.purchaseUnit !== product.referenceUnit">
-                                            ({{ (product.price[0].gross * product.referenceUnit / product.purchaseUnit) | currency }}
+                                            ({{ (product.price[0].gross * product.referenceUnit / product.purchaseUnit) | currency('EUR') }}
                                             * / {{ product.referenceUnit }} {{ product.packUnit }})
                                         </span>
                                     </div>
@@ -63,7 +63,7 @@
 
                                 {% block sw_cms_element_product_box_price %}
                                     <div class="sw-cms-el-product-box__price">
-                                        {{ product.price[0].gross | currency }}
+                                        {{ product.price[0].gross | currency('EUR') }}
                                     </div>
                                 {% endblock %}
                             </div>

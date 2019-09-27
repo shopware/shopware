@@ -48,7 +48,8 @@ Component.register('sw-dashboard-index', {
                     min: 0,
                     tickAmount: 5,
                     labels: {
-                        formatter: (value) => this.$options.filters.currency(value)
+                        // price aggregations do not support currencies yet, see NEXT-5069
+                        formatter: (value) => this.$options.filters.currency(value, 'EUR')
                     }
                 }
             };

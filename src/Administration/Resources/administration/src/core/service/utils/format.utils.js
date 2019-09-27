@@ -27,7 +27,7 @@ export function currency(val, sign, decimalPlaces) {
 
     const opts = {
         style: 'currency',
-        currency: sign || 'EUR',
+        currency: sign,
         ...decimalOpts
     };
     let language = 'de-DE';

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class CustomerLogoutEvent extends Event implements BusinessEventInterface
@@ -20,20 +21,14 @@ class CustomerLogoutEvent extends Event implements BusinessEventInterface
     private $customer;
 
     /**
-     * @var Context
+     * @var SalesChannelContext
      */
-    private $context;
+    private $salesChannelContext;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId;
-
-    public function __construct(Context $context, CustomerEntity $customer, string $salesChannelId)
+    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer)
     {
         $this->customer = $customer;
-        $this->context = $context;
-        $this->salesChannelId = $salesChannelId;
+        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getName(): string
@@ -46,9 +41,14 @@ class CustomerLogoutEvent extends Event implements BusinessEventInterface
         return $this->customer;
     }
 
+    public function getSalesChannelContext(): SalesChannelContext
+    {
+        return $this->salesChannelContext;
+    }
+
     public function getContext(): Context
     {
-        return $this->context;
+        return $this->salesChannelContext->getContext();
     }
 
     public static function getAvailableData(): EventDataCollection

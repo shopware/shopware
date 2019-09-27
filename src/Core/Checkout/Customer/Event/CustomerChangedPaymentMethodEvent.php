@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class CustomerChangedPaymentMethodEvent extends Event implements BusinessEventInterface
@@ -21,26 +22,20 @@ class CustomerChangedPaymentMethodEvent extends Event implements BusinessEventIn
     private $customer;
 
     /**
-     * @var Context
+     * @var SalesChannelContext
      */
-    private $context;
+    private $salesChannelContext;
 
     /**
      * @var RequestDataBag
      */
     private $requestDataBag;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId;
-
-    public function __construct(Context $context, CustomerEntity $customer, RequestDataBag $requestDataBag, string $salesChannelId)
+    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer, RequestDataBag $requestDataBag)
     {
         $this->customer = $customer;
-        $this->context = $context;
+        $this->salesChannelContext = $salesChannelContext;
         $this->requestDataBag = $requestDataBag;
-        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string
@@ -53,9 +48,14 @@ class CustomerChangedPaymentMethodEvent extends Event implements BusinessEventIn
         return $this->customer;
     }
 
+    public function getSalesChannelContext(): SalesChannelContext
+    {
+        return $this->salesChannelContext;
+    }
+
     public function getContext(): Context
     {
-        return $this->context;
+        return $this->salesChannelContext->getContext();
     }
 
     public function getRequestDataBag(): RequestDataBag

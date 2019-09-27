@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class CustomerRegisterEvent extends Event implements MailActionInterface
@@ -21,25 +22,19 @@ class CustomerRegisterEvent extends Event implements MailActionInterface
     private $customer;
 
     /**
-     * @var Context
+     * @var SalesChannelContext
      */
-    private $context;
-
-    /**
-     * @var string
-     */
-    private $salesChannelId;
+    private $salesChannelContext;
 
     /**
      * @var MailRecipientStruct|null
      */
     private $mailRecipientStruct;
 
-    public function __construct(Context $context, CustomerEntity $customer, string $salesChannelId)
+    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer)
     {
         $this->customer = $customer;
-        $this->context = $context;
-        $this->salesChannelId = $salesChannelId;
+        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getName(): string
@@ -52,9 +47,14 @@ class CustomerRegisterEvent extends Event implements MailActionInterface
         return $this->customer;
     }
 
+    public function getSalesChannelContext(): SalesChannelContext
+    {
+        return $this->salesChannelContext;
+    }
+
     public function getContext(): Context
     {
-        return $this->context;
+        return $this->salesChannelContext->getContext();
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -78,6 +78,6 @@ class CustomerRegisterEvent extends Event implements MailActionInterface
 
     public function getSalesChannelId(): ?string
     {
-        return $this->salesChannelId;
+        return $this->salesChannelContext->getSalesChannel()->getId();
     }
 }

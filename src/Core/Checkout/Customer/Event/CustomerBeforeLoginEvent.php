@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class CustomerBeforeLoginEvent extends Event implements BusinessEventInterface
@@ -13,25 +14,19 @@ class CustomerBeforeLoginEvent extends Event implements BusinessEventInterface
     public const EVENT_NAME = 'checkout.customer.before.login';
 
     /**
-     * @var Context
+     * @var SalesChannelContext
      */
-    private $context;
+    private $salesChannelContext;
 
     /**
      * @var string
      */
     private $email;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId;
-
-    public function __construct(Context $context, string $email, string $salesChannelId)
+    public function __construct(SalesChannelContext $salesChannelContext, string $email)
     {
         $this->email = $email;
-        $this->context = $context;
-        $this->salesChannelId = $salesChannelId;
+        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getName(): string
@@ -44,14 +39,14 @@ class CustomerBeforeLoginEvent extends Event implements BusinessEventInterface
         return $this->email;
     }
 
-    public function getContext(): Context
+    public function getSalesChannelContext(): SalesChannelContext
     {
-        return $this->context;
+        return $this->salesChannelContext;
     }
 
-    public function getSalesChannelId(): string
+    public function getContext(): Context
     {
-        return $this->salesChannelId;
+        return $this->salesChannelContext->getContext();
     }
 
     public static function getAvailableData(): EventDataCollection

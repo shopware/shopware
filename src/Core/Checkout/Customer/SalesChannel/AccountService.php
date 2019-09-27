@@ -242,7 +242,7 @@ class AccountService
      */
     public function login(string $email, SalesChannelContext $context, bool $includeGuest = false): string
     {
-        $event = new CustomerBeforeLoginEvent($context->getContext(), $email, $context->getSalesChannel()->getId());
+        $event = new CustomerBeforeLoginEvent($context, $email);
         $this->eventDispatcher->dispatch($event);
 
         if (empty($email)) {
@@ -265,7 +265,7 @@ class AccountService
             ]
         );
 
-        $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken, $context->getSalesChannel()->getId());
+        $event = new CustomerLoginEvent($context, $customer, $newToken);
         $this->eventDispatcher->dispatch($event);
 
         return $newToken;
@@ -277,7 +277,7 @@ class AccountService
      */
     public function loginWithPassword(DataBag $data, SalesChannelContext $context): string
     {
-        $event = new CustomerBeforeLoginEvent($context->getContext(), $data->get('username'), $context->getSalesChannel()->getId());
+        $event = new CustomerBeforeLoginEvent($context, $data->get('username'));
         $this->eventDispatcher->dispatch($event);
 
         if (empty($data->get('username')) || empty($data->get('password'))) {
@@ -311,7 +311,7 @@ class AccountService
             ],
         ], $context->getContext());
 
-        $event = new CustomerLoginEvent($context->getContext(), $customer, $newToken, $context->getSalesChannel()->getId());
+        $event = new CustomerLoginEvent($context, $customer, $newToken);
         $this->eventDispatcher->dispatch($event);
 
         return $newToken;
@@ -328,7 +328,7 @@ class AccountService
             ]
         );
 
-        $event = new CustomerLogoutEvent($context->getContext(), $context->getCustomer(), $context->getSalesChannel()->getId());
+        $event = new CustomerLogoutEvent($context, $context->getCustomer());
         $this->eventDispatcher->dispatch($event);
     }
 
@@ -357,7 +357,7 @@ class AccountService
             ],
         ], $context->getContext());
 
-        $event = new CustomerChangedPaymentMethodEvent($context->getContext(), $customer, $requestDataBag, $context->getSalesChannel()->getId());
+        $event = new CustomerChangedPaymentMethodEvent($context, $customer, $requestDataBag);
         $this->eventDispatcher->dispatch($event);
     }
 

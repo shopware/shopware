@@ -7,7 +7,7 @@ describe('CMS: Test crud operations of layouts', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                return cy.createDefaultFixture('cms-page');
+                return cy.createCmsFixture();
             })
             .then(() => {
                 return cy.setSalesChannelDomain('Storefront');
@@ -44,16 +44,22 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-cms-detail').should('be.visible');
 
         // Fill in basic data
-        cy.get('.sw-cms-detail__settings').should('be.visible');
-        cy.get('#sw-field--page-name').should('be.visible');
+
+        cy.contains('.sw-cms-create-wizard__page-type', 'Landing page').click();
+        cy.get('.sw-cms-create-wizard__title').contains('Which section would you like to start with?');
+        cy.contains('.sw-cms-stage-section-selection__default', 'Full width').click();
+        cy.get('.sw-cms-create-wizard__title').contains('What should your layout be called?');
+        cy.contains('.sw-button--primary', 'Create layout').should('not.be.enabled');
         cy.get('#sw-field--page-name').typeAndCheck('Laidout');
-        cy.get('#sw-field--page-type').select('Landing page');
+        cy.contains('.sw-button--primary', 'Create layout').should('be.enabled');
+        cy.contains('.sw-button--primary', 'Create layout').click();
+        cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
         // Add simple text block
-        cy.contains('Add a block').click();
-        cy.get('.sw-cms-detail__block-preview')
+        cy.get('.sw-cms-section__empty-stage').click();
+        cy.get('.sw-cms-sidebar__block-preview')
             .first()
-            .dragTo('.sw-cms-detail__empty-stage');
+            .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
         cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
 
@@ -107,12 +113,13 @@ describe('CMS: Test crud operations of layouts', () => {
         }).as('changeLang');
 
         cy.get('.sw-cms-list-item--0').click();
+        cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
         // Add simple text block
-        cy.contains('Add a block').click();
-        cy.get('.sw-cms-detail__block-preview')
+        cy.get('.sw-cms-section__empty-stage').click();
+        cy.get('.sw-cms-sidebar__block-preview')
             .first()
-            .dragTo('.sw-cms-detail__empty-stage');
+            .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
         cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
 

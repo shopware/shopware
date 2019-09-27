@@ -28,16 +28,18 @@
             <template slot="content">
                 {% block sw_newsletter_recipientlist_list_content_card %}
                     {% block sw_newsletter_recipientlist_list_grid %}
-                        <sw-entity-listing slot="grid"
-                                           ref="swNewsletterRecipientGrid"
-                                           identifier="sw-newsletter-recipient"
-                                           v-if="items"
-                                           :showSelection="false"
-                                           class="sw-newsletter-recipient-list-grid"
-                                           :items="items"
-                                           :columns="columns"
-                                           :repository="repository"
-                                           detailRoute="sw.newsletter.recipient.detail">
+                        <sw-entity-listing
+                            v-if="items"
+                            class="sw-newsletter-recipient-list-grid"
+                            slot="grid"
+                            ref="swNewsletterRecipientGrid"
+                            :isLoading="isLoading"
+                            identifier="sw-newsletter-recipient"
+                            :showSelection="false"
+                            :items="items"
+                            :columns="columns"
+                            :repository="repository"
+                            detailRoute="sw.newsletter.recipient.detail">
 
                             {% block sw_newsletter_recipientlist_list_grid_name %}
                                 <template slot="column-firstName" slot-scope="{ item, compact, isInlineEdit }">

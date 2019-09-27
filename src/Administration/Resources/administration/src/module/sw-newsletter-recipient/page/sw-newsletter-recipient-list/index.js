@@ -97,6 +97,8 @@ Component.register('sw-newsletter-recipient-list', {
                 this.total = searchResult.total;
 
                 this.isLoading = false;
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 

@@ -45,6 +45,16 @@ class ProductRatingAverageIndexerTest extends TestCase
      */
     private $customerRepository;
 
+    /**
+     * @var ProductRatingAverageIndexer
+     */
+    private $productRatingAvgIndexer;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     public function setUp(): void
     {
         $this->reviewRepository = $this->getContainer()->get('product_review.repository');
@@ -52,8 +62,8 @@ class ProductRatingAverageIndexerTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->salesChannel = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
         $this->reviewsIndexer = $this->getContainer()->get(ProductRatingAverageIndexer::class);
-        $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->connection = $this->getContainer()->get(Connection::class);
+        $this->productRatingAvgIndexer = $this->getContainer()->get(ProductRatingAverageIndexer::class);
     }
 
     /**
@@ -246,6 +256,40 @@ class ProductRatingAverageIndexerTest extends TestCase
         $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
 
         static::assertEquals(2.0, $products->get($productAId)->getRatingAverage());
+    }
+
+    /**
+     * tests that the full index works
+     *
+     * @test
+     * @group reviews
+     */
+    public function testFullIndex(): void
+    {
+        $productId = Uuid::randomHex();
+        $reviewAId = Uuid::randomHex();
+        $reviewBId = Uuid::randomHex();
+
+        $this->createProduct($productId);
+
+        $pointsOnAReview = 5.0;
+        $pointsOnBReview = 1.0;
+
+        $this->createReview($reviewAId, $pointsOnAReview, $productId, true);
+        $this->createReview($reviewBId, $pointsOnBReview, $productId, true);
+
+        $sql = <<<SQL
+            UPDATE product SET product.rating_average = 0;
+SQL;
+        $this->connection->exec($sql);
+
+        $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
+        static::assertEquals(0, $products->get($productId)->getRatingAverage());
+
+        $this->productRatingAvgIndexer->index(new \DateTime());
+        $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
+
+        static::assertEquals(3, $products->get($productId)->getRatingAverage());
     }
 
     /**

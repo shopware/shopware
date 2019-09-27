@@ -83,7 +83,7 @@ class ProductRatingAverageIndexer implements IndexerInterface, EventSubscriberIn
         );
 
         while ($ids = $iterator->fetch()) {
-            $this->update($ids, []);
+            $this->update(Uuid::fromHexToBytesList($ids), []);
 
             $this->eventDispatcher->dispatch(
                 new ProgressAdvancedEvent(\count($ids)),

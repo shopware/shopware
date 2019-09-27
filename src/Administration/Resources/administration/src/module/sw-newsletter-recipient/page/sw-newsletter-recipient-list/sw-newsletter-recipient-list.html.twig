@@ -2,7 +2,7 @@
     <sw-page class="sw-newsletter-recipient-list">
         {% block sw_newsletter_recipient_list_search_bar %}
             <template slot="search-bar">
-                <sw-search-bar :initialSearchType="$tc('sw-newsletter-recipient.general.mainMenuItemGeneral')"
+                <sw-search-bar initialSearchType="newsletter_recipient"
                                :placeholder="$tc('sw-newsletter-recipient.general.placeholderSearchBarSnippets')"
                                :initialSearch="term"
                                @search="onSearch">

@@ -129,7 +129,6 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
         cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', searchTerm);
 
         cy.wait('@filteredResultCall').then(() => {
-            cy.get(`${resultPrefix}-option--${position}`).should('not.exist');
             cy.get(`${resultPrefix}-option--${position}`).should('be.visible');
 
             cy.wait('@filteredResultCall').then(() => {
@@ -137,7 +136,7 @@ Cypress.Commands.add('typeMultiSelectAndCheck', {
             });
         });
         cy.get(`${resultPrefix}-option--${position}`).should('be.visible');
-        cy.get(`${resultPrefix}-option--${position}`).contains(value);
+        cy.get(`${resultPrefix}-option--${position} .sw-highlight-text__highlight`).contains(value);
 
         // select the first result (or at another position)
         cy.get(`${resultPrefix}-option--${position}`)

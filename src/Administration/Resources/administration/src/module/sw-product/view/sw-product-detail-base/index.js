@@ -1,5 +1,7 @@
 import { mapGetters, mapState } from 'vuex';
+import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-detail-base.html.twig';
+import './sw-product-detail-base.scss';
 
 const { Component } = Shopware;
 
@@ -13,6 +15,27 @@ Component.register('sw-product-detail-base', {
             required: false,
             default: null
         }
+    },
+
+    data() {
+        return {
+            showReviewDeleteModal: false,
+            toDeleteReviewId: null,
+            reviewItemData: [],
+            page: 1,
+            limit: 10,
+            total: 0
+        };
+    },
+
+    watch: {
+        product() {
+            this.reloadReviews();
+        }
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     computed: {
@@ -43,6 +66,10 @@ Component.register('sw-product-detail-base', {
                    !this.loading.media;
         },
 
+        reviewRepository() {
+            return this.repositoryFactory.create('product_review');
+        },
+
         reviewColumns() {
             return [{
                 property: 'points',
@@ -58,20 +85,11 @@ Component.register('sw-product-detail-base', {
                 dataIndex: 'createdAt',
                 label: this.$tc('sw-product.reviewForm.labelCreatedAt')
             }, {
-                property: 'content',
-                dataIndex: 'content',
-                label: this.$tc('sw-product.reviewForm.labelContent')
+                property: 'title',
+                dataIndex: 'title',
+                routerLink: 'sw.review.detail',
+                label: this.$tc('sw-product.reviewForm.labelTitle')
             }];
-        },
-
-        reviewItemData() {
-            if (!this.product.productReviews) {
-                return null;
-            }
-            this.product.productReviews.forEach((review) => {
-                review.additional = true;
-            });
-            return this.product.productReviews;
         },
 
         productMediaRepository() {
@@ -80,6 +98,12 @@ Component.register('sw-product-detail-base', {
     },
 
     methods: {
+        createdComponent() {
+            if (this.product) {
+                this.reloadReviews();
+            }
+        },
+
         mediaRemoveInheritanceFunction(newValue) {
             newValue.forEach(({ id, mediaId, position }) => {
                 const media = this.productMediaRepository.create(this.context);
@@ -105,6 +129,70 @@ Component.register('sw-product-detail-base', {
             });
 
             return this.product.media;
+        },
+
+        onStartReviewDelete(review) {
+            this.toDeleteReviewId = review.id;
+            this.onShowReviewDeleteModal();
+        },
+
+        onConfirmReviewDelete() {
+            this.onCloseReviewDeleteModal();
+
+            this.reviewRepository.delete(this.toDeleteReviewId, this.context).then(() => {
+                this.toDeleteReviewId = null;
+                this.reloadReviews();
+            });
+        },
+
+        onCancelReviewDelete() {
+            this.toDeleteReviewId = null;
+            this.onCloseReviewDeleteModal();
+        },
+
+        onShowReviewDeleteModal() {
+            this.showReviewDeleteModal = true;
+        },
+
+        onCloseReviewDeleteModal() {
+            this.showReviewDeleteModal = false;
+        },
+
+        reloadReviews() {
+            if (!this.product || !this.product.id) {
+                return;
+            }
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('productId', this.product.id));
+            criteria.setPage(this.page);
+            criteria.setLimit(this.limit);
+            criteria.setTotalCountMode(1);
+
+            // load all our individual codes of our promotion
+            // into our local promotion object.
+            this.reviewRepository.search(criteria, this.context).then((reviewCollection) => {
+                // assign our ui data
+                this.total = reviewCollection.total;
+                this.reviewItemData = reviewCollection;
+
+                // if we have no data on the current page
+                // but still a total count, then this means
+                // that we are on a page that has been removed due to
+                // deleting some codes.
+                // so just try to reduce the page and refresh again
+                if (this.total > 0 && this.reviewItemData.length <= 0) {
+                    // decrease, but stick with minimum of 1
+                    this.page = (this.page === 1) ? 1 : this.page -= 1;
+                    this.reloadReviews();
+                }
+            });
+        },
+
+        onChangePage(data) {
+            this.page = data.page;
+            this.limit = data.limit;
+
+            this.reloadReviews();
         }
     }
 });

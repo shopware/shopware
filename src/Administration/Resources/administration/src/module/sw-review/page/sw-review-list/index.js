@@ -21,40 +21,47 @@ Component.register('sw-review-list', {
 
     computed: {
         columns() {
-            return [{
-                property: 'product',
-                dataIndex: 'product.name',
-                label: this.$tc('sw-review.list.columnProduct'),
-                routerLink: 'sw.review.detail',
-                primary: true
-            },
-            {
-                property: 'points',
-                dataIndex: 'points',
-                label: this.$tc('sw-review.list.columnPoints')
-            },
-            {
-                property: 'user',
-                dataIndex: 'externalUser',
-                label: this.$tc('sw-review.list.columnUser')
-            },
-            {
-                property: 'createdAt',
-                dataIndex: 'createdAt',
-                label: this.$tc('sw-review.list.columnCreatedAt')
-            },
-            {
-                property: 'status',
-                dataIndex: 'status',
-                label: this.$tc('sw-review.list.columnStatus'),
-                align: 'center'
-            },
-            {
-                property: 'comment',
-                dataIndex: 'comment',
-                label: this.$tc('sw-review.list.columnComment'),
-                align: 'center'
-            }];
+            return [
+                {
+                    property: 'title',
+                    dataIndex: 'title',
+                    label: this.$tc('sw-review.list.columnTitle')
+                },
+                {
+                    property: 'points',
+                    dataIndex: 'points',
+                    label: this.$tc('sw-review.list.columnPoints')
+                },
+                {
+                    property: 'product',
+                    dataIndex: 'product.name',
+                    label: this.$tc('sw-review.list.columnProduct'),
+                    routerLink: 'sw.review.detail',
+                    primary: true
+                },
+                {
+                    property: 'user',
+                    dataIndex: 'externalUser',
+                    label: this.$tc('sw-review.list.columnUser')
+                },
+                {
+                    property: 'createdAt',
+                    dataIndex: 'createdAt',
+                    label: this.$tc('sw-review.list.columnCreatedAt')
+                },
+                {
+                    property: 'status',
+                    dataIndex: 'status',
+                    label: this.$tc('sw-review.list.columnStatus'),
+                    align: 'center'
+                },
+                {
+                    property: 'comment',
+                    dataIndex: 'comment',
+                    label: this.$tc('sw-review.list.columnComment'),
+                    align: 'center'
+                }
+            ];
         }
     },
 
@@ -67,8 +74,8 @@ Component.register('sw-review-list', {
             this.repository = this.repositoryFactory.create('product_review');
 
             this.criteria = new Criteria();
-
-            this.criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
+            this.criteria.addSorting(Criteria.sort('status', 'ASC'));
+            this.criteria.addSorting(Criteria.sort('createdAt', 'ASC'));
             this.criteria.addAssociation('customer');
             this.criteria.addAssociation('product');
 

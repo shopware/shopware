@@ -110,7 +110,15 @@
       "labelStatus": "Sichtbar",
       "labelCreatedAt": "Erstellt am",
       "labelPoints": "Sterne",
-      "labelContent": "Bewertungstext"
+      "labelTitle": "Titel",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
+      "modal": {
+        "confirmTitle": "Bewertung löschen",
+        "confirmText": "Möchten Sie diese Bewertung wirklich löschen?",
+        "buttonCancel": "Abbrechen",
+        "buttonDelete": "Löschen"
+      }
     },
     "prices": {
       "cardTitlePriceRule": "Neue Preisregel",

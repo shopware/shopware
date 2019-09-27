@@ -44,6 +44,15 @@
                                 <sw-data-grid-column-boolean v-model="item.status" :isInlineEdit="false"/>
                             </template>
                         {% endblock %}
+                        {% block sw_review_list_content_list_title %}
+                            <template slot="column-title" slot-scope="{ item }">
+                                <div class="sw-review-text_ellipsis">
+                                    <router-link :to="{ name: 'sw.review.detail', params: { id: item.id } }">
+                                        {{ item.title }}
+                                    </router-link>
+                                </div>
+                            </template>
+                        {% endblock %}
                         {% block sw_review_list_content_list_created_at %}
                             <template slot="column-createdAt" slot-scope="{ item }">
                                 {{ item.createdAt | date({hour: '2-digit', minute: '2-digit', second: '2-digit'}) }}
@@ -64,7 +73,7 @@
                         {% block sw_review_list_content_list_product %}
                             <template slot="column-product" slot-scope="{ item }">
                                 <template v-if="item.productId">
-                                    <router-link :to="{ name: 'sw.review.detail', params: { id: item.id } }">
+                                    <router-link :to="{ name: 'sw.product.detail', params: { id: item.productId } }">
                                         {{ item.product.name }}
                                     </router-link>
                                 </template>
@@ -73,12 +82,14 @@
                         {% block sw_review_list_content_list_points %}
                             <template slot="column-points" slot-scope="{ item }">
                                 <div class="sw-review-list__stars">
-                                    <sw-icon v-for="i in item.points"
-                                             :key="i"
+                                    <sw-icon v-for="star in item.points"
                                              name="default-review-star-full"
                                              size="14">
                                     </sw-icon>
-
+                                    <sw-icon v-for="missingStar in (5-item.points)"
+                                             name="default-basic-shape-star"
+                                             size="14">
+                                    </sw-icon>
                                 </div>
                             </template>
                         {% endblock %}

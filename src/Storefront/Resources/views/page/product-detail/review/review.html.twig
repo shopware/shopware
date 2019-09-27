@@ -91,7 +91,7 @@
 																	  method="post"
 																	  data-form-ajax-submit="true"
 																	  data-form-ajax-submit-options='{
-																		  "replaceSelectors": ".js-review-container",
+																		  "replaceSelectors": [".js-review-container"],
 																		  "submitOnChange": true
 																	  }'>
 
@@ -101,12 +101,6 @@
 
 																	{% if app.request.get('sort') %}
 																		<input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
-																	{% endif %}
-
-																	{% if app.request.get('points') %}
-																		{% for points in app.request.get('points') %}
-																			<input type="hidden" name="points[]" value="{{ points }}">
-																		{% endfor %}
 																	{% endif %}
 
 																	<div class="custom-control custom-switch">
@@ -137,7 +131,11 @@
 																	  method="post"
 																	  data-form-ajax-submit="true"
 																	  data-form-ajax-submit-options='{
-																		  "replaceSelectors": ".js-review-container",
+																		  "replaceSelectors": [
+																		    ".js-review-info",
+																		    ".js-review-teaser",
+																		    ".js-review-content"
+																		  ],
 																		  "submitOnChange": true
 																	  }'>
 
@@ -250,10 +248,12 @@
 
 									{% else %}
 										{% block page_product_detail_review_list_empty %}
-											{% sw_include '@Storefront/utilities/alert.html.twig' with {
-												type: "info",
-												content: "detail.reviewListEmpty"|trans
-											} %}
+                                            {% if ratingSuccess < 2 %}
+                                                {% sw_include '@Storefront/utilities/alert.html.twig' with {
+                                                    type: "info",
+                                                    content: "detail.reviewListEmpty"|trans
+                                                } %}
+                                            {% endif %}
 										{% endblock %}
 
 									{% endif %}

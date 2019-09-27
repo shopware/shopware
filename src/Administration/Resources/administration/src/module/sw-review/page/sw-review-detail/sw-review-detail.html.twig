@@ -1,145 +1,191 @@
 {% block sw_review_detail %}
-<sw-page class="sw-review-detail">
-
-    {% block sw_review_detail_header %}
-    <template slot="smart-bar-header">
-        <h2>{{ placeholder(review, 'title', $tc('sw-review.detail.textHeadline')) }}</h2>
-    </template>
-    {% endblock %}
-
-    {% block sw_review_detail_actions %}
-    <template slot="smart-bar-actions">
-        {% block sw_review_detail_actions_abort %}
-        <sw-button :disabled="isLoading" :routerLink="{ name: 'sw.review.index' }">
-            {{ $tc('sw-review.detail.buttonCancel') }}
-        </sw-button>
+    <sw-page class="sw-review-detail">
+        {% block sw_review_detail_header %}
+            <template slot="smart-bar-header">
+                <h2>{{ placeholder(review, 'title', $tc('sw-review.detail.textHeadline')) }}</h2>
+            </template>
         {% endblock %}
 
-        {% block sw_review_detail_actions_save %}
-        <sw-button class="sw-review-detail__save-action" variant="primary" :disabled="isLoading"
-                   @click="onSave">
-            {{ $tc('sw-review.detail.buttonSave') }}
-        </sw-button>
+        {% block sw_review_detail_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_review_detail_actions_abort %}
+                    <sw-button :disabled="isLoading" :routerLink="{ name: 'sw.review.index' }">
+                        {{ $tc('sw-review.detail.buttonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_review_detail_actions_save %}
+                    <sw-button class="sw-review-detail__save-action" variant="primary" :disabled="isLoading"
+                               @click="onSave">
+                        {{ $tc('sw-review.detail.buttonSave') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
         {% endblock %}
-    </template>
-    {% endblock %}
 
-    {% block sw_review_detail_content %}
-    <sw-card-view slot="content">
-        {% block sw_review_detail_basic_info_card %}
-        <sw-card
-            v-if="review"
-            :title="$tc('sw-review.detail.cardTitleRatingInfo')"
-            :isLoading="isLoading">
-            {% block sw_review_detail_basic_info_card_description_list %}
-            <sw-description-list grid="1fr 2fr 1fr 2fr">
-                {% block sw_review_detail_description_list_title %}
-                <dt>{{ $tc('sw-review.detail.labelTitle') }}</dt>
-                <dd>{{ review.title }}</dd>
+        {% block sw_review_detail_content %}
+            <sw-card-view slot="content">
+                {% block sw_review_detail_basic_info_card %}
+                    <sw-card
+                            v-if="review"
+                            :title="$tc('sw-review.detail.cardTitleReviewInfo')"
+                            :isLoading="isLoading">
+
+                        {% block sw_customer_card_rows %}
+                            <sw-container slot="grid" rows="auto auto">
+                                {% block sw_customer_card_row_primary %}
+                                    <sw-card-section divider="bottom">
+                                        {% block sw_customer_card_metadata_container %}
+                                            <sw-container>
+                                                {% block sw_customer_card_metadata %}
+                                                    <div class="sw-review-detail__metadata">
+                                                        {% block sw_customer_card_metadata_customer_name %}
+                                                            {% block sw_custsomer_card_metadata_customer_name_label %}
+                                                                <div class="sw-review-detail__metadata-review-headline">
+                                                                    <div class="sw-review-detail__metadata-review-title">
+                                                                        {{ review.title }}
+                                                                    </div>
+                                                                    <div class="sw-review-detail__metadata-review-stars">
+                                                                        <sw-icon v-for="star in stars" name="default-review-star-full"></sw-icon>
+                                                                        <sw-icon v-for="missingStar in missingStars" name="default-basic-shape-star"></sw-icon>
+                                                                        <br>
+                                                                        <span v-if="stars == 5" class="star-count-description">{{ $tc('sw-review.detail.review5PointRatingText') }}</span>
+                                                                        <span v-if="stars == 4" class="star-count-description">{{ $tc('sw-review.detail.review4PointRatingText') }}</span>
+                                                                        <span v-if="stars == 3" class="star-count-description">{{ $tc('sw-review.detail.review3PointRatingText') }}</span>
+                                                                        <span v-if="stars == 2" class="star-count-description">{{ $tc('sw-review.detail.review2PointRatingText') }}</span>
+                                                                        <span v-if="stars == 1" class="star-count-description">{{ $tc('sw-review.detail.review1PointRatingText') }}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <p class="sw-review-detail__metadata-review-content">
+                                                                    {{ review.content }}
+                                                                </p>
+                                                            {% endblock %}
+                                                        {% endblock %}
+                                                    </div>
+                                                {% endblock %}
+                                            </sw-container>
+                                        {% endblock %}
+                                    </sw-card-section>
+                                {% endblock %}
+
+                                {% block sw_customer_card_row_secondary %}
+                                    <sw-card-section secondary slim>
+                                        <slot name="default">
+                                            <sw-container class="sw-review-base-info" columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 15px">
+                                                <sw-loader v-if="isLoading"></sw-loader>
+                                                <div v-if="!isLoading" class="sw-review-base-info-columns">
+                                                    {% block sw_customer_base_metadata_created_at %}
+                                                        <sw-description-list>
+                                                            {% block sw_customer_base_metadata_created_at_label %}
+                                                                <dt class="sw-review-base-info__label">{{ $tc('sw-review.detail.labelCreatedAt') }}</dt>
+                                                            {% endblock %}
+
+                                                            {% block sw_customer_base_metadata_created_at_content %}
+                                                                <dd>{{ review.createdAt | date({hour: '2-digit', minute: '2-digit', second: '2-digit'}) }}</dd>
+                                                            {% endblock %}
+                                                        </sw-description-list>
+                                                    {% endblock %}
+
+                                                    {% block sw_customer_base_metadata_sales_channel %}
+                                                        <sw-description-list>
+                                                            {% block sw_customer_base_metadata_sales_channel_label %}
+                                                                <dt class="sw-review-base-info__label">{{ $tc('sw-review.detail.labelSalesChannel') }}</dt>
+                                                            {% endblock %}
+
+                                                            {% block sw_customer_base_metadata_sales_channel_content %}
+                                                                <dd>{{ review.salesChannel.name }}</dd>
+                                                            {% endblock %}
+                                                        </sw-description-list>
+                                                    {% endblock %}
+
+                                                    {% block sw_customer_base_metadata_product %}
+                                                        <sw-description-list>
+                                                            {% block sw_customer_base_metadata_product_label %}
+                                                                <dt class="sw-review-base-info__label">{{ $tc('sw-review.detail.labelProduct') }}</dt>
+                                                            {% endblock %}
+
+                                                            {% block sw_customer_base_metadata_product_content %}
+                                                                <dd>{{ review.product.name }}</dd>
+                                                            {% endblock %}
+                                                        </sw-description-list>
+                                                    {% endblock %}
+                                                </div>
+                                                <div v-if="!isLoading" class="sw-review-base-info-columns">
+                                                    {% block sw_customer_base_metadata_customer %}
+                                                        <sw-description-list>
+                                                            {% block sw_customer_base_metadata_customer_label %}
+                                                                <dt class="sw-review-base-info__label">{{ $tc('sw-review.detail.labelCustomer') }}</dt>
+                                                            {% endblock %}
+
+                                                            {% block sw_customer_base_metadata_customer_content %}
+                                                                <dd>{{ salutation(review.customer) }}</dd>
+                                                            {% endblock %}
+                                                        </sw-description-list>
+                                                    {% endblock %}
+
+                                                    {% block sw_customer_base_metadata_email %}
+                                                        <sw-description-list>
+                                                            {% block sw_customer_base_metadata_email_label %}
+                                                                <dt class="sw-review-base-info__label">{{ $tc('sw-review.detail.labelEmail') }}</dt>
+                                                            {% endblock %}
+
+                                                            {% block sw_customer_base_metadata_email_content %}
+                                                                <dd>{{ review.customer.email }}</dd>
+                                                            {% endblock %}
+                                                        </sw-description-list>
+                                                    {% endblock %}
+                                                </div>
+                                            </sw-container>
+                                        </slot>
+                                    </sw-card-section>
+                                {% endblock %}
+                            </sw-container>
+                        {% endblock %}
+                    </sw-card>
                 {% endblock %}
 
-                {% block sw_review_detail_description_list_points %}
-                <dt>{{ $tc('sw-review.detail.labelPoints') }}</dt>
-                <dd>{{ review.points }}</dd>
-                {% endblock %}
+                <sw-card
+                        v-if="review"
+                        :title="$tc('sw-review.detail.cardTitleReviewProperties')"
+                        :isLoading="isLoading"
+                        class="sw-review-properties">
+                    {% block sw_review_detail_basic_info_card_description_list %}
+                        {% block sw_review_detail_description_list_language %}
+                            <sw-select
+                                    :label="$tc('sw-review.detail.labelLanguage')"
+                                    id="language"
+                                    :store="languageStore"
+                                    v-model="review.languageId"
+                                    :showSearch="false"
+                                    required
+                                    sortField="name">
+                            </sw-select>
+                        {% endblock %}
 
-                {% block sw_review_detail_description_list_created_at %}
-                <dt>{{ $tc('sw-review.detail.labelCreatedAt') }}</dt>
-                <dd>{{ review.createdAt | date }}</dd>
-                {% endblock %}
+                        {% block sw_review_detail_description_list_status %}
+                            <sw-switch-field
+                                    :label="$tc('sw-review.detail.labelStatus')"
+                                    class="status-switch"
+                                    :bordered="true"
+                                    v-model="review.status">
+                            </sw-switch-field>
+                        {% endblock %}
+                    {% endblock %}
+                </sw-card>
 
-                {% block sw_review_detail_description_list_product %}
-                <template v-if="product">
-                    <dt>{{ $tc('sw-review.detail.labelProduct') }}</dt>
-                    <dd>
-                        <router-link :to="{ name: 'sw.product.detail', params: { id: product.id } }">
-                            {{ product.name }}
-                        </router-link>
-                    </dd>
-                </template>
-                {% endblock %}
-
-                {% block sw_review_detail_description_list_sales_channel %}
-                <template v-if="review.sales_channel">
-                    <dt>{{ $tc('sw-review.detail.labelSalesChannel') }}</dt>
-                    <dd>{{ review.sales_channel.name }}</dd>
-                </template>
-                {% endblock %}
-
-                {% block sw_review_detail_description_list_user %}
-                <dt>{{ $tc('sw-review.detail.labelUser') }}</dt>
-                <template v-if="review.customer">
-                    <dd>
-                        <router-link :to="{ name: 'sw.customer.detail', params: { id: review.customer.id } }">
-                            {{ review.customer.firstName }}
-                        </router-link>
-                    </dd>
-                </template>
-                <template v-else>
-                    <dd>{{ review.externalUser }}</dd>
-                </template>
-                {% endblock %}
-
-                {% block sw_review_detail_description_list_email %}
-                <template v-if="review.externalEmail">
-                    <dt>{{ $tc('sw-review.detail.labelEmail') }}</dt>
-                    <dd>{{ review.externalEmail }}</dd>
-                </template>
-                {% endblock %}
-
-                {% block sw_review_detail_description_list_language %}
-                <dt>{{ $tc('sw-review.detail.labelLanguage') }}</dt>
-                <dd>
-                    <sw-select
-                        id="language"
-                        :store="languageStore"
-                        v-model="review.languageId"
-                        :showSearch="false"
-                        required
-                        sortField="name">
-                    </sw-select>
-                </dd>
-                {% endblock %}
-
-                {% block sw_review_detail_description_list_status %}
-                <dt>{{ $tc('sw-review.detail.labelStatus') }}</dt>
-                <dd>
-                    <sw-switch-field
-                        class="status-switch"
-                        v-model="review.status">
-                    </sw-switch-field>
-                </dd>
-                <dd></dd>
-                <dd></dd>
-                {% endblock %}
-            </sw-description-list>
-            {% endblock %}
-            {% block sw_review_detail_basic_info_card_comments_list %}
-            <sw-description-list grid="1fr 5fr" class="contents-border-styling">
-                {% block sw_review_detail_basic_info_card_content %}
-                <dt>{{ $tc('sw-review.detail.labelContent') }}</dt>
-                <dd>
-                    <sw-textarea-field
-                        class="sw-review-detail__content"
-                        id="content"
-                        v-model="review.content"
-                        readonly>
-                    </sw-textarea-field>
-                </dd>
-                {% endblock %}
-                {% block sw_review_detail_basic_info_card_comment %}
-                <dt>{{ $tc('sw-review.detail.labelComment') }}</dt>
-                <dd>
-                    <sw-text-editor
-                        v-model="review.comment">
-                    </sw-text-editor>
-                </dd>
-                {% endblock %}
-            </sw-description-list>
-            {% endblock %}
-        </sw-card>
+                <sw-card
+                        v-if="review"
+                        :title="$tc('sw-review.detail.labelComment')"
+                        :isLoading="isLoading">
+                    {% block sw_review_detail_basic_info_card_comment %}
+                        <sw-textarea-field type="textarea"
+                                           :label="$tc('sw-review.detail.titleCardComment')"
+                                           :placeholder="$tc('sw-review.detail.placeholderComment')"
+                                           v-model="review.comment">
+                        </sw-textarea-field>
+                    {% endblock %}
+                </sw-card>
+            </sw-card-view>
         {% endblock %}
-    </sw-card-view>
-    {% endblock %}
-</sw-page>
+    </sw-page>
 {% endblock %}

@@ -45,7 +45,11 @@
 						  method="post"
 						  data-form-ajax-submit="true"
 						  data-form-ajax-submit-options='{
-							  "replaceSelectors": ".js-review-container",
+							  "replaceSelectors": [
+							    ".js-review-info",
+							    ".js-review-teaser",
+							    ".js-review-content"
+							  ],
 							  "submitOnChange": true
 						  }'>
 

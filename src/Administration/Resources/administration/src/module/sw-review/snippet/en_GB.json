@@ -14,6 +14,7 @@
       "columnStatus": "Visible",
       "columnCreatedAt": "Created at",
       "columnComment": "Commented",
+      "columnTitle": "Review Title",
       "placeholderSearchBar": "Search reviews...",
       "messageEmpty": "No reviews yet"
     },
@@ -21,7 +22,8 @@
       "textHeadline": "Review",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
-      "cardTitleRatingInfo": "Information",
+      "cardTitleReviewInfo": "Review",
+      "cardTitleReviewProperties": "Properties",
       "labelTitle": "Title",
       "labelPoints": "Points",
       "labelUser": "User",
@@ -32,12 +34,19 @@
       "labelLanguage": "Language",
       "labelPositive": "Positive votes",
       "labelNegative": "Negative votes",
-      "labelStatus": "Status",
+      "labelStatus": "Visible",
       "labelContent": "Content",
       "labelComment": "Comment",
+      "labelCustomer": "Customer",
       "titleCardComment": "Comment",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The review \"{name}\" has been saved successful."
+      "messageSaveSuccess": "The review \"{name}\" has been saved successfully.",
+      "placeholderComment": "Comment",
+      "review1PointRatingText": "Unsatisfactory",
+      "review2PointRatingText": "Acceptable",
+      "review3PointRatingText": "Good",
+      "review4PointRatingText": "Very good",
+      "review5PointRatingText": "Excellent"
     }
   }
 }

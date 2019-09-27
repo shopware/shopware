@@ -126,12 +126,12 @@
                      v-if="reviewItemData"
                      :isLoading="product.isLoading">
                 <template slot="grid">
-                        <sw-one-to-many-grid :collection="reviewItemData"
-                                             :localMode="true"
-                                             :columns="reviewColumns"
-                                             :showSelection="false"
-                                             :isLoading="loading.product"
-                                             :showActions="true">
+                    <sw-data-grid ref="gridReview"
+                                  :dataSource="reviewItemData"
+                                  :columns="reviewColumns"
+                                  :showSelection="false"
+                                  :isLoading="loading.product"
+                                  :showActions="true">
                             {% block sw_product_detail_base_ratings_column_status %}
                                 <template slot="column-status" slot-scope="{ item }">
                                     <sw-data-grid-column-boolean v-model="item.status" :isInlineEdit="false"/>
@@ -145,17 +145,81 @@
                             {% block sw_product_detail_base_ratings_column_stars %}
                                 <template slot="column-points" slot-scope="{ item }">
                                     <div class="sw-review-detail-base__stars">
-                                        <sw-icon v-for="i in item.points"
-                                                 :key="i"
+                                        <sw-icon v-for="star in item.points"
                                                  name="default-review-star-full"
                                                  size="14">
+                                        </sw-icon>
+                                        <sw-icon v-for="missingStar in (5-item.points)"
+                                                name="default-basic-shape-star"
+                                                size="14">
                                         </sw-icon>
                                     </div>
                                 </template>
                             {% endblock %}
-                        </sw-one-to-many-grid>
+                        {% block sw_product_detail_base_ratings_actions %}
+                        <template #actions="{ item }">
+                            {% block sw_product_detail_base_ratings_actions_edit %}
+                            <sw-context-menu-item
+                                :routerLink="{ name: 'sw.review.detail', params: { id: item.id } }">
+                                {{ $tc('sw-product.reviewForm.contextMenuEdit') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_product_detail_base_ratings_actions_delete %}
+                            <sw-context-menu-item variant="danger"
+                                                  @click="onStartReviewDelete(item)">
+                                {{ $tc('sw-product.reviewForm.contextMenuDelete') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_product_detail_base_ratings_grid_pagination %}
+                        <template slot="pagination">
+                            <sw-pagination :total="total"
+                                           :limit="limit"
+                                           :page="page"
+                                           :total-visible="7"
+                                           :steps="[10]"
+                                           @page-change="onChangePage">
+                            </sw-pagination>
+                        </template>
+                        {% endblock %}
+
+                    </sw-data-grid>
                 </template>
+                {% block sw_product_detail_base_ratings_modal_delete %}
+                <sw-modal v-if="showReviewDeleteModal"
+                          @modal-close="onCancelReviewDelete"
+                          variant="small"
+                          :title="$tc('sw-product.reviewForm.modal.confirmTitle')"
+                          class="sw-promotion-detail-discounts-modal">
+                    {% block sw_product_detail_base_ratings_modal_delete_text %}
+                    <p>
+                        {{ $tc('sw-product.reviewForm.modal.confirmText') }}
+                    </p>
+                    {% endblock %}
+
+                    {% block sw_product_detail_base_ratings_modal_delete_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_promotion_detail_discounts_modal_delete_action_cancel %}
+                        <sw-button @click="onCancelReviewDelete" size="small">
+                            {{ $tc('sw-product.reviewForm.modal.buttonCancel') }}
+                        </sw-button>
+                        {% endblock %}
+
+                        {% block sw_product_detail_base_ratings_modal_delete_action_delete %}
+                        <sw-button @click="onConfirmReviewDelete" size="small" variant="danger"
+                                   class="sw-promotion-discount-delete-button">
+                            {{ $tc('sw-product.reviewForm.modal.buttonDelete') }}
+                        </sw-button>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                </sw-modal>
+                {% endblock %}
             </sw-card>
         {% endblock %}
     </div>
+
 {% endblock %}

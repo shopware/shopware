@@ -12,15 +12,15 @@ Component.register('sw-review-detail', {
 
     mixins: [
         Mixin.getByName('placeholder'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
+        Mixin.getByName('salutation')
     ],
 
     data() {
         return {
             isLoading: null,
             reviewId: null,
-            review: {},
-            product: null
+            review: {}
         };
     },
 
@@ -38,8 +38,11 @@ Component.register('sw-review-detail', {
         repository() {
             return this.repositoryFactory.create('product_review');
         },
-        productRepository() {
-            return this.repositoryFactory.create('product');
+        stars() {
+            return this.review.points;
+        },
+        missingStars() {
+            return 5 - this.review.points;
         }
     },
 
@@ -56,12 +59,10 @@ Component.register('sw-review-detail', {
             const criteria = new Criteria();
             criteria.addAssociation('customer');
             criteria.addAssociation('salesChannel');
+            criteria.addAssociation('product');
 
             this.repository.get(this.reviewId, this.context, criteria).then((review) => {
                 this.review = review;
-                this.productRepository.get(this.review.productId, this.context).then(product => {
-                    this.product = product;
-                });
                 this.isLoading = false;
             });
         },

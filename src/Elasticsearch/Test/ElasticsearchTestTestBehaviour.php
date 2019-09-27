@@ -30,7 +30,6 @@ trait ElasticsearchTestTestBehaviour
     use CacheTestBehaviour;
     use BasicTestDataBehaviour;
     use SessionTestBehaviour;
-
     use QueueTestBehaviour;
 
     /**

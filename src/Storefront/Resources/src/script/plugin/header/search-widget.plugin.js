@@ -60,12 +60,26 @@ export default class SearchWidgetPlugin extends Plugin {
             },
         );
 
+        this.el.addEventListener('submit', this._handleSearchEvent.bind(this));
+
         // add click event listener to body
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
         document.body.addEventListener(event, this._onBodyClick.bind(this));
 
         // add click event for mobile search
         this._registerInputFocus();
+    }
+
+    _handleSearchEvent(event) {
+        const value = this._inputField.value;
+
+        // stop search if minimum input value length has not been reached
+        if (value.length !== 0) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     /**
@@ -78,21 +92,21 @@ export default class SearchWidgetPlugin extends Plugin {
         // stop search if minimum input value length has not been reached
         if (value.length < this.options.searchWidgetMinChars) {
             // further clear possibly existing search results
-            this._clearSearchResults();
+            this._clearSuggestResults();
             return;
         }
 
-        this._search(value);
+        this._suggest(value);
 
         this.$emitter.publish('handleInputEvent');
     }
 
     /**
-     * Process the AJAX search and show results
+     * Process the AJAX suggest and show results
      * @param {string} value
      * @private
      */
-    _search(value) {
+    _suggest(value) {
         const url = this._url + encodeURI(value);
 
         // init loading indicator
@@ -104,7 +118,7 @@ export default class SearchWidgetPlugin extends Plugin {
         this._client.abort();
         this._client.get(url, (response) => {
             // remove existing search results popover first
-            this._clearSearchResults();
+            this._clearSuggestResults();
 
             // remove indicator
             indicator.remove();
@@ -112,7 +126,7 @@ export default class SearchWidgetPlugin extends Plugin {
             // attach search results to the DOM
             this.el.insertAdjacentHTML('beforeend', response);
 
-            this.$emitter.publish('afterSearch');
+            this.$emitter.publish('afterSuggest');
         });
     }
 
@@ -120,7 +134,7 @@ export default class SearchWidgetPlugin extends Plugin {
      * Remove existing search results popover from DOM
      * @private
      */
-    _clearSearchResults() {
+    _clearSuggestResults() {
         // reseet arrow navigation helper to enable form submit on enter
         this._navigationHelper.resetIterator();
 
@@ -128,7 +142,7 @@ export default class SearchWidgetPlugin extends Plugin {
         const results = document.querySelectorAll(this.options.searchWidgetResultSelector);
         Iterator.iterate(results, result => result.remove());
 
-        this.$emitter.publish('clearSearchResults');
+        this.$emitter.publish('clearSuggestResults');
     }
 
     /**
@@ -148,13 +162,13 @@ export default class SearchWidgetPlugin extends Plugin {
             return;
         }
         // remove existing search results popover
-        this._clearSearchResults();
+        this._clearSuggestResults();
 
         this.$emitter.publish('onBodyClick');
     }
 
     /**
-     * When the search is shown, trigger the focus on the input field
+     * When the suggest is shown, trigger the focus on the input field
      * @private
      */
     _registerInputFocus() {

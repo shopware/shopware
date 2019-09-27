@@ -184,6 +184,15 @@ export default class ChangesetGenerator {
         });
 
         if (field.flags && field.flags.cascade_delete) {
+            originIds.forEach((id) => {
+                if (!draft.has(id)) {
+                    // still existing?
+                    deletionQueue.push({
+                        route: draft.source,
+                        key: id
+                    });
+                }
+            });
             return changes;
         }
 

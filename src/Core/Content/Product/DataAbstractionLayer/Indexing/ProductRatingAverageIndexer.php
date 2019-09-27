@@ -10,14 +10,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ProductRatingAverageIndexer implements IndexerInterface
+class ProductRatingAverageIndexer implements IndexerInterface, EventSubscriberInterface
 {
     /**
      * @var EventDispatcherInterface
@@ -80,7 +83,7 @@ class ProductRatingAverageIndexer implements IndexerInterface
         );
 
         while ($ids = $iterator->fetch()) {
-            $this->update($ids, $context);
+            $this->update($ids, []);
 
             $this->eventDispatcher->dispatch(
                 new ProgressAdvancedEvent(\count($ids)),
@@ -105,7 +108,7 @@ class ProductRatingAverageIndexer implements IndexerInterface
             return null;
         }
 
-        $this->update($ids, $context);
+        $this->update($ids, []);
 
         return $iterator->getOffset();
     }
@@ -119,8 +122,81 @@ class ProductRatingAverageIndexer implements IndexerInterface
         $nested = $event->getEventByEntityName(ProductReviewDefinition::ENTITY_NAME);
         if ($nested) {
             $ids = $nested->getIds();
-            $this->updateByReview($ids, $event->getContext());
+            $this->updateByReview($ids);
         }
+    }
+
+    /**
+     * this function should index all products newly that are affected by a review deletion
+     * we have to do this before the review is deleted because we won't have the productId
+     * in the normal indexer functions
+     */
+    public static function getSubscribedEvents()
+    {
+        return [
+            PreWriteValidationEvent::class => 'preDelete',
+        ];
+    }
+
+    /**
+     * this function checks if reviews are deleted
+     */
+    public function preDelete(PreWriteValidationEvent $event): void
+    {
+        $commands = $event->getCommands();
+
+        $reviewIds = [];
+
+        foreach ($commands as $command) {
+            // we are only interested in delete commands
+            if (!$command instanceof DeleteCommand) {
+                continue;
+            }
+
+            // we are only interested in product reviews
+            if (!$command->getDefinition() instanceof ProductReviewDefinition) {
+                continue;
+            }
+
+            // get all reviewIds that should be deleted
+            $reviewIds = array_unique(array_merge($reviewIds, $command->getPrimaryKey()));
+        }
+
+        // if there are no deleted reviews we don't have any work to do
+        if (count($reviewIds) === 0) {
+            return;
+        }
+
+        // get all affected productIds
+        $productIds = $this->getProductIdsByReviewIds($reviewIds);
+
+        // calculate rating new for these products
+        $this->update($productIds, $reviewIds);
+    }
+
+    /**
+     * method returns all binary productIds that are linked to given reviewIds
+     */
+    private function getProductIdsByReviewIds(array $reviewIds): array
+    {
+        if (empty($reviewIds)) {
+            return [];
+        }
+
+        // select productids of all reviews that have been updated
+        $sql = 'SELECT DISTINCT product_id FROM product_review WHERE product_review.id in (:ids)';
+
+        $results = $this->connection->executeQuery(
+            $sql,
+            ['ids' => $reviewIds],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        )->fetchAll();
+
+        if (count($results) === 0) {
+            return [];
+        }
+
+        return array_column($results, 'product_id');
     }
 
     /**
@@ -128,7 +204,7 @@ class ProductRatingAverageIndexer implements IndexerInterface
      * it looks up which products have to be calculated and calls the
      * update function
      */
-    private function updateByReview(array $reviewIds, Context $context): void
+    private function updateByReview(array $reviewIds): void
     {
         if (empty($reviewIds)) {
             return;
@@ -147,17 +223,21 @@ class ProductRatingAverageIndexer implements IndexerInterface
             return;
         }
 
-        $productIds = Uuid::fromBytesToHexList(array_column($results, 'product_id'));
+        $productIds = array_column($results, 'product_id');
 
-        $this->update($productIds, $context);
+        $this->update($productIds, []);
     }
 
     /**
-     * this function is called with the ids of products
-     * foreach product in this list the average score of reviews is calculated
-     * the product cache for each updated product is invalidated
+     * calculate product ratings
+     * as difference to the normal indexer we haven't deleted the review and have to
+     * exclude them from the calculation process.
+     * They will be deleted and therefore may not taken in account for the rating
+     * all ids in reviewIds will be ignored while calculating the product average
+     * if reviews are deleted => as we are in pre delete context we have to ignore them
+     * if reviews are updated => we have to consider them, take care that they are not
      */
-    private function update(array $productIds, Context $context): void
+    private function update(array $productIds, array $excludedReviewIds): void
     {
         if (empty($productIds)) {
             return;
@@ -169,21 +249,21 @@ UPDATE product SET product.rating_average = (
     FROM product_review
     WHERE product_review.product_id = IFNULL(product.parent_id, product.id) 
     AND product_review.status = 1
-)
-WHERE (product.id IN (:ids) OR product.parent_id IN (:ids))
 SQL;
+        $params = ['ids' => $productIds];
+        $paramTypes = ['ids' => Connection::PARAM_STR_ARRAY];
+        if (count($excludedReviewIds) > 0) {
+            $sql .= ' AND product_review.id NOT IN (:reviewIds)';
+            $params['reviewIds'] = $excludedReviewIds;
+            $paramTypes['reviewIds'] = Connection::PARAM_STR_ARRAY;
+        }
+        $sql .= ') WHERE (product.id IN (:ids) OR product.parent_id IN (:ids))';
 
-        $productByteIds = Uuid::fromHexToBytesList($productIds);
-
-        $this->connection->executeUpdate(
-            $sql,
-            ['ids' => $productByteIds],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
+        $this->connection->executeUpdate($sql, $params, $paramTypes);
 
         $tags = [];
         foreach ($productIds as $productId) {
-            $tags[] = $this->cacheKeyGenerator->getEntityTag($productId, $this->productDefinition);
+            $tags[] = $this->cacheKeyGenerator->getEntityTag(Uuid::fromBytesToHex($productId), $this->productDefinition);
         }
         $this->cache->invalidateTags($tags);
     }

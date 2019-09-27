@@ -2,8 +2,12 @@
     {% set full = points|round(0, 'floor')   %}
     {% set left = points - full  %}
 
-    {% if left >= 0.5 %}
+    {% if left >= 0.25 and left<0.75 %}
         {% set half = 1 %}
+    {% endif %}
+
+    {% if left >=0.75 %}
+        {% set full = full + 1 %}
     {% endif %}
 
     {% set blank = 5 - full - half  %}

@@ -110,7 +110,15 @@
         "labelStatus": "Visible",
         "labelCreatedAt": "Created at",
         "labelPoints": "Stars",
-        "labelContent": "Review"
+        "labelTitle": "Title",
+        "contextMenuEdit": "Edit",
+        "contextMenuDelete": "Delete",
+        "modal": {
+          "confirmTitle": "Delete review",
+          "confirmText": "Do you really want to delete this review?",
+          "buttonCancel": "Cancel",
+          "buttonDelete": "Delete"
+        }
     },
     "prices": {
       "cardTitlePriceRule": "New pricing rule",

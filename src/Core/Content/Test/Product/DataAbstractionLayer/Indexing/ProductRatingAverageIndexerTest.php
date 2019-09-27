@@ -219,11 +219,49 @@ class ProductRatingAverageIndexerTest extends TestCase
     }
 
     /**
+     * tests that deactivating product reviews result in correct review score, even if no review is active (=>0)
+     *
+     * @test
+     * @group reviews
+     */
+    public function testCalculateWhenDeletingReviews(): void
+    {
+        $productAId = Uuid::randomHex();
+        $reviewAId = Uuid::randomHex();
+        $reviewBId = Uuid::randomHex();
+
+        $this->createProduct($productAId);
+
+        $pointsOnAReview = 5.0;
+        $pointsOnBReview = 2.0;
+
+        $this->createReview($reviewAId, $pointsOnAReview, $productAId, true);
+        $this->createReview($reviewBId, $pointsOnBReview, $productAId, true);
+
+        $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
+
+        static::assertEquals(3.5, $products->get($productAId)->getRatingAverage());
+
+        $this->deleteReview([['id' => $reviewAId]]);
+        $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
+
+        static::assertEquals(2.0, $products->get($productAId)->getRatingAverage());
+    }
+
+    /**
      * update data in review repository
      */
     private function updateReview(array $data): void
     {
         $this->reviewRepository->upsert($data, $this->salesChannel->getContext());
+    }
+
+    /**
+     * delete data in review repository
+     */
+    private function deleteReview(array $data): void
+    {
+        $this->reviewRepository->delete($data, $this->salesChannel->getContext());
     }
 
     /**

@@ -149,6 +149,7 @@ class ProductReviewLoader
         $criteria->addSorting($sorting);
 
         $points = $request->get('points', []);
+
         if (is_array($points) && count($points) > 0) {
             $pointFilter = [];
             foreach ($points as $point) {

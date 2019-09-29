@@ -97,11 +97,10 @@
                                                         {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
                                                     </span>
                                                 </template>
-                                                <router-link class="sw-search-bar__types-header-link"
-                                                             :to="{ name: getSearchTypeProperty(entity.entity, 'listingRoute'),
-                                                              query: { term: searchTerm }}">
-                                                    {{ $tc(`global.sw-search-bar.labelShowResultsInModule`, 0, { count: entity.total }) }}
-                                                </router-link>
+                                                {% block sw_search_bar_results_list_column_header_more_results %}
+                                                    <sw-search-more-results :result="entity" :term="searchTerm">
+                                                    </sw-search-more-results>
+                                                {% endblock %}
                                             </div>
                                         {% endblock %}
                                         <ul class="sw-search-bar__results-list">

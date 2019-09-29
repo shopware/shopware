@@ -89,6 +89,39 @@ Shopware.Component.override('sw-search-bar-item', {
 The `sw_search_bar_item_cms_page` block is used as it is the last block but it is not important which shopware type is extended as long as the vue else-if structure is kept working.
 
 
+### Add custom show more results link
+
+By default the search bar tries to resolve to the registered listing route.
+If your entity can be searched externally you can edit the `sw-search-more-results` or `sw-search` components as well:
+
+`sw-search-more-results.html.twig`
+```twig
+{% block sw_search_more_results %}
+    <template v-if="result.entity === 'foo_bar'">
+        There are so many hits.
+        <a :href="'https://my.erp.localhost/?q=' + searchTerm"
+           class="sw-search-bar-item__link"
+           target="_blank">
+             Look it directly up
+        </a>
+        in the ERP instead.
+    </template>
+    <template v-else>
+        {% parent %}
+    </template>
+{% endblock %}
+```
+
+```javascript
+`index.js`
+import template from './sw-search-more-results.html.twig';
+
+Shopware.Component.override('sw-search-more-results', {
+    template
+})
+```
+
+
 ### Potential pitfalls
 
 In case of a tag with a technical name the translation is missing:

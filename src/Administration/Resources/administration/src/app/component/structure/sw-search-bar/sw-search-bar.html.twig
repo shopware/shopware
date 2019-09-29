@@ -97,7 +97,8 @@
                                                         {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
                                                     </span>
                                                 </template>
-                                                <router-link class="sw-search-bar__types-header-link"
+                                                <router-link v-if="getSearchTypeProperty(entity.entity, 'listingRoute')"
+                                                             class="sw-search-bar__types-header-link"
                                                              :to="{ name: getSearchTypeProperty(entity.entity, 'listingRoute'),
                                                               query: { term: searchTerm }}">
                                                     {{ $tc(`global.sw-search-bar.labelShowResultsInModule`, 0, { count: entity.total }) }}

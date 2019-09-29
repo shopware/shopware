@@ -138,7 +138,6 @@ Component.register('sw-cms-sidebar', {
             return (this.cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
         },
 
-        // ToDo: comment me, slice me up if possible
         onBlockDragSort(dragData, dropData, validDrop) {
             if (validDrop !== true) {
                 return;
@@ -156,35 +155,41 @@ Component.register('sw-cms-sidebar', {
                 dragData.block.sectionPosition = dropData.block.sectionPosition;
             }
 
+            // set current drag index to initial drag start index
             if (this.currentDragSectionIndex === null) {
                 this.currentDragSectionIndex = dragSectionIndex;
             }
 
+            // check if the section where the block is moved already has the block
             const dropSectionHasBlock = this.page.sections[dropSectionIndex].blocks.has(dragData.block.id);
             if (this.currentDragSectionIndex !== dropSectionIndex && !dropSectionHasBlock) {
                 dragData.block.isDragging = true;
 
-
+                // calculate the remove index (this may differ since the block is moved each time it enters a new
+                // section while the dragSectionIndex is the static start index of the drag
                 let removeIndex = dragSectionIndex;
                 if (this.currentDragSectionIndex !== dragSectionIndex &&
                     Math.abs(this.currentDragSectionIndex - dropSectionIndex) === 1) {
                     removeIndex = this.currentDragSectionIndex;
                 }
 
+                // drag direction is upwards so the currentDragSectionIndex is incremented
                 if (this.currentDragSectionIndex - dropSectionIndex < 0) {
                     this.currentDragSectionIndex += 1;
                 }
 
+                // drag direction is downwards so the currentDragSectionIndex is decremented
                 if (this.currentDragSectionIndex - dropSectionIndex > 0) {
                     this.currentDragSectionIndex -= 1;
                 }
 
+                // delete block from old section and add it to the new one
                 this.page.sections[removeIndex].blocks.remove(dragData.block.id);
                 this.page.sections[dropSectionIndex].blocks.add(dragData.block);
+            } else {
+                // move item inside the section
+                this.page.sections[dropSectionIndex].blocks.moveItem(dragData.block.position, dropData.block.position);
             }
-
-
-            this.page.sections[dropSectionIndex].blocks.moveItem(dragData.block.position, dropData.block.position);
 
             this.$emit('block-navigator-sort');
         },

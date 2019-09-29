@@ -50,6 +50,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added translations for the `sw-cms` module
     * Replaced vanilla-colorpicker dependency with custom-build vuejs colorpicker
     * `EntityCollection.filter` returns a new `EntityCollection` object instead of a native array 
+    * Added Sections which support sidebars to the `sw-cms`
 * Core
     * Added DAL support for multi primary keys.
     * Added API endpoints for translation definitions

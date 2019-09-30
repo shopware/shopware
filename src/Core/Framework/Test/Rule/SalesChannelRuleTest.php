@@ -194,13 +194,16 @@ class SalesChannelRuleTest extends TestCase
                         'salesChannelIds' => [Uuid::randomHex()],
                     ],
                 ],
-            ], $this->context
+            ],
+            $this->context
         );
 
         static::assertCount(
-            2, $this->conditionRepository->search(
-            new Criteria([$conditionIdEq, $conditionIdNEq]), $this->context
-        )
+            2,
+            $this->conditionRepository->search(
+                new Criteria([$conditionIdEq, $conditionIdNEq]),
+                $this->context
+            )
         );
     }
 

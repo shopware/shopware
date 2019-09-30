@@ -750,7 +750,8 @@ class LanguageValidatorTest extends TestCase
         $a1 = ['id' => Uuid::randomHex(), 'name' => 'a1', 'parentId' => $b['id']];
         $a2 = ['id' => Uuid::randomHex(), 'name' => 'a2', 'parentId' => $b['id']];
 
-        $this->assertInsertViolations([$c, $b, $a1, $a2],
+        $this->assertInsertViolations(
+            [$c, $b, $a1, $a2],
             [
                 [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $a1['id'] . '/parentId'],
                 [LanguageValidator::VIOLATION_PARENT_HAS_PARENT, '/' . $a2['id'] . '/parentId'],

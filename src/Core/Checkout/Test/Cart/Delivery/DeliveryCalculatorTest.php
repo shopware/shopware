@@ -79,7 +79,9 @@ class DeliveryCalculatorTest extends TestCase
         $positions = new DeliveryPositionCollection();
         $positions->add(
             new DeliveryPosition(
-                Uuid::randomHex(), $this->createMock(LineItem::class), 1,
+                Uuid::randomHex(),
+                $this->createMock(LineItem::class),
+                1,
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 new DeliveryDate(new \DateTime(), new \DateTime())
             )

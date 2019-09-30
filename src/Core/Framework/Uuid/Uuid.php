@@ -18,7 +18,8 @@ class Uuid
         $timeHi = self::applyVersion(substr($hex, 12, 4), 4);
         $clockSeqHi = self::applyVariant(hexdec(substr($hex, 16, 2)));
 
-        return sprintf('%08s%04s%04s%02s%02s%012s',
+        return sprintf(
+            '%08s%04s%04s%02s%02s%012s',
             // time low
             substr($hex, 0, 8),
             // time mid

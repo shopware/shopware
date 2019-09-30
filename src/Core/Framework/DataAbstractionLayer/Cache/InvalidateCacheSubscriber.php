@@ -33,8 +33,8 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
     public function __construct(
         TagAwareAdapterInterface $cache,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        DefinitionInstanceRegistry $definitionRegistry)
-    {
+        DefinitionInstanceRegistry $definitionRegistry
+    ) {
         $this->cache = $cache;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
         $this->definitionRegistry = $definitionRegistry;

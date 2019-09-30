@@ -98,7 +98,9 @@ class ManyToManyIdFieldIndexerTest extends TestCase
                         ['id' => $yellowId, 'name' => 'yellow', 'groupId' => $productId],
                     ],
                 ],
-            ], $context);
+            ],
+            $context
+        );
 
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 

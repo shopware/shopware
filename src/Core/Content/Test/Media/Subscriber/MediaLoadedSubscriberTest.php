@@ -42,7 +42,8 @@ class MediaLoadedSubscriberTest extends TestCase
 
         static::assertStringEndsWith(
             $mediaEntity->getFileName() . '.' . $mediaEntity->getFileExtension(),
-            $mediaEntity->getUrl());
+            $mediaEntity->getUrl()
+        );
         static::assertEquals([], $mediaEntity->getThumbnails()->getElements());
     }
 
@@ -71,6 +72,7 @@ class MediaLoadedSubscriberTest extends TestCase
 
         static::assertStringEndsWith(
             $mediaEntity->getFileName() . '_100x100.' . $mediaEntity->getFileExtension(),
-            $mediaEntity->getThumbnails()->get($thumbnailEntity->getId())->getUrl());
+            $mediaEntity->getThumbnails()->get($thumbnailEntity->getId())->getUrl()
+        );
     }
 }

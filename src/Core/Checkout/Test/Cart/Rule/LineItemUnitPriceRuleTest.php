@@ -192,13 +192,16 @@ class LineItemUnitPriceRuleTest extends TestCase
                         'operator' => Rule::OPERATOR_GTE,
                     ],
                 ],
-            ], $this->context
+            ],
+            $this->context
         );
 
         static::assertCount(
-            4, $this->conditionRepository->search(
-            new Criteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]), $this->context
-        )
+            4,
+            $this->conditionRepository->search(
+                new Criteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]),
+                $this->context
+            )
         );
     }
 

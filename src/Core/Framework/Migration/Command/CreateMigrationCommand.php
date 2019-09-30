@@ -84,7 +84,8 @@ class CreateMigrationCommand extends Command
                 throw new \RuntimeException(
                     sprintf(
                         'More than one pluginname starting with "%s" was found: %s',
-                        $pluginName, implode(';', array_keys($pluginBundles))
+                        $pluginName,
+                        implode(';', array_keys($pluginBundles))
                     )
                 );
             }

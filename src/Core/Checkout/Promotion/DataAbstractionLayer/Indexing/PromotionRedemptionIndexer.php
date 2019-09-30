@@ -252,17 +252,21 @@ class PromotionRedemptionIndexer implements IndexerInterface
                 $ordersPerCustomerCount[$customerId] += $customerIncrement;
             }
 
-            $context->scope(Context::SYSTEM_SCOPE,
+            $context->scope(
+                Context::SYSTEM_SCOPE,
                 function (Context $context) use ($promotion, $increment, $ordersPerCustomerCount): void {
-                    $this->promotionRepository->update([
+                    $this->promotionRepository->update(
                         [
-                            'id' => $promotion->getId(),
-                            'orderCount' => $promotion->getOrderCount() + $increment,
-                            'ordersPerCustomerCount' => $ordersPerCustomerCount,
+                            [
+                                'id' => $promotion->getId(),
+                                'orderCount' => $promotion->getOrderCount() + $increment,
+                                'ordersPerCustomerCount' => $ordersPerCustomerCount,
+                            ],
                         ],
-                    ],
-                        $context);
-                });
+                        $context
+                    );
+                }
+            );
         }
     }
 

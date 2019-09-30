@@ -482,7 +482,8 @@ class SalesChannelCustomerControllerTest extends TestCase
                 $data['birthdayDay'],
                 $data['birthdayMonth'],
                 $data['birthdayYear']
-            ), $customer->getBirthday()
+            ),
+            $customer->getBirthday()
         );
     }
 

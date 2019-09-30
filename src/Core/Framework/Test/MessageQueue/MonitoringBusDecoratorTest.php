@@ -83,7 +83,9 @@ class MonitoringBusDecoratorTest extends TestCase
             [[
                 'name' => get_class($testMsg),
                 'size' => 1,
-            ]], $context);
+            ]],
+            $context
+        );
 
         $envelope = new Envelope($testMsg);
         $envelope = $envelope->with(new ReceivedStamp('test'));

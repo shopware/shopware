@@ -324,8 +324,11 @@ class EntityExtensionTest extends TestCase
     public function testICanWriteManyToManyAssociationsExtensions(): void
     {
         $field = (new ManyToManyAssociationField(
-            'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, 'product_id', 'category_id'
+            'myCategories',
+            CategoryDefinition::class,
+            ProductCategoryDefinition::class,
+            'product_id',
+            'category_id'
         ))->addFlags(new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
@@ -363,8 +366,11 @@ class EntityExtensionTest extends TestCase
     public function testICanReadManyToManyAssociationsExtensionsInBasic(): void
     {
         $field = (new ManyToManyAssociationField(
-            'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, 'product_id', 'category_id'
+            'myCategories',
+            CategoryDefinition::class,
+            ProductCategoryDefinition::class,
+            'product_id',
+            'category_id'
         ))->addFlags(new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
@@ -391,8 +397,11 @@ class EntityExtensionTest extends TestCase
     public function testICanReadManyToManyAssociationsExtensionsNotInBasic(): void
     {
         $field = (new ManyToManyAssociationField(
-            'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, 'product_id', 'category_id'
+            'myCategories',
+            CategoryDefinition::class,
+            ProductCategoryDefinition::class,
+            'product_id',
+            'category_id'
         ))->addFlags(new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
@@ -438,8 +447,11 @@ class EntityExtensionTest extends TestCase
     public function testICanSearchManyToManyAssociationsExtensions(): void
     {
         $field = (new ManyToManyAssociationField(
-            'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, 'product_id', 'category_id'
+            'myCategories',
+            CategoryDefinition::class,
+            ProductCategoryDefinition::class,
+            'product_id',
+            'category_id'
         ))->addFlags(new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);
@@ -476,8 +488,11 @@ class EntityExtensionTest extends TestCase
     public function testICanReadPaginatedManyToManyAssociationsExtensions(): void
     {
         $field = (new ManyToManyAssociationField(
-            'myCategories', CategoryDefinition::class,
-            ProductCategoryDefinition::class, 'product_id', 'category_id'
+            'myCategories',
+            CategoryDefinition::class,
+            ProductCategoryDefinition::class,
+            'product_id',
+            'category_id'
         ))->addFlags(new Extension());
 
         $this->getContainer()->get(ProductDefinition::class)->getFields()->addNewField($field);

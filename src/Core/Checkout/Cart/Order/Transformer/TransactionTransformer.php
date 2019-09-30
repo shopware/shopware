@@ -11,8 +11,8 @@ class TransactionTransformer
     public static function transformCollection(
         TransactionCollection $transactions,
         string $stateId,
-        Context $context): array
-    {
+        Context $context
+    ): array {
         $output = [];
         foreach ($transactions as $transaction) {
             $output[] = self::transform($transaction, $stateId, $context);
@@ -24,8 +24,8 @@ class TransactionTransformer
     public static function transform(
         Transaction $transaction,
         string $stateId,
-        Context $context): array
-    {
+        Context $context
+    ): array {
         return [
             'paymentMethodId' => $transaction->getPaymentMethodId(),
             'amount' => $transaction->getAmount(),

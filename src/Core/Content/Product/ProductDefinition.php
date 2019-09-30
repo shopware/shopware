@@ -220,8 +220,8 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new Inherited(), new Required()),
 
             (new OneToManyAssociationField('configuratorSettings', ProductConfiguratorSettingDefinition::class, 'product_id', 'id'))
-                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)
-            ),
+                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
+
             (new ManyToManyAssociationField('options', PropertyGroupOptionDefinition::class, ProductOptionDefinition::class, 'product_id', 'property_group_option_id'))
                 ->addFlags(new CascadeDelete()),
 

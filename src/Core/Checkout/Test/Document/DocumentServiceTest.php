@@ -206,28 +206,29 @@ class DocumentServiceTest extends TestCase
 
         $documentId = Uuid::randomHex();
         $mediaId = Uuid::randomHex();
-        $documentRepository->create([
+        $documentRepository->create(
             [
-                'id' => $documentId,
-                'documentTypeId' => $documentType->getId(),
-                'fileType' => FileTypes::PDF,
-                'orderId' => $orderId,
-                'orderVersionId' => $orderVersionId,
-                'config' => ['documentNumber' => '1001'],
-                'deepLinkCode' => 'dfr',
-                'static' => true,
-                'documentMediaFile' => [
-                    'id' => $mediaId,
-                    'mimeType' => 'plain/txt',
-                    'fileExtension' => 'txt',
-                    'fileName' => 'textFileWithExtension',
-                    'fileSize' => 1024,
-                    'private' => true,
-                    'mediaType' => new BinaryType(),
-                    'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
+                [
+                    'id' => $documentId,
+                    'documentTypeId' => $documentType->getId(),
+                    'fileType' => FileTypes::PDF,
+                    'orderId' => $orderId,
+                    'orderVersionId' => $orderVersionId,
+                    'config' => ['documentNumber' => '1001'],
+                    'deepLinkCode' => 'dfr',
+                    'static' => true,
+                    'documentMediaFile' => [
+                        'id' => $mediaId,
+                        'mimeType' => 'plain/txt',
+                        'fileExtension' => 'txt',
+                        'fileName' => 'textFileWithExtension',
+                        'fileSize' => 1024,
+                        'private' => true,
+                        'mediaType' => new BinaryType(),
+                        'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
+                    ],
                 ],
             ],
-        ],
             $this->context
         );
 

@@ -75,7 +75,8 @@ class FileNameValidator
             if (strpos($fileName, chr($controlCharacter)) !== false) {
                 throw new IllegalFileNameException(
                     $fileName,
-                    sprintf('Filename must not contain character "%x"',
+                    sprintf(
+                        'Filename must not contain character "%x"',
                         $controlCharacter
                     )
                 );

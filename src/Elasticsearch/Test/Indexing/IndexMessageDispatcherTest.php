@@ -56,7 +56,8 @@ class IndexMessageDispatcherTest extends TestCase
                     $serializedMessage = $serializer->serialize($msg, 'json');
 
                     return strlen($serializedMessage) > strlen('{}');
-                }))
+                }
+            ))
             ->willReturnCallback(function ($msg) { return new Envelope($msg); });
 
         $eventDispatcherMock = $this->getMockBuilder(EventDispatcherInterface::class)->getMock();
@@ -83,7 +84,8 @@ class IndexMessageDispatcherTest extends TestCase
                     $serializedMessage = $serializer->serialize($msg, 'json');
 
                     return strlen($serializedMessage) > strlen('{}');
-                }))
+                }
+            ))
             ->willReturnCallback(function ($msg) { return new Envelope($msg); });
 
         $eventDispatcherMock = $this->getMockBuilder(EventDispatcherInterface::class)->getMock();

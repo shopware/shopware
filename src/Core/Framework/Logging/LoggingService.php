@@ -44,7 +44,9 @@ class LoggingService implements EventSubscriberInterface
             $additionalData = $innerEvent->getLogData();
         }
 
-        $this->logger->addRecord($logLevel, $innerEvent->getName(),
+        $this->logger->addRecord(
+            $logLevel,
+            $innerEvent->getName(),
             [
                 'source' => 'core',
                 'environment' => $this->environment,

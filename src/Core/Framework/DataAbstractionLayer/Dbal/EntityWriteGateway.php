@@ -191,7 +191,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $storageName = $command->getStorageName();
         $query->set(
             $storageName,
-            sprintf('JSON_SET(IFNULL(%s, "{}"), %s)',
+            sprintf(
+                'JSON_SET(IFNULL(%s, "{}"), %s)',
                 EntityDefinitionQueryHelper::escape($storageName),
                 implode(', ', $sets)
             )

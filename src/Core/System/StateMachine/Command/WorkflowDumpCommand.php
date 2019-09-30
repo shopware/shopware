@@ -34,7 +34,8 @@ class WorkflowDumpCommand extends Command
                 new InputOption('label', 'l', InputOption::VALUE_REQUIRED, 'Labels a graph'),
             ])
             ->setDescription('Dump a workflow')
-            ->setHelp(<<<'EOF'
+            ->setHelp(
+                <<<'EOF'
 The <info>%command.name%</info> command dumps the graphical representation of a
 workflow in different formats
 

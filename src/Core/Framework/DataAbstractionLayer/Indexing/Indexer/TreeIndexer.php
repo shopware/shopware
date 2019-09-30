@@ -175,7 +175,8 @@ class TreeIndexer implements IndexerInterface
         $parent = $this->loadParents(
             Uuid::fromHexToBytes($parentId),
             $definition,
-            Uuid::fromHexToBytes($context->getVersionId()));
+            Uuid::fromHexToBytes($context->getVersionId())
+        );
 
         if ($parent === null) {
             return;

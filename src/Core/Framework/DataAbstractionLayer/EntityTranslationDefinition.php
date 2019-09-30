@@ -29,7 +29,8 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         return $this->getFields()
                 ->filterByFlag(Required::class)
                 ->filter(function (Field $field) {
-                    return !($field instanceof FkField
+                    return !(
+                        $field instanceof FkField
                         || $field instanceof CreatedAtField
                         || $field instanceof UpdatedAtField
                     );

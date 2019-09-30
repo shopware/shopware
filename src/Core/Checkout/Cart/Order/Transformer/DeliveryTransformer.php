@@ -18,8 +18,8 @@ class DeliveryTransformer
         array $lineItems,
         string $stateId,
         Context $context,
-        array $addresses = []): array
-    {
+        array $addresses = []
+    ): array {
         $output = [];
         foreach ($deliveries as $delivery) {
             $output[] = self::transform($delivery, $lineItems, $stateId, $context, $addresses);
@@ -33,8 +33,8 @@ class DeliveryTransformer
         array $lineItems,
         string $stateId,
         Context $context,
-        array $addresses = []): array
-    {
+        array $addresses = []
+    ): array {
         $addressId = $delivery->getLocation()->getAddress() ? $delivery->getLocation()->getAddress()->getId() : null;
         $shippingAddress = null;
 

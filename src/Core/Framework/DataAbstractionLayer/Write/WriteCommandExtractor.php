@@ -47,8 +47,8 @@ class WriteCommandExtractor
 
     public function __construct(
         EntityWriteGatewayInterface $entityExistenceGateway,
-        DefinitionInstanceRegistry $definitionRegistry)
-    {
+        DefinitionInstanceRegistry $definitionRegistry
+    ) {
         $this->entityExistenceGateway = $entityExistenceGateway;
         $this->definitionRegistry = $definitionRegistry;
     }

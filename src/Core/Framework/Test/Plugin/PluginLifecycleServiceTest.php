@@ -338,8 +338,8 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function getMigrationTestKeyCount(): int
     {
-        $result = $this->connection->executeQuery('
-            SELECT configuration_value FROM system_config WHERE configuration_key = ?',
+        $result = $this->connection->executeQuery(
+            'SELECT configuration_value FROM system_config WHERE configuration_key = ?',
             [Migration1536761533Test::TEST_SYSTEM_CONFIG_KEY]
         );
 

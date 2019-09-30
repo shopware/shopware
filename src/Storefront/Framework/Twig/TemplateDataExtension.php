@@ -92,7 +92,8 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
         $themePrefix = ThemeCompiler::getThemePrefix($salesChannelId, $themeId);
 
-        $themeConfig = array_merge($themeConfig,
+        $themeConfig = array_merge(
+            $themeConfig,
             [
                 'assets' => [
                     'css' => [

@@ -165,7 +165,8 @@ class RuleValidator implements EventSubscriberInterface
             if (!array_key_exists($fieldName, $fieldValidations) && $fieldName !== '_name') {
                 $violationList->add(
                     $this->buildViolation(
-                        'The property "{{ fieldName }}" is not allowed.', ['{{ fieldName }}' => $fieldName],
+                        'The property "{{ fieldName }}" is not allowed.',
+                        ['{{ fieldName }}' => $fieldName],
                         null,
                         $currentPath . $fieldName
                     )

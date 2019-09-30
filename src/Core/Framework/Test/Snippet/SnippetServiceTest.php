@@ -38,7 +38,9 @@ class SnippetServiceTest extends TestCase
 
     public function testGetRegionFilterItems(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
             <<<json
 {
     "foo": {
@@ -202,8 +204,10 @@ json
 
     public function testGetListMergesFromFileAndDb(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
-<<<json
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
+            <<<json
 {
     "foo": {
         "bar": "foo_bar"
@@ -242,7 +246,9 @@ json
 
     public function testGetListDbOverwritesFile(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
             <<<json
 {
     "foo": {
@@ -281,7 +287,9 @@ json
 
     public function testGetListWithMultipleSets(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
             <<<json
 {
     "foo": {
@@ -329,7 +337,9 @@ json
 
     public function testGetListWithSameTranslationKeyInMultipleSets(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
             <<<json
 {
     "foo": {
@@ -387,7 +397,9 @@ json
 
     public function testGetListWithPagination(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
             <<<json
 {
     "foo": {
@@ -445,7 +457,9 @@ json
 
     public function testGetListSortsByTranslationKey(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
             <<<json
 {
     "foo": {
@@ -502,7 +516,9 @@ json
 
     public function testGetListSortsByTranslationKeyDESC(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
             <<<json
 {
     "foo": {
@@ -559,7 +575,9 @@ json
 
     public function testGetListSortsBySnippetSetId(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
             <<<json
 {
     "foo": {
@@ -618,7 +636,9 @@ json
 
     public function testGetListSortsBySnippetSetIdDESC(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
             <<<json
 {
     "foo": {
@@ -677,7 +697,9 @@ json
 
     public function testGetListIgnoresSortingForNotExistingSnippetSetId(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
             <<<json
 {
     "foo": {
@@ -733,7 +755,9 @@ json
 
     public function testGetListFilters(): void
     {
-        $snippetFile = new MockSnippetFile('foo', 'foo',
+        $snippetFile = new MockSnippetFile(
+            'foo',
+            'foo',
             <<<json
 {
     "foo": {

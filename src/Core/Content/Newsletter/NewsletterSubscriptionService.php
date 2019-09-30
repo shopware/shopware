@@ -239,7 +239,8 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
     private function getNewsletterRecipientId(string $email, SalesChannelContext $context): ?string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND),
+        $criteria->addFilter(
+            new MultiFilter(MultiFilter::CONNECTION_AND),
             new EqualsFilter('email', $email),
             new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId())
         );

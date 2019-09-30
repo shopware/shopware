@@ -171,7 +171,10 @@ class CachedEntityReader implements EntityReaderInterface
     private function cacheEntity(EntityDefinition $definition, Context $context, Criteria $criteria, Entity $entity): void
     {
         $key = $this->cacheKeyGenerator->getEntityContextCacheKey(
-            $entity->getUniqueIdentifier(), $definition, $context, $criteria
+            $entity->getUniqueIdentifier(),
+            $definition,
+            $context,
+            $criteria
         );
         /** @var CacheItem $item */
         $item = $this->cache->getItem($key);
@@ -194,7 +197,9 @@ class CachedEntityReader implements EntityReaderInterface
     private function cacheNull(EntityDefinition $definition, Context $context, string $id): void
     {
         $key = $this->cacheKeyGenerator->getEntityContextCacheKey(
-            $id, $definition, $context
+            $id,
+            $definition,
+            $context
         );
         /** @var CacheItem $item */
         $item = $this->cache->getItem($key);

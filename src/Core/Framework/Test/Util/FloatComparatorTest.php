@@ -51,7 +51,8 @@ class FloatComparatorTest extends TestCase
         return array_map(
             function ($testData) {
                 return [$testData[0], $testData[1], !$testData[2]];
-            }, $equalsData
+            },
+            $equalsData
         );
     }
 

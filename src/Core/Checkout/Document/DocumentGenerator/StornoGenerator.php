@@ -50,18 +50,18 @@ class StornoGenerator implements DocumentGeneratorInterface
         $order = $this->handlePrices($order);
 
         $documentString = $this->documentTemplateRenderer->render(
-                $templatePath,
-                [
-                    'order' => $order,
-                    'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
-                    'rootDir' => $this->rootDir,
-                    'context' => $context,
-                ],
-                $context,
-                $order->getSalesChannelId(),
-                $order->getLanguageId(),
-                $order->getLanguage()->getLocale()->getCode()
-            );
+            $templatePath,
+            [
+                'order' => $order,
+                'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
+                'rootDir' => $this->rootDir,
+                'context' => $context,
+            ],
+            $context,
+            $order->getSalesChannelId(),
+            $order->getLanguageId(),
+            $order->getLanguage()->getLocale()->getCode()
+        );
 
         return $documentString;
     }

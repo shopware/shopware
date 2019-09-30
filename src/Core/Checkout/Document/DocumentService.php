@@ -145,19 +145,20 @@ class DocumentService
 
         $documentId = Uuid::randomHex();
         $deepLinkCode = Random::getAlphanumericString(32);
-        $this->documentRepository->create([
+        $this->documentRepository->create(
             [
-                'id' => $documentId,
-                'documentTypeId' => $documentType->getId(),
-                'fileType' => $fileType,
-                'orderId' => $orderId,
-                'orderVersionId' => $orderVersionId,
-                'config' => $documentConfiguration->jsonSerialize(),
-                'static' => $static,
-                'deepLinkCode' => $deepLinkCode,
-                'referencedDocumentId' => $referencedDocumentId,
+                [
+                    'id' => $documentId,
+                    'documentTypeId' => $documentType->getId(),
+                    'fileType' => $fileType,
+                    'orderId' => $orderId,
+                    'orderVersionId' => $orderVersionId,
+                    'config' => $documentConfiguration->jsonSerialize(),
+                    'static' => $static,
+                    'deepLinkCode' => $deepLinkCode,
+                    'referencedDocumentId' => $referencedDocumentId,
+                ],
             ],
-        ],
             $context
         );
 
@@ -342,7 +343,8 @@ class DocumentService
         $referencedDocumentType = $documentConfiguration->__get('referencedDocumentType');
 
         $criteria = (new Criteria([$referencedDocumentId]))
-            ->addFilter(new MultiFilter(
+            ->addFilter(
+                new MultiFilter(
                     MultiFilter::CONNECTION_AND,
                     [
                         new EqualsFilter('document.documentType.technicalName', $referencedDocumentType),
@@ -359,7 +361,9 @@ class DocumentService
             throw new DocumentGenerationException(
                 sprintf(
                     'The given referenced document with id %s with type %s for order %s could not be found',
-                    $referencedDocumentId, $referencedDocumentType, $orderId
+                    $referencedDocumentId,
+                    $referencedDocumentType,
+                    $orderId
                 )
             );
         }

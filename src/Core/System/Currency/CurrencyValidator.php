@@ -55,7 +55,14 @@ class CurrencyValidator implements EventSubscriberInterface
             $parameters = ['{{ id }}' => $id];
             $msg = sprintf('The default currency %s cannot be deleted.', $id);
             $violation = new ConstraintViolation(
-                $msg, $msgTpl, $parameters, null, '/' . $id, $id, null, self::VIOLATION_DELETE_DEFAULT_CURRENCY
+                $msg,
+                $msgTpl,
+                $parameters,
+                null,
+                '/' . $id,
+                $id,
+                null,
+                self::VIOLATION_DELETE_DEFAULT_CURRENCY
             );
 
             $violations->add($violation);

@@ -75,12 +75,14 @@ class TestUser
 
         $roleId = self::buildRole($permissions, $connection);
         if ($roleId) {
-            $connection->insert('acl_user_role',
+            $connection->insert(
+                'acl_user_role',
                 [
                     'user_id' => $userId,
                     'acl_role_id' => $roleId,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-                ]);
+                ]
+            );
         }
 
         return new TestUser($password, $username);
@@ -148,13 +150,15 @@ class TestUser
         $connection->insert('acl_role', ['id' => $roleId, 'name' => $roleName, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
         foreach ($permissions as $resource => $privileges) {
             foreach ($privileges as $privilege) {
-                $connection->insert('acl_resource',
+                $connection->insert(
+                    'acl_resource',
                     [
                         'resource' => $resource,
                         'privilege' => $privilege,
                         'acl_role_id' => $roleId,
                         'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-                    ]);
+                    ]
+                );
             }
         }
 

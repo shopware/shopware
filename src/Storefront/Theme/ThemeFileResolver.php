@@ -39,14 +39,16 @@ class ThemeFileResolver
                     }
 
                     return $fileCollection;
-                }),
+                }
+            ),
             self::STYLE_FILES => $this->resolve(
                 $themeConfig,
                 $configurationCollection,
                 $onlySourceFiles,
                 function (StorefrontPluginConfiguration $configuration, bool $onlySourceFiles) {
                     return $configuration->getStyleFiles();
-                }),
+                }
+            ),
         ];
     }
 

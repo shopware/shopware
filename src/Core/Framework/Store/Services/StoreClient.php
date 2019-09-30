@@ -286,14 +286,16 @@ final class StoreClient
         }
 
         $response = $this->client->post(
-            self::SBP_API_URL_PLUGIN_COMPATIBILITY, [
+            self::SBP_API_URL_PLUGIN_COMPATIBILITY,
+            [
                 'query' => $this->storeService->getDefaultQueryParameters($language, false),
                 'headers' => $this->getHeaders(),
                 'json' => [
                     'futureShopwareVersion' => $futureVersion,
                     'plugins' => $pluginArray,
                 ],
-            ]);
+            ]
+        );
 
         return json_decode((string) $response->getBody(), true);
     }

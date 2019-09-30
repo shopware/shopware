@@ -98,12 +98,12 @@ class LanguageValidator implements EventSubscriberInterface
 
     private function getInheritanceViolations(array $affectedIds): ConstraintViolationList
     {
-        $statement = $this->connection->executeQuery('
-            SELECT child.id 
-            FROM language child
-            INNER JOIN language parent ON parent.id = child.parent_id
-            WHERE (child.id IN (:ids) OR child.parent_id IN (:ids))
-            AND parent.parent_id IS NOT NULL',
+        $statement = $this->connection->executeQuery(
+            'SELECT child.id 
+             FROM language child
+             INNER JOIN language parent ON parent.id = child.parent_id
+             WHERE (child.id IN (:ids) OR child.parent_id IN (:ids))
+             AND parent.parent_id IS NOT NULL',
             ['ids' => $affectedIds],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
@@ -129,13 +129,13 @@ class LanguageValidator implements EventSubscriberInterface
 
     private function getMissingTranslationCodeViolations(array $affectedIds): ConstraintViolationList
     {
-        $statement = $this->connection->executeQuery('
-            SELECT lang.id
-            FROM language lang
-            LEFT JOIN locale l ON lang.translation_code_id = l.id
-            WHERE l.id IS NULL # no translation code
-            AND lang.parent_id IS NULL # root
-            AND lang.id IN (:ids)',
+        $statement = $this->connection->executeQuery(
+            'SELECT lang.id
+             FROM language lang
+             LEFT JOIN locale l ON lang.translation_code_id = l.id
+             WHERE l.id IS NULL # no translation code
+             AND lang.parent_id IS NULL # root
+             AND lang.id IN (:ids)',
             ['ids' => $affectedIds],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );

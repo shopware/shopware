@@ -283,7 +283,8 @@ class StorefrontPluginConfiguration
         } catch (ThemeCompileException $e) {
             throw $e;
         } catch (\Exception $e) {
-            throw new ThemeCompileException($bundle->getName(),
+            throw new ThemeCompileException(
+                $bundle->getName(),
                 sprintf(
                     'Got exception while parsing theme config. Exception message "%s"',
                     $e->getMessage()

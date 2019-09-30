@@ -86,10 +86,15 @@ class WriteException extends ShopwareHttpException
     public function getErrors(bool $withTrace = false): \Generator
     {
         foreach ($this->getExceptions() as $innerException) {
+            if ($innerException instanceof WriteException) {
+                yield from $innerException->getErrors($withTrace);
+                continue;
+            }
+
             if ($innerException instanceof WriteConstraintViolationException) {
                 /** @var ConstraintViolationInterface $violation */
                 foreach ($innerException->getViolations() as $violation) {
-                    $path = empty($innerException->getPath()) ? $violation->getPropertyPath() : $innerException->getPath();
+                    $path = $innerException->getPath() . $violation->getPropertyPath();
                     $error = [
                         'code' => $violation->getCode() ?? $innerException->getErrorCode(),
                         'status' => (string) $this->getStatusCode(),
@@ -111,8 +116,9 @@ class WriteException extends ShopwareHttpException
                 continue;
             }
 
+            $errorCode = $innerException instanceof ShopwareHttpException ? $innerException->getErrorCode() : $innerException->getCode();
             $error = [
-                'code' => $innerException->getErrorCode(),
+                'code' => $errorCode,
                 'status' => (string) $this->getStatusCode(),
                 'detail' => $innerException->getMessage(),
             ];

@@ -13,9 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemRuleTest extends TestCase
 {
@@ -55,18 +56,13 @@ class LineItemRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var WriteConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(2, $exception->getViolations());
-                static::assertSame('/0/value/identifiers', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(2, $exceptions);
+            static::assertSame('/0/value/identifiers', $exceptions[0]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
 
-                static::assertSame('/0/value/operator', $exception->getViolations()->get(1)->getPropertyPath());
-                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(1)->getCode());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
-            }
+            static::assertSame('/0/value/operator', $exceptions[1]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
         }
     }
 
@@ -85,14 +81,10 @@ class LineItemRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var WriteConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/0/value/identifiers', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-            }
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(1, $exceptions);
+            static::assertSame('/0/value/identifiers', $exceptions[0]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
         }
     }
 
@@ -111,13 +103,10 @@ class LineItemRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var WriteConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/0/value/identifiers', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame('This value should be of type array.', $exception->getViolations()->get(0)->getMessage());
-            }
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(1, $exceptions);
+            static::assertSame('/0/value/identifiers', $exceptions[0]['source']['pointer']);
+            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
         }
     }
 
@@ -138,15 +127,16 @@ class LineItemRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var WriteConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(3, $exception->getViolations());
-                static::assertSame('/0/value/identifiers', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame('The value "1" is not a valid uuid.', $exception->getViolations()->get(0)->getMessage());
-                static::assertSame('The value "3" is not a valid uuid.', $exception->getViolations()->get(1)->getMessage());
-                static::assertSame('The value "1234abcd" is not a valid uuid.', $exception->getViolations()->get(2)->getMessage());
-            }
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(3, $exceptions);
+
+            static::assertSame('/0/value/identifiers', $exceptions[0]['source']['pointer']);
+            static::assertSame('/0/value/identifiers', $exceptions[1]['source']['pointer']);
+            static::assertSame('/0/value/identifiers', $exceptions[2]['source']['pointer']);
+
+            static::assertSame(ArrayOfUuid::INVALID_TYPE_CODE, $exceptions[0]['code']);
+            static::assertSame(ArrayOfUuid::INVALID_TYPE_CODE, $exceptions[1]['code']);
+            static::assertSame(ArrayOfUuid::INVALID_TYPE_CODE, $exceptions[2]['code']);
         }
     }
 

@@ -16,9 +16,9 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 class DaysSinceLastOrderRuleTest extends TestCase
 {
@@ -59,46 +59,13 @@ class DaysSinceLastOrderRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(2, $exception->getViolations());
-                static::assertSame('/0/value/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(2, $exceptions);
+            static::assertSame('/0/value/daysPassed', $exceptions[0]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
 
-                static::assertSame('/0/value/operator', $exception->getViolations()->get(1)->getPropertyPath());
-                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(1)->getCode());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(1)->getMessage());
-            }
-        }
-    }
-
-    public function testValidateWithEmptyValues(): void
-    {
-        $conditionId = Uuid::randomHex();
-        try {
-            $this->conditionRepository->create([
-                [
-                    'id' => $conditionId,
-                    'type' => (new DaysSinceLastOrderRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'daysPassed' => null,
-                        'operator' => DaysSinceLastOrderRule::OPERATOR_EQ,
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/0/value/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
-                static::assertSame('This value should not be blank.', $exception->getViolations()->get(0)->getMessage());
-            }
+            static::assertSame('/0/value/operator', $exceptions[1]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
         }
     }
 
@@ -117,13 +84,10 @@ class DaysSinceLastOrderRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(1, $exception->getViolations());
-                static::assertSame('/0/value/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame('This value should be of type int.', $exception->getViolations()->get(0)->getMessage());
-            }
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(1, $exceptions);
+            static::assertSame('/0/value/daysPassed', $exceptions[0]['source']['pointer']);
+            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
         }
     }
 
@@ -142,14 +106,13 @@ class DaysSinceLastOrderRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
-            /** @var ConstraintViolationException $exception */
-            foreach ($stackException->getExceptions() as $exception) {
-                static::assertCount(2, $exception->getViolations());
-                static::assertSame('/0/value/daysPassed', $exception->getViolations()->get(0)->getPropertyPath());
-                static::assertSame(NotBlank::IS_BLANK_ERROR, $exception->getViolations()->get(0)->getCode());
-                static::assertSame('This value should be of type int.', $exception->getViolations()->get(1)->getMessage());
-            }
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(2, $exceptions);
+            static::assertSame('/0/value/daysPassed', $exceptions[0]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
+
+            static::assertSame('/0/value/daysPassed', $exceptions[1]['source']['pointer']);
+            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[1]['code']);
         }
     }
 

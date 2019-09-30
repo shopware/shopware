@@ -102,17 +102,25 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
             ],
         ];
 
-        $exception = null;
         try {
             $this->cmsPageRepository->create([$page], $this->salesChannelContext->getContext());
-        } catch (WriteException $exception) {
+        } catch (WriteException $writeException) {
         }
 
-        static::assertInstanceOf(WriteException::class, $exception);
-        static::assertCount(2, $exception->getExceptions());
+        $errors = [];
+        foreach ($writeException->getErrors() as $error) {
+            $errors[] = $error;
+        }
 
-        static::assertEquals('/0/sections/0/blocks/0/slots/1/translations/' . Defaults::LANGUAGE_SYSTEM . '/config', $exception->getExceptions()[0]->getPath());
-        static::assertEquals('/0/sections/0/blocks/1/slots/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/config', $exception->getExceptions()[1]->getPath());
+        static::assertEquals(
+            '/0/sections/0/blocks/0/slots/1/translations/' . Defaults::LANGUAGE_SYSTEM . '/config/url/source',
+            $errors[0]['source']['pointer']
+        );
+
+        static::assertEquals(
+            '/0/sections/0/blocks/1/slots/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/config/content/value',
+            $errors[1]['source']['pointer']
+        );
     }
 
     private function createPage(): string

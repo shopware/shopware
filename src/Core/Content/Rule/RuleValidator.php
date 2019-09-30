@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Exception\InvalidConditionException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -63,7 +64,7 @@ class RuleValidator implements EventSubscriberInterface
      */
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        $violationList = new ConstraintViolationList();
+        $writeException = $event->getExceptions();
         $commands = $event->getCommands();
         $updateQueue = [];
 
@@ -77,7 +78,7 @@ class RuleValidator implements EventSubscriberInterface
             }
 
             if ($command instanceof InsertCommand) {
-                $this->validateCondition(null, $command, $violationList);
+                $this->validateCondition(null, $command, $writeException);
                 continue;
             }
 
@@ -90,24 +91,31 @@ class RuleValidator implements EventSubscriberInterface
         }
 
         if (!empty($updateQueue)) {
-            $this->validateUpdateCommands($updateQueue, $violationList, $event->getContext());
-        }
-
-        if ($violationList->count() > 0) {
-            $event->getExceptions()->add(new WriteConstraintViolationException($violationList));
+            $this->validateUpdateCommands($updateQueue, $writeException, $event->getContext());
         }
     }
 
     private function validateCondition(
         ?RuleConditionEntity $condition,
         WriteCommandInterface $command,
-        ConstraintViolationList $violationList
+        WriteException $writeException
     ): void {
         $payload = $command->getPayload();
+        $violationList = new ConstraintViolationList();
 
         $type = $this->getConditionType($condition, $payload);
         if ($type === null) {
-            $violationList->add($this->buildInvalidTypeViolation('NULL', $command->getPath()));
+            $violation = $this->buildViolation(
+                'Your condition is missing a type.',
+                [],
+                null,
+                '/type',
+                null,
+                'CONTENT__MISSING_RULE_TYPE_EXCEPTION'
+            );
+
+            $violationList->add($violation);
+            $writeException->add(new WriteConstraintViolationException($violationList, $command->getPath()));
 
             return;
         }
@@ -115,18 +123,30 @@ class RuleValidator implements EventSubscriberInterface
         try {
             $ruleInstance = $this->ruleConditionRegistry->getRuleInstance($type);
         } catch (InvalidConditionException $e) {
-            $violationList->add($this->buildInvalidTypeViolation($type, $command->getPath()));
+            $violation = $this->buildViolation(
+                'This {{ value }} is not a valid condition type.',
+                ['{{ value }}' => $type],
+                null,
+                '/type',
+                null,
+                'CONTENT__INVALID_RULE_TYPE_EXCEPTION'
+            );
+            $violationList->add($violation);
+            $writeException->add(new WriteConstraintViolationException($violationList, $command->getPath()));
 
             return;
         }
 
         $value = $this->getConditionValue($condition, $payload);
         $this->validateConsistence(
-            $command->getPath() . '/value',
             $ruleInstance->getConstraints(),
             $value,
             $violationList
         );
+
+        if ($violationList->count() > 0) {
+            $writeException->add(new WriteConstraintViolationException($violationList, $command->getPath()));
+        }
     }
 
     private function getConditionType(?RuleConditionEntity $condition, array $payload): ?string
@@ -149,13 +169,12 @@ class RuleValidator implements EventSubscriberInterface
         return $value;
     }
 
-    private function validateConsistence(string $basePath, array $fieldValidations, array $payload, ConstraintViolationList $violationList): void
+    private function validateConsistence(array $fieldValidations, array $payload, ConstraintViolationList $violationList): void
     {
-        $currentPath = $basePath . '/';
         foreach ($fieldValidations as $fieldName => $validations) {
             $violationList->addAll(
                 $this->validator->startContext()
-                    ->atPath($currentPath . $fieldName)
+                    ->atPath('/value/' . $fieldName)
                     ->validate($payload[$fieldName] ?? null, $validations)
                     ->getViolations()
             );
@@ -168,7 +187,7 @@ class RuleValidator implements EventSubscriberInterface
                         'The property "{{ fieldName }}" is not allowed.',
                         ['{{ fieldName }}' => $fieldName],
                         null,
-                        $currentPath . $fieldName
+                        '/value/' . $fieldName
                     )
                 );
             }
@@ -177,7 +196,7 @@ class RuleValidator implements EventSubscriberInterface
 
     private function validateUpdateCommands(
         array $commandQueue,
-        ConstraintViolationList $violationList,
+        WriteException $writeException,
         Context $context
     ): void {
         $conditions = $this->getSavedConditions($commandQueue, $context);
@@ -186,7 +205,7 @@ class RuleValidator implements EventSubscriberInterface
             $id = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
             $condition = $conditions->get($id);
 
-            $this->validateCondition($condition, $command, $violationList);
+            $this->validateCondition($condition, $command, $writeException);
         }
     }
 
@@ -223,16 +242,6 @@ class RuleValidator implements EventSubscriberInterface
             $code,
             $constraint = null,
             $cause = null
-        );
-    }
-
-    private function buildInvalidTypeViolation(string $type, string $basePath)
-    {
-        return $this->buildViolation(
-            'This {{ value }} is not a valid condition type.',
-            ['%value%' => $type ?? 'NULL'],
-            null,
-            $basePath . '/type'
         );
     }
 }

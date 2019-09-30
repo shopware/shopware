@@ -13,7 +13,10 @@ class ErrorResponseFactory
     public function getResponseFromException(\Throwable $exception, $debug = false): Response
     {
         if ($exception instanceof ShopwareHttpException) {
-            $errors = iterator_to_array($exception->getErrors($debug));
+            $errors = [];
+            foreach ($exception->getErrors($debug) as $innerException) {
+                $errors[] = $innerException;
+            }
 
             $response = new JsonResponse(
                 ['errors' => $this->convert($errors)],

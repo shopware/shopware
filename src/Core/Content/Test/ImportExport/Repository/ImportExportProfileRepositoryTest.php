@@ -139,7 +139,11 @@ class ImportExportProfileRepositoryTest extends TestCase
                 }
             }
 
-            static::assertEquals($requiredProperties, $foundViolations);
+            $missingPropertyPaths = array_map(function ($property) {
+                return '/' . $property;
+            }, $requiredProperties);
+
+            static::assertEquals($missingPropertyPaths, $foundViolations);
         }
     }
 

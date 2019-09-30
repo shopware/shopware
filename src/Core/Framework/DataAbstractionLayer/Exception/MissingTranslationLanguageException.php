@@ -12,7 +12,7 @@ class MissingTranslationLanguageException extends WriteConstraintViolationExcept
 {
     public const VIOLATION_MISSING_TRANSLATION_LANGUAGE = 'MISSING-TRANSLATION-LANGUAGE';
 
-    public function __construct(string $path = '')
+    public function __construct(string $path, int $translationIndex)
     {
         $template = 'Translation requires a language id.';
         $constraintViolationList = new ConstraintViolationList([
@@ -21,7 +21,7 @@ class MissingTranslationLanguageException extends WriteConstraintViolationExcept
                 $template,
                 [],
                 null,
-                $path,
+                "/{$translationIndex}",
                 null,
                 null,
                 self::VIOLATION_MISSING_TRANSLATION_LANGUAGE

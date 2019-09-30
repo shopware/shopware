@@ -88,6 +88,10 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         - `\Shopware\Core\Framework\Plugin::deactivate` is now always called before `\Shopware\Core\Framework\Plugin::uninstall`
     * Renamed container service id `shopware.cache` to `cache.object` 
     * Added new function to `\Shopware\Core\Framework\Cache\CacheClearer`. Please use this service to invalidate or delete cache items.
+    * We did some refactoring on how we use `WriteConstraintsViolationExceptions`.
+    It's path `property` should now point to the object that is inspected by an validator while the `propertyPath` property in `WriteConstraint` objects should only point to the invalid property. 
+    For more information read the updated "write command validation" article in the docs.
+
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
     * Changed the name of `messages.<locale>.json` to `storefront.<locale>.json` and changed to **not** be a base file anymore.

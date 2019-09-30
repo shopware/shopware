@@ -171,6 +171,12 @@ class TestBasicWithToOneRelationship extends SerializationFixture
                             'related' => sprintf('%s/media/548faa1f7846436c85944f4aea792d96/cms-blocks', $baseUrl),
                         ],
                     ],
+                    'cmsSections' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/548faa1f7846436c85944f4aea792d96/cms-sections', $baseUrl),
+                        ],
+                    ],
                     'cmsPages' => [
                         'data' => [],
                         'links' => [
@@ -323,6 +329,7 @@ class TestBasicWithToOneRelationship extends SerializationFixture
             'productConfiguratorSettings' => null,
             'orderLineItems' => null,
             'cmsBlocks' => null,
+            'cmsSections' => null,
             'cmsPages' => null,
             'documents' => null,
             '_uniqueIdentifier' => '548faa1f7846436c85944f4aea792d96',
@@ -355,6 +362,7 @@ class TestBasicWithToOneRelationship extends SerializationFixture
             $fixtures['data']['relationships']['productConfiguratorSettings'],
             $fixtures['data']['relationships']['orderLineItems'],
             $fixtures['data']['relationships']['cmsBlocks'],
+            $fixtures['data']['relationships']['cmsSections'],
             $fixtures['data']['relationships']['cmsPages'],
             $fixtures['data']['relationships']['documents'],
 
@@ -384,6 +392,7 @@ class TestBasicWithToOneRelationship extends SerializationFixture
             $fixtures['productConfiguratorSettings'],
             $fixtures['orderLineItems'],
             $fixtures['cmsBlocks'],
+            $fixtures['cmsSections'],
             $fixtures['cmsPages'],
             $fixtures['documents']
         );

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Cms\SalesChannel;
 use Faker\Factory;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
+use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
@@ -55,10 +56,15 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
         /** @var CmsPageEntity $page */
         $page = $pageCollection->first();
 
-        static::assertCount(1, $page->getBlocks());
+        static::assertCount(1, $page->getSections());
+
+        /** @var CmsSectionEntity $section */
+        $section = $page->getSections()->first();
+
+        static::assertCount(1, $section->getBlocks());
 
         /** @var CmsBlockEntity $block */
-        $block = $page->getBlocks()->first();
+        $block = $section->getBlocks()->first();
 
         static::assertCount(2, $block->getSlots());
     }
@@ -69,21 +75,28 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
             'id' => Uuid::randomHex(),
             'name' => 'foo',
             'type' => 'landing_page',
-            'blocks' => [
+            'sections' => [
                 [
-                    'position' => 1,
-                    'type' => 'image-text',
-                    'slots' => [
-                        ['type' => 'text', 'slot' => 'left', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => 'foo']]],
-                        ['type' => 'image', 'slot' => 'right', 'config' => ['url' => ['value' => 'http://shopware.com/image.jpg']]],
-                    ],
-                ],
-                [
-                    'position' => 2,
-                    'type' => 'image-text',
-                    'slots' => [
-                        ['type' => 'text', 'slot' => 'left', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC]]],
-                        ['type' => 'image', 'slot' => 'right', 'config' => ['url' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => 'http://shopware.com/image.jpg']]],
+                    'id' => Uuid::randomHex(),
+                    'type' => 'default',
+                    'position' => 0,
+                    'blocks' => [
+                        [
+                            'position' => 1,
+                            'type' => 'image-text',
+                            'slots' => [
+                                ['type' => 'text', 'slot' => 'left', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => 'foo']]],
+                                ['type' => 'image', 'slot' => 'right', 'config' => ['url' => ['value' => 'http://shopware.com/image.jpg']]],
+                            ],
+                        ],
+                        [
+                            'position' => 2,
+                            'type' => 'image-text',
+                            'slots' => [
+                                ['type' => 'text', 'slot' => 'left', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC]]],
+                                ['type' => 'image', 'slot' => 'right', 'config' => ['url' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => 'http://shopware.com/image.jpg']]],
+                            ],
+                        ],
                     ],
                 ],
             ],
@@ -98,8 +111,8 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
         static::assertInstanceOf(WriteException::class, $exception);
         static::assertCount(2, $exception->getExceptions());
 
-        static::assertEquals('/0/blocks/0/slots/1/translations/' . Defaults::LANGUAGE_SYSTEM . '/config', $exception->getExceptions()[0]->getPath());
-        static::assertEquals('/0/blocks/1/slots/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/config', $exception->getExceptions()[1]->getPath());
+        static::assertEquals('/0/sections/0/blocks/0/slots/1/translations/' . Defaults::LANGUAGE_SYSTEM . '/config', $exception->getExceptions()[0]->getPath());
+        static::assertEquals('/0/sections/0/blocks/1/slots/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/config', $exception->getExceptions()[1]->getPath());
     }
 
     private function createPage(): string
@@ -110,13 +123,20 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
             'id' => Uuid::randomHex(),
             'name' => $faker->company,
             'type' => 'landing_page',
-            'blocks' => [
+            'sections' => [
                 [
-                    'position' => 1,
-                    'type' => 'image-text',
-                    'slots' => [
-                        ['type' => 'text', 'slot' => 'left', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $faker->realText()]]],
-                        ['type' => 'image', 'slot' => 'right', 'config' => ['url' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => 'http://shopware.com/image.jpg']]],
+                    'id' => Uuid::randomHex(),
+                    'type' => 'default',
+                    'position' => 0,
+                    'blocks' => [
+                        [
+                            'position' => 1,
+                            'type' => 'image-text',
+                            'slots' => [
+                                ['type' => 'text', 'slot' => 'left', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $faker->realText()]]],
+                                ['type' => 'image', 'slot' => 'right', 'config' => ['url' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => 'http://shopware.com/image.jpg']]],
+                            ],
+                        ],
                     ],
                 ],
             ],

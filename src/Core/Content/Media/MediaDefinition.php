@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
+use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia\MailTemplateMediaDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
@@ -115,6 +116,7 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('productConfiguratorSettings', ProductConfiguratorSettingDefinition::class, 'media_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('orderLineItems', OrderLineItemDefinition::class, 'cover_id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('cmsBlocks', CmsBlockDefinition::class, 'background_media_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
+            (new OneToManyAssociationField('cmsSections', CmsSectionDefinition::class, 'background_media_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('cmsPages', CmsPageDefinition::class, 'preview_media_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('documents', DocumentDefinition::class, 'document_media_file_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);

@@ -65,7 +65,7 @@ class DefinitionValidator
     ];
 
     private const INGNORED_IN_PREFIX_CHECK = [
-        'properties', 'options', 'translationcode', 'blocks', 'logo',
+        'properties', 'options', 'translationcode', 'sections', 'logo',
     ];
 
     private const TABLES_WITHOUT_DEFINITION = [

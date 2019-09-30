@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Cms\Aggregate\CmsBlock;
+namespace Shopware\Core\Content\Cms\Aggregate\CmsSection;
 
-use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
+use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-class CmsBlockEntity extends Entity
+class CmsSectionEntity extends Entity
 {
     use EntityIdTrait;
 
@@ -18,19 +18,19 @@ class CmsBlockEntity extends Entity
     protected $type;
 
     /**
-     * @var CmsSlotCollection|null
+     * @var CmsBlockCollection|null
      */
-    protected $slots;
+    protected $blocks;
 
     /**
      * @var string
      */
-    protected $sectionId;
+    protected $pageId;
 
     /**
-     * @var CmsSectionEntity|null
+     * @var CmsPageEntity|null
      */
-    protected $section;
+    protected $page;
 
     /**
      * @var int
@@ -45,27 +45,7 @@ class CmsBlockEntity extends Entity
     /**
      * @var string|null
      */
-    protected $sectionPosition;
-
-    /**
-     * @var string|null
-     */
-    protected $marginTop;
-
-    /**
-     * @var string|null
-     */
-    protected $marginBottom;
-
-    /**
-     * @var string|null
-     */
-    protected $marginLeft;
-
-    /**
-     * @var string|null
-     */
-    protected $marginRight;
+    protected $sizingMode;
 
     /**
      * @var string|null
@@ -112,34 +92,34 @@ class CmsBlockEntity extends Entity
         $this->type = $type;
     }
 
-    public function getSlots(): ?CmsSlotCollection
+    public function getBlocks(): ?CmsBlockCollection
     {
-        return $this->slots;
+        return $this->blocks;
     }
 
-    public function setSlots(CmsSlotCollection $slots): void
+    public function setBlocks(CmsBlockCollection $blocks): void
     {
-        $this->slots = $slots;
+        $this->blocks = $blocks;
     }
 
-    public function getSectionId(): string
+    public function getPageId(): string
     {
-        return $this->sectionId;
+        return $this->pageId;
     }
 
-    public function setSectionId(string $sectionId): void
+    public function setPageId(string $pageId): void
     {
-        $this->sectionId = $sectionId;
+        $this->pageId = $pageId;
     }
 
-    public function getSection(): ?CmsSectionEntity
+    public function getPage(): ?CmsPageEntity
     {
-        return $this->section;
+        return $this->page;
     }
 
-    public function setSection(CmsSectionEntity $section): void
+    public function setPage(CmsPageEntity $page): void
     {
-        $this->section = $section;
+        $this->page = $page;
     }
 
     public function getPosition(): int
@@ -172,54 +152,14 @@ class CmsBlockEntity extends Entity
         $this->name = $name;
     }
 
-    public function getSectionPosition(): ?string
+    public function getSizingMode(): ?string
     {
-        return $this->sectionPosition;
+        return $this->sizingMode;
     }
 
-    public function setSectionPosition(?string $sectionPosition): void
+    public function setSizingMode(string $sizingMode): void
     {
-        $this->sectionPosition = $sectionPosition;
-    }
-
-    public function getMarginTop(): ?string
-    {
-        return $this->marginTop;
-    }
-
-    public function setMarginTop(string $marginTop): void
-    {
-        $this->marginTop = $marginTop;
-    }
-
-    public function getMarginBottom(): ?string
-    {
-        return $this->marginBottom;
-    }
-
-    public function setMarginBottom(string $marginBottom): void
-    {
-        $this->marginBottom = $marginBottom;
-    }
-
-    public function getMarginLeft(): ?string
-    {
-        return $this->marginLeft;
-    }
-
-    public function setMarginLeft(string $marginLeft): void
-    {
-        $this->marginLeft = $marginLeft;
-    }
-
-    public function getMarginRight(): ?string
-    {
-        return $this->marginRight;
-    }
-
-    public function setMarginRight(string $marginRight): void
-    {
-        $this->marginRight = $marginRight;
+        $this->sizingMode = $sizingMode;
     }
 
     public function getBackgroundColor(): ?string

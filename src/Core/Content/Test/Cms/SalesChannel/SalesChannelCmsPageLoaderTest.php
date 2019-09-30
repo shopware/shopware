@@ -46,19 +46,26 @@ class SalesChannelCmsPageLoaderTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'name' => 'test page',
                 'type' => 'landingpage',
-                'blocks' => [
+                'sections' => [
                     [
-                        'type' => 'text',
+                        'id' => Uuid::randomHex(),
+                        'type' => 'default',
                         'position' => 0,
-                        'slots' => [
+                        'blocks' => [
                             [
-                                'id' => Uuid::randomHex(),
                                 'type' => 'text',
-                                'slot' => 'content',
-                                'config' => [
-                                    'content' => [
-                                        'source' => 'static',
-                                        'value' => 'initial',
+                                'position' => 0,
+                                'slots' => [
+                                    [
+                                        'id' => Uuid::randomHex(),
+                                        'type' => 'text',
+                                        'slot' => 'content',
+                                        'config' => [
+                                            'content' => [
+                                                'source' => 'static',
+                                                'value' => 'initial',
+                                            ],
+                                        ],
                                     ],
                                 ],
                             ],
@@ -85,18 +92,18 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $fieldConfigCollection = new FieldConfigCollection([new FieldConfig('content', 'static', 'initial')]);
 
         static::assertEquals(
-            $category['cmsPage']['blocks'][0]['slots'][0]['config'],
-            $page->getBlocks()->getSlots()->first()->getConfig()
+            $category['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['config'],
+            $page->getSections()->first()->getBlocks()->getSlots()->first()->getConfig()
         );
 
         static::assertEquals(
             $fieldConfigCollection,
-            $page->getBlocks()->getSlots()->first()->getFieldConfig()
+            $page->getSections()->first()->getBlocks()->getSlots()->first()->getFieldConfig()
         );
 
         // overwrite in category
         $customSlotConfig = [
-            $category['cmsPage']['blocks'][0]['slots'][0]['id'] => [
+            $category['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['id'] => [
                 'content' => [
                     'source' => 'static',
                     'value' => 'overwrite',
@@ -119,13 +126,13 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $fieldConfigCollection = new FieldConfigCollection([new FieldConfig('content', 'static', 'overwrite')]);
 
         static::assertEquals(
-            $customSlotConfig[$category['cmsPage']['blocks'][0]['slots'][0]['id']],
-            $page->getBlocks()->getSlots()->first()->getConfig()
+            $customSlotConfig[$category['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['id']],
+            $page->getSections()->first()->getBlocks()->getSlots()->first()->getConfig()
         );
 
         static::assertEquals(
             $fieldConfigCollection,
-            $page->getBlocks()->getSlots()->first()->getFieldConfig()
+            $page->getSections()->first()->getBlocks()->getSlots()->first()->getFieldConfig()
         );
     }
 }

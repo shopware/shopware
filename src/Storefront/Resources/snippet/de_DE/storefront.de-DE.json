@@ -62,7 +62,8 @@
         "payment-method-blocked": "Die gewählte Zahlungsart %name% ist nicht verfügbar.",
         "shipping-method-blocked": "Die gewählte Versandart %name% ist nicht verfügbar.",
         "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
-        "VIOLATION::TOO_SHORT_ERROR": "%field% ist zu kurz."
+        "VIOLATION::TOO_SHORT_ERROR": "%field% ist zu kurz.",
+        "product-not-found": "Das Produkt wurde nicht gefunden"
     },
     "account": {
         "myAccount": "Mein Konto",

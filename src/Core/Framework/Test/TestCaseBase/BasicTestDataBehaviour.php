@@ -56,7 +56,7 @@ trait BasicTestDataBehaviour
             }
         }
 
-        throw new \LogicException('No available ShippingMethod configured');
+        throw new \LogicException('No available Payment method configured');
     }
 
     protected function getValidShippingMethodId(): string

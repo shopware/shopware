@@ -3,18 +3,18 @@
 namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductGateway implements ProductGatewayInterface
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var SalesChannelRepositoryInterface
      */
     private $repository;
 
-    public function __construct(EntityRepositoryInterface $repository)
+    public function __construct(SalesChannelRepositoryInterface $repository)
     {
         $this->repository = $repository;
     }
@@ -22,14 +22,11 @@ class ProductGateway implements ProductGatewayInterface
     public function get(array $ids, SalesChannelContext $context): ProductCollection
     {
         $criteria = new Criteria($ids);
-        $criteria->addAssociation('prices');
-        $criteria->addAssociation('deliveryTime');
         $criteria->addAssociation('cover');
-        $criteria->addAssociation('unit');
         $criteria->addAssociation('options.group');
 
         /** @var ProductCollection $result */
-        $result = $this->repository->search($criteria, $context->getContext())->getEntities();
+        $result = $this->repository->search($criteria, $context)->getEntities();
 
         return $result;
     }

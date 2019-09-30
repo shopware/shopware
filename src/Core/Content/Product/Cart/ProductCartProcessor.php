@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -67,7 +66,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         foreach ($lineItems as $lineItem) {
             // enrich all products in original cart
-            $this->enrich($lineItem, $data, $context, $behavior);
+            $this->enrich($original, $lineItem, $data, $context, $behavior);
         }
     }
 
@@ -129,6 +128,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     }
 
     private function enrich(
+        Cart $cart,
         LineItem $lineItem,
         CartDataCollection $data,
         SalesChannelContext $context,
@@ -142,7 +142,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         /* @var ProductEntity $product */
         if (!$product || !$product instanceof ProductEntity) {
-            throw new ProductNotFoundException($id);
+            $cart->addErrors(new ProductNotFoundError($id));
+            $cart->getLineItems()->remove($lineItem->getId());
+
+            return;
         }
 
         // already enriched and not modified? Skip

@@ -87,7 +87,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
-            <argument type="service" id="product.repository"/>
+            <argument type="service" id="sales_channel.product.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductRatingAverageIndexer">

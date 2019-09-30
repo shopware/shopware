@@ -62,7 +62,8 @@
         "payment-method-blocked": "Payment method %name% not available.",
         "shipping-method-blocked": "Shipping method %name% not available.",
         "shipping-address-blocked": "Shippings to the selected shipping address are not possible.",
-        "VIOLATION::TOO_SHORT_ERROR": "%field% is too short."
+        "VIOLATION::TOO_SHORT_ERROR": "%field% is too short.",
+        "product-not-found": "The product could not be found"
     },
     "account": {
         "myAccount": "My account",

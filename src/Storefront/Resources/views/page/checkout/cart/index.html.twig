@@ -23,7 +23,18 @@
             </h1>
         {% endblock %}
 
-        {% block page_checkout_cart_messages %}{% endblock %}
+        {% block page_checkout_cart_messages %}
+            {% block page_checkout_confirm_errors %}
+                {% for error in page.cart.errors %}
+                    {% set snippetName = "error.#{error.messageKey}" %}
+
+                    {% sw_include '@Storefront/utilities/alert.html.twig' with {
+                        type: "danger",
+                        content: snippetName|trans({'%name%': error.name})
+                    } %}
+                {% endfor %}
+            {% endblock %}
+        {% endblock %}
 
         {% block page_checkout_cart_product_table %}
             <div class="card checkout-product-table">

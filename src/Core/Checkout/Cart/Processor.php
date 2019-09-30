@@ -61,6 +61,8 @@ class Processor
             $collector->collect($cart->getData(), $original, $context, $behavior);
         }
 
+        $cart->addErrors(...array_values($original->getErrors()->getElements()));
+
         $this->calculateAmount($context, $cart);
 
         /** @var CartProcessorInterface $processor */

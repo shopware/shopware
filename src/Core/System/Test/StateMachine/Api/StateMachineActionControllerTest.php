@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -176,6 +177,10 @@ class StateMachineActionControllerTest extends TestCase
                 'de-DE' => 'test',
                 'en-GB' => 'test',
             ],
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
             'stock' => 10,
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false],
@@ -239,6 +244,10 @@ class StateMachineActionControllerTest extends TestCase
             'stock' => 10,
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false],
+            ],
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
             'tax' => ['name' => 'test', 'taxRate' => 18],
             'manufacturer' => [

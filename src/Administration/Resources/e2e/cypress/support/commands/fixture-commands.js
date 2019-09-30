@@ -56,7 +56,6 @@ Cypress.Commands.add('createSalesChannelFixture', (userData = {}) => {
     return cy.fixture('product').then((result) => {
         return Cypress._.merge(result, userData);
     }).then((data) => {
-        console.log('data :', data);
         return fixture.setSalesChannelFixture(data);
     });
 });

@@ -40,6 +40,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
@@ -48,6 +55,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ElasticsearchProductTest extends TestCase
 {
     use ElasticsearchTestTestBehaviour;
+    use KernelTestBehaviour;
+    use FilesystemBehaviour;
+    use CacheTestBehaviour;
+    use BasicTestDataBehaviour;
+    use SessionTestBehaviour;
+    use QueueTestBehaviour;
 
     /**
      * @var Client
@@ -80,6 +93,28 @@ class ElasticsearchProductTest extends TestCase
         $this->client = $this->getContainer()->get(Client::class);
         $this->productDefinition = $this->getContainer()->get(ProductDefinition::class);
         $this->languageRepository = $this->getContainer()->get('language.repository');
+    }
+
+    /**
+     * @beforeClass
+     */
+    public static function startTransactionBefore(): void
+    {
+        KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(Connection::class)
+            ->beginTransaction();
+    }
+
+    /**
+     * @afterClass
+     */
+    public static function stopTransactionAfter(): void
+    {
+        KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(Connection::class)
+            ->rollBack();
     }
 
     public function testIndexing()

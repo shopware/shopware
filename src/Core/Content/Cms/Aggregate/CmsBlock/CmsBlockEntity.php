@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Cms\Aggregate\CmsBlock;
 
+use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
-use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -25,12 +25,12 @@ class CmsBlockEntity extends Entity
     /**
      * @var string
      */
-    protected $pageId;
+    protected $sectionId;
 
     /**
-     * @var CmsPageEntity|null
+     * @var CmsSectionEntity|null
      */
-    protected $page;
+    protected $section;
 
     /**
      * @var int
@@ -45,7 +45,7 @@ class CmsBlockEntity extends Entity
     /**
      * @var string|null
      */
-    protected $sizingMode;
+    protected $sectionPosition;
 
     /**
      * @var string|null
@@ -122,24 +122,24 @@ class CmsBlockEntity extends Entity
         $this->slots = $slots;
     }
 
-    public function getPageId(): string
+    public function getSectionId(): string
     {
-        return $this->pageId;
+        return $this->sectionId;
     }
 
-    public function setPageId(string $pageId): void
+    public function setSectionId(string $sectionId): void
     {
-        $this->pageId = $pageId;
+        $this->sectionId = $sectionId;
     }
 
-    public function getPage(): ?CmsPageEntity
+    public function getSection(): ?CmsSectionEntity
     {
-        return $this->page;
+        return $this->section;
     }
 
-    public function setPage(CmsPageEntity $page): void
+    public function setSection(CmsSectionEntity $section): void
     {
-        $this->page = $page;
+        $this->section = $section;
     }
 
     public function getPosition(): int
@@ -172,14 +172,14 @@ class CmsBlockEntity extends Entity
         $this->name = $name;
     }
 
-    public function getSizingMode(): ?string
+    public function getSectionPosition(): ?string
     {
-        return $this->sizingMode;
+        return $this->sectionPosition;
     }
 
-    public function setSizingMode(string $sizingMode): void
+    public function setSectionPosition(?string $sectionPosition): void
     {
-        $this->sizingMode = $sizingMode;
+        $this->sectionPosition = $sectionPosition;
     }
 
     public function getMarginTop(): ?string

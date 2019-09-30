@@ -1,0 +1,26 @@
+{% block sw_cms_stage_section_selection %}
+    <div class="sw-cms-stage-section-selection">
+
+        {% block sw_cms_stage_section_selection__sidebar %}
+            <div class="sw-cms-stage-section-selection__sidebar" @click="selectSection('sidebar')">
+                <div class="sw-cms-stage-section-selection__sidebar-preview">
+                    <div class="sw-cms-stage-section-selection__sidebar-preview-inner">
+                        <div class="sw-cms-stage-section-selection__sidebar-preview-placeholder"></div>
+                        <div class="sw-cms-stage-section-selection__sidebar-preview-placeholder"></div>
+                    </div>
+                </div>
+                {{ $tc('sw-cms.section.sidebar') }}
+            </div>
+        {% endblock %}
+
+        {% block sw_cms_stage_section_selection__fullwidth %}
+            <div class="sw-cms-stage-section-selection__default" @click="selectSection('default')">
+                <div class="sw-cms-stage-section-selection__default-preview">
+                    <div class="sw-cms-stage-section-selection__default-preview-inner">
+                    </div>
+                </div>
+                {{ $tc('sw-cms.section.fullWidth') }}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

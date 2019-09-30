@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Cms;
 
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
+use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -29,9 +29,9 @@ class CmsPageEntity extends Entity
     protected $entity;
 
     /**
-     * @var CmsBlockCollection|null
+     * @var CmsSectionCollection|null
      */
-    protected $blocks;
+    protected $sections;
 
     /**
      * @var EntityCollection|null
@@ -98,14 +98,14 @@ class CmsPageEntity extends Entity
         $this->entity = $entity;
     }
 
-    public function getBlocks(): ?CmsBlockCollection
+    public function getSections(): ?CmsSectionCollection
     {
-        return $this->blocks;
+        return $this->sections;
     }
 
-    public function setBlocks(CmsBlockCollection $blocks): void
+    public function setSections(CmsSectionCollection $sections): void
     {
-        $this->blocks = $blocks;
+        $this->sections = $sections;
     }
 
     public function getTranslations(): ?EntityCollection

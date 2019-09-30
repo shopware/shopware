@@ -137,7 +137,7 @@ class ProductPageLoader
         SalesChannelContext $salesChannelContext,
         SalesChannelProductEntity $product
     ): void {
-        if (!$page->getBlocks()) {
+        if (!$page->getSections()) {
             return;
         }
 
@@ -145,9 +145,11 @@ class ProductPageLoader
         $request = new Request();
 
         $resolverContext = new EntityResolverContext($salesChannelContext, $request, $this->productDefinition, $product);
-        $slots = $this->slotDataResolver->resolve($page->getBlocks()->getSlots(), $resolverContext);
 
-        $page->getBlocks()->setSlots($slots);
+        foreach ($page->getSections() as $section) {
+            $slots = $this->slotDataResolver->resolve($section->getBlocks()->getSlots(), $resolverContext);
+            $section->getBlocks()->setSlots($slots);
+        }
     }
 
     private function getCmsPage(SalesChannelContext $context): ?CmsPageEntity

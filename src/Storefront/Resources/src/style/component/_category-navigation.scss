@@ -4,10 +4,17 @@ Sidebar category navigation
 Styling for category navigation component.
 */
 
+.cms-section-sidebar.boxed {
+    .cms-element-category-navigation {
+        padding: 0 20px;
+    }
+}
+
 .category-navigation {
     list-style: none;
     margin: 0;
     padding-left: 20px;
+
 
     &.level-0 > {
         .category-navigation-entry {
@@ -16,6 +23,7 @@ Styling for category navigation component.
     }
 
     &.level-0 {
+        padding-left: 0;
         font-size: 16px;
     }
 

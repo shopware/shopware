@@ -4,7 +4,6 @@ import './sw-cms-detail.scss';
 const { Component, Mixin } = Shopware;
 const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
 const { warn } = Shopware.Utils.debug;
-const types = Shopware.Utils.types;
 const Criteria = Shopware.Data.Criteria;
 
 Component.register('sw-cms-detail', {
@@ -35,15 +34,15 @@ Component.register('sw-cms-detail', {
             pageId: null,
             pageOrigin: null,
             page: {
-                blocks: []
+                sections: []
             },
             cmsPageState: this.$store.state.cmsPageState,
             salesChannels: [],
             isLoading: false,
             isSaveSuccessful: false,
             currentSalesChannelKey: null,
-            currentDeviceView: 'desktop',
             currentBlock: null,
+            currentBlockSectionId: null,
             currentBlockCategory: 'text',
             currentMappingEntity: null,
             currentMappingEntityRepo: null,
@@ -67,6 +66,10 @@ Component.register('sw-cms-detail', {
             return this.repositoryFactory.create('cms_page');
         },
 
+        sectionRepository() {
+            return this.repositoryFactory.create('cms_section');
+        },
+
         blockRepository() {
             return this.repositoryFactory.create('cms_block');
         },
@@ -85,22 +88,6 @@ Component.register('sw-cms-detail', {
 
         cmsBlocks() {
             return this.cmsService.getCmsBlockRegistry();
-        },
-
-        cmsElements() {
-            return this.cmsService.getCmsElementRegistry();
-        },
-
-        cmsBlockCategories() {
-            const categories = [];
-
-            this.cmsBlocks.forEach((block) => {
-                if (!categories.includes(block.category)) {
-                    categories.push(block.category);
-                }
-            });
-
-            return categories;
         },
 
         cmsStageClasses() {
@@ -172,16 +159,29 @@ Component.register('sw-cms-detail', {
             }
 
             return this.$tc('sw-cms.detail.sidebarTitleBlockOverview');
-        }
-    },
+        },
 
-    watch: {
-        'page.blocks': {
-            handler() {
-                if (this.page.blocks.length <= 0) {
-                    this.currentBlock = null;
-                }
-            }
+        pageHasSections() {
+            return this.page.sections.length > 0;
+        },
+
+        loadPageCriteria() {
+            const criteria = new Criteria(1, 1);
+            const sortCriteria = Criteria.sort('position', 'ASC', true);
+
+            criteria.getAssociation('sections')
+                .addSorting(sortCriteria)
+                .addAssociation('backgroundMedia')
+                .getAssociation('blocks')
+                .addSorting(sortCriteria)
+                .addAssociation('backgroundMedia')
+                .addAssociation('slots');
+
+            return criteria;
+        },
+
+        currentDeviceView() {
+            return this.cmsPageState.currentCmsDeviceView;
         }
     },
 
@@ -195,7 +195,6 @@ Component.register('sw-cms-detail', {
 
     methods: {
         createdComponent() {
-            // ToDo: Make the navigation state accessible via global state
             this.$root.$children[0].$children[2].$children[0].isExpanded = false;
 
             this.resetCmsPageState();
@@ -254,23 +253,18 @@ Component.register('sw-cms-detail', {
 
         loadPage(pageId) {
             this.isLoading = true;
-            const criteria = new Criteria(1, 1);
 
-            criteria.getAssociation('blocks')
-                .addSorting(Criteria.sort('position', 'ASC', true))
-                .addAssociation('slots')
-                .addAssociation('backgroundMedia');
-
-            this.pageRepository.get(pageId, this.context, criteria).then((page) => {
-                this.page = { blocks: [] };
+            this.pageRepository.get(pageId, this.context, this.loadPageCriteria).then((page) => {
+                this.page = { sections: [] };
                 this.page = page;
 
                 this.cmsDataResolverService.resolve(this.page).then(() => {
-                    this.updateBlockPositions();
+                    this.updateSectionAndBlockPositions();
                     this.$store.commit('cmsPageState/setCurrentPage', this.page);
 
                     if (this.currentBlock !== null) {
-                        this.currentBlock = this.page.blocks.get(this.currentBlock.id);
+                        const blockSection = this.page.sections.get(this.currentBlockSectionId);
+                        this.currentBlock = blockSection.blocks.get(this.currentBlock.id);
                     }
 
                     this.updateDataMapping();
@@ -339,15 +333,16 @@ Component.register('sw-cms-detail', {
         },
 
         onDeviceViewChange(view) {
-            this.currentDeviceView = view;
-
             this.$store.commit('cmsPageState/setCurrentCmsDeviceView', view);
 
             if (view === 'form') {
-                this.currentBlock = null;
-                this.$refs.blockConfigSidebar.closeContent();
-                this.$refs.blockSelectionSidebar.closeContent();
+                this.setCurrentBlock(null, null);
             }
+        },
+
+        setCurrentBlock(sectionId, block = null) {
+            this.currentBlock = block;
+            this.currentBlockSectionId = sectionId;
         },
 
         onChangeLanguage() {
@@ -372,60 +367,6 @@ Component.register('sw-cms-detail', {
             this.loadPage(this.pageId);
         },
 
-        onPageTypeChange() {
-            if (this.page.type === 'product_list') {
-                const listingBlock = this.blockRepository.create();
-                const blockConfig = this.cmsBlocks['product-listing'];
-
-                listingBlock.type = 'product-listing';
-                listingBlock.position = 0;
-                listingBlock.pageId = this.page.id;
-
-                Object.assign(
-                    listingBlock,
-                    cloneDeep(this.blockConfigDefaults),
-                    cloneDeep(blockConfig.defaultConfig || {})
-                );
-
-                const listingEl = this.slotRepository.create();
-                listingEl.blockId = listingBlock.id;
-                listingEl.slot = 'content';
-                listingEl.type = 'product-listing';
-
-                listingBlock.slots.push(listingEl);
-                this.page.blocks.splice(0, 0, listingBlock);
-            } else {
-                this.page.blocks.forEach((block) => {
-                    if (block.type === 'product-listing') {
-                        this.page.blocks.remove(block.id);
-                    }
-                });
-            }
-
-            this.updateBlockPositions();
-            this.updateDataMapping();
-            this.checkSlotMappings();
-        },
-
-        checkSlotMappings() {
-            this.page.blocks.forEach((block) => {
-                block.slots.forEach((slot) => {
-                    if (slot.config) {
-                        Object.keys(slot.config).forEach((key) => {
-                            if (slot.config[key].source && slot.config[key].source === 'mapped') {
-                                const mappingPath = slot.config[key].value.split('.');
-
-                                if (mappingPath[0] !== this.currentMappingEntity) {
-                                    slot.config[key].value = null;
-                                    slot.config[key].source = 'static';
-                                }
-                            }
-                        });
-                    }
-                });
-            });
-        },
-
         onDemoEntityChange(demoEntityId) {
             this.$store.commit('cmsPageState/removeCurrentDemoEntity');
 
@@ -448,106 +389,34 @@ Component.register('sw-cms-detail', {
             this.$store.commit('cmsPageState/setCurrentDemoEntity', demoEntity);
         },
 
-        onAddBlockSection() {
-            this.currentBlock = null;
-            this.$refs.blockSelectionSidebar.openContent();
-        },
+        onAddSection(type, index) {
+            if (!type || index === 'undefined') {
+                return;
+            }
 
-        onBlockSelection(block) {
-            this.currentBlock = block;
-            this.$refs.blockConfigSidebar.openContent();
+            const section = this.sectionRepository.create(this.context);
+            section.type = type;
+            section.sizingMode = 'boxed';
+            section.position = index;
+            section.pageId = this.page.id;
+
+            this.page.sections.splice(index, 0, section);
+            this.updateSectionAndBlockPositions();
         },
 
         onCloseBlockConfig() {
             this.currentBlock = null;
         },
 
-        onBlockDelete(blockId) {
-            this.page.blocks.remove(blockId);
+        pageConfigOpen(mode = null) {
+            const sideBarRefs = this.$refs.cmsSidebar.$refs;
 
-            if (this.currentBlock && this.currentBlock.id === blockId) {
-                this.currentBlock = null;
-            }
-
-            this.updateBlockPositions();
-        },
-
-        onBlockDuplicate(block) {
-            const newBlock = this.blockRepository.create();
-
-            const blockClone = cloneDeep(block);
-            blockClone.id = newBlock.id;
-            blockClone.position = block.position + 1;
-            blockClone.pageId = this.page.id;
-            blockClone.slots = [];
-
-            Object.assign(newBlock, blockClone);
-
-            block.slots.forEach((slot) => {
-                const element = this.slotRepository.create();
-                element.blockId = newBlock.id;
-                element.slot = slot.slot;
-                element.type = slot.type;
-                element.config = cloneDeep(slot.config);
-                element.data = cloneDeep(slot.data);
-
-                newBlock.slots.push(element);
-            });
-
-            this.page.blocks.splice(newBlock.position, 0, newBlock);
-            this.updateBlockPositions();
-        },
-
-        onBlockStageDrop(dragData, dropData) {
-            if (!dropData || !dragData.block || dropData.dropIndex < 0) {
+            if (mode === 'blocks') {
+                sideBarRefs.blockSelectionSidebar.openContent();
                 return;
             }
 
-            const blockConfig = this.cmsBlocks[dragData.block.name];
-            const newBlock = this.blockRepository.create(this.context);
-            newBlock.type = dragData.block.name;
-            newBlock.position = dropData.dropIndex;
-            newBlock.pageId = this.page.id;
-
-            Object.assign(
-                newBlock,
-                cloneDeep(this.blockConfigDefaults),
-                cloneDeep(blockConfig.defaultConfig || {})
-            );
-
-            Object.keys(blockConfig.slots).forEach((slotName) => {
-                const slotConfig = blockConfig.slots[slotName];
-                const element = this.slotRepository.create(this.context);
-                element.blockId = newBlock.id;
-                element.slot = slotName;
-
-                if (typeof slotConfig === 'string') {
-                    element.type = slotConfig;
-                } else if (types.isPlainObject(slotConfig)) {
-                    element.type = slotConfig.type;
-
-                    if (slotConfig.default && types.isPlainObject(slotConfig.default)) {
-                        Object.assign(element, cloneDeep(slotConfig.default));
-                    }
-                }
-
-                newBlock.slots.add(element);
-            });
-
-            this.page.blocks.splice(dropData.dropIndex, 0, newBlock);
-            this.updateBlockPositions();
-
-            this.onBlockSelection(newBlock);
-        },
-
-        onBlockDragSort(dragData, dropData, validDrop) {
-            if (validDrop !== true) {
-                return;
-            }
-
-            this.page.blocks.moveItem(dragData.block.position, dropData.block.position);
-
-            this.updateBlockPositions();
+            sideBarRefs.pageConfigSidebar.openContent();
         },
 
         saveFinish() {
@@ -558,7 +427,7 @@ Component.register('sw-cms-detail', {
             this.isSaveSuccessful = false;
 
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
-                this.$refs.pageConfigSidebar.openContent();
+                this.pageConfigOpen();
 
                 const warningTitle = this.$tc('sw-cms.detail.notificationTitleMissingFields');
                 const warningMessage = this.$tc('sw-cms.detail.notificationMessageMissingFields');
@@ -570,13 +439,16 @@ Component.register('sw-cms-detail', {
                 return Promise.reject();
             }
 
-            const blocks = this.page.blocks;
+            const sections = this.page.sections;
             let foundEmptyRequiredField = [];
-            blocks.forEach((block) => {
-                block.backgroundMedia = null;
 
-                block.slots.forEach((slot) => {
-                    foundEmptyRequiredField.push(...this.checkRequiredSlotConfigField(slot));
+            sections.forEach((section) => {
+                section.blocks.forEach((block) => {
+                    block.backgroundMedia = null;
+
+                    block.slots.forEach((slot) => {
+                        foundEmptyRequiredField.push(...this.checkRequiredSlotConfigField(slot));
+                    });
                 });
             });
 
@@ -592,7 +464,7 @@ Component.register('sw-cms-detail', {
                 return Promise.reject();
             }
 
-            this.deleteEntityAndRequiredConfigKey(this.page.blocks);
+            this.deleteEntityAndRequiredConfigKey(this.page.sections);
 
             this.isLoading = true;
 
@@ -628,25 +500,26 @@ Component.register('sw-cms-detail', {
                         duration: 10000
                     });
 
-                    this.currentDeviceView = 'form';
                     this.currentBlock = null;
-                    this.$refs.pageConfigSidebar.openContent();
+                    this.pageConfigOpen();
                 }
 
                 return Promise.reject(exception);
             });
         },
 
-        deleteEntityAndRequiredConfigKey(blocks) {
-            blocks.forEach((block) => {
-                block.slots.forEach((slot) => {
-                    Object.values(slot.config).forEach((configField) => {
-                        if (configField.entity) {
-                            delete configField.entity;
-                        }
-                        if (configField.required) {
-                            delete configField.required;
-                        }
+        deleteEntityAndRequiredConfigKey(sections) {
+            sections.forEach((section) => {
+                section.blocks.forEach((block) => {
+                    block.slots.forEach((slot) => {
+                        Object.values(slot.config).forEach((configField) => {
+                            if (configField.entity) {
+                                delete configField.entity;
+                            }
+                            if (configField.required) {
+                                delete configField.required;
+                            }
+                        });
                     });
                 });
             });
@@ -659,9 +532,137 @@ Component.register('sw-cms-detail', {
             });
         },
 
-        updateBlockPositions() {
-            this.page.blocks.forEach((block, index) => {
+        updateSectionAndBlockPositions() {
+            this.page.sections.forEach((section, index) => {
+                section.position = index;
+                this.updateBlockPositions(section);
+            });
+        },
+
+        updateBlockPositions(section) {
+            section.blocks.forEach((block, index) => {
                 block.position = index;
+            });
+        },
+
+        onPageUpdate() {
+            this.updateSectionAndBlockPositions();
+            this.updateDataMapping();
+        },
+
+        onBlockDuplicate(block, section) {
+            const newBlock = this.blockRepository.create();
+
+            const blockClone = cloneDeep(block);
+            blockClone.id = newBlock.id;
+            blockClone.position = block.position + 1;
+            blockClone.sectionId = section.id;
+            blockClone.slots = [];
+
+            Object.assign(newBlock, blockClone);
+
+            this.cloneSlotsInBlock(block, newBlock);
+
+            section.blocks.splice(newBlock.position, 0, newBlock);
+            this.updateSectionAndBlockPositions();
+        },
+
+        cloneSlotsInBlock(block, newBlock) {
+            block.slots.forEach((slot) => {
+                const element = this.slotRepository.create();
+                element.blockId = newBlock.id;
+                element.slot = slot.slot;
+                element.type = slot.type;
+                element.config = cloneDeep(slot.config);
+                element.data = cloneDeep(slot.data);
+
+                newBlock.slots.push(element);
+            });
+        },
+
+        onSectionDuplicate(section) {
+            const newSection = this.sectionRepository.create();
+
+            const sectionClone = cloneDeep(section);
+            sectionClone.id = newSection.id;
+            sectionClone.position = section.position + 1;
+            sectionClone.pageId = this.page.id;
+            sectionClone.blocks = [];
+
+            Object.assign(newSection, sectionClone);
+
+            section.blocks.forEach((block) => {
+                const clonedBlock = this.blockRepository.create();
+                clonedBlock.sectionId = newSection.id;
+                clonedBlock.slot = block.slot;
+                clonedBlock.type = block.type;
+                clonedBlock.config = cloneDeep(block.config);
+                clonedBlock.data = cloneDeep(block.data);
+
+                this.cloneSlotsInBlock(block, clonedBlock);
+                newSection.blocks.push(clonedBlock);
+            });
+
+            this.page.sections.splice(newSection.position, 0, newSection);
+            this.updateSectionAndBlockPositions();
+        },
+
+        onPageTypeChange() {
+            if (this.page.type === 'product_list') {
+                const listingBlock = this.blockRepository.create();
+                const blockConfig = this.cmsBlocks['product-listing'];
+
+                listingBlock.type = 'product-listing';
+                listingBlock.position = 0;
+                // ToDo: Fix with NEXT-5073
+                listingBlock.sectionId = this.page.sections[0].id;
+                listingBlock.setionPosition = 'main';
+
+                Object.assign(
+                    listingBlock,
+                    cloneDeep(this.blockConfigDefaults),
+                    cloneDeep(blockConfig.defaultConfig || {})
+                );
+
+                const listingEl = this.slotRepository.create();
+                listingEl.blockId = listingBlock.id;
+                listingEl.slot = 'content';
+                listingEl.type = 'product-listing';
+                listingEl.config = {};
+
+                listingBlock.slots.push(listingEl);
+                // ToDo: Fix with NEXT-5073
+                this.page.sections[0].blocks.splice(0, 0, listingBlock);
+            } else {
+                this.page.sections.forEach((section) => {
+                    section.blocks.forEach((block) => {
+                        if (block.type === 'product-listing') {
+                            section.blocks.remove(block.id);
+                        }
+                    });
+                });
+            }
+
+            this.checkSlotMappings();
+            this.onPageUpdate();
+        },
+
+        checkSlotMappings() {
+            this.page.sections.forEach((sections) => {
+                sections.blocks.forEach((block) => {
+                    block.slots.forEach((slot) => {
+                        Object.keys(slot.config).forEach((key) => {
+                            if (slot.config[key].source && slot.config[key].source === 'mapped') {
+                                const mappingPath = slot.config[key].value.split('.');
+
+                                if (mappingPath[0] !== this.demoEntity) {
+                                    slot.config[key].value = null;
+                                    slot.config[key].source = 'static';
+                                }
+                            }
+                        });
+                    });
+                });
             });
         }
     }

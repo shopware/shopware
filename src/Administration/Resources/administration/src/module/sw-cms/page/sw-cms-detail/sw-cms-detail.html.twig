@@ -33,7 +33,7 @@
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_device_actions %}
-                            <div class="sw-cms-detail__device-actions" slot="tools" v-if="page.blocks.length > 0">
+                            <div class="sw-cms-detail__device-actions" slot="tools" v-if="pageHasSections">
                                 {% block sw_cms_detail_toolbar_device_actions_mobile %}
                                     <sw-icon name="default-device-mobile"
                                              :class="{ 'is--active': currentDeviceView === 'mobile' }"
@@ -104,14 +104,17 @@
 
                                 {% block sw_cms_detail_stage_empty_stade %}
                                     <div class="sw-cms-detail__empty-stage"
-                                         v-if="!isLoading && page.blocks.length <= 0"
+                                         v-if="!isLoading && !pageHasSections"
                                          v-droppable="{ dragGroup: 'cms-stage', data: { dropIndex: 0 } }">
 
                                         {% block sw_cms_detail_stage_empty_stade_content %}
                                             <div class="sw-cms-detail__empty-stage-content">
                                                 <h2 class="sw-cms-detail__empty-stage-headline">{{ $tc('sw-cms.detail.headlineEmptyState') }}</h2>
                                                 <p class="sw-cms-detail__empty-stage-claim">{{ $tc('sw-cms.detail.claimEmptyState') }}</p>
-                                                <sw-button variant="primary" @click="onAddBlockSection">{{ $tc('sw-cms.detail.actionEmptyState') }}</sw-button>
+                                                <sw-cms-stage-add-section :key="0"
+                                                                          :forceChoose="true"
+                                                                          @stage-section-add="onAddSection($event, 0)">
+                                                </sw-cms-stage-add-section>
                                             </div>
                                         {% endblock %}
                                     </div>
@@ -123,50 +126,36 @@
                                          :id="`page-${page.id}`"
                                          v-else>
 
-                                        {% block sw_cms_detail_stage_add_first_block %}
-                                            <sw-cms-stage-add-block :key="0"
-                                                                    v-droppable="{ dragGroup: 'cms-stage', data: { dropIndex: 0 } }"
-                                                                    @stage-add="onAddBlockSection">
-                                            </sw-cms-stage-add-block>
+                                        {% block sw_cms_detail_stage_add_first_section %}
+                                            <sw-cms-stage-add-section :key="0"
+                                                                      @stage-section-add="onAddSection($event, 0)">
+                                            </sw-cms-stage-add-section>
                                         {% endblock %}
 
                                         {% block sw_cms_detail_stage_content %}
                                             <template v-if="!isLoading">
-                                                <template v-for="(block, index) in page.blocks">
+                                                <template v-for="(section, index) in page.sections">
 
-                                                    {% block sw_cms_detail_stage_content_block %}
-                                                        <sw-cms-block class="sw-cms-stage-block"
-                                                                      :key="block.id"
-                                                                      :block="block"
-                                                                      :buttonsEnabled="isSystemDefaultLanguage"
-                                                                      :active="currentBlock !== null && currentBlock.id === block.id"
-                                                                      @block-overlay-click="onBlockSelection(block)"
-                                                                      @block-delete="onBlockDelete(block.id)"
-                                                                      @block-duplicate="onBlockDuplicate(block)">
-
-                                                            {% block sw_cms_detail_stage_content_block_component %}
-                                                                <component :is="`sw-cms-block-${block.type}`">
-                                                                    {% block sw_cms_detail_stage_content_block_slot %}
-                                                                        <sw-cms-slot v-for="el in block.slots"
-                                                                                     :slot="el.slot"
-                                                                                     :key="el.id"
-                                                                                     :element="el"
-                                                                                     :active="currentBlock !== null && currentBlock.id === block.id">
-                                                                        </sw-cms-slot>
-                                                                    {% endblock %}
-                                                                </component>
-                                                            {% endblock %}
-                                                        </sw-cms-block>
-                                                    {% endblock %}
-
-                                                    {% block sw_cms_detail_stage_add_block %}
-                                                        <sw-cms-stage-add-block :key="index + 1"
-                                                                                v-droppable="{ dragGroup: 'cms-stage', data: { dropIndex: index + 1 } }"
-                                                                                @stage-add-block="onAddBlockSection">
-                                                        </sw-cms-stage-add-block>
+                                                    {% block sw_cms_detail_stage_content_section %}
+                                                        <sw-cms-section class="sw-cms-stage-section"
+                                                                        :page="page"
+                                                                        :section="section"
+                                                                        :currentBlock="currentBlock"
+                                                                        @current-block-change="setCurrentBlock"
+                                                                        @page-config-open="pageConfigOpen('blocks')"
+                                                                        @block-duplicate="onBlockDuplicate"
+                                                                        :isSystemDefaultLanguage="isSystemDefaultLanguage"
+                                                                        :key="section.id">
+                                                        </sw-cms-section>
                                                     {% endblock %}
                                                 </template>
                                             </template>
+                                        {% endblock %}
+
+                                        {% block sw_cms_detail_stage_add_last_section %}
+                                            <sw-cms-stage-add-section :key="page.sections.length + 1"
+                                                                      @stage-section-add="onAddSection($event, page.sections.length)">
+                                            </sw-cms-stage-add-section>
                                         {% endblock %}
                                     </div>
                                 {% endblock %}
@@ -174,190 +163,21 @@
                         {% endblock %}
 
                         {% block sw_cms_detail_sidebar %}
-                            <sw-sidebar class="sw-cms-detail__sidebar">
-
-                                {% block sw_cms_detail_sidebar_page_settings %}
-                                    <sw-sidebar-item icon="default-action-settings"
-                                                     :title="$tc('sw-cms.detail.sidebarTitlePageSettings')"
-                                                     ref="pageConfigSidebar">
-
-                                        {% block sw_cms_detail_sidebar_page_settings_content %}
-                                            <sw-sidebar-collapse :expandOnLoading="true">
-                                                {% block sw_cms_detail_sidebar_page_settings_header %}
-                                                    <span slot="header">{{ $tc('sw-cms.detail.sidebarHeaderPageSettings') }}</span>
-                                                {% endblock %}
-
-                                                {% block sw_cms_detail_sidebar_page_settings_form %}
-                                                    <div class="sw-cms-detail__settings" slot="content" v-if="!isLoading">
-                                                        {% block sw_cms_detail_sidebar_page_settings_name_field %}
-                                                            <sw-field type="text"
-                                                                      :label="$tc('sw-cms.detail.labelPageName')"
-                                                                      :placeholder="placeholder(page, 'name')"
-                                                                      v-model="page.name">
-                                                            </sw-field>
-                                                        {% endblock %}
-
-                                                        {% block sw_cms_detail_sidebar_page_settings_type_field %}
-                                                            <sw-select-field
-                                                                :label="$tc('sw-cms.detail.labelPageType')"
-                                                                :disabled="!isSystemDefaultLanguage"
-                                                                v-model="page.type"
-                                                                @change="onPageTypeChange">
-                                                                {% block sw_cms_detail_sidebar_page_settings_type_field_options %}
-                                                                    <option value="page">
-                                                                        {{ $tc('sw-cms.detail.labelPageTypeShopPage') }}
-                                                                    </option>
-                                                                    <option value="landingpage">
-                                                                        {{ $tc('sw-cms.detail.labelPageTypeLandingpage') }}
-                                                                    </option>
-                                                                    <option value="product_list">
-                                                                        {{ $tc('sw-cms.detail.labelPageTypeCategory') }}
-                                                                    </option>
-                                                                    <option value="product_detail" disabled>
-                                                                        {{ $tc('sw-cms.detail.labelPageTypeProduct') }}
-                                                                    </option>
-                                                                {% endblock %}
-                                                            </sw-select-field>
-                                                        {% endblock %}
-
-                                                        {% block sw_cms_detail_sidebar_page_settings_demo_field %}
-                                                            <sw-entity-single-select
-                                                               v-if="currentMappingEntity !== null"
-                                                               ref="cmsDemoSelection"
-                                                               :label="$tc('sw-cms.detail.labelDemoEntity')"
-                                                               :placeholder="$tc('sw-cms.detail.placeholderDemoEntity')"
-                                                               :entity="currentMappingEntity"
-                                                               @input="onDemoEntityChange"
-                                                               v-model="demoEntityId">
-                                                            </sw-entity-single-select>
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
-                                            </sw-sidebar-collapse>
-                                        {% endblock %}
-                                    </sw-sidebar-item>
-                                {% endblock %}
-
-                                {% block sw_cms_detail_sidebar_block_overview %}
-                                    <sw-sidebar-item icon="default-basic-plus-circle"
-                                                     :title="addBlockTitle"
-                                                     :disabled="currentDeviceView === 'form' || !isSystemDefaultLanguage"
-                                                     ref="blockSelectionSidebar">
-                                        {% block sw_cms_detail_sidebar_block_overview_content %}
-                                            <div class="sw-cms-detail__block-overview">
-
-                                                {% block sw_cms_detail_sidebar_block_overview_category %}
-                                                    <div class="sw-cms-detail__block-category">
-                                                        <sw-select-field :label="$tc('sw-cms.detail.labelBlockCategorySelection')" v-model="currentBlockCategory">
-                                                            <option value="text">{{ $tc('sw-cms.detail.labelBlockCategoryText') }}</option>
-                                                            <option value="image">{{ $tc('sw-cms.detail.labelBlockCategoryImage') }}</option>
-                                                            <option value="text-image">{{ $tc('sw-cms.detail.labelBlockCategoryTextImage') }}</option>
-                                                            <option value="commerce">{{ $tc('sw-cms.detail.labelBlockCategoryCommerce') }}</option>
-                                                            {% block sw_cms_detail_sidebar_block_overview_category_element_after %}{% endblock %}
-                                                        </sw-select-field>
-                                                    </div>
-                                                {% endblock %}
-
-                                                {% block sw_cms_detail_sidebar_block_overview_preview %}
-                                                    <div class="sw-cms-detail__block-selection">
-                                                        <div class="sw-cms-detail__block-preview"
-                                                             v-for="block in cmsBlocks"
-                                                             :key="block.name"
-                                                             v-if="block.category === currentBlockCategory && block.hidden !== true"
-                                                             v-draggable="{ dragGroup: 'cms-stage', data: { block }, onDrop: onBlockStageDrop }">
-                                                            {% block sw_cms_detail_sidebar_block_overview_preview_component %}
-                                                                <component :is="block.previewComponent"></component>
-                                                            {% endblock %}
-                                                        </div>
-                                                    </div>
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
-                                    </sw-sidebar-item>
-                                {% endblock %}
-
-                                {% block sw_cms_detail_sidebar_block_settings %}
-                                    <sw-sidebar-item icon="default-basic-stack-block"
-                                                     :title="$tc('sw-cms.detail.sidebarTitleBlockSettings')"
-                                                     ref="blockConfigSidebar"
-                                                     :disabled="currentBlock === null"
-                                                     @close-content="onCloseBlockConfig">
-
-                                        <div class="sw-cms-detail__block-config">
-                                            <template v-if="currentBlock !== null">
-                                                {% block sw_cms_detail_sidebar_block_settings_content %}
-                                                    <sw-sidebar-collapse :expandOnLoading="true">
-                                                        {% block sw_cms_detail_sidebar_block_settings_header %}
-                                                            <span slot="header">
-                                                                {{ $tc('sw-cms.detail.sidebarHeaderBlockSettings') }}
-                                                                {{ currentBlock.name ? currentBlock.name : cmsBlocks[currentBlock.type].label }}
-                                                            </span>
-                                                        {% endblock %}
-
-                                                        {% block sw_cms_detail_sidebar_block_settings_form %}
-                                                            <sw-cms-block-config slot="content" v-model="currentBlock"></sw-cms-block-config>
-                                                        {% endblock %}
-                                                    </sw-sidebar-collapse>
-                                                {% endblock %}
-
-                                                {% block sw_cms_detail_sidebar_block_layout_settings_content %}
-                                                    <sw-sidebar-collapse :expandOnLoading="false">
-                                                        {% block sw_cms_detail_sidebar_block_layout_settings_header %}
-                                                            <span slot="header">Layout settings</span>
-                                                        {% endblock %}
-
-                                                        {% block sw_cms_detail_sidebar_block_layout_settings_form %}
-                                                            <sw-cms-block-layout-config slot="content" v-model="currentBlock"></sw-cms-block-layout-config>
-                                                        {% endblock %}
-                                                    </sw-sidebar-collapse>
-                                                {% endblock %}
-                                            </template>
-                                        </div>
-                                    </sw-sidebar-item>
-                                {% endblock %}
-
-                                {% block sw_cms_detail_sidebar_navigator %}
-                                    <sw-sidebar-item icon="default-os-layers"
-                                                     :title="$tc('sw-cms.detail.sidebarTitleNavigator')"
-                                                     :disabled="page.blocks.length <= 0"
-                                                     ref="blockNavigator">
-                                        {% block sw_cms_detail_sidebar_navigator_content %}
-                                            <div class="sw-cms-detail__navigator">
-                                                {% block sw_cms_detail_sidebar_navigator_element %}
-                                                    <div class="sw-cms-detail__navigator-element"
-                                                         v-for="(block, index) in page.blocks"
-                                                         :key="block.id"
-                                                         v-draggable="{ dragGroup: 'cms-navigator', data: { block }, validDragCls: null, onDragEnter: onBlockDragSort }"
-                                                         v-droppable="{ dragGroup: 'cms-navigator', data: { block } }">
-
-                                                        {% block sw_cms_detail_sidebar_navigator_element_label %}
-                                                            <div class="navigator-element__label">
-                                                                {{ block.name ? block.name : block.type }}
-                                                            </div>
-                                                        {% endblock %}
-
-                                                        {% block sw_cms_detail_sidebar_navigator_element_duplicate %}
-                                                            <div class="navigator-element__action-duplicate"
-                                                                 v-if="(cmsBlocks[block.type].removable !== false) && isSystemDefaultLanguage"
-                                                                 @click="onBlockDuplicate(block)">
-                                                                <sw-icon name="default-action-duplicate" size="16"></sw-icon>
-                                                            </div>
-                                                        {% endblock %}
-
-                                                        {% block sw_cms_detail_sidebar_navigator_element_delete %}
-                                                            <div class="navigator-element__action-delete"
-                                                                 v-if="(cmsBlocks[block.type].removable !== false) && isSystemDefaultLanguage"
-                                                                 @click="onBlockDelete(block.id)">
-                                                                <sw-icon name="default-action-trash" size="16"></sw-icon>
-                                                            </div>
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
-                                    </sw-sidebar-item>
-                                {% endblock %}
-                            </sw-sidebar>
+                            <sw-cms-sidebar ref="cmsSidebar"
+                                            :page="page"
+                                            :currentBlock="currentBlock"
+                                            :demoEntity="currentMappingEntity"
+                                            :demoEntityIdProp="demoEntityId"
+                                            :isSystemDefaultLanguage="isSystemDefaultLanguage"
+                                            @demo-entity-change="onDemoEntityChange"
+                                            @current-block-change="setCurrentBlock"
+                                            @block-duplicate="onBlockDuplicate"
+                                            @section-duplicate="onSectionDuplicate"
+                                            @block-stage-drop="onPageUpdate"
+                                            @block-navigator-sort="onPageUpdate"
+                                            @page-type-change="onPageTypeChange"
+                                            @page-update="onPageUpdate">
+                            </sw-cms-sidebar>
                         {% endblock %}
 
                         {% block sw_cms_detail_loader %}

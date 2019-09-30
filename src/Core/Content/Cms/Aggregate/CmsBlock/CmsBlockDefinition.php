@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Cms\Aggregate\CmsBlock;
 
+use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
-use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -49,7 +49,7 @@ class CmsBlockDefinition extends EntityDefinition
             new LockedField(),
 
             new StringField('name', 'name'),
-            new StringField('sizing_mode', 'sizingMode'),
+            new StringField('section_position', 'sectionPosition'),
             new StringField('margin_top', 'marginTop'),
             new StringField('margin_bottom', 'marginBottom'),
             new StringField('margin_left', 'marginLeft'),
@@ -59,8 +59,8 @@ class CmsBlockDefinition extends EntityDefinition
             new StringField('background_media_mode', 'backgroundMediaMode'),
             new StringField('css_class', 'cssClass'),
 
-            (new FkField('cms_page_id', 'pageId', CmsPageDefinition::class))->addFlags(new Required()),
-            new ManyToOneAssociationField('page', 'cms_page_id', CmsPageDefinition::class, 'id', false),
+            (new FkField('cms_section_id', 'sectionId', CmsSectionDefinition::class))->addFlags(new Required()),
+            new ManyToOneAssociationField('section', 'cms_section_id', CmsSectionDefinition::class, 'id', false),
 
             new ManyToOneAssociationField('backgroundMedia', 'background_media_id', MediaDefinition::class, 'id', false),
 

@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Cms;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition;
+use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -59,7 +59,7 @@ class CmsPageDefinition extends EntityDefinition
 
             new LockedField(),
 
-            (new OneToManyAssociationField('blocks', CmsBlockDefinition::class, 'cms_page_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('sections', CmsSectionDefinition::class, 'cms_page_id'))->addFlags(new CascadeDelete()),
             new TranslationsAssociationField(CmsPageTranslationDefinition::class, 'cms_page_id'),
 
             new ManyToOneAssociationField('previewMedia', 'preview_media_id', MediaDefinition::class, 'id', false),

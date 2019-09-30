@@ -13,6 +13,10 @@
             <tag name="shopware.entity.definition" entity="cms_page_translation"/>
         </service>
 
+        <service id="Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition">
+            <tag name="shopware.entity.definition" entity="cms_section"/>
+        </service>
+
         <service id="Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition">
             <tag name="shopware.entity.definition" entity="cms_block"/>
         </service>

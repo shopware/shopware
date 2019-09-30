@@ -1,5 +1,5 @@
 {% block sw_cms_block %}
-    <div class="sw-cms-block" :class="[blockClasses, customBlockClass]" :style="blockStyles">
+    <div class="sw-cms-block" :class="customBlockClass" :style="blockStyles">
         {% block sw_cms_block_content %}
             <div class="sw-cms-block__content" :style="blockPadding">
                 <slot>{% block sw_cms_block_slot_default %}{% endblock %}</slot>

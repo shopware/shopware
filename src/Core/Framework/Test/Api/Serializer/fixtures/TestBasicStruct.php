@@ -152,6 +152,12 @@ class TestBasicStruct extends SerializationFixture
                             'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/cms-blocks', $baseUrl),
                         ],
                     ],
+                    'cmsSections' => [
+                        'data' => [],
+                        'links' => [
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/cms-sections', $baseUrl),
+                        ],
+                    ],
                     'cmsPages' => [
                         'data' => [],
                         'links' => [
@@ -210,6 +216,7 @@ class TestBasicStruct extends SerializationFixture
             'productConfiguratorSettings' => null,
             'orderLineItems' => null,
             'cmsBlocks' => null,
+            'cmsSections' => null,
             'cmsPages' => null,
             'documents' => null,
             '_uniqueIdentifier' => '1d23c1b015bf43fb97e89008cf42d6fe',
@@ -238,6 +245,7 @@ class TestBasicStruct extends SerializationFixture
             $fixtures['data']['relationships']['productConfiguratorSettings'],
             $fixtures['data']['relationships']['orderLineItems'],
             $fixtures['data']['relationships']['cmsBlocks'],
+            $fixtures['data']['relationships']['cmsSections'],
             $fixtures['data']['relationships']['cmsPages'],
             $fixtures['data']['relationships']['documents'],
             $fixtures['data']['relationships']['mediaFolderId']
@@ -265,6 +273,7 @@ class TestBasicStruct extends SerializationFixture
             $fixtures['productConfiguratorSettings'],
             $fixtures['orderLineItems'],
             $fixtures['cmsBlocks'],
+            $fixtures['cmsSections'],
             $fixtures['cmsPages'],
             $fixtures['documents'],
             $fixtures['mediaFolderId']

@@ -1,0 +1,97 @@
+@import "~scss/variables";
+
+.sw-cms-create-wizard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    .sw-cms-create-wizard-inner {
+        max-width: 600px;
+        margin-top: -150px;
+    }
+
+    .sw-cms-create-wizard__title {
+        color: $color-darkgray-200;
+        font-size: 32px;
+        font-weight: normal;
+    }
+}
+
+.sw-cms-create-wizard__step-1 {
+    .sw-cms-create-wizard__page-type-selection {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 20px;
+        margin: 40px 0;
+    }
+
+    .sw-cms-create-wizard__page-type {
+        border: 1px solid $color-gray-300;
+        color: $color-darkgray-200;
+        background: #fff;
+        padding: 28px 20px;
+        text-align: center;
+        cursor: pointer;
+        border-radius: $border-radius-default;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        &.is--disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .sw-icon {
+            margin-bottom: 8px;
+        }
+    }
+}
+
+.sw-cms-create-wizard__step-3 {
+    .sw-cms-create-wizard__name-select {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sw-field {
+        text-align: left;
+    }
+
+    .sw-cms-create-wizard__page-preview {
+        border: 1px solid $color-gray-300;
+        border-radius: 4px;
+        padding: 10px 10px 0 10px;
+        background: #fff;
+        display: grid;
+        grid-template-rows: 120px 40px;
+
+        .sw-cms-create-wizard__preview_image {
+            background: center center no-repeat $color-white;
+            border: 1px solid $color-gray-300;
+            border-radius: 4px;
+        }
+
+        .sw-cms-create-wizard__preview_info {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            color: $color-darkgray-200;
+            align-items: center;
+
+            .sw-icon {
+                margin-right: 8px;
+            }
+        }
+    }
+
+    .sw-cms-create-wizard__page-completion-buttons {
+        display: grid;
+        align-items: center;
+    }
+}

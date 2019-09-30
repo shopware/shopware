@@ -9,7 +9,7 @@ describe('CMS: Check usage and editing of text elements', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                return cy.createDefaultFixture('cms-page');
+                return cy.createCmsFixture();
             })
             .then(() => {
                 cy.viewport(1920, 1080);
@@ -25,11 +25,12 @@ describe('CMS: Check usage and editing of text elements', () => {
         }).as('saveData');
 
         cy.get('.sw-cms-list-item--0').click();
+        cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
         // Add simple text block
-        cy.contains('Add a block').click();
-        cy.get('.sw-cms-detail__block-preview:nth-of-type(2)')
-            .dragTo('.sw-cms-detail__empty-stage');
+        cy.get('.sw-cms-section__empty-stage').click();
+        cy.get('.sw-cms-sidebar__block-preview:nth-of-type(2)')
+            .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
         cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
 
@@ -80,12 +81,13 @@ describe('CMS: Check usage and editing of text elements', () => {
         }).as('saveData');
 
         cy.get('.sw-cms-list-item--0').click();
+        cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
         // Add text block with three columns
-        cy.contains('Add a block').click();
-        cy.get('.sw-cms-detail__block-preview:nth-of-type(6)').scrollIntoView();
-        cy.get('.sw-cms-detail__block-preview:nth-of-type(6)')
-            .dragTo('.sw-cms-detail__empty-stage');
+        cy.get('.sw-cms-section__empty-stage').click();
+        cy.get('.sw-cms-sidebar__block-preview:nth-of-type(6)').scrollIntoView();
+        cy.get('.sw-cms-sidebar__block-preview:nth-of-type(6)')
+            .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
         cy.get('.sw-text-editor__content-editor p').first().contains('Lorem ipsum dolor sit amet');
 

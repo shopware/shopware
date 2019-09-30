@@ -45,12 +45,6 @@ Component.register('sw-cms-block', {
             return this.cmsBlocks[this.block.type];
         },
 
-        blockClasses() {
-            return {
-                'is--boxed': this.block.sizingMode === 'boxed'
-            };
-        },
-
         customBlockClass() {
             return this.block.cssClass;
         },

@@ -5,3 +5,4 @@ import './image-gallery';
 import './product-box';
 import './product-listing';
 import './product-slider';
+import './sidebar-category-navigation';

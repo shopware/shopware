@@ -300,9 +300,15 @@ See `2019-09-02-cms-remove-store.md` for more information
         ```js
         const criteria = new Criteria();
         const mediaCriteria = criteria.getAssociation('product.categories.media');
-        mediaCriteria.addSorting(Criteria.sort('media.fileName', 'ASC'))
+        mediaCriteria.addSorting(Criteria.sort('media.fileName', 'ASC'));
         mediaCriteria.addFilter(Criteria.equals('fileName', 'testImage'));
         ```
+
+* **Important Change:** Shopping Experience sections.<br>
+The Shopping Experiences now have sections to separate the blocks of a page.
+Also the change allows it to have different types of sections eg. one with a sidebar. <br><br>
+Structure is now Page->**Section**->blocks->slots <br>
+To migrate your existing data run `bin/console database:migrate --all Shopware\\` <br><br> See `2019-09-27-breaking-change-cms-sections` for more information
 
 Storefront
 ----------

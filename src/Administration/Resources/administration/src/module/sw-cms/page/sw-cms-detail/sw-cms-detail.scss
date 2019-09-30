@@ -30,6 +30,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        color: $color-steam-cloud;
     }
 
     .sw-cms-detail__back-btn {
@@ -41,10 +42,6 @@
         &:hover {
             color: $color-shopware-blue;
         }
-    }
-
-    .sw-cms-detail__page-type {
-        color: $color-steam-cloud;
     }
 
     .sw-cms-detail__device-actions {
@@ -90,12 +87,6 @@
         }
     }
 
-    .sw-cms-detail__sidebar {
-        .sw-sidebar-collapse__title {
-            font-size: 18px;
-        }
-    }
-
     .sw-cms-detail__stage-container {
         display: grid;
         grid-template-columns: 1fr auto;
@@ -110,23 +101,20 @@
         }
 
         .sw-cms-detail__stage {
-            padding: 50px 0 100px 0;
             overflow-y: auto;
             overflow-x: hidden;
             position: relative;
-            background: #fafbfc;
+            background: $color-gray-50;
         }
 
         .sw-cms-detail__empty-stage {
-            height: 400px;
-            margin: 0 30px;
+            height: 100%;
+            background: $color-gray-50;
             display: grid;
             align-items: center;
             align-content: center;
             justify-items: center;
             justify-content: center;
-            border: 2px dashed #d1d9e0;
-            border-radius: 10px;
             cursor: auto;
 
             &.is--valid-drop {
@@ -136,7 +124,7 @@
 
             .sw-cms-detail__empty-stage-content {
                 text-align: center;
-                max-width: 360px;
+                max-width: 448px;
                 margin: auto;
             }
 
@@ -144,10 +132,6 @@
                 font-size: 32px;
                 font-weight: 400;
                 margin-bottom: 5px;
-            }
-
-            p.sw-cms-detail__empty-stage-claim {
-                margin-bottom: 20px;
             }
         }
 
@@ -183,116 +167,6 @@
             &.is--desktop {
                 max-width: 100%;
             }
-        }
-    }
-
-    .sw-cms-detail__settings,
-    .sw-cms-detail__navigator {
-        padding: 10px 25px;
-    }
-
-    .sw-cms-detail__block-overview {
-        display: grid;
-        grid-template-rows: 105px auto;
-        height: 100%;
-        overflow: hidden;
-    }
-
-    .sw-cms-detail__block-category {
-        padding: 10px 25px 25px 25px;
-        border-bottom: 1px solid $color-steam-cloud;
-
-        .sw-field {
-            margin: 0;
-        }
-    }
-
-    .sw-cms-detail__block-selection {
-        padding: 25px;
-        overflow: auto;
-    }
-}
-
-.sw-cms-detail__block-preview {
-    margin: 0 0 20px 0;
-    background: $color-white;
-    border: 1px solid #d1d9e0;
-    border-radius: 5px;
-    background-clip: padding-box;
-    cursor: grab;
-    user-select: none;
-    user-focus: none;
-
-    &.is--dragging {
-        box-shadow: none;
-        border: 1px dashed $color-steam-cloud;
-        background-color: $color-iron;
-    }
-
-    &.is--drag-element,
-    &.is--drag-element.is--valid-drag {
-        border: 1px solid $color-shopware-blue;
-        box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-        font-size: 16px;
-        line-height: 18px;
-        margin: 0 0 6px 0;
-    }
-
-    p {
-        font-size: 12px;
-        line-height: 14px;
-    }
-
-    hr {
-        max-width: 100px;
-        margin: 0 auto 10px auto;
-        border: 2px solid $color-steam-cloud;
-    }
-
-    img {
-        margin: 0;
-        display: block;
-        max-width: 100%;
-    }
-}
-
-.sw-cms-detail__navigator-element {
-    display: grid;
-    grid-template-columns: 1fr 28px 28px;
-    align-items: center;
-    align-content: center;
-    padding: 8px 4px 8px 14px;
-    margin: 0 0 12px 0;
-    border: 1px solid $color-steam-cloud;
-    background: $color-light-gray;
-    color: $color-gutenberg;
-    border-radius: 4px;
-    cursor: move;
-
-    &.is--drag-element {
-        border: 1px solid $color-shopware-blue;
-        box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
-
-        .navigator-element__action-duplicate,
-        .navigator-element__action-delete {
-            display: none;
-        }
-    }
-
-    &.is--dragging {
-        background: none;
-    }
-
-    .navigator-element__action-duplicate,
-    .navigator-element__action-delete {
-        line-height: 12px;
-        cursor: pointer;
-
-        &:hover {
-            color: $color-shopware-blue;
         }
     }
 }

@@ -252,6 +252,12 @@ class TestBasicWithToManyRelationships extends SerializationFixture
                                 'related' => sprintf('%s/media/548faa1f7846436c85944f4aea792d96/cms-blocks', $baseUrl),
                             ],
                         ],
+                        'cmsSections' => [
+                            'data' => [],
+                            'links' => [
+                                'related' => sprintf('%s/media/548faa1f7846436c85944f4aea792d96/cms-sections', $baseUrl),
+                            ],
+                        ],
                         'cmsPages' => [
                             'data' => [],
                             'links' => [
@@ -348,6 +354,7 @@ class TestBasicWithToManyRelationships extends SerializationFixture
                     'productConfiguratorSettings' => null,
                     'orderLineItems' => null,
                     'cmsBlocks' => null,
+                    'cmsSections' => null,
                     'cmsPages' => null,
                     'documents' => null,
                     '_uniqueIdentifier' => '548faa1f7846436c85944f4aea792d96',
@@ -391,6 +398,7 @@ class TestBasicWithToManyRelationships extends SerializationFixture
             $fixtures['included'][0]['relationships']['productConfiguratorSettings'],
             $fixtures['included'][0]['relationships']['orderLineItems'],
             $fixtures['included'][0]['relationships']['cmsBlocks'],
+            $fixtures['included'][0]['relationships']['cmsSections'],
             $fixtures['included'][0]['relationships']['cmsPages'],
             $fixtures['included'][0]['relationships']['documents']
         );
@@ -418,6 +426,7 @@ class TestBasicWithToManyRelationships extends SerializationFixture
             $fixtures['media'][0]['productConfiguratorSettings'],
             $fixtures['media'][0]['orderLineItems'],
             $fixtures['media'][0]['cmsBlocks'],
+            $fixtures['media'][0]['cmsSections'],
             $fixtures['media'][0]['cmsPages'],
             $fixtures['media'][0]['documents']
         );

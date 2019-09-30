@@ -774,6 +774,7 @@ class RecalculationServiceTest extends TestCase
     private function createProduct(string $name, float $price, float $taxRate): string
     {
         $productId = Uuid::randomHex();
+
         $productNumber = Uuid::randomHex();
         $data = [
             'id' => $productId,
@@ -783,6 +784,10 @@ class RecalculationServiceTest extends TestCase
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price + ($price * $taxRate / 100), 'net' => $price, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'tax' => ['name' => 'create', 'taxRate' => $taxRate],
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
         ];
         $this->getContainer()->get('product.repository')->create([$data], $this->context);
 

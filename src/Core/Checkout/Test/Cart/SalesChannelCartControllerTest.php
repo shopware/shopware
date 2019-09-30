@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,7 +13,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Router;
 
 class SalesChannelCartControllerTest extends TestCase
@@ -80,16 +80,17 @@ class SalesChannelCartControllerTest extends TestCase
         $this->addProduct($browser, $productId);
 
         $content = json_decode($browser->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode());
-
-        static::assertNotEmpty($content);
-        static::assertArrayHasKey('errors', $content);
+        static::assertArrayHasKey('data', $content);
+        static::assertArrayHasKey('errors', $content['data']);
+        static::assertEquals('product-not-found', $content['data']['errors'][0]['messageKey']);
     }
 
     public function testAddProduct(): void
     {
         $productId = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
+        $browser = $this->createCart();
+
         $this->productRepository->create([
             [
                 'id' => $productId,
@@ -99,10 +100,12 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $this->context);
-
-        $browser = $this->createCart();
 
         $this->addProduct($browser, $productId);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
@@ -128,6 +131,7 @@ class SalesChannelCartControllerTest extends TestCase
         $productId2 = Uuid::randomHex();
         $productNumber2 = Uuid::randomHex();
 
+        $browser = $this->createCart();
         $this->productRepository->create([
             [
                 'id' => $productId1,
@@ -137,6 +141,10 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
             [
                 'id' => $productId2,
@@ -146,10 +154,12 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 20, 'net' => 9, 'linked' => false]],
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $this->context);
-
-        $browser = $this->createCart();
 
         $this->addProduct($browser, $productId1);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
@@ -168,6 +178,7 @@ class SalesChannelCartControllerTest extends TestCase
         $productId1 = Uuid::randomHex();
         $productNumber1 = Uuid::randomHex();
 
+        $browser = $this->createCart();
         $this->productRepository->create([
             [
                 'id' => $productId1,
@@ -177,10 +188,12 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $this->context);
-
-        $browser = $this->createCart();
 
         $this->addProduct($browser, $productId1);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
@@ -201,6 +214,7 @@ class SalesChannelCartControllerTest extends TestCase
         $productId1 = Uuid::randomHex();
         $productNumber1 = Uuid::randomHex();
 
+        $browser = $this->createCart();
         $this->productRepository->create([
             [
                 'id' => $productId1,
@@ -210,10 +224,12 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $this->context);
-
-        $browser = $this->createCart();
 
         $this->addProduct($browser, $productId1);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
@@ -234,6 +250,7 @@ class SalesChannelCartControllerTest extends TestCase
         $productId1 = Uuid::randomHex();
         $productNumber1 = Uuid::randomHex();
 
+        $browser = $this->createCart();
         $this->productRepository->create([
             [
                 'id' => $productId1,
@@ -243,10 +260,12 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $this->context);
-
-        $browser = $this->createCart();
 
         $this->addProduct($browser, $productId1);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
@@ -267,6 +286,7 @@ class SalesChannelCartControllerTest extends TestCase
         $productId2 = Uuid::randomHex();
         $productNumber2 = Uuid::randomHex();
 
+        $browser = $this->createCart();
         $this->productRepository->create([
             [
                 'id' => $productId1,
@@ -276,6 +296,10 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
             [
                 'id' => $productId2,
@@ -285,10 +309,12 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 20, 'net' => 9, 'linked' => false]],
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $this->context);
-
-        $browser = $this->createCart();
 
         $this->addProduct($browser, $productId1);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
@@ -333,6 +359,7 @@ class SalesChannelCartControllerTest extends TestCase
         $productId2 = Uuid::randomHex();
         $productNumber2 = Uuid::randomHex();
 
+        $browser = $this->createCart();
         $this->productRepository->create([
             [
                 'id' => $productId1,
@@ -342,6 +369,10 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
             [
                 'id' => $productId2,
@@ -351,10 +382,12 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 20, 'net' => 9, 'linked' => false]],
                 'manufacturerId' => $this->manufacturerId,
                 'taxId' => $this->taxId,
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $this->context);
-
-        $browser = $this->createCart();
 
         //add product 1 three times with quantity 1
         $this->addProduct($browser, $productId1);
@@ -388,6 +421,8 @@ class SalesChannelCartControllerTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
+        $browser = $this->createCart();
+
         $this->productRepository->create([
             [
                 'id' => $productId,
@@ -397,6 +432,10 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $this->context);
 
@@ -406,8 +445,6 @@ class SalesChannelCartControllerTest extends TestCase
                 'id' => $mediaId,
             ],
         ], $this->context);
-
-        $browser = $this->createCart();
 
         $quantity = 10;
         $type = LineItem::PRODUCT_LINE_ITEM_TYPE;
@@ -455,6 +492,8 @@ class SalesChannelCartControllerTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
+        $browser = $this->createCart();
+
         $this->productRepository->create([
             [
                 'id' => $productId,
@@ -464,10 +503,12 @@ class SalesChannelCartControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $this->context);
-
-        $browser = $this->createCart();
 
         $this->addProduct($browser, $productId);
 

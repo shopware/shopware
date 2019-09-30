@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -102,6 +102,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
+        $browser = $this->createCart();
         $this->productRepository->create([
             [
                 'id' => $productId,
@@ -111,6 +112,10 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $context);
 
@@ -120,8 +125,6 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $password = 'shopware';
 
         $this->createCustomer($addressId, $mail, $password, $context);
-
-        $browser = $this->createCart();
 
         $this->addProduct($browser, $productId);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
@@ -169,6 +172,10 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelClient->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $context);
 
@@ -208,6 +215,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
+        $browser = $this->createCart();
         $grossPrice = 10;
         $this->productRepository->create([
             [
@@ -218,6 +226,10 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $grossPrice, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $context);
 
@@ -247,8 +259,6 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'city' => $city,
             ],
         ];
-
-        $browser = $this->createCart();
 
         $quantity = 5;
         $this->addProduct($browser, $productId, $quantity);
@@ -289,6 +299,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $productId = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
+        $browser = $this->createCart();
 
         $grossPrice = 10;
         $this->productRepository->create([
@@ -300,6 +311,10 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $grossPrice, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $context);
 
@@ -321,8 +336,6 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'city' => 'Cologne',
             ],
         ];
-
-        $browser = $this->createCart();
 
         $quantity = 5;
         $this->addProduct($browser, $productId, $quantity);
@@ -365,6 +378,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
+        $browser = $this->createCart();
         $this->productRepository->create([
             [
                 'id' => $productId,
@@ -374,6 +388,10 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $grossPrice, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $context);
 
@@ -396,8 +414,6 @@ class SalesChannelCheckoutControllerTest extends TestCase
             ],
         ];
 
-        $browser = $this->createCart();
-
         $quantity = 5;
         $this->addProduct($browser, $productId, $quantity);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
@@ -411,17 +427,22 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $productId = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
         $context = Context::createDefaultContext();
+        $browser = $this->createCart();
 
         $grossPrice = 10;
         $this->productRepository->create([
             [
                 'id' => $productId,
                 'productNumber' => $productNumber,
-                'stock' => 1,
+                'stock' => 10,
                 'name' => 'Test',
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $grossPrice, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $context);
 
@@ -457,8 +478,6 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $password = 'shopware';
 
         $this->createCustomer($addressId, $mail, $password, $context);
-
-        $browser = $this->createCart();
 
         $this->login($browser, $mail, $password);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
@@ -609,6 +628,8 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $context = Context::createDefaultContext();
 
         $grossPrice = 10;
+        $browser = $this->createCart();
+
         $this->productRepository->create([
             [
                 'id' => $productId,
@@ -618,6 +639,10 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $grossPrice, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => $this->manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $this->taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $browser->getServerParameter('test-sales-channel-id'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ],
         ], $context);
 
@@ -639,8 +664,6 @@ class SalesChannelCheckoutControllerTest extends TestCase
                 'city' => 'Cologne',
             ],
         ];
-
-        $browser = $this->createCart();
 
         $quantity = 5;
         $this->addProduct($browser, $productId, $quantity);
@@ -680,25 +703,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
                     'country' => ['name' => 'not'],
                 ],
                 'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethod' => [
-                    'name' => 'test',
-                    'description' => 'test',
-                    'handlerIdentifier' => SyncTestPaymentHandler::class,
-                    'availabilityRule' => [
-                        'id' => Uuid::randomHex(),
-                        'name' => 'true',
-                        'priority' => 0,
-                        'conditions' => [
-                            [
-                                'type' => 'cartCartAmount',
-                                'value' => [
-                                    'operator' => '>=',
-                                    'amount' => 0,
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
+                'defaultPaymentMethodId' => $this->getAvailablePaymentMethod()->getId(),
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $mail,
                 'password' => $password,

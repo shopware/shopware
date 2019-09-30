@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -68,6 +69,10 @@ class CartServiceTest extends TestCase
             ],
             'tax' => ['name' => 'test', 'taxRate' => 18],
             'manufacturer' => ['name' => 'test'],
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
         ];
 
         $this->getContainer()->get('product.repository')
@@ -165,6 +170,10 @@ class CartServiceTest extends TestCase
             ],
             'tax' => ['name' => 'test', 'taxRate' => 18],
             'manufacturer' => ['name' => 'test'],
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
         ];
 
         $this->getContainer()->get('product.repository')

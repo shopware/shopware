@@ -172,6 +172,7 @@ namespace DocsTest {
     use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
     use Shopware\Core\Checkout\Cart\LineItem\LineItem;
     use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+    use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
     use Shopware\Core\Defaults;
     use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
     use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -300,6 +301,10 @@ namespace DocsTest {
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
                 'manufacturer' => ['id' => Uuid::randomHex(), 'name' => 'test'],
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
             ]], $this->getSalesChannelContext()->getContext());
         }
 

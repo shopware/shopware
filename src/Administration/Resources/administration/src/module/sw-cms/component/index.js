@@ -9,3 +9,7 @@ import './sw-cms-stage-add-block';
 import './sw-cms-page-form';
 import './sw-cms-product-box-preview';
 import './sw-cms-layout-modal';
+import './sw-cms-section';
+import './sw-cms-stage-add-section';
+import './sw-cms-stage-section-selection';
+import './sw-cms-sidebar';

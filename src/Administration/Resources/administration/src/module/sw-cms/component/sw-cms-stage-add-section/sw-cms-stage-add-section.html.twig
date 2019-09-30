@@ -1,0 +1,20 @@
+{% block sw_cms_add_section %}
+    <div class="sw-cms-stage-add-section">
+
+        {% block sw_cms_add_section_selection %}
+            <sw-cms-stage-section-selection
+                v-if="showSelection"
+                @section-select="onAddSection">
+            </sw-cms-stage-section-selection>
+        {% endblock %}
+
+        {% block sw_cms_add_section_button %}
+            <div class="sw-cms-stage-add-section__button"
+                 :class="{ 'is--open': showSelection }"
+                 v-if="!forceChoose"
+                 @click="showSelection = !showSelection">
+                <sw-icon name="default-basic-plus-circle" size="24"></sw-icon>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

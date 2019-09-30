@@ -7,7 +7,8 @@
       "greeting": "Layouts",
       "createNewLayout": "Neues Layout anlegen",
       "deleteDisablesToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen",
-      "disabledAddingBlocksToolTip": "Blöcke können nur in der Systemstandardsprache hinzugefügt werden"
+      "disabledAddingBlocksToolTip": "Blöcke können nur in der Systemstandardsprache hinzugefügt werden",
+      "buttonDelete": "Löschen"
     },
     "sorting": {
       "labelSort": "Sortieren nach:",
@@ -27,11 +28,16 @@
       "gridHeaderAssignment": "Zugewiesene Kategorien",
       "gridHeaderCreated": "Erstellt"
     },
+    "section": {
+      "fullWidth": "Volle Breite",
+      "sidebar": "Sidebar",
+      "isSidebar": "Layout Sektion - Sidebar",
+      "isDefault": "Layout Sektion - Standard"
+    },
     "detail": {
       "labelButtonSave": "Speichern",
       "headlineEmptyState": "Raum für Kreativität",
-      "claimEmptyState": "Stelle neue Layouts mithilfe von Blöcken zusammen. Blöcke kannst Du in jedem Layout einfach per Drag & Drop hinzufügen und dann mit Deinen individuellen Inhalten füllen.",
-      "actionEmptyState": "Block hinzufügen",
+      "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt.",
       "sidebarTitlePageSettings": "Einstellungen",
       "sidebarHeaderPageSettings": "Basis-Informationen",
       "labelPageName": "Name",
@@ -60,14 +66,14 @@
       "labelBlockSizingField": "Größenmodus",
       "labelBlockSizingOptionBoxed": "Zentrierter Inhalt",
       "labelBlockSizingOptionFull": "Volle Breite",
-      "labelBlockBackgroundColorField": "Farbe",
-      "labelBlockBackgroundColorLabel": "Hintergrundfarbe",
-      "labelBlockBackgroundMediaField": "Bild",
-      "labelBlockBackgroundMediaLabel": "Hintergrundbild",
-      "labelBlockBackgroundMediaMode": "Bildmodus",
-      "labelBlockBackgroundMediaModeContain": "Beinhalten",
-      "labelBlockBackgroundMediaModeCover": "Füllen",
-      "labelBlockBackgroundMediaModeAuto": "Auto",
+      "labelBackgroundColorField": "Farbe",
+      "labelBackgroundColorLabel": "Hintergrundfarbe",
+      "labelBackgroundMediaField": "Bild",
+      "labelBackgroundMediaLabel": "Hintergrundbild",
+      "labelBackgroundMediaMode": "Bildmodus",
+      "labelBackgroundMediaModeContain": "Beinhalten",
+      "labelBackgroundMediaModeCover": "Füllen",
+      "labelBackgroundMediaModeAuto": "Auto",
       "labelBlockCssClassField": "CSS-Klassen",
       "helpTextBlockCssClassField": "Du kannst eine, oder mehrere, mit Leerzeichen getrennte, CSS-Klassen hinzufügen",
       "labelBlockTopMarginField": "Oberer Abstand",
@@ -86,7 +92,8 @@
       "notificationTitleMissingElements": "Fehlende Elementkonfiguration!",
       "notificationMessageMissingElements": "Bitte konfiguriere alle Elemente Deines Layouts.",
       "alertTitleTranslations": "Übersetzungen zurzeit nicht verfügbar!",
-      "alertContentTranslations": "Ein Layout kann aktuell nur in der Systemstandardsprache bearbeitet werden."
+      "alertContentTranslations": "Ein Layout kann aktuell nur in der Systemstandardsprache bearbeitet werden.",
+      "addBlocks": "Füge Blöcke per Drag & Drop hinzu"
     },
     "elements": {
       "captionMediaUpload": "Lade ein Bild hoch",

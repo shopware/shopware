@@ -7,43 +7,36 @@
             </sw-text-field>
         {% endblock %}
 
-        {% block sw_cms_block_config_sizing_field %}
-            <sw-select-field :label="$tc('sw-cms.detail.labelBlockSizingField')" v-model="block.sizingMode">
-                <option value="boxed">{{ $tc('sw-cms.detail.labelBlockSizingOptionBoxed') }}</option>
-                <option value="full_width">{{ $tc('sw-cms.detail.labelBlockSizingOptionFull') }}</option>
-            </sw-select-field>
-        {% endblock %}
-
         {% block sw_cms_block_config_background_color_field %}
             <sw-colorpicker v-model="block.backgroundColor"
-                            :label="$tc('sw-cms.detail.labelBlockBackgroundColorLabel')"
-                            :placeholder="$tc('sw-cms.detail.labelBlockBackgroundColorField')">
+                            :label="$tc('sw-cms.detail.labelBackgroundColorLabel')"
+                            :placeholder="$tc('sw-cms.detail.labelBackgroundColorField')">
             </sw-colorpicker>
         {% endblock %}
 
         {% block sw_cms_block_config_background_image_field %}
             <sw-media-compact-upload
-                    :source="block && block.backgroundMedia && block.backgroundMedia.id ? block.backgroundMedia : null"
-                    :uploadTag="uploadTag"
-                    :label="$tc('sw-cms.detail.labelBlockBackgroundMediaLabel')"
-                    :defaultFolder="cmsPageState.pageEntityName"
-                    :allowMultiSelect="false"
-                    @media-upload-remove-image="removeMedia"
-                    @selection-change="onSetBackgroundMedia">
+                :source="block && block.backgroundMedia && block.backgroundMedia.id ? block.backgroundMedia : null"
+                :uploadTag="uploadTag"
+                :label="$tc('sw-cms.detail.labelBackgroundMediaLabel')"
+                :defaultFolder="cmsPageState.pageEntityName"
+                :allowMultiSelect="false"
+                @media-upload-remove-image="removeMedia"
+                @selection-change="onSetBackgroundMedia">
             </sw-media-compact-upload>
             <sw-upload-store-listener
-                    :uploadTag="uploadTag"
-                    autoUpload
-                    @media-upload-finish="successfulUpload">
+                :uploadTag="uploadTag"
+                autoUpload
+                @media-upload-finish="successfulUpload">
             </sw-upload-store-listener>
 
             {% block sw_cms_block_config_background_image_position_field %}
-                <sw-select-field :label="$tc('sw-cms.detail.labelBlockBackgroundMediaMode')"
+                <sw-select-field :label="$tc('sw-cms.detail.labelBackgroundMediaMode')"
                                  v-model="block.backgroundMediaMode"
                                  :disabled="!block.backgroundMediaId">
-                    <option value="auto">{{ $tc('sw-cms.detail.labelBlockBackgroundMediaModeAuto') }}</option>
-                    <option value="contain">{{ $tc('sw-cms.detail.labelBlockBackgroundMediaModeContain') }}</option>
-                    <option value="cover">{{ $tc('sw-cms.detail.labelBlockBackgroundMediaModeCover') }}</option>
+                    <option value="auto">{{ $tc('sw-cms.detail.labelBackgroundMediaModeAuto') }}</option>
+                    <option value="contain">{{ $tc('sw-cms.detail.labelBackgroundMediaModeContain') }}</option>
+                    <option value="cover">{{ $tc('sw-cms.detail.labelBackgroundMediaModeCover') }}</option>
                 </sw-select-field>
             {% endblock %}
         {% endblock %}

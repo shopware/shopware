@@ -25,16 +25,18 @@ function resolve(page) {
     cmsElements = cmsService.getCmsElementRegistry();
 
     const slotEntityList = {};
-    page.blocks.forEach((block) => {
-        block.slots.forEach((slot) => {
-            slots[slot.id] = slot;
-            initSlotConfig(slot);
-            initSlotDefaultData(slot);
+    page.sections.forEach((section) => {
+        section.blocks.forEach((block) => {
+            block.slots.forEach((slot) => {
+                slots[slot.id] = slot;
+                initSlotConfig(slot);
+                initSlotDefaultData(slot);
 
-            const slotData = cmsElements[slot.type].collect(slot);
-            if (Object.keys(slotData).length > 0) {
-                slotEntityList[slot.id] = slotData;
-            }
+                const slotData = cmsElements[slot.type].collect(slot);
+                if (Object.keys(slotData).length > 0) {
+                    slotEntityList[slot.id] = slotData;
+                }
+            });
         });
     });
 

@@ -7,7 +7,8 @@
       "greeting": "Layouts",
       "createNewLayout": "Create new layout",
       "deleteDisabledToolTip": "The layout you want to delete is still allocated to at least one category",
-      "disabledAddingBlocksToolTip": "You can only add Blocks in your default system language"
+      "disabledAddingBlocksToolTip": "You can only add Blocks in your default system language",
+      "buttonDelete": "Delete"
     },
     "sorting": {
       "labelSort": "Sort by:",
@@ -27,11 +28,24 @@
       "gridHeaderAssignment": "Assigned categories",
       "gridHeaderCreated": "Created"
     },
+    "section": {
+      "fullWidth": "Full width",
+      "sidebar": "Sidebar",
+      "isSidebar": "Layout section - Sidebar",
+      "isDefault": "layout section - Default"
+    },
+    "sidebar": {
+      "contentMenu": {
+        "moveUp": "Move Up",
+        "moveDown": "Move down",
+        "settings": "Settings",
+        "duplicate": "Duplicate"
+      }
+    },
     "detail": {
       "labelButtonSave": "Save",
       "headlineEmptyState": "Space for creativity",
-      "claimEmptyState": "Create new layouts by using blocks. Simply drag & drop blocks onto any layout and fill in your content.",
-      "actionEmptyState": "Add a block",
+      "claimEmptyState": "Create new layouts by choosing a section. Start by choosing a section type, drag & drop blocks into any section and fill in your content.",
       "sidebarTitlePageSettings": "Settings",
       "sidebarHeaderPageSettings": "Basic information",
       "labelPageName": "Name",
@@ -60,14 +74,17 @@
       "labelBlockSizingField": "Sizing mode",
       "labelBlockSizingOptionBoxed": "Boxed content",
       "labelBlockSizingOptionFull": "Full width",
-      "labelBlockBackgroundColorField": "Colour",
-      "labelBlockBackgroundColorLabel": "Background colour",
-      "labelBlockBackgroundMediaField": "Image",
-      "labelBlockBackgroundMediaLabel": "Background image",
-      "labelBlockBackgroundMediaMode": "Image mode",
-      "labelBlockBackgroundMediaModeContain": "Contain",
-      "labelBlockBackgroundMediaModeCover": "Cover",
-      "labelBlockBackgroundMediaModeAuto": "Auto",
+      "labelSizingField": "Sizing mode",
+      "labelSizingOptionBoxed": "Boxed content",
+      "labelSizingOptionFull": "Full width",
+      "labelBackgroundColorField": "Colour",
+      "labelBackgroundColorLabel": "Background colour",
+      "labelBackgroundMediaField": "Image",
+      "labelBackgroundMediaLabel": "Background image",
+      "labelBackgroundMediaMode": "Image mode",
+      "labelBackgroundMediaModeContain": "Contain",
+      "labelBackgroundMediaModeCover": "Cover",
+      "labelBackgroundMediaModeAuto": "Auto",
       "labelBlockTopMarginField": "Top margin",
       "labelBlockCssClassField": "CSS classes",
       "helpTextBlockCssClassField": "You can add one or more CSS classes seperated by spaces",
@@ -86,7 +103,8 @@
       "notificationTitleMissingElements": "Error",
       "notificationMessageMissingElements": "Configuration required. Please fill in all required configuration elements.",
       "alertTitleTranslations": "Translations currently not available!",
-      "alertContentTranslations": "Layouts can only be edited in the system default language."
+      "alertContentTranslations": "Layouts can only be edited in the system default language.",
+      "addBlocks": "Add Blocks via Drag & Drop"
     },
     "elements": {
       "captionMediaUpload": "Upload an image",

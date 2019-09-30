@@ -1,0 +1,126 @@
+@import "~scss/variables";
+
+.sw-cms-section {
+    position: relative;
+    background-repeat: no-repeat;
+    background-position: center center;
+    padding: 20px;
+    min-height: 480px;
+    display: grid;
+
+    &.has--shadow-top {
+        box-shadow: 0 -5px 5px -5px #d1d9e0;
+    }
+
+    &.has--shadow-bottom {
+        box-shadow: 0 5px 5px -5px #d1d9e0;
+    }
+
+    &.is--sidebar {
+        grid-template-columns: 280px 748px;
+        grid-gap: 28px;
+        justify-content: center;
+    }
+
+    &:hover {
+        .sw-cms-section__config-overlay {
+            display: block;
+        }
+
+        .sw-cms-slot__preview-overlay {
+            display: block;
+        }
+
+        .sw-cms-section__config-toolbar {
+            display: block;
+        }
+    }
+
+    &.is--boxed .sw-cms-section__content {
+        max-width: 1080px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .sw-cms-section__sidebar,
+    .sw-cms-section__content {
+        position: relative;
+
+        &.is--empty {
+            border: 2px dashed $color-gray-300;
+            border-radius: 10px;
+            max-height: 980px;
+            width: 100%;
+        }
+
+        .sw-cms-section__empty-stage {
+            color: $color-gray-500;
+            text-align: center;
+            cursor: pointer;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+
+            &.is--valid-drop {
+                background-color: $color-cadet-blue;
+                border-color: $color-shopware-blue;
+            }
+
+            .sw-icon {
+                margin-bottom: 8px;
+            }
+        }
+    }
+
+    .sw-cms-section__config-overlay {
+        display: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        border: 1px dashed rgba($color-shopware-blue, 0.4);
+        cursor: pointer;
+        z-index: 50;
+
+        &.is--active {
+            display: block;
+            pointer-events: none;
+            border: 1px solid $color-shopware-blue;
+            z-index: 10;
+        }
+    }
+
+    .sw-cms-section__config-toolbar {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: $color-white;
+        border: 1px dashed rgba($color-shopware-blue, 0.4);
+        border-bottom-right-radius: 4px;
+        z-index: 240;
+
+        .sw-cms-section__config-toolbar-action {
+            padding: 10px;
+            color: rgba($color-gutenberg, 0.3);
+            cursor: pointer;
+        }
+
+        &.is--active {
+            display: block;
+            border: 1px solid $color-shopware-blue;
+
+            .sw-cms-section__config-toolbar-action {
+                color: $color-gutenberg;
+
+                &:hover {
+                    color: $color-shopware-blue;
+                }
+            }
+        }
+    }
+}

@@ -83,17 +83,6 @@
             </sw-inherit-wrapper>
         {% endblock %}
 
-        {% block sw_product_detail_base_seo_card %}
-            <sw-card v-if="next741"
-                     :title="$tc('sw-product.detailBase.cardTitleSeo')"
-                     :isLoading="loading.product">
-                {% block sw_product_detail_base_seo_form %}
-                    <sw-settings-seo-entity-detail :entity="product"></sw-settings-seo-entity-detail>
-                {% endblock %}
-            </sw-card>
-        {% endblock %}
-
-
         {% block sw_product_detail_base_settings_card %}
             <sw-card :title="$tc('sw-product.detailBase.cardTitleSettings')" :isLoading="loading.product">
                 {% block sw_product_detail_base_settings_form %}

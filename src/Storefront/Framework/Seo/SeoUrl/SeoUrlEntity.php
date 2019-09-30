@@ -62,11 +62,6 @@ class SeoUrlEntity extends Entity
     protected $isValid;
 
     /**
-     * @var int
-     */
-    protected $autoIncrement;
-
-    /**
      * @var SalesChannelEntity|null
      */
     protected $salesChannel;
@@ -176,16 +171,6 @@ class SeoUrlEntity extends Entity
         $this->isDeleted = $isDeleted;
     }
 
-    public function getIsValid(): bool
-    {
-        return $this->isValid;
-    }
-
-    public function setIsValid(bool $isValid): void
-    {
-        $this->isValid = $isValid;
-    }
-
     public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
@@ -214,16 +199,6 @@ class SeoUrlEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
-    }
-
-    public function getAutoIncrement(): int
-    {
-        return $this->autoIncrement;
-    }
-
-    public function setAutoIncrement(int $autoIncrement): void
-    {
-        $this->autoIncrement = $autoIncrement;
     }
 
     public function getLanguage(): ?LanguageEntity

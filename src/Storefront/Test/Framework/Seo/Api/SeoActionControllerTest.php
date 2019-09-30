@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Framework\Seo\Api;
 
 use Doctrine\DBAL\Connection;
-use function Flag\skipTestNext741;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -172,8 +171,6 @@ class SeoActionControllerTest extends TestCase
 
     public function testUpdateDefaultCanonical(): void
     {
-        skipTestNext741($this);
-
         $id = $this->createTestProduct();
 
         $seoUrls = $this->getSeoUrls($id, true);
@@ -213,8 +210,6 @@ class SeoActionControllerTest extends TestCase
 
     public function testUpdateCanonicalWithCustomSalesChannel(): void
     {
-        skipTestNext741($this);
-
         $salesChannelId = Uuid::randomHex();
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 

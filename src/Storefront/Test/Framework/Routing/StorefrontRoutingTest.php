@@ -13,8 +13,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
+use Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RequestContext;
 
 class StorefrontRoutingTest extends TestCase
@@ -41,12 +43,19 @@ class StorefrontRoutingTest extends TestCase
      */
     private $oldContext;
 
+    /**
+     * @var SeoUrlPlaceholderHandler
+     */
+    private $seoUrlReplacer;
+
     public function setUp(): void
     {
         $this->requestTransformer = new RequestTransformer(
             new \Shopware\Core\Framework\Routing\RequestTransformer(),
             $this->getContainer()->get(Connection::class)
         );
+
+        $this->seoUrlReplacer = $this->getContainer()->get(SeoUrlPlaceholderHandler::class);
 
         $this->requestStack = $this->getContainer()->get('request_stack');
         while ($this->requestStack->pop()) {
@@ -86,6 +95,12 @@ class StorefrontRoutingTest extends TestCase
         static::assertSame($case->getAbsoluteUrl(), $absoluteUrl, var_export($case, true));
         static::assertSame($case->getNetworkPath(), $networkPath, var_export($case, true));
         static::assertSame($case->getPathInfo(), $pathInfo, var_export($case, true));
+
+        // test seo url generation
+        $response = new Response($this->seoUrlReplacer->generate($case->route, []));
+        $this->seoUrlReplacer->replacePlaceholder($transformedRequest, $response);
+        $absoluteSeoUrl = $response->getContent();
+        static::assertSame($case->getAbsoluteUrl(), $absoluteSeoUrl);
 
         $matches = $this->router->matchRequest($transformedRequest);
         static::assertEquals($case->route, $matches['_route']);

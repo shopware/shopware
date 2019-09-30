@@ -9,10 +9,6 @@ Component.override('sw-category-detail', {
         onSave() {
             this.$super.onSave();
 
-            if (!this.next741) {
-                return;
-            }
-
             const seoUrls = this.$store.getters['swSeoUrl/getNewOrModifiedUrls']();
 
             seoUrls.forEach(seoUrl => {

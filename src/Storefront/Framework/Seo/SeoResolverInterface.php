@@ -4,5 +4,5 @@ namespace Shopware\Storefront\Framework\Seo;
 
 interface SeoResolverInterface
 {
-    public function resolveSeoPath(string $languageId, string $salesChannelId, string $pathInfo): ?array;
+    public function resolveSeoPath(string $languageId, string $salesChannelId, string $pathInfo): array;
 }

@@ -17,7 +17,7 @@
                             </div>
                         {% else %}
                             <a class="nav-item nav-link navigation-flyout-link is-level-{{ level }}{% if treeItem.category.id is same as(page.header.navigation.active.id) %} active{% endif %}"
-                               href="{% if treeItem.category.externalLink %}{{ treeItem.category.externalLink }}{% else %}{{ navigationUrl(treeItem.category) }}{% endif %}"
+                               href="{% if treeItem.category.externalLink %}{{ treeItem.category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: treeItem.category.id }) }}{% endif %}"
                                itemprop="url"
                                title="{{ treeItem.category.translated.name }}">
                                 <span itemprop="name">{{ treeItem.category.translated.name }}</span>

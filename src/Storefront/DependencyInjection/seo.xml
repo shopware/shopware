@@ -114,19 +114,18 @@
             <tag name="shopware.seo_url.route"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Seo\Subscriber\SeoUrlLoaderSubscriber">
-            <argument type="service" id="seo_url.repository"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
-            <argument type="service" id="request_stack"/>
-
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Storefront\Framework\Seo\Validation\SeoUrlValidationService"/>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\SeoUrlFunctionExtension">
-            <argument type="service" id="router" />
+            <argument type="service" id="twig.extension.routing"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler" />
             <tag name="twig.extension"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler" public="true">
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="router.default"/>
+            <argument type="service" id="seo_url.repository"/>
         </service>
     </services>
 </container>

@@ -111,7 +111,6 @@ class SeoUrlGenerator
             $seoUrl->setIsCanonical(true);
             $seoUrl->setIsModified(false);
             $seoUrl->setIsDeleted(false);
-            $seoUrl->setIsValid(true);
 
             /** @var SalesChannelEntity|null $salesChannel */
             foreach ($salesChannels as $salesChannel) {

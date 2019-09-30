@@ -7,7 +7,7 @@
                         {% block layout_search_suggest_result_product %}
                             <li class="search-suggest-product js-result">
                                 {% block layout_search_suggest_result_link %}
-                                    <a href="{{ productUrl(product) }}"
+                                    <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
                                        title="{{ product.translated.name }}"
                                        class="search-suggest-product-link">
                                         <div class="row align-items-center no-gutters">

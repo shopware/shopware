@@ -21,7 +21,7 @@
                              aria-labelledby="serviceMenuDropdown-{{ position }}">
                             {% for category in page.header.serviceMenu %}
                                 <a class="top-bar-list-item dropdown-item"
-                                   href="{{ navigationUrl(category) }}"
+                                   href="{{ seoUrl('frontend.navigation.page', { navigationId: category.id }) }}"
                                    title="{{ category.translated.name }}">{{ category.translated.name }}</a>
                             {% endfor %}
                         </div>

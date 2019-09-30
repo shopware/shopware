@@ -240,6 +240,10 @@ Component.register('sw-promotion-detail', {
                     );
 
                     await generator.removeExistingCodes();
+                } else if (!this.promotion.useCodes) {
+                    // if we dont use codes in general,
+                    // make sure to reset it to avoid interferences with other promotions and this code
+                    this.promotion.code = null;
                 }
             } catch (error) {
                 this.isLoading = false;

@@ -150,16 +150,12 @@ Component.register('sw-price-field', {
             return this.label ? this.$tc('global.sw-price-field.labelPriceNet') : '';
         },
 
-        priceError() {
-            if (!this.error) {
-                return null;
-            }
+        grossError() {
+            return this.error ? this.error.gross : null;
+        },
 
-            if (!this.error._id) {
-                return this.error[''];
-            }
-
-            return this.error;
+        netError() {
+            return this.error ? this.error.net : null;
         }
     },
 

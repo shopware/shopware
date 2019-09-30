@@ -26,16 +26,24 @@ class ThemeFileResolver
                 $onlySourceFiles,
                 function (StorefrontPluginConfiguration $configuration, bool $onlySourceFiles) {
                     $fileCollection = new FileCollection();
+                    $scriptFiles = $configuration->getScriptFiles();
 
-                    if ($configuration->getStorefrontEntryFilepath() && $onlySourceFiles) {
+                    $addSourceFile = $configuration->getStorefrontEntryFilepath() && $onlySourceFiles;
+
+                    // add source file at the beginning if no other theme is included first
+                    if ($addSourceFile && ($scriptFiles->count() === 0 || !$this->isInclude($scriptFiles->first()->getFilepath()))) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
                     }
 
-                    foreach ($configuration->getScriptFiles() as $scriptFile) {
-                        if (strpos($scriptFile->getFilepath(), '@') !== 0 && $onlySourceFiles) {
+                    foreach ($scriptFiles as $scriptFile) {
+                        if (!$this->isInclude($scriptFile->getFilepath()) && $onlySourceFiles) {
                             continue;
                         }
                         $fileCollection->add($scriptFile);
+                    }
+
+                    if ($addSourceFile && $scriptFiles->count() > 0 && $this->isInclude($scriptFiles->first()->getFilepath())) {
+                        $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
                     }
 
                     return $fileCollection;
@@ -70,7 +78,7 @@ class ThemeFileResolver
         /** @var File $file */
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
-            if (strpos($filepath, '@') !== 0) {
+            if (!$this->isInclude($filepath)) {
                 if (file_exists($filepath)) {
                     $resolvedFiles->add($file);
                     continue;
@@ -104,5 +112,10 @@ class ThemeFileResolver
         }
 
         return $resolvedFiles;
+    }
+
+    private function isInclude(string $file): bool
+    {
+        return strpos($file, '@') === 0;
     }
 }

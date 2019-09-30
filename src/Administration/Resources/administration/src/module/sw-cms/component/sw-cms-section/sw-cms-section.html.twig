@@ -7,7 +7,7 @@
                     {% block sw_cms_section_sidebar_block_empty %}
                         <div class="sw-cms-section__empty-stage"
                              @click="openBlockBar"
-                             v-droppable="{ dragGroup: 'cms-stage', data: { dropIndex: blockCount, section, sectionPosition: 'sidebar' } }">
+                             v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'sidebar') }">
 
                             <sw-icon name="default-basic-plus-circle" size="24"></sw-icon>
                             <p>{{ $tc('sw-cms.detail.addBlocks') }}</p>
@@ -67,7 +67,7 @@
                     {% block sw_cms_section_content_block_empty %}
                         <div class="sw-cms-section__empty-stage"
                              @click="openBlockBar"
-                             v-droppable="{ dragGroup: 'cms-stage', data: { dropIndex: blockCount, section, sectionPosition: 'main' } }">
+                             v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'main') }">
 
                             <sw-icon name="default-basic-plus-circle" size="24"></sw-icon>
                             <p>{{ $tc('sw-cms.detail.addBlocks') }}</p>

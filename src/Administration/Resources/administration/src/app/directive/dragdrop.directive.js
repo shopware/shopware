@@ -462,5 +462,15 @@ Directive.register('droppable', {
         el.classList.remove(dropConfig.droppableCls);
         el.removeEventListener('mouseenter', enterDropZone.bind(this, el, dropConfig));
         el.removeEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
+    },
+
+    update: (el, binding) => {
+        const dropZone = dropZones.find(zone => zone.el === el);
+
+        if (types.isObject(binding.value)) {
+            Object.assign(dropZone.dropConfig, binding.value);
+        } else {
+            Object.assign(dropZone.dropConfig, { data: binding.value });
+        }
     }
 });

@@ -192,6 +192,7 @@ Component.register('sw-cms-sidebar', {
             }
 
             this.$emit('block-navigator-sort');
+            this.pageUpdate();
         },
 
         getDragData(block, sectionIndex) {
@@ -280,13 +281,13 @@ Component.register('sw-cms-sidebar', {
         moveSectionUp(section) {
             this.page.sections.moveItem(section.position, section.position - 1);
 
-            this.$emit('page-update');
+            this.pageUpdate();
         },
 
         moveSectionDown(section) {
             this.page.sections.moveItem(section.position, section.position + 1);
 
-            this.$emit('page-update');
+            this.pageUpdate();
         },
 
         onSectionDuplicate(section) {
@@ -295,7 +296,7 @@ Component.register('sw-cms-sidebar', {
 
         onSectionDelete(sectionId) {
             this.page.sections.remove(sectionId);
-            this.$emit('page-update');
+            this.pageUpdate();
         },
 
         onBlockDelete(blockId, section) {
@@ -305,7 +306,7 @@ Component.register('sw-cms-sidebar', {
                 this.$emit('current-block-change', null, null);
             }
 
-            this.$emit('page-update');
+            this.pageUpdate();
         },
 
         onBlockDuplicate(block, section) {
@@ -316,14 +317,14 @@ Component.register('sw-cms-sidebar', {
             section.backgroundMediaId = null;
             section.backgroundMedia = null;
 
-            this.$emit('page-update');
+            this.pageUpdate();
         },
 
         onSetSectionBackgroundMedia([mediaItem], section) {
             section.backgroundMediaId = mediaItem.id;
             section.backgroundMedia = mediaItem;
 
-            this.$emit('page-update');
+            this.pageUpdate();
         },
 
         successfulUpload(media, section) {
@@ -331,7 +332,7 @@ Component.register('sw-cms-sidebar', {
 
             this.mediaRepository.get(media.targetId, this.context).then((mediaItem) => {
                 section.backgroundMedia = mediaItem;
-                this.$emit('page-update');
+                this.pageUpdate();
             });
         },
 
@@ -345,6 +346,10 @@ Component.register('sw-cms-sidebar', {
 
         getSidebarContentBlocks(sectionBlocks) {
             return sectionBlocks.filter((block) => block.sectionPosition === 'sidebar');
+        },
+
+        pageUpdate() {
+            this.$emit('page-update');
         }
     }
 });

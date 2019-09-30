@@ -170,7 +170,6 @@ Component.register('sw-cms-section', {
             }
 
             this.updateBlockPositions();
-            this.$emit('page-update');
         },
 
         updateBlockPositions() {

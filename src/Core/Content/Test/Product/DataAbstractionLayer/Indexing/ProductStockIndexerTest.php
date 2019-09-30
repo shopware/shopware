@@ -53,10 +53,16 @@ class ProductStockIndexerTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderLineItemRepository;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->repository = $this->getContainer()->get('product.repository');
+        $this->orderLineItemRepository = $this->getContainer()->get('order_line_item.repository');
         $this->cartService = $this->getContainer()->get(CartService::class);
         $this->contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->lineItemRepository = $this->getContainer()->get('order_line_item.repository');
@@ -330,6 +336,125 @@ class ProductStockIndexerTest extends TestCase
         static::assertTrue($product->getAvailable());
         static::assertSame(5, $product->getStock());
         static::assertSame(5, $product->getAvailableStock());
+    }
+
+    public function testAvailableStockIsUpdatedIfQuantityOfOrderLineItemIsChanged(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $productId = $this->createProduct([
+            'stock' => 5,
+        ]);
+        $orderId = $this->orderProduct($productId, 1);
+        /** @var ProductEntity $product */
+        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+        static::assertSame(4, $product->getAvailableStock());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        /** @var OrderLineItemEntity $orderLineItem */
+        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $this->orderLineItemRepository->update([
+            [
+                'id' => $orderLineItem->getId(),
+                'quantity' => 2,
+            ],
+        ], $context);
+
+        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+        static::assertSame(3, $product->getAvailableStock());
+    }
+
+    public function testAvailableStockIsUpdatedIfOrderLineItemIsDeleted(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $productId = $this->createProduct([
+            'stock' => 5,
+        ]);
+        $orderId = $this->orderProduct($productId, 1);
+        /** @var ProductEntity $product */
+        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+        static::assertSame(4, $product->getAvailableStock());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        /** @var OrderLineItemEntity $orderLineItem */
+        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $this->orderLineItemRepository->delete([
+            [
+                'id' => $orderLineItem->getId(),
+            ],
+        ], $context);
+
+        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+        static::assertSame(5, $product->getAvailableStock());
+    }
+
+    public function testAvailableStockIsUpdatedIfProductOfOrderLineItemIsChanged(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $originalProductId = $this->createProduct([
+            'stock' => 5,
+        ]);
+        $newProductId = $this->createProduct([
+            'stock' => 5,
+        ]);
+        $orderId = $this->orderProduct($originalProductId, 1);
+
+        /** @var ProductEntity $originalProduct */
+        $originalProduct = $this->repository->search(new Criteria([$originalProductId]), $context)->first();
+        /** @var ProductEntity $newProduct */
+        $newProduct = $this->repository->search(new Criteria([$newProductId]), $context)->first();
+        static::assertSame(4, $originalProduct->getAvailableStock());
+        static::assertSame(5, $newProduct->getAvailableStock());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        /** @var OrderLineItemEntity $orderLineItem */
+        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $this->orderLineItemRepository->update([
+            [
+                'id' => $orderLineItem->getId(),
+                'referencedId' => $newProduct->getId(),
+            ],
+        ], $context);
+
+        $newProduct = $this->repository->search(new Criteria([$newProductId]), $context)->first();
+        $originalProduct = $this->repository->search(new Criteria([$originalProductId]), $context)->first();
+        static::assertSame(5, $originalProduct->getAvailableStock());
+        static::assertSame(4, $newProduct->getAvailableStock());
+    }
+
+    public function testStockIsUpdatedIfQuantityOfOrderLineItemIsChanged(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $productId = $this->createProduct([
+            'stock' => 5,
+        ]);
+        $orderId = $this->orderProduct($productId, 1);
+        $this->transitionOrder($orderId, 'process');
+        $this->transitionOrder($orderId, 'complete');
+
+        /** @var ProductEntity $product */
+        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+        static::assertSame(4, $product->getStock());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        /** @var OrderLineItemEntity $orderLineItem */
+        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $this->orderLineItemRepository->update([
+            [
+                'id' => $orderLineItem->getId(),
+                'quantity' => 2,
+            ],
+        ], $context);
+
+        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+        static::assertSame(3, $product->getStock());
     }
 
     private function createCustomer(): string

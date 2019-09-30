@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -87,7 +86,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $this->eventDispatcher->dispatch($event);
             $context->getExceptions()->tryToThrow();
 
-            /** @var WriteCommandInterface $command */
             foreach ($commands as $command) {
                 $definition = $command->getDefinition();
                 $table = $definition->getEntityName();

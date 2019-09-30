@@ -96,7 +96,6 @@ class DeliveryPromotionCalculationTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_ABSOLUTE, 10, $this->getContainer(), $this->context, $code);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
 
         // create product and add to cart
@@ -140,7 +139,6 @@ class DeliveryPromotionCalculationTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_PERCENTAGE, 30, $this->getContainer(), $this->context, $code);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
 
         // create product and add to cart
@@ -182,7 +180,6 @@ class DeliveryPromotionCalculationTest extends TestCase
         // add a new auto promotion
         $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_PERCENTAGE, 50, $this->getContainer(), $this->context, null);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
 
         // create product and add to cart
@@ -223,7 +220,6 @@ class DeliveryPromotionCalculationTest extends TestCase
         // add a new auto promotion
         $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_PERCENTAGE, 20, $this->getContainer(), $this->context, $code);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
 
         // create product and add to cart
@@ -266,7 +262,6 @@ class DeliveryPromotionCalculationTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_ABSOLUTE, 200, $this->getContainer(), $this->context, $code);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
 
         // create product and add to cart
@@ -306,7 +301,6 @@ class DeliveryPromotionCalculationTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT, 200, $this->getContainer(), $this->context, $code);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
 
         // create product and add to cart
@@ -346,7 +340,6 @@ class DeliveryPromotionCalculationTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixtureDeliveryPromotion($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT, 69, $this->getContainer(), $this->context, $code);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
 
         // create product and add to cart
@@ -392,7 +385,6 @@ class DeliveryPromotionCalculationTest extends TestCase
 
         $this->createTestFixtureAdvancedPrice($deliveryId, Defaults::CURRENCY, $currencyPrice, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
 
         // create product and add to cart
@@ -437,7 +429,6 @@ class DeliveryPromotionCalculationTest extends TestCase
 
         $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT, PromotionDiscountEntity::SCOPE_DELIVERY, 69, null, $this->getContainer(), $this->context);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
 
         // create product and add to cart
@@ -484,7 +475,6 @@ class DeliveryPromotionCalculationTest extends TestCase
 
         $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_PERCENTAGE, PromotionDiscountEntity::SCOPE_DELIVERY, 20, null, $this->getContainer(), $this->context);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
 
         // create product and add to cart
@@ -533,7 +523,6 @@ class DeliveryPromotionCalculationTest extends TestCase
 
         $this->createTestFixtureDiscount($promotionId, PromotionDiscountEntity::TYPE_FIXED_UNIT, PromotionDiscountEntity::SCOPE_DELIVERY, 50, null, $this->getContainer(), $this->context);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->token, $this->context);
 
         // create product and add to cart
@@ -583,10 +572,8 @@ class DeliveryPromotionCalculationTest extends TestCase
         // add a new sample product
         $this->createTestFixtureProduct($productId, $productGross, 19, $this->getContainer(), $this->context);
 
-        /** @var string $discountId */
         $discountId = $this->createTestFixturePercentagePromotion($promotionId, $code, $percentage, $maxValueGlobal, $this->getContainer(), PromotionDiscountEntity::SCOPE_DELIVERY);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // create product and add to cart
@@ -632,12 +619,10 @@ class DeliveryPromotionCalculationTest extends TestCase
         // add a new sample product
         $this->createTestFixtureProduct($productId, $productGross, 19, $this->getContainer(), $this->context);
 
-        /** @var string $discountId */
         $discountId = $this->createTestFixturePercentagePromotion($promotionId, $code, $percentage, $maxValueGlobal, $this->getContainer(), PromotionDiscountEntity::SCOPE_DELIVERY);
 
         $this->createTestFixtureAdvancedPrice($discountId, Defaults::CURRENCY, $currencyMaxValue, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // create product and add to cart
@@ -675,10 +660,8 @@ class DeliveryPromotionCalculationTest extends TestCase
         $this->createTestFixtureProduct($productId, $productGross, 19, $this->getContainer(), $this->context);
         $this->createTestFixtureProduct($productTwoId, $productGross, 7, $this->getContainer(), $this->context);
 
-        /** @var string $discountId */
         $discountId = $this->createTestFixturePercentagePromotion($promotionId, $code, $percentage, null, $this->getContainer(), PromotionDiscountEntity::SCOPE_DELIVERY);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
 
         // create product and add to cart

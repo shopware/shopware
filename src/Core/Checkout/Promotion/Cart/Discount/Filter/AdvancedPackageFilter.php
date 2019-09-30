@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 
 class AdvancedPackageFilter
@@ -31,7 +30,6 @@ class AdvancedPackageFilter
         if (!$this->hasFilterSettings($sorterKey, $applierKey, $countKey)) {
             // no graduation settings
             // just add all items of all units
-            /** @var DiscountPackage $package */
             foreach ($scopePackages as $package) {
                 $filteredPackages[] = $package;
             }
@@ -45,13 +43,8 @@ class AdvancedPackageFilter
         $index = 1;
         $discountedCount = 0;
 
-        /** @var FilterSorterInterface $sorter */
-        $sorter = $this->registry->getSorter($sorterKey);
+        $sortedPackages = $this->registry->getSorter($sorterKey)->sort($scopePackages);
 
-        /** @var DiscountPackageCollection $sortedPackages */
-        $sortedPackages = $sorter->sort($scopePackages);
-
-        /* @var DiscountPackage $unit */
         foreach ($sortedPackages as $package) {
             // if we do not apply the graduation on
             // every unit, then make sure to use the

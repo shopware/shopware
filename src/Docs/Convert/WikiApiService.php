@@ -663,7 +663,6 @@ class WikiApiService
         $oldCategories = $this->getAllCategories();
         $categoryIds = array_column($oldCategories, 'id');
 
-        /** @var Document $document */
         foreach ($tree->getCategories() as $document) {
             echo 'Syncing category ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . ' ... ' . PHP_EOL;
             $parentId = $this->rootCategoryId;

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
@@ -46,7 +45,6 @@ class DiscountPackage
     {
         $price = 0;
 
-        /** @var LineItem $item */
         foreach ($this->cartItems as $item) {
             $price += $item->getPrice()->getTotalPrice();
         }
@@ -63,7 +61,6 @@ class DiscountPackage
     {
         $affectedPrices = new PriceCollection();
 
-        /** @var LineItem $lineItem */
         foreach ($this->cartItems as $lineItem) {
             if ($lineItem->getPrice() === null) {
                 throw new PriceNotFoundException($lineItem);

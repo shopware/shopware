@@ -100,7 +100,6 @@ class NavigationLoader
      */
     public function loadLevel(string $categoryId, SalesChannelContext $context): Tree
     {
-        /** @var CategoryEntity $active */
         $active = $this->loadActive($categoryId, $context);
 
         $criteria = new Criteria();

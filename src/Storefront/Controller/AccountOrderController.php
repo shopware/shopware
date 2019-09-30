@@ -62,7 +62,6 @@ class AccountOrderController extends StorefrontController
             throw new MissingRequestParameterException('id');
         }
 
-        /** @var string $customerId */
         $customerId = $context->getCustomer()->getId();
 
         $criteria = new Criteria();

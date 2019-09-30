@@ -67,7 +67,6 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
         $items->add($this->createProductItem(49, 19));
         $items->add($this->createProductItem(49, 19));
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(100, $items, $this->context);
 
         // verify we have 2 items, then we have reached 100.0
@@ -89,7 +88,6 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
         $items->add($this->createProductItem(20.0, 19));
         $items->add($this->createProductItem(20.0, 19));
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(100, $items, $this->context);
 
         // verify we have no results because min sum is not reached
@@ -107,7 +105,6 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
     {
         $items = new LineItemFlatCollection();
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(100, $items, $this->context);
 
         static::assertCount(0, $packageItems->getItems());
@@ -124,7 +121,6 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
     {
         $items = new LineItemFlatCollection();
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(-100, $items, $this->context);
 
         static::assertCount(0, $packageItems->getItems());
@@ -141,7 +137,6 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
     {
         $items = new LineItemFlatCollection();
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(0, $items, $this->context);
 
         static::assertCount(0, $packageItems->getItems());
@@ -164,7 +159,6 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
         $items->add($productNoPrice);
         $items->add($this->createProductItem(20.0, 19));
 
-        /** @var LineItemGroup $packageItems */
         $packageItems = $this->packager->buildGroupPackage(5, $items, $this->context);
 
         static::assertCount(1, $packageItems->getItems());

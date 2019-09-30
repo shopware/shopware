@@ -156,7 +156,6 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 )
             );
         } else {
-            /** @var Rule $rule */
             $rule = $this->ruleConditionRegistry->getRuleInstance($type);
             // do not validate container
             if (!$rule instanceof Container) {

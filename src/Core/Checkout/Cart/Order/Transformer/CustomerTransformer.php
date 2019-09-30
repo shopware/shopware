@@ -10,7 +10,6 @@ class CustomerTransformer
     public static function transformCollection(CustomerCollection $customers, bool $useIdAsKey = false): array
     {
         $output = [];
-        /** @var CustomerEntity $customer */
         foreach ($customers as $customer) {
             $output[$customer->getId()] = self::transform($customer);
         }

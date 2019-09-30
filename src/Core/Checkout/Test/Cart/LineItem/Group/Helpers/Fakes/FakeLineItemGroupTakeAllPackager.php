@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -47,7 +46,6 @@ class FakeLineItemGroupTakeAllPackager implements LineItemGroupPackagerInterface
 
         $group = new LineItemGroup();
 
-        /** @var LineItem $item */
         foreach ($sortedItems as $item) {
             $group->addItem($item->getId(), $item->getQuantity());
         }

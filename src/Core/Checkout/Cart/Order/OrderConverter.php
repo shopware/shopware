@@ -24,9 +24,7 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -112,9 +110,10 @@ class OrderConverter
      */
     public function convertToOrder(Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext): array
     {
-        /** @var Delivery $delivery */
         foreach ($cart->getDeliveries() as $delivery) {
-            if ($delivery->getLocation()->getAddress() !== null || $delivery->hasExtensionOfType(self::ORIGINAL_ID, IdStruct::class)) {
+            if ($delivery->getLocation()->getAddress() !== null
+                || $delivery->hasExtensionOfType(self::ORIGINAL_ID, IdStruct::class)
+            ) {
                 continue;
             }
             throw new DeliveryWithoutAddressException();
@@ -265,7 +264,6 @@ class OrderConverter
     {
         $cartDeliveries = new DeliveryCollection();
 
-        /** @var OrderDeliveryEntity $orderDelivery */
         foreach ($orderDeliveries as $orderDelivery) {
             $deliveryDate = new DeliveryDate(
                 $orderDelivery->getShippingDateEarliest(),
@@ -274,7 +272,6 @@ class OrderConverter
 
             $deliveryPositions = new DeliveryPositionCollection();
 
-            /** @var OrderDeliveryPositionEntity $position */
             foreach ($orderDelivery->getPositions() as $position) {
                 $identifier = $position->getOrderLineItem()->getIdentifier();
 

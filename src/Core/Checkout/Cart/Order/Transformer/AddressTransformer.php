@@ -11,7 +11,6 @@ class AddressTransformer
     public static function transformCollection(CustomerAddressCollection $addresses, bool $useIdAsKey = false): array
     {
         $output = [];
-        /** @var CustomerAddressEntity $address */
         foreach ($addresses as $address) {
             if (array_key_exists($address->getId(), $output)) {
                 continue;

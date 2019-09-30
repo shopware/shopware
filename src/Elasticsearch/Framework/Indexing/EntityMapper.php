@@ -39,7 +39,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class EntityMapper
 {
@@ -166,7 +165,6 @@ class EntityMapper
             return !$field instanceof AssociationField;
         });
 
-        /** @var FieldCollection $fields */
         foreach ($fields as $field) {
             $fieldMapping = $this->mapField($definition, $field, $context);
 

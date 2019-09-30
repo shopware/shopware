@@ -81,7 +81,6 @@ class PromotionAbsoluteCalculationTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixtureAbsolutePromotion($promotionId, $code, 45, $this->getContainer());
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
@@ -116,7 +115,6 @@ class PromotionAbsoluteCalculationTest extends TestCase
 
         $this->createAdvancedCurrencyPriceValuePromotion($promotionId, $code, 15, 30);
 
-        /** @var Cart $cart */
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart

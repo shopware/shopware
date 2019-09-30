@@ -136,7 +136,6 @@ class PromotionCalculator
                 continue;
             }
 
-            /** @var DiscountCalculatorResult $result */
             $result = $this->calculateDiscount($discountItem, $calculated, $context);
 
             // if our price is 0,00 because of whatever reason, make sure to skip it.
@@ -193,7 +192,6 @@ class PromotionCalculator
         );
 
         // get the cart total price => discount may never be higher than this value
-        /** @var float $maxDiscountValue */
         $maxDiscountValue = $calculatedCart->getPrice()->getTotalPrice();
 
         /** @var DiscountPackagerInterface $packager */
@@ -216,7 +214,6 @@ class PromotionCalculator
                 throw new InvalidScopeDefinitionException($discount->getScope());
         }
 
-        /** @var DiscountPackageCollection $packages */
         $packages = $packager->getMatchingItems($discount, $calculatedCart, $context);
 
         // check if no result is found,
@@ -233,7 +230,6 @@ class PromotionCalculator
         // in that case we temporarily wrap our line items in packages
         // and move the found results back into 1 package in the end.
         if ($packager->getResultContext() === DiscountPackagerInterface::RESULT_CONTEXT_LINEITEM) {
-            /** @var DiscountPackageCollection $packages */
             $packages = $packages->splitPackages();
         }
 
@@ -281,7 +277,6 @@ class PromotionCalculator
                 throw new DiscountCalculatorNotFoundException($discount->getType());
         }
 
-        /** @var DiscountCalculatorResult $result */
         $result = $calculator->calculate($discount, $packages, $context);
 
         // now aggregate any composition items
@@ -306,14 +301,12 @@ class PromotionCalculator
      */
     private function limitDiscountResult(float $maxDiscountValue, PriceCollection $priceCollection, DiscountCalculatorResult $originalResult, SalesChannelContext $context): DiscountCalculatorResult
     {
-        /** @var CalculatedPrice $price */
         $price = $this->absolutePriceCalculator->calculate(
             -abs($maxDiscountValue),
             $priceCollection,
             $context
         );
 
-        /** @var array $adjustedItems */
         $adjustedItems = $this->discountCompositionBuilder->adjustCompositionItemValues($price, $originalResult->getCompositionItems());
 
         // update our result price to the new one

@@ -13,7 +13,6 @@ class DiscountCompositionBuilder
     {
         $payloadItems = [];
 
-        /** @var DiscountCompositionItem $item */
         foreach ($items as $item) {
             $payloadItems[] = [
                 'id' => $item->getId(),
@@ -36,13 +35,11 @@ class DiscountCompositionBuilder
 
         /** @var DiscountCompositionItem $item */
         foreach ($targetItems as $item) {
-            /** @var float $itemTotal */
             $itemTotal = $item->getDiscountValue();
 
             $factor = 0.0;
 
             if ($targetPrice->getTotalPrice() > 0) {
-                /** @var float $factor */
                 $factor = $itemTotal / $targetPrice->getTotalPrice();
             }
 
@@ -70,7 +67,6 @@ class DiscountCompositionBuilder
             if (!array_key_exists($item->getId(), $aggregated)) {
                 $aggregated[$item->getId()] = $item;
             } else {
-                /** @var DiscountCompositionItem $existing */
                 $existing = $aggregated[$item->getId()];
 
                 $aggregated[$item->getId()] = new DiscountCompositionItem(

@@ -66,7 +66,6 @@ class KernelPluginIntegrationTest extends TestCase
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances();
         static::assertNotEmpty($plugins->all());
 
-        /** @var Plugin|null $testPlugin */
         $testPlugin = $plugins->get('SwagTest\\SwagTest');
         static::assertNotNull($testPlugin);
 

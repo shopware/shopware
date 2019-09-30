@@ -160,7 +160,6 @@ class PromotionExclusionIndexer implements IndexerInterface
 
         foreach ($ids as $id) {
             // get exclusions for this id and prepare it as hex array
-            /** @var array $exclusions */
             $exclusions = $this->getExclusionIds($id);
 
             $this->addTags($tags, [$id]);

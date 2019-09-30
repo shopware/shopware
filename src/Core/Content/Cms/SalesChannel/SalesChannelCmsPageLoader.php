@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Cms\SalesChannel;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
@@ -116,7 +115,6 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
             return;
         }
 
-        /** @var CmsSlotEntity $slot */
         foreach ($page->getSections()->getBlocks()->getSlots() as $slot) {
             if (!isset($config[$slot->getId()])) {
                 continue;

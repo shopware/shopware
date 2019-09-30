@@ -57,7 +57,6 @@ class LineItemGroupPriceDescSorterTest extends TestCase
         $items->add($p2);
         $items->add($p3);
 
-        /** @var LineItemFlatCollection $sortedItems */
         $sortedItems = $this->sorter->sort($items);
 
         static::assertEquals($p3->getId(), $sortedItems->getElements()[0]->getId());
@@ -83,7 +82,6 @@ class LineItemGroupPriceDescSorterTest extends TestCase
         $items->add($a);
         $items->add($b);
 
-        /** @var LineItemFlatCollection $sortedItems */
         $sortedItems = $this->sorter->sort($items);
 
         static::assertSame($b, $sortedItems->getElements()[0]);
@@ -108,7 +106,6 @@ class LineItemGroupPriceDescSorterTest extends TestCase
         $items->add($a);
         $items->add($b);
 
-        /** @var LineItemFlatCollection $sortedItems */
         $sortedItems = $this->sorter->sort($items);
 
         static::assertSame($a, $sortedItems->getElements()[0]);

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
@@ -62,7 +61,6 @@ class LineItemGroupRule extends FilterRule
         /** @var LineItemGroupBuilder $builder */
         $builder = $scope->getCart()->getData()->get(LineItemGroupBuilder::class);
 
-        /** @var LineItemGroupBuilderResult $results */
         $results = $builder->findGroupPackages(
             [$groupDefinition],
             $scope->getCart(),

@@ -57,7 +57,6 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
         $this->setupSession();
 
         if ($event->getLineItem()->getType() === PromotionProcessor::LINE_ITEM_TYPE) {
-            /** @var string|null $code */
             $code = $event->getLineItem()->getReferencedId();
 
             if ($code !== null && $code !== '') {
@@ -97,9 +96,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
         if ($event->getLineItem()->getType() === PromotionProcessor::LINE_ITEM_TYPE) {
             $lineItem = $event->getLineItem();
 
-            /** @var string|null $code */
             $code = $lineItem->getReferencedId();
-
             if ($code !== null && $code !== '') {
                 $this->checkFixedDiscountItems($cart, $lineItem);
                 $this->removeFromSession($code);

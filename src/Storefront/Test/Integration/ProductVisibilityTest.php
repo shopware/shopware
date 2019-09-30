@@ -130,7 +130,6 @@ class ProductVisibilityTest extends TestCase
 
         $request = new Request(['search' => 'test']);
 
-        /** @var SearchPage $page */
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
         static::assertCount(2, $page->getSearchResult());

@@ -66,10 +66,8 @@ trait PromotionIntegrationTestBehaviour
     {
         $itemBuilder = new PromotionItemBuilder();
 
-        /** @var LineItem $lineItem */
         $lineItem = $itemBuilder->buildPlaceholderItem($code, $context->getContext()->getCurrencyPrecision());
 
-        /** @var Cart $cart */
         $cart = $cartService->add($cart, $lineItem, $context);
 
         return $cart;
@@ -83,7 +81,6 @@ trait PromotionIntegrationTestBehaviour
         /** @var LineItem[] $promotions */
         $promotions = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
 
-        /** @var LineItem $promotion */
         foreach ($promotions as $promotion) {
             if ($promotion->getReferencedId() === $code) {
                 return $cartService->remove($cart, $promotion->getId(), $context);

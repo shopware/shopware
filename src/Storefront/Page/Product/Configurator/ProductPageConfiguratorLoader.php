@@ -57,7 +57,6 @@ class ProductPageConfiguratorLoader
 
         $current = $this->buildCurrentOptions($product, $groups);
 
-        /** @var PropertyGroupEntity $group */
         foreach ($groups as $group) {
             $options = $group->getOptions();
             if ($group->getOptions() === null) {

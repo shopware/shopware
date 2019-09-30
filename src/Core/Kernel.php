@@ -277,7 +277,6 @@ class Kernel extends HttpKernel
 
     private function initializeDatabaseConnectionVariables(): void
     {
-        /** @var Connection $connection */
         $connection = self::getConnection();
 
         $nonDestructiveMigrations = $connection->executeQuery('

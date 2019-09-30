@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
-use Symfony\Component\Cache\CacheItem;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class CachedEntityAggregator implements EntityAggregatorInterface
 {
@@ -113,7 +113,7 @@ class CachedEntityAggregator implements EntityAggregatorInterface
 
             $tags = $this->cacheKeyGenerator->getAggregationTags($definition, $criteria, $aggregation);
 
-            /** @var CacheItem $item */
+            /** @var ItemInterface $item */
             $item = $this->cache->getItem($key);
             $item->set($result);
             $item->tag($tags);

@@ -114,7 +114,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        /** @var LineItem $item */
         $item = $builder->buildDiscountLineItem('my-code', $this->promotion, $discount, 1, Defaults::CURRENCY);
 
         $expected = [
@@ -161,7 +160,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        /** @var LineItem $item */
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY);
 
         static::assertEquals($groupId, $item->getPayload()['groupId']);
@@ -205,7 +203,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        /** @var LineItem $item */
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY);
 
         $expected = [
@@ -270,7 +267,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        /** @var LineItem $item */
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, $currency->getId());
 
         static::assertEquals(20, $item->getPayload()['maxValue']);
@@ -299,7 +295,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $builder = new PromotionItemBuilder();
 
-        /** @var LineItem $item */
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, Defaults::CURRENCY);
 
         static::assertEquals('', $item->getPayload()['maxValue']);

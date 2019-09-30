@@ -55,7 +55,6 @@ class DaysSinceLastOrderRule extends Rule
             return false;
         }
 
-        /** @var \DateTimeInterface|null $lastOrderDate */
         $lastOrderDate = $customer->getLastOrderDate();
 
         if ($lastOrderDate === null) {
@@ -82,7 +81,7 @@ class DaysSinceLastOrderRule extends Rule
                         && (int) $currentDate->format('i') < (int) $lastOrderDate->format('i')
                     )
                 )
-            ) {
+        ) {
             $interval = $lastOrderDate->diff($currentDate->modify('+1 day'));
         }
 

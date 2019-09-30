@@ -37,7 +37,6 @@ class LineItemQuantityCollection extends Collection
             if (!array_key_exists($element->getLineItemId(), $tmpItems)) {
                 $tmpItems[$element->getLineItemId()] = $element;
             } else {
-                /** @var LineItemQuantity $existing */
                 $existing = $tmpItems[$element->getLineItemId()];
                 // update quantity
                 $existing->setQuantity($existing->getQuantity() + $element->getQuantity());

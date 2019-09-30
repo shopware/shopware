@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
 use Shopware\Core\Framework\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -33,7 +32,6 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
         }
 
         $updatedPluginCount = 0;
-        /** @var PluginEntity $plugin */
         foreach ($plugins as $plugin) {
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
             ++$updatedPluginCount;

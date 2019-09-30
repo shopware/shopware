@@ -139,7 +139,6 @@ class ThemeChangeCommand extends Command
     {
         $choices = [];
 
-        /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
             $choices[] = $salesChannel->getName() . ' | ' . $salesChannel->getId();
         }

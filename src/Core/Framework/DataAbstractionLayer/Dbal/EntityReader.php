@@ -906,7 +906,6 @@ class EntityReader implements EntityReaderInterface
             return false;
         }
 
-        /** @var Criteria $fieldCriteria */
         $fieldCriteria = $criteria->getAssociation($accessor);
 
         return $fieldCriteria->getOffset() !== null
@@ -957,7 +956,6 @@ class EntityReader implements EntityReaderInterface
             return;
         }
 
-        /** @var Criteria $associationCriteria */
         $associationCriteria = $criteria->getAssociation($association->getPropertyName());
         if (!$associationCriteria->getAssociations()) {
             return;

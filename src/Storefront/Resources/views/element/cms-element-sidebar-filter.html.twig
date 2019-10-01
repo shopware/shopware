@@ -2,22 +2,24 @@
     {% set config = element.fieldConfig.elements %}
 
     {# @var cmsPage \Shopware\Core\Content\Cms\CmsPageEntity #}
-    {% set navigationId = cmsPage.categories.elements|first.id %}
+    {% set navigationId = element.data.get('navigationId') %}
 
-    {# @var slot \Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity #}
-    {% set slot = page.cmsPage.firstElementOfType('product-listing') %}
+    {% if navigationId %}
+        {# @var slot \Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity #}
+        {% set slot = page.cmsPage.firstElementOfType('product-listing') %}
 
-    {% set url = url('frontend.cms.navigation.filter', { navigationId: navigationId }) %}
-    {% set dataUrl = url('frontend.cms.navigation.page', { navigationId: navigationId }) %}
+        {% set url = url('frontend.cms.navigation.filter', { navigationId: navigationId }) %}
+        {% set dataUrl = url('frontend.cms.navigation.page', { navigationId: navigationId }) %}
 
-    <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}">
-        {% block element_product_slider_alignment %}
-            {% sw_include '@Storefront/component/listing/filter-panel.html.twig' with {
-                listing: slot.data.listing,
-                params: { slots: slot.id },
-                dataUrl: dataUrl,
-                url: url
-            } %}
-        {% endblock %}
-    </div>
+        <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}">
+            {% block element_product_slider_alignment %}
+                {% sw_include '@Storefront/component/listing/filter-panel.html.twig' with {
+                    listing: slot.data.listing,
+                    params: { slots: slot.id },
+                    dataUrl: dataUrl,
+                    url: url
+                } %}
+            {% endblock %}
+        </div>
+    {% endif %}
 {% endblock %}

@@ -33,6 +33,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('#sw-field--page-name').typeAndCheck('Laidout');
         cy.contains('.sw-button--primary', 'Create layout').should('be.enabled');
         cy.contains('.sw-button--primary', 'Create layout').click();
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
         // Add simple text block

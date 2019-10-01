@@ -1,13 +1,18 @@
 {% block element_product_listing %}
     {# @var result \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
     {% set searchResult = element.data.listing %}
+    {% set listingColumns = 'col-sm-6 col-lg-4 col-xl-3' %}
+
+    {% if section and section.type == 'sidebar' %}
+        {% set listingColumns = 'col-sm-6 col-lg-6 col-xl-4' %}
+    {% endif %}
 
     <div class="cms-element-{{ element.type }}">
         {% block element_product_listing_row %}
             <div class="row cms-listing-row js-listing-wrapper">
                 {% block element_product_listing_col %}
                     {% for product in searchResult %}
-                        <div class="cms-listing-col col-sm-6 col-lg-4 col-xl-3">
+                        <div class="cms-listing-col {{ listingColumns }}">
                             {% block element_product_listing_box %}
                                 {% sw_include '@Storefront/component/product/card/box.html.twig' with {
                                     'layout': element.translated.config.boxLayout.value,

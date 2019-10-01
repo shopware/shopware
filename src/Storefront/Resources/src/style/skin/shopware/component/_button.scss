@@ -8,6 +8,9 @@ https://getbootstrap.com/docs/4.3/components/buttons/
 
 .btn {
     font-weight: $font-weight-bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 // custom add to cart button, used e.g. in product-box and product detail buybox

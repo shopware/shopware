@@ -70,6 +70,11 @@ class CustomerEvents
     public const CUSTOMER_CHANGED_PAYMENT_METHOD_EVENT = 'checkout.customer.changed-payment-method';
 
     /**
+     * @Event("\Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent")
+     */
+    public const CUSTOMER_BEFORE_LOGIN_EVENT = 'checkout.customer.before.login';
+
+    /**
      * @Event("\Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent")
      */
     public const CUSTOMER_LOGIN_EVENT = 'checkout.customer.login';

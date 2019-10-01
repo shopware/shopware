@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Defaults;
@@ -39,24 +40,36 @@ class AccountRegistrationServiceTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
+        $customerRegisterData = $this->getCustomerRegisterData();
+
         $dataBag = new DataBag();
-        $dataBag->add($this->getCustomerRegisterData());
+        $dataBag->add($customerRegisterData);
 
         $phpunit = $this;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $dataBag): void {
-            $eventDidRun = true;
+
+        $mailEventDidRun = false;
+        $listenerMailEventClosure = function (MailSentEvent $event) use (&$mailEventDidRun, $phpunit, $dataBag): void {
+            $mailEventDidRun = true;
             $phpunit->assertStringContainsString('Dear Mr. Max Mustermann', $event->getContents()['text/html']);
             $phpunit->assertStringContainsString($dataBag->get('email'), $event->getContents()['text/html']);
         };
 
-        $eventDidRun = false;
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $customerEventDidRun = false;
+        $listenerCustomerEventClosure = function (CustomerRegisterEvent $event) use (&$customerEventDidRun, $phpunit, $customerRegisterData): void {
+            $customerEventDidRun = true;
+            $phpunit->assertSame($customerRegisterData['email'], $event->getCustomer()->getEmail());
+        };
+
+        $dispatcher->addListener(MailSentEvent::class, $listenerMailEventClosure);
+        $dispatcher->addListener(CustomerRegisterEvent::class, $listenerCustomerEventClosure);
 
         $this->accountRegistrationService->register($dataBag, false, $salesChannelContext);
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+        $dispatcher->removeListener(MailSentEvent::class, $listenerMailEventClosure);
+        $dispatcher->removeListener(CustomerRegisterEvent::class, $listenerCustomerEventClosure);
 
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertTrue($mailEventDidRun, 'The mail.sent Event did not run');
+        static::assertTrue($customerEventDidRun, 'The "' . CustomerRegisterEvent::class . '" Event did not run');
     }
 
     private function getCustomerRegisterData(): array

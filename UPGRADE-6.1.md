@@ -174,6 +174,7 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
     $response = $kernel->handle($request);
     ```
 
+* All customer events in `Shopware\Core\Checkout\Customer\Event` now get the `Shopware\Core\Syste\SalesChannel\SalesChannelContext` instead of `Shopware\Core\Framework\Context` and a `salesChannelId`
 
 Administration
 --------------

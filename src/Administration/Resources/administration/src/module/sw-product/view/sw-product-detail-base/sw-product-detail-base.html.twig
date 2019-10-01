@@ -128,7 +128,7 @@
                      :isLoading="product.isLoading">
                 <template slot="grid">
                     <sw-data-grid
-                        v-if="total < 0"
+                        v-if="total"
                         ref="gridReview"
                         :dataSource="reviewItemData"
                         :columns="reviewColumns"

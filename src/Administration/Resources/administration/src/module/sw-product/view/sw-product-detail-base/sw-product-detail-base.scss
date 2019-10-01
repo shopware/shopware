@@ -11,5 +11,10 @@
 .sw-product-detail-base__review-card {
     .sw-card__content {
         min-height: 250px;
+        padding: 0;
+    }
+
+    .sw-empty-state {
+        position: relative;
     }
 }

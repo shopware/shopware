@@ -479,7 +479,7 @@
     "sw-product-image": {
       "context": {
         "buttonAsCover": "Als Cover nutzen",
-        "buttonDelete": "Löschen"
+        "buttonDelete": "Entfernen"
       }
     },
     "sw-simple-search-field": {

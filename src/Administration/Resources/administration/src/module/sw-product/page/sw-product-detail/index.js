@@ -473,6 +473,12 @@ Component.register('sw-product-detail', {
             newMedia.mediaId = mediaItem.id;
 
             return new Promise((resolve) => {
+                // if no other media exists
+                if (this.product.media.length === 0) {
+                    // set media item as cover
+                    newMedia.position = 0;
+                    this.product.coverId = newMedia.id;
+                }
                 this.product.media.add(newMedia);
 
                 this.$store.commit('swProductDetail/setLoading', ['media', false]);

@@ -219,7 +219,7 @@ describe('Product: Edit product media', () => {
         // Remove image
         cy.get(`.sw-product-image:nth-of-type(1) ${page.elements.contextMenuButton}`)
             .click({force: true});
-        cy.contains('Delete').click();
+        cy.contains('Remove').click();
         cy.get('.sw-product-media-form__cover-image.is--placeholder').should('be.visible');
 
         // Verify removal

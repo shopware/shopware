@@ -248,6 +248,13 @@ Component.register('sw-product-media-form', {
             }
 
             const productMedia = this.createMediaAssociation(dragData.mediaItem.id);
+
+            // if no other media exists
+            if (this.product.media.length === 0) {
+                // set media item as cover
+                productMedia.position = 0;
+                this.product.coverId = productMedia.id;
+            }
             this.product.media.add(productMedia);
         },
 

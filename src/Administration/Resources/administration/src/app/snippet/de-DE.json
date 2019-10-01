@@ -479,7 +479,7 @@
     "sw-product-image": {
       "context": {
         "buttonAsCover": "Als Cover nutzen",
-        "buttonDelete": "Löschen"
+        "buttonDelete": "Entfernen"
       }
     },
     "sw-simple-search-field": {
@@ -509,6 +509,7 @@
       "media_folder": "Ordner",
       "media_thumbnail": "Thumbnail | Thumbnails",
       "media_thumbnail_size": "Thumbnailgröße | Thumbnailgrößen",
+      "newsletter_recipient": "Newsletter Empfänger",
       "number_range": "Nummernkreis | Nummernkreise",
       "order": "Bestellung | Bestellungen",
       "order_address": "Adresse | Adressen",

@@ -118,7 +118,9 @@
           "confirmText": "Do you really want to delete this review?",
           "buttonCancel": "Cancel",
           "buttonDelete": "Delete"
-        }
+        },
+      "messageEmptyTitle": "No reviews yet",
+      "messageEmptySubline": "Manage reviews"
     },
     "prices": {
       "cardTitlePriceRule": "New pricing rule",

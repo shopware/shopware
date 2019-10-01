@@ -42,7 +42,7 @@ Module.register('sw-newsletter-recipient', {
     navigation: [{
         id: 'sw-newsletter-recipient',
         icon: 'default-object-marketing',
-        color: '#9AA8B5',
+        color: '#FFD700',
         path: 'sw.newsletter.recipient.index',
         label: 'sw-newsletter-recipient.general.mainMenuItemGeneral',
         parent: 'sw-marketing'

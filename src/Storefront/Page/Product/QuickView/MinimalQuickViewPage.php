@@ -10,7 +10,7 @@ class MinimalQuickViewPage extends Struct
     /**
      * @var ProductEntity
      */
-    private $product;
+    protected $product;
 
     public function __construct(ProductEntity $product)
     {

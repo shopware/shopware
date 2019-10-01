@@ -60,11 +60,6 @@
         </service>
 
         <!-- Cache -->
-        <service id="shopware.cache" class="Symfony\Component\Cache\Adapter\TagAwareAdapter" public="true">
-            <argument type="service" id="cache.app" />
-            <argument type="service" id="cache.app" />
-        </service>
-
         <service class="Cocur\Slugify\Slugify" public="false" id="slugify">
             <argument>%shopware.slug.config%</argument>
         </service>
@@ -105,14 +100,14 @@
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
-            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
-            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\Framework\Migration\Api\MigrationController" public="true">
@@ -151,7 +146,7 @@
                  decorates="translator">
             <argument type="service" id="Shopware\Core\Framework\Translation\Translator.inner"/>
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="cache.object"/>
             <argument type="service" id="translator.formatter"/>
             <argument type="service" id="Shopware\Core\Framework\Snippet\SnippetService"/>
             <argument type="service" id="language.repository"/>
@@ -159,7 +154,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Translation\TranslatorCacheInvalidate">
-            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="cache.object"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -313,10 +308,14 @@
         </service>
 
         <service id="Shopware\Core\Framework\Cache\CacheClearer">
-            <argument type="service" id="shopware.cache"/>
+            <argument type="collection">
+                <argument type="service" id="cache.object" />
+                <argument type="service" id="cache.http" />
+            </argument>
             <argument type="service" id="cache_clearer"/>
             <argument type="service" id="filesystem"/>
             <argument>%kernel.cache_dir%</argument>
+            <argument>%kernel.environment%</argument>
         </service>
 
         <!-- Util -->

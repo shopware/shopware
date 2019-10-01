@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,6 +45,7 @@ class CmsController extends StorefrontController
     /**
      * Route for stand alone cms pages
      *
+     * @HttpCache()
      * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})
      *
      * @throws MissingRequestParameterException
@@ -99,12 +101,8 @@ class CmsController extends StorefrontController
      * @throws InconsistentCriteriaIdsException
      * @throws PageNotFoundException
      */
-    private function load(
-        string $id,
-        Request $request,
-        SalesChannelContext $context,
-        ?array $config = null
-    ): ?CmsPageEntity {
+    private function load(string $id, Request $request, SalesChannelContext $context, ?array $config = null): ?CmsPageEntity
+    {
         $criteria = new Criteria([$id]);
 
         $slots = $request->get('slots');

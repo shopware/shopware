@@ -46,7 +46,7 @@ class MigrationCommandTest extends TestCase
         return new MigrationCommand(
             new MigrationCollectionLoader($this->getConnection(), new MigrationCollection($directories)),
             $container->get(MigrationRuntime::class),
-            $container->get('shopware.cache')
+            $container->get('cache.object')
         );
     }
 
@@ -67,7 +67,7 @@ class MigrationCommandTest extends TestCase
         return new MigrationDestructiveCommand(
             new MigrationCollectionLoader($this->getConnection(), new MigrationCollection($directories)),
             $container->get(MigrationRuntime::class),
-            $container->get('shopware.cache')
+            $container->get('cache.object')
         );
     }
 

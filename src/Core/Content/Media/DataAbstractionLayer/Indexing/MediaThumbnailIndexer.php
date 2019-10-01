@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Event\MediaThumbnailDeletedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -14,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterface
@@ -35,7 +35,7 @@ class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterfac
     private $cacheKeyGenerator;
 
     /**
-     * @var TagAwareAdapter
+     * @var CacheClearer
      */
     private $cache;
 
@@ -49,7 +49,7 @@ class MediaThumbnailIndexer implements IndexerInterface, EventSubscriberInterfac
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $mediaRepository,
         EntityCacheKeyGenerator $cacheKeyGenerator,
-        TagAwareAdapter $cache
+        CacheClearer $cache
     ) {
         $this->connection = $connection;
         $this->mediaRepository = $mediaRepository;

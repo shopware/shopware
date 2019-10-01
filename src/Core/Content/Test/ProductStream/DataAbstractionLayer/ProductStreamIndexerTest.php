@@ -10,6 +10,7 @@ use Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStr
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Content\ProductStream\Util\EventIdExtractor;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -77,7 +78,7 @@ class ProductStreamIndexerTest extends TestCase
             $this->connection,
             $this->getContainer()->get('serializer'),
             $this->getContainer()->get(EntityCacheKeyGenerator::class),
-            $this->getContainer()->get('shopware.cache'),
+            $this->getContainer()->get(CacheClearer::class),
             $this->getContainer()->get(IteratorFactory::class),
             $this->getContainer()->get(ProductDefinition::class)
         );

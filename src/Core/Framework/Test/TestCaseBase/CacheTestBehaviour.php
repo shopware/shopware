@@ -12,7 +12,8 @@ trait CacheTestBehaviour
     public function clearCacheBefore(): void
     {
         $this->getContainer()
-            ->get('shopware.cache')
+            ->get('test.service_container')
+            ->get('cache.object')
             ->clear();
     }
 

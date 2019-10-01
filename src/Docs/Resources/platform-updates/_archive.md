@@ -707,7 +707,7 @@ color: $color-shopware;</pre>
 
 <h3>2019-01-29: Object cache</h3>
 
-<p>The cache can be referenced at shopware.cache. Here you find a \Symfony\Component\Cache\Adapter\TagAwareAdapterInterface behind. This allows additional tags to be stored on a CacheItem:</p>
+<p>The cache can be referenced at `cache.object`. Here you find a \Symfony\Component\Cache\Adapter\TagAwareAdapterInterface behind. This allows additional tags to be stored on a CacheItem:</p>
 
 <pre>
 $item = $this-&gt;cache-&gt;getItem(&#39;test&#39;);

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -16,7 +17,6 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -43,7 +43,7 @@ class ProductRatingAverageIndexer implements IndexerInterface, EventSubscriberIn
     private $productDefinition;
 
     /**
-     * @var TagAwareAdapterInterface
+     * @var CacheClearer
      */
     private $cache;
 
@@ -57,7 +57,7 @@ class ProductRatingAverageIndexer implements IndexerInterface, EventSubscriberIn
         Connection $connection,
         IteratorFactory $iteratorFactory,
         ProductDefinition $productDefinition,
-        TagAwareAdapterInterface $cache,
+        CacheClearer $cache,
         EntityCacheKeyGenerator $cacheKeyGenerator
     ) {
         $this->eventDispatcher = $eventDispatcher;

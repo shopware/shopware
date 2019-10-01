@@ -21,12 +21,12 @@ class CacheControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->cache = $this->getContainer()->get('shopware.cache');
+        $this->cache = $this->getContainer()->get('cache.object');
     }
 
     public function testClearCacheEndpoint(): void
     {
-        $this->cache = $this->getContainer()->get('shopware.cache');
+        $this->cache = $this->getContainer()->get('cache.object');
 
         $item = $this->cache->getItem('foo');
         $item->set('bar');

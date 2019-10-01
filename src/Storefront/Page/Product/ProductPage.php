@@ -31,7 +31,7 @@ class ProductPage extends Page
     /**
      * @var ReviewLoaderResult
      */
-    private $reviewLoaderResult;
+    protected $reviewLoaderResult;
 
     public function getProduct(): SalesChannelProductEntity
     {

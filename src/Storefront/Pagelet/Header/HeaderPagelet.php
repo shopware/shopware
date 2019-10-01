@@ -15,32 +15,32 @@ class HeaderPagelet extends Struct
     /**
      * @var Tree
      */
-    private $navigation;
+    protected $navigation;
 
     /**
      * @var LanguageCollection
      */
-    private $languages;
+    protected $languages;
 
     /**
      * @var CurrencyCollection
      */
-    private $currencies;
+    protected $currencies;
 
     /**
      * @var LanguageEntity
      */
-    private $activeLanguage;
+    protected $activeLanguage;
 
     /**
      * @var CurrencyEntity
      */
-    private $activeCurrency;
+    protected $activeCurrency;
 
     /**
      * @var CategoryCollection
      */
-    private $serviceMenu;
+    protected $serviceMenu;
 
     public function __construct(
         Tree $navigation,

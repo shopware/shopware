@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
+use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -10,13 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class InvalidateCacheSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var TagAwareAdapterInterface
+     * @var CacheClearer
      */
     private $cache;
 
@@ -31,7 +31,7 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
     private $definitionRegistry;
 
     public function __construct(
-        TagAwareAdapterInterface $cache,
+        CacheClearer $cache,
         EntityCacheKeyGenerator $cacheKeyGenerator,
         DefinitionInstanceRegistry $definitionRegistry
     ) {
@@ -90,7 +90,7 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
             }
         }
 
-        $keys = array_keys(array_flip($keys));
+        $keys = array_filter(array_keys(array_flip($keys)));
         $this->cache->invalidateTags($keys);
     }
 }

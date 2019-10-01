@@ -9,11 +9,11 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
-use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,11 +28,6 @@ class ProductController extends StorefrontController
      * @var ProductPageLoader
      */
     private $productPageLoader;
-
-    /**
-     * @var ProductReviewLoader
-     */
-    private $productReviewLoader;
 
     /**
      * @var ProductCombinationFinder
@@ -58,12 +53,10 @@ class ProductController extends StorefrontController
         ProductPageLoader $productPageLoader,
         ProductCombinationFinder $combinationFinder,
         MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
-        ProductReviewLoader $productReviewLoader,
         ProductReviewService $productReviewService,
         SalesChannelRepositoryInterface $productRepository
     ) {
         $this->productPageLoader = $productPageLoader;
-        $this->productReviewLoader = $productReviewLoader;
         $this->combinationFinder = $combinationFinder;
         $this->minimalQuickViewPageLoader = $minimalQuickViewPageLoader;
         $this->productReviewService = $productReviewService;
@@ -71,6 +64,7 @@ class ProductController extends StorefrontController
     }
 
     /**
+     * @HttpCache()
      * @Route("/detail/{productId}", name="frontend.detail.page", methods={"GET"})
      */
     public function index(SalesChannelContext $context, Request $request): Response
@@ -90,17 +84,11 @@ class ProductController extends StorefrontController
         $switchedOption = $data->get('switched');
         $newOptions = json_decode($data->get('options'), true);
 
-        $redirect = $this->combinationFinder->find(
-            $productId,
-            $switchedOption,
-            $newOptions,
-            $context
-        );
+        $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $context);
 
-        $product = $this->productRepository->search(
-            new Criteria([$redirect->getVariantId()]),
-            $context
-        )->get($redirect->getVariantId());
+        $criteria = new Criteria([$redirect->getVariantId()]);
+
+        $product = $this->productRepository->search($criteria, $context)->get($redirect->getVariantId());
 
         if (!$product->hasExtension('canonicalUrl')) {
             return $this->redirectToRoute('frontend.detail.page', ['productId' => $redirect->getVariantId()]);

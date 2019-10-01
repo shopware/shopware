@@ -8,6 +8,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\Router;
+use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Theme\Twig\ThemeTemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class StorefrontController extends AbstractController
 {
-    protected function renderStorefront(string $view, array $parameters = [], ?Response $response = null): Response
+    protected function renderStorefront(string $view, array $parameters = []): Response
     {
         $request = $this->get('request_stack')->getCurrentRequest();
 
@@ -30,10 +31,19 @@ abstract class StorefrontController extends AbstractController
         $view = $this->resolveView($view, $activeThemeName, $activeThemeBaseName);
 
         $event = new StorefrontRenderEvent($view, $parameters, $request, $context);
-
         $this->get('event_dispatcher')->dispatch($event);
 
-        return $this->render($view, $event->getParameters(), $response);
+        $response = $this->render($view, $event->getParameters(), new StorefrontResponse());
+
+        if (!$response instanceof StorefrontResponse) {
+            throw new \RuntimeException('Symfony render implementation changed. Providing a response is no longer supported');
+        }
+
+        /* @var StorefrontResponse $response */
+        $response->setData($parameters);
+        $response->setContext($context);
+
+        return $response;
     }
 
     protected function trans(string $snippet, array $parameters = []): string

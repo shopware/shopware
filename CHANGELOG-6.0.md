@@ -85,12 +85,19 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         - This allows setter injection in plugin bundle class
         - These services are now available in `\Shopware\Core\Framework\Plugin::activate` and `\Shopware\Core\Framework\Plugin::deactivate`
         - `\Shopware\Core\Framework\Plugin::deactivate` is now always called before `\Shopware\Core\Framework\Plugin::uninstall`
+    * Renamed container service id `shopware.cache` to `cache.object` 
+    * Added new function to `\Shopware\Core\Framework\Cache\CacheClearer`. Please use this service to invalidate or delete cache items.
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
     * Changed the name of `messages.<locale>.json` to `storefront.<locale>.json` and changed to **not** be a base file anymore.
     * Added `extractIdsToUpdate` to `Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface`
     * Changed the behaviour of the SeoUrlIndexer to rebuild seo urls asynchronously in some cases where a single change to an entity can trigger huge amount if seo url changes.  
-    
+    * Added `\Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmerRegistry` which allows to warm up different http cache routes
+    * Added `http:cache:warmup` console command to warm up the http cache.
+    * Added new service `\Shopware\Storefront\Framework\Cache\CacheStore` which is used for the http cache
+    * Added new .env variables `SHOPWARE_HTTP_CACHE_ENABLED` and `SHOPWARE_HTTP_DEFAULT_TTL` which configures the http cache.
+    * Added `\Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder` which finds all entity cache keys in a none entity object.
+
 **Removals**
 
 * Administration

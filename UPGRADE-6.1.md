@@ -136,11 +136,44 @@ Core
     ```
 
 * the parameter for the `\Shopware\Core\Kernel::boot` method was removed. Instead, use the `StaticKernelPluginLoader` with an empty list.
-
-
 * If you have implemented a custom `Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSerializer`, you must now provide a `DefinitionInstanceRegistry` when calling the super constructor
 * Removed `Shopware\Core\Framework\DataAbstractionLayer\EntityWrittenContainerEvent::getEventByDefinition`. Use `getEventByEntityName` instead, which takes the entity name instead of the entity classname but proved the same functionality.
 * Removed `getDefinition` and the corresponding `definition` member from `\Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResults` and `...\Event\EntityWrittenEvent`. Classes which used this function can access the name of the written entity via the new method `getEntityName` and retrieve the definition using the `DefinitionInstanceRegistry`
+* We added a new environment variables `SHOPWARE_HTTP_CACHE_ENABLED` and `SHOPWARE_HTTP_DEFAULT_TTL` which has to be defined in your `.env` file
+```
+SHOPWARE_HTTP_CACHE_ENABLED=1
+SHOPWARE_HTTP_DEFAULT_TTL=7200
+```
+* Replace service id `shopware.cache` with `cache.object`
+* If you invalidated the entity cache over the `shopware.cache` service, use the `\Shopware\Core\Framework\Cache\CacheClearer` instead.
+* We supports now the symfony http cache. You have to change the `index.php` of your project as follow:
+
+    Before:
+    ```php
+    // resolves seo urls and detects storefront sales channels
+    $request = $kernel->getContainer()
+        ->get(RequestTransformerInterface::class)
+        ->transform($request);
+
+    $response = $kernel->handle($request);
+    ``` 
+    
+    After:
+    ```php
+    // resolves seo urls and detects storefront sales channels
+    $request = $kernel->getContainer()
+        ->get(RequestTransformerInterface::class)
+        ->transform($request);
+
+    $enabled = $kernel->getContainer()->getParameter('shopware.http.cache.enabled');
+    if ($enabled) {
+        $store = $kernel->getContainer()->get(\Shopware\Storefront\Framework\Cache\CacheStore::class);
+        $kernel = new \Symfony\Component\HttpKernel\HttpCache\HttpCache($kernel, $store, null, ['debug' => $debug]);
+    }
+
+    $response = $kernel->handle($request);
+    ```
+
 
 Administration
 --------------

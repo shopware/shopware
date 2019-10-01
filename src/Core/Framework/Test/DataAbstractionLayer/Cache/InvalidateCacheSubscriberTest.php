@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\InvalidateCacheSubscriber;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Language\LanguageDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 
 class InvalidateCacheSubscriberTest extends TestCase
 {
@@ -82,7 +82,7 @@ class InvalidateCacheSubscriberTest extends TestCase
             'product_category.category_id',
         ];
 
-        $cache = $this->createMock(TagAwareAdapter::class);
+        $cache = $this->createMock(CacheClearer::class);
         $cache->expects(static::once())
             ->method('invalidateTags')
             ->with($tags);

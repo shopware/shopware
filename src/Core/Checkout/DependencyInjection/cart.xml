@@ -209,7 +209,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="rule.repository"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="shopware.cache"/>
+            <argument type="service" id="cache.object"/>
             <argument>%shopware.cache.entity_cache.expiration_time%</argument>
         </service>
 

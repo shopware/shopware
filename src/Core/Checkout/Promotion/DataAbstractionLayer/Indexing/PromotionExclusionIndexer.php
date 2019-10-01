@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
+use Shopware\Core\Framework\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -15,7 +16,6 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PromotionExclusionIndexer implements IndexerInterface
@@ -41,7 +41,7 @@ class PromotionExclusionIndexer implements IndexerInterface
     private $promotionDefinition;
 
     /**
-     * @var TagAwareAdapterInterface
+     * @var CacheClearer
      */
     private $cache;
 
@@ -50,7 +50,7 @@ class PromotionExclusionIndexer implements IndexerInterface
      */
     private $cacheKeyGenerator;
 
-    public function __construct(TagAwareAdapterInterface $cache, Connection $connection, EventDispatcherInterface $eventDispatcher, IteratorFactory $iteratorFactory, PromotionDefinition $promotionDefinition, EntityCacheKeyGenerator $cacheKeyGenerator)
+    public function __construct(CacheClearer $cache, Connection $connection, EventDispatcherInterface $eventDispatcher, IteratorFactory $iteratorFactory, PromotionDefinition $promotionDefinition, EntityCacheKeyGenerator $cacheKeyGenerator)
     {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;

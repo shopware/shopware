@@ -18,4 +18,9 @@ abstract class Struct implements \JsonSerializable, ExtendableInterface
 
     //allows to create a new instance with all data of the provided object
     use CreateFromTrait;
+
+    public function getVars(): array
+    {
+        return get_object_vars($this);
+    }
 }

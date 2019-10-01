@@ -35,7 +35,7 @@ class CachedEntityAggregatorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cache = $this->getContainer()->get('shopware.cache');
+        $this->cache = $this->getContainer()->get('cache.object');
     }
 
     public function testCacheHit(): void

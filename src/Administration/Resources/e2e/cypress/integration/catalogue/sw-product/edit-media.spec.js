@@ -184,6 +184,10 @@ describe('Product: Edit product media', () => {
             url: '/api/v1/product/*',
             method: 'patch'
         }).as('saveProduct');
+        cy.route({
+            url: '/api/v1/product/**/media/*',
+            method: 'delete'
+        }).as('removeProductMedia');
 
         // Open product
         cy.clickContextMenuItem(
@@ -222,7 +226,16 @@ describe('Product: Edit product media', () => {
         cy.contains('Remove').click();
         cy.get('.sw-product-media-form__cover-image.is--placeholder').should('be.visible');
 
+        // Save product
+        cy.get(page.elements.productSaveAction).click();
+        cy.wait('@saveProduct').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
         // Verify removal
+        cy.wait('@removeProductMedia').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('Product name').click();

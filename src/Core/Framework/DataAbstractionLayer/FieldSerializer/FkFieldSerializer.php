@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\Constraint\Uuid as UuidConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class FkFieldSerializer extends AbstractFieldSerializer
@@ -40,6 +41,8 @@ class FkFieldSerializer extends AbstractFieldSerializer
 
             return;
         }
+
+        $this->validate([new UuidConstraint()], $data, $parameters->getPath());
 
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }

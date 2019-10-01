@@ -1,5 +1,7 @@
 // / <reference types="Cypress" />
 
+import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
+
 describe('CMS: Test crud operations of layouts', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -19,6 +21,8 @@ describe('CMS: Test crud operations of layouts', () => {
     });
 
     it('@package @content: create, translate and read layout', () => {
+        const page = new MediaPageObject();
+
         cy.server();
         cy.route({
             url: '/api/v1/cms-page',
@@ -44,7 +48,6 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-cms-detail').should('be.visible');
 
         // Fill in basic data
-
         cy.contains('.sw-cms-create-wizard__page-type', 'Landing page').click();
         cy.get('.sw-cms-create-wizard__title').contains('Which section would you like to start with?');
         cy.contains('.sw-cms-stage-section-selection__default', 'Full width').click();
@@ -53,6 +56,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('#sw-field--page-name').typeAndCheck('Laidout');
         cy.contains('.sw-button--primary', 'Create layout').should('be.enabled');
         cy.contains('.sw-button--primary', 'Create layout').click();
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
         // Add simple text block
@@ -66,13 +70,14 @@ describe('CMS: Test crud operations of layouts', () => {
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveData').then((xhr) => {
+            cy.get(page.elements.successIcon).should('be.visible');
             expect(xhr).to.have.property('status', 204);
         });
 
         cy.wait('@reloadPage').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select.is--disabled').should('not.exist');
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
@@ -101,6 +106,8 @@ describe('CMS: Test crud operations of layouts', () => {
     });
 
     it('@package @content: update translation and read layout', () => {
+        const page = new MediaPageObject();
+        
         cy.server();
         cy.route({
             url: '/api/v1/cms-page/*',
@@ -127,8 +134,9 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
+            cy.get(page.elements.successIcon).should('be.visible');
         });
-
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
         cy.get('.sw-select__results').should('be.visible');
         cy.get('.sw-select__results .sw-select-option--0').click();

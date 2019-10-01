@@ -105,7 +105,7 @@ Shopware.Application.getContainer('service').cmsService.registerCmsElement({
 ```
 
 The properties `name` and `label` do not require further explanation.
-For all three fields `compoent`, `configComponent` and `previewComponent`, components that do not **yet** exist were applied. Those will be created
+For all three fields `component`, `configComponent` and `previewComponent`, components that do not **yet** exist were applied. Those will be created
 in the next few steps as well.
 The `defaultConfig` defines the default values for the element's configurations. There will be a text field to enter a YouTube video's ID, `videoSrc`, and a
 toggle to en-/disable the option to show the control elements in the YouTube video, `showControls`.

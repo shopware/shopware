@@ -40,7 +40,8 @@
                               data-cms-slot-reload="true"
                               data-cms-slot-reload-options='{
                                     "updateHistory": true,
-                                    "navigationId": "{{ cmsPage.categories.elements|first.id }}",
+                                    {# TODO: Correct navigationId access #}
+                                    "navigationId": "{{ context.salesChannel.navigationCategoryId }}",
                                     "elements": {
                                         "{{ element.id }}": [
                                             ".js-listing-wrapper",

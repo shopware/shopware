@@ -3,6 +3,7 @@ import HttpClient from 'src/script/service/http-client.service';
 import Iterator from 'src/script/helper/iterator.helper';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import querystring from 'query-string';
+import ElementReplaceHelper from 'src/script/helper/element-replace.helper';
 
 export default class FilterPanelPlugin extends Plugin {
 
@@ -266,8 +267,8 @@ export default class FilterPanelPlugin extends Plugin {
      * @param {String} response - HTML of filtered product data.
      */
     renderResponse(response) {
-        const listing = DomAccess.querySelector(document, this.options.cmsProductListingSelector);
-        listing.innerHTML = response;
+        ElementReplaceHelper.replaceFromMarkup(response, this.options.cmsProductListingSelector);
+
         // TODO: Use the cmsSlotReloadService for replacing and reloading the elements
         window.PluginManager.initializePlugins();
     }

@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationService;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -111,7 +110,7 @@ class AddressService
         $this->validateCustomerIsLoggedIn($context);
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        $definition = $this->getCreateValidationDefinition($accountType, $context->getContext());
+        $definition = $this->getCreateValidationDefinition($accountType, $context);
         $this->validator->validate($data->all(), $definition);
 
         if ($id = $data->get('id')) {
@@ -206,7 +205,7 @@ class AddressService
         return $address;
     }
 
-    private function getCreateValidationDefinition(string $accountType, Context $context): DataValidationDefinition
+    private function getCreateValidationDefinition(string $accountType, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->addressValidationService->buildCreateValidation($context);
 
@@ -214,7 +213,7 @@ class AddressService
             $validation->add('company', new NotBlank());
         }
 
-        $validationEvent = new BuildValidationEvent($validation, $context);
+        $validationEvent = new BuildValidationEvent($validation, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;

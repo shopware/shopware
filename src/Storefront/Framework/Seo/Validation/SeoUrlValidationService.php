@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\ValidationServiceInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -22,20 +23,20 @@ class SeoUrlValidationService implements ValidationServiceInterface
         $this->routeConfig = $config;
     }
 
-    public function buildCreateValidation(Context $context): DataValidationDefinition
+    public function buildCreateValidation(SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('seo_url.create');
 
-        $this->addConstraints($definition, $context);
+        $this->addConstraints($definition, $context->getContext());
 
         return $definition;
     }
 
-    public function buildUpdateValidation(Context $context): DataValidationDefinition
+    public function buildUpdateValidation(SalesChannelContext $context): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('seo_url.update');
 
-        $this->addConstraints($definition, $context);
+        $this->addConstraints($definition, $context->getContext());
 
         return $definition;
     }

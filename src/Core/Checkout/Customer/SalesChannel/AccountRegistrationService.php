@@ -81,7 +81,7 @@ class AccountRegistrationService
 
     public function register(DataBag $data, bool $isGuest, SalesChannelContext $context, ?DataValidationDefinition $additionalValidationDefinitions = null): string
     {
-        $this->validateRegistrationData($data, $isGuest, $context->getContext(), $additionalValidationDefinitions);
+        $this->validateRegistrationData($data, $isGuest, $context, $additionalValidationDefinitions);
 
         $customer = $this->mapCustomerData($data, $isGuest, $context);
 
@@ -124,7 +124,7 @@ class AccountRegistrationService
         return $customer['id'];
     }
 
-    private function validateRegistrationData(DataBag $data, bool $isGuest, Context $context, ?DataValidationDefinition $additionalValidations = null): void
+    private function validateRegistrationData(DataBag $data, bool $isGuest, SalesChannelContext $context, ?DataValidationDefinition $additionalValidations = null): void
     {
         /** @var DataBag $addressData */
         $addressData = $data->get('billingAddress');
@@ -261,20 +261,20 @@ class AccountRegistrationService
         return $customer;
     }
 
-    private function getCreateAddressValidationDefinition(string $accountType, bool $isBillingAddress, Context $context): DataValidationDefinition
+    private function getCreateAddressValidationDefinition(string $accountType, bool $isBillingAddress, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->addressValidationService->buildCreateValidation($context);
         if ($isBillingAddress && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')) {
             $validation->add('company', new NotBlank());
         }
 
-        $validationEvent = new BuildValidationEvent($validation, $context);
+        $validationEvent = new BuildValidationEvent($validation, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
     }
 
-    private function getCustomerCreateValidationDefinition(bool $isGuest, Context $context): DataValidationDefinition
+    private function getCustomerCreateValidationDefinition(bool $isGuest, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->accountValidationService->buildCreateValidation($context);
 
@@ -284,7 +284,7 @@ class AccountRegistrationService
             $validation->add('email', new CustomerEmailUnique(['context' => $context]));
         }
 
-        $validationEvent = new BuildValidationEvent($validation, $context);
+        $validationEvent = new BuildValidationEvent($validation, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;

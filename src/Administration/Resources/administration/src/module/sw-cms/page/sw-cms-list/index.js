@@ -96,8 +96,8 @@ Component.register('sw-cms-list', {
 
     methods: {
         createdComponent() {
-            // ToDo: Make the navigation state accessible via global state
-            this.$root.$children[0].$children[2].$children[0].isExpanded = false;
+            // ToDo: Refactor with ticket NEXT-5101
+            this.$root.$emit('admin-menu-close');
 
             this.setPageContext();
         },

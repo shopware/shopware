@@ -96,17 +96,41 @@ Component.register('sw-admin-menu', {
         this.createdComponent();
     },
 
+    destroyed() {
+        this.destroyedComponent();
+    },
+
     mounted() {
         this.mountedComponent();
     },
 
     methods: {
         createdComponent() {
+            this.registerEvents();
+
             this.collapseMenuOnSmallViewports();
             this.getUser();
             this.$root.$on('toggle-offcanvas', (state) => {
                 this.isOffCanvasShown = state;
             });
+        },
+
+        destroyedComponent() {
+            this.removeEvents();
+        },
+
+        registerEvents() {
+            // ToDo: Refactor with ticket NEXT-5101
+            this.$root.$on('admin-menu-close', this.onAdminMenuClose);
+        },
+
+        removeEvents() {
+            // ToDo: Refactor with ticket NEXT-5101
+            this.$root.$off('admin-menu-close', this.onAdminMenuClose);
+        },
+
+        onAdminMenuClose() {
+            this.isExpanded = false;
         },
 
         mountedComponent() {

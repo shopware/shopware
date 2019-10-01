@@ -23,18 +23,16 @@ class ProductListingFilterCmsElementResolver extends AbstractCmsElementResolver
 
     public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
     {
+        $navigationId = $resolverContext->getSalesChannelContext()->getSalesChannel()->getNavigationCategoryId();
+
         $params = $resolverContext->getRequest()->attributes->get('_route_params');
 
-        if (!$params) {
-            return;
-        }
-
-        if (!isset($params['navigationId'])) {
-            return;
+        if (isset($params['navigationId'])) {
+            $navigationId = $params['navigationId'];
         }
 
         $data = new ArrayEntity([
-            'navigationId' => $params['navigationId'],
+            'navigationId' => $navigationId,
         ]);
 
         $slot->setData($data);

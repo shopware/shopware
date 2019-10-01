@@ -176,6 +176,8 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
 
 * All customer events in `Shopware\Core\Checkout\Customer\Event` now get the `Shopware\Core\Syste\SalesChannel\SalesChannelContext` instead of `Shopware\Core\Framework\Context` and a `salesChannelId`
 
+* We changed the type hint of `Shopware\Core\Framework\Validation\ValidationServiceInterface::buildCreateValidation` and `Shopware\Core\Framework\Validation\ValidationServiceInterface::buildUpdateValidation` to `SalesChannelContext`
+
 Administration
 --------------
 

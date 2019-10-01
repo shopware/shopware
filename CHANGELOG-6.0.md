@@ -87,6 +87,7 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
         - `\Shopware\Core\Framework\Plugin::deactivate` is now always called before `\Shopware\Core\Framework\Plugin::uninstall`
     * Renamed container service id `shopware.cache` to `cache.object` 
     * Added new function to `\Shopware\Core\Framework\Cache\CacheClearer`. Please use this service to invalidate or delete cache items.
+    * We changed the type hint of `Shopware\Core\Framework\Validation\ValidationServiceInterface::buildCreateValidation` and `Shopware\Core\Framework\Validation\ValidationServiceInterface::buildUpdateValidation` to `SalesChannelContext`
 * Storefront
     * Changed the default storefront script path in `Bundle` to `Resources/dist/storefront/js`
     * Changed the name of `messages.<locale>.json` to `storefront.<locale>.json` and changed to **not** be a base file anymore.

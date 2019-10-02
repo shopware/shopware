@@ -64,7 +64,7 @@ This file contains the generic styling for all filter items.
 .filter-active {
     display: inline-flex;
     align-items: center;
-    padding: 2px 14px;
+    padding: 2px 35px 2px 14px;
     border-radius: 50px;
     height: 32px;
     line-height: 26px;
@@ -72,6 +72,7 @@ This file contains the generic styling for all filter items.
     margin-right: 6px;
     margin-bottom: 8px;
     vertical-align: top;
+    position: relative;
 }
 
 .filter-active-preview {
@@ -86,16 +87,31 @@ This file contains the generic styling for all filter items.
 }
 
 .filter-active-remove {
-    padding: 0 4px 0 8px;
+    padding: 0 12px;
     margin: 0;
     line-height: 1;
     border: 0 none;
     font-weight: bold;
     color: $dark;
     font-size: 16px;
-    outline: none;
     background-color: transparent;
     appearance: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: block;
+    height: 100%;
+    bottom: 0;
+    width: 35px;
+    text-align: left;
+
+    &:focus {
+        outline: none;
+    }
+
+    &:hover {
+        color: $primary;
+    }
 }
 
 .btn.filter-reset-all {

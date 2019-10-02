@@ -38,19 +38,6 @@ describe('Product: Test variants', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        // Set product visible
-        cy.get('.sw-product-detail__select-visibility')
-            .scrollIntoView();
-        cy.get('.sw-product-detail__select-visibility').typeMultiSelectAndCheck('Storefront');
-        cy.get('.sw-product-detail__select-visibility .sw-select-selection-list__input')
-            .type('{esc}');
-
-        // Save product
-        cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
-
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
         cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${page.elements.ghostButton}`)

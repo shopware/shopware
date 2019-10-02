@@ -92,6 +92,6 @@ describe('Manufacturer: Test crud operations', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-        cy.get(page.elements.smartBarAmount).contains('1');
+        cy.contains('MAN-U-FACTURE').should('not.exist');
     });
 });

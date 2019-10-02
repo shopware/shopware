@@ -15,9 +15,6 @@ describe('Dashboard: Test first sight of the Administration', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
-                return cy.setProductFixtureVisibility('Product name', 'Catalogue #1');
-            })
-            .then(() => {
                 return cy.searchViaAdminApi({
                     endpoint: 'product',
                     data: {

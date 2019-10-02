@@ -7,9 +7,6 @@ describe('CMS: Check usage and editing of commerce elements', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                return cy.createDefaultFixture('category');
-            })
-            .then(() => {
                 return cy.createCmsFixture();
             })
             .then(() => {
@@ -20,9 +17,6 @@ describe('CMS: Check usage and editing of commerce elements', () => {
                 });
             })
             .then(() => {
-                return cy.setProductFixtureVisibility('First product', 'MainCategory');
-            })
-            .then(() => {
                 return cy.createProductFixture({
                     name: 'Second product',
                     productNumber: 'RS-22222',
@@ -30,17 +24,11 @@ describe('CMS: Check usage and editing of commerce elements', () => {
                 });
             })
             .then(() => {
-                return cy.setProductFixtureVisibility('Second product', 'MainCategory');
-            })
-            .then(() => {
                 return cy.createProductFixture({
                     name: 'Third product',
                     productNumber: 'RS-33333',
                     description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon. Jelly-o lemon drops cheesecake. I love carrot cake I love toffee jelly beans I love jelly.'
                 });
-            })
-            .then(() => {
-                return cy.setProductFixtureVisibility('Third product', 'MainCategory');
             })
             .then(() => {
                 cy.viewport(1920, 1080);

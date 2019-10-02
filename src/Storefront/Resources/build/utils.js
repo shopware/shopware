@@ -111,9 +111,9 @@ function getAppUrl() {
  */
 function getHostname() {
     try {
-        const url = new URL(process.env.APP_URL);
-        return url.protocol + '//' + url.hostname;
-    } catch {
+        const { protocol, hostname } = new URL(process.env.APP_URL);
+        return `${protocol}//${hostname}`;
+    } catch (e) {
         return undefined;
     }
 }

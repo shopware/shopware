@@ -156,12 +156,6 @@ Component.register('sw-mail-template-detail', {
         onSave() {
             const mailTemplateSubject = this.mailTemplate.subject || this.placeholder(this.mailTemplate, 'subject');
 
-            const notificationSaveError = {
-                title: this.$tc('global.notification.notificationSaveErrorTitle'),
-                message: this.$tc(
-                    'global.notification.notificationSaveErrorMessage', 0, { subject: mailTemplateSubject }
-                )
-            };
             this.isSaveSuccessful = false;
             this.isLoading = true;
             this.handleSalesChannel();
@@ -181,10 +175,20 @@ Component.register('sw-mail-template-detail', {
                     }
                 });
                 this.loadEntityData();
-            }).catch((exception) => {
+            }).catch((error) => {
+                let errormsg = '';
                 this.isLoading = false;
-                this.createNotificationError(notificationSaveError);
-                warn(this._name, exception.message, exception.response);
+                if (error.response.data.errors.length > 0) {
+                    errormsg = '<br/>Error Message: "'.concat(error.response.data.errors[0].detail).concat('"');
+                }
+                this.createNotificationError({
+                    title: this.$tc('sw-mail-template.detail.titleSaveError'),
+                    message: this.$tc(
+                        'sw-mail-template.detail.messageSaveError',
+                        0,
+                        { subject: mailTemplateSubject }
+                    ) + errormsg
+                });
             });
         },
 

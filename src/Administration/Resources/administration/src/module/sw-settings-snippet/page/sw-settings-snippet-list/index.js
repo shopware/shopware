@@ -1,4 +1,5 @@
 import CriteriaFactory from 'src/core/factory/criteria.factory';
+import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-list.html.twig';
 
 const { Component, Mixin, State } = Shopware;
@@ -204,6 +205,7 @@ Component.register('sw-settings-snippet-list', {
 
             this.snippetSets.forEach((item) => {
                 const snippet = result[item.id];
+                snippet.value = Sanitizer.sanitize(snippet.value);
 
                 if (!snippet.value || snippet.value.length === 0) {
                     snippet.value = snippet.origin;

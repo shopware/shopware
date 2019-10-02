@@ -1,3 +1,4 @@
+import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-detail.html.twig';
 
 const { Component, Mixin, State } = Shopware;
@@ -18,7 +19,7 @@ Component.register('sw-settings-snippet-detail', {
             isLoading: true,
             isCreate: false,
             isAddedSnippet: false,
-            isSavable: true,
+            isSaveable: true,
             isInvalidKey: false,
             queryIds: this.$route.query.ids,
             page: this.$route.query.page,
@@ -76,7 +77,7 @@ Component.register('sw-settings-snippet-detail', {
 
     methods: {
         createdComponent() {
-            this.translationKeyOrigin = this.$route.params.origin;
+            this.translationKeyOrigin = this.$route.params.key;
             this.prepareContent();
         },
 
@@ -163,10 +164,25 @@ Component.register('sw-settings-snippet-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
+            this.isSaveable = this.checkIsSaveable();
+
+            if (!this.isSaveable) {
+                this.isLoading = false;
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-snippet.detail.titleSaveError'),
+                    message: this.$tc(
+                        'sw-settings-snippet.detail.messageSaveError',
+                        0,
+                        { key: this.translationKey }
+                    )
+                });
+            }
+
             this.snippets.forEach((snippet) => {
                 if (!snippet.author) {
                     snippet.author = this.currentAuthor;
                 }
+                snippet.value = Sanitizer.sanitize(snippet.value);
 
                 if (!snippet.hasOwnProperty('value') || snippet.value === null) {
                     // If you clear the input-box, reset it to its origin value
@@ -200,24 +216,26 @@ Component.register('sw-settings-snippet-detail', {
                 this.prepareContent();
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
-            }).catch(() => {
-                this.prepareContent();
+            }).catch((error) => {
+                let errormsg = '';
                 this.isLoading = false;
+                if (error.response.data.errors.length > 0) {
+                    errormsg = '<br/>Error Message: "'.concat(error.response.data.errors[0].detail).concat('"');
+                }
                 this.createNotificationError({
                     title: this.$tc('sw-settings-snippet.detail.titleSaveError'),
                     message: this.$tc(
                         'sw-settings-snippet.detail.messageSaveError',
                         0,
                         { key: this.translationKey }
-                    )
+                    ) + errormsg
                 });
             });
         },
 
         onChange() {
-            this.isSavable = false;
-
             if (!this.translationKey || this.translationKey.trim().length <= 0) {
+                this.isSaveable = false;
                 this.isInvalidKey = true;
                 return;
             }
@@ -228,21 +246,24 @@ Component.register('sw-settings-snippet-detail', {
 
         doChange: utils.debounce(function executeChange() {
             this.getCustomList().then((response) => {
+                this.isSaveable = false;
                 if (!response.total || Object.keys(response.data)[0] === this.translationKeyOrigin) {
-                    this.isSavable = this.isSaveable();
+                    this.isSaveable = this.checkIsSaveable();
                     return;
                 }
 
                 this.isInvalidKey = true;
-                this.isSavable = false;
+                this.isSaveable = false;
             });
 
-            if (!this.isSavable) {
+            if (!this.isSaveable) {
                 return;
             }
 
-            this.translationKey = this.translationKey.trim().toLowerCase();
-        }, 500),
+            if ((this.isCreate || this.isAddedSnippet)) {
+                this.translationKey = this.translationKey.trim();
+            }
+        }, 1000),
 
         onNewKeyRedirect(isNewOrigin = false) {
             this.isSaveSuccessful = true;
@@ -262,7 +283,7 @@ Component.register('sw-settings-snippet-detail', {
             return this.snippetSetService.getCustomList(1, 25, { translationKey: [this.translationKey] });
         },
 
-        isSaveable() {
+        checkIsSaveable() {
             let count = 0;
             this.snippets.forEach((snippet) => {
                 if (snippet.value === null || snippet.value.trim() === '') {

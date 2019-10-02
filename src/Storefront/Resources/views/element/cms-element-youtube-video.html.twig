@@ -1,0 +1,51 @@
+{% block element_youtube_video %}
+
+    {% set config = element.fieldConfig.elements %}
+    
+    {% if config.advancedPrivacyMode.value == true %}
+        {% set videoUrl = 'https://www.youtube-nocookie.com/embed/' %}
+    {% else %}
+        {% set videoUrl = 'https://www.youtube.com/embed/' %}        
+    {% endif %}
+    
+    {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' ~ videoUrl ~ 'rel=0' ~ '&'  %}
+
+    {% if config.autoPlay.value %}
+       {% set videoUrl = videoUrl ~ 'autoplay=1' ~ '&' %}   
+    {% endif %}
+
+    {% if config.loop.value %}
+        {% set videoUrl = videoUrl ~ 'loop=1' ~ '&' ~ 'playlist=' ~ config.videoID.value ~ '&' %}
+    {% endif %}
+
+    {% if config.showControls.value == false %}
+        {% set videoUrl = videoUrl ~ 'controls=0' ~ '&' %}
+    {% endif %}
+
+    {% if config.start.value > 0 %}
+        {% set videoUrl = videoUrl ~ 'start=' ~ config.start.value ~ '&' %}
+    {% endif %}
+
+    {% if config.end.value == not null %}
+        {% set videoUrl = videoUrl ~ 'end=' ~ config.end.value ~ '&' %}
+    {% endif %}
+
+    {% set videoUrl = videoUrl ~ 'disablekb=1' %}
+
+    {% if config.displayMode.value == 'standard' or config.displayMode.value == null %}
+        {% set displayMode = '' %}
+    {% else %}
+        {% set displayMode = 'is--' ~ config.displayMode.value %}
+    {% endif %}
+    
+
+    <div class="cms-element-youtube-video {{ displayMode }}">
+
+        {% block element_youtube_video_inner %}
+            <iframe class="cms-element-youtube-video__video"
+                    src="{{ videoUrl }} ">
+            </iframe>
+        {% endblock %}
+
+    </div>
+{% endblock %}

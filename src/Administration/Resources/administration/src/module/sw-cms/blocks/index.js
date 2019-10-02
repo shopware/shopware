@@ -16,6 +16,7 @@ import './image/image-highlight-row';
 import './image/image-simple-grid';
 import './image/image-slider';
 import './image/image-gallery';
+import './image/youtube-video';
 
 import './text-image/image-text';
 import './text-image/image-text-cover';

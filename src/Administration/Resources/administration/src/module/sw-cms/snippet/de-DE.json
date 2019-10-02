@@ -174,7 +174,21 @@
       "infoTextListingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau.",
       "infoTextNavigationElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau.",
       "labelImageGalleryZoom": "Zoom",
-      "labelImageGalleryFullscreen": "Vollbild Galerie"
+      "labelImageGalleryFullscreen": "Vollbild Galerie",
+      "labelVideoID": "YouTube Video Link",
+      "placeholderVideoID": "Video Link eingeben...",
+      "labelAutoPlay": "Automatisch abspielen",
+      "helpTextAutoPlay": "Einige Browser verhindern das automatische Abspielen von Videos",
+      "labelLoop": "Video wiederholen",
+      "labelShowControls": "Video-Navigation anzeigen",
+      "labelAdvancedPricacy": "Erweiterter Datenschutzmodus",
+      "helpTextAdvancedPrivacy": "Wenn du den erweiterten Datenschutzmodus aktivierst, werden von YouTube keine Informationen über die Besucher auf deiner Website gespeichert, es sei denn, sie sehen sich das Video an.",
+      "labelStartValue": "Video starten ab",
+      "labelEndValue": "Video spielen bis",
+      "labelDisplayMode": "Anzeigemodus",
+      "placeholderDisplayMode": "Anzeigemodus auswählen...",
+      "labelDisplayModeStandard": "Standard",
+      "labelDisplayModeStreched": "Strecken"
     },
     "components": {
       "cmsLayoutModal": {

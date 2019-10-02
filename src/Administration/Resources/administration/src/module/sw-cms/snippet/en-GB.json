@@ -174,7 +174,21 @@
       "infoTextListingElement": "This element's product data is automatically loaded by the category associated with this layout. The content just shows a sample preview.",
       "infoTextNavigationElement": "This element's navigation data is automatically loaded by the category associated with this layout. The content just shows a sample preview.",
       "labelImageGalleryZoom": "Zoom",
-      "labelImageGalleryFullscreen": "Fullscreen gallery"
+      "labelImageGalleryFullscreen": "Fullscreen gallery",
+      "labelVideoID": "Video Link",
+      "placeholderVideoID": "Enter a video link...",
+      "labelAutoPlay": "Play video automatically",
+      "helpTextAutoPlay": "Some browser prevent videos from automatically starting",
+      "labelLoop": "Play video in a loop",
+      "labelShowControls": "Show video controls",
+      "labelAdvancedPricacy": "Advanced privacy mode",
+      "helpTextAdvancedPrivacy": "When you turn on privacy-enhanced mode, YouTube won't store information about visitors on your website unless they play the video.",
+      "labelStartValue": "Start video at",
+      "labelEndValue": "End video at",
+      "labelDisplayMode": "Display Mode",
+      "placeholderDisplayMode": "Choose a display mode...",
+      "labelDisplayModeStandard": "Standard",
+      "labelDisplayModeStreched": "Streched"
     },
     "components": {
       "cmsLayoutModal": {

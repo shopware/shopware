@@ -179,7 +179,7 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
 Administration
 --------------
 
-* **Important Change:** The admin core framework of shopware from `src/core/` should always be accessed via the global available `Shopware` object and not via static imports. This is important to provide a consistent access point to the core framework of the shopware administration, either you are using Webpack or not. It will also ensure the correct bundling of source files via Webpack. Especially third party plugins have to ensure to access the core framework only via the global `Shopware` object. Using the concept of destructuring can help to access just specific parts of the framework and maintain readability of your code. Nevertheless you can use static imports in your plugins to import other source files of your plugin or NPM dependencies.
+* The admin core framework of shopware from `src/core/` should always be accessed via the global available `Shopware` object and not via static imports. This is important to provide a consistent access point to the core framework of the shopware administration, either you are using Webpack or not. It will also ensure the correct bundling of source files via Webpack. Especially third party plugins have to ensure to access the core framework only via the global `Shopware` object. Using the concept of destructuring can help to access just specific parts of the framework and maintain readability of your code. Nevertheless you can use static imports in your plugins to import other source files of your plugin or NPM dependencies.
 
 Before:
 
@@ -293,7 +293,7 @@ Component.register('my-component', {
   </sw-colorpicker>
   ```
 
-* **Important Change:** The Shopping Experiences data handling has changed. To get an entity resolved in an element you now need to configure a configfield like this:
+* The Shopping Experiences data handling has changed. To get an entity resolved in an element you now need to configure a configfield like this:
 ```
     product: {
         source: 'static',
@@ -338,7 +338,7 @@ See `2019-09-02-cms-remove-store.md` for more information
         mediaCriteria.addFilter(Criteria.equals('fileName', 'testImage'));
         ```
 
-* **Important Change:** Shopping Experience sections.<br>
+* Shopping Experience sections.<br>
 The Shopping Experiences now have sections to separate the blocks of a page.
 Also the change allows it to have different types of sections eg. one with a sidebar. <br><br>
 Structure is now Page->**Section**->blocks->slots <br>

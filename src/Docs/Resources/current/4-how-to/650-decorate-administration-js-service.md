@@ -5,11 +5,10 @@
 
 The main entry point for this purpose is the plugin's `main.js` file.
 It has to be placed into the `<plugin root>/src/Resources/administration` directory in order to be automatically found by Shopware 6.
-*Note: This path can be changed by overriding the [getAdministrationEntryPath()](../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath()) method of the plugin's base class.*
+*Note: This path can be changed by overriding the [getAdministrationEntryPath()](./../2-internals/4-plugins/020-plugin-base-class.md#getAdministrationEntryPath()) method of the plugin's base class.*
 
 ## Register a new service
 
-Service classes itself are often found in a `service` directory.
 For this example the following service is used to get random jokes.
 It is placed in `<administration root>/services/joke.service.js`
 
@@ -39,7 +38,7 @@ export default class JokeService {
 ```
 
 For now this service class is not available in the injection container.
-To fix this, a new script is placed at `<administration root>/init/joke-service.init.js` and imported from the `main.js`:
+To fix this, a new script is placed at `<administration root>/init/joke-service.init.js` and imported in the `main.js` file of our plugin:
 
 ```javascript
 import JokeService from '../service/joke.service.js';
@@ -99,7 +98,7 @@ Shopware.Application.addInitializerDecorator('locale', locale => {
 
 This function is called right after the initialization of the service registration and adds snippets for the code `en-GB`.
 
-If your need to alter a service method return value or add an additional parameter you can also do this using decoration.
+If you need to alter a service method return value or add an additional parameter you can also do this using decoration.
 For this example a `funny` attribute is added to the requested jokes by the previously registered `JokeService`:
 
 ```javascript

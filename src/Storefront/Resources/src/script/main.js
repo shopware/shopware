@@ -62,6 +62,8 @@ import FilterRangePlugin from 'src/script/plugin/filter/filter-range.plugin';
 import FilterRatingPlugin from 'src/script/plugin/filter/filter-rating.plugin';
 import FilterPanelPlugin from 'src/script/plugin/filter/filter-panel.plugin';
 import RatingSystemPlugin from 'src/script/plugin/rating-system/rating-system.plugin';
+import PaginationPlugin from 'src/script/plugin/filter/pagination.plugin';
+import SortingPlugin from 'src/script/plugin/filter/sorting.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -115,6 +117,8 @@ PluginManager.register('FilterRange', FilterRangePlugin, '[data-filter-range]');
 PluginManager.register('FilterMultiSelect', FilterMultiSelectPlugin, '[data-filter-multi-select]');
 PluginManager.register('FilterPropertySelect', FilterPropertySelectPlugin, '[data-filter-property-select]');
 PluginManager.register('FilterRating', FilterRatingPlugin, '[data-filter-rating]');
+PluginManager.register('Pagination', PaginationPlugin, '[data-pagination]');
+PluginManager.register('Sorting', SortingPlugin, '[data-sorting]');
 PluginManager.register('RatingSystemPlugin', RatingSystemPlugin, '[data-rating-system]');
 
 /*

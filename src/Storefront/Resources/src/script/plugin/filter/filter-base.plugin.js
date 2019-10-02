@@ -11,7 +11,7 @@ export default class FilterBasePlugin extends Plugin {
 
         this._validateMethods();
 
-        const parentFilterPanelElement = this.el.closest(this.options.parentFilterPanelSelector);
+        const parentFilterPanelElement = document.querySelector(this.options.parentFilterPanelSelector);
 
         if (!parentFilterPanelElement) {
             throw new Error(`
@@ -42,6 +42,10 @@ export default class FilterBasePlugin extends Plugin {
         }
 
         if (typeof this.resetAll !== 'function') {
+            throw new Error(`[${this._pluginName}] Needs the method "resetAll"'`);
+        }
+
+        if (typeof this.validate !== 'function') {
             throw new Error(`[${this._pluginName}] Needs the method "resetAll"'`);
         }
     }

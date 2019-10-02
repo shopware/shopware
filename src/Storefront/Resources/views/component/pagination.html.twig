@@ -1,7 +1,8 @@
 {% block component_pagination_nav %}
     {% set currentPage = ((criteria.offset + 1) / criteria.limit )|round(0, 'ceil') %}
+    {% set totalPages = (searchResult.total / criteria.limit)|round(0, 'ceil') %}
 
-    <nav aria-label="pagination">
+    <nav aria-label="pagination" class="pagination-nav">
         {% block component_pagination %}
             <ul class="pagination">
                 {% block component_pagination_first %}
@@ -17,21 +18,9 @@
                         {% endblock %}
 
                         {% block component_pagination_first_label %}
-                            <label class="page-link"
-                                   for="p-first">
+                            <label class="page-link" for="p-first">
                                 {% block component_pagination_first_link %}
-                                    <a href="?limit={{ criteria.limit }}&p=1"
-                                       {# TODO: Stop reload when directly click on link (better implementation) #}
-                                       onclick="event.preventDefault()"
-                                       data-remote-click="true"
-                                       data-remote-click-options='{
-                                            "selector": "label.page-link[for=\"p-first\"]"
-                                       }'>
-                                        {% sw_icon 'arrow-medium-double-left' style {
-                                            'size': 'fluid',
-                                            'pack': 'solid'
-                                        } %}
-                                    </a>
+                                    {% sw_icon 'arrow-medium-double-left' style { 'size': 'fluid', 'pack': 'solid'} %}
                                 {% endblock %}
                             </label>
                         {% endblock %}
@@ -51,23 +40,11 @@
                         {% endblock %}
 
                         {% block component_pagination_prev_label %}
-                            <label class="page-link"
-                                   for="p-prev">
+                            <label class="page-link" for="p-prev">
                                 {% block component_pagination_prev_link %}
-                                    <a href="?limit={{ criteria.limit }}&p={{ currentPage - 1 }}"
-                                       {# TODO: Stop reload when directly click on link (better implementation) #}
-                                       onclick="event.preventDefault()"
-                                       data-remote-click="true"
-                                       data-remote-click-options='{
-                                            "selector": "label.page-link[for=\"p-prev\"]"
-                                       }'>
-                                        {% block component_pagination_prev_icon %}
-                                            {% sw_icon 'arrow-medium-left' style {
-                                                'size': 'fluid',
-                                                'pack': 'solid'
-                                            } %}
-                                        {% endblock %}
-                                    </a>
+                                    {% block component_pagination_prev_icon %}
+                                        {% sw_icon 'arrow-medium-left' style {'size': 'fluid', 'pack': 'solid'} %}
+                                    {% endblock %}
                                 {% endblock %}
                             </label>
                         {% endblock %}
@@ -84,6 +61,7 @@
                     {% endif %}
 
                     {% set end = start + 4 %}
+
                     {% if end > totalPages %}
                         {% set end = totalPages %}
                     {% endif %}
@@ -108,17 +86,9 @@
                                     <label class="page-link"
                                            for="p{{ page }}">
                                         {% block component_pagination_item_link %}
-                                            <a href="?limit={{ criteria.limit }}&p={{ page }}"
-                                               {# TODO: Stop reload when directly click on link (better implementation) #}
-                                       onclick="event.preventDefault()"
-                                               data-remote-click="true"
-                                               data-remote-click-options='{
-                                                    "selector": "label.page-link[for=\"p{{ page }}\"]"
-                                               }'>
-                                                {% block component_pagination_item_text %}
-                                                    {{ page }}
-                                                {% endblock %}
-                                            </a>
+                                            {% block component_pagination_item_text %}
+                                                {{ page }}
+                                            {% endblock %}
                                         {% endblock %}
                                     </label>
                                 {% endblock %}
@@ -141,23 +111,11 @@
                         {% endblock %}
 
                         {% block component_pagination_next_label %}
-                            <label class="page-link"
-                                   for="p-next">
+                            <label class="page-link" for="p-next">
                                 {% block component_pagination_next_link %}
-                                    <a href="?limit={{ criteria.limit }}&p={{ currentPage + 1 }}"
-                                       {# TODO: Stop reload when directly click on link (better implementation) #}
-                                       onclick="event.preventDefault()"
-                                       data-remote-click="true"
-                                       data-remote-click-options='{
-                                            "selector": "label.page-link[for=\"p-next\"]"
-                                       }'>
-                                        {% block component_pagination_next_icon %}
-                                            {% sw_icon 'arrow-medium-right' style {
-                                                'size': 'fluid',
-                                                'pack': 'solid'
-                                            } %}
-                                        {% endblock %}
-                                    </a>
+                                    {% block component_pagination_next_icon %}
+                                        {% sw_icon 'arrow-medium-right' style { 'size': 'fluid', 'pack': 'solid'} %}
+                                    {% endblock %}
                                 {% endblock %}
                             </label>
                         {% endblock %}
@@ -177,23 +135,14 @@
                         {% endblock %}
 
                         {% block component_pagination_last_label %}
-                            <label class="page-link"
-                                   for="p-last">
+                            <label class="page-link" for="p-last">
                                 {% block component_pagination_last_link %}
-                                    <a href="?limit={{ criteria.limit }}&p={{ totalPages }}"
-                                       {# TODO: Stop reload when directly click on link (better implementation) #}
-                                       onclick="event.preventDefault()"
-                                       data-remote-click="true"
-                                       data-remote-click-options='{
-                                            "selector": "label.page-link[for=\"p-last\"]"
-                                       }'>
-                                        {% block component_pagination_last_icon %}
-                                            {% sw_icon 'arrow-medium-double-right' style {
-                                                'size': 'fluid',
-                                                'pack': 'solid'
-                                            } %}
-                                        {% endblock %}
-                                    </a>
+                                    {% block component_pagination_last_icon %}
+                                        {% sw_icon 'arrow-medium-double-right' style {
+                                            'size': 'fluid',
+                                            'pack': 'solid'
+                                        } %}
+                                    {% endblock %}
                                 {% endblock %}
                             </label>
                         {% endblock %}

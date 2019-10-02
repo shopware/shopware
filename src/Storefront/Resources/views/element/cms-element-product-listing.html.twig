@@ -7,7 +7,20 @@
         {% set listingColumns = 'col-sm-6 col-lg-6 col-xl-4' %}
     {% endif %}
 
-    <div class="cms-element-{{ element.type }}">
+    {% set currentPage = ((searchResult.criteria.offset + 1) / searchResult.criteria.limit )|round(0, 'ceil') %}
+    {% set config = { page: currentPage }|json_encode %}
+
+    <div class="cms-element-{{ element.type }}" data-pagination="true" data-pagination-options='{{ config }}'>
+        <div class="product-listing-top-bar">
+            {% block element_product_listing_pagination_nav_top %}
+                {% sw_include '@Storefront/component/pagination.html.twig' with { criteria: searchResult.criteria } %}
+            {% endblock %}
+
+            {% block element_product_listing_sorting %}
+                {% sw_include '@Storefront/component/sorting.html.twig' with { current: searchResult.sorting, sortings: searchResult.sortings } %}
+            {% endblock %}
+        </div>
+
         {% block element_product_listing_row %}
             <div class="row cms-listing-row js-listing-wrapper">
                 {% block element_product_listing_col %}
@@ -25,62 +38,8 @@
             </div>
         {% endblock %}
 
-        {% block element_product_listing_pagination_bottom %}
-            {% if searchResult|length > 0 %}
-                {# @var criteria \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria #}
-                {% set criteria = searchResult.criteria %}
-                {% set totalPages = (searchResult.total / criteria.limit)|round(0, 'ceil') %}
-
-                {% if totalPages > 1 %}
-                    {% block element_product_listing_pagination_form %}
-                        {# TODO: Pagingation don´t work with filters because they dont have the criteria #}
-                        <form class="pagination-form"
-                              action="/"
-                              method="post"
-                              data-cms-slot-reload="true"
-                              data-cms-slot-reload-options='{
-                                    "updateHistory": true,
-                                    {# TODO: Correct navigationId access #}
-                                    "navigationId": "{{ context.salesChannel.navigationCategoryId }}",
-                                    "elements": {
-                                        "{{ element.id }}": [
-                                            ".js-listing-wrapper",
-                                            ".js-pagination-wrapper"
-                                        ]
-                                    },
-                                    "events": [
-                                        "change",
-                                        "submit"
-                                    ],
-                                    "hiddenParams": [
-                                        "no-aggregations"
-                                    ]
-                              }'>
-                            {% block element_product_listing_pagination_wrapper %}
-                                <div class="pagination-wrapper js-pagination-wrapper">
-                                    {% block element_product_listing_pagination_hidden_inputs %}
-                                        {% block element_product_listing_pagination_hidden_input_limit %}
-                                            <input type="hidden"
-                                                   name="limit"
-                                                   value="{{ criteria.limit }}">
-                                        {% endblock %}
-
-                                        {% block element_product_listing_pagination_hidden_input_aggregation %}
-                                            <input type="hidden"
-                                                   name="no-aggregations"
-                                                   value="true">
-                                        {% endblock %}
-                                    {% endblock %}
-
-                                    {% block element_product_listing_pagination_nav %}
-                                        {% sw_include '@Storefront/component/pagination.html.twig' %}
-                                    {% endblock %}
-                                </div>
-                            {% endblock %}
-                        </form>
-                    {% endblock %}
-                {% endif %}
-            {% endif %}
+        {% block element_product_listing_pagination_nav_bottom %}
+            {% sw_include '@Storefront/component/pagination.html.twig' with { criteria: searchResult.criteria } %}
         {% endblock %}
     </div>
 {% endblock %}

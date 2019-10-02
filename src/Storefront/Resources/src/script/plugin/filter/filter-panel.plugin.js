@@ -49,6 +49,16 @@ export default class FilterPanelPlugin extends Plugin {
         this._registry.push(filterItem);
     }
 
+    /**
+     * @param filterItem
+     * @public
+     */
+    unregisterFilter(filterItem) {
+        this._registry = this._registry.filter((item) => {
+            return (item !== filterItem);
+        });
+    }
+
     buildRequest() {
         const filters = {};
 
@@ -74,7 +84,8 @@ export default class FilterPanelPlugin extends Plugin {
                 value = value.join('|');
             }
 
-            if (value.length) {
+            const string = `${value}`;
+            if (string.length) {
                 mapped[key] = value;
             }
         });
@@ -268,6 +279,12 @@ export default class FilterPanelPlugin extends Plugin {
      */
     renderResponse(response) {
         ElementReplaceHelper.replaceFromMarkup(response, this.options.cmsProductListingSelector);
+
+        this._registry.forEach((item) => {
+            if (typeof item.afterContentChange === 'function') {
+                item.afterContentChange();
+            }
+        });
 
         // TODO: Use the cmsSlotReloadService for replacing and reloading the elements
         window.PluginManager.initializePlugins();

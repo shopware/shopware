@@ -66,6 +66,8 @@ class ProductSearchGateway implements ProductSearchGatewayInterface
             ProductEvents::PRODUCT_SEARCH_RESULT
         );
 
+        $result->addCurrentFilter('search', $request->query->get('search'));
+
         return $result;
     }
 }

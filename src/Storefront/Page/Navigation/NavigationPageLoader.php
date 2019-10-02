@@ -64,7 +64,6 @@ class NavigationPageLoader
         /** @var CategoryEntity $category */
         $category = $page->getHeader()->getNavigation()->getActive();
 
-        $page->setCategory($category);
         $pageId = $category->getCmsPageId();
 
         if ($pageId) {

@@ -221,7 +221,8 @@ Component.register('sw-media-preview', {
 
             const sources = [];
             this.trueSource.thumbnails.forEach((thumbnail) => {
-                sources.push(`${thumbnail.url} ${thumbnail.width}w`);
+                const encoded = encodeURI(thumbnail.url);
+                sources.push(`${encoded} ${thumbnail.width}w`);
             });
 
             return sources.join(', ');

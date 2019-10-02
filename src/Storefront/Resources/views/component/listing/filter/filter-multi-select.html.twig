@@ -1,17 +1,13 @@
+{% set filterItemId = 'filter-' ~ name ~ '-' ~ loop.index %}
+
 {% if pluginSelector is not defined %}
     {% set pluginSelector = 'filter-multi-select' %}
 {% endif %}
 
-{% set filterItemId = 'filter-' ~ name ~ '-' ~ loop.index %}
-
 {% block component_filter_multi_select %}
     <div class="filter-multi-select filter-multi-select-{{ name }} filter-panel-item{% if not sidebar %} dropdown{% endif %}"
          data-{{ pluginSelector }}="true"
-         data-{{ pluginSelector }}-options='{
-         {% block component_filter_multi_select_options %}
-            "name": "{{ name }}"
-         {% endblock %}
-         }'>
+         data-{{ pluginSelector }}-options='{ "name": "{{ name }}" }'>
 
         {% block component_filter_multi_select_toggle %}
             <button class="filter-panel-item-toggle btn{% if sidebar %} btn-block{% endif %}"

@@ -19,8 +19,10 @@ export default class ListingPlugin extends Plugin {
         activeFilterLabelPreviewClass: 'filter-active-preview',
         resetAllFilterButtonClasses: 'filter-reset-all btn btn-sm btn-outline-danger',
         resetAllFilterButtonSelector: '.filter-reset-all',
-        resetAllButtonText: 'Reset all',
         loadingIndicatorClass: 'is-loading',
+        snippets: {
+            resetAllButtonText: 'Reset all',
+        },
     };
 
     init() {
@@ -237,7 +239,7 @@ export default class ListingPlugin extends Plugin {
     getResetAllButtonTemplate() {
         return `
         <button class="${this.options.resetAllFilterButtonClasses}">
-            ${this.options.resetAllButtonText}
+            ${this.options.snippets.resetAllButtonText}
         </button>
         `;
     }

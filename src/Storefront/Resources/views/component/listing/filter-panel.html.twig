@@ -1,5 +1,4 @@
 {% block component_filter_panel %}
-    {% set filterOnClick = false %}
     {% set sidebar = sectionType == 'sidebar' ? true : false %}
 
     {% block component_filter_panel_element %}
@@ -81,14 +80,6 @@
                             } %}
                         {% endif %}
                     {% endblock %}
-
-                    {% if filterOnClick %}
-                        {% block component_filter_panel_submit %}
-                            <button class="btn btn-primary filter-panel-submit" type="submit">
-                                {{ 'listing.filterSubmitText'|trans }}
-                            </button>
-                        {% endblock %}
-                    {% endif %}
                 </div>
             {% endblock %}
 

@@ -9,6 +9,9 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
         maxPoints: 5,
         ratingSystemSelector: '.filter-rating-container',
         radioSelector: '.product-detail-review-form-radio',
+        snippets: {
+            activeFilterLabelText: '',
+        },
     });
 
     init() {
@@ -77,7 +80,7 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
 
         if (currentRating) {
             labels.push({
-                label: 'Rating ' + currentRating + ' or more stars',
+                label: `${currentRating} ${this.options.snippets.activeFilterLabelText}`,
                 id: 'rating',
             });
         } else {

@@ -10,6 +10,10 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         inputTimeout: 500,
         minKey: 'min-price',
         maxKey: 'max-price',
+        snippets: {
+            minLabelActiveFilter: '',
+            maxLabelActiveFilter: '',
+        },
     });
 
     init() {
@@ -62,18 +66,14 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         if (this.inputMin.value.length || this.inputMax.value.length) {
             if (this.inputMin.value.length) {
                 labels.push({
-                    label: this.options.minLabelActiveFilter + ' ' +
-                           this.inputMin.value + ' ' +
-                           this.options.currencySymbol,
+                    label: `${this.options.snippets.minLabelActiveFilter} ${this.inputMax.value} ${this.options.currencySymbol}`,
                     id: this.options.minKey,
                 });
             }
 
             if (this.inputMax.value.length) {
                 labels.push({
-                    label: `${this.options.maxLabelActiveFilter}
-                            ${this.inputMax.value}
-                            ${this.options.currencySymbol}`,
+                    label: `${this.options.snippets.maxLabelActiveFilter} ${this.inputMax.value} ${this.options.currencySymbol}`,
                     id: this.options.maxKey,
                 });
             }

@@ -1,3 +1,5 @@
+{% set filterItemId = 'filter-' ~ name ~ '-' ~ loop.index %}
+
 {% if currencySymbol is not defined %}
     {% set currencySymbol = page.header.activeCurrency.symbol %}
 {% endif %}
@@ -10,20 +12,18 @@
     {% set maxLabelActiveFilter = 'Price to' %}
 {% endif %}
 
-{% set filterItemId = 'filter-' ~ name ~ '-' ~ loop.index %}
-
 {% block component_filter_range %}
     <div class="filter-range filter-panel-item{% if not sidebar %} dropdown{% endif %}"
          data-filter-range="true"
          data-filter-range-options='{
-         {% block component_filter_range_options %}
              "name": "{{ name }}",
              "minKey": "{{ minKey }}",
              "maxKey": "{{ maxKey }}",
              "currencySymbol": "{{ currencySymbol }}",
-             "minLabelActiveFilter": "{{ minLabelActiveFilter }}",
-             "maxLabelActiveFilter": "{{ maxLabelActiveFilter }}"
-         {% endblock %}
+             "snippets": {
+                "minLabelActiveFilter": "{{ minLabelActiveFilter }}",
+                "maxLabelActiveFilter": "{{ maxLabelActiveFilter }}"
+             }
          }'>
 
         {% block component_filter_range_toggle %}

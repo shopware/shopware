@@ -21,7 +21,7 @@
                                 {% set displayMode = 'cover' %}
                             {% endif %}
 
-                            <a href="{{ productUrl(product) }}"
+                            <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
                                title="{{ product.translated.name }}"
                                class="product-image-link is-{{ displayMode }}">
                                 {% if product.cover.media.url %}
@@ -72,7 +72,7 @@
                             {% endblock %}
 
                             {% block component_product_box_name %}
-                                <a href="{{ productUrl(product) }}"
+                                <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
                                    class="product-name"
                                    title="{{ product.translated.name }}">
                                     {{ product.translated.name }}

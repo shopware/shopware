@@ -352,6 +352,7 @@ Storefront
 * A theme must now implement the `Shopware\Storefront\Framework\ThemeInterface`.
 * If your javascript lives in `Resources/storefront/script` you have to explicitly define this path in the `getStorefrontScriptPath()` method of your plugin base class as we have changed the default path to `Resources/dist/storefront/js`.
 * Added `extractIdsToUpdate` to `Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlRouteInterface`. `extractIdsToUpdate` must provide the ids of entities which seo urls should be updated based on an EntityWrittenContainerEvent.
+* Replace `productUrl(product)` with `seoUrl('frontend.detail.page', {'productId': product.id}) }` and `navigationUrl(navigation)` with `seoUrl('frontend.navigation.page', { 'navigationId': navigation.id })`'
 
 Elasticsearch
 -------------

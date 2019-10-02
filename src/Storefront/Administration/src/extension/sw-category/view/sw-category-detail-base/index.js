@@ -13,14 +13,6 @@ Component.override('sw-category-detail-base', {
         };
     },
 
-    created() {
-        if (!this.next741) {
-            this.initSeoUrls();
-
-            this.$root.$on('on-change-application-language', this.initSeoUrls);
-        }
-    },
-
     methods: {
         initSeoUrls() {
             this.seoUrlStore = this.category.getAssociation('seoUrls');

@@ -1,9 +1,10 @@
-{% block sw_product_detail_base_seo_card %}
+{% block sw_product_detail_base_settings_card %}
     {% parent() %}
 
-    <sw-seo-url
-            v-if="product.extensions && next741"
-            :isLoading="loading.product"
-            :urls="product.extensions.seoUrls">
-    </sw-seo-url>
+    {% block sw_product_detail_base_settings_seo_card %}
+        <sw-seo-url v-if="product.extensions && product.extensions.seoUrls && product.extensions.seoUrls.length > 0"
+                :isLoading="loading.product"
+                :urls="product.extensions.seoUrls">
+        </sw-seo-url>
+    {% endblock %}
 {% endblock %}

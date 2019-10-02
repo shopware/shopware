@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\Test\Framework\Seo\SeoUrl;
 
-use function Flag\next741;
-use function Flag\skipTestNext741;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -57,12 +55,11 @@ class SeoUrlExtensionTest extends TestCase
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
 
-        if (next741()) {
-            /** @var SeoUrlEntity $canonicalUrl */
-            $canonicalUrl = $product->getExtension('canonicalUrl');
-            static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
-            static::assertEquals('foo-bar/P1234', $canonicalUrl->getSeoPathInfo());
-        }
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $product->getExtension('seoUrls');
+        $seoUrl = $seoUrls->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
+        static::assertEquals('foo-bar/P1234', $seoUrl->getSeoPathInfo());
     }
 
     /**
@@ -98,12 +95,15 @@ class SeoUrlExtensionTest extends TestCase
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
 
-        if (next741()) {
-            /** @var SeoUrlEntity $canonicalUrl */
-            $canonicalUrl = $product->getExtension('canonicalUrl');
-            static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
-            static::assertEquals('foo-bar/amazing-brand', $canonicalUrl->getSeoPathInfo());
-        }
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $product->getExtension('seoUrls');
+        /** @var SeoUrlEntity $canonicalUrl */
+        $canonicalUrl = $seoUrls
+            ->filterByProperty('isCanonical', true)
+            ->filterByProperty('salesChannelId', $salesChannelId)
+            ->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
+        static::assertEquals('foo-bar/amazing-brand', $canonicalUrl->getSeoPathInfo());
 
         /** @var EntityRepositoryInterface $manufacturerRepository */
         $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
@@ -121,18 +121,17 @@ class SeoUrlExtensionTest extends TestCase
 
         static::assertInstanceOf(SeoUrlCollection::class, $product->getExtension('seoUrls'));
 
-        if (next741()) {
-            /** @var SeoUrlEntity $canonicalUrl */
-            $canonicalUrl = $product->getExtension('canonicalUrl');
-            static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
-            static::assertEquals('foo-bar/wuseldusel', $canonicalUrl->getSeoPathInfo());
-        }
+        /** @var SeoUrlEntity $canonicalUrl */
+        $canonicalUrl = $product->getExtension('seoUrls')
+            ->filterByProperty('isCanonical', true)
+            ->filterByProperty('salesChannelId', $salesChannelId)
+            ->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
+        static::assertEquals('foo-bar/wuseldusel', $canonicalUrl->getSeoPathInfo());
     }
 
     public function testSearchCategory(): void
     {
-        skipTestNext741($this);
-
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
@@ -173,8 +172,6 @@ class SeoUrlExtensionTest extends TestCase
 
     public function testSearchCategoryWithSalesChannelEntryPoint(): void
     {
-        skipTestNext741($this);
-
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext(
             $salesChannelId,
@@ -226,8 +223,6 @@ class SeoUrlExtensionTest extends TestCase
 
     public function testSearchCategoryWithComplexHierarchy(): void
     {
-        skipTestNext741($this);
-
         $salesChannelId = Uuid::randomHex();
         $salesChannelContext = $this->createStorefrontSalesChannelContext(
             $salesChannelId,
@@ -502,10 +497,12 @@ class SeoUrlExtensionTest extends TestCase
             static::assertCount(1, $seoUrls->filterByProperty('isCanonical', true));
 
             /** @var SeoUrlEntity $canonicalUrl */
-            $canonicalUrl = $category->getExtension('canonicalUrl');
+            $canonicalUrl = $seoUrls
+                ->filterByProperty('isCanonical', true)
+                ->filterByProperty('salesChannelId', $salesChannelId)
+                ->first();
             static::assertInstanceOf(SeoUrlEntity::class, $canonicalUrl);
             static::assertEquals($case['expected'], $canonicalUrl->getSeoPathInfo());
-            static::assertTrue($canonicalUrl->getIsValid());
         }
     }
 

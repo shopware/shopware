@@ -48,7 +48,7 @@
                 {% endblock %}
             {% else %}
                 {% block component_product_box_action_detail %}
-                    <a href="{{ productUrl(product) }}"
+                    <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
                        class="btn btn-block btn-light"
                        title="{{ "listing.boxProductDetails"|trans }}">
                         {{ "listing.boxProductDetails"|trans }}

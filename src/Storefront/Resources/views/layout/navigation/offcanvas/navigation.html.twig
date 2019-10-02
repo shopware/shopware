@@ -94,7 +94,7 @@
                                         <li class="navigation-offcanvas-list-item">
                                             {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item_link %}
                                                 <a class="nav-item nav-link navigation-offcanvas-link is-current-category"
-                                                   href="{{ navigationUrl(activeItem) }}"
+                                                   href="{{ seoUrl('frontend.navigation.page', { navigationId: activeItem.id }) }}"
                                                    itemprop="url"
                                                    title="{{ activeItem.translated.name }}">
                                                     {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item_text %}
@@ -120,7 +120,7 @@
 
                                                 {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link %}
                                                     <a class="navigation-offcanvas-link nav-item nav-link{% if entity.id is same as(activeItem.id) %} active{% endif %}{% if hasChildren %} js-navigation-offcanvas-link{% endif %}"
-                                                       href="{{ navigationUrl(treeItem.category) }}"
+                                                       href="{{ seoUrl('frontend.navigation.page', { navigationId: treeItem.category.id }) }}"
                                                         {% if hasChildren %}
                                                             data-href="{{ path('frontend.menu.offcanvas', {'navigationId': entity.id}) }}"
                                                         {% endif %}

@@ -17,7 +17,7 @@ class SeoResolver implements SeoResolverInterface
         $this->connection = $connection;
     }
 
-    public function resolveSeoPath(string $languageId, string $salesChannelId, string $pathInfo): ?array
+    public function resolveSeoPath(string $languageId, string $salesChannelId, string $pathInfo): array
     {
         $seoPathInfo = trim($pathInfo, '/');
         if ($seoPathInfo === '') {
@@ -30,7 +30,6 @@ class SeoResolver implements SeoResolverInterface
             ->where('language_id = :language_id')
             ->andWhere('(sales_channel_id = :sales_channel_id OR sales_channel_id IS NULL)')
             ->andWhere('seo_path_info = :seoPath')
-            ->andWhere('is_valid = 1')
             ->orderBy('seo_path_info')
             ->addOrderBy('sales_channel_id IS NULL') // sales_channel_specific comes first
             ->setMaxResults(1)
@@ -52,7 +51,6 @@ class SeoResolver implements SeoResolverInterface
                 ->andWhere('sales_channel_id = :sales_channel_id')
                 ->andWhere('id != :id')
                 ->andWhere('path_info = :pathInfo')
-                ->andWhere('is_valid = 1')
                 ->andWhere('is_canonical = 1')
                 ->setMaxResults(1)
                 ->setParameter('language_id', Uuid::fromHexToBytes($languageId))

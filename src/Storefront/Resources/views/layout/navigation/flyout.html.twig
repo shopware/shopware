@@ -7,7 +7,7 @@
                         {% block layout_navigation_flyout_bar_category_link %}
                             {% if navigationTree.category.type == 'page' %}
                                 <a class="nav-link"
-                                   href="{{ navigationUrl(navigationTree.category) }}"
+                                   href="{{ seoUrl('frontend.navigation.page', { navigationId: navigationTree.category.id }) }}"
                                    itemprop="url"
                                    title="{{ navigationTree.category.translated.name }}">
                                     {% block layout_navigation_flyout_bar_category_link_text %}
@@ -59,7 +59,7 @@
                     <div class="navigation-flyout-teaser">
                         {% block layout_navigation_flyout_teaser_image %}
                             <a class="navigation-flyout-teaser-image-container"
-                               href="{{ navigationUrl(navigationTree.category) }}"
+                               href="{{ seoUrl('frontend.navigation.page', { navigationId: navigationTree.category.id }) }}"
                                title="{{ navigationTree.category.translated.name }}">
                                 {% sw_thumbnails 'navigation-flyout-teaser-image-thumbnails' with {
                                     media: navigationTree.category.media,

@@ -27,7 +27,7 @@
                 {% block component_product_quickview_minimal_product %}
                     <div class="col-12 col-md-6 quickview-minimal-product">
                         {% block component_product_quickview_minimal_product_name %}
-                            <a href="{{ canonicalUrl(page.product, path('frontend.detail.page', {'productId': page.product.id})) }}"
+                            <a href="{{ seoUrl('frontend.detail.page', {'productId': page.product.id}) }}"
                                target="_blank"
                                title="{{ page.product.translated.name }}"
                                class="h4 quickview-minimal-product-name">

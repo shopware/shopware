@@ -115,15 +115,8 @@ class SeoUrlPersisterTest extends TestCase
         /** @var SeoUrlCollection $result */
         $result = $this->seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
-        /** @var SeoUrlEntity $valid */
-        $valid = $result->filterByProperty('isValid', true)->first();
-        /** @var SeoUrlEntity $invalid */
-        $invalid = $result->filterByProperty('isValid', false)->first();
-
-        static::assertNotNull($valid);
-        static::assertNull($invalid);
-
-        static::assertSame($fk2, $valid->getForeignKey());
+        static::assertCount(1, $result);
+        static::assertSame($fk2, $result->first()->getForeignKey());
     }
 
     /**
@@ -161,10 +154,7 @@ class SeoUrlPersisterTest extends TestCase
         $criteria->addFilter(new EqualsAnyFilter('foreignKey', [$fk1]));
         /** @var SeoUrlCollection $result */
         $result = $this->seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
-
-        /** @var SeoUrlCollection $valid */
-        $valid = $result->filterByProperty('isValid', true);
-        static::assertCount(2, $valid);
+        static::assertCount(2, $result);
 
         $canonicals = $result->filterByProperty('isCanonical', true);
         static::assertCount(1, $canonicals);
@@ -173,7 +163,6 @@ class SeoUrlPersisterTest extends TestCase
         $canonical = $canonicals->first();
 
         static::assertEquals($fk1, $canonical->getForeignKey());
-        static::assertTrue($canonical->getIsValid());
     }
 
     public function testSameSeoPathDifferentLanguage(): void
@@ -205,11 +194,7 @@ class SeoUrlPersisterTest extends TestCase
         $criteria = (new Criteria())->addFilter(new EqualsFilter('routeName', 'r'));
         /** @var SeoUrlCollection $result */
         $result = $this->seoUrlRepository->search($criteria, $defaultContext)->getEntities();
-        $validSeoUrls = $result->filterByProperty('isValid', true);
-        static::assertCount(2, $validSeoUrls);
-
-        $invalidSeoUrls = $result->filterByProperty('isValid', false);
-        static::assertCount(0, $invalidSeoUrls);
+        static::assertCount(2, $result);
     }
 
     public function testSameSeoPathInfoDifferentSalesChannels(): void
@@ -258,12 +243,7 @@ class SeoUrlPersisterTest extends TestCase
         $criteria = (new Criteria())->addFilter(new EqualsFilter('routeName', 'r'));
         /** @var SeoUrlCollection $result */
         $result = $this->seoUrlRepository->search($criteria, $context)->getEntities();
-
-        $validSeoUrls = $result->filterByProperty('isValid', true);
-        static::assertCount(3, $validSeoUrls);
-
-        $invalidSeoUrls = $result->filterByProperty('isValid', false);
-        static::assertCount(0, $invalidSeoUrls);
+        static::assertCount(3, $result);
     }
 
     public function testUpdateDefaultIsModified(): void

@@ -202,6 +202,7 @@ Component.register('sw-seo-url-template-card', {
                         this.context, new Criteria()
                     );
                     this.createdComponent();
+                    this.$refs.salesChannelSelect.changeToNewSalesChannel(this.salesChannelId);
                     this.createSaveSuccessNotification();
                 });
             }).catch(() => {

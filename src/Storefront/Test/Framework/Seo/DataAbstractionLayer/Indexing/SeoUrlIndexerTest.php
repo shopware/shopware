@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Framework\Seo\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use function Flag\skipTestNext741;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -41,8 +40,6 @@ class SeoUrlIndexerTest extends TestCase
     {
         parent::setUp();
 
-        skipTestNext741($this);
-
         $this->templateRepository = $this->getContainer()->get('seo_url_template.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
 
@@ -58,11 +55,10 @@ class SeoUrlIndexerTest extends TestCase
         $id = Uuid::randomHex();
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1']);
 
-        $criteria = new Criteria([$id]);
-        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
 
-        static::assertNotNull($product->getExtension('canonicalUrl'));
-        $canonicalUrl = $product->getExtension('canonicalUrl');
+        static::assertNotNull($product->getExtension('seoUrls'));
+        $canonicalUrl = $product->getExtension('seoUrls')->first();
         static::assertSame('awesome-product/P1', $canonicalUrl->getSeoPathInfo());
 
         $seoUrls = $this->getSeoUrls($salesChannelId, $id);
@@ -86,11 +82,14 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1']);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'description' => 'this description should not matter', 'productNumber' => 'P1']);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $salesChannelContext->getContext())->first();
-        static::assertNotNull($product->getExtension('canonicalUrl'));
+        $product = $this->productRepository->search(
+            $this->getCriteria($id, $salesChannelId),
+            $salesChannelContext->getContext()
+        )->first();
+        static::assertNotNull($product->getExtension('seoUrls'));
 
         /** @var SeoUrlEntity $seoUrl */
-        $seoUrl = $product->getExtension('canonicalUrl');
+        $seoUrl = $product->getExtension('seoUrls')->first();
         static::assertSame('awesome-product/P1', $seoUrl->getSeoPathInfo());
 
         $seoUrls = $this->getSeoUrls($salesChannelId, $id);
@@ -115,11 +114,11 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product v2', 'productNumber' => 'P1']);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product v3', 'productNumber' => 'P1']);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $salesChannelContext->getContext())->first();
-        static::assertNotNull($product->getExtension('canonicalUrl'));
+        $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
+        static::assertNotNull($product->getExtension('seoUrls'));
 
         /** @var SeoUrlEntity $seoUrl */
-        $seoUrl = $product->getExtension('canonicalUrl');
+        $seoUrl = $product->getExtension('seoUrls')->first();
         static::assertSame('awesome-product-v3/P1', $seoUrl->getSeoPathInfo());
 
         $seoUrls = $this->getSeoUrls($salesChannelId, $id);
@@ -148,11 +147,13 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
 
         /** @var ProductEntity $first */
-        $first = $this->productRepository->search(new Criteria([$id]), $salesChannelContext->getContext())->first();
-        static::assertNotNull($first->getExtension('canonicalUrl'));
+        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
+        static::assertInstanceOf(SeoUrlCollection::class, $first->getExtension('seoUrls'));
 
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $first->getExtension('seoUrls');
         /** @var SeoUrlEntity $seoUrl */
-        $seoUrl = $first->getExtension('canonicalUrl');
+        $seoUrl = $seoUrls->first();
         static::assertSame($first->getId(), $seoUrl->getForeignKey());
         static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME, $seoUrl->getRouteName());
         static::assertSame('/detail/' . $id, $seoUrl->getPathInfo());
@@ -175,11 +176,13 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'description' => 'should not matter']);
 
         /** @var ProductEntity $first */
-        $first = $this->productRepository->search(new Criteria([$id]), $salesChannelContext->getContext())->first();
-        static::assertNotNull($first->getExtension('canonicalUrl'));
+        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
+        static::assertNotNull($first->getExtension('seoUrls'));
 
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $first->getExtension('seoUrls');
         /** @var SeoUrlEntity $seoUrl */
-        $seoUrl = $first->getExtension('canonicalUrl');
+        $seoUrl = $seoUrls->first();
         static::assertSame('foo/awesome-product/bar', $seoUrl->getSeoPathInfo());
         static::assertTrue($seoUrl->getIsCanonical());
 
@@ -210,11 +213,13 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved again']);
 
         /** @var ProductEntity $first */
-        $first = $this->productRepository->search(new Criteria([$id]), $salesChannelContext->getContext())->first();
-        static::assertNotNull($first->getExtension('canonicalUrl'));
+        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
+        static::assertNotNull($first->getExtension('seoUrls'));
 
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $first->getExtension('seoUrls');
         /** @var SeoUrlEntity $seoUrl */
-        $seoUrl = $first->getExtension('canonicalUrl');
+        $seoUrl = $seoUrls->first();
         static::assertSame('foo/awesome-product-improved-again/bar', $seoUrl->getSeoPathInfo());
 
         $seoUrls = $this->getSeoUrls($salesChannelId, $id);
@@ -250,13 +255,15 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved']);
 
         /** @var ProductEntity $first */
-        $first = $this->productRepository->search(new Criteria([$id]), $salesChannelContext->getContext())->first();
+        $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
 
         static::assertNotNull($first);
-        static::assertNotNull($first->getExtension('canonicalUrl'));
+        static::assertNotNull($first->getExtension('seoUrls'));
 
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $first->getExtension('seoUrls');
         /** @var SeoUrlEntity $seoUrl */
-        $seoUrl = $first->getExtension('canonicalUrl');
+        $seoUrl = $seoUrls->first();
         static::assertSame($first->getId(), $seoUrl->getForeignKey());
         static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME, $seoUrl->getRouteName());
         static::assertSame('/detail/' . $id, $seoUrl->getPathInfo());
@@ -285,11 +292,14 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1']);
         $this->upsertProduct(['id' => $id, 'name' => 'awesome product v2', 'productNumber' => 'P1']);
 
-        $product = $this->productRepository->search(new Criteria([$id]), $salesChannelContext->getContext())->first();
+        $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
 
-        static::assertNotNull($product->getExtension('canonicalUrl'));
+        static::assertNotNull($product->getExtension('seoUrls'));
+
+        /** @var SeoUrlCollection $seoUrls */
+        $seoUrls = $product->getExtension('seoUrls');
         /** @var SeoUrlEntity $seoUrl */
-        $seoUrl = $product->getExtension('canonicalUrl');
+        $seoUrl = $seoUrls->first();
         static::assertSame('awesome-product-v2/P1', $seoUrl->getSeoPathInfo());
         static::assertFalse($seoUrl->getIsDeleted());
 
@@ -316,11 +326,12 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct(['id' => $id, 'name' => 'foo bar']);
 
         $context = $salesChannelContext->getContext();
-        $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
 
-        static::assertNotNull($product->getExtension('canonicalUrl'));
+        $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $context)->first();
+
+        static::assertNotNull($product->getExtension('seoUrls'));
         /** @var SeoUrlEntity $seoUrl */
-        $seoUrl = $product->getExtension('canonicalUrl');
+        $seoUrl = $product->getExtension('seoUrls')->first();
         static::assertSame('foo-bar', $seoUrl->getSeoPathInfo());
         static::assertFalse($seoUrl->getIsDeleted());
     }
@@ -362,72 +373,6 @@ class SeoUrlIndexerTest extends TestCase
         $seoUrls = $product->getExtension('seoUrls')->filterBySalesChannelId($salesChannelId);
 
         static::assertNotEmpty($seoUrls);
-    }
-
-    public function testDuplicatesAreMarkedAsInvalid(): void
-    {
-        static::markTestSkipped();
-        $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'custom template');
-
-        $this->upsertTemplate([
-            'id' => Uuid::randomHex(),
-            'salesChannelId' => $salesChannelId,
-            'template' => '{{ product.name }}',
-        ]);
-
-        $id = Uuid::randomHex();
-        $this->upsertProduct([
-            'id' => $id,
-            'productNumber' => '1',
-            'name' => 'foo',
-        ]);
-
-        $dupId = Uuid::randomHex();
-        $this->upsertProduct([
-            'id' => $dupId,
-            'productNumber' => '2',
-            'name' => 'foo',
-        ]);
-        $this->upsertProduct([
-            'id' => $dupId,
-            'productNumber' => '2',
-            'name' => 'foo',
-        ]);
-
-        $context = $salesChannelContext->getContext();
-        $criteria = new Criteria([$id, $dupId]);
-        $criteria->addAssociation('seoUrls');
-        $products = $this->productRepository->search($criteria, $context);
-
-        /** @var ProductEntity $validProduct */
-        $validProduct = $products->filterByProperty('id', $id)->first();
-
-        /** @var SeoUrlCollection $seoUrls */
-        $seoUrls = $validProduct->getExtension('seoUrls');
-        $seoUrls = $seoUrls->filterByProperty('salesChannelId', $salesChannelId);
-
-        $validSeoUrls = $seoUrls->filterByProperty('isValid', true);
-
-        static::assertCount(1, $validSeoUrls);
-        static::assertSame($id, $validSeoUrls->first()->getForeignKey());
-
-        $invalidSeoUrls = $seoUrls->filterByProperty('isValid', false);
-        static::assertCount(0, $invalidSeoUrls);
-
-        /** @var ProductEntity $invalidProduct */
-        $invalidProduct = $products->filterByProperty('id', $dupId)->first();
-
-        /** @var SeoUrlCollection $seoUrls */
-        $seoUrls = $invalidProduct->getExtension('seoUrls');
-        $seoUrls = $seoUrls->filterByProperty('salesChannelId', $salesChannelId);
-
-        $validSeoUrls = $seoUrls->filterByProperty('isValid', true);
-        static::assertCount(0, $validSeoUrls);
-
-        $invalidSeoUrls = $seoUrls->filterByProperty('isValid', false);
-        static::assertCount(1, $invalidSeoUrls);
-        static::assertSame($dupId, $invalidSeoUrls->first()->getForeignKey());
     }
 
     public function testMultiCreate(): void
@@ -560,5 +505,16 @@ class SeoUrlIndexerTest extends TestCase
         ];
         $data = array_merge($defaults, $data);
         $this->productRepository->upsert([$data], Context::createDefaultContext());
+    }
+
+    private function getCriteria(string $productId, ?string $salesChannelId = null, string $languageId = Defaults::LANGUAGE_SYSTEM): Criteria
+    {
+        $criteria = new Criteria([$productId]);
+        $seoUrlCriteria = $criteria->getAssociation('seoUrls');
+        $seoUrlCriteria->addFilter(new EqualsFilter('isCanonical', true));
+        $seoUrlCriteria->addFilter(new EqualsFilter('languageId', $languageId));
+        $seoUrlCriteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
+
+        return $criteria;
     }
 }

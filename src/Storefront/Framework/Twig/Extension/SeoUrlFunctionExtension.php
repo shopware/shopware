@@ -4,76 +4,62 @@ namespace Shopware\Storefront\Framework\Twig\Extension;
 
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Storefront\Framework\Seo\SeoUrl\SeoUrlEntity;
-use Symfony\Component\Routing\RouterInterface;
+use Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler;
+use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class SeoUrlFunctionExtension extends AbstractExtension
 {
     /**
-     * @var RouterInterface
+     * @var AbstractExtension
      */
-    private $router;
+    private $routingExtension;
 
-    public function __construct(RouterInterface $router)
+    /**
+     * @var SeoUrlPlaceholderHandler
+     */
+    private $seoUrlReplacer;
+
+    public function __construct(RoutingExtension $extension, SeoUrlPlaceholderHandler $seoUrlReplacer)
     {
-        $this->router = $router;
+        $this->routingExtension = $extension;
+        $this->seoUrlReplacer = $seoUrlReplacer;
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
+            new TwigFunction('seoUrl', [$this, 'seoUrl'], ['is_safe_callback' => [$this->routingExtension, 'isUrlGenerationSafe']]),
             new TwigFunction('productUrl', [$this, 'productUrl']),
             new TwigFunction('navigationUrl', [$this, 'navigationUrl']),
-            new TwigFunction('canonicalUrl', [$this, 'canonicalUrl']),
         ];
     }
 
+    public function seoUrl($name, $parameters = []): string
+    {
+        return $this->seoUrlReplacer->generate($name, $parameters);
+    }
+
+    /**
+     * @deprecated Use seoUrl
+     */
     public function productUrl(ProductEntity $product): string
     {
-        if (!$product->hasExtension('canonicalUrl')) {
-            $productUrl = $this->router->generate(
-                'frontend.detail.page',
-                ['productId' => $product->getId()],
-                RouterInterface::ABSOLUTE_URL
-            );
-
-            return $productUrl;
-        }
-
-        /** @var SeoUrlEntity $canonical */
-        $canonical = $product->getExtension('canonicalUrl');
-
-        return $canonical->getUrl();
+        return $this->seoUrl(
+            'frontend.detail.page',
+            ['productId' => $product->getId()]
+        );
     }
 
+    /**
+     * @deprecated Use seoUrl
+     */
     public function navigationUrl(CategoryEntity $category): string
     {
-        if (!$category->hasExtension('canonicalUrl')) {
-            return $this->router->generate(
-                'frontend.navigation.page',
-                ['navigationId' => $category->getId()],
-                RouterInterface::ABSOLUTE_URL
-            );
-        }
-
-        /** @var SeoUrlEntity $canonical */
-        $canonical = $category->getExtension('canonicalUrl');
-
-        return $canonical->getUrl();
-    }
-
-    public function canonicalUrl(Struct $entity, string $fallback): string
-    {
-        if (!$entity->hasExtension('canonicalUrl')) {
-            return $fallback;
-        }
-
-        /** @var SeoUrlEntity $canonical */
-        $canonical = $entity->getExtension('canonicalUrl');
-
-        return $canonical->getUrl();
+        return $this->seoUrl(
+            'frontend.navigation.page',
+            ['navigationId' => $category->getId()]
+        );
     }
 }

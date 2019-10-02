@@ -97,6 +97,8 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Added new service `\Shopware\Storefront\Framework\Cache\CacheStore` which is used for the http cache
     * Added new .env variables `SHOPWARE_HTTP_CACHE_ENABLED` and `SHOPWARE_HTTP_DEFAULT_TTL` which configures the http cache.
     * Added `\Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder` which finds all entity cache keys in a none entity object.
+    * Added twig helper function `seoUrl` that returns a seo url if possible, otherwise just calls `url`. 
+    * Deprecated twig helper functions `productUrl` and `navigationUrl`, use `seoUrl` instead.
 
 **Removals**
 
@@ -119,3 +121,6 @@ This can be useful when validate your commands in `PreWriteValidateEvent`s when 
     * Removed `\Shopware\Core\Framework\DataAbstractionLayer\EntityWrittenContainerEvent::getEventByDefinition`. Use `getEventByEntityName`.
     * Removed `\Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer::fieldHandlerRegistry`, `...\ListFieldSerializer::compositeHandler` and `...\PriceFieldSerializer::fieldHandlerRegistry` as they now use the `definitionRegistry` from their common `AbstractFieldSerializer` baseclass
     * Removed `\Shopware\Core\Kernel::getPlugins`, use `\Shopware\Core\Framework\Plugin\KernelPluginCollection` from the container instead
+* Storefront
+    * Removed `Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlField`, use the twig helper function `seoUrl` to get seo urls
+    * Removed fields `isValid` and `autoIncrement` from `SeoUrlDefinition`

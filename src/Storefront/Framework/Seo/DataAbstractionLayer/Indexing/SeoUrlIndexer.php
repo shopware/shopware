@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Framework\Seo\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use function Flag\next741;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -112,11 +111,6 @@ class SeoUrlIndexer implements IndexerInterface
 
     public function index(\DateTimeInterface $timestamp): void
     {
-        // skip if feature is disabled
-        if (!next741()) {
-            return;
-        }
-
         $context = Context::createDefaultContext();
         $languages = $context->disableCache(function (Context $context) {
             return $this->languageRepository->search(new Criteria(), $context);
@@ -174,11 +168,6 @@ class SeoUrlIndexer implements IndexerInterface
 
     public function partial(?array $lastId, \DateTimeInterface $timestamp): ?array
     {
-        // skip if feature is disabled
-        if (!next741()) {
-            return null;
-        }
-
         $context = Context::createDefaultContext();
         $languages = $context->disableCache(function (Context $context) {
             return $this->languageRepository->search(new Criteria(), $context);
@@ -256,11 +245,6 @@ class SeoUrlIndexer implements IndexerInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        // skip if feature is disabled
-        if (!next741()) {
-            return;
-        }
-
         $context = Context::createDefaultContext();
         $languages = $context->disableCache(function (Context $context) {
             return $this->languageRepository->search(new Criteria(), $context);

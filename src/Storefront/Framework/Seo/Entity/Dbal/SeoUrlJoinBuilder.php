@@ -37,7 +37,6 @@ class SeoUrlJoinBuilder implements JoinBuilderInterface
                 array_values($parameters),
                 '#alias#.#reference_column# = #root#.#source_column#
                  AND #alias#.route_name = :' . $routeParamKey . '
-                 AND #alias#.is_valid = 1
                  AND #alias#.is_deleted = 0'
             )
         );

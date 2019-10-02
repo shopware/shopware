@@ -235,16 +235,12 @@ class RequestTransformer implements RequestTransformerInterface
             $seoPathInfo = substr($seoPathInfo, strlen($baseUrl));
         }
 
-        if ($_ENV['FEATURE_NEXT_741'] ?? false) {
-            $resolved = (new SeoResolver($this->connection))
-                ->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
+        $resolved = (new SeoResolver($this->connection))
+            ->resolveSeoPath($languageId, $salesChannelId, $seoPathInfo);
 
-            $resolved['pathInfo'] = '/' . trim($resolved['pathInfo'], '/');
+        $resolved['pathInfo'] = '/' . trim($resolved['pathInfo'], '/');
 
-            return $resolved;
-        }
-
-        return ['pathInfo' => '/' . trim($seoPathInfo, '/')];
+        return $resolved;
     }
 
     private function getSchemeAndHttpHost(Request $request): string

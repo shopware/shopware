@@ -50,7 +50,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
-use Shopware\Storefront\Framework\Seo\Entity\Field\CanonicalUrlField;
 
 class ErdTypeMap
 {
@@ -95,7 +94,6 @@ class ErdTypeMap
         WhitelistRuleField::class => 'whitelistRule',
         TranslationsAssociationField::class => 'translationAssociation',
         OneToOneAssociationField::class => 'oneToOneAssociation',
-        CanonicalUrlField::class => 'CanonicalUrlAssociation',
         ListingPriceField::class => 'priceRulesJson',
         NumberRangeField::class => 'numberRange',
         ConfigJsonField::class => 'configurationValue',

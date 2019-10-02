@@ -34,7 +34,7 @@
                                         </div>
                                     {% else %}
                                         <a class="nav-link main-navigation-link{% if treeItem.category.id is same as(page.header.navigation.active.id) %} active{% endif %}"
-                                           href="{% if treeItem.category.externalLink %}{{ treeItem.category.externalLink }}{% else %}{{ navigationUrl(treeItem.category) }}{% endif %}"
+                                           href="{% if treeItem.category.externalLink %}{{ treeItem.category.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: treeItem.category.id }) }}{% endif %}"
                                            itemprop="url"
                                             {% if treeItem.children|length > 0 %}
                                                 data-flyout-menu-trigger="{{ treeItem.category.id }}"

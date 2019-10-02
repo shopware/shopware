@@ -9,6 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Framework\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Storefront\Theme\Twig\ThemeTemplateFinder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,6 +39,10 @@ abstract class StorefrontController extends AbstractController
         if (!$response instanceof StorefrontResponse) {
             throw new \RuntimeException('Symfony render implementation changed. Providing a response is no longer supported');
         }
+
+        /** @var SeoUrlPlaceholderHandler $seoUrlReplacer */
+        $seoUrlReplacer = $this->container->get(SeoUrlPlaceholderHandler::class);
+        $seoUrlReplacer->replacePlaceholder($request, $response);
 
         /* @var StorefrontResponse $response */
         $response->setData($parameters);

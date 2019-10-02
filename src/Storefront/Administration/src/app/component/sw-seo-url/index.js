@@ -114,7 +114,7 @@ Component.register('sw-seo-url', {
         initSalesChannelCollection() {
             const salesChannelCriteria = new Criteria();
             salesChannelCriteria.setIds([]);
-            salesChannelCriteria.addAssociationPaths(['type']);
+            salesChannelCriteria.addAssociation('type');
 
             this.salesChannelRepository.search(salesChannelCriteria, this.context).then((salesChannelCollection) => {
                 this.$store.commit('swSeoUrl/setSalesChannelCollection', salesChannelCollection);

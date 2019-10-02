@@ -53,11 +53,9 @@
                 {% endblock %}
 
                 {% block page_product_detail_tabs %}
-                    {% if page.product.translated.description or page.product.sortedProperties|length > 0 %}
                         <div class="product-detail-tabs">
                             {% sw_include '@Storefront/page/product-detail/tabs.html.twig' %}
                         </div>
-                    {% endif %}
                 {% endblock %}
             {% endblock %}
         </div>

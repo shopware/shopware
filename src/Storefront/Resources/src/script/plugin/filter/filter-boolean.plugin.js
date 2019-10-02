@@ -32,8 +32,6 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
         }
 
         this.checkbox.checked = false;
-
-        this._toggleActiveState();
     }
 
     /**
@@ -41,8 +39,6 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
      */
     resetAll() {
         this.checkbox.checked = false;
-
-        this._toggleActiveState();
     }
 
     /**
@@ -67,7 +63,6 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
             labels.push({
                 label: this.options.displayName,
                 id: this.options.name,
-                // filterName: this.options.name,
             });
         } else {
             labels = [];
@@ -87,19 +82,6 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
      * @private
      */
     _onChangeCheckbox() {
-        this._toggleActiveState();
         this.filterPanel.changeFilter();
-    }
-
-    /**
-     * @private
-     */
-    _toggleActiveState() {
-        const activeClass = this.options.activeClass;
-        const element = this.el;
-
-        this.checkbox.checked ?
-            element.classList.add(activeClass) :
-            element.classList.remove(activeClass);
     }
 }

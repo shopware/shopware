@@ -331,6 +331,7 @@ Component Library:
     image: node:10.8
     before_script: []
     dependencies: []
+    needs: [Administration (Jest), Storefront (Jest)]
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR
     environment:

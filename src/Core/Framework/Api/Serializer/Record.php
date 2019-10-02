@@ -125,6 +125,11 @@ class Record implements \JsonSerializable
             unset($vars['relationships'][$i]['tmp']);
         }
 
+        // if links are empty it should be decoded as empty object instead of empty array: https://jsonapi.org/format/#document-links
+        if (count($vars['links']) === 0) {
+            $vars['links'] = new \stdClass();
+        }
+
         return $vars;
     }
 

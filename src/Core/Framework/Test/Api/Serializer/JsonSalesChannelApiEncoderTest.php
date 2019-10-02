@@ -112,6 +112,10 @@ class JsonSalesChannelApiEncoderTest extends TestCase
 
         $actual = $this->encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL);
 
+        // check that empty "links" object is an object and not array: https://jsonapi.org/format/#document-links
+        static::assertStringNotContainsString('"links":[]', $actual);
+        static::assertStringContainsString('"links":{}', $actual);
+
         static::assertEquals($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true));
     }
 

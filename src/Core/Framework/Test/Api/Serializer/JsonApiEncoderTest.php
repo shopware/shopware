@@ -109,6 +109,10 @@ class JsonApiEncoderTest extends TestCase
 
         $actual = $this->encoder->encode($extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
+        // check that empty "links" object is an object and not array: https://jsonapi.org/format/#document-links
+        static::assertStringNotContainsString('"links":[]', $actual);
+        static::assertStringContainsString('"links":{}', $actual);
+
         static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
     }
 

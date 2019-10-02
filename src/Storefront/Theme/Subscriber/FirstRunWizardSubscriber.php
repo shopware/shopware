@@ -72,7 +72,7 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
         $this->themeLifecycleService->refreshThemes($context);
 
         $criteria = new Criteria();
-        $criteria->addAssociation('theme.salesChannels');
+        $criteria->addAssociation('salesChannels');
         $criteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
         /** @var ThemeEntity|null $theme */
         $theme = $this->themeRepository->search($criteria, $context)->first();
@@ -80,10 +80,10 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
             throw new \RuntimeException('Default theme not found');
         }
 
-        $total = $theme->getSalesChannels()->count();
+        $themeSalesChannels = $theme->getSalesChannels();
 
         // only run if the themes are not already initialised
-        if ($total) {
+        if ($themeSalesChannels && $themeSalesChannels->count() > 0) {
             return;
         }
 

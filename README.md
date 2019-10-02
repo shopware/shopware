@@ -15,7 +15,10 @@
 
 <h1 align="center">Shopware 6</h1>
 
-<p align="center"><strong>Realize your ideas - fast and without friction.</strong></p>
+<p align="center"><strong>Realize your ideas - fast and without friction.</strong>
+
+[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Start%20your%20dev%20journey%20now!&url=https%3A%2F%2Fgithub.com%2Fshopware%2Fplatform&via=ShopwareDevs&hashtags=Shopware6,community)
+</p>
 
 Shopware 6 is an open source ecommerce platform based on a quite modern technology stack that is powered by [Symfony](https://symfony.com) and [Vue.js](https://vuejs.org).
 It's the successor of the very successful e-commerce shopping cart [Shopware 5](https://github.com/shopware/shopware) which has over 800000 downloads.

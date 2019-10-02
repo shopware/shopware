@@ -1,11 +1,11 @@
-{% set hideTitle = false %}
-
 {% if pluginSelector is not defined %}
     {% set pluginSelector = 'filter-multi-select' %}
 {% endif %}
 
+{% set filterItemId = 'filter-' ~ name ~ '-' ~ loop.index %}
+
 {% block component_filter_multi_select %}
-    <div class="filter-multi-select filter-multi-select-{{ name }} filter-panel-item dropdown"
+    <div class="filter-multi-select filter-multi-select-{{ name }} filter-panel-item{% if not sidebar %} dropdown{% endif %}"
          data-{{ pluginSelector }}="true"
          data-{{ pluginSelector }}-options='{
          {% block component_filter_multi_select_options %}
@@ -14,11 +14,17 @@
          }'>
 
         {% block component_filter_multi_select_toggle %}
-            <button class="filter-panel-item-toggle btn"
+            <button class="filter-panel-item-toggle btn{% if sidebar %} btn-block{% endif %}"
+                    aria-expanded="false"
+                    {% if sidebar %}
+                    data-toggle="collapse"
+                    data-target="#{{ filterItemId }}"
+                    {% else %}
                     data-toggle="dropdown"
                     data-offset="0,8"
                     aria-haspopup="true"
-                    aria-expanded="false">
+                    {% endif %}>
+
                 {% block component_filter_multi_select_display_name %}
                     {{ displayName }}
                 {% endblock %}
@@ -36,8 +42,8 @@
         {% endblock %}
 
         {% block component_filter_multi_select_dropdown %}
-            <div class="filter-multi-select-dropdown filter-panel-item-dropdown dropdown-menu{% if hideTitle %} is-hide-title{% endif %}"
-                 aria-labelledby="dropdownMenuButton">
+            <div class="filter-multi-select-dropdown filter-panel-item-dropdown{% if sidebar %} collapse{% else %} dropdown-menu{% endif %}"
+                 id="{{ filterItemId }}">
                 {% block component_filter_multi_select_list %}
                     <ul class="filter-multi-select-list">
                         {% for element in elements %}

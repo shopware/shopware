@@ -15,7 +15,7 @@ This file contains the generic styling for all filter items.
     margin-left: 8px;
 
     > svg {
-        top: 0.25em;
+        top: 4px;
     }
 }
 
@@ -51,25 +51,6 @@ This file contains the generic styling for all filter items.
     min-width: 240px;
     max-height: 200px;
     overflow: auto;
-
-    &::-webkit-scrollbar {
-        width: 3px;
-        border-radius: 3px;
-    }
-
-    &::-webkit-scrollbar-track {
-        background: #f9f9f9;
-        border-radius: 3px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background: #a4a8ae;
-        border-radius: 3px;
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-        background: #a4a8ae;
-    }
 }
 
 .filter-panel-submit {
@@ -88,7 +69,8 @@ This file contains the generic styling for all filter items.
     height: 32px;
     line-height: 26px;
     border: 1px solid $border-color;
-    margin-right: 8px;
+    margin-right: 6px;
+    margin-bottom: 8px;
     vertical-align: top;
 }
 
@@ -124,6 +106,50 @@ This file contains the generic styling for all filter items.
     font-weight: normal;
     vertical-align: top;
     margin-right: 8px;
+}
+
+.is--sidebar {
+    .filter-panel,
+    .filter-panel-items-container {
+        display: block;
+    }
+
+    .filter-panel-item-dropdown {
+        min-width: 100%;
+        border: 1px solid $primary;
+        border-top: 0;
+        border-radius: 0 0 4px 4px;
+    }
+
+    .filter-panel-item {
+        margin-right: 0;
+        width: 100%;
+    }
+
+    .filter-panel-item-toggle {
+        text-align: left;
+        display: flex;
+
+        &[aria-expanded='true'] {
+            color: $primary;
+            border-color: $primary;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom: 0 none;
+
+            svg {
+                color: $primary;
+            }
+        }
+    }
+
+    .icon-filter-panel-item-toggle {
+        margin-left: auto;
+
+        > svg {
+            top: 0;
+        }
+    }
 }
 
 .is-loading {

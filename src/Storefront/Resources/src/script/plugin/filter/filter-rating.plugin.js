@@ -6,8 +6,8 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {
         countSelector: '.filter-rating-count',
-        maxRatingAmount: 5,
-        ratingSystemSelector: '.filter-rating-form',
+        maxPoints: 5,
+        ratingSystemSelector: '.filter-rating-container',
         radioSelector: '.product-detail-review-form-radio',
     });
 
@@ -117,6 +117,6 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
      * @private
      */
     _updateCount() {
-        this.counter.innerText = this.currentRating ? `(${this.currentRating}/${this.options.maxRatingAmount})` : '';
+        this.counter.innerText = this.currentRating ? `(${this.currentRating}/${this.options.maxPoints})` : '';
     }
 }

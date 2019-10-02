@@ -1,13 +1,13 @@
 {% block component_filter_panel %}
-    {% set vertical = false %}
+    {% set sidebar = sectionType == 'sidebar' ? true : false %}
     {% set filterOnClick = false %}
 
     {% block component_filter_panel_element %}
-        <div class="filter-panel{% if vertical %} filter-panel-vertical{% endif %}"
+        <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}"
              data-filter-panel="true"
              data-filter-panel-options='{
              {% block component_filter_panel_options %}
-                 "vertical": "{{ vertical }}",
+                 "sidebar": "{{ sidebar }}",
                  "params": {{ params|json_encode }},
                  "dataUrl": "{{ dataUrl }}",
                  "filterUrl": "{{ url }}",
@@ -27,7 +27,7 @@
                             {# @var manufacturers \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
                             {% sw_include '@Storefront/component/listing/filter/filter-multi-select.html.twig' with {
                                 elements: manufacturers.entities,
-                                vertical: vertical,
+                                sidebar: sidebar,
                                 name: 'manufacturer',
                                 displayName: 'listing.filterManufacturerDisplayName'|trans
                             } %}
@@ -43,7 +43,7 @@
                             {% for property in properties.entities %}
                                 {% sw_include '@Storefront/component/listing/filter/filter-property-select.html.twig' with {
                                     elements: property.options,
-                                    vertical: vertical,
+                                    sidebar: sidebar,
                                     name: 'properties',
                                     displayName: property.translated.name,
                                     displayType: property.displayType,
@@ -61,7 +61,7 @@
 
                             {% sw_include '@Storefront/component/listing/filter/filter-range.html.twig' with {
                                 price: price,
-                                vertical: vertical,
+                                sidebar: sidebar,
                                 name: 'price',
                                 minKey: 'min-price',
                                 maxKey: 'max-price',

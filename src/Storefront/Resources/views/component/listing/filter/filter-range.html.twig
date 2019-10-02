@@ -10,8 +10,10 @@
     {% set maxLabelActiveFilter = 'Price to' %}
 {% endif %}
 
+{% set filterItemId = 'filter-' ~ name ~ '-' ~ loop.index %}
+
 {% block component_filter_range %}
-    <div class="dropdown filter-range filter-panel-item"
+    <div class="filter-range filter-panel-item{% if not sidebar %} dropdown{% endif %}"
          data-filter-range="true"
          data-filter-range-options='{
          {% block component_filter_range_options %}
@@ -25,12 +27,17 @@
          }'>
 
         {% block component_filter_range_toggle %}
-            <button class="filter-panel-item-toggle btn"
-                    id="filter-panel-item-{{ name }}"
+            <button class="filter-panel-item-toggle btn{% if sidebar %} btn-block{% endif %}"
+                    aria-expanded="false"
+                    {% if sidebar %}
+                    data-toggle="collapse"
+                    data-target="#{{ filterItemId }}"
+                    {% else %}
                     data-toggle="dropdown"
                     data-offset="0,8"
                     aria-haspopup="true"
-                    aria-expanded="false">
+                    {% endif %}>
+
                 {% block component_filter_range_display_name %}
                     {{ displayName }}
                 {% endblock %}
@@ -42,36 +49,63 @@
         {% endblock %}
 
         {% block component_filter_range_dropdown %}
-            <div class="filter-range-dropdown filter-panel-item-dropdown dropdown-menu"
-                 aria-labelledby="filter-panel-item-{{ name }}">
+            <div class="filter-range-dropdown filter-panel-item-dropdown{% if sidebar %} collapse{% else %} dropdown-menu{% endif %}"
+                 id="{{ filterItemId }}">
 
                 {% block component_filter_range_container %}
                     <div class="filter-range-container">
-                        <label class="filter-range-min">
-                            {{ 'listing.filterRangeMinLabel'|trans }}
-                            <input class="form-control min-input"
-                                   type="number"
-                                   name="min-price"
-                                   min="0"
-                                   max="{{ price.max }}">
-                            <span class="filter-range-currency-symbol">
-                                {{ currencySymbol }}
-                            </span>
-                        </label>
-                        <div class="filter-range-divider">
-                            &ndash;
-                        </div>
-                        <label class="filter-range-max">
-                            {{ 'listing.filterRangeMaxLabel'|trans }}
-                            <input class="form-control max-input"
-                                   type="number"
-                                   name="max-price"
-                                   min="0"
-                                   max="{{ price.max }}">
-                            <span class="filter-range-currency-symbol">
-                                {{ currencySymbol }}
-                            </span>
-                        </label>
+
+                        {% block component_filter_range_min %}
+                            <label class="filter-range-min">
+
+                                {% block component_filter_range_min_label %}
+                                    {{ 'listing.filterRangeMinLabel'|trans }}
+                                {% endblock %}
+
+                                {% block component_filter_range_min_input %}
+                                    <input class="form-control min-input"
+                                           type="number"
+                                           name="min-price"
+                                           min="0"
+                                           max="{{ price.max }}">
+                                {% endblock %}
+
+                                {% block component_filter_range_min_currency_symbol %}
+                                    <span class="filter-range-currency-symbol">
+                                        {{ currencySymbol }}
+                                    </span>
+                                {% endblock %}
+                            </label>
+                        {% endblock %}
+
+                        {% block component_filter_range_divider %}
+                            <div class="filter-range-divider">
+                                &ndash;
+                            </div>
+                        {% endblock %}
+
+                        {% block component_filter_range_max %}
+                            <label class="filter-range-max">
+
+                                {% block component_filter_range_max_label %}
+                                    {{ 'listing.filterRangeMaxLabel'|trans }}
+                                {% endblock %}
+
+                                {% block component_filter_range_max_input %}
+                                    <input class="form-control max-input"
+                                           type="number"
+                                           name="max-price"
+                                           min="0"
+                                           max="{{ price.max }}">
+                                {% endblock %}
+
+                                {% block component_filter_range_max_currency_symbol %}
+                                    <span class="filter-range-currency-symbol">
+                                        {{ currencySymbol }}
+                                    </span>
+                                {% endblock %}
+                            </label>
+                        {% endblock %}
                     </div>
                 {% endblock %}
             </div>

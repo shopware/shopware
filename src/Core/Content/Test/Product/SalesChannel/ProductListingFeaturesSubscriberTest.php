@@ -70,7 +70,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @dataProvider manufacturerProvider
      */
-    public function testManufacturerFilter(array $expected, Request $request)
+    public function testManufacturerFilter(array $expected, Request $request): void
     {
         $criteria = new Criteria();
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
@@ -105,7 +105,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @dataProvider shippingFreeProvider
      */
-    public function testShippingFreeFilter(?bool $expected, Request $request)
+    public function testShippingFreeFilter(?bool $expected, Request $request): void
     {
         $criteria = new Criteria();
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
@@ -137,7 +137,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @dataProvider sortingProvider
      */
-    public function testSorting(array $expectedFields, Request $request)
+    public function testSorting(array $expectedFields, Request $request): void
     {
         $criteria = new Criteria();
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
@@ -185,7 +185,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @dataProvider paginationProvider
      */
-    public function testPagination(int $limit, int $offset, Request $request)
+    public function testPagination(int $limit, int $offset, Request $request): void
     {
         $criteria = new Criteria();
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
@@ -206,7 +206,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         ];
     }
 
-    public function testPropertyFilter()
+    public function testPropertyFilter(): void
     {
         $cases = [
             // no filter case

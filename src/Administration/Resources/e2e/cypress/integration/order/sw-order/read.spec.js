@@ -12,9 +12,6 @@ describe('Order: Read order', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
-                return cy.setProductFixtureVisibility('Product name', 'Catalogue #1');
-            })
-            .then(() => {
                 return cy.searchViaAdminApi({
                     endpoint: 'product',
                     data: {

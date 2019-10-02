@@ -12,9 +12,6 @@ describe('Product: Edit product media', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
-                return cy.setProductFixtureVisibility('Product name', 'Catalogue #1');
-            })
-            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             });
     });

@@ -1,7 +1,7 @@
 const AdminFixtureService = require('../fixture.service.js');
 
 export default class ProductFixture extends AdminFixtureService {
-    setProductFixture(userData) {
+    setProductFixture(userData, categoryName = 'Catalogue #1') {
         const findManufacturerId = () => this.search('tax', {
             field: 'name',
             type: 'equals',
@@ -13,7 +13,6 @@ export default class ProductFixture extends AdminFixtureService {
             value: 'shopware AG'
         });
 
-
         return Promise.all([findManufacturerId(), findTaxId()])
             .then(([tax, manufacturer]) => {
                 return Object.assign({}, {
@@ -22,11 +21,14 @@ export default class ProductFixture extends AdminFixtureService {
                 }, userData);
             }).then((finalProductData) => {
                 return this.apiClient.post('/v1/product?_response=true', finalProductData);
+            }).then((result) => {
+                return this.setProductVisible(userData.name, categoryName);
             });
     }
 
-    setProductVisible(productId) {
+    setProductVisible(productName, categoryName) {
         let salesChannelId = '';
+        let productId = '';
 
         return this.apiClient.post('/v1/search/sales-channel?response=true', {
             filter: [{
@@ -36,11 +38,25 @@ export default class ProductFixture extends AdminFixtureService {
             }]
         }).then((data) => {
             salesChannelId = data.id;
-        }).then(() => {
-            return this.create('category');
-        }).then(() => {
-            global.logger.title('Set product visibility...');
 
+            return this.apiClient.post('/v1/search/product?response=true', {
+                filter: [{
+                    field: 'name',
+                    type: 'equals',
+                    value: productName
+                }]
+            })
+        }).then((data) => {
+            productId = data.id;
+        }).then(() => {
+            return this.apiClient.post('/v1/search/category?response=true', {
+                filter: [{
+                    field: 'name',
+                    type: 'equals',
+                    value: categoryName
+                }]
+            })
+        }).then((result) => {
             return this.update({
                 id: productId,
                 type: 'product',
@@ -48,6 +64,9 @@ export default class ProductFixture extends AdminFixtureService {
                     visibilities: [{
                         visibility: 30,
                         salesChannelId: salesChannelId
+                    }],
+                    categories: [{
+                        id: result.id
                     }]
                 }
             });

@@ -61,7 +61,7 @@ describe('Tax: Test crud operations', () => {
             '.sw-tax-list__edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--2`
-        )
+        );
         cy.get('input[name=sw-field--tax-name]').clearTypeAndCheck('Still high tax');
         cy.get(page.elements.taxSaveAction).click();
 
@@ -102,5 +102,7 @@ describe('Tax: Test crud operations', () => {
 
         cy.get(page.elements.modal).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--2`).should('not.exist');
+
+        cy.contains('High tax').should('not.exist');
     });
 });

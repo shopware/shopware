@@ -223,7 +223,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         }
 
         $grouped = $this->connection->fetchAll(
-            'SELECT LOWER(HEX(property_group_id)), LOWER(HEX(id)) as id FROM property_group_option WHERE id IN (:ids)',
+            'SELECT LOWER(HEX(property_group_id)) as property_group_id, LOWER(HEX(id)) as id FROM property_group_option WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );

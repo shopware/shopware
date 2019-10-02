@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -119,16 +120,19 @@ class ProductListingTest extends TestCase
         ]);
 
         /** @var EntityResult $result */
-        $result = $listing->getAggregations()->get('options');
+        $result = $listing->getAggregations()->get('properties');
 
+        /** @var PropertyGroupCollection $options */
         $options = $result->getEntities();
 
-        static::assertTrue($options->has($this->testData->getId('green')));
-        static::assertTrue($options->has($this->testData->getId('red')));
-        static::assertTrue($options->has($this->testData->getId('xl')));
-        static::assertTrue($options->has($this->testData->getId('l')));
-        static::assertTrue($options->has($this->testData->getId('iron')));
-        static::assertTrue($options->has($this->testData->getId('steel')));
+        $ids = array_keys($options->getOptionIdMap());
+
+        static::assertContains($this->testData->getId('green'), $ids);
+        static::assertContains($this->testData->getId('red'), $ids);
+        static::assertContains($this->testData->getId('xl'), $ids);
+        static::assertContains($this->testData->getId('l'), $ids);
+        static::assertContains($this->testData->getId('iron'), $ids);
+        static::assertContains($this->testData->getId('steel'), $ids);
         static::assertFalse($options->has($this->testData->getId('yellow')));
         static::assertFalse($options->has($this->testData->getId('cotton')));
     }

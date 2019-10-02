@@ -402,27 +402,27 @@ class EntityAggregator implements EntityAggregatorInterface
                 return $this->hydrateResult($aggregation->getAggregation(), $definition, $rows, $context);
 
             case $aggregation instanceof AvgAggregation:
-                $value = $rows[0] ? $rows[0][$name] : 0;
+                $value = isset($rows[0]) ? $rows[0][$name] : 0;
 
                 return new AvgResult($aggregation->getName(), (float) $value);
 
             case $aggregation instanceof SumAggregation:
-                $value = $rows[0] ? $rows[0][$name] : 0;
+                $value = isset($rows[0]) ? $rows[0][$name] : 0;
 
                 return new SumResult($aggregation->getName(), (float) $value);
 
             case $aggregation instanceof MaxAggregation:
-                $value = $rows[0] ? $rows[0][$name] : 0;
+                $value = isset($rows[0]) ? $rows[0][$name] : 0;
 
                 return new MaxResult($aggregation->getName(), $value);
 
             case $aggregation instanceof MinAggregation:
-                $value = $rows[0] ? $rows[0][$name] : 0;
+                $value = isset($rows[0]) ? $rows[0][$name] : 0;
 
                 return new MinResult($aggregation->getName(), $value);
 
             case $aggregation instanceof CountAggregation:
-                $value = $rows[0] ? $rows[0][$name] : 0;
+                $value = isset($rows[0]) ? $rows[0][$name] : 0;
 
                 return new CountResult($aggregation->getName(), (int) $value);
 
@@ -431,7 +431,7 @@ class EntityAggregator implements EntityAggregatorInterface
                     return new StatsResult($aggregation->getName(), 0, 0, 0.0, 0.0);
                 }
 
-                $row = $rows[0];
+                $row = isset($rows[0]);
 
                 return new StatsResult($aggregation->getName(), $row[$name . '.min'], $row[$name . '.max'], (float) $row[$name . '.avg'], (float) $row[$name . '.sum']);
 

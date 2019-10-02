@@ -172,11 +172,11 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 new Request(['sort' => 'name-desc']),
             ],
             [
-                ['product.price' => FieldSorting::ASCENDING],
+                ['product.listingPrices' => FieldSorting::ASCENDING],
                 new Request(['sort' => 'price-asc']),
             ],
             [
-                ['product.price' => FieldSorting::DESCENDING],
+                ['product.listingPrices' => FieldSorting::DESCENDING],
                 new Request(['sort' => 'price-desc']),
             ],
         ];
@@ -283,6 +283,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         static::assertCount(count($properties), $filters, $message);
 
+        $filtered = [];
+
         foreach ($filters as $filter) {
             if (!$filter instanceof MultiFilter) {
                 continue;
@@ -297,7 +299,21 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     continue;
                 }
 
-                static::assertContains($query->getValue(), $properties, $message);
+                foreach ($query->getValue() as $id) {
+                    $filtered[] = $id;
+                }
+            }
+        }
+
+        if (empty($properties)) {
+            return;
+        }
+
+        static::assertNotEmpty($filtered, $message);
+
+        foreach ($properties as $group => $ids) {
+            foreach ($ids as $id) {
+                static::assertContains($id, $filtered, $message);
             }
         }
     }

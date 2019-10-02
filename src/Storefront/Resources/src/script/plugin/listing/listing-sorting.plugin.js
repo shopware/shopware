@@ -42,8 +42,6 @@ export default class ListingSortingPlugin extends FilterBasePlugin {
      * @public
      */
     getValues() {
-        console.log('getValues');
-
         if (this.options.sorting === null) {
             return {};
         }

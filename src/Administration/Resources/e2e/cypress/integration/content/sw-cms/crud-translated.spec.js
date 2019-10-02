@@ -20,7 +20,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it('@package @content: create, translate and read layout', () => {
+    it.skip('@package @content: create, translate and read layout', () => {
         const page = new MediaPageObject();
 
         cy.server();
@@ -107,7 +107,7 @@ describe('CMS: Test crud operations of layouts', () => {
 
     it('@package @content: update translation and read layout', () => {
         const page = new MediaPageObject();
-        
+
         cy.server();
         cy.route({
             url: '/api/v1/cms-page/*',

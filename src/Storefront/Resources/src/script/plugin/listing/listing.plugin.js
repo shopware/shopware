@@ -5,13 +5,14 @@ import DomAccess from 'src/script/helper/dom-access.helper';
 import querystring from 'query-string';
 import ElementReplaceHelper from 'src/script/helper/element-replace.helper';
 
-export default class FilterPanelPlugin extends Plugin {
+export default class ListingPlugin extends Plugin {
 
     static options = {
         dataUrl: '',
         filterUrl: '',
         params: {},
-        cmsProductListingSelector: '.cms-block-product-listing',
+        filterPanelSelector: '.filter-panel',
+        cmsProductListingSelector: '.cms-element-product-listing',
         activeFilterContainerSelector: '.filter-panel-active-container',
         activeFilterLabelClass: 'filter-active',
         activeFilterLabelRemoveClass: 'filter-active-remove',
@@ -27,8 +28,14 @@ export default class FilterPanelPlugin extends Plugin {
         this._isFilterActive = false;
         this.httpClient = new HttpClient(window.accessKey, window.contextToken);
 
+        this._filterPanelActive = !!DomAccess.querySelector(document, this.options.filterPanelSelector, false);
+
+        if (!this._filterPanelActive) {
+            return;
+        }
+
         this.activeFilterContainer = DomAccess.querySelector(
-            this.el,
+            document,
             this.options.activeFilterContainerSelector
         );
     }
@@ -36,9 +43,12 @@ export default class FilterPanelPlugin extends Plugin {
     /**
      * @public
      */
-    changeFilter() {
-        this.buildRequest();
-        this.buildLabels();
+    changeListing() {
+        this._buildRequest();
+
+        if (this._filterPanelActive) {
+            this._buildLabels();
+        }
     }
 
     /**
@@ -53,13 +63,16 @@ export default class FilterPanelPlugin extends Plugin {
      * @param filterItem
      * @public
      */
-    unregisterFilter(filterItem) {
+    deregisterFilter(filterItem) {
         this._registry = this._registry.filter((item) => {
             return (item !== filterItem);
         });
     }
 
-    buildRequest() {
+    /**
+     * @private
+     */
+    _buildRequest() {
         const filters = {};
 
         this._registry.forEach((filterPlugin) => {
@@ -104,7 +117,7 @@ export default class FilterPanelPlugin extends Plugin {
     /**
      * Build all labels for the currently active filters.
      */
-    buildLabels() {
+    _buildLabels() {
         let labelHtml = '';
 
         this._registry.forEach((filterPlugin) => {
@@ -168,8 +181,8 @@ export default class FilterPanelPlugin extends Plugin {
             filterPlugin.reset(label.dataset.id);
         });
 
-        this.buildRequest();
-        this.buildLabels();
+        this._buildRequest();
+        this._buildLabels();
     }
 
     /**
@@ -180,8 +193,8 @@ export default class FilterPanelPlugin extends Plugin {
             filterPlugin.resetAll();
         });
 
-        this.buildRequest();
-        this.buildLabels();
+        this._buildRequest();
+        this._buildLabels();
     }
 
     /**
@@ -255,7 +268,6 @@ export default class FilterPanelPlugin extends Plugin {
         this.httpClient.abort();
         this.httpClient.get(`${this.options.dataUrl}?${filterParams}`, (response) => {
             this.renderResponse(response);
-            this.sendFilterRequest(filterParams);
         });
     }
 
@@ -266,8 +278,7 @@ export default class FilterPanelPlugin extends Plugin {
      */
     sendFilterRequest(filterParams) {
         this.httpClient.abort();
-        this.httpClient.get(`${this.options.filterUrl}?${filterParams}`, (response) => {
-            this.validateFilters(response);
+        this.httpClient.get(`${this.options.filterUrl}?${filterParams}`, () => {
             this.removeLoadingIndicatorClass();
         });
     }
@@ -288,11 +299,5 @@ export default class FilterPanelPlugin extends Plugin {
 
         // TODO: Use the cmsSlotReloadService for replacing and reloading the elements
         window.PluginManager.initializePlugins();
-    }
-
-    validateFilters(response) {
-        this._registry.forEach((filterPlugin) => {
-            filterPlugin.validate(JSON.parse(response), true);
-        });
     }
 }

@@ -55,15 +55,15 @@ import RemoteClickPlugin from 'src/script/plugin/remote-click/remote-click.plugi
 import AddressEditorPlugin from 'src/script/plugin/address-editor/address-editor.plugin';
 import DateFormat from 'src/script/plugin/date-format/date-format.plugin';
 import SetBrowserClassPlugin from 'src/script/plugin/set-browser-class/set-browser-class.plugin';
-import FilterMultiSelectPlugin from 'src/script/plugin/filter/filter-multi-select.plugin';
-import FilterPropertySelectPlugin from 'src/script/plugin/filter/filter-property-select.plugin';
-import FilterBooleanPlugin from 'src/script/plugin/filter/filter-boolean.plugin';
-import FilterRangePlugin from 'src/script/plugin/filter/filter-range.plugin';
-import FilterRatingPlugin from 'src/script/plugin/filter/filter-rating.plugin';
-import FilterPanelPlugin from 'src/script/plugin/filter/filter-panel.plugin';
+import FilterMultiSelectPlugin from 'src/script/plugin/listing/filter-multi-select.plugin';
+import FilterPropertySelectPlugin from 'src/script/plugin/listing/filter-property-select.plugin';
+import FilterBooleanPlugin from 'src/script/plugin/listing/filter-boolean.plugin';
+import FilterRangePlugin from 'src/script/plugin/listing/filter-range.plugin';
+import FilterRatingPlugin from 'src/script/plugin/listing/filter-rating.plugin';
+import ListingPlugin from 'src/script/plugin/listing/listing.plugin';
 import RatingSystemPlugin from 'src/script/plugin/rating-system/rating-system.plugin';
-import PaginationPlugin from 'src/script/plugin/filter/pagination.plugin';
-import SortingPlugin from 'src/script/plugin/filter/sorting.plugin';
+import ListingPaginationPlugin from 'src/script/plugin/listing/listing-pagination.plugin';
+import ListingSortingPlugin from 'src/script/plugin/listing/listing-sorting.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -111,14 +111,14 @@ PluginManager.register('RemoteClick', RemoteClickPlugin, '[data-remote-click]');
 PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-editor]');
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
 PluginManager.register('RatingSystem', RatingSystemPlugin, '[data-rating-system]');
-PluginManager.register('FilterPanel', FilterPanelPlugin, '[data-filter-panel]');
+PluginManager.register('Listing', ListingPlugin, '[data-listing]');
 PluginManager.register('FilterBoolean', FilterBooleanPlugin, '[data-filter-boolean]');
 PluginManager.register('FilterRange', FilterRangePlugin, '[data-filter-range]');
 PluginManager.register('FilterMultiSelect', FilterMultiSelectPlugin, '[data-filter-multi-select]');
 PluginManager.register('FilterPropertySelect', FilterPropertySelectPlugin, '[data-filter-property-select]');
 PluginManager.register('FilterRating', FilterRatingPlugin, '[data-filter-rating]');
-PluginManager.register('Pagination', PaginationPlugin, '[data-pagination]');
-PluginManager.register('Sorting', SortingPlugin, '[data-sorting]');
+PluginManager.register('ListingPagination', ListingPaginationPlugin, '[data-listing-pagination]');
+PluginManager.register('ListingSorting', ListingSortingPlugin, '[data-listing-sorting]');
 PluginManager.register('RatingSystemPlugin', RatingSystemPlugin, '[data-rating-system]');
 
 /*

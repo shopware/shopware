@@ -3,7 +3,7 @@ import Plugin from 'src/script/plugin-system/plugin.class';
 export default class FilterBasePlugin extends Plugin {
 
     static options = {
-        parentFilterPanelSelector: '.filter-panel',
+        parentFilterPanelSelector: '.cms-element-product-listing-wrapper',
     };
 
     _init() {
@@ -13,19 +13,12 @@ export default class FilterBasePlugin extends Plugin {
 
         const parentFilterPanelElement = document.querySelector(this.options.parentFilterPanelSelector);
 
-        if (!parentFilterPanelElement) {
-            throw new Error(`
-                [${this._pluginName}] The filter panel element could not be found.
-                Your filter element is probably not inside a filter panel.
-            `);
-        }
-
-        this.filterPanel = window.PluginManager.getPluginInstanceFromElement(
+        this.listing = window.PluginManager.getPluginInstanceFromElement(
             parentFilterPanelElement,
-            'FilterPanel'
+            'Listing'
         );
 
-        this.filterPanel.registerFilter(this);
+        this.listing.registerFilter(this);
     }
 
     _validateMethods() {
@@ -42,10 +35,6 @@ export default class FilterBasePlugin extends Plugin {
         }
 
         if (typeof this.resetAll !== 'function') {
-            throw new Error(`[${this._pluginName}] Needs the method "resetAll"'`);
-        }
-
-        if (typeof this.validate !== 'function') {
             throw new Error(`[${this._pluginName}] Needs the method "resetAll"'`);
         }
     }

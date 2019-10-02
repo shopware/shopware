@@ -1,8 +1,8 @@
 // import DomAccess from 'src/script/helper/dom-access.helper';
-import FilterBasePlugin from 'src/script/plugin/filter/filter-base.plugin';
+import FilterBasePlugin from 'src/script/plugin/listing/filter-base.plugin';
 import deepmerge from 'deepmerge';
 
-export default class SortingPlugin extends FilterBasePlugin {
+export default class ListingSortingPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {
         sorting: null,
@@ -22,7 +22,7 @@ export default class SortingPlugin extends FilterBasePlugin {
 
     onChangeSorting(event) {
         this.options.sorting = event.target.value;
-        this.filterPanel.changeFilter();
+        this.listing.changeListing();
     }
 
     /**
@@ -42,6 +42,8 @@ export default class SortingPlugin extends FilterBasePlugin {
      * @public
      */
     getValues() {
+        console.log('getValues');
+
         if (this.options.sorting === null) {
             return {};
         }
@@ -52,7 +54,7 @@ export default class SortingPlugin extends FilterBasePlugin {
     }
 
     afterContentChange() {
-        this.filterPanel.unregisterFilter(this);
+        this.listing.deregisterFilter(this);
     }
 
     /**
@@ -61,12 +63,5 @@ export default class SortingPlugin extends FilterBasePlugin {
      */
     getLabels() {
         return [];
-    }
-
-    /**
-     * @public
-     */
-    validate() {
-
     }
 }

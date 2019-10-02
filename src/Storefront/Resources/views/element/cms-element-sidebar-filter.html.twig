@@ -1,25 +1,12 @@
 {% block element_sidebar_filter %}
     {% set config = element.fieldConfig.elements %}
+    {% set slot = page.cmsPage.firstElementOfType('product-listing') %}
 
-    {# @var cmsPage \Shopware\Core\Content\Cms\CmsPageEntity #}
-    {% set navigationId = element.data.get('navigationId') %}
-
-    {% if navigationId %}
-        {# @var slot \Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity #}
-        {% set slot = page.cmsPage.firstElementOfType('product-listing') %}
-
-        {% set url = url('frontend.cms.navigation.filter', { navigationId: navigationId }) %}
-        {% set dataUrl = url('frontend.cms.navigation.page', { navigationId: navigationId }) %}
-
-        <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}">
-            {% block element_product_slider_alignment %}
-                {% sw_include '@Storefront/component/listing/filter-panel.html.twig' with {
-                    listing: slot.data.listing,
-                    params: { slots: slot.id },
-                    dataUrl: dataUrl,
-                    url: url
-                } %}
-            {% endblock %}
-        </div>
-    {% endif %}
+    <div class="cms-element-sidebar-filter">
+        {% block element_product_slider_alignment %}
+            {% sw_include '@Storefront/component/listing/filter-panel.html.twig' with {
+                listing: slot.data.listing
+            } %}
+        {% endblock %}
+    </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-import FilterMultiSelectPlugin from 'src/script/plugin/filter/filter-multi-select.plugin'
+import FilterMultiSelectPlugin from 'src/script/plugin/listing/filter-multi-select.plugin'
 import Iterator from 'src/script/helper/iterator.helper';
 import DomAccess from 'src/script/helper/dom-access.helper';
 

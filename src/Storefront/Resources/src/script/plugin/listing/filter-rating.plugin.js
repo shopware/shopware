@@ -1,4 +1,4 @@
-import FilterBasePlugin from 'src/script/plugin/filter/filter-base.plugin';
+import FilterBasePlugin from 'src/script/plugin/listing/filter-base.plugin';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import deepmerge from 'deepmerge';
 
@@ -47,7 +47,7 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
      * @private
      */
     _onChangeRating() {
-        this.filterPanel.changeFilter();
+        this.listing.changeListing();
     }
 
     /**
@@ -104,13 +104,6 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
      */
     resetAll() {
         this.ratingSystem.resetRating();
-    }
-
-    /**
-     * @public
-     */
-    validate() {
-
     }
 
     /**

@@ -1,19 +1,9 @@
 {% block component_filter_panel %}
-    {% set sidebar = sectionType == 'sidebar' ? true : false %}
     {% set filterOnClick = false %}
+    {% set sidebar = sectionType == 'sidebar' ? true : false %}
 
     {% block component_filter_panel_element %}
-        <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}"
-             data-filter-panel="true"
-             data-filter-panel-options='{
-             {% block component_filter_panel_options %}
-                 "sidebar": "{{ sidebar }}",
-                 "params": {{ params|json_encode }},
-                 "dataUrl": "{{ dataUrl }}",
-                 "filterUrl": "{{ url }}",
-                 "resetAllButtonText": "{{ 'listing.filterPanelResetAll'|trans }}"
-             {% endblock %}
-             }'>
+        <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}">
 
             {% block component_filter_panel_items_container %}
                 <div class="filter-panel-items-container">

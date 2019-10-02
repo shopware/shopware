@@ -7,6 +7,8 @@ https://getbootstrap.com/docs/4.3/components/pagination/
 */
 
 .pagination {
+    margin-bottom: 0;
+
     .page-item {
         &.disabled {
             .page-link {

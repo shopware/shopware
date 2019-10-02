@@ -186,10 +186,6 @@
             <tag name="shopware.cms.data_resolver" />
         </service>
 
-        <service id="Shopware\Core\Content\Product\Cms\ProductListingFilterCmsElementResolver">
-            <tag name="shopware.cms.data_resolver"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver">
             <tag name="shopware.cms.data_resolver"/>
         </service>

@@ -1,15 +1,15 @@
-// import DomAccess from 'src/script/helper/dom-access.helper';
-import FilterBasePlugin from 'src/script/plugin/filter/filter-base.plugin';
+import DomAccess from 'src/script/helper/dom-access.helper';
+import FilterBasePlugin from 'src/script/plugin/listing/filter-base.plugin';
 import deepmerge from 'deepmerge';
 
-export default class PaginationPlugin extends FilterBasePlugin {
+export default class ListingPaginationPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {
         page: 1,
     });
 
     init() {
-        this.buttons = this.el.querySelectorAll('.pagination input[type=radio]');
+        this.buttons = DomAccess.querySelectorAll(this.el,  '.pagination input[type=radio]');
         this.tempValue = null;
         this._registerEvents();
     }
@@ -25,7 +25,7 @@ export default class PaginationPlugin extends FilterBasePlugin {
 
     onChangePage(event) {
         this.tempValue = event.target.value;
-        this.filterPanel.changeFilter();
+        this.listing.changeListing();
         this.tempValue = null;
     }
 
@@ -53,7 +53,7 @@ export default class PaginationPlugin extends FilterBasePlugin {
     }
 
     afterContentChange() {
-        this.filterPanel.unregisterFilter(this);
+        this.init();
     }
 
     /**
@@ -62,12 +62,5 @@ export default class PaginationPlugin extends FilterBasePlugin {
      */
     getLabels() {
         return [];
-    }
-
-    /**
-     * @public
-     */
-    validate() {
-
     }
 }

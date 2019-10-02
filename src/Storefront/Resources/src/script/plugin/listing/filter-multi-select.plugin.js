@@ -1,6 +1,6 @@
 import DomAccess from 'src/script/helper/dom-access.helper';
 import Iterator from 'src/script/helper/iterator.helper';
-import FilterBasePlugin from 'src/script/plugin/filter/filter-base.plugin';
+import FilterBasePlugin from 'src/script/plugin/listing/filter-base.plugin';
 import deepmerge from 'deepmerge';
 
 export default class FilterMultiSelectPlugin extends FilterBasePlugin {
@@ -89,7 +89,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
      * @private
      */
     _onChangeFilter() {
-        this.filterPanel.changeFilter();
+        this.listing.changeListing();
     }
 
     /**
@@ -118,13 +118,6 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
                 checkbox.checked = false;
             });
         }
-    }
-
-    /**
-     * @public
-     */
-    validate() {
-
     }
 
     /**

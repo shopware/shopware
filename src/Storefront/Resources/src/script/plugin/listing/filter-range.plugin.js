@@ -1,4 +1,4 @@
-import FilterBasePlugin from 'src/script/plugin/filter/filter-base.plugin';
+import FilterBasePlugin from 'src/script/plugin/listing/filter-base.plugin';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import deepmerge from 'deepmerge';
 
@@ -35,7 +35,7 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         clearTimeout(this.timeout);
 
         this.timeout = setTimeout(() => {
-            this.filterPanel.changeFilter();
+            this.listing.changeListing();
         }, this.options.inputTimeout);
     }
 
@@ -96,13 +96,6 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         if (id === this.options.maxKey) {
             this.inputMax.value = '';
         }
-    }
-
-    /**
-     * @public
-     */
-    validate() {
-
     }
 
     /**

@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
+use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 
 class WriteException extends ShopwareHttpException
 {
@@ -22,48 +20,17 @@ class WriteException extends ShopwareHttpException
         parent::__construct(self::MESSAGE, ['errorCount' => 0]);
     }
 
-    public function add(\Throwable $exception): void
+    public function add(\Throwable $exception): WriteException
     {
         $this->exceptions[] = $exception;
         $this->updateMessage();
+
+        return $this;
     }
 
     public function getExceptions(): array
     {
         return $this->exceptions;
-    }
-
-    public function getExceptionsByWriteIndex(int $writeIndex): array
-    {
-        $exceptions = [];
-
-        foreach ($this->getExceptions() as $innerException) {
-            if (!$innerException instanceof WriteFieldException) {
-                continue;
-            }
-
-            if ($innerException instanceof WriteConstraintViolationException) {
-                /** @var ConstraintViolationInterface $violation */
-                foreach ($innerException->getViolations() as $violation) {
-                    $path = empty($innerException->getPath()) ? $violation->getPropertyPath() : $innerException->getPath();
-
-                    if (mb_strpos($path, '/' . $writeIndex . '/') !== 0) {
-                        continue;
-                    }
-
-                    $exceptions[] = $innerException;
-                    continue;
-                }
-            }
-
-            if (mb_strpos($innerException->getPath(), '/' . $writeIndex . '/') !== 0) {
-                continue;
-            }
-
-            $exceptions[] = $innerException;
-        }
-
-        return $exceptions;
     }
 
     public function tryToThrow(): void
@@ -86,52 +53,13 @@ class WriteException extends ShopwareHttpException
     public function getErrors(bool $withTrace = false): \Generator
     {
         foreach ($this->getExceptions() as $innerException) {
-            if ($innerException instanceof WriteException) {
+            if ($innerException instanceof ShopwareHttpException) {
                 yield from $innerException->getErrors($withTrace);
                 continue;
             }
 
-            if ($innerException instanceof WriteConstraintViolationException) {
-                /** @var ConstraintViolationInterface $violation */
-                foreach ($innerException->getViolations() as $violation) {
-                    $path = $innerException->getPath() . $violation->getPropertyPath();
-                    $error = [
-                        'code' => $violation->getCode() ?? $innerException->getErrorCode(),
-                        'status' => (string) $this->getStatusCode(),
-                        'detail' => $violation->getMessage(),
-                        'template' => $violation->getMessageTemplate(),
-                        'parameters' => $violation->getParameters(),
-                        'source' => [
-                            'pointer' => $path,
-                        ],
-                    ];
-
-                    if ($withTrace) {
-                        $error['trace'] = $innerException->getTrace();
-                    }
-
-                    yield $error;
-                }
-
-                continue;
-            }
-
-            $errorCode = $innerException instanceof ShopwareHttpException ? $innerException->getErrorCode() : $innerException->getCode();
-            $error = [
-                'code' => $errorCode,
-                'status' => (string) $this->getStatusCode(),
-                'detail' => $innerException->getMessage(),
-            ];
-
-            if ($innerException instanceof WriteFieldException) {
-                $error['source'] = ['pointer' => $innerException->getPath()];
-            }
-
-            if ($withTrace) {
-                $error['trace'] = $innerException->getTrace();
-            }
-
-            yield $error;
+            $errorFactory = new ErrorResponseFactory();
+            yield from $errorFactory->getErrorsFromException($innerException, $withTrace);
         }
     }
 

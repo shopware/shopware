@@ -12,43 +12,48 @@ class ErrorResponseFactory
 {
     public function getResponseFromException(\Throwable $exception, $debug = false): Response
     {
+        return new JsonResponse(
+            ['errors' => $this->getErrorsFromException($exception, $debug)],
+            $this->getStatusCodeFromException($exception),
+            $this->getHeadersFromException($exception)
+        );
+    }
+
+    public function getErrorsFromException(\Throwable $exception, $debug = false): array
+    {
         if ($exception instanceof ShopwareHttpException) {
             $errors = [];
-            foreach ($exception->getErrors($debug) as $innerException) {
-                $errors[] = $innerException;
+            foreach ($exception->getErrors() as $error) {
+                $errors[] = $error;
             }
 
-            $response = new JsonResponse(
-                ['errors' => $this->convert($errors)],
-                $exception->getStatusCode()
-            );
-        } elseif ($exception instanceof OAuthServerException) {
-            $error = [
-                'code' => (string) $exception->getCode(),
-                'status' => (string) $exception->getHttpStatusCode(),
-                'title' => $exception->getMessage(),
-                'detail' => $exception->getHint(),
-            ];
-
-            $response = new JsonResponse(['errors' => [$error]], $exception->getHttpStatusCode(), $exception->getHttpHeaders());
-        } else {
-            $statusCode = 500;
-            if ($exception instanceof HttpException) {
-                $statusCode = $exception->getStatusCode();
-            }
-
-            $response = new JsonResponse(['errors' => $this->convertExceptionToError($exception, $debug)], $statusCode);
+            return $this->convert($errors);
         }
 
-        return $response;
+        return [$this->convertExceptionToError($exception, $debug)];
+    }
+
+    private function getStatusCodeFromException(\Throwable $exception): int
+    {
+        if ($exception instanceof OAuthServerException) {
+            return $exception->getHttpStatusCode();
+        }
+
+        if ($exception instanceof ShopwareHttpException || $exception instanceof HttpException) {
+            return $exception->getStatusCode();
+        }
+
+        return 500;
+    }
+
+    private function getHeadersFromException(\Throwable $exception): array
+    {
+        return $exception instanceof OAuthServerException ? $exception->getHttpHeaders() : [];
     }
 
     private function convertExceptionToError(\Throwable $exception, $debug = false): array
     {
-        $statusCode = 500;
-        if ($exception instanceof HttpException) {
-            $statusCode = $exception->getStatusCode();
-        }
+        $statusCode = $this->getStatusCodeFromException($exception);
 
         $error = [
             'code' => (string) $exception->getCode(),
@@ -56,6 +61,11 @@ class ErrorResponseFactory
             'title' => Response::$statusTexts[$statusCode] ?? 'unknown status',
             'detail' => $exception->getMessage(),
         ];
+
+        if ($exception instanceof OAuthServerException) {
+            $error['title'] = $exception->getMessage();
+            $error['detail'] = $exception->getHint();
+        }
 
         if ($debug) {
             $error['meta'] = [
@@ -65,11 +75,11 @@ class ErrorResponseFactory
             ];
 
             if ($exception->getPrevious()) {
-                $error['meta']['previous'] = $this->convertExceptionToError($exception->getPrevious(), $debug);
+                $error['meta']['previous'][] = $this->convertExceptionToError($exception->getPrevious(), $debug);
             }
         }
 
-        return [$error];
+        return $error;
     }
 
     private function convert(array $array): array

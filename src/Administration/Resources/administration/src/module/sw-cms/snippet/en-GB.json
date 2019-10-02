@@ -78,6 +78,7 @@
       "labelBlockCategorySidebar": "Sidebar",
       "labelBlockCategoryImage": "Images",
       "labelBlockCategoryCommerce": "Commerce",
+      "labelBlockCategorySidebar": "Sidebar",
       "titleElementSettingsModal": "Element settings",
       "labelButtonElementSettingsConfirm": "Done",
       "titleElementChangeModal": "Change element",
@@ -117,7 +118,8 @@
       "notificationMessageMissingElements": "Configuration required. Please fill in all required configuration elements.",
       "alertTitleTranslations": "Translations currently not available!",
       "alertContentTranslations": "Layouts can only be edited in the system default language.",
-      "addBlocks": "Add Blocks via Drag & Drop"
+      "addBlocks": "Add Blocks via Drag & Drop",
+      "labelNavigation": "Navigation"
     },
     "elements": {
       "captionMediaUpload": "Upload an image",

@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class StorefrontPluginRegistry
 {
-    const BASE_THEME_NAME = 'Storefront';
+    public const BASE_THEME_NAME = 'Storefront';
 
     /**
      * @var StorefrontPluginConfigurationCollection|null

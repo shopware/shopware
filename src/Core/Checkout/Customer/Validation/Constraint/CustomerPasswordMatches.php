@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 class CustomerPasswordMatches extends Constraint
 {
-    const CUSTOMER_PASSWORD_NOT_CORRECT = 'fe2faa88-34d9-4c3b-99b3-8158b1ed8dc7';
+    public const CUSTOMER_PASSWORD_NOT_CORRECT = 'fe2faa88-34d9-4c3b-99b3-8158b1ed8dc7';
 
     public $message = 'Your password is wrong';
 

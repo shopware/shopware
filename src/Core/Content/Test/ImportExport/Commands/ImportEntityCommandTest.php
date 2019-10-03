@@ -21,8 +21,8 @@ class ImportEntityCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    const DEFAULT_CUSTOMER_IMPORT_PROFILE = 'Default customer';
-    const TEST_IMPORT_FILE_PATH = '/tmp/file.csv';
+    private const DEFAULT_CUSTOMER_IMPORT_PROFILE = 'Default customer';
+    private const TEST_IMPORT_FILE_PATH = '/tmp/file.csv';
 
     /**
      * @var EntityRepositoryInterface

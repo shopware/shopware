@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context\SalesChannelApiSource;
 
 class ReadProtected extends Flag
 {
-    const BASE_URLS = [
+    private const BASE_URLS = [
         AdminApiSource::class => '/api/v',
         SalesChannelApiSource::class => '/sales-channel-api/v',
     ];

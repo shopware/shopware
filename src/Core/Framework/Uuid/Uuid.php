@@ -111,7 +111,7 @@ class Uuid
     private static function applyVariant(int $clockSeqHi): int
     {
         // Set the variant to RFC 4122
-        $clockSeqHi = $clockSeqHi & 0x3f;
+        $clockSeqHi &= 0x3f;
         $clockSeqHi &= ~(0xc0);
         $clockSeqHi |= 0x80;
 

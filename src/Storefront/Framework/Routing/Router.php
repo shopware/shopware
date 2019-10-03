@@ -101,9 +101,9 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                 $schemaAuthority = $schema . '//' . $this->getContext()->getHost();
 
                 if ($this->getContext()->getHttpPort() !== 80) {
-                    $schemaAuthority = $schemaAuthority . ':' . $this->getContext()->getHttpPort();
+                    $schemaAuthority .= ':' . $this->getContext()->getHttpPort();
                 } elseif ($this->getContext()->getHttpsPort() !== 443) {
-                    $schemaAuthority = $schemaAuthority . ':' . $this->getContext()->getHttpsPort();
+                    $schemaAuthority .= ':' . $this->getContext()->getHttpsPort();
                 }
                 $generated = $this->decorated->generate($name, $parameters);
                 $pathInfo = $this->removePrefix($generated, $basePath);

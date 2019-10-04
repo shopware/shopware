@@ -73,6 +73,16 @@ class TestTreeAware extends CategoryEntity
         return $this->id;
     }
 
+    public function getActive(): bool
+    {
+        return true;
+    }
+
+    public function getVisible(): bool
+    {
+        return true;
+    }
+
     public function getPath(): ?string
     {
         throw new \Exception('Should not be called');

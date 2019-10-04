@@ -56,7 +56,6 @@ class NavigationLoader
                 new EqualsFilter('parentId', $rootId),
             ])
         );
-        $criteria->addFilter(new EqualsFilter('category.visible', true));
         $criteria->addAssociation('media');
 
         /** @var CategoryCollection $rootLevel */
@@ -72,7 +71,6 @@ class NavigationLoader
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('parentId', $ids));
-        $criteria->addFilter(new EqualsFilter('category.visible', true));
 
         /** @var CategoryCollection $secondLevel */
         $secondLevel = $this->categoryRepository->search($criteria, $context)->getEntities();
@@ -170,6 +168,10 @@ class NavigationLoader
 
         $items = [];
         foreach ($children as $child) {
+            if (!$child->getActive() || !$child->getVisible()) {
+                continue;
+            }
+
             $item = clone $this->treeItem;
             $item->setCategory($child);
 

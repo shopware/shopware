@@ -162,7 +162,7 @@ The Interface therefore handles alike:
 
 #### Get deliveries
 
-```php:./_examples/10-cart-example.php#ExampleRemoveItem
+```php:./_examples/10-cart-example.php#ExampleGetDeliveries
 ```
 
 ### Order

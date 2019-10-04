@@ -1,9 +1,12 @@
 {% block element_image_gallery %}
     {# cms element data and configs #}
     {% if element.fieldConfig is defined and element.data is defined %}
-        {% set mediaItems = element.data.sliderItems %}
-
         {% set sliderConfig = element.fieldConfig.elements %}
+
+        {% set mediaItems = [] %}
+        {% for item in element.data.sliderItems %}
+            {% set mediaItems = mediaItems|merge([item.media]) %}
+        {% endfor %}
 
         {% set zoom = sliderConfig.zoom.value %}
         {% set magnifierOverGallery = true %}
@@ -17,7 +20,7 @@
     {% endif %}
 
     {# @var mediaItems \Shopware\Core\Content\Media\MediaCollection #}
-    {% set imageCount = mediaItems.count %}
+    {% set imageCount = mediaItems|length %}
 
     <div class="cms-element-{{ element.type }}{% if displayMode == "standard" and verticalAlign %} has-vertical-alignment{% endif %}">
         {% block element_image_gallery_alignment %}
@@ -43,9 +46,9 @@
                                     "navPosition": "bottom",
                                     "speed": 500,
                                     "controls": {% if navigationArrows %}true{% else %}false{% endif %},
-                                    "autoHeight": {% if displayMode == "standard" %}true{% else %}false{% endif %},
+                                    "autoHeight": {% if displayMode == "standard" %}true{% else %}false{% endif %}
                                     {% if startIndexThumbnails %}
-                                    "startIndex": {{ startIndexThumbnails }}
+                                    ,"startIndex": {{ startIndexThumbnails }}
                                     {% endif %}
                                 },
                                 "thumbnailSlider": {

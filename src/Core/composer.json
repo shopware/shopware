@@ -104,7 +104,7 @@
         "fzaninotto/faker": "1.8.0",
         "johnkary/phpunit-speedtrap": "3.1.0",
         "mbezhanov/faker-provider-collection": "1.2.1",
-        "phpunit/phpunit": "8.3.4",
+        "phpunit/phpunit": "8.4.0",
         "smalot/pdfparser": "0.14.0",
         "symfony/browser-kit": "4.3.4",
         "symfony/phpunit-bridge": "4.3.4",

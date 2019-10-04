@@ -2,6 +2,7 @@ export default class ErrorResolver {
     constructor() {
         this.EntityDefinition = Shopware.EntityDefinition;
         this.ShopwareError = Shopware.Classes.ShopwareError;
+        this.merge = Shopware.Utils.object.merge;
     }
 
     resetApiErrors() {
@@ -9,31 +10,69 @@ export default class ErrorResolver {
     }
 
     /**
-     * @param response
-     * @param entity
+     * @param errors
      * @param changeset
      */
-    handleWriteError({ response }, entity, changeset) {
-        if (!this.isErrorDataSet(response)) {
-            throw response;
+    handleWriteErrors({ errors } = {}, changeset) {
+        if (!errors) {
+            throw new Error('[error-resolver] handleWriteError was called without errors');
         }
 
-        const errors = response.data.errors;
-        const definition = this.EntityDefinition.get(entity.getEntityName());
+        const writeErrors = this.reduceErrorsByWriteIndex(errors);
 
-        const systemErrors = [];
-        errors.forEach((error) => {
-            this.resolveError(error, definition, entity, changeset, systemErrors);
-        });
+        this.handleErrors(writeErrors, changeset);
 
-        if (systemErrors.length > 0) {
-            this.addSystemErrors(systemErrors);
-        }
+        this.addSystemErrors(writeErrors.system);
     }
 
-    /* TODO NEXT-3721 - add support for deletion queue */
-    handleDeleteError() { // ({ response }, deletionQueue) {
+    handleDeleteError(errorResponse) {
+        const errors = errorResponse.response.data.errors;
 
+        errors.forEach((error) => {
+            this.errorStore.addSystemError(new this.ShopwareError(error));
+        });
+    }
+
+    reduceErrorsByWriteIndex(errors) {
+        let writeErrors = {
+            system: []
+        };
+
+        errors.forEach((current) => {
+            if (!current.source || !current.source.pointer) {
+                writeErrors.system.push(new this.ShopwareError(current));
+                return;
+            }
+
+            const segments = current.source.pointer.split('/');
+
+            // remove first empty element in list
+            if (segments[0] === '') {
+                segments.shift();
+            }
+
+            const denormalized = {};
+            const lastIndex = segments.length - 1;
+
+            segments.reduce((pointer, segment, index) => {
+                // skip translations
+                if (segment === 'translations' || segments[index - 1] === 'translations') {
+                    return pointer;
+                }
+
+                if (index === lastIndex) {
+                    pointer[segment] = new this.ShopwareError(current);
+                } else {
+                    pointer[segment] = {};
+                }
+
+                return pointer[segment];
+            }, denormalized);
+
+            writeErrors = this.merge(writeErrors, denormalized);
+        });
+
+        return writeErrors;
     }
 
     /**
@@ -48,124 +87,53 @@ export default class ErrorResolver {
 
     /**
      * @private
+     * @param writeErrors
+     * @param changeset
+     */
+    handleErrors(writeErrors, changeset) {
+        changeset.forEach(({ entity, changes }, writeIndex) => {
+            const errors = writeErrors[writeIndex];
+
+            // entity has no errors
+            if (!errors) {
+                return;
+            }
+
+            const definition = this.EntityDefinition.get(entity.getEntityName());
+            Object.keys(errors).forEach((fieldName) => {
+                this.resolveError(fieldName, errors[fieldName], definition, entity, changes);
+            });
+        });
+    }
+
+    /**
+     * @private
+     * @param fieldName
      * @param error
      * @param definition
      * @param entity
      * @param changeset
-     * @param systemErrors
      */
-    resolveError(error, definition, entity, changeset, systemErrors) {
-        if (!error.source || !error.source.pointer) {
-            systemErrors.push(error);
-            return;
-        }
-
-        if (!error.source.pointer.startsWith('/')) {
-            error.source.pointer = `/${error.source.pointer}`;
-        }
-
-        const [, /* command index */, fieldName, ...rest] = error.source.pointer.split('/');
-
-        const subFields = `/${rest.join('/')}`;
-
+    resolveError(fieldName, error, definition, entity, changeset) {
         const field = definition.getField(fieldName);
 
         if (!field) {
-            systemErrors.push(error);
-            return;
-        }
-
-        if (definition.isJsonField(field)) {
-            this.resolveJsonField(fieldName, subFields, error, entity);
+            this.errorStore.addSystemError(error);
             return;
         }
 
         if (definition.isToManyAssociation(field)) {
-            if (fieldName === 'translations') {
-                this.resolveTranslation(error, definition, entity, systemErrors);
-                return;
-            }
-
-            this.resolveToManyAssociationError(error, fieldName, entity[fieldName], changeset, systemErrors);
+            const associationChanges = this.buildAssociationChangeset(entity, changeset, error, fieldName);
+            this.handleErrors(error, associationChanges);
             return;
         }
 
-        Shopware.State.dispatch('error/addApiError', {
-            expression: this.getErrorPath(entity, fieldName),
-            error: new this.ShopwareError(error)
-        });
-    }
-
-    /**
-     * @private
-     * @param error
-     * @param currentField
-     * @param entityCollection
-     * @param changeset
-     * @param systemErrors
-     */
-    resolveToManyAssociationError(error, currentField, entityCollection, changeset, systemErrors) {
-        const definition = this.EntityDefinition.get(entityCollection.entity);
-        if (!definition) {
-            systemErrors.push(error);
-            return;
-        }
-
-        const [, , associationName, index, ...additionalPath] = error.source.pointer.split('/');
-        const associationChanges = changeset[associationName][index];
-        const entity = entityCollection.get(associationChanges.id);
-        error.source.pointer = `/${index}/${additionalPath.join('/')}`;
-
-        this.resolveError(error, definition, entity, changeset, systemErrors);
-    }
-
-    /**
-     * @private
-     * @param jsonField
-     * @param subFields
-     * @param error
-     * @param entity
-     */
-    resolveJsonField(jsonField, subFields, error, entity) {
-        const fieldPath = `${jsonField}${subFields.replace(/\//g, '.')}`;
-        Shopware.State.dispatch('error/addApiError', {
-            expression: this.getErrorPath(entity, fieldPath),
-            error: new this.ShopwareError(error)
-        });
-    }
-
-    /**
-     * private
-     * @param error
-     * @param definition
-     * @param entity
-     * @param systemErrors
-     */
-    resolveTranslation(error, definition, entity, systemErrors) {
-        const match = error.source.pointer.split('/');
-        const fieldName = match[4];
-
-        if (typeof fieldName === 'undefined') {
-            if (error.code === 'MISSING-SYSTEM-TRANSLATION') {
-                systemErrors.push(error);
-                return;
-            }
-            throw new Error(
-                // eslint-disable-next-line
-                `[ErrorResolver] Could not resolve translation error for ${definition.entity} with id ${entity.id}. Missing field name`
+        if (definition.isJsonField(field)) {
+            this.resolveJsonFieldError(
+                `${entity.getEntityName()}.${entity.id}.${fieldName}`,
+                error,
             );
-        }
-
-        error.source.pointer = fieldName;
-
-        const field = definition.getField(fieldName);
-        if (!field) {
-            systemErrors.push(error);
             return;
-        }
-
-        if (!definition.isTranslatableField(field)) {
-            throw new Error(`[ErrorResolver] translatable field ${fieldName}`);
         }
 
         Shopware.State.dispatch('error/addApiError', {
@@ -174,22 +142,35 @@ export default class ErrorResolver {
         });
     }
 
-    /**
-     * @private
-     * @param response
-     * @returns {boolean}
-     */
-    isErrorDataSet(response) {
-        if (!response.data) {
-            return false;
-        }
+    buildAssociationChangeset(entity, changeset, error, associationName) {
+        return changeset[associationName].map((associationChange) => {
+            const association = entity[associationName].find((a) => {
+                return a.id === associationChange.id;
+            });
 
-        return !!response.data.errors;
+            return { entity: association, changes: associationChange };
+        });
+    }
+
+    resolveJsonFieldError(basePath, error) {
+        Object.keys(error).forEach((fieldName) => {
+            const path = `${basePath}.${fieldName}`;
+
+            if (error[fieldName] instanceof this.ShopwareError) {
+                Shopware.State.dispatch('error/addApiError', {
+                    expression: path,
+                    error: error[fieldName]
+                });
+                return;
+            }
+
+            this.resolveJsonFieldError(path, error[fieldName]);
+        });
     }
 
     /**
-      * @private
-      */
+     * @private
+     */
     getErrorPath(entity, currentField) {
         return `${entity.getEntityName()}.${entity.id}.${currentField}`;
     }

@@ -88,23 +88,9 @@ export default class Repository {
     save(entity, context) {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
 
-        return new Promise((resolve, reject) => {
-            return this.errorResolver.resetApiErrors().then(() => {
-                return this.sendDeletions(deletionQueue, context)
-                    .then(() => {
-                        this.sendChanges(entity, changes, context)
-                            .then(() => {
-                                resolve();
-                            }).catch((errorResponse) => {
-                                this.errorResolver.handleWriteError(errorResponse, entity, changes);
-                                reject(errorResponse);
-                            });
-                    }).catch((errorResponse) => {
-                        this.errorResolver.handleDeleteError(errorResponse, deletionQueue);
-                        reject(errorResponse);
-                    });
-            });
-        });
+        return this.errorResolver.resetApiErrors()
+            .then(() => this.sendDeletions(deletionQueue, context))
+            .then(() => this.sendChanges(entity, changes, context));
     }
 
     /**
@@ -146,7 +132,7 @@ export default class Repository {
      * @param {Object} context
      * @returns {Promise<any[]>}
      */
-    sync(entities, context) {
+    saveAll(entities, context) {
         const promises = [];
 
         entities.forEach((entity) => {
@@ -154,6 +140,99 @@ export default class Repository {
         });
 
         return Promise.all(promises);
+    }
+
+    /**
+     * Detects changes of all provided entities and send the changes to the server
+     *
+     * @param {Array} entities
+     * @param {Object} context
+     * @param {Boolean} failOnError
+     * @returns {Promise<any[]>}
+     */
+    sync(entities, context, failOnError = true) {
+        const { changeset, deletions } = this.getSyncChangeset(entities);
+
+        return this.errorResolver.resetApiErrors()
+            .then(() => this.sendDeletions(deletions, context))
+            .then(() => this.sendUpserts(changeset, failOnError, context));
+    }
+
+    /**
+     * @private
+     * @param changeset
+     * @param failOnError
+     * @param context
+     * @returns {*}
+     */
+    sendUpserts(changeset, failOnError, context) {
+        if (changeset.length <= 0) {
+            return Promise.resolve();
+        }
+
+        const payload = changeset.map(({ changes }) => changes);
+        const headers = this.buildHeaders(context);
+        headers['fail-on-error'] = failOnError;
+
+        return this.httpClient.post(
+            '_action/sync',
+            {
+                [this.entityName]: {
+                    entity: this.entityName,
+                    action: 'upsert',
+                    payload
+                }
+            },
+            { headers }
+        ).then(({ data }) => {
+            if (data.success === false) {
+                throw data;
+            }
+            return Promise.resolve();
+        }).catch((errorResponse) => {
+            const errors = this.getSyncErrors(errorResponse);
+            this.errorResolver.handleWriteErrors(
+                { errors },
+                changeset
+            );
+            throw errorResponse;
+        });
+    }
+
+    /**
+     * @private
+     * @param errorResponse
+     * @returns {Array}
+     */
+    getSyncErrors(errorResponse) {
+        const operation = errorResponse.response.data.data[this.entityName];
+        return operation.result.reduce((acc, result) => {
+            acc.push(...result.errors);
+            return acc;
+        }, []);
+    }
+
+    /**
+     * @private
+     * @param entities
+     * @returns {*}
+     */
+    getSyncChangeset(entities) {
+        return entities.reduce((acc, entity) => {
+            const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
+            acc.deletions.push(...deletionQueue);
+
+            if (changes === null) {
+                return acc;
+            }
+
+            const pkData = this.changesetGenerator.getPrimaryKeyData(entity);
+            Object.assign(changes, pkData);
+
+            acc.changeset.push({ entity, changes });
+
+            return acc;
+        }, { changeset: [], deletions: [] });
     }
 
     /**
@@ -185,6 +264,46 @@ export default class Repository {
             .catch((error) => {
                 return this.errorResolver.handleDeleteError(error, this.entityName, id);
             });
+    }
+
+    /**
+     * Sends a delete request for a set of ids
+     * @param {Array} ids
+     * @param {Object} context
+     * @returns {Promise}
+     */
+    syncDeleted(ids, context) {
+        const headers = this.buildHeaders(context);
+
+        headers['fail-on-error'] = true;
+        const payload = ids.map((id) => {
+            return { id };
+        });
+
+        return this.httpClient.post(
+            '_action/sync',
+            {
+                [this.entityName]: {
+                    entity: this.entityName,
+                    action: 'delete',
+                    payload
+                }
+            },
+            { headers }
+        ).then(({ data }) => {
+            if (data.success === false) {
+                throw data;
+            }
+            return Promise.resolve();
+        }).catch((errorResponse) => {
+            const errors = this.getSyncErrors(errorResponse);
+
+            this.errorResolver.handleWriteErrors(
+                { errors },
+                payload
+            );
+            throw errorResponse;
+        });
     }
 
     /**
@@ -277,16 +396,23 @@ export default class Repository {
         if (entity.isNew()) {
             changes = changes || {};
             Object.assign(changes, { id: entity.id });
-            return this.httpClient.post(`${this.route}`, changes, { headers });
+
+            return this.httpClient.post(`${this.route}`, changes, { headers })
+                .catch((errorResponse) => {
+                    this.errorResolver.handleWriteErrors(errorResponse.response.data, [{ entity, changes }]);
+                    throw errorResponse;
+                });
         }
 
-        if (changes === null) {
-            return new Promise((resolve) => {
-                resolve();
+        if (typeof changes === 'undefined' || changes === null) {
+            return Promise.resolve();
+        }
+
+        return this.httpClient.patch(`${this.route}/${entity.id}`, changes, { headers })
+            .catch((errorResponse) => {
+                this.errorResolver.handleWriteErrors(errorResponse.response.data, [{ entity, changes }]);
+                throw errorResponse;
             });
-        }
-
-        return this.httpClient.patch(`${this.route}/${entity.id}`, changes, { headers });
     }
 
     /**
@@ -296,11 +422,13 @@ export default class Repository {
      * @returns {Promise}
      */
     sendDeletions(queue, context) {
-        const requests = [];
-
         const headers = this.buildHeaders(context);
-        queue.forEach((deletion) => {
-            requests.push(this.httpClient.delete(`${deletion.route}/${deletion.key}`, { headers }));
+        const requests = queue.map((deletion) => {
+            return this.httpClient.delete(`${deletion.route}/${deletion.key}`, { headers })
+                .catch((errorResponse) => {
+                    this.errorResolver.handleDeleteError(errorResponse);
+                    throw errorResponse;
+                });
         });
 
         return Promise.all(requests);

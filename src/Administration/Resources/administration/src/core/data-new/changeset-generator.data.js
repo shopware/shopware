@@ -9,6 +9,22 @@ function castValueToNullIfNecessary(value) {
 
 export default class ChangesetGenerator {
     /**
+     * returns the primary key data of an entity
+     * @param entity
+     */
+    getPrimaryKeyData(entity) {
+        const definition = Shopware.EntityDefinition.get(entity.getEntityName());
+        const pkFields = definition.getPrimaryKeyFields();
+        const pkData = {};
+
+        Object.keys(pkFields).forEach((fieldName) => {
+            pkData[fieldName] = entity[fieldName];
+        });
+
+        return pkData;
+    }
+
+    /**
      * Creates the change set for the provided entity.
      * @param entity
      * @returns {{changes: *, deletionQueue: Array}}
@@ -35,7 +51,6 @@ export default class ChangesetGenerator {
         const draft = entity.getDraft();
 
         definition.forEachField((field, fieldName) => {
-            // skip read only
             if (field.readOnly) {
                 return;
             }

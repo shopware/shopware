@@ -268,7 +268,7 @@ class SalesChannelContextFactory
         $origin = new SalesChannelApiSource($salesChannelId);
 
         //explode all available languages for the provided sales channel
-        $languageIds = $data['sales_channel_language_ids'] ? explode(',', $data['sales_channel_language_ids']) : null;
+        $languageIds = $data['sales_channel_language_ids'] ? explode(',', $data['sales_channel_language_ids']) : [];
         $languageIds = array_keys(array_flip($languageIds));
 
         //check which language should be used in the current request (request header set, or context already contains a language - stored in `sales_channel_api_context`)

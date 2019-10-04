@@ -9,15 +9,22 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
     });
 
     init() {
-        this.buttons = DomAccess.querySelectorAll(this.el,  '.pagination input[type=radio]');
+        this._initButtons();
         this.tempValue = null;
-        this._registerEvents();
+    }
+
+    _initButtons() {
+        this.buttons = DomAccess.querySelectorAll(this.el,  '.pagination input[type=radio]', false);
+
+        if (this.buttons) {
+            this._registerButtonEvents();
+        }
     }
 
     /**
      * @private
      */
-    _registerEvents() {
+    _registerButtonEvents() {
         this.buttons.forEach((radio) => {
             radio.addEventListener('change', this.onChangePage.bind(this));
         });
@@ -49,11 +56,11 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
         if (this.tempValue !== null) {
             return { p: this.tempValue };
         }
-        return { p: this.options.page };
+        return { p: 1 };
     }
 
     afterContentChange() {
-        this.init();
+        this._initButtons();
     }
 
     /**

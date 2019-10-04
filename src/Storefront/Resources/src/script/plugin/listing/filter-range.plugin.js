@@ -56,6 +56,22 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         return values;
     }
 
+    setValuesFromUrl(params) {
+        let stateChanged = false;
+        Object.keys(params).forEach(key => {
+            if (key === this.options.minKey) {
+                this.inputMin.value = params[key];
+                stateChanged = true;
+            }
+            if (key === this.options.maxKey) {
+                this.inputMax.value = params[key];
+                stateChanged = true;
+            }
+        });
+
+        return stateChanged;
+    }
+
     /**
      * @return {Array}
      * @public

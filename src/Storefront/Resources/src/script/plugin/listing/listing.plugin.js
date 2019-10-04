@@ -4,6 +4,7 @@ import Iterator from 'src/script/helper/iterator.helper';
 import DomAccess from 'src/script/helper/dom-access.helper';
 import querystring from 'query-string';
 import ElementReplaceHelper from 'src/script/helper/element-replace.helper';
+import HistoryUtil from 'src/script/utility/history/history.util';
 
 export default class ListingPlugin extends Plugin {
 
@@ -27,19 +28,21 @@ export default class ListingPlugin extends Plugin {
 
     init() {
         this._registry = [];
-        this._isFilterActive = false;
+
         this.httpClient = new HttpClient(window.accessKey, window.contextToken);
+
+        this._urlFilterParams = querystring.parse(HistoryUtil.getSearch());
 
         this._filterPanelActive = !!DomAccess.querySelector(document, this.options.filterPanelSelector, false);
 
-        if (!this._filterPanelActive) {
-            return;
+        // Init functionality for the filter panel
+        if (this._filterPanelActive) {
+            this._showResetAll = false;
+            this.activeFilterContainer = DomAccess.querySelector(
+                document,
+                this.options.activeFilterContainerSelector
+            );
         }
-
-        this.activeFilterContainer = DomAccess.querySelector(
-            document,
-            this.options.activeFilterContainerSelector
-        );
     }
 
     /**
@@ -59,6 +62,20 @@ export default class ListingPlugin extends Plugin {
      */
     registerFilter(filterItem) {
         this._registry.push(filterItem);
+
+        this._setFilterState(filterItem);
+    }
+
+    _setFilterState(filterItem) {
+        if (Object.keys(this._urlFilterParams).length > 0 && typeof filterItem.setValuesFromUrl === 'function' ) {
+            const stateChanged = filterItem.setValuesFromUrl(this._urlFilterParams);
+
+            // Return if state of filter has not changed or filter panel is not active
+            if(!stateChanged || !this._filterPanelActive) return;
+
+            this._showResetAll = true;
+            this._buildLabels();
+        }
     }
 
     /**
@@ -105,7 +122,9 @@ export default class ListingPlugin extends Plugin {
             }
         });
 
-        this._isFilterActive = !!Object.keys(mapped).length;
+        if (this._filterPanelActive) {
+            this._showResetAll = !!Object.keys(mapped).length;
+        }
 
         if (this.options.params) {
             Object.keys(this.options.params).forEach((key) => {
@@ -113,7 +132,14 @@ export default class ListingPlugin extends Plugin {
             });
         }
 
-        this.sendDataRequest(querystring.stringify(mapped));
+        const query = querystring.stringify(mapped);
+
+        this.sendDataRequest(query);
+        this._updateHistory(query);
+    }
+
+    _updateHistory(query) {
+        HistoryUtil.push(HistoryUtil.getLocation().pathname, query, {});
     }
 
     /**
@@ -140,11 +166,10 @@ export default class ListingPlugin extends Plugin {
             false
         );
 
-        if (resetButtons) {
+        if (labelHtml.length) {
             this._registerLabelEvents(resetButtons);
+            this.createResetAllButton();
         }
-
-        this.createResetAllButton();
     }
 
     _registerLabelEvents(resetButtons) {
@@ -168,7 +193,7 @@ export default class ListingPlugin extends Plugin {
         resetAllButtonEl.removeEventListener('click', this.resetAllFilter.bind(this));
         resetAllButtonEl.addEventListener('click', this.resetAllFilter.bind(this));
 
-        if (!this._isFilterActive) {
+        if (!this._showResetAll) {
             resetAllButtonEl.remove();
         }
     }

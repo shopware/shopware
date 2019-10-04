@@ -69,6 +69,21 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
         return values;
     }
 
+    setValuesFromUrl(params) {
+        let stateChanged = false;
+        Object.keys(params).forEach(key => {
+            if (key === this.options.name) {
+                this.currentRating = params[key];
+                this._updateCount();
+
+                // ToDo: set rating system state
+                stateChanged = true;
+            }
+        });
+
+        return stateChanged;
+    }
+
     /**
      * @return {Array}
      * @public

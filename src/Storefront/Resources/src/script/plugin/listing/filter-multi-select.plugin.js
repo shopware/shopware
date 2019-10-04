@@ -85,6 +85,26 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
         return labels;
     }
 
+    setValuesFromUrl(params) {
+        let stateChanged = false;
+        Object.keys(params).forEach(key => {
+            if (key === this.options.name) {
+                stateChanged = true;
+                const ids = params[key].split('|');
+
+                ids.forEach(id => {
+                    const checkboxEl = DomAccess.querySelector(this.el, `[id="${id}"]`, false);
+
+                    if (checkboxEl) {
+                        checkboxEl.checked = true;
+                    }
+                });
+            }
+        });
+
+        return stateChanged;
+    }
+
     /**
      * @private
      */

@@ -47,7 +47,7 @@
                                                            data-modal-class="quickview-modal"
                                                            data-url="{{ path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
-                                                           >
+                                                        >
                                                             {% block page_checkout_item_info_image_element %}
                                                                 {% if lineItem.cover.url %}
                                                                     {% sw_thumbnails 'cart-item-img-thumbnails' with {
@@ -89,14 +89,14 @@
                                                            data-modal-class="quickview-modal"
                                                            data-url="{{ path('widgets.quickview.minimal',{ 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
-                                                           >
+                                                        >
                                                             {{ lineItem.label|truncate(60) }}
                                                         </a>
                                                     {% else %}
                                                         <div class="cart-item-label">
                                                             {{ lineItem.label|truncate(60) }}
                                                         </div>
-                                                    {% endif  %}
+                                                    {% endif %}
                                                 {% endblock %}
 
                                                 {% block page_checkout_item_info_ordernumber %}
@@ -192,6 +192,8 @@
                                                     </select>
                                                 {% endblock %}
                                             </form>
+                                        {% else %}
+                                            {{ lineItem.quantity }}
                                         {% endif %}
                                     {% endblock %}
                                 </div>

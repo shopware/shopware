@@ -14,7 +14,7 @@ class SearchPageTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    const TEST_TERM = 'foo';
+    private const TEST_TERM = 'foo';
 
     public function testitRequiresSearchParam(): void
     {

@@ -32,7 +32,7 @@ export default {
 
                 // add event listener when one shortcut is registered
                 if (activeShortcuts.length <= 1) {
-                    document.addEventListener('keyup', this.handleKeyUpDebounce);
+                    document.addEventListener('keydown', this.handleKeyDownDebounce);
                 }
 
                 return true;
@@ -51,13 +51,13 @@ export default {
 
                 // remove event listener when no shortcuts exists
                 if (activeShortcuts.length <= 0) {
-                    document.removeEventListener('keyup', this.handleKeyUpDebounce);
+                    document.removeEventListener('keydown', this.handleKeyDownDebounce);
                 }
 
                 return true;
             },
             methods: {
-                handleKeyUpDebounce: util.debounce(function handleKeyUp(event) {
+                handleKeyDownDebounce: util.debounce(function handleKeyDown(event) {
                     if (event.constructor !== KeyboardEvent) {
                         return false;
                     }

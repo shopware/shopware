@@ -431,7 +431,7 @@ class EntityAggregator implements EntityAggregatorInterface
                     return new StatsResult($aggregation->getName(), 0, 0, 0.0, 0.0);
                 }
 
-                $row = isset($rows[0]);
+                $row = $rows[0];
 
                 return new StatsResult($aggregation->getName(), $row[$name . '.min'], $row[$name . '.max'], (float) $row[$name . '.avg'], (float) $row[$name . '.sum']);
 

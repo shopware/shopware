@@ -33,7 +33,8 @@ export default class ListingPlugin extends Plugin {
 
         this._urlFilterParams = querystring.parse(HistoryUtil.getSearch());
 
-        this._filterPanelActive = !!DomAccess.querySelector(document, this.options.filterPanelSelector, false);
+        this._filterPanel = DomAccess.querySelector(document, this.options.filterPanelSelector, false);
+        this._filterPanelActive = !!this._filterPanel;
 
         // Init functionality for the filter panel
         if (this._filterPanelActive) {
@@ -274,14 +275,14 @@ export default class ListingPlugin extends Plugin {
      * Prevents the user from clicking filter labels during filter request.
      */
     addLoadingIndicatorClass() {
-        this.el.classList.add(this.options.loadingIndicatorClass);
+        this._filterPanel.classList.add(this.options.loadingIndicatorClass);
     }
 
     /**
      * Remove loading styling classes.
      */
     removeLoadingIndicatorClass() {
-        this.el.classList.remove(this.options.loadingIndicatorClass);
+        this._filterPanel.classList.remove(this.options.loadingIndicatorClass);
     }
 
     /**
@@ -290,23 +291,17 @@ export default class ListingPlugin extends Plugin {
      * @param {String} filterParams - active filters as querystring
      */
     sendDataRequest(filterParams) {
-        this.addLoadingIndicatorClass();
+        if (this._filterPanelActive) {
+            this.addLoadingIndicatorClass();
+        }
 
         this.httpClient.abort();
         this.httpClient.get(`${this.options.dataUrl}?${filterParams}`, (response) => {
             this.renderResponse(response);
-        });
-    }
 
-    /**
-     * Send request to get updated filters.
-     *
-     * @param {String} filterParams - active filters as querystring
-     */
-    sendFilterRequest(filterParams) {
-        this.httpClient.abort();
-        this.httpClient.get(`${this.options.filterUrl}?${filterParams}`, () => {
-            this.removeLoadingIndicatorClass();
+            if (this._filterPanelActive) {
+                this.removeLoadingIndicatorClass();
+            }
         });
     }
 
